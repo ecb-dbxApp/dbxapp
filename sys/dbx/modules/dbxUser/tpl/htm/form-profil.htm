@@ -1,0 +1,68 @@
+
+<div Id="dbx_target_{i}" class="dbxForm_wrapper">
+
+  <div class="py-5 text-center">
+    <h2>Benutzer Profil</h2>
+    <p class="lead">Sie können ihre eigenen Daten bearbeiten</p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 order-md-2 mb-4">
+      <h4 class="d-flex justify-content-left mb-3">
+        <span class="text-muted">Profil Bild (Avatar)</span>
+      </h4>
+      {obj:avatar}
+   </div>
+
+
+
+    <div class="col-md-8 order-md-1">
+      <h4 class="mb-3">Persönliche Daten</h4>
+        <form action="?dbx_modul=dbxUser&dbx_action=profil&dbx_target=dbx_target_{i}" method="post" id="dbx_form_{i}" class="dbxAjax">
+        <div class="form_msg {msg_class}">{obj:form_msg}</div>
+
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+              {obj:name}
+          </div>
+          <div class="col-md-6 mb-3">
+              {obj:name2}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+              {obj:telefon}
+          </div>
+          <div class="col-md-6 mb-3">
+              {obj:handy}
+          </div>
+        </div>
+
+        <div class="mb-3">{obj:email}</div>
+
+        <div class="mb-3">{obj:strasse}</div>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            {obj:land}
+          </div>
+          <div class="col-md-2 mb-3">
+              {obj:plz}
+          </div>
+          <div class="col-md-6 mb-3">
+              {obj:ort}
+          </div>
+        </div>
+        <div class="mb-3">{obj:test}</div>
+
+        <hr class="mb-4">
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Persönliche Daten speichern</button>
+        </form>
+    </div>
+  </div>
+
+
+
+</div>

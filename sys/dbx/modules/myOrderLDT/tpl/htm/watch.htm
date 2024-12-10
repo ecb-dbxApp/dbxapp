@@ -1,0 +1,61 @@
+
+File Reader:
+<script>
+function LoadFile(FileName,RespType,FileType,RunMe)
+{   var AJAXFileReader=new XMLHttpRequest();
+
+     
+    AJAXFileReader.addEventListener("error",function FRFailed()
+        {   // This will be executed if an error occurs.
+            console.log("Error:",this.status);
+        });
+
+    AJAXFileReader.addEventListener("timeout",function FRTimeOut()
+        {   // This will be executed if the reading times out.
+            console.log("File reading timed out!");
+        });
+
+    AJAXFileReader.addEventListener("abort", function FRCancel()
+        {   // This will confirm reading was aborted.
+            console.log("File reading cancelled by user!");
+        });
+
+
+    AJAXFileReader.addEventListener("load",
+        function Finished()
+        {   // When reading is finished, send data to external function
+            var state =this.readyState
+            var status=this.status;
+            alert(this.response) ;
+        },
+        false);
+
+    AJAXFileReader.open("GET",FileName,true);
+    AJAXFileReader.overrideMimeType(FileType);
+    AJAXFileReader.responseType=RespType;
+    AJAXFileReader.timeout=10000; // Setting time-out to 10 s.
+
+    AJAXFileReader.send();
+}
+
+
+function TracerOn(X)
+{   // This will be executed after the file is completely loaded.
+     alert(x); 
+    document.getElementById("Tron").innerHTML=X;
+}
+
+
+function Startup()
+{   // Run after the Page is loaded.
+    LoadFile('C:\lda-order\printjob.txt',"text","text/plain;charset=utf-8",TracerOn);
+    //LoadFile("video.mp4","blob","video/mp4",PlayIt);
+}
+
+</script>
+
+<div id="ProgressBars"></div>
+
+<div id="Tron">Text...</div>
+
+<a href="javascript:Startup()">Load</a> 

@@ -1,0 +1,98 @@
+<!-- ============= COMPONENT ============== --> 
+ <div class="container d-flex align-items-center"> 
+ 
+ <h1 class="logo me-auto"><a href="?dbx_modul=dbxHome">ADMIN</a></h1> 
+ <!-- Uncomment below if you prefer to use an image logo --> 
+ <!-- <a href="index.html" class="logo me-auto"><img src="./assets/img/logo.png" alt="" class="img-fluid"></a>--> 
+ 
+ <nav id="navbar" class="navbar order-last order-lg-0"> 
+ <ul> 
+ <li><a class="nav-link active" href="home">Home</a></li> 
+ [modul=dbxMenu]dbx_action=content&root=0&deep=9&label=Inhalt[/modul] 
+ <li class="dropdown"><a class="opener" href="#0"><span>Content</span> 
+ <i class="bi bi-chevron-down"></i></a> 
+ <ul> 
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_action=edit">Neuer Content</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_action=flat">Liste (flach)</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_action=tree">Liste (tree)</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_action=folder">Neuer Ordner</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_action=list_folder">Liste Ordner</a></li> 
+ </ul> 
+ </li> 
+ <li class="dropdown"><a class="opener" href="#0"><span>Benutzer</span> 
+ <i class="bi bi-chevron-down"></i></a> 
+ <ul> 
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_action=new_user" >Neuer Benutzer</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_action=list_user" >Benutzer Liste</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_action=new_group" >Neue Gruppe</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_action=list_groups">Liste Gruppen</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_action=edit_user">Profil</a></li> 
+ </ul> 
+ 
+ </li> 
+ <li class="dropdown"><a href="#0"><span>System</span> 
+ <i class="bi bi-chevron-down"></i></a> 
+ <ul> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=design">Design</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=sessions">Sessions</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=datadic">DataDic</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=missing">Missing</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=trasch" >Trash</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=trace" >Trace</a></li> 
+
+ </ul> 
+ </li> 
+ 
+ 
+ 
+ 
+ 
+ <li class="dropdown"><a href="#0"><span>Api</span> 
+ <i class="bi bi-chevron-down"></i></a> 
+ <ul> 
+ <li><a class="nav-link" href="?dbx_modul=dbxApi_admin&dbx_action=list" >Liste Api-Calls</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxApi_admin&dbx_action=edit">Edit Api-Calls</a></li> 
+ </ul> 
+ </li> 
+ 
+ 
+ 
+ <li class="dropdown"><a href="#0"><span>Import</span> 
+ <i class="bi bi-chevron-down"></i></a> 
+ <ul> 
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_action=import_user" >Import Benutzer (CSV)</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=myBefund_admin&dbx_action=import_befund">Import Befunde (LDT)</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxSQL&dbx_action=import_sql">Import SQL</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=import_csv">Import CSV</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=myBefund_admin&dbx_action=send_ldtx">Sende LDTx Befunde</a></li> 
+ </ul> 
+ </li> 
+ 
+ <li class="dropdown"><a href="#0"><span>Export</span> 
+ <i class="bi bi-chevron-down"></i></a> 
+ <ul> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=export_user">Export User</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxSQL&dbx_action=export_sql">Export SQL</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=export_csv">Export CSV</a></li> 
+ </ul> 
+ </li> 
+ 
+ 
+ <li class="dropdown"><a href="#0"><span>Module</span> 
+ <i class="bi bi-chevron-down"></i></a> 
+ <ul> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=new_modul" >Neues Module</a></li> 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=modules">Liste Module</a></li> 
+ </ul> 
+ </li> 
+ 
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=show">Mitteilungen</a></li> 
+ 
+ 
+ </ul> 
+ <i class="bi bi-list mobile-nav-toggle"></i> 
+ </nav><!-- .navbar --> 
+ 
+ 
+ </div> 
+<!-- ============= COMPONENT END// ============== -->

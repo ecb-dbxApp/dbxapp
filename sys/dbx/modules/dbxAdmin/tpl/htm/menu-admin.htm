@@ -1,0 +1,79 @@
+<!-- ============= COMPONENT ============== -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+ <div class="container-fluid">
+      <a class="navbar-brand" href="#">dbXwebApp</a>
+     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main_nav"  aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="main_nav">
+
+
+  	<ul class="navbar-nav">
+  		<li class="nav-item active"> <a class="nav-link" href="?dbx_page=home">Home </a> </li>
+  		<li class="nav-item dropdown">
+  			<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Content</a>
+  		    <ul class="dropdown-menu">
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_action=new">Neue Seite</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_action=flat">Liste (flach)</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_action=tree">Liste (tree)</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_action=folder&dbx_work=edit">Neuer Ordner</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_action=folder&dbx_work=flat">Liste Ordner</a></li>
+  		    </ul>
+  		</li>
+  	</ul>
+
+
+    <ul class="navbar-nav">
+  		<li class="nav-item dropdown">
+  			<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Benutzer</a>
+  		    <ul class="dropdown-menu">
+             <li><a class="dropdown-item" href="?dbx_modul=dbxUser_admin&dbx_action=user">Benutzer</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxUser_admin&dbx_action=groups">Gruppen</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxUser_admin&dbx_action=sessions">Sessions</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxUser_admin&dbx_action=import">Import</a></li>
+  		    </ul>
+  		</li>
+  	</ul>
+
+    <ul class="navbar-nav">
+  		<li class="nav-item dropdown">
+  			<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Labor</a>
+  		    <ul class="dropdown-menu">
+             <li><a class="dropdown-item" href="?dbx_modul=myBefund&dbx_action=list">Liste Befunde</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=myBefund_admin&dbx_action=import">Import Befunde</a></li>
+  		    </ul>
+  		</li>
+  	</ul>
+
+
+
+  	<ul class="navbar-nav ms-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=messages">Mitteilungen</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=modules">Module</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=datadic">DataDic</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=missing">Missing</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=trash">Trash</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=trace">Trace</a>
+      </li>
+  	</ul>
+
+     <ul class="navbar-nav ms-auto">
+         <li class="nav-item">
+            <a class="nav-link" href="?dbx_modul=dbxLogin&dbx_action={dbx:login_out}" tabindex="-1" aria-disabled="true">{dbx:LogInOut}</a>
+       </li>
+     </ul>
+  </div> <!-- navbar-collapse.// -->
+ </div> <!-- container-fluid.// -->
+</nav>
+<!-- ============= COMPONENT END// ============== -->

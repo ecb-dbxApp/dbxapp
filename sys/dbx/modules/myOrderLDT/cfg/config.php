@@ -1,0 +1,11 @@
+<?php 
+$config['version']='1';
+$config['activ']='1';
+$config['praxis']='111';
+$config['path_medisoft']='C:\\Medistar\\hdaten\\labdat.186';
+$config['import_pat']='C:\\LabConn3\\xchange\\pat\\';
+$config['autologin']='1';
+$config['arzt']='1';
+$config['medisoft']='medistar';
+$config['system']='hybrid';
+$config['groups']='admin,praxis';

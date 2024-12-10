@@ -1,0 +1,71 @@
+<div class="container dbxReport dark w-100" id="dbx_target_{i}" style> 
+ 
+<div class="container-fluid printMe"> 
+ <div class="row"> 
+ <div class="col-md-4 col-sm-12 col-xs-12"><b>{obj:labor}</b></div> 
+ <div class="col-md-4 col-sm-12 col-xs-12"><b>Typ: </b> {obj:befundtyp}</div> 
+ <div class="col-md-4 col-sm-12 col-xs-12"><b>Art: </b> {obj:befundart}</div> 
+ </div> 
+ <br/> 
+ <div class="row"> 
+ <div class="col-md-4 col-sm-12 col-xs-12">Anforderung-Nr: <b>{obj:pat} </b></div> 
+ <div class="col-md-4 col-sm-12 col-xs-12">Eingang-Datum: <b>{obj:datum}</b></div> 
+ <div class="col-md-4 col-sm-12 col-xs-12">Bericht-Datum  : <b>{obj:now} </b></div> 
+ </div> 
+ <br/> 
+ <div class="row"> 
+ <div class="col-md-4 col-sm-12 col-xs-12">Name: <b>{obj:pat_name}</b></div> 
+ <div class="col-md-4 col-sm-12 col-xs-12">Geburtsdatum: <b>{obj:pat_gebdat}</b></div> 
+ <div class="col-md-4 col-sm-12 col-xs-12">Geschlecht: <b>{obj:pat_sex}</b></div> 
+ </div> 
+ <br/> 
+</div> 
+<form action="{action}" method="post" id="dbx_form_{i}"> 
+
+<div class="container-fluid noprint"> 
+ <div class="row"> 
+ <div class="col-md-6 col-sm-12 col-xs-12"><br/></div> 
+ <div class="col-md-6 col-sm-12 col-xs-12">{obj:button_prn}</div> 
+ </div> 
+ <br/> 
+</div> 
+
+
+ 
+ 
+<table id="dbx_table_{i}" class="table table-striped table-bordered table-light table-hover printMe w-100 table-responsive"> 
+ <thead> 
+ <tr> 
+ [dbx:row] 
+ </tr> 
+ </thead> 
+ <tbody> 
+ <hr class="dbx_split"> 
+ <tr class='{even-odd}'> 
+ [dbx:row] 
+ </tr> 
+ <hr class="dbx_split"> 
+ </tbody> 
+<tfoot> 
+ <tr> 
+ <td class="w100" colspan="{col_count}"><br/></td> 
+ </tr> 
+</tfoot> 
+</table> 
+ 
+ <table class="table table-striped table-bordered table-light printMe w-100 table-responsive"> 
+ <thead> 
+ <tr> 
+ <td>Bemerkungen:</td> 
+ </tr> 
+ </thead> 
+ <tbody> 
+ <tr> 
+ <td class="w100">{obj:bemerkung}</td> 
+ </tr> 
+ </tbody> 
+</table> 
+ 
+ </form> 
+ [dbx:js] 
+</div>

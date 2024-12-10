@@ -1,0 +1,69 @@
+<!-- ============= COMPONENT ============== -->    
+ <div class="container d-flex align-items-center">    
+    
+ <h1 class="logo me-auto"><a href="?dbx_modul=dbxHome">LabConn</a></h1>    
+ <!-- Uncomment below if you prefer to use an image logo -->    
+ <!-- <a href="index.html" class="logo me-auto"><img src="./assets/img/logo.png" alt="" class="img-fluid"></a>-->    
+    
+ <nav id="navbar" class="navbar order-last order-lg-0">    
+ <ul>    
+ <li><a class="nav-link active" href="home">Home</a></li>    
+ <li><a class="nav-link " href="?dbx_modul=myOrderLDT&dbx_action=order&dbx_work=list_order&dbx_page=order">Anforderungen</a></li> 
+ 
+ <li class="dropdown"><a href="#0"><span>Befunde</span>    
+ <i class="bi bi-chevron-down"></i></a>    
+ <ul>    
+ <li><a class="nav-link" href="?dbx_modul=myBefund&dbx_action=befund&dbx_work=list_befund" >Liste Befunde</a></li>    
+ <li><a class="nav-link" href="?dbx_modul=myBefund&dbx_action=import&dbx_work=import_befund">Import Befunde von LDA</a></li>        
+ </ul>    
+ </li>    
+ 
+ 
+ <li><a class="nav-link " href="?dbx_modul=my_numkreis&dbx_action=edit&dbx_page=default">Proben-IDs</a></li> 
+ 
+    
+     
+    
+ <li class="dropdown"><a href="#0"><span>Arzt</span>    
+ <i class="bi bi-chevron-down"></i></a>    
+ <ul>    
+ <li><a class="nav-link" href="?dbx_modul=myArzt&dbx_action=arzt&dbx_work=list" >Liste Ärzte</a></li>    
+ <li><a class="nav-link" href="?dbx_modul=myArzt&dbx_action=arzt&dbx_work=add">Neuer Arzt</a></li>    
+ </ul>    
+ </li>    
+    
+    
+ <li class="dropdown"><a href="#0"><span>Profile</span>    
+ <i class="bi bi-chevron-down"></i></a>    
+ <ul>    
+ <li><a class="nav-link" href="?dbx_modul=myOrderLDT&dbx_action=profil&dbx_work=list_profil" >Liste Profile</a></li>    
+ <li><a class="nav-link" href="?dbx_modul=myOrderLDT&dbx_action=profil&dbx_work=add_profil">Neues Profil</a></li>    
+ </ul>    
+ </li>    
+
+  
+ [if=dbx_check_access('admin');]   
+ <li class="dropdown"><a href="#0"><span>Methoden</span>    
+ <i class="bi bi-chevron-down"></i></a>    
+ <ul>    
+ <li><a class="nav-link" href="?dbx_modul=lda_methoden&dbx_action=methoden&dbx_work=list">Liste Methoden</a></li>    
+ <li><a class="nav-link" href="?dbx_modul=lda_methoden&dbx_action=methoden&dbx_work=add">Neue Methode</a></li>    
+ </ul>    
+ </li>    
+ [/if]    
+
+ <li><a class="nav-link openWin" href="?dbx_modul=dbxHelp&dbx_action=labconn&dbx_work=show" data-dbx_win_width="800" data-dbx_win_height="600">Hilfe</a></li>     
+
+ 
+ 
+ <li><a class="nav-link" href="?dbx_modul=dbxLogin&dbx_action=run">{dbx:LogInOut}</a></li>    
+    
+    
+    
+ </ul>    
+ <i class="bi bi-list mobile-nav-toggle"></i>    
+ </nav><!-- .navbar -->    
+    
+    
+ </div>    
+<!-- ============= COMPONENT END// ============== -->

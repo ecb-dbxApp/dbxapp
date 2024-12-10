@@ -1,0 +1,30 @@
+<div class="container dbxReport" id="dbx_target_{i}" style>
+  <form action="{action}" method="post" id="dbx_form_{i}">
+    [inc=1]tpl=report-form-select&modul=myBefund[/inc]
+    [dbx:pagination]
+    <hr>
+    <table id="dbx_table_{i}" class="table table-striped table-bordered table-light table-hover" data-toggle="table">
+       <thead>
+          <tr>
+            [dbx:row]
+          </tr>
+        </thead>
+        <tbody>
+        <hr class="dbx_split">
+          <tr class='{even-odd}'>
+              [dbx:row]
+          </tr>
+          <tr class='{even-odd} dbxClose' id='dbx_open_{r}'>
+              <td colspan="{col_count}"><div id='dbx_load_{r}'>{obj:analysen}</div></td>
+          </tr>
+        <hr class="dbx_split">
+        <tfoot>
+           <tr>
+             <td colspan="{col_count}">{obj:rows_send} </td>
+           </tr>
+         </tfoot>
+        </tbody>
+     </table>
+ </form>
+ [dbx:js]
+</div>

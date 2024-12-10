@@ -1,0 +1,94 @@
+
+<nav class="navbar navbar-expand-xl navbar-dark bg-dark" aria-label="dbX navbar">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="?">dbxWebApp</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample06" aria-controls="nav_admin" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="nav_admin">
+        <ul class="navbar-nav me-auto mb-2 mb-xl-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="?">Home</a>
+          </li>
+
+          [modul=dbxMenu]dbx_action=content&root=0&deep=9&label=Inhalt[/modul]
+
+          <li class="nav-item dropdown" id="myDropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">  Treeview menu  </a>
+                <ul class="dropdown-menu">
+                  <li> <a class="dropdown-item" href="#"> Dropdown item 1 </a></li>
+                  <li> <a class="dropdown-item" href="#"> Dropdown item 2 &raquo; </a>
+                    <ul class="submenu dropdown-menu">
+                      <li><a class="dropdown-item" href="#">Submenu item 1</a></li>
+                      <li><a class="dropdown-item" href="#">Submenu item 2</a></li>
+                      <li><a class="dropdown-item" href="#">Submenu item 3 &raquo; </a>
+                        <ul class="submenu dropdown-menu">
+                          <li><a class="dropdown-item" href="#">Multi level 1</a></li>
+                          <li><a class="dropdown-item" href="#">Multi level 2</a></li>
+                        </ul>
+                      </li>
+                      <li><a class="dropdown-item" href="#">Submenu item 4</a></li>
+                      <li><a class="dropdown-item" href="#">Submenu item 5</a></li>
+                    </ul>
+                  </li>
+                  <li><a class="dropdown-item" href="#"> Dropdown item 3 </a></li>
+                  <li><a class="dropdown-item" href="#"> Dropdown item 4 </a></li>
+               </ul>
+           </li>
+
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="drop_admin_sys" data-bs-toggle="dropdown" aria-expanded="false">System</a>
+            <ul class="dropdown-menu" aria-labelledby="drop_admin_sys">
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=sessions&dbx_page=admin">Sessions</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=messages&dbx_page=admin">Messages</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=missing&dbx_page=admin" >Missing</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=trash&dbx_page=admin"   >Trash</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=trace&dbx_page=admin"   >Trace</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=datadic&dbx_page=admin" >DataDic</a></li>
+            </ul>
+          </li>
+
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="drop_admin_modules" data-bs-toggle="dropdown" aria-expanded="false">Module</a>
+            <ul class="dropdown-menu" aria-labelledby="drop_admin_modules">
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=modules&dbx_page=admin">Module</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=new_mod&dbx_page=admin">Neues Modul</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="drop_admin_user" data-bs-toggle="dropdown" aria-expanded="false">Benutzer</a>
+            <ul class="dropdown-menu" aria-labelledby="drop_admin_user">
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=user&dbx_page=admin">Benutzer</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=groups&dbx_page=admin">Gruppen</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_action=profil&dbx_page=admin">Profil</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="drop_admin_content" data-bs-toggle="dropdown" aria-expanded="false">Content</a>
+            <ul class="dropdown-menu" aria-labelledby="drop_admin_content">
+              <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_action=new&dbx_page=admin">Neuer Content</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_action=flat&dbx_page=admin">Liste (flach)</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_action=tree&dbx_page=admin">Liste (baum)</a></li>
+              <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_action=ibrowser&dbx_page=admin">Content Bilder</a></li>
+              <li><a class="dropdown-item" href="#">Something else here</a></li>
+            </ul>
+          </li>
+
+
+          <li class="nav-item">
+            <a class="nav-link" href="?dbx_modul=dbxLogin&dbx_action={dbx:login_out}" tabindex="-1" aria-disabled="true">{dbx:LogInOut}</a>
+          </li>
+
+
+        </ul>
+        <form>
+          <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+        </form>
+      </div>
+    </div>
+  </nav>

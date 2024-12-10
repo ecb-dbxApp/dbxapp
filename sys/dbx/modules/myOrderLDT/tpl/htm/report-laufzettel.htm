@@ -1,0 +1,31 @@
+<div class="container dbxReport" id="dbx_target_{i}" > 
+ <form action="{action}" class="dbxAjax dbxForm" method="post" id="dbx_form_{i}" data-dbx_target="dbx_target_{i}"> 
+ [inc=1]tpl=report-form-select-laufzettel&modul=myOrderLDT[/inc] 
+ <hr/> 
+ <table id="dbx_table_{i}"class="w100 bootstrap-table bootstrap5 table table-striped table-bordered table-light table-hover printMe"> 
+ <thead class="sticky"> 
+ <tr> 
+   <th>Labor Anforderungen Laufzettel &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Datum: <b>{obj:datum}</b></th>
+ </tr> 
+ </thead> 
+ <tbody> 
+ <hr class="dbx_split"> 
+
+ <tr class="{even-odd} {class}"> 
+    <td>{obj:pat_info}</td>
+ </tr> 
+
+ <hr class="dbx_split"> 
+
+ <tfoot> 
+ <tr> 
+ <td>
+    <hr/>
+ </td> 
+ </tr> 
+ </tfoot> 
+ </tbody> 
+ </table> 
+ [dbx:js] 
+ </form> 
+</div> 

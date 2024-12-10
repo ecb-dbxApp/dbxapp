@@ -1,0 +1,61 @@
+ 
+<div Id="dbx_target_{i}" class="dbxView_wrapper container-fluid"> 
+ <br/><h3>Content ID=({rid})</h3><br/> 
+ <ul class="nav nav-tabs" id="Content-edit_{i}" role="tablist"> 
+ <li class="nav-item" role="presentation"> 
+ <button class="nav-link active" id="sysdata-tab" data-bs-toggle="tab" data-bs-target="#sysdata" type="button" role="tab" aria-controls="sysdata" aria-selected="true">Systemdaten</button> 
+ </li> 
+ <li class="nav-item" role="presentation"> 
+ <button class="nav-link" id="images-tab" data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab" aria-controls="images" aria-selected="false">Bilder</button> 
+ </li> 
+ <li class="nav-item" role="presentation"> 
+ <button class="nav-link" id="content-tab" data-bs-toggle="tab" data-bs-target="#content" type="button" role="tab" aria-controls="content" aria-selected="false">Content</button> 
+ </li> 
+ </ul> 
+ <div class="tab-content" id="myTabContent"> 
+ <div class="tab-pane fade show active" id="sysdata" role="tabpanel" aria-labelledby="sysdata-tab"> 
+ [modul=dbxContent_admin]dbx_action=content&dbx_work=edit_sysdata&rid={rid}&dbx_view={dbx_view}[/modul] 
+ </div> 
+ 
+ <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="images-tab" > 
+ <div class="container"> 
+ <div class="row row-cols-3"> 
+ <div class="col">[modul=dbxContent_admin]dbx_action=content&dbx_work=images&iid=1&rid={rid}&dbx_view={dbx_view}[/modul]</div> 
+ <div class="col">[modul=dbxContent_admin]dbx_action=content&dbx_work=images&iid=2&rid={rid}&dbx_view={dbx_view}[/modul]</div> 
+ <div class="col">[modul=dbxContent_admin]dbx_action=content&dbx_work=images&iid=3&rid={rid}&dbx_view={dbx_view}[/modul]</div> 
+ </div> 
+ </div> 
+ 
+ </div> 
+ <div class="tab-pane fade" id="content" role="tabpanel" aria-labelledby="content-tab"> 
+    [modul=dbxContent_admin]dbx_action=content&dbx_work=edit&rid={rid}&dbx_view={dbx_view}[/modul] 
+ </div> 
+ </div> 
+</div> 
+ 
+<div class="modal fade" id="dbxModal2" tabindex="-1" aria-labelledby="ModalLabel2" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="container-fluid">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ModalLabel2">Content Bilder</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body modal-dialog-scrollable" id="modal2_body">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Bitte warten...</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $("#dbxModal2").on("hide.bs.modal", function () {
+   alert('no reload check observer');
+  });
+</script>
+  

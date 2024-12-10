@@ -1,0 +1,58 @@
+<div class="top-admin-bar" id="top-admin-bar">   
+ <div class="row">   
+ <div class="col"><a class="vzenter" href="https://www.dbxapp.de/" rel="System" title="dbXapp">dbXapp</a></div>   
+ <div class="col"><a class="vzenter" href="?home"  rel="System" title="dbXapp">Home</a></div>   
+ <div class="col"><a class="vzenter" href="?dbx_modul=dbxAdmin&dbx_action=run" rel="System" title="dbXapp">Admin</a></div>   
+ 
+ 
+ <div class="col ">   
+ <a class="openWin vzenter" href="?dbx_modul=dbxAdmin&dbx_action=_editpage&file={dbx:page}&design={dbx:design}&lng={dbx:lng}" target="_new"><i class="fa fa-edit">{dbx:page}</i></a>   
+ </div>   
+ <div class="col ">   
+ <nav id="adminbar-content" class="navbar order-first order-lg-0">   
+ <ul>[modul=dbxMenu]dbx_action=content&root=0&deep=9&label=Content[/modul]</ul>   
+ </nav>   
+ </div>   
+ <div class="col vzenter">   
+ <nav id="adminbar-xedit" class="navbar">   
+ <ul>  
+ 
+ 
+<li class="dropdown"><a href="#0"><span>Config</span><i class="bi bi-chevron-down"></i></a>   
+ <ul>   
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=config&dbx_work=edit&xmodul=myOrderLDT">myOrderLDT</a></li>   
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=config&dbx_work=edit&xmodul=LabServer">LabServer</a></li>   
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_action=config&dbx_work=edit&xmodul=dbx">dbx</a></li>   
+ </ul>   
+ </li>   
+   
+   
+ 
+ 
+ <li class="dropdown"><a href="#0"><span>Device</span><i class="bi bi-chevron-down"></i></a>   
+ <ul>   
+ <li><a href="#" class="set-device-max" ><i class="bi bi-tv big"></i>Max</a></li>   
+ <li><a href="#" class="set-device-desctop"><i class="bi bi-square big"></i>Desktop</a></li>   
+ <li><a href="#" class="set-device-tablet"><i class="bi bi-tablet-landscape big"></i>Tablet</a></li>   
+ <li><a href="#" class="set-device-mobile" ><i class="bi bi-phone big"></i>Mobile</a></li>   
+ </ul>   
+ </li>   
+   
+   
+ <li class="dropdown"><a href="#0"><span>xEdit</span><i class="bi bi-chevron-down"></i></a>   
+ <ul>   
+ <li><a class="nav-link" href="{self}dbx_edit=0">xEdit aus</a></li>   
+ <li><a class="nav-link" href="{self}dbx_edit=4">Content</a></li>   
+ <li><a class="nav-link" href="{self}dbx_edit=1">xEdit TPL Modul</a></li>   
+ <li><a class="nav-link" href="{self}dbx_edit=2">xEdit TPL dbx</a></li>   
+ <li><a class="nav-link" href="{self}dbx_edit=3">xEdit TPL dbx + module</a></li>   
+ </ul>   
+ </li>    
+ <li><a class="nav-link" href="?dbx_modul=dbxLogin&dbx_action=run">{dbx:LogInOut}</a></li>   
+    
+   
+ </ul>   
+ </nav>   
+ </div>   
+ </div>   
+</div> 

@@ -1,0 +1,565 @@
+/**
+* Template Name: Medilab - v4.3.0
+* Template URL: https://bootstrapmade.com/medilab-free-medical-bootstrap-theme/
+* Author: BootstrapMade.com
+* License: https://bootstrapmade.com/license/
+*/
+
+/*--------------------------------------------------------------
+# General
+--------------------------------------------------------------*/
+body {
+  font-family: "Open Sans", sans-serif;
+  color: #444444;
+}
+
+a {
+  color: #1977cc;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #3291e6;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Raleway", sans-serif;
+}
+
+@media (max-width: 798px) {
+  .container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+    max-width: 100%;
+    padding-right: 3px;
+    padding-left:  3px;
+    
+  }
+}
+
+.methode_section {
+  background-color:#3291e6; 
+  font-weight: bold;
+  
+}
+
+.Muster10a {
+  padding-right: 3px;
+  padding-left:  3px; 
+}
+
+table.Muster10a, tr {
+  border: 1px solid black;
+  margin-right: 3px;
+  margin-left:  3px; 
+}
+
+table.Muster10a, th, td {
+  border: 1px solid black; 
+  border-collapse: collapse;
+}
+th, td {
+  background-color: rgba(206, 210, 224, 0.568);
+}
+
+
+td.igel_hd {
+  background-color:#e21b1b;
+  color:black;
+  font-weight: bold;
+}
+
+
+.hdr_serum {
+  font-weight: bold;
+  background-color:  #3291e6;
+  color: black;  
+} 
+.hdr_tumor {
+  font-weight: bold;
+  background-color:  #3291e6;
+  color: black;  
+}
+.hdr_hepatitis {
+  font-weight: bold;
+  background-color:  #3291e6;
+  color: black;  
+}
+.hdr_edta {
+  font-weight: bold;
+  background-color:  #3291e6;
+  color: black;  
+}
+.hdr_schild {
+  font-weight: bold;
+  background-color:  #3291e6;
+  color: black;  
+}
+.hdr_gerinnung {
+  font-weight: bold;
+  background-color:  #3291e6;
+  color: black;  
+}
+.hdr_serologie {
+  font-weight: bold;
+  font-weight: bold;
+  background-color:  #3291e6;
+  color: black;  
+}
+.hdr_hormone {
+  font-weight: bold;
+  background-color:  #3291e6;
+  color: black;
+}
+
+
+
+
+
+/*--------------------------------------------------------------
+# Preloader
+--------------------------------------------------------------*/
+#preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background: #fff;
+}
+
+#preloader:before {
+  content: "";
+  position: fixed;
+  top: calc(50% - 30px);
+  left: calc(50% - 30px);
+  border: 6px solid #1977cc;
+  border-top-color: #d1e6f9;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  -webkit-animation: animate-preloader 1s linear infinite;
+  animation: animate-preloader 1s linear infinite;
+}
+
+@-webkit-keyframes animate-preloader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes animate-preloader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/*--------------------------------------------------------------
+# Back to top button
+--------------------------------------------------------------*/
+.back-to-top {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+  right: 15px;
+  bottom: 15px;
+  z-index: 996;
+  background: #1977cc;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  transition: all 0.4s;
+}
+
+.back-to-top i {
+  font-size: 28px;
+  color: #fff;
+  line-height: 0;
+}
+
+.back-to-top:hover {
+  background: #298ce5;
+  color: #fff;
+}
+
+.back-to-top.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.datepicker-dropdown {
+  padding: 20px !important;
+}
+
+
+/*--------------------------------------------------------------
+# Header
+--------------------------------------------------------------*/
+#header {
+  background: #fff;
+  transition: all 0.5s;
+  z-index: 997;
+  padding: 1px 0;
+  top: 0px;
+  box-shadow: 0px 2px 15px rgba(25, 119, 204, 0.1);
+}
+
+#header.header-scrolled {
+  top: 0;
+}
+
+#header .logo {
+  font-size: 30px;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-family: "Poppins", sans-serif;
+}
+
+#header .logo a {
+  color: #2c4964;
+}
+
+#header .logo img {
+  max-height: 40px;
+}
+
+/**
+* Appointment Button *
+*/
+.appointment-btn {
+  margin-left: 25px;
+  background: #1977cc;
+  color: #fff;
+  border-radius: 50px;
+  padding: 8px 25px;
+  white-space: nowrap;
+  transition: 0.3s;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.appointment-btn:hover {
+  background: #166ab5;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .appointment-btn {
+    margin: 0 15px 0 0;
+    padding: 6px 18px;
+  }
+}
+
+
+
+/*--------------------------------------------------------------
+# Hero Section
+--------------------------------------------------------------*/
+#hero {
+  width: 100%;
+  height: 220px;
+  background: url("../img/hero-bg.jpg") top center;
+  background-size: cover;
+  margin-bottom: -180px;
+    overflow: hidden;
+}
+
+#hero .container {
+  position: relative;
+}
+
+#hero h1 {
+  margin: 0;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 56px;
+  text-transform: uppercase;
+  color: #2c4964;
+}
+
+#hero h2 {
+  color: #2c4964;
+  margin: 10px 0 0 0;
+  font-size: 24px;
+}
+
+#hero .btn-get-started {
+  font-family: "Raleway", sans-serif;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 1px;
+  display: inline-block;
+  padding: 12px 35px;
+  margin-top: 30px;
+  border-radius: 50px;
+  transition: 0.5s;
+  color: #fff;
+  background: #1977cc;
+}
+
+#hero .btn-get-started:hover {
+  background: #3291e6;
+}    
+
+@media (max-width: 992px) {
+  #hero {
+    background-attachment: fixed;
+      height: 160px;  
+      margin-bottom: -180px;
+  }
+}
+
+
+
+
+
+/*--------------------------------------------------------------
+# Sections General
+--------------------------------------------------------------*/
+section {
+  padding: 16px 0;
+  overflow: hidden;
+}
+
+.section-bg {
+  background-color: #f1f7fd;
+}
+
+.section-title {
+  text-align: center;
+  padding-bottom: 30px;
+}
+
+.section-title h2 {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  position: relative;
+  color: #2c4964;
+}
+
+.section-title h2::before {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 120px;
+  height: 1px;
+  background: #ddd;
+  bottom: 1px;
+  left: calc(50% - 60px);
+}
+
+.section-title h2::after {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 40px;
+  height: 3px;
+  background: #1977cc;
+  bottom: 0;
+  left: calc(50% - 20px);
+}
+
+.section-title p {
+  margin-bottom: 0;
+}
+
+#main {
+ padding: 60px 0;
+ position: relative;
+ overflow: hidden;
+}
+
+
+@-webkit-keyframes animate-loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes animate-loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.anforderung-tab {
+  min-width: 1200px;
+}
+
+.modal-xxl {
+  min-width: 1300px;
+}
+
+.background-form-f1 {
+  position: relative;
+  background-image: url('/LabConn/sys/dbx/modules/myOrderLDT/tpl/img/CCF_000031.png'); /* Pfad zum Bild */
+  background-size: auto;
+  background-position: left;
+  width:  1000px;
+  height: 1426px;
+  min-width: 1000px;
+  max-width: 1000px;
+
+}
+
+.w-u1 {
+  width: 1024px;
+}
+.w-u2 {
+  width: 200px;
+}
+
+.draggable {
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 150px;
+  height: 150px;
+  background-color: #f8f9fa;
+  cursor: move;
+  position: absolute; /* So that it can be positioned anywhere */
+}
+
+.context-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  display: none;  /* Initially hidden */
+  z-index: 9999; /* Higher than Bootstrap modal z-index */
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.5); /* Add shadow for visibility */
+}
+
+.context-menu ul {
+  list-style-type: none;
+  padding: 10px;
+  margin: 0;
+}
+
+.context-menu ul li {
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.context-menu ul li:hover {
+  background-color: #ddd;
+}
+
+.resizable-container {
+  resize: both;
+  overflow: hidden;
+  padding: 8px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+}
+
+.dbxReport {
+  min-width: 1224px;
+}
+
+/*
+thead.sticky-th th {
+  position: sticky;
+  top: 300px;
+  width: 900px;
+  background-color: #f8f9fa; 
+  z-index: 10;
+}
+*/
+
+label {
+  white-space: nowrap;
+  margin-right: 4px; /* Abstand zwischen Label und Eingabefeld */
+  margin-left:  4px; /* Abstand zwischen Label und Eingabefeld */
+}
+
+.input-container {
+  flex-grow: 1;
+}
+
+input[type="text"] {
+  width: 100%;
+}
+
+.resizable-container.no-drag {
+  border: inherit; /* überschreibt */
+  background-color: inherit; /* überschreibt den Hintergrund */
+  color: inherit; /* überschreibt die Farbe */
+  font-size: inherit; /* überschreibt die Schriftgröße */
+  resize:  inherit; /* überschreibt */
+}
+
+/* Tooltip-Styling anpassen */
+.custom-tooltip .tooltip-inner {
+  background-color: yellow; /* Gelber Hintergrund */
+  color: black; /* Textfarbe */
+  border-radius: 10px; /* Abgerundete Ecken */
+  padding: 10px; /* Padding für mehr Platz */
+}
+
+@media print {
+  body {
+      margin: 0;
+      padding: 0;
+      color: black; /* Textfarbe für den Druck */
+  }
+  
+  .messbereiche {
+      width: 100%;
+      height: 24px;
+      position: relative;
+      border: 1px solid blue;
+      background: linear-gradient(to right, rgba(255, 0, 0, 0.3) 0%, rgba(255, 0, 0, 0.3) 24%, rgba(0, 255, 0, 0.3) 24%, rgba(0, 255, 0, 0.3) 76%, rgba(255, 0, 0, 0.3) 76%, rgba(255, 0, 0, 0.3) 100%);
+  }
+
+  .vertical-line {
+      position: absolute;
+      width: 1px;
+      height: 100%;
+      background-color: blue;
+  }
+
+  .line-24 {
+      left: 24%;
+  }
+
+  .line-76 {
+      left: 76%;
+  }
+
+  .line-middle {
+      left: 50%;
+  }
+
+  .stern {
+      position: absolute;
+      z-index: 1000;
+      color: black; /* Farbe des Sterns im Druck */
+  }
+
+  /* Erzwingen des Druckens von Hintergrundbildern */
+  * {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+  }
+}
+
+

@@ -1,0 +1,11 @@
+<?php 
+$config['dbxInstall-1']='87c9d933608023a87250df376aac59f4';
+$config['host']='db5006805123.hosting-data.io';
+$config['name']='dbs5618596';
+$config['user']='dbu2456453';
+$config['password']='fw2tAPyT2j4rYr7!x';
+$config['port']='';
+$config['design']='dbxapp';
+$config['stepper']='3';
+$config['secure']='x.yxflrCgZRpqom5M!wkf3h0jJx:urhp';
+$config['ok']='1';

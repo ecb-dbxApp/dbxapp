@@ -1,0 +1,92 @@
+<div Id="dbx_target_{i}" class="dbxForm_wrapper"> 
+ 
+ <h4 class="mb-2">Persönliche Daten</h4> 
+ 
+ <form action="{action}" method="post" id="dbx_form_{i}" data-dbx_target="dbx_target_{i}" class="dbxAjax"> 
+ 
+ 
+ <div class="row"> 
+  <div class="col">{obj:form_msg}</div> 
+ </div> 
+ 
+ <div class="row"> 
+  <div class="col">{obj:obs_rid}[dbx:form]</div> 
+ </div> 
+
+
+ 
+ <div class="row"> 
+  <div class="col-md-6 mb-6"> 
+   {obj:id} 
+   {obj:uname} 
+  </div> 
+  <div class="col-md-6 mb-6"> 
+   {obj:userid} 
+   {obj:pass} 
+  </div> 
+ </div> 
+ 
+ <div class="row"> 
+  <div class="col"> 
+   {obj:roles} 
+  </div> 
+ </div> 
+ 
+ <div class="row"> 
+  <div class="col"> 
+  <br/><hr/> 
+  </div> 
+ </div> 
+ 
+ 
+ <div class="row"> 
+  <div class="col-md-6 mb-6"> 
+   {obj:name} 
+  </div> 
+  <div class="col-md-6 mb-6"> 
+   {obj:name2} 
+  </div> 
+ </div> 
+ 
+ <div class="row"> 
+  <div class="col-md-6 mb-6"> 
+   {obj:telefon} 
+  </div> 
+  <div class="col-md-6 mb-6"> 
+   {obj:handy} 
+  </div> 
+ </div> 
+ 
+ <div class="row"> 
+  <div class="col"> 
+   {obj:email} 
+  </div> 
+ </div> 
+ 
+ <div class="row"> 
+  <div class="col"> 
+   {obj:strasse} 
+  </div> 
+ </div> 
+ 
+ <div class="row"> 
+  <div class="col-md-4 mb-3"> 
+  {obj:land} 
+  </div> 
+  <div class="col-md-2 mb-3"> 
+   {obj:plz} 
+  </div> 
+  <div class="col-md-6 mb-3"> 
+   {obj:ort} 
+  </div> 
+ </div> 
+ 
+ <div class="row"> 
+  <div class="col"> 
+  <button class="btn btn-primary btn-lg btn-block" type="submit">Persönliche Daten speichern</button> 
+  </div> 
+ </div> 
+ [dbx:js] 
+ </form> 
+ 
+</div>

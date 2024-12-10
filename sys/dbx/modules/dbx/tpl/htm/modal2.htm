@@ -1,0 +1,28 @@
+<!-- Modal -->
+<br>#modal2-{i}<br>
+<div class="modal fade" id="dbxModal2" tabindex="-1" aria-labelledby="ModalLabel2" aria-hidden="true">
+  <div class="modal-dialog {class}">
+    <div class="modal-content">
+      <div class="container-fluid">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ModalLabel2">{title}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body modal-dialog-scrollable" id="modal2_body">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $("#dbxModal2").on("hide.bs.modal", function () {
+   {on_close}
+  });
+</script>
+  

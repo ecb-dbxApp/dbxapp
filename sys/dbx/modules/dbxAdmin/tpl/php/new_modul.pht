@@ -1,0 +1,40 @@
+<?php
+namespace dbx\{modul};
+ 
+class {modul} {
+
+  private function test() {
+    return "test1 call";
+  }
+
+  public function run() {
+     $uid   =dbx_get_CurrentUser();
+     $mid   =dbx_get_sysVar('dbx_modul_id');
+     $modul =dbx_get_SysVar('dbx_modul');
+
+     $action=dbx_get_ModulVar('dbx_action');
+
+     switch ($action) {
+       case 'test1':
+           $content=$this->test();
+           break;
+
+       case 'test2':
+           $obj=dbx_get_Modul_include_object('{modul}_test');
+           $content=$obj->run('test');
+           break;
+
+       default:
+         $oTPL=dbx_get_sys_object('dbxTPL');
+         $msg['msg']="Modul=($modul) Action=($action) is undef.";
+         $content=$oTPL->get_tpl('dbx','alert-warning',$msg);
+
+     } // sqitch()
+     
+     return $content;
+   } 
+   
+   
+} // class
+
+?>

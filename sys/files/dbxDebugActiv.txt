@@ -1,0 +1,2 @@
+Wenn die Datei dbxDebukActiv.txt vorhanden ist (Inhalt egal)  ist dbx_debug activ
+Wenn die Datei dbxDebukActiv.txt nicht vorhanden ist efolgt keine dbx_debug Ausgabe.

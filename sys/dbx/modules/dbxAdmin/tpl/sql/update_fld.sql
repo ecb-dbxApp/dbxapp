@@ -1,0 +1,1 @@
+ALTER TABLE {table} CHANGE {old_fld} {name} {type}{length} DEFAULT {default};

@@ -1,0 +1,158 @@
+
+div.treeview {
+    min-width: 100px;
+    min-height: 100px;
+
+    max-height: 256px;
+    overflow:auto;
+
+	padding: 4px;
+
+	margin-bottom: 20px;
+
+	color: #369;
+
+	border: solid 1px;
+	border-radius: 4px;
+}
+div.treeview ul:first-child:before {
+    display: none;
+}
+.treeview, .treeview ul {
+    margin:0;
+    padding:0;
+    list-style:none;
+
+	color: #369;
+}
+.treeview ul {
+    margin-left:1em;
+    position:relative
+}
+.treeview ul ul {
+    margin-left:.5em
+}
+.treeview ul:before {
+    content:"";
+    display:block;
+    width:0;
+    position:absolute;
+    top:0;
+    left:0;
+    border-left:1px solid;
+
+    /* creates a more theme-ready standard for the bootstrap themes */
+    bottom:15px;
+}
+.treeview li {
+    margin:0;
+    padding:0 1em;
+    line-height:2em;
+    font-weight:700;
+    position:relative
+}
+.treeview ul li:before {
+    content:"";
+    display:block;
+    width:10px;
+    height:0;
+    border-top:1px solid;
+    margin-top:-1px;
+    position:absolute;
+    top:1em;
+    left:0
+}
+.treeview li i.indicator  {
+    margin-right:5px;
+    cursor:pointer;
+}
+.treeview li a {
+    text-decoration: none;
+    color:yellow;
+
+    cursor:pointer;
+}
+.treeview li button, .treeview li button:active, .treeview li button:focus {
+    text-decoration: none;
+    color:inherit;
+    border:none;
+    background:transparent;
+    margin:0px 0px 0px 0px;
+    padding:0px 0px 0px 0px;
+    outline: 0;
+}
+
+.button-bar-right {
+   display: block;
+   width:120px;
+   position:absolute;left:400px;top:0;
+   right: 0px;
+}
+
+
+.treeview {
+   width:680px;
+}
+
+.tree-hover:hover {
+  background-color: yellow;
+}
+.button-bar-right:hover {
+  background-color: yellow;
+}
+
+
+
+.spacer_folder0 {
+  margin-left: 240px;
+}
+
+.spacer_folder1 {
+  margin-left: 192px;
+}
+
+.spacer_folder2 {
+  margin-left: 168px;
+}
+
+.spacer_folder3 {
+ margin-left: 144px;
+}
+
+.spacer_folder4 {
+ margin-left: 112px;
+}
+
+.spacer_folder5 {
+ margin-left: 80px;
+}
+
+
+.spacer_files0 {
+  margin-left: 232px;
+}
+
+.spacer_files1 {
+  margin-left: 168px;
+}
+
+.spacer_files2 {
+  margin-left: 144px;
+}
+
+
+.spacer_files3 {
+  margin-left: 120px;
+}
+
+.spacer_files4 {
+ margin-left: 112px;
+}
+
+.spacer_files5 {
+ margin-left: 80px;
+}
+
+.spacer_files6 {
+ margin-left: 1em;
+}

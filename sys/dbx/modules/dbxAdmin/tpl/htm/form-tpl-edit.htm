@@ -1,0 +1,24 @@
+<div Id="dbx_target_{i}" class="dbxForm_wrapper">
+  <form action="{action}" method="post" id="dbx_form_{i}"  data-dbx_target="dbx_target_{i}" class="dbxAjax {class}" enctype="multipart/form-data">
+    <div class="row"><div class="col">{obj:form_msg}</div></div>
+    [dbx:form]
+    <div class="row">
+      <div class="col-md-6 mb-12">
+          {obj:modul}
+      </div>
+      <div class="col-md-6 mb-12">
+          {obj:file}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">{obj:tpl}</col>
+    </div>
+    <div class="row">
+       <div class="col"><br><hr><br></col>
+    </div>
+    <div class="row">
+       <div class="col">{obj:button_save}</div>
+    </div>
+  </form>
+  [dbx:js]
+</div>

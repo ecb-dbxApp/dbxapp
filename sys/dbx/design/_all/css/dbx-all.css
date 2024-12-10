@@ -1,0 +1,445 @@
+
+.draggable { cursor: move; }  /* Icon, wenn Dragging aktiv ist */
+.drag-active { border: 2px dashed red; } /* Markierung der Elemente */
+
+
+.seamless-iframe {
+  width: 100%;
+  overflow: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE und Edge */
+}
+
+.seamless-iframe::-webkit-scrollbar {
+  display: none; /* Chrome, Safari und Opera */
+}
+
+.iframe-container {
+  height: 16px;
+}
+
+
+.top-admin-bar {
+   background-color: black;
+   color: #FFFFCC;
+}
+
+i.big {
+   font-size: 30px;
+}
+
+.hzenter {
+  display: grid;
+  place-items: center;
+}
+
+.vzenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+
+
+.left-space {
+  margin-left: 12px;
+}
+
+
+#frame-admin {
+  color: blue;
+  border-width: 6px;
+  border-style: groove;
+  Border-color: black;
+}
+
+
+
+
+img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.control-label {
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.dbxHide {
+   display: none;
+}
+
+.dbxClose {
+   display: none;
+}
+
+.dbxOpen {
+   display: '';
+}
+
+#page-content {
+  margin-top: 90px;
+}
+
+.btn {
+  width: 100%;
+  border: outset 3px;
+}
+
+.dbx_pagination {
+  margin-top: 12px;;
+  margin-left: 12px;
+  margin-bottom: 12px;
+}
+
+.overlay     {
+  position: relative;
+  padding: 0px;
+}
+
+.overlay div {
+  z-index: 42;
+  position: absolute;
+}
+
+.overlayIco {
+ background: white;
+ padding: 0px;
+ width:  14px;
+ height: 14px;
+}
+
+.fld-error {
+   background: #f8d7da;
+
+}
+
+.red {
+   color: red;
+}
+
+
+.hidden {
+  display: none;
+}
+
+
+.btn-inline {
+  appearance: button;
+  background-color: #1652F0;
+  color: #FFFFFF;
+  border: 2px outset black;
+  border-radius: 4px;
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 4px 8px;
+  position: relative;
+  text-align: center;
+  width: fit-content;
+  background-color: #0A46E4;
+  border-color: #0A46E4;
+}
+
+.td-label {
+   font-weight: 600;
+   color: cornflowerblue;
+}
+
+.td-item {
+    padding: 8px;
+}
+
+
+#topbar {
+  background-color: #F1F7FD ;
+  height: 68px;
+  font-weight: bold;
+}
+
+
+.dbxTopMenu {
+  background-color: #F1F7FD ;
+  font-weight: bold;
+}
+
+.TabelButtonCopy {
+  display: inline;
+  width: 60px;  
+}
+
+.TableButtonExcel {
+  display: inline;
+  width: 60px;  
+}
+.TableButtonPdf {
+  display: inline;
+  width: 60px;  
+}
+.TableButtonPrint {
+  display: inline;
+  width: 60px;  
+}
+
+
+.table-wrapper {
+  position: relative;
+}
+
+.scroll-top,
+.scroll-bottom {
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  height: 20px; /* Adjust scrollbar height as needed */
+}
+
+.scroll-top {
+  position: absolute;
+  top: 0;
+}
+
+.scroll-bottom {
+  position: absolute;
+  bottom: 0;
+}
+
+.table-container {
+  overflow: auto;
+  margin-top: 20px; /* Adjust to match scrollbar height */
+  margin-bottom: 20px; /* Adjust to match scrollbar height */
+}
+
+
+
+.table-scroll {
+  white-space: nowrap; /* Prevent line breaks */
+}
+
+.cb-size-1 {
+  width:  1.4em;
+  height: 1.4em; 
+}
+
+
+
+.cb-size-2 {
+  width:  2.1em;
+  height: 2.1em; 
+}
+
+.dbxForm_wrapper {
+  background: white;
+  border-radius: 1% 1% 1% 1%;
+  border: inset;
+  border-color: rgba(255, 255, 255, 0.185);
+  transition: all .4s ease;
+  box-shadow: 2px 2px rgba(.25,.25,.25,.25);
+  margin: 2px;
+  padding: 5px;
+
+}
+
+.upperpos {
+  position: relative;
+  top: -36px;
+}
+
+@media print {
+  .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
+       float: left;
+  }
+  .col-sm-12 {
+       width: 33%;
+  }
+  .col-sm-11 {
+       width: 91.66666667%;
+  }
+  .col-sm-10 {
+       width: 83.33333333%;
+  }
+  .col-sm-9 {
+       width: 75%;
+  }
+  .col-sm-8 {
+       width: 66.66666667%;
+  }
+  .col-sm-7 {
+       width: 58.33333333%;
+  }
+  .col-sm-6 {
+       width: 50%;
+  }
+  .col-sm-5 {
+       width: 41.66666667%;
+  }
+  .col-sm-4 {
+       width: 33.33333333%;
+  }
+  .col-sm-3 {
+       width: 25%;
+  }
+  .col-sm-2 {
+       width: 16.66666667%;
+  }
+  .col-sm-1 {
+       width: 8.33333333%;
+  }
+
+
+  
+}
+
+
+
+
+
+.modal-xxl {
+  max-width: 96%;
+}
+
+.dbx-avatar-modul {
+  height: 200px;
+}
+
+
+.w100 {
+  width: 100%;
+}
+
+.h100 {
+  height: 100%;
+}
+
+.search-input {
+  background-color: lightyellow;
+  margin-bottom: 8px;
+}
+
+
+
+.marked {
+  background-color: #1652F0;
+  color: #F1F7FD;
+  margin-top: 6px;
+  margin-left: 12px;
+  margin-right: 12px;
+  white-space: nowrap;  /* Kein automatischer Zeilenumbruch */
+  overflow: hidden;     /* Überlaufenden Inhalt verstecken */
+  text-overflow: ellipsis;  /* Zeigt "..." am Ende des überlaufenden Inhalts */ 
+}
+
+
+table {
+  width: 98%;
+  border-collapse: collapse;
+  border-radius: 2px;  
+  overflow: hidden;
+}
+th, td {
+  border: 1px solid darkgrey;
+  padding: 2px;
+  text-align: left;
+  white-space: nowrap; /* Prevents line breaks */
+}
+th {
+  background-color: #0A46E4;
+}
+
+tr {
+  transition: background-color 0.3s;
+}
+
+.dbxReport {
+  margin-top: 33px;
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+  width: 99%;
+  }
+
+
+/* Color schemes for different states */
+td.anf-today {
+  background-color:  lightblue; /* Light green background for today's rows */
+}
+
+td.anf-past {
+  background-color: lightyellow; /* Light red background for past rows */
+}
+
+td.anf-future {
+  background-color: lightgreen; /* Light blue background for future rows */
+}
+
+tr.activ_row {
+  background-color: yellow !important;
+  color: #111 !important;
+}
+
+td.activ_td {
+  background-color: yellow !important;
+  color: #111 !important;
+}
+
+.tooltip-inner {
+  background-color: yellow !important; /* Gelber Hintergrund */
+  color: black !important; /* Schwarzer Text */
+  border-radius: 4px; /* Abgerundete Ecken */
+  padding: 8px 12px; /* Etwas Padding für bessere Lesbarkeit */
+}
+
+/* Tooltip Arrow (Pfeil) anpassen */
+.tooltip .tooltip-arrow {
+  border-top-color: yellow !important; /* Der Pfeil soll die gleiche gelbe Farbe haben */
+}
+
+
+
+  /* Tooltip-Box-Stile */
+  .custom-tooltip {
+      position: absolute;
+      background-color: yellow; /* Gelber Hintergrund */
+      color: black; /* Schwarzer Text */
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      max-width: 200px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      z-index: 1055; /* Höher als Bootstrap-Modal (1050) */
+      display: none;
+      white-space: normal;
+  }
+
+  /* Pfeil für Tooltip (oben) */
+  .custom-tooltip.arrow-top::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 20px;
+      border-width: 18px 18px 0 18px; /* Größerer, längerer Pfeil */
+      border-style: solid;
+      border-color: yellow transparent transparent transparent;
+  }
+
+  /* Pfeil für Tooltip (unten) */
+  .custom-tooltip.arrow-bottom::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 20px;
+      border-width: 0 18px 18px 18px; /* Größerer, längerer Pfeil */
+      border-style: solid;
+      border-color: transparent transparent yellow transparent;
+  }
+
+  .help-icon {
+    color: blue;
+    cursor: pointer;
+    margin-left: 5px;
+    font-weight: bold;
+}
+

@@ -1,0 +1,16 @@
+<ul id="tree_{i}" class="treeview" style="display: block;"> 
+ <hr class="dbx_split"> 
+ <li class="tree"> 
+ <div class="tree-hover"> 
+ <i class="bi bi-folder"></i> {name} {id} L=({l}) 
+ <span class="button-bar-right spacer_folder{l}"> 
+ <a class="btn-inline openWin" href="?dbx_modul=dbxContent_admin&dbx_action=folder_edit&rid={id}"><i class="bi bi-pencil-square btn-primary"></i></a> 
+ 
+ <a class="btn-inline" href="?dbx_modul=dbxContent_admin&dbx_action=tree_add_content&rid={id}"><i class="bi bi-box-arrow-down-left btn-primary"></i></a> 
+ </span> 
+ </div> 
+ [modul=dbxContent_admin]dbx_action=list_folder_files&fid={id}[/modul] 
+ [modul=dbxContent_admin]dbx_action=list_files&fid={id}[/modul] 
+ </li> 
+ <hr class="dbx_split"> 
+</ul>

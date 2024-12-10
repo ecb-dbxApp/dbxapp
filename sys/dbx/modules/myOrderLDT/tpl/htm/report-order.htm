@@ -1,0 +1,40 @@
+<div class="container dbxReport" id="dbx_target_{i}" > 
+ <div class="row"> 
+ <div class="col-3">{obj:add_order}</div><div class="col-3">{obj:laufzettel}</div><div class="col-1"><br/></div><div class="col-5">{obj:send_order}</div>
+ </div> 
+ <form action="{action}" class="dbxAjax dbxForm" method="post" id="dbx_form_{i}" data-dbx_target="dbx_target_{i}"> 
+ [inc=1]tpl=report-form-select-order&modul=myOrderLDT[/inc] 
+ [dbx:pagination] 
+ <hr/> 
+  <div class="container mt-5">
+  {obj:msg}
+ <table id="dbx_table_{i}" class="w100 bootstrap-table bootstrap5 table table-striped table-bordered table-light table-hover">
+ <thead> 
+ <tr>[dbx:row]</tr> 
+ </thead> 
+ <tbody> 
+ <hr class="dbx_split"> 
+ <tr class="{even-odd} {class}"> 
+ [dbx:row] 
+ </tr> 
+ <hr class="dbx_split"> 
+ </tbody> 
+ <tfoot> 
+ <tr> 
+ <td colspan="{col_count}">
+    <hr/>
+    <div class="row">
+     <div class="col-3 text-end"><b>Ausgewählte:</b></div>
+     <div class="col-3">{obj:senden_selected}</div>
+     <div class="col-3">{obj:senden_reset}</div>
+     <div class="col-3">{obj:delete}</div>
+    </div>
+ </td> 
+ </tr> 
+ </tfoot> 
+ </table> 
+ </div>
+ [dbx:js] 
+ </form> 
+ {obj:modal1} 
+</div> 

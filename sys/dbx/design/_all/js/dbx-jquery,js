@@ -1,0 +1,106 @@
+(function ($) {
+    const ModalManager = {
+        modal: null,
+        init() {
+            if (!this.modal) {
+                this.modal = $('<div>')
+                    .addClass('modal fade')
+                    .attr('id', 'dynamicModal')
+                    .html(`
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title"></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">Loading...</div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbruch</button>
+                                    <button type="button" class="btn btn-primary select-btn">Auswahl</button>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                $('body').append(this.modal);
+            }
+        },
+        open({ title, content, onSelection }) {
+            const $modal = this.modal;
+            $modal.find('.modal-title').text(title);
+            $modal.find('.modal-body').html(content);
+            $modal.find('.select-btn').off('click').on('click', onSelection);
+            $modal.modal('show');
+        },
+        close() {
+            this.modal.modal('hide');
+        }
+    };
+
+    $.dbxInp = function (selector) {
+        ModalManager.init();
+
+        $(selector).each(function () {
+            const $input = $(this);
+            const $container   = $input.closest('.fld-frame');
+            const id           = $input.attr('id');
+            const label        = $input.data('label');
+            const labelPos     = $input.data('label-pos') || 'top';
+            const promptText   = $input.data('prompt');
+            const modalTitle   = $input.data('modal-title') || 'Prompt';
+            const selectTarget = $input.data('select-target');
+            const selectMode   = $input.data('select-mode') || 'set';
+
+            // Label hinzufügen
+            if (label) {
+                const $label = $('<label>')
+                    .attr('for', id)
+                    .text(label)
+                    .addClass('form-label');
+                labelPos === 'top' ? $container.prepend($label) : $container.addClass('d-flex gap-2').prepend($label);
+            }
+
+            // Prompt-Button hinzufügen
+            if (promptText) {
+                const $inputGroup = $('<div>').addClass('input-group');
+                const $button = $('<button>')
+                    .attr('type', 'button')
+                    .addClass('btn btn-outline-secondary')
+                    .html('<i class="bi bi-info-circle"></i>');
+                $input.wrap($inputGroup).after($button);
+
+                $button.on('click', function () {
+                    if (promptText.startsWith('get:')) {
+                        const url = promptText.substring(4);
+                        $.get(url)
+                            .done((data) => {
+                                ModalManager.open({
+                                    title: modalTitle,
+                                    content: data,
+                                    onSelection: () => updateTarget($input, selectTarget, selectMode)
+                                });
+                            })
+                            .fail(() => alert('Error loading content.'));
+                    } else {
+                        ModalManager.open({
+                            title: modalTitle,
+                            content: promptText,
+                            onSelection: () => updateTarget($input, selectTarget, selectMode)
+                        });
+                    }
+                });
+            }
+        });
+
+        function updateTarget($input, targetId, mode) {
+            const value = $input.data('select-value');
+            const $target = $(`#${targetId}`);
+            if (mode === 'append') {
+                const separator = $input.data('select-separator') || ', ';
+                $target.val(($target.val() ? $target.val() + separator : '') + value);
+            } else {
+                $target.val(value);
+            }
+            ModalManager.close();
+        }
+    };
+})(jQuery);

@@ -1,0 +1,25 @@
+<div class="container dbxReport w100" id="dbx_target_{i}"> 
+    <h3>Fields</h3> 
+    <form action="{action}" class="dbxAjax" method="post" id="dbx_form_{i}" data-dbx_target="dbx_target_{i}"> 
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered w100">
+                <thead class="thead-light">
+                    <tr>[dbx:row]</tr> 
+                </thead> 
+                <tbody> 
+                    <hr class="dbx_split"> 
+                    <tr class='{even-odd}'>[dbx:row]</tr> 
+                    <hr class="dbx_split"> 
+                </tbody> 
+                <tfoot> 
+                    <tr> 
+                        <td colspan="{col_count}">{obj:add_fld}</td>
+                    </tr> 
+                </tfoot> 
+            </table> 
+        </div>    
+        [dbx:js] 
+    </form> 
+    {obj:modal1}  
+</div> 
+

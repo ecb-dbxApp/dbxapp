@@ -1,0 +1,36 @@
+<div class="container dbxReport" id="dbx_target_{i}" > 
+ <form action="{action}" method="post" id="dbx_form_{i}" data-dbx_target="dbx_target_{i}"> 
+ [inc=1]tpl=report-form-select&modul=dbx[/inc] 
+ [dbx:pagination] 
+ <hr/> 
+ <table id="dbx_table_{i}" class="bootstrap-table bootstrap5 table table-striped table-bordered table-light table-hover data-table" 
+ data-search="true" 
+ data-show-columns="true" 
+ data-show-export="true" 
+ data-id-field="id" 
+ data-multiple-select-row="true" 
+ data-multipleSelectRow="true" 
+ data-click-to-select="true" 
+ data-pagination="true" 
+ > 
+ <thead> 
+ <tr> 
+ [dbx:row] 
+ </tr> 
+ </thead> 
+ <tbody> 
+ <hr class="dbx_split"> 
+ <tr class='{even-odd}'> 
+ [dbx:row] 
+ </tr> 
+ <hr class="dbx_split"> 
+ <tfoot> 
+ <tr> 
+ <td colspan="{col_count}">{obj:rows_delete} </td> 
+ </tr> 
+ </tfoot> 
+ </tbody> 
+ </table> 
+ </form> 
+ [dbx:js] 
+</div> 

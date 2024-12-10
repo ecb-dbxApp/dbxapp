@@ -1,0 +1,230 @@
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser)
+
+DATA Tablels Server=(myUser)
+Array
+(
+    [0] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user
+            [count] => 4
+        )
+
+    [1] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user_groups
+            [count] => 8
+        )
+
+)
+
+dbx System run time=(0.023176908493042)
+
+#ENDE
+
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1)
+
+#Validator dd: Fld=(maction_select) Regel (dd:) Val=
+0
+
+dbx System run time=(0.068633079528809)
+
+#ENDE
+
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser)
+
+DATA Tablels Server=(myUser)
+Array
+(
+    [0] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user
+            [count] => 4
+        )
+
+    [1] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user_groups
+            [count] => 8
+        )
+
+)
+
+dbx System run time=(0.025804996490479)
+
+#ENDE
+
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1)
+
+#Validator dd: Fld=(maction_select) Regel (dd:) Val=
+0
+
+dbx System run time=(0.034527063369751)
+
+#ENDE
+
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser)
+
+DATA Tablels Server=(myUser)
+Array
+(
+    [0] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user
+            [count] => 4
+        )
+
+    [1] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user_groups
+            [count] => 8
+        )
+
+)
+
+dbx System run time=(0.041846990585327)
+
+#ENDE
+
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1)
+
+#Validator dd: Fld=(maction_select) Regel (dd:) Val=
+0
+
+dbx System run time=(0.040934801101685)
+
+#ENDE
+
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser)
+
+DATA Tablels Server=(myUser)
+Array
+(
+    [0] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user
+            [count] => 4
+        )
+
+    [1] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user_groups
+            [count] => 8
+        )
+
+)
+
+dbx System run time=(0.054496049880981)
+
+#ENDE
+
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1)
+
+#Validator dd: Fld=(maction_select) Regel (dd:) Val=
+0
+
+dbx System run time=(0.064711093902588)
+
+#ENDE
+
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_do=row_show&rid=myUser)
+
+DATA Tablels Server=(myUser)
+Array
+(
+    [0] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user
+            [count] => 4
+        )
+
+    [1] => Array
+        (
+            [server] => myUser
+            [name] => dbx_user_groups
+            [count] => 8
+        )
+
+)
+
+dbx System run time=(0.02640700340271)
+
+#ENDE
+
+#### Session #### PHP-ID=(ugpg717en336odr3fsjoa64e5i)
+
+#SYS Self-url=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) base-Url=(https://localhost/LabConn/sys/) base_uri=(/LabConn/sys) Perma=()
+
+#DBX RUN Base-URL(https://localhost/LabConn/sys/) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1) Perma (undeff) User=(-2) SYS CACHE=(0) 
+
+#WebApp run-> Design=(lda) Page=(default) Modul=(dbxAdmin) Action=(server) Api=() Install=(0) User=(-2)  Lng=(de) Self=(?dbx_modul=dbxAdmin&dbx_action=server&dbx_work=list_server&dbx_sync=1)
+
+#Validator dd: Fld=(maction_select) Regel (dd:) Val=
+0
+
+dbx System run time=(0.032902956008911)
+
+#ENDE
+

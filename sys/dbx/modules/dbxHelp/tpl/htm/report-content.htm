@@ -1,0 +1,29 @@
+<div class="container dbxReport" id="dbx_target_{i}" style>
+  <h3>dbXwebApp User (Target=dbx_target_{i}) (Form=dbx_form_{i})</h3>
+  <hr>
+  <form action="?dbx_modul=dbxContent&dbx_action=report_flat" method="post" id="dbx_form_{i}">
+    [inc=1]tpl=report-form-select&modul=dbx[/inc]
+    [dbx:pagination]
+    <hr>
+    <table class="table table-striped table-bordered table-dark table-hover" data-toggle="table">
+       <thead>
+          <tr>
+            [dbx:row]
+          </tr>
+        </thead>
+        <tbody>
+        <hr class="dbx_split">
+          <tr class='{even-odd}'>
+              [dbx:row]
+          </tr>
+        <hr class="dbx_split">
+        <tfoot>
+           <tr>
+             <td colspan="{col_count}">{obj:rows_delete} </td>
+           </tr>
+         </tfoot>
+        </tbody>
+     </table>
+ </form>
+ [dbx:js]
+</div>

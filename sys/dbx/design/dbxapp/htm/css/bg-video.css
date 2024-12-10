@@ -1,0 +1,100 @@
+  video {
+  object-fit: cover;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+html, body {
+  height: 100%;
+}
+html {
+  font-size: 150%;
+  line-height: 1.4;
+}
+body {
+  margin: 0;
+}
+
+.viewport-header {
+  position: relative;
+  height: 500px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page {
+   border: 0px solid;
+   max-width: 800px;
+   background: rgba(black, 0.66);
+
+}
+
+h1 {
+  font-family: 'Syncopate', sans-serif;
+  color: white;
+  letter-spacing: 0.4vw;
+  line-height: 1.6;
+  font-size: 4vw;
+  text-align: center;
+  span {
+    display: block;
+    font-size: 200%;
+  }
+}
+
+h2 {
+  font-family: 'Syncopate', sans-serif;
+  color: white;
+  letter-spacing: 0.4vw;
+  line-height: 1.4;
+  font-size: 3vw;
+  text-align: center;
+  font-size: 125%;
+}
+
+
+h3 {
+  font-family: 'Syncopate', sans-serif;
+  color: white;
+  letter-spacing: 0.4vw;
+  line-height: 1.2;
+  font-size: 3vw;
+  text-align: center;
+  font-size: 100%;
+}
+
+h4 {
+  font-family: 'Syncopate', sans-serif;
+  letter-spacing: 0.4vw;
+  line-height: 1.0;
+  font-size: 3vw;
+  text-align: center;
+  font-size: 80%;
+}
+
+h5 {
+  font-family: 'Syncopate', sans-serif;
+  letter-spacing: 0.4vw;
+  line-height: 1.0;
+  font-size: 3vw;
+  text-align: center;
+  font-size: 40%;
+}
+
+
+
+main {
+  background: rgba(black, 0.66);
+  color: white;
+  position: relative;
+  padding: 1rem;
+  p {
+    max-width: 600px;
+    margin: 1rem auto;
+  }
+}

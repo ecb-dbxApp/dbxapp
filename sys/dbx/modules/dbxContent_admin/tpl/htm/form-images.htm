@@ -1,0 +1,39 @@
+<div Id="dbx_target_{i}" class="dbxForm_wrapper">
+ <form class="dbxAjax" action="{action}" method="post" id="dbx_form_{i}" data-dbx_target='dbx_target_{i}' class="dbxAjax" enctype="multipart/form-data">
+  <div id="dbx_target_{i}_{iid}">
+    <div class="row">
+      <div class="col">{obj:form_msg}</div>
+    </div>
+    <div class="row">
+      <div class="col">[dbx:form]</div>
+    </div>
+    <div class="row">
+      <div class="col">{obj:obs_upload{iid}}</div>
+    </div>
+    <div class="row">
+      <div class="col">{obj:upload{iid}}</div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <div id="uploader_img_{i}_{iid}" class="btn btn-primary btn-sm btn-block" data-dbx_target='dbx_target_{i}_{iid}' data-dbx_get='?dbx_modul=dbxContent_admin&dbx_action=images&iid={iid}&rid={rid}'>Bild {iid} von {rid} upload</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">{obj:button-modal}</div>
+    </div>
+    <div class="row">
+      <div class="col"><br/></div>
+    </div>
+    <div class="row">
+      <div class="col">{obj:img_alt_{iid}}</div>
+    </div>
+    <div class="row">
+      <div class="col">{obj:img_des_{iid}}</div>
+    </div>
+    <div class="row">
+      <div class="col">{obj:button-submit}</div>
+    </div>
+  </div>
+  [dbx:js]
+ </form>
+</div>

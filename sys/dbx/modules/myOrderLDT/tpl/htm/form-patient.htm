@@ -1,0 +1,86 @@
+<div Id="dbx_target_{i}" class="dbxForm_wrapper"> 
+ <form action="{action}" method="post" id="dbx_form_{i}" data-dbx_target="dbx_target_{i}" class="dbxAjax"> 
+ <div class="row"> 
+  <div class="col">{obj:form_msg}</div> 
+ </div> 
+ 
+
+ <div class="row"> 
+    <div class="col">{obj:edit_anf}</div>
+    <div class="col">{obj:arzt}</div>
+    <div class="col">{obj:datum}</div>
+    <div class="col">{obj:pk}</div>
+    <div class="col">{obj:formular}</div>     
+    <div class="col">{obj:pat}</div>
+ </div> 
+
+ <div class="row"> 
+    <div class="col w100 marked">{obj:count_anf} {obj:anforderungen}</div> 
+ </div> 
+
+ <div class="row"> 
+  <div class="col">[dbx:form]</div> 
+ </div> 
+
+ <div class="row"> 
+  <div class="col-md-6 mb-6"> 
+   {obj:krankenkasse} 
+   {obj:nachname}
+   {obj:vorname}
+   {obj:strasse} 
+   <div class="row">
+    <div class="col-3">{obj:land}</div>
+    <div class="col-3">{obj:plz}</div>
+    <div class="col-6">{obj:ort}</div> 
+   </div>
+   <div class="row">
+    <div class="col">{obj:bsnr}</div>
+    <div class="col">{obj:lanr}</div> 
+   </div>  
+</div> 
+  <div class="col-md-6 mb-6"> 
+    <div class="row"> 
+        <div class="col">{obj:kurativ}</div> 
+        <div class="col">{obj:praeventiv}</div>
+        <div class="col">{obj:belegarzt}</div>
+        <div class="col">{obj:unfall}</div>
+    </div>
+    <div class="row"> 
+        <div class="col">{obj:gebdat}</div>
+        <div class="col">{obj:geschlecht}</div>
+    </div>
+    {obj:kostentraeger}
+    {obj:versicherungsnr}
+    {obj:status}
+    <div class="row"> 
+        <div class="col">{obj:abdatum}</div>
+        <div class="col">{obj:abzeit}</div>
+        <div class="col">{obj:gesendet}</div>
+    </div>
+ 
+
+</div> 
+ </div> 
+ 
+    <div class="row"> 
+        <div class="col">{obj:diagnosen}</div>
+        <div class="col">{obj:bemerkung1}</div>
+    </div>
+ 
+ 
+ <div class="row"> 
+  <div class="col"> 
+  <br/><hr/> 
+  </div> 
+ </div> 
+ 
+  
+ <div class="row"> 
+  <div class="col"> 
+  <button class="btn btn-primary btn-lg btn-block" type="submit">Patient Daten speichern</button> 
+  </div> 
+ </div> 
+ 
+ [dbx:js] 
+ </form> 
+</div>
