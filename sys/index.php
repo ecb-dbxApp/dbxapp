@@ -16,7 +16,7 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
-ob_start("ob_gzhandler");     // Compression 
+ob_start("ob_gzhandler");     // Compression
 
 
 session_set_cookie_params([

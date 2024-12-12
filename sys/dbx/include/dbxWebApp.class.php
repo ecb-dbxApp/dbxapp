@@ -50,7 +50,7 @@ class dbxWebApp {
      $base_url = file_get_contents($base_href_file);
      $base_url = preg_replace('/[\x00-\x1F\x7F]/', '', $base_url);
      $base_url = trim($base_url);
-     //dbx_debug("# base_url from ($base_href_file) base_href.cfg ($base_url) +");
+     dbx_debug("# base_url from ($base_href_file) base_href.cfg ($base_url) +");
   } 
 
 
@@ -60,7 +60,8 @@ class dbxWebApp {
       $base_url .= '/';
   }
  
-  //dbx_debug("# Output base_url#=($base_url) Port=($port)");
+
+  dbx_debug("# Output base_url#=($base_url) Port=($port)");
   return $base_url;
 }
 
@@ -94,7 +95,7 @@ class dbxWebApp {
   }
 
   function check_uri() {
-    $permalink='';
+    $uri='';
     $request = $_SERVER['REQUEST_URI'];
 
     // Zerlege die URL in ihre Komponenten
@@ -102,7 +103,7 @@ class dbxWebApp {
 
     // Speichere den Pfad in $_GET mit dem Schlüssel 'dbx_request_path'
     if (isset($url_components['path'])) {
-        $permalink = $url_components['path'];
+        $uri = $url_components['path'];
     }
 
     // Zerlege die Query-Parameter und speichere sie in $_GET
@@ -112,8 +113,7 @@ class dbxWebApp {
             $_GET[$key] = $value;
         }
     }
-    if ($permalink=='sys/') $permalink='';
-    return $permalink; 
+    return $uri; 
 }
 
 
@@ -286,6 +286,7 @@ function get_self_url($permalink,$unwanted) {
     
 
     dbx_debug("#SYS Self-url=($self_url) base-Url=($base_url) base_uri=($base_uri) Perma=($permalink)");
+
     //dbx_debug('#-POST',$_POST);
     //dbx_debug('#-GET' ,$_GET);
 

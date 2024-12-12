@@ -5,6 +5,8 @@ dbx_use_sys_class('dbxReport');
 
 class dbxReport_Befunde extends \dbxReport {
 
+   public $oDB=null;
+
   private function get_sex($sex) {
      $retval=$sex;
      if ($sex == 1)  $retval='Mann';
@@ -31,56 +33,88 @@ class dbxReport_Befunde extends \dbxReport {
      if ($art == 'T') $retval='Teilbefund';
      if ($art == 'N') $retval='Nachforderung';
      return $retval;
-  }
+   }
 
 
-    private function get_fax($fax) {
+   private function get_fax($fax) {
        $retval='?';
        if ($fax == 0) $retval='<i class="bi bi-square"></i>';
        if ($fax == 1) $retval='<i class="bi bi-check-square"></i>';
        return $retval;
-    }
+   }
 
-    private function get_ldt($ldt) {
+   private function get_ldt($ldt) {
       $retval='?';
       if ($ldt == 0) $retval='<i class="bi bi-square"></i>';
       if ($ldt == 1) $retval='<i class="bi bi-check-square"></i>';
       return $retval;
-    }
+   }
 
-    private function get_prn_cb($prn) {
+   private function get_prn_cb($prn) {
       $retval='?';
       if ($prn <= 0) $retval='<center><i class="bi bi-square"></i></center>';
       if ($prn >= 1) $retval='<center><i class="bi bi-check-square"></i></center>';
       return $retval;
-    }
+   }
 
-    private function get_ldt_cb($ldt) {
+   private function get_ldt_cb($ldt) {
       $retval='?';
       if ($ldt <= 0) $retval='<center><i class="bi bi-square"></i></center>';
       if ($ldt >= 1) $retval='<center><i class="bi bi-check-square"></i></center>';
       return $retval;
-    }
+   }
+
+   private function get_patalog($id,$fax) {
+      $patalog='';
+      //dbx_debug("get_patalog($fax,$id)");
+      if ($fax < 2 ) {  
+         $fax=2;
+         if (!is_object($this->oDB)) {
+            $this->oDB=dbx_get_sys_object('dbxDB');
+         }
+
+         $analysen=$this->oDB->select("dbx_my_analyse","befund_id = $id");
+         //dbx_debug("Analysen=",$analysen);
 
 
-  public function run_body($content) {
-    $activ_id = $this->_activ_id;
-    $record   = $this->_record;
-    $class    = '';
-    $record['sex']       = $this->get_sex($record['sex']);
-    $record['befundtyp'] = $this->get_typ($record['befundtyp']);
-    $record['befundart'] = $this->get_art($record['befundart']);
-    //$record['fax']       = $this->get_fax($record['fax']);
-    //if (isset($record['ldt'])) $record['ldt'] = $this->get_ldt($record['ldt']);
-    if (isset($record['prn'])) $record['prn'] = $this->get_prn_cb($record['prn']);
-    if (isset($record['ldt'])) $record['ldt'] = $this->get_ldt_cb($record['ldt']);
+         if (is_array($analysen)) {
+            foreach($analysen as $no => $analyse) {  
+               if ($analyse['ergebnis']) {
+                  if ($analyse['ergebnis'] < $analyse['nwug'] ) $fax=3;
+                  if ($analyse['ergebnis'] > $analyse['nwog'] ) $fax=4;
+               } 
+               if ($fax >= 3) break;
+            }
+         }
+         $record['fax']=$fax;
+         $ok=$this->oDB->update('dbx_my_befund',$record,$id,0,0,0,0);
 
-    if (strpos($content,'{obj:analysen}')) {
-       $this->add_obj('analysen','obv-value','Analysen vom Befund werden geladen ...');
-    }
-    if (isset($record['id']) && $activ_id) {
+      }
+      if ($fax >= 3) $patalog = '<span class=red>!</span>';
+      return $patalog;
+   }
+
+
+public function run_body($content) {
+   $activ_id = $this->_activ_id;
+   $record   = $this->_record;
+   $class    = '';
+   $record['sex']       = $this->get_sex($record['sex']);
+   $record['befundtyp'] = $this->get_typ($record['befundtyp']);
+   $record['befundart'] = $this->get_art($record['befundart']);
+     
+
+   if (isset($record['fax'])) $record['fax'] = $this->get_patalog($record['id'],$record['fax']);
+   if (isset($record['prn'])) $record['prn'] = $this->get_prn_cb($record['prn']);
+   if (isset($record['ldt'])) $record['ldt'] = $this->get_ldt_cb($record['ldt']);
+
+   if (strpos($content,'{obj:analysen}')) {
+      $this->add_obj('analysen','obv-value','Analysen vom Befund werden geladen ...');
+   }
+   if (isset($record['id']) && $activ_id) {
       if ($activ_id == $record['id']) $class.=" activ_td";
-    }
+   }
+
     $record['dbx_td_class']= $class; 
     $this->_record=$record;
     $content=$this->forward_run_body($content);
@@ -164,6 +198,7 @@ Class myBefunde {
       $flds['sex']        = 'Geschl';
       $flds['befundtyp']  = 'BefundTyp';
       $flds['befundart']  = 'BefundArt';
+      $flds['fax']        = '!';
       $flds['prn']        = 'Druck';
       $flds['ldt']        = 'LDT';
       //$flds['ldt']        ='LDT';

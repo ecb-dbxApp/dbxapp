@@ -7,7 +7,7 @@ class ImportLDT {
   private function import_lab($in) {
     global $dbx_syssetting;
     $content=""; $analyse_rec=array(); $haeder_rec=array(); $current_typ="";
-    $haeder_id=0;  $pat=0; $arzt=0; $no=0;
+    $haeder_id=0;  $pat=0; $arzt=0;
 
     $in.="\n12382018201"; // Close last Rec
     $db=dbx_get_sys_object('dbxDB');

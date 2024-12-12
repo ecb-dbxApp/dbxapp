@@ -413,15 +413,23 @@ class ExportLDT {
                  $ldt.=@$this->add_ldt_fld("5001",$analyse['gnr']);
                  $ldt.=@$this->add_ldt_fld("8406",$analyse['cent']);
                  $ldt.=@$this->add_ldt_fld("5009",$analyse['freitext']);
-                 //$ldt.=@$this->add_ldt_fld("8406",$analyse['cent']);
+              
                  if ($analyse['abrechner'] > 0) {
                     $ldt.=@$this->add_ldt_fld("8614",$analyse['abrechner']);
                  }
                  $ldt.=@$this->add_ldt_fld("8418",$analyse['status']);
 
+                 $grenzindi='';  // - - - - - - - - - - - - - - - - 
+                 if ($analyse['ergtext'] == 'pos.') $grenzindi='++';
+                 if ($analyse['ergebnis']) {
+                    if ($analyse['ergebnis'] < $analyse['nwug'] ) $grenzindi='-';  
+                    if ($analyse['ergebnis'] > $analyse['nwog'] ) $grenzindi='+';
+                 } 
+                 
 
                  $ldt.=@$this->add_ldt_fld("8420",$analyse['ergebnis']);
                  $ldt.=@$this->add_ldt_fld("8421",$analyse['einheiten']);
+                 $ldt.=@$this->add_ldt_fld("8422",$grenzindi); // Generik Ergebnis patal.
                  $ldt.=@$this->add_ldt_fld("8480",$analyse['ergtext']);
                  $ldt.=@$this->add_ldt_fld("8470",$analyse['bemerkung']);
                  $ldt.=@$this->add_ldt_fld("8460",$analyse['nwtxt'],'0');

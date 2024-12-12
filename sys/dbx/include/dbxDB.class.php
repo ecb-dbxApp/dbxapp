@@ -19,7 +19,7 @@ class dbxDB  {
     
   public $_dbMessage='';
 
-  public $oValidator               = '';
+  public $oValidator              = null;
   public $_validation_error       = 0;
   public $_validation_warning     = 0;
   public $_validation_error_flds  = array();
