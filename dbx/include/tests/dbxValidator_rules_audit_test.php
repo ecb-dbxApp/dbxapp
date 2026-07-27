@@ -33,9 +33,14 @@ foreach ($iterator as $file) {
     }
 
     $path = str_replace('\\', '/', $file->getPathname());
-    if (strpos($path, '/vendor/') !== false
-        || strpos($path, '/add_ons/') !== false
-        || strpos($path, '/work/') !== false) {
+    $relativePath = '/' . ltrim(str_replace(
+        '\\',
+        '/',
+        substr($file->getPathname(), strlen($root . DIRECTORY_SEPARATOR . 'modules'))
+    ), '/');
+    if (strpos($relativePath, '/vendor/') !== false
+        || strpos($relativePath, '/add_ons/') !== false
+        || strpos($relativePath, '/work/') !== false) {
         continue;
     }
 

@@ -24,9 +24,14 @@ foreach ($iterator as $file) {
     }
 
     $path = str_replace('\\', '/', $file->getPathname());
-    if (strpos($path, '/vendor/') !== false
-        || strpos($path, '/add_ons/') !== false
-        || strpos($path, '/work/') !== false) {
+    $relativePath = '/' . ltrim(str_replace(
+        '\\',
+        '/',
+        substr($file->getPathname(), strlen($moduleRoot))
+    ), '/');
+    if (strpos($relativePath, '/vendor/') !== false
+        || strpos($relativePath, '/add_ons/') !== false
+        || strpos($relativePath, '/work/') !== false) {
         continue;
     }
     if (strpos($path, '/modules/dbx/tpl/htm/frame-report-head.htm') !== false
