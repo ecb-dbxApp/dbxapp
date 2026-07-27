@@ -71,6 +71,8 @@ class dbxUpdateService
          'checked_at' => (string)($cached['checked_at'] ?? ''),
          'staged_version' => (string)($staged['manifest']['version'] ?? ''),
          'staged_at' => (string)($staged['staged_at'] ?? ''),
+         'stop_available' => is_array($staged['manifest'] ?? null)
+            && (string)($staged['manifest']['version'] ?? '') !== '',
          'rollback_available' => is_array($installed)
             && empty($installed['rolled_back_at'])
             && is_dir((string)($installed['backup_directory'] ?? '')),
@@ -107,6 +109,32 @@ class dbxUpdateService
          'manifest' => $manifest,
       ));
       return $manifest;
+   }
+
+   /**
+    * Performs the complete non-destructive part of an update in one step.
+    *
+    * A user action checks the latest stable release, downloads it when it is
+    * newer, validates the package and prepares it in the isolated staging
+    * directory. Program files are not changed by this method. The user can
+    * therefore either call install() or safely discard everything with
+    * cancel().
+    *
+    * @return array<string,mixed>
+    */
+   public function prepare(): array
+   {
+      $manifest = $this->check(true);
+      if (!version_compare($manifest['version'], $this->currentVersion(), '>')) {
+         return array(
+            'manifest' => $manifest,
+            'staged' => false,
+         );
+      }
+
+      $state = $this->stage($manifest);
+      $state['staged'] = true;
+      return $state;
    }
 
    /**
@@ -184,71 +212,97 @@ class dbxUpdateService
     *
     * @return array<string,mixed>
     */
-   public function stage(): array
+   public function stage(array $manifest = array()): array
    {
-      $manifest = $this->check(false);
+      $manifest = $manifest !== array()
+         ? $this->validateManifest($manifest)
+         : $this->check(false);
+
+      return $this->synchronized(
+         fn(): array => $this->stagePackage($manifest)
+      );
+   }
+
+   /**
+    * @param array<string,mixed> $manifest
+    * @return array<string,mixed>
+    */
+   private function stagePackage(array $manifest): array
+   {
       if (!version_compare($manifest['version'], $this->currentVersion(), '>')) {
          throw new RuntimeException('Es ist kein neueres stabiles Update verfügbar.');
       }
 
+      $this->discardStagedState(false);
       $downloads = $this->workDirectory . DIRECTORY_SEPARATOR . 'downloads';
       $this->ensureDirectory($downloads);
       $zipFile = $downloads . DIRECTORY_SEPARATOR
          . 'dbxapp-' . $manifest['version'] . '.zip';
       $temporary = $zipFile . '.part';
-      if (is_file($temporary)) {
-         unlink($temporary);
-      }
-
-      $this->downloadFile($manifest['zip_url'], $temporary, self::MAX_PACKAGE_BYTES);
-      $actualHash = hash_file('sha256', $temporary);
-      if (!is_string($actualHash)
-         || !hash_equals($manifest['sha256'], strtolower($actualHash))) {
-         @unlink($temporary);
-         throw new RuntimeException('Die SHA-256-Prüfsumme des Update-Pakets stimmt nicht.');
-      }
-      if (is_file($zipFile) && !unlink($zipFile)) {
-         @unlink($temporary);
-         throw new RuntimeException('Ein altes Update-Paket konnte nicht ersetzt werden.');
-      }
-      if (!rename($temporary, $zipFile)) {
-         @unlink($temporary);
-         throw new RuntimeException('Das geprüfte Update-Paket konnte nicht bereitgestellt werden.');
-      }
-
       $stagingRoot = $this->workDirectory . DIRECTORY_SEPARATOR . 'staging';
       $this->ensureDirectory($stagingRoot);
       $staging = $stagingRoot . DIRECTORY_SEPARATOR . $manifest['version'];
-      if (is_dir($staging)) {
-         $this->removeTree($staging, $stagingRoot);
-      }
-      $this->ensureDirectory($staging);
 
-      $package = $this->inspectPackage($zipFile, $manifest);
-      $zip = new ZipArchive();
-      if ($zip->open($zipFile) !== true || !$zip->extractTo($staging)) {
-         if ($zip instanceof ZipArchive) {
+      try {
+         if (is_file($temporary) && !unlink($temporary)) {
+            throw new RuntimeException('Ein unvollständiger Update-Download konnte nicht entfernt werden.');
+         }
+         $this->downloadFile($manifest['zip_url'], $temporary, self::MAX_PACKAGE_BYTES);
+         $actualHash = hash_file('sha256', $temporary);
+         if (!is_string($actualHash)
+            || !hash_equals($manifest['sha256'], strtolower($actualHash))) {
+            throw new RuntimeException('Die SHA-256-Prüfsumme des Update-Pakets stimmt nicht.');
+         }
+         if (is_file($zipFile) && !unlink($zipFile)) {
+            throw new RuntimeException('Ein altes Update-Paket konnte nicht ersetzt werden.');
+         }
+         if (!rename($temporary, $zipFile)) {
+            throw new RuntimeException('Das geprüfte Update-Paket konnte nicht bereitgestellt werden.');
+         }
+
+         if (is_dir($staging)) {
+            $this->removeTree($staging, $stagingRoot);
+         }
+         $this->ensureDirectory($staging);
+
+         $package = $this->inspectPackage($zipFile, $manifest);
+         $zip = new ZipArchive();
+         if ($zip->open($zipFile) !== true) {
+            throw new RuntimeException('Das Update-Paket konnte nicht isoliert geöffnet werden.');
+         }
+         try {
+            if (!$zip->extractTo($staging)) {
+               throw new RuntimeException('Das Update-Paket konnte nicht isoliert entpackt werden.');
+            }
+         } finally {
             $zip->close();
          }
-         $this->removeTree($staging, $stagingRoot);
-         throw new RuntimeException('Das Update-Paket konnte nicht isoliert entpackt werden.');
-      }
-      $zip->close();
-      $this->verifyExtractedFiles($staging, $package['hashes']);
+         $this->verifyExtractedFiles($staging, $package['hashes']);
 
-      $state = array(
-         'schema' => 1,
-         'staged_at' => gmdate('c'),
-         'zip_file' => $zipFile,
-         'staging_directory' => $staging,
-         'manifest' => $manifest,
-         'files' => $package['files'],
-      );
-      $this->writeJson(
-         $this->workDirectory . DIRECTORY_SEPARATOR . 'staged.json',
-         $state
-      );
-      return $state;
+         $state = array(
+            'schema' => 1,
+            'staged_at' => gmdate('c'),
+            'zip_file' => $zipFile,
+            'staging_directory' => $staging,
+            'manifest' => $manifest,
+            'files' => $package['files'],
+         );
+         $this->writeJson(
+            $this->workDirectory . DIRECTORY_SEPARATOR . 'staged.json',
+            $state
+         );
+         return $state;
+      } catch (Throwable $exception) {
+         @unlink($temporary);
+         @unlink($zipFile);
+         if (is_dir($staging)) {
+            try {
+               $this->removeTree($staging, $stagingRoot);
+            } catch (Throwable) {
+            }
+         }
+         throw $exception;
+      }
    }
 
    /**
@@ -379,6 +433,16 @@ class dbxUpdateService
     */
    public function install(): array
    {
+      return $this->synchronized(
+         fn(): array => $this->installPackage()
+      );
+   }
+
+   /**
+    * @return array<string,mixed>
+    */
+   private function installPackage(): array
+   {
       $stateFile = $this->workDirectory . DIRECTORY_SEPARATOR . 'staged.json';
       $state = $this->readJson($stateFile);
       if (!is_array($state['manifest'] ?? null)
@@ -494,10 +558,40 @@ class dbxUpdateService
          $this->workDirectory . DIRECTORY_SEPARATOR . 'installed.json',
          $installed
       );
+      try {
+         $this->discardStagedState(false);
+      } catch (Throwable $cleanupError) {
+         @unlink($this->workDirectory . DIRECTORY_SEPARATOR . 'staged.json');
+         $installed['cleanup_warning'] = $cleanupError->getMessage();
+         $this->writeJson(
+            $this->workDirectory . DIRECTORY_SEPARATOR . 'installed.json',
+            $installed
+         );
+      }
       if (function_exists('opcache_reset')) {
          @opcache_reset();
       }
       return $installed;
+   }
+
+   /**
+    * Stops a prepared update before program files are changed.
+    *
+    * The verified ZIP, extracted staging directory and staged state are
+    * removed together. Cached release information and rollback backups remain
+    * untouched.
+    *
+    * @return array<string,mixed>
+    */
+   public function cancel(): array
+   {
+      return $this->synchronized(function (): array {
+         $state = $this->discardStagedState(true);
+         return array(
+            'version' => (string)($state['manifest']['version'] ?? ''),
+            'stopped_at' => gmdate('c'),
+         );
+      });
    }
 
    /**
@@ -506,6 +600,16 @@ class dbxUpdateService
     * @return array<string,mixed>
     */
    public function rollback(): array
+   {
+      return $this->synchronized(
+         fn(): array => $this->rollbackInstalledPackage()
+      );
+   }
+
+   /**
+    * @return array<string,mixed>
+    */
+   private function rollbackInstalledPackage(): array
    {
       $stateFile = $this->workDirectory . DIRECTORY_SEPARATOR . 'installed.json';
       $state = $this->readJson($stateFile);
@@ -523,6 +627,45 @@ class dbxUpdateService
       $this->writeJson($stateFile, $state);
       if (function_exists('opcache_reset')) {
          @opcache_reset();
+      }
+      return $state;
+   }
+
+   /**
+    * Removes one verified staging state without touching installed files.
+    *
+    * @param bool $required Throw when no prepared update exists.
+    * @return array<string,mixed>
+    */
+   private function discardStagedState(bool $required): array
+   {
+      $stateFile = $this->workDirectory . DIRECTORY_SEPARATOR . 'staged.json';
+      $state = $this->readJson($stateFile);
+      if (!is_array($state['manifest'] ?? null)) {
+         if ($required) {
+            throw new RuntimeException('Es ist kein vorbereitetes Update vorhanden.');
+         }
+         return array();
+      }
+
+      $staging = (string)($state['staging_directory'] ?? '');
+      $zipFile = (string)($state['zip_file'] ?? '');
+      foreach (array($staging, $zipFile) as $path) {
+         if ($path !== '' && !$this->isInside($path, $this->workDirectory)) {
+            throw new RuntimeException('Der vorbereitete Update-Status ist ungültig.');
+         }
+      }
+
+      if ($staging !== '' && is_dir($staging)) {
+         $this->removeTree($staging, $this->workDirectory);
+      }
+      foreach (array($zipFile, $zipFile !== '' ? $zipFile . '.part' : '') as $file) {
+         if ($file !== '' && is_file($file) && !unlink($file)) {
+            throw new RuntimeException('Eine vorbereitete Update-Datei konnte nicht entfernt werden.');
+         }
+      }
+      if (is_file($stateFile) && !unlink($stateFile)) {
+         throw new RuntimeException('Der vorbereitete Update-Status konnte nicht entfernt werden.');
       }
       return $state;
    }
@@ -824,12 +967,55 @@ class dbxUpdateService
       }
    }
 
+   /**
+    * Serializes all operations that mutate update, staging or backup state.
+    *
+    * @template T
+    * @param callable():T $operation
+    * @return T
+    */
+   private function synchronized(callable $operation): mixed
+   {
+      $this->ensureDirectory($this->workDirectory);
+      $lockFile = $this->workDirectory . DIRECTORY_SEPARATOR . 'update.lock';
+      $lock = fopen($lockFile, 'c+');
+      if (!is_resource($lock)) {
+         throw new RuntimeException('Die Update-Sperre konnte nicht geöffnet werden.');
+      }
+
+      try {
+         if (!flock($lock, LOCK_EX)) {
+            throw new RuntimeException('Die Update-Sperre konnte nicht aktiviert werden.');
+         }
+         return $operation();
+      } finally {
+         @flock($lock, LOCK_UN);
+         fclose($lock);
+      }
+   }
+
    private function isInside(string $path, string $root): bool
    {
-      $path = str_replace('\\', '/', rtrim($path, '\\/'));
-      $root = str_replace('\\', '/', rtrim($root, '\\/'));
-      return $path !== $root
-         && str_starts_with(strtolower($path), strtolower($root) . '/');
+      $resolvedRoot = realpath($root);
+      $resolvedPath = realpath($path);
+      if ($resolvedRoot === false) {
+         return false;
+      }
+      if ($resolvedPath === false) {
+         $resolvedParent = realpath(dirname($path));
+         if ($resolvedParent === false) {
+            return false;
+         }
+         $resolvedPath = $resolvedParent . DIRECTORY_SEPARATOR . basename($path);
+      }
+
+      $resolvedPath = str_replace('\\', '/', rtrim($resolvedPath, '\\/'));
+      $resolvedRoot = str_replace('\\', '/', rtrim($resolvedRoot, '\\/'));
+      return strcasecmp($resolvedPath, $resolvedRoot) !== 0
+         && str_starts_with(
+            strtolower($resolvedPath),
+            strtolower($resolvedRoot) . '/'
+         );
    }
 
    private function removeTree(string $directory, string $allowedRoot): void

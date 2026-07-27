@@ -10,6 +10,12 @@ Semantic Versioning.
 
 - Die laufende Entwicklung nach dem stabilen Release 4.0.2 trägt die Version
   `4.0.3-dev` und wird nicht als Update angeboten.
+- Der dbxAdmin-Updater prüft, lädt und validiert ein neueres Release mit einem
+  einzigen Startschritt.
+- Vor dem eigentlichen Dateiaustausch kann ein Administrator das vorbereitete
+  Update sicher stoppen; ZIP, Staging und Status werden vollständig entfernt.
+- Update-, Installations-, Stop- und Rollbackoperationen verwenden eine
+  gemeinsame Dateisperre und können nicht gegeneinander laufen.
 
 ## [4.0.2] - 2026-07-27
 

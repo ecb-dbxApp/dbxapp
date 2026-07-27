@@ -82,6 +82,35 @@ function update_test_package(
    $zip->close();
 }
 
+function update_test_stage(
+   string $work,
+   string $zipFile,
+   array $manifest,
+   array $package
+): string {
+   $staging = $work . DIRECTORY_SEPARATOR . 'staging'
+      . DIRECTORY_SEPARATOR . (string)$manifest['version'];
+   if (!is_dir($staging)) {
+      mkdir($staging, 0775, true);
+   }
+   $zip = new ZipArchive();
+   $zip->open($zipFile);
+   $zip->extractTo($staging);
+   $zip->close();
+   update_test_write(
+      $work . DIRECTORY_SEPARATOR . 'staged.json',
+      json_encode(array(
+         'schema' => 1,
+         'staged_at' => gmdate('c'),
+         'zip_file' => $zipFile,
+         'staging_directory' => $staging,
+         'manifest' => $manifest,
+         'files' => $package['files'],
+      ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+   );
+   return $staging;
+}
+
 $root = sys_get_temp_dir() . DIRECTORY_SEPARATOR
    . 'dbx-update-service-' . bin2hex(random_bytes(6));
 
@@ -174,26 +203,57 @@ try {
       );
    }
 
-   $staging = $work . DIRECTORY_SEPARATOR . 'staging' . DIRECTORY_SEPARATOR . '4.0.2';
-   if (!is_dir($staging)) {
-      mkdir($staging, 0775, true);
-   }
-   $zip = new ZipArchive();
-   $zip->open($zipFile);
-   $zip->extractTo($staging);
-   $zip->close();
+   $staging = update_test_stage($work, $zipFile, $manifest, $package);
+   update_test_assert(
+      !empty($service->status()['stop_available']),
+      'Vorbereitetes Update kann laut Status nicht gestoppt werden.'
+   );
+   $stopped = $service->cancel();
+   update_test_assert($stopped['version'] === '4.0.2', 'Gestoppte Version ist falsch.');
+   update_test_assert(!is_file($work . '/staged.json'), 'Staging-Status wurde beim Stoppen nicht entfernt.');
+   update_test_assert(!is_dir($staging), 'Staging-Verzeichnis wurde beim Stoppen nicht entfernt.');
+   update_test_assert(!is_file($zipFile), 'Update-ZIP wurde beim Stoppen nicht entfernt.');
+   update_test_assert(
+      empty($service->status()['stop_available']),
+      'Status bietet Stoppen nach dem Abbruch weiterhin an.'
+   );
+
+   $outsideGuard = $root . DIRECTORY_SEPARATOR . 'outside-stop-guard.txt';
+   update_test_write($outsideGuard, 'protected');
    update_test_write(
       $work . DIRECTORY_SEPARATOR . 'staged.json',
       json_encode(array(
          'schema' => 1,
          'staged_at' => gmdate('c'),
-         'zip_file' => $zipFile,
-         'staging_directory' => $staging,
+         'zip_file' => $work . DIRECTORY_SEPARATOR . 'downloads'
+            . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..'
+            . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
+            . 'outside-stop-guard.txt',
+         'staging_directory' => $work . DIRECTORY_SEPARATOR . 'staging'
+            . DIRECTORY_SEPARATOR . 'missing',
          'manifest' => $manifest,
-         'files' => $package['files'],
+         'files' => array(),
       ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
    );
+   try {
+      $service->cancel();
+      throw new RuntimeException('Manipulierter Stop-Pfad wurde zugelassen.');
+   } catch (RuntimeException $exception) {
+      update_test_assert(
+         str_contains($exception->getMessage(), 'Status ist ungültig'),
+         'Falscher Fehler für manipulierten Stop-Pfad.'
+      );
+   }
+   update_test_assert(
+      is_file($outsideGuard),
+      'Stop-Pfad hat eine Datei außerhalb des Updatebereichs entfernt.'
+   );
+   unlink($work . DIRECTORY_SEPARATOR . 'staged.json');
+   unlink($outsideGuard);
 
+   update_test_package($zipFile, '4.0.2', $newContents);
+   $manifest['sha256'] = hash_file('sha256', $zipFile);
+   $staging = update_test_stage($work, $zipFile, $manifest, $package);
    $installed = $service->install();
    update_test_assert(trim((string)file_get_contents($root . '/VERSION')) === '4.0.2', 'VERSION wurde nicht aktualisiert.');
    update_test_assert(!is_file($root . '/obsolete.php'), 'Veraltete Datei wurde nicht entfernt.');
@@ -204,6 +264,9 @@ try {
       is_dir((string)$installed['backup_directory']),
       'Dateisicherung wurde nicht erzeugt.'
    );
+   update_test_assert(!is_file($work . '/staged.json'), 'Staging-Status blieb nach Installation bestehen.');
+   update_test_assert(!is_dir($staging), 'Staging-Verzeichnis blieb nach Installation bestehen.');
+   update_test_assert(!is_file($zipFile), 'Update-ZIP blieb nach Installation bestehen.');
 
    $service->rollback();
    update_test_assert(trim((string)file_get_contents($root . '/VERSION')) === '4.0.1', 'Rollback hat VERSION nicht wiederhergestellt.');
@@ -214,7 +277,7 @@ try {
       'Lokale Modulkonfiguration wurde verändert.'
    );
 
-   echo "dbxUpdateService: Paketprüfung, Installation und Rollback erfolgreich.\n";
+   echo "dbxUpdateService: Paketprüfung, Stop, Installation und Rollback erfolgreich.\n";
 } finally {
    update_test_remove_tree($root);
 }

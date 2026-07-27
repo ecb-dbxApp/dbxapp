@@ -12,15 +12,25 @@ dbxApp 4.0.2 ist die erste updaterfähige Referenzversion. Von dieser Basis aus
 steht unter **dbxAdmin → Status & Health → System-Update** für spätere stabile
 dbxApp-4-Releases der verbindliche Standardablauf bereit:
 
-1. **Jetzt prüfen** lädt ausschließlich das Manifest des neuesten stabilen
-   Releases aus `ecb-dbxApp/dbxapp`.
-2. **Paket prüfen** lädt das ZIP in den lokalen Staging-Bereich und prüft
-   HTTPS-Ziel, Version, PHP-Anforderungen, Größe, SHA-256, ZIP-Pfade,
-   Symlinks, Dateiinventar und jede einzelne Datei.
-3. **Update installieren** sichert zuerst alle betroffenen Programmdateien
-   und ersetzt danach den geprüften Release-Stand.
-4. **Letztes Update zurückrollen** stellt die letzte Dateisicherung wieder
-   her.
+1. **Update automatisch vorbereiten** prüft das feste Manifest aus
+   `ecb-dbxApp/dbxapp`, lädt ein neueres ZIP in den isolierten Staging-Bereich
+   und kontrolliert HTTPS-Ziel, Version, PHP-Anforderungen, Größe, SHA-256,
+   ZIP-Pfade, Symlinks, Dateiinventar und jede einzelne Datei.
+2. Danach gibt es genau zwei sichere Möglichkeiten:
+   **Jetzt sicher installieren** oder **Update stoppen**.
+3. **Update stoppen** entfernt das heruntergeladene ZIP, den entpackten
+   Staging-Bereich und dessen Status. Installierte Programmdateien wurden bis
+   dahin nicht verändert.
+4. **Jetzt sicher installieren** sichert alle betroffenen Programmdateien und
+   ersetzt danach den geprüften Release-Stand. Der kurze Dateiaustausch darf
+   nicht manuell abgebrochen werden; ein Fehler löst automatisch das
+   dateibasierte Rollback aus.
+5. **Letztes Update zurückrollen** stellt bei Bedarf die letzte
+   Dateisicherung wieder her.
+
+Damit sind Release-Prüfung, Download und vollständige Paketprüfung in einem
+einzigen Startschritt automatisiert. Die bewusste Entscheidung unmittelbar
+vor der ersten Änderung installierter Dateien bleibt beim Administrator.
 
 Lokale Konfigurationen, DB3-/MySQL-Datenbanken, Uploads, Sessions, Caches und
 Logs sind ausdrücklich kein Bestandteil des Release-Pakets. Der Updater

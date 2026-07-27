@@ -140,6 +140,33 @@ Upload-/Download-Funktionen, Dateipruefung und Bildbearbeitung.
 Status- und Prozessverwaltung fuer laengere Operationen wie Sync, Import,
 Transfer oder Batch-Aktionen.
 
+## dbxUpdateService
+
+Der dateibasierte System-Updater liegt zentral in `dbxAdmin`. Module bauen
+keine eigenen Download-, Installations- oder Updatefunktionen.
+
+Der normale Administrator-Ablauf besitzt zwei sichere Phasen:
+
+1. **Update automatisch vorbereiten:** `prepare()` prüft das feste
+   GitHub-Manifest, vergleicht die Version, lädt ein neueres Paket und prüft
+   HTTPS-Ziel, PHP-Anforderungen, SHA-256, ZIP-Pfade, Symlinks,
+   Dateiinventar und jede einzelne Datei. Installierte Programmdateien werden
+   dabei noch nicht verändert.
+2. **Entscheidung:** `install()` sichert und installiert das vorbereitete
+   Paket. `cancel()` stoppt den Vorgang vorher und entfernt ZIP, Staging und
+   Status vollständig.
+
+Mutierende Updateoperationen werden durch eine zentrale Dateisperre
+serialisiert. Der kurze Dateiaustausch darf nicht manuell unterbrochen werden:
+Bei einem Fehler stellt `install()` automatisch die zuvor erzeugte
+Dateisicherung wieder her. Nach einer erfolgreichen Installation steht
+`rollback()` für die letzte Version zur Verfügung.
+
+Der Updater greift niemals direkt auf DB3 oder MySQL zu. Datenänderungen
+bleiben DD-gesteuerte `dbxDB`-Migrationen und müssen in den Release-Hinweisen
+ausdrücklich beschrieben werden. `files/`, lokale `config.local.php`,
+Uploads, Sessions, Caches und Logs werden weder ausgeliefert noch ersetzt.
+
 ## dbxView
 
 Hilfen fuer Zielbereiche, View-State und AJAX-Targets.

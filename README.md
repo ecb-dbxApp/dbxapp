@@ -100,6 +100,9 @@ Version 4.0.2 ist die erste updaterfähige Referenzversion der neuen
 dbxApp-4-Linie. Ab dieser Basis prüft und installiert `dbxAdmin` spätere
 stabile dbxApp-4-Releases über einen kurzen, zentralen Ablauf mit SHA-256-,
 ZIP- und Dateiinventar-Prüfung, automatischer Dateisicherung und Rollback.
+Prüfung, Download und Staging erfolgen mit einem Klick. Vor dem eigentlichen
+Dateiaustausch kann der Administrator das vorbereitete Update installieren
+oder vollständig stoppen und entfernen.
 Die klare Trennung von Dateiupdate und DB-Migration ist in den
 [Upgrade-Hinweisen](UPGRADE.md) dokumentiert.
 
