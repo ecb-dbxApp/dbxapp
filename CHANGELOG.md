@@ -6,6 +6,11 @@ Semantic Versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- Die laufende Entwicklung nach dem stabilen Release 4.0.2 trägt die Version
+  `4.0.3-dev` und wird nicht als Update angeboten.
+
 ## [4.0.2] - 2026-07-27
 
 ### Added
