@@ -1,0 +1,37 @@
+<h4>Binding Processing</h4>
+<p>Binding describes the technical connection between a workflow definition and an existing subject module. It is stored as JSON and over <code>modul|bind_key</code> referenced.</p>
+
+<h4>Start with the generator</h4>
+<ol>
+<li>Enter the module name.</li>
+<li>Select a DD of the module.</li>
+<li>Create the basic framework and then test the JSON.</li>
+<li>Save unique bind key, understandable title and active status.</li>
+</ol>
+
+<h4>Important areas</h4>
+<div class="help-flow">record → Fach-DD and Need with the dataset ID
+needs[] → Selection, field options, pre-occupation and context per step
+finish[]→ allowed change of subject and optional follow-up action</div>
+
+<div class="help-example"><strong>Simplified example:</strong>
+<pre class="help-flow">{
+  "record": {"dd": "dbxContact|contactRequest", "id_need": "contact_request"},
+  "needs": {
+    "contact_request": {"type": "dd_select", "label": "{subject}"},
+    "status": {"type": "dd_field_options", "field": "status"}
+  },
+  "finish": {
+    "type": "dd_update",
+    "map": {"status": "status"}
+  }
+}</pre></div>
+
+<h4>Check before activation</h4>
+<ul>
+<li>Do DD, field names and templates exist?</li>
+<li>Shows <code>id_need</code> One step of the workflow definition?</li>
+<li>Are selection filters tight enough and data set rights considered?</li>
+<li>Modified <code>finish</code> Only the designated fields?</li>
+<li>Is mail or an external action only executed after a successful change?</li>
+</ul>

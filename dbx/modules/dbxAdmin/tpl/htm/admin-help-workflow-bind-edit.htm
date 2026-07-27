@@ -1,0 +1,37 @@
+<h4>Binding bearbeiten</h4>
+<p>Das Binding beschreibt die technische Verbindung zwischen einer Workflow-Definition und einem vorhandenen Fachmodul. Es wird als JSON gespeichert und über <code>modul|bind_key</code> referenziert.</p>
+
+<h4>Mit dem Generator beginnen</h4>
+<ol>
+<li>Modulname eintragen.</li>
+<li>Eine DD des Moduls auswählen.</li>
+<li>Grundgerüst erzeugen und anschließend das JSON prüfen.</li>
+<li>Eindeutigen Bind Key, verständlichen Titel und Aktiv-Status speichern.</li>
+</ol>
+
+<h4>Wichtige Bereiche</h4>
+<div class="help-flow">record  → Fach-DD und Need mit der Datensatz-ID
+needs[] → Auswahl, Feldoptionen, Vorbelegung und Kontext je Schritt
+finish[]→ erlaubte Fachänderung und optionale Folgeaktion</div>
+
+<div class="help-example"><strong>Vereinfachtes Beispiel:</strong>
+<pre class="help-flow">{
+  "record": {"dd": "dbxContact|contactRequest", "id_need": "contact_request"},
+  "needs": {
+    "contact_request": {"type": "dd_select", "label": "{subject}"},
+    "status": {"type": "dd_field_options", "field": "status"}
+  },
+  "finish": {
+    "type": "dd_update",
+    "map": {"status": "status"}
+  }
+}</pre></div>
+
+<h4>Vor dem Aktivieren prüfen</h4>
+<ul>
+<li>Existieren DD, Feldnamen und Templates?</li>
+<li>Zeigt <code>id_need</code> auf einen Schritt der Workflow-Definition?</li>
+<li>Sind Auswahlfilter eng genug und Datensatzrechte berücksichtigt?</li>
+<li>Ändert <code>finish</code> nur die vorgesehenen Felder?</li>
+<li>Wird Mail oder eine externe Aktion erst nach erfolgreicher Fachänderung ausgeführt?</li>
+</ul>

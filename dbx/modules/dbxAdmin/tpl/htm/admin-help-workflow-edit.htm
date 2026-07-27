@@ -1,0 +1,44 @@
+<h4>Workflow im Designer erstellen</h4>
+<p>Der visuelle Designer beschreibt ein fachliches Ziel und alles, was dafür benötigt wird. Die technische JSON-Definition wird beim Speichern automatisch erzeugt; die technische Vorschau ist nur zur Kontrolle gedacht.</p>
+
+<h4>1. Ziel festlegen</h4>
+<ul>
+<li><strong>Workflow Key:</strong> stabiler technischer Schlüssel, zum Beispiel <code>project_offer</code>. Nach produktiven Starts nicht mehr umbenennen.</li>
+<li><strong>Name:</strong> verständlicher Titel des Ablaufs.</li>
+<li><strong>Ziel:</strong> konkretes Ergebnis, das nach dem Abschluss vorliegen soll.</li>
+<li><strong>Beschreibung:</strong> kurz erklären, wann der Workflow verwendet wird.</li>
+<li><strong>Aktiv:</strong> nur aktivierte Definitionen dürfen neu gestartet werden.</li>
+</ul>
+
+<h4>2. Schritte aufbauen</h4>
+<p>Baustein anklicken oder in den Ablauf ziehen, Details öffnen und anschließend per Griff in die richtige Reihenfolge bringen.</p>
+<ul>
+<li><strong>Eingabe:</strong> Wert erfassen, auswählen oder neu anlegen.</li>
+<li><strong>Aktion:</strong> ein vorhandenes Fachformular öffnen und die Erledigung bestätigen.</li>
+<li><strong>Prüfung:</strong> Daten kontrollieren; mit <em>Automatisch prüfen</em> nur dann selbstständig, wenn das Fachmodul einen sicheren Wert liefern kann.</li>
+<li><strong>Entscheidung:</strong> mindestens zwei Ergebnisse definieren, auf die spätere Schritte verzweigen können.</li>
+</ul>
+
+<h4>3. Pflicht, Bearbeitung und Verzweigung</h4>
+<ol>
+<li>Für jeden Schritt eine eindeutige Bezeichnung und einen eindeutigen internen Schlüssel vergeben.</li>
+<li>Erlaubte Bearbeitungen wählen: Formular, Auswahl, Neuanlage und/oder Modulformular.</li>
+<li>Pflichtschritte müssen einen gültigen Wert liefern; optionale Schritte können bewusst übersprungen werden.</li>
+<li>Für einen Zweig unter <em>Voraussetzung</em> einen früheren Schritt und optional unter <em>Nur bei Ergebnis</em> dessen Wert angeben.</li>
+<li>Auswahlwerte zeilenweise als <code>wert=Beschriftung</code> eintragen.</li>
+</ol>
+
+<div class="help-flow">Freigabe (key: approval)
+  ├─ approved → Auftrag ausführen
+  └─ changes  → Rückfrage bearbeiten</div>
+
+<h4>4. Modul anbinden und testen</h4>
+<p>Um DD-Auswahlen, Fachformulare oder Finish-Aktionen zu verwenden, unter <em>Erweiterte Angaben</em> eine Referenz wie <code>dbxContact|contact_reply</code> eintragen. Das zugehörige Binding wird separat unter <em>Modul-Bindings</em> gepflegt.</p>
+<ol>
+<li>Speichern und alle Designer-Meldungen beheben.</li>
+<li>Definition aktivieren.</li>
+<li>Aus der Workflow-Liste einen neuen Testdurchlauf starten.</li>
+<li>Pflichtwerte, Verzweigungen, Modulaktionen und Abschluss vollständig testen.</li>
+</ol>
+
+<p><strong>Hinweis:</strong> Bereits laufende Instanzen behalten den Definitionsstand ihres Starts. Eine Korrektur im Designer wirkt auf den nächsten neu gestarteten Durchlauf.</p>

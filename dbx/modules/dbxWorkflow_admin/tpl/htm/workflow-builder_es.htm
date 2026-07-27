@@ -1,0 +1,62 @@
+<section class="dbx-workflow-builder" data-workflow-designer data-workflow-messages="{designer_messages}">
+ <div class="dbx-workflow-builder-head">
+  <div>
+   <span class="dbx-workflow-builder-eyebrow">Diseñador de procesos orientado a objetivos</span>
+   <h3>Pruebas y pasos</h3>
+   <p>Cada paso también describe qué información debe estar disponible y correcta para el objetivo.</p>
+  </div>
+  <div class="dbx-workflow-builder-legend">
+   <span><i class="bi bi-mouse2"></i> Arrastrar</span>
+   <span><i class="bi bi-diagram-3"></i> Conectar</span>
+   <span><i class="bi bi-shield-check"></i> Comprobar</span>
+  </div>
+ </div>
+ <section class="dbx-workflow-check-stage">
+  <header>
+   <span class="dbx-workflow-stage-number">2</span>
+   <div>
+    <small>Automáticamente desde los pasos</small>
+    <h3>Comprobación</h3>
+    <p>Si falta un dato obligatorio o no cumple su regla, el flujo de trabajo permanece incompleto.</p>
+   </div>
+   <strong data-workflow-check-count>{need_count} requisitos</strong>
+  </header>
+  <div class="dbx-workflow-check-preview" data-workflow-check-list>{check_rows}</div>
+ </section>
+ <div class="dbx-workflow-steps-stage-head">
+  <span class="dbx-workflow-stage-number">3</span>
+  <div>
+   <small>¿Qué hay que hacer?</small>
+   <h3>Pasos</h3>
+   <p>Los pasos nuevos añaden automáticamente su requisito a la comprobación superior.</p>
+  </div>
+ </div>
+ <div class="dbx-workflow-designer-layout">
+  <aside class="dbx-workflow-palette" aria-label="Bloques del flujo de trabajo">
+   <div class="dbx-workflow-palette-title">Bloques</div>
+   <button type="button" draggable="true" data-workflow-add-kind="input"><i class="bi bi-input-cursor-text"></i><span><strong>Entrada</strong><small>Introducir un valor</small></span><i class="bi bi-grip-vertical"></i></button>
+   <button type="button" draggable="true" data-workflow-add-kind="action"><i class="bi bi-lightning-charge"></i><span><strong>Acción</strong><small>Ejecutar el módulo</small></span><i class="bi bi-grip-vertical"></i></button>
+   <button type="button" draggable="true" data-workflow-add-kind="check"><i class="bi bi-shield-check"></i><span><strong>Comprobación</strong><small>Automática cuando sea posible</small></span><i class="bi bi-grip-vertical"></i></button>
+   <button type="button" draggable="true" data-workflow-add-kind="decision"><i class="bi bi-signpost-split"></i><span><strong>Decisión</strong><small>Resultado ramificado</small></span><i class="bi bi-grip-vertical"></i></button>
+   <button type="button" draggable="true" data-workflow-add-kind="input" data-workflow-add-preset="payment_terms"><i class="bi bi-credit-card-2-front"></i><span><strong>Condiciones de pago</strong><small>Selección + comprobación</small></span><i class="bi bi-grip-vertical"></i></button>
+   <div class="dbx-workflow-palette-help"><i class="bi bi-info-circle"></i><span>Haga clic o arrastre al proceso. Edite los detalles directamente en el bloque.</span></div>
+  </aside>
+  <div class="dbx-workflow-canvas" data-workflow-canvas>
+   <svg class="dbx-workflow-flow-lines" data-workflow-lines aria-hidden="true"></svg>
+   <div class="dbx-workflow-terminal is-start" data-workflow-start><i class="bi bi-play-fill"></i><span><small>START</small>El flujo de trabajo comienza</span></div>
+   <div class="dbx-workflow-step-list" data-workflow-step-list>{step_rows}</div>
+   <div class="dbx-workflow-terminal is-finish" data-workflow-finish>
+    <i class="bi bi-flag-fill"></i>
+    <label><small>OBJETIVO</small><input class="form-control form-control-sm" name="workflow_finish_label" value="{finish_label}" placeholder="Finalizar el flujo de trabajo"></label>
+   </div>
+  </div>
+ </div>
+ <div class="dbx-workflow-validation" data-workflow-validation><i class="bi bi-arrow-repeat"></i><div><strong>Se está comprobando el proceso</strong></div></div>
+ <details class="dbx-workflow-technical mt-3">
+  <summary>Información ampliada y vista previa técnica</summary>
+  <label class="form-label mt-2">Conexión del módulo</label>
+  <input class="form-control mb-2" name="workflow_bind_ref" value="{bind_ref}" placeholder="opcional, p. ej. dbxContact|contact_reply">
+  <textarea class="form-control font-monospace" rows="10" readonly>{technical_preview}</textarea>
+ </details>
+ <script src="dbx/modules/dbxWorkflow_admin/tpl/js/workflow-designer.js?v=2026072701"></script>
+</section>

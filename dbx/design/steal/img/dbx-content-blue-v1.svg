@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#edf6ff"/>
+      <stop offset="0.58" stop-color="#e7f2ff"/>
+      <stop offset="1" stop-color="#d8eaff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="82%" cy="78%" r="54%">
+      <stop offset="0" stop-color="#6bb9ff" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#6bb9ff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#2877c9" stroke-opacity="0.055"/>
+      <circle cx="0" cy="0" r="1.5" fill="#2877c9" fill-opacity="0.10"/>
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#canvas)"/>
+  <rect width="1600" height="900" fill="url(#glow)"/>
+  <rect width="1600" height="900" fill="url(#grid)" opacity="0.72"/>
+
+  <g fill="none" stroke="#176cc1" stroke-linecap="square" opacity="0.075">
+    <path d="M650 690h240l52-52h148l64-64h270"/>
+    <path d="M810 770h210l54-54h176l76-76h196"/>
+    <path d="M1010 846h120l54-54h114l54-54h170"/>
+    <circle cx="890" cy="690" r="5" fill="#176cc1"/>
+    <circle cx="1090" cy="638" r="5" fill="#176cc1"/>
+    <circle cx="1250" cy="716" r="5" fill="#176cc1"/>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="156" font-weight="700" letter-spacing="-9" opacity="0.105">
+    <text x="760" y="420" fill="#0868c9">db</text>
+    <text x="925" y="420" fill="#d82634">X</text>
+    <text x="1035" y="420" fill="#0868c9">app</text>
+  </g>
+
+  <!-- Drei Halbkreise; die offene Seite zeigt diagonal nach oben links. -->
+  <g fill="none" stroke="#0d6fd1" stroke-linecap="round" opacity="0.14">
+    <path d="M1487 643 A80 80 0 0 1 1373 757" stroke-width="8"/>
+    <path d="M1536 594 A150 150 0 0 1 1324 806" stroke-width="7"/>
+    <path d="M1586 544 A220 220 0 0 1 1274 856" stroke-width="6"/>
+  </g>
+  <circle cx="1430" cy="700" r="7" fill="#d82634" fill-opacity="0.16"/>
+</svg>

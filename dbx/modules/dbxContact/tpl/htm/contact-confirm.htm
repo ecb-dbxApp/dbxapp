@@ -1,0 +1,50 @@
+[tpl=dbx|form-shell-head]
+ <div class="dbx-contact-confirm-hero mb-4">
+  <div class="dbx-contact-confirm-hero-icon" aria-hidden="true">
+   <i class="bi bi-check2-circle"></i>
+  </div>
+  <div class="dbx-contact-confirm-hero-copy">
+   <h4 class="dbx-contact-confirm-title">{confirm_lead}</h4>
+   <ul class="dbx-contact-confirm-notes">{confirm_notes}</ul>
+  </div>
+ </div>
+
+ <section class="dbx-form-group dbx-contact-confirm-summary">
+  <div class="dbx-form-group-head d-flex flex-wrap align-items-end justify-content-between gap-2">
+   <h5 class="mb-0">Ihre Anfrage im Ueberblick</h5>
+   <span class="badge text-bg-light border">Anfrage #{rid}</span>
+  </div>
+  <div class="row g-3">
+   <div class="col-md-6">
+    <div class="dbx-contact-confirm-field">
+     <div class="dbx-contact-confirm-label"><i class="bi bi-person"></i> Name</div>
+     <div class="dbx-contact-confirm-value">{name}</div>
+    </div>
+   </div>
+   <div class="col-md-6">
+    <div class="dbx-contact-confirm-field">
+     <div class="dbx-contact-confirm-label"><i class="bi bi-envelope"></i> E-Mail</div>
+     <div class="dbx-contact-confirm-value">{email}</div>
+    </div>
+   </div>
+   <div class="col-md-6">
+    <div class="dbx-contact-confirm-field">
+     <div class="dbx-contact-confirm-label"><i class="bi bi-telephone"></i> Telefon</div>
+     <div class="dbx-contact-confirm-value">{phone}</div>
+    </div>
+   </div>
+   <div class="col-md-6">
+    <div class="dbx-contact-confirm-field">
+     <div class="dbx-contact-confirm-label"><i class="bi bi-chat-left-text"></i> Betreff</div>
+     <div class="dbx-contact-confirm-value">{subject}</div>
+    </div>
+   </div>
+   <div class="col-12">
+    <div class="dbx-contact-confirm-field">
+     <div class="dbx-contact-confirm-label"><i class="bi bi-card-text"></i> Nachricht</div>
+     <div class="dbx-contact-confirm-message">{message}</div>
+    </div>
+   </div>
+  </div>
+ </section>
+[tpl=dbx|form-shell-foot]

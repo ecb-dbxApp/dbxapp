@@ -1,0 +1,26 @@
+<div class="dbx-panel dbx-ki-bundle-start">
+ [tpl=dbx|module-bar]
+ <div class="container py-3" style="max-width: 920px;">
+  <div class="card">
+   <div class="card-body py-3">
+    <p class="small text-muted mb-2">Terminado AI-ZIP con <code>job.json</code> importa. ¿No hay pedido todavía?
+     <a href="?dbx_modul=dbxKi&amp;dbx_run1=briefing">Creación de una tarea de inteligencia artificial</a>.</p>
+    <form method="post" action="{action}" enctype="multipart/form-data" class="dbxAjax" data-target="dbxForm_{i}">
+     {obj:return_run1}
+     <div class="mb-2">{obj:form_msg}</div>
+     <div class="d-flex flex-wrap align-items-end gap-2">
+      <div class="flex-grow-1" style="min-width:14rem">
+       {obj:bundle_zip}
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-upload"></i> Importación</button>
+     </div>
+     [dbx:form]
+    </form>
+   </div>
+  </div>
+  <p class="small text-muted mt-2 mb-0">
+   <a class="text-muted" href="{export_url}">Rough briefing ZIP</a>
+   · <a class="text-muted" href="{describe_url}" target="_blank">paquete.describe</a>
+  </p>
+ </div>
+</div>

@@ -1,0 +1,16 @@
+<link rel="stylesheet" href="dbx/design/dbxapp/css/c-process.css?v=2026071804">
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-workflow-admin">[tpl=dbx|module-bar]
+ <form action="{action}" method="post" class="dbxAjax" data-target="dbxForm_{i}">
+  <div class="dbx-panel-body">
+   <div class="mb-3">{obj:form_msg}</div>
+   <section class="dbx-workflow-goal-stage">
+    <header><span class="dbx-workflow-stage-number">1</span><div><small>Was soll am Ende entstehen?</small><h3>Ziel</h3></div></header>
+    <div class="row g-3 dbx-workflow-head-fields">
+     [dbx:form]
+    </div>
+   </section>
+   {obj:workflow_builder}
+  </div>
+ </form>
+ [dbx:js]
+</div>

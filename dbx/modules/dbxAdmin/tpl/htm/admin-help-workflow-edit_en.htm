@@ -1,0 +1,44 @@
+<h4>Creating workflow in the designer</h4>
+<p>The visual designer describes a professional goal and everything that is needed for it. The JSON technical definition is generated automatically during storage; the technical preview is intended for control only.</p>
+
+<h4>1. Setting a target</h4>
+<ul>
+<li><strong>Workflow Key:</strong> stable technical keys, for example <code>project_offer</code>. No more renaming after productive starts.</li>
+<li><strong>Name:</strong> understandable title of the expiration.</li>
+<li><strong>Objective:</strong> concrete result, which should be available after the financial statements.</li>
+<li><strong>Description:</strong> Briefly explain when the workflow is used.</li>
+<li><strong>Active:</strong> Only activated definitions may be restarted.</li>
+</ul>
+
+<h4>2. Building steps</h4>
+<p>Click on the module or drag it into the sequence, open details and then bring it into the correct order by handle.</p>
+<ul>
+<li><strong>Entry:</strong> Capture, select or reinvest value.</li>
+<li><strong>Action:</strong> open an existing technical form and confirm the completion.</li>
+<li><strong>Test:</strong> control data; with <em>Automatic testing</em> only independently if the subject module can deliver a safe value.</li>
+<li><strong>Decision:</strong> define at least two results to which later steps can branch.</li>
+</ul>
+
+<h4>3. Obligation, processing and branching</h4>
+<ol>
+<li>Assign a unique identifier and internal key for each step.</li>
+<li>Select permitted edits: form, selection, new installation and/or module form.</li>
+<li>Mandatory steps must provide a valid value; Optional steps can be deliberately skipped.</li>
+<li>For a branch below <em>Conditions</em> an earlier step and optionally under <em>Only for results</em> Indicate its value.</li>
+<li>Selection values line by line as <code>wert=Beschriftung</code> Enter.</li>
+</ol>
+
+<div class="help-flow">Release (key: approval)
+├─ approved → execute order
+└─ changes → process queries</div>
+
+<h4>4. Connecting the module and testing</h4>
+<p>To use DD selections, specialist forms or finish promotions, under <em>Extended information</em> a reference such as <code>dbxContact|contact_reply</code> Enter. The associated binding is separated under <em>Module bindings</em> maintained.</p>
+<ol>
+<li>Save and resolve all designer messages.</li>
+<li>Activate definition.</li>
+<li>Start a new test run from the workflow list.</li>
+<li>Fully test mandatory values, branches, module actions and completion.</li>
+</ol>
+
+<p><strong>Note:</strong> Already running instances keep the definition status of their start. A correction in the designer affects the next newly started run.</p>

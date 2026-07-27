@@ -1,0 +1,15 @@
+<h4>Wofür ist dieses Modul?</h4>
+<p><strong>dbxWorkflow_admin</strong> ist die verbindliche Quelle für ausführbare Workflow-Definitionen. Hier legen Administratoren Ziel, Schritte, Prüfungen, Entscheidungen und optionale Fachmodul-Bindings fest.</p>
+
+<div class="help-flow">Ziel definieren → Schritte anordnen → Prüfung kontrollieren → optional Binding zuordnen → aktivieren → in dbxWorkflow testen</div>
+
+<h4>Empfohlenes Vorgehen</h4>
+<ol>
+<li>Workflow mit eindeutigem Key und verständlichem Ziel anlegen.</li>
+<li>Eingaben, Aktionen, Prüfungen und Entscheidungen im visuellen Designer aufbauen.</li>
+<li>Pflichtangaben und Verzweigungen kontrollieren.</li>
+<li>Für DD-/Fachzugriffe ein Modul-Binding anlegen und über <code>bind_ref</code> zuordnen.</li>
+<li>Aktivieren und über die Start-Aktion vollständig testen.</li>
+</ol>
+
+<p>Neue Instanzen erhalten beim Start einen Definitions-Snapshot. Änderungen an einer Definition gelten damit für neue Durchläufe, nicht rückwirkend für bereits laufende.</p>

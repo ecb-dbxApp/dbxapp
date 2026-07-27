@@ -1,0 +1,33 @@
+<form action="{action}" method="post" class="dbxAjax" data-target="{target_id}">
+  {obj:form_msg}
+  <input type="hidden" name="workflow_submit" value="1">
+  <input type="hidden" name="need_key" value="{need_key}">
+
+  <div class="row g-3 align-items-stretch">
+    <div class="col-lg-4">
+      <div class="border rounded p-3 h-100 bg-light">
+        <div class="text-muted small text-uppercase fw-semibold">Aufgabe {step_no} von {step_count} · {requirement_badge}</div>
+        <h3 class="h5 mt-1 mb-2">{question}</h3>
+        <div class="dbx-workflow-step-data-label"><i class="bi bi-database-check"></i> Benötigte Angabe: <strong>{label}</strong></div>
+        <p class="text-muted mb-0">{hint}</p>
+        <p class="dbx-workflow-step-validation-hint mb-0"><i class="bi bi-exclamation-circle"></i> {validation_hint}</p>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      {context_block}
+      <div class="row g-3">
+        {select_block}
+        {create_block}
+        {form_block}
+        {module_block}
+      </div>
+      <div class="d-flex justify-content-between align-items-center gap-2 mt-3">
+        <div>{skip_button}</div>
+        <button class="btn btn-primary" type="submit">
+          <i class="bi bi-check-lg"></i> Uebernehmen
+        </button>
+      </div>
+    </div>
+  </div>
+  [dbx:form]
+</form>

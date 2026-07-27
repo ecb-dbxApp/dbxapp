@@ -1,0 +1,55 @@
+<div class="dbx-panel dbx-ki-bundle-process-panel">
+ [tpl=dbx|module-bar]
+ <div class="container py-3" style="max-width: 920px;">
+  <div id="{target_id}"
+       class="dbx-panel dbx-process dbx-ki-bundle-process"
+       data-dbx-process-root="1"
+       data-dbx="lib=process|id={target_id}|url={next_url}|interval={interval}|autostart={autostart}"
+       data-process-status="{status_key}"
+       data-process-percent="{percent}"
+       data-process-step-percent="{step_percent}"
+       data-process-next-url="{next_url}"
+       data-process-pause-url="{pause_url}"
+       data-process-resume-url="{resume_url}"
+       data-process-cancel-url="{cancel_url}"
+       data-process-restart-url="{restart_url}"
+       data-process-autostart="{autostart}"
+       data-process-interval="{interval}">
+
+   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+    <span class="dbx-process-status badge {status_class}"><i class="{status_icon}"></i> {status_label}</span>
+    <span class="small text-muted">Paso {step_label}</span>
+   </div>
+
+   <div class="dbx-process-grid">
+    <div class="dbx-process-progress mb-2">
+     <div class="dbx-process-progress-head">
+      <span class="dbx-process-progress-label">Progresos</span>
+      <span class="dbx-process-progress-value" data-process-percent="overall">{percent}%</span>
+     </div>
+     <div class="dbx-process-bar" role="progressbar" aria-valuenow="{percent}" aria-valuemin="0" aria-valuemax="100">
+      <div class="dbx-process-bar-fill" data-process-bar="overall" style="width:{percent}%;"></div>
+     </div>
+    </div>
+
+    <div class="dbx-process-message small mb-2" data-process-message>{message}</div>
+    {result_html}
+
+    <div class="dbx-process-meta small text-muted mb-2">
+     <span>Actualizado: {updated_at}</span>
+    </div>
+   </div>
+
+   <div class="dbx-process-actions d-flex flex-wrap gap-2 mb-2">
+    <button type="button" class="btn btn-warning btn-sm" data-process-action="pause" data-process-visible="{pause_visible}" title="Suspensión"><i class="bi bi-pause-fill"></i></button>
+    <button type="button" class="btn btn-primary btn-sm" data-process-action="resume" data-process-visible="{resume_visible}" title="Continuar"><i class="bi bi-play-fill"></i></button>
+    <button type="button" class="btn btn-secondary btn-sm" data-process-action="restart" data-process-visible="{restart_visible}" title="Empezar de nuevo"><i class="bi bi-arrow-clockwise"></i></button>
+    <button type="button" class="btn btn-danger btn-sm" data-process-action="cancel" data-process-visible="{cancel_visible}" title="Cancelar"><i class="bi bi-x-lg"></i></button>
+   </div>
+
+   <div class="d-flex flex-wrap gap-2">
+    {finished_actions}
+   </div>
+  </div>
+ </div>
+</div>

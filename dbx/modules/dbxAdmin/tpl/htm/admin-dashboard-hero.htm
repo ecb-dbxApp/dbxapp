@@ -1,0 +1,26 @@
+<div class="dbx-panel dbx-admin-dashboard-hero dbx-admin-dashboard-panel">
+   [tpl=dbx|module-bar]
+   <div class="dbx-admin-dashboard-hero-body">
+      <div class="dbx-admin-dashboard-hero-metrics" aria-label="{performance_aria}">
+         {obj:hero_performance_gauges}
+      </div>
+      <div class="dbx-admin-dashboard-health {health_state_class}" data-admin-ring="{health_percent}">
+         <div class="dbx-admin-dashboard-health-head">
+            <i class="bi {health_icon}"></i>
+            <span>{system_status_label}</span>
+         </div>
+         <canvas width="132" height="132" aria-hidden="true"></canvas>
+         <div class="dbx-admin-dashboard-health-value">
+            <div class="dbx-admin-dashboard-health-percent">
+               <strong data-admin-value="{health_percent}">{health_percent}</strong>
+               <span>%</span>
+            </div>
+            <small>{health_reason}</small>
+         </div>
+      </div>
+      <div class="dbx-admin-dashboard-hero-insights">
+         {obj:hero_status_summaries}
+      </div>
+   </div>
+   {obj:error_log}
+</div>

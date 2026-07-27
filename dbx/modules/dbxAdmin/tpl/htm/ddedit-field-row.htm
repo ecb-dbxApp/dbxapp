@@ -1,0 +1,18 @@
+<article class="dbx-ddedit-row dbx-ddedit-field-row" data-ddedit-row="field" data-field-pos="{field_pos}" data-field-name="{name}">
+ <div class="dbx-ddedit-row-head d-flex align-items-center gap-2 flex-wrap">
+  <div class="dbx-ddedit-row-title flex-grow-1">
+   <strong>{name}</strong>
+   <span class="badge bg-light text-dark border ms-1">{type}</span>
+   <span class="badge bg-light text-dark border ms-1">{length}</span>
+   <span class="badge bg-secondary ms-1">{index}</span>
+   <span class="text-muted small ms-2">{label}</span>
+  </div>
+  <div class="dbx-ddedit-row-meta text-muted small">
+   Pos. {field_pos}
+  </div>
+ </div>
+
+ <div class="dbx-ddedit-row-body mt-2">
+  {obj:field_form}
+ </div>
+</article>

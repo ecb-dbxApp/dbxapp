@@ -1,0 +1,30 @@
+[tpl=dbx|frame-head]
+[tpl=dbx|frame-body-open]
+ <ul class="nav nav-tabs" id="Content-edit_{i}" role="tablist">
+  <li class="nav-item" role="presentation">
+   <button class="nav-link active" id="sysdata-tab" data-bs-toggle="tab" data-bs-target="#sysdata" type="button" role="tab" aria-controls="sysdata" aria-selected="true">Systemdaten</button>
+  </li>
+  <li class="nav-item" role="presentation">
+   <button class="nav-link" id="images-tab" data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab" aria-controls="images" aria-selected="false">Bilder</button>
+  </li>
+  <li class="nav-item" role="presentation">
+   <button class="nav-link" id="content-tab" data-bs-toggle="tab" data-bs-target="#content" type="button" role="tab" aria-controls="content" aria-selected="false">Content</button>
+  </li>
+ </ul>
+ <div class="tab-content" id="myTabContent">
+  <div class="tab-pane fade show active" id="sysdata" role="tabpanel" aria-labelledby="sysdata-tab">
+   [modul=dbxContent_admin]dbx_run1=content&dbx_run2=edit_sysdata&rid={rid}&dbx_view={dbx_view}[/modul]
+  </div>
+  <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="images-tab">
+   <div class="row row-cols-1 row-cols-md-3 g-3">
+    <div class="col">[modul=dbxContent_admin]dbx_run1=content&dbx_run2=images&iid=1&rid={rid}&dbx_view={dbx_view}[/modul]</div>
+    <div class="col">[modul=dbxContent_admin]dbx_run1=content&dbx_run2=images&iid=2&rid={rid}&dbx_view={dbx_view}[/modul]</div>
+    <div class="col">[modul=dbxContent_admin]dbx_run1=content&dbx_run2=images&iid=3&rid={rid}&dbx_view={dbx_view}[/modul]</div>
+   </div>
+  </div>
+  <div class="tab-pane fade" id="content" role="tabpanel" aria-labelledby="content-tab">
+   [modul=dbxContent_admin]dbx_run1=content&dbx_run2=edit&cid={rid}&dbx_view={dbx_view}[/modul]
+  </div>
+ </div>
+[tpl=dbx|frame-body-close]
+[tpl=dbx|frame-foot]

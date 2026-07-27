@@ -1,0 +1,34 @@
+<div class="dbx_pagination">
+  <div class="dbx_pagination_info" aria-label="Valores del informe">
+    <span class="dbx_pagination_info_item">Total <strong data-report-count="total">{pagination:count_all}</strong></span>
+    <span class="dbx_pagination_info_item">Filtrados <strong data-report-count="filtered-total">{pagination:count_selected}</strong></span>
+    <span class="dbx_pagination_info_item">Seleccionados <strong data-report-count="selected-total">{pagination:count_checked}</strong></span>
+  </div>
+  <nav aria-label="Paginación">
+    <ul class="pagination">
+      <li class="page-item">
+        <a class="page-link dbxAjax" href="{href_first}" aria-label="Primera">
+          <span aria-hidden="true">|&laquo;</span>
+        </a>
+      </li>
+      <li class="page-item">
+        <a class="page-link dbxAjax" href="{href_prev}" aria-label="Anterior">
+          <span aria-hidden="true">&lt;</span>
+        </a>
+      </li>
+      <hr class="dbx_split">
+      <li class="page-item {active}" {current}><a class="page-link dbxAjax" {p_active} href="{href_page}">{p}</a></li>
+      <hr class="dbx_split">
+      <li class="page-item">
+        <a class="page-link dbxAjax" href="{href_next}" aria-label="Siguiente">
+          <span aria-hidden="true">&gt;</span>
+        </a>
+      </li>
+      <li class="page-item">
+        <a class="page-link dbxAjax" href="{href_last}" aria-label="Última">
+          <span aria-hidden="true">&raquo;|</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>

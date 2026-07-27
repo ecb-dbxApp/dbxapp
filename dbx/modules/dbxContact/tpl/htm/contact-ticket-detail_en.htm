@@ -1,0 +1,21 @@
+<section id="dbx_contact_ticket_{rid}" class="dbx-panel dbx-contact dbx-ajax-root">
+ [tpl=dbx|module-bar]
+ <div class="dbx-panel-body p-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+   <div>
+    <div class="small text-muted">Ticket #{rid} · Created {create_date}</div>
+    <h2 class="h4 mb-0">{subject}</h2>
+   </div>
+   <span class="badge {status_class} p-2">{status_label}</span>
+  </div>
+  <section class="card shadow-sm mb-3">
+   <div class="card-header"><strong>History</strong></div>
+   <div class="card-body">{timeline}</div>
+  </section>
+  {message_form}
+  <div class="d-flex flex-wrap justify-content-between gap-2 mt-3">
+   <a class="btn btn-outline-secondary" href="?dbx_modul=dbxContact&amp;dbx_run1=my"><i class="bi bi-arrow-left"></i> My requests</a>
+   <a class="btn btn-outline-danger" href="{delete_url}"><i class="bi bi-trash"></i> Remove request</a>
+  </div>
+ </div>
+</section>

@@ -1,0 +1,37 @@
+<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper"> 
+ <form action="{action}" method="post" id="dbx_form_{i}" data-dbx_target='dbx_target_{i}' class="dbxAjax"> 
+ 
+ 
+ <div class="row"> 
+ <div class="col">{obj:form_msg}</div> 
+ </div> 
+ 
+ <div class="row"> 
+ <div class="col">[dbx:form]</div> 
+ </div> 
+ 
+ <div class="row"> 
+ <div class="col col-md-10 mb-8">{obj:root}</div> 
+ <div class="col col-md-2 mb-4"><br/>{obj:submit}<hr/></div> 
+ </div> 
+ 
+ <div class="row"> 
+ <div class="col"> 
+ <ul id="tree_{i}" class="treeview" style="display: block;"> 
+ {obj:folder} 
+ <ul>{obj:tree}</ul> 
+ {obj:files} 
+ </ul> 
+ </div> 
+ </div> 
+ 
+ <div class="row"> 
+ <div class="col">{obj:modal}</div> 
+ </div> 
+ 
+ <div class="row"> 
+ <div class="col"><button class="btn btn-primary btn-lg btn-block" type="submit">Content Tree</button></col> 
+ </div> 
+ [dbx:js] 
+ </form> 
+</div>

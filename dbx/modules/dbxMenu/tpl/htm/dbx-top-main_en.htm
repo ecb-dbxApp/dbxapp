@@ -1,0 +1,68 @@
+<ul>
+
+
+   <li>
+        <a href="home"><i class="bi bi-house" aria-hidden="true"></i><span>Home</span></a>
+    </li>
+
+    <li>
+        <a href="?dbx_modul=dbxShop&dbx_run1=catalog"><i class="bi bi-bag" aria-hidden="true"></i><span>Shop</span></a>
+    </li>
+
+    [cms:root=1&flat=1]
+
+
+    [cms:flat]
+
+    <li class="dbx-menu-spacer" aria-hidden="true"></li>
+
+
+
+    <li class="align-right">
+        <a class="dbx-shop-cart-menu-link" href="?dbx_modul=dbxShop&dbx_run1=cart" title="Shopping cart">
+            <span class="dbx-shop-cart-menu-icon">
+            <i class="bi bi-basket" aria-hidden="true"></i>
+            {shop_cart_badge}
+            </span>
+            <span class="dbx-menu-mobile-label">Shopping cart</span>
+        </a>
+    </li>
+
+    <li class="align-right">
+        <a class="dbxModeToggle" title="Toggle dbx-web / dbx-app" style="cursor:pointer;">
+            <i class="bi bi-globe dbxModeIcon"></i>
+            <span class="dbx-menu-mobile-label">View</span>
+        </a>
+    </li>
+
+    <li class="align-right dbx-lng-menu-root">
+        <a title="{lng_toggle_title}" style="cursor:pointer;">
+            <span class="dbx-lng-flag dbx-lng-flag-active" data-dbx-flag="{lng_active_flag}" aria-hidden="true"></span>
+            <span class="dbx-lng-code">{lng_active}</span>
+        </a>
+        <ul>
+            {lng_menu}
+        </ul>
+    </li>
+
+    <li class="align-right dbx-skin-menu-root">
+        <a title="{design_toggle_title}" style="cursor:pointer;">
+            <i class="bi bi-palette dbxSkinIcon"></i>
+            <span class="dbx-menu-mobile-label">Design</span>
+        </a>
+        <ul>
+            {design_skin_menu}
+        </ul>
+    </li>
+
+
+    <!-- Login oder Logout -->
+   {dbx:profile_link}
+   <li class="align-right">
+        <a href="?dbx_modul=dbxLogin&dbx_run1={dbx:login_out}" title="{dbx:LogInOut}">
+            <i class="bi {dbx:login_icon}"></i>
+            <span class="dbx-menu-mobile-label">{dbx:LogInOut}</span>
+        </a>
+    </li>
+
+</ul>

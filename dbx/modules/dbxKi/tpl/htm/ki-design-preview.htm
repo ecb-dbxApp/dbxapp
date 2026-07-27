@@ -1,0 +1,16 @@
+<div class="dbx-panel">
+ [tpl=dbx|module-bar]
+ <div class="p-3">
+  <div class="alert alert-info"><strong>{file_count} Dateien</strong> wurden sicher entpackt. Noch wurde kein Design veraendert. {summary}</div>
+  <div class="table-responsive mb-3"><table class="table table-sm align-middle"><thead><tr><th>Datei</th><th>Status</th><th class="text-end">Groesse</th></tr></thead><tbody>{file_rows}</tbody></table></div>
+  <form method="post" action="{action}" class="dbxAjax" data-target="dbxForm_{i}">
+   {obj:job_token}
+   <div class="form_msg {msg_class}">{obj:form_msg}</div>
+   <div class="d-flex flex-wrap gap-2 justify-content-end">
+    <a class="btn btn-outline-secondary" href="{back_url}"><i class="bi bi-x-lg"></i> Abbrechen</a>
+    <button class="btn btn-primary" type="submit" data-confirm="Gepruefte Design-Aenderungen jetzt anwenden?"><i class="bi bi-check2-circle"></i> Geprueftes Ergebnis anwenden</button>
+   </div>
+   [dbx:form]
+  </form>
+ </div>
+</div>

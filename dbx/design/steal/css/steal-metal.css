@@ -1,0 +1,653 @@
+/**
+ * STEAL – Materialschicht für dbXapp
+ *
+ * Materialrollen:
+ * - gebürsteter Edelstahl: Seitenfläche
+ * - brünierter Stahl: Navigation und Footer
+ * - satiniertes Metall: Karten, Formulare und Dialoge
+ * - gefräster Stahl: Eingabefelder und Tabellen
+ * - poliertes Chrom: Kanten, Fokus und aktive Bedienelemente
+ *
+ * Es werden keine Bilder, externen Fonts oder bewegten Texturen verwendet.
+ */
+
+:root {
+    --steal-ink: #15191c;
+    --steal-ink-soft: #2b3135;
+    --steal-muted: #566068;
+    --steal-line-dark: rgba(21, 27, 31, .62);
+    --steal-line-light: rgba(255, 255, 255, .86);
+    --steal-chrome: #eef3f5;
+    --steal-silver: #c5cdd1;
+    --steal-satin: #aab4b9;
+    --steal-gunmetal: #242a2e;
+    --steal-blue: #2d6f8b;
+    --steal-blue-light: #88c4db;
+    --steal-focus: #007fae;
+    --steal-radius: .62rem;
+    --steal-shadow: 0 12px 30px rgba(13, 17, 20, .22);
+    --steal-edge:
+        inset 0 1px 0 rgba(255, 255, 255, .9),
+        inset 0 -1px 0 rgba(19, 24, 28, .38),
+        0 1px 2px rgba(13, 17, 20, .25);
+}
+
+/* Gebürsteter Edelstahl: lange, unregelmäßige Schleifspuren. */
+html,
+body.dbx-steal {
+    color: var(--steal-ink);
+    background-color: #aeb7bb;
+    background-image:
+        linear-gradient(115deg, rgba(255, 255, 255, .52), transparent 22%, rgba(43, 50, 54, .12) 47%, transparent 72%, rgba(255, 255, 255, .4)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .18) 0 1px, rgba(35, 42, 46, .08) 1px 2px, transparent 2px 5px),
+        linear-gradient(90deg, #c9d0d3 0%, #929da2 18%, #dfe4e6 48%, #9da7ac 78%, #c7ced1 100%);
+    background-attachment: fixed;
+}
+
+body.dbx-steal::before {
+    position: fixed;
+    z-index: -1;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(92deg, transparent 0 17px, rgba(255, 255, 255, .08) 18px, transparent 19px 41px),
+        radial-gradient(ellipse at 18% 7%, rgba(255, 255, 255, .55), transparent 33%),
+        radial-gradient(ellipse at 88% 72%, rgba(34, 41, 45, .2), transparent 45%);
+    mix-blend-mode: soft-light;
+}
+
+body.dbx-steal #dbxApp {
+    background: transparent;
+}
+
+/* Brünierter Stahl: tiefe dunkle Oberfläche mit feinem horizontalem Korn. */
+body.dbx-steal #dbxHeader {
+    border-bottom: 1px solid #111619;
+    color: #f4f7f8;
+    background-color: var(--steal-gunmetal);
+    background-image:
+        linear-gradient(105deg, rgba(255, 255, 255, .13), transparent 17%, rgba(0, 0, 0, .2) 48%, transparent 74%, rgba(255, 255, 255, .09)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, rgba(0, 0, 0, .08) 1px 3px),
+        linear-gradient(180deg, #4a5358 0%, #252b2f 48%, #171c1f 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .3),
+        inset 0 -2px 0 rgba(0, 0, 0, .72),
+        0 5px 18px rgba(16, 20, 23, .34);
+}
+
+body.dbx-steal #dbxHeader::after {
+    position: absolute;
+    right: 1rem;
+    bottom: -1px;
+    width: min(18vw, 13rem);
+    height: 2px;
+    content: "";
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, #f8fbfc 45%, var(--steal-blue-light) 70%, transparent);
+    opacity: .72;
+}
+
+body.dbx-steal .dbx-menu,
+body.dbx-steal .dbx-menu .navbar,
+body.dbx-steal .dbx-menu .container-fluid {
+    background: transparent;
+}
+
+body.dbx-steal .dbx-menu a,
+body.dbx-steal .dbx-menu button,
+body.dbx-steal #dbxHeader .nav-link,
+body.dbx-steal #dbxHeader .navbar-brand {
+    color: #eef3f5;
+    text-shadow: 0 1px 0 #000;
+}
+
+body.dbx-steal .dbx-menu a:hover,
+body.dbx-steal .dbx-menu button:hover,
+body.dbx-steal #dbxHeader .nav-link:hover,
+body.dbx-steal #dbxHeader .nav-link:focus-visible,
+body.dbx-steal #dbxHeader .nav-link.active {
+    color: #fff;
+    border-color: rgba(255, 255, 255, .55);
+    background:
+        linear-gradient(115deg, rgba(255, 255, 255, .26), transparent 30%, rgba(45, 111, 139, .38) 70%, rgba(255, 255, 255, .18)),
+        linear-gradient(180deg, #677278, #343b3f 52%, #202529);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .52),
+        inset 0 -1px 0 #111619,
+        0 3px 8px rgba(0, 0, 0, .28);
+}
+
+body.dbx-steal .dropdown-menu {
+    color: var(--steal-ink);
+    border: 1px solid #596268;
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .16) 0 1px, transparent 1px 4px),
+        linear-gradient(145deg, #e3e7e9, #aab3b7 48%, #d9dfe1);
+    box-shadow: var(--steal-shadow), inset 0 1px 0 #fff;
+}
+
+body.dbx-steal .dropdown-item {
+    color: var(--steal-ink);
+}
+
+body.dbx-steal .dropdown-item:hover,
+body.dbx-steal .dropdown-item:focus,
+body.dbx-steal .dropdown-item.active {
+    color: #fff;
+    background: linear-gradient(90deg, #244e61, var(--steal-blue), #244e61);
+}
+
+/* Hauptfläche: ruhiger satinierter Stahl für gute Lesbarkeit. */
+body.dbx-steal #dbxMain {
+    background:
+        linear-gradient(125deg, rgba(255, 255, 255, .28), transparent 30%, rgba(60, 68, 73, .08) 65%, transparent),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .11) 0 1px, transparent 1px 5px);
+}
+
+body.dbx-steal #dbxContent {
+    color: var(--steal-ink);
+}
+
+body.dbx-steal a {
+    color: #174f68;
+    text-decoration-color: rgba(23, 79, 104, .44);
+}
+
+body.dbx-steal a:hover {
+    color: #082f42;
+}
+
+/* Satinierte Bauteile: weicheres Korn und ausgeprägte gefalzte Kante. */
+body.dbx-steal :is(
+    .card,
+    .dbx-card,
+    .dbx-box,
+    .dbx-panel,
+    .dbx-bar,
+    .dbx-module-bar,
+    .accordion-item,
+    .list-group-item,
+    .modal-content,
+    .offcanvas,
+    .toast
+) {
+    color: var(--steal-ink);
+    border: 1px solid #717b80;
+    border-radius: var(--steal-radius);
+    background-color: #c2c9cc;
+    background-image:
+        linear-gradient(132deg, rgba(255, 255, 255, .62), transparent 22%, rgba(76, 86, 91, .09) 50%, transparent 74%, rgba(255, 255, 255, .28)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .13) 0 1px, rgba(61, 69, 74, .04) 1px 3px),
+        linear-gradient(180deg, #e3e7e9 0%, #bbc3c7 48%, #aeb7bb 100%);
+    box-shadow: var(--steal-edge), var(--steal-shadow);
+}
+
+body.dbx-steal :is(.card-header, .card-footer, .modal-header, .modal-footer, .offcanvas-header, .accordion-button) {
+    color: #101417;
+    border-color: rgba(48, 56, 61, .38);
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .15) 0 1px, transparent 1px 4px),
+        linear-gradient(180deg, #e7ebed, #aab4b9);
+}
+
+body.dbx-steal :is(.card, .modal-content, .offcanvas) :is(h1, h2, h3, h4, h5, h6),
+body.dbx-steal .dbx-module-bar {
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .75);
+}
+
+/* Gefräster Stahl: Eingaben wirken in die Oberfläche eingelassen. */
+body.dbx-steal :is(
+    .form-control,
+    .form-select,
+    .input-group-text,
+    .form-check-input,
+    textarea,
+    input[type="text"],
+    input[type="search"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"]
+) {
+    color: #13181b;
+    border-color: #667076;
+    background-color: #d6dcde;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .22) 0 1px, transparent 1px 3px),
+        linear-gradient(180deg, #aab2b6 0%, #eef1f2 13%, #d2d8da 100%);
+    box-shadow:
+        inset 0 2px 4px rgba(20, 26, 30, .2),
+        0 1px 0 rgba(255, 255, 255, .7);
+}
+
+body.dbx-steal :is(.form-control, .form-select, textarea, input)::placeholder {
+    color: #626c72;
+    opacity: 1;
+}
+
+body.dbx-steal :is(.form-control, .form-select, .form-check-input, textarea, input):focus {
+    color: #0d1215;
+    border-color: var(--steal-focus);
+    background-color: #f4f6f7;
+    box-shadow:
+        0 0 0 .2rem rgba(0, 127, 174, .23),
+        inset 0 1px 3px rgba(17, 22, 25, .2);
+}
+
+body.dbx-steal .form-check-input:checked {
+    border-color: #123f53;
+    background-color: var(--steal-blue);
+}
+
+/* Poliertes Chrom: Bedienelemente mit klaren Lichtkanten. */
+body.dbx-steal .btn {
+    border-color: #5e686d;
+    border-radius: .48rem;
+    color: #151a1d;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .78);
+    background:
+        linear-gradient(110deg, rgba(255, 255, 255, .76), transparent 18%, rgba(70, 79, 84, .08) 50%, transparent 78%, rgba(255, 255, 255, .52)),
+        linear-gradient(180deg, #f2f5f6 0%, #b8c0c4 46%, #899399 52%, #d8dde0 100%);
+    box-shadow: var(--steal-edge);
+}
+
+body.dbx-steal .btn:hover {
+    color: #080b0d;
+    border-color: #30383c;
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow:
+        inset 0 1px 0 #fff,
+        inset 0 -1px 0 rgba(15, 20, 23, .52),
+        0 5px 12px rgba(15, 20, 23, .24);
+}
+
+body.dbx-steal .btn:active {
+    transform: translateY(0);
+    box-shadow: inset 0 2px 5px rgba(15, 20, 23, .34);
+}
+
+body.dbx-steal :is(.btn-primary, .btn-success, .btn-info) {
+    color: #fff;
+    border-color: #163f51;
+    text-shadow: 0 1px 0 #071820;
+    background:
+        linear-gradient(115deg, rgba(255, 255, 255, .42), transparent 24%, rgba(5, 34, 47, .22) 54%, transparent 76%),
+        linear-gradient(180deg, #5ba1bd 0%, #2d6f8b 48%, #17475c 52%, #397f9a 100%);
+}
+
+body.dbx-steal :is(.btn-danger, .btn-warning) {
+    color: #fff;
+    border-color: #57331e;
+    text-shadow: 0 1px 0 #24150c;
+    background:
+        linear-gradient(115deg, rgba(255, 255, 255, .4), transparent 30%),
+        linear-gradient(180deg, #b9744e, #7b4327 52%, #a35f3a);
+}
+
+body.dbx-steal :is(.btn, a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--steal-chrome);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgba(0, 127, 174, .72);
+}
+
+/* Walzstahl: Tabellen, Reports und Grids. */
+body.dbx-steal :is(.table, .dbx-report-table, .tabulator) {
+    --bs-table-bg: rgba(215, 221, 223, .92);
+    --bs-table-striped-bg: rgba(169, 179, 184, .62);
+    --bs-table-hover-bg: rgba(115, 163, 183, .42);
+    color: var(--steal-ink);
+    border-color: #69747a;
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .12) 0 1px, transparent 1px 6px),
+        linear-gradient(180deg, #d8dddf, #adb6ba);
+    box-shadow: var(--steal-edge);
+}
+
+body.dbx-steal :is(.table, .dbx-report-table) > :not(caption) > * > * {
+    color: var(--steal-ink);
+    border-color: rgba(62, 72, 77, .4);
+    background-color: transparent;
+}
+
+body.dbx-steal :is(.table, .dbx-report-table) thead th,
+body.dbx-steal .tabulator .tabulator-header {
+    color: #f5f7f8;
+    border-color: #151b1e;
+    text-shadow: 0 1px 0 #000;
+    background:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .04) 0 1px, transparent 1px 3px),
+        linear-gradient(180deg, #566066, #242a2e 55%, #161b1e);
+}
+
+body.dbx-steal .tabulator .tabulator-row {
+    color: var(--steal-ink);
+    background-color: rgba(218, 223, 225, .94);
+}
+
+body.dbx-steal .tabulator .tabulator-row:nth-child(even) {
+    background-color: rgba(177, 186, 190, .94);
+}
+
+body.dbx-steal .tabulator .tabulator-row:hover {
+    background-color: rgba(137, 184, 203, .88);
+}
+
+/* Statusflächen bleiben semantisch, erhalten aber eine metallische Lichtkante. */
+body.dbx-steal :is(.alert, .badge, .progress) {
+    border: 1px solid rgba(45, 53, 58, .46);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 1px 2px rgba(20, 25, 29, .18);
+}
+
+/* Footer: dunkler gebürsteter Stahl, layoutgleich zu dbxapp. */
+body.dbx-steal #dbxFooter {
+    color: #eef3f5;
+    border-top: 1px solid #f1f5f6;
+    background-color: #20262a;
+    background-image:
+        linear-gradient(105deg, rgba(255, 255, 255, .13), transparent 22%, rgba(0, 0, 0, .18) 55%, transparent 82%),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, rgba(0, 0, 0, .08) 1px 3px),
+        linear-gradient(180deg, #464f54, #1c2225 52%, #111618);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, .34),
+        0 -7px 20px rgba(19, 24, 27, .24);
+}
+
+body.dbx-steal #dbxFooter a,
+body.dbx-steal #dbxFooter .dbx-footer-brand,
+body.dbx-steal #dbxFooter .dbx-footer-info-item {
+    color: #eef3f5;
+    text-shadow: 0 1px 0 #000;
+}
+
+body.dbx-steal #dbxFooter .dbx-footer-brand {
+    letter-spacing: .11em;
+    text-transform: uppercase;
+}
+
+body.dbx-steal #windrop,
+body.dbx-steal .dbx-window-dock {
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .08) 0 1px, transparent 1px 5px),
+        rgba(7, 10, 12, .34);
+}
+
+/* Scrollleisten wie bearbeitete Metallschienen. */
+body.dbx-steal * {
+    scrollbar-color: #6d787e #c4cbce;
+    scrollbar-width: thin;
+}
+
+body.dbx-steal *::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+body.dbx-steal *::-webkit-scrollbar-track {
+    background: linear-gradient(90deg, #899399, #d9dfe1, #8a9499);
+}
+
+body.dbx-steal *::-webkit-scrollbar-thumb {
+    border: 2px solid #cbd2d5;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #263035, #7a878d 50%, #263035);
+}
+
+@media (max-width: 767.98px) {
+    body.dbx-steal #dbxHeader::after {
+        width: 32vw;
+    }
+
+    body.dbx-steal :is(.card, .dbx-card, .dbx-box, .dbx-panel, .dbx-bar, .dbx-module-bar) {
+        border-radius: .45rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .75), 0 5px 16px rgba(13, 17, 20, .18);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.dbx-steal *,
+    body.dbx-steal *::before,
+    body.dbx-steal *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+@media (prefers-contrast: more) {
+    body.dbx-steal {
+        --steal-ink: #050708;
+        --steal-focus: #005777;
+    }
+
+    body.dbx-steal :is(.card, .dbx-card, .dbx-box, .dbx-panel, .form-control, .form-select, .table) {
+        border-width: 2px;
+    }
+}
+
+/*
+ * Komponenten werden von core.js bedarfsgerecht nachgeladen. Die folgenden
+ * Material-Hooks setzen deshalb überwiegend Variablen und verwenden nur dort
+ * !important, wo eine später geladene Komponentenfläche sonst ihre eigene
+ * deckende Lackierung über die Designschicht legen würde.
+ */
+body.dbx-steal {
+    --dbx-primary: #2d6f8b;
+    --dbx-primary-dark: #17475c;
+    --dbx-bg-main: #aeb7bb;
+    --dbx-bg-panel: #bdc5c9;
+    --dbx-panel-bg-top: #dce1e3;
+    --dbx-panel-bg-bottom: #aab4b9;
+    --dbx-panel-inner-bg-top: #e5e9eb;
+    --dbx-panel-inner-bg-bottom: #b6c0c4;
+    --dbx-panel-border: #6c777d;
+    --dbx-border-color: #606b70;
+    --dbx-border-dark: #3b4449;
+    --dbx-panel-inset-highlight: #f7f9fa;
+    --dbx-panel-inset-shadow: #394247;
+    --dbx-text-main: #15191c;
+    --dbx-text-muted: #505b61;
+    --dbx-bg-menu-main-top: #515b60;
+    --dbx-bg-menu-main-bottom: #22282c;
+    --dbx-bg-menu-admin-top: #424b50;
+    --dbx-bg-menu-admin-bottom: #171c1f;
+    --dbx-menu-main-text: #f2f5f6;
+    --dbx-menu-admin-text: #f5f7f8;
+    --dbx-menu-separator: rgba(232, 238, 240, .28);
+    --dbx-menu-glass-light: rgba(255, 255, 255, .34);
+    --dbx-menu-glass-shadow: rgba(3, 6, 8, .72);
+    --dbx-menu-user-edge-light: #f7fafb;
+    --dbx-menu-user-edge-main: #9ca8ad;
+    --dbx-menu-user-edge-dark: #343c40;
+    --dbx-menu-user-edge-shadow: rgba(9, 12, 14, .46);
+}
+
+body.dbx-steal :is(.dbx-menu-main, .dbx-menu-admin) {
+    border-top-color: rgba(255, 255, 255, .42) !important;
+    border-bottom-color: #0b0f11 !important;
+    background-color: #252c30 !important;
+    background-image:
+        linear-gradient(107deg, rgba(255, 255, 255, .18), transparent 19%, rgba(0, 0, 0, .18) 49%, transparent 78%, rgba(255, 255, 255, .1)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .04) 0 1px, rgba(0, 0, 0, .08) 1px 3px),
+        linear-gradient(180deg, #566167 0%, #2b3236 50%, #171c1f 100%) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .38),
+        inset 0 -1px 0 #050708,
+        0 2px 7px rgba(4, 7, 9, .42) !important;
+}
+
+body.dbx-steal .dbx-menu-main::after {
+    height: 5px !important;
+    bottom: -5px !important;
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .15) 0 1px, transparent 1px 4px),
+        linear-gradient(180deg, #ffffff 0%, #bac4c8 35%, #566167 66%, #e6ecee 100%) !important;
+    box-shadow:
+        inset 0 1px 0 #fff,
+        0 1px 0 #20272a,
+        0 3px 8px rgba(8, 11, 13, .38) !important;
+}
+
+body.dbx-steal .dbx-menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
+body.dbx-steal .dbx-menu.dbx-menu-list > .dbx-menu-item > .dbx-menu-link {
+    color: #f2f5f6 !important;
+}
+
+body.dbx-steal .dbx-menu > .dbx-menu-list > .dbx-menu-item.is-active > .dbx-menu-link,
+body.dbx-steal .dbx-menu.dbx-menu-list > .dbx-menu-item.is-active > .dbx-menu-link {
+    background:
+        linear-gradient(115deg, rgba(255, 255, 255, .25), transparent 30%, rgba(45, 111, 139, .3) 68%, rgba(255, 255, 255, .13)),
+        linear-gradient(180deg, #69747a, #30383c 52%, #202629) !important;
+}
+
+body.dbx-steal .dbx-menu-item > .dbx-menu-list {
+    border-color: #59646a !important;
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .13) 0 1px, transparent 1px 4px),
+        linear-gradient(145deg, #e1e5e7, #a8b2b6 48%, #d5dbde) !important;
+}
+
+body.dbx-steal .dbx-menu-item > .dbx-menu-list .dbx-menu-link {
+    color: #151a1d !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .7) !important;
+}
+
+body.dbx-steal .dbx-menu-item > .dbx-menu-list .dbx-menu-link:hover,
+body.dbx-steal .dbx-menu-item > .dbx-menu-list .dbx-menu-link:focus,
+body.dbx-steal .dbx-menu-item > .dbx-menu-list .is-active > .dbx-menu-link {
+    color: #fff !important;
+    text-shadow: 0 1px 0 #000 !important;
+    background:
+        linear-gradient(110deg, rgba(255, 255, 255, .24), transparent 28%),
+        linear-gradient(90deg, #1d4658, #347a95, #1d4658) !important;
+}
+
+body.dbx-steal .dbx-content-frame:has(.c-cms) {
+    --dbx-cms-page-frame-bg: #aab4b9;
+    --dbx-cms-page-bg: #d2d8da;
+    --dbx-cms-page-border: #5c676c;
+    border-color: #5c676c !important;
+    background-color: #aab4b9 !important;
+    background-image:
+        linear-gradient(122deg, rgba(255, 255, 255, .52), transparent 24%, rgba(52, 61, 66, .12) 57%, transparent 82%),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .12) 0 1px, rgba(53, 62, 67, .06) 1px 3px),
+        linear-gradient(180deg, #d9dfe1, #9fa9ae) !important;
+    box-shadow:
+        inset 0 1px 0 #fff,
+        inset 0 -2px 0 rgba(25, 31, 35, .44),
+        0 16px 38px rgba(15, 19, 22, .28) !important;
+}
+
+body.dbx-steal .dbx-content-frame:has(.c-cms) > .dbx-content-frame-body {
+    background: transparent !important;
+}
+
+body.dbx-steal .dbx-content-page:has(> .c-cms) {
+    background: transparent !important;
+}
+
+body.dbx-steal .c-cms {
+    color: var(--steal-ink) !important;
+    border: 1px solid #778287 !important;
+    background-color: #d2d8da !important;
+    background-image:
+        linear-gradient(135deg, rgba(255, 255, 255, .6), transparent 24%, rgba(65, 74, 79, .08) 52%, transparent 78%, rgba(255, 255, 255, .28)),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .1) 0 1px, transparent 1px 5px),
+        linear-gradient(180deg, #e4e8ea, #c0c8cb 52%, #b4bdc1) !important;
+    box-shadow:
+        inset 0 1px 0 #fff,
+        inset 0 0 0 1px rgba(255, 255, 255, .28),
+        inset 0 -1px 0 rgba(45, 53, 57, .24),
+        0 5px 16px rgba(23, 28, 31, .2) !important;
+}
+
+body.dbx-steal .c-cms :is(.card, .alert, .list-group-item) {
+    background-color: #d5dcde !important;
+    background-image: linear-gradient(180deg, #e8ecee 0%, #d9dfe1 52%, #cdd5d8 100%) !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
+}
+
+body.dbx-steal .c-cms :is(.text-body, .text-body-secondary) {
+    color: var(--steal-ink) !important;
+}
+
+/* dbxForm wird dynamisch nachgeladen: gefräste Eingaben abschließend sichern. */
+body.dbx-steal :is(form, .dbx-form, .dbx-form-grid, .dbx-form-section) :is(
+    input.form-control,
+    textarea.form-control,
+    select.form-select,
+    .form-control,
+    .form-select,
+    .input-group-text
+) {
+    color: #111619 !important;
+    border: 1px solid #5d686e !important;
+    background-color: #cbd2d5 !important;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .2) 0 1px, transparent 1px 3px),
+        linear-gradient(180deg, #99a3a8 0%, #eef1f2 12%, #c5cdd1 48%, #dce1e3 100%) !important;
+    box-shadow:
+        inset 0 2px 5px rgba(18, 24, 27, .24),
+        inset 0 -1px 0 rgba(255, 255, 255, .62),
+        0 1px 0 rgba(255, 255, 255, .78) !important;
+}
+
+body.dbx-steal :is(form, .dbx-form) :is(input, textarea, select):hover {
+    border-color: #3d494f !important;
+}
+
+body.dbx-steal :is(form, .dbx-form) :is(input, textarea, select):focus {
+    color: #080c0e !important;
+    border-color: var(--steal-focus) !important;
+    background-color: #e5e9eb !important;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .22) 0 1px, transparent 1px 3px),
+        linear-gradient(180deg, #b7c0c4, #f5f7f8 14%, #dce2e4) !important;
+    box-shadow:
+        0 0 0 .2rem rgba(0, 127, 174, .26),
+        inset 0 2px 4px rgba(18, 24, 27, .2) !important;
+}
+
+body.dbx-steal input:-webkit-autofill,
+body.dbx-steal input:-webkit-autofill:hover,
+body.dbx-steal input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #111619 !important;
+    -webkit-box-shadow:
+        0 0 0 1000px #cbd2d5 inset,
+        inset 0 2px 5px rgba(18, 24, 27, .24),
+        0 1px 0 rgba(255, 255, 255, .78) !important;
+    caret-color: #111619;
+}
+
+/* dbxReport/Tabulator: gewalzter Stahl bleibt auch nach Komponentenladung sichtbar. */
+body.dbx-steal :is(.dbx-report, .dbx-report-table-wrap, .table-responsive) > .table,
+body.dbx-steal .dbx-report table {
+    color: var(--steal-ink) !important;
+    border-color: #626d73 !important;
+    background-color: #c0c8cb !important;
+    background-image:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .12) 0 1px, transparent 1px 6px),
+        linear-gradient(180deg, #dde2e4, #aeb8bc) !important;
+}
+
+body.dbx-steal :is(.dbx-report, .dbx-report-table-wrap) table thead th,
+body.dbx-steal .tabulator .tabulator-header,
+body.dbx-steal .tabulator .tabulator-header .tabulator-col {
+    color: #f5f7f8 !important;
+    border-color: #151b1e !important;
+    text-shadow: 0 1px 0 #000;
+    background-color: #242a2e !important;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .04) 0 1px, transparent 1px 3px),
+        linear-gradient(180deg, #566066, #242a2e 55%, #161b1e) !important;
+}
+
+body.dbx-steal .tabulator .tabulator-tableholder,
+body.dbx-steal .tabulator .tabulator-table {
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .1) 0 1px, transparent 1px 6px),
+        #b6c0c4 !important;
+}

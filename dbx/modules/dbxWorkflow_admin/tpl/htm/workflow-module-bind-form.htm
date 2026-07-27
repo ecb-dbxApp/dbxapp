@@ -1,0 +1,10 @@
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-workflow-admin">[tpl=dbx|module-bar]
+ <form action="{action}" method="post" class="dbxAjax" data-target="dbxForm_{i}">
+  <div class="dbx-panel-body">
+   <div class="mb-3">{obj:form_msg}</div>
+   [dbx:form]
+  </div>
+ </form>
+ {obj:bind_generator}
+ [dbx:js]
+</div>

@@ -1,0 +1,23 @@
+<div id="dbxForm_{i}" class="dbx-shop-admin-card dbxForm_wrapper {card_class}">
+ {frame_form_open}
+  <input type="hidden" name="shop_action" value="{shop_action}">
+  <input type="hidden" name="id" value="{record_id}">
+  {extra_hidden}
+  <div class="dbx-shop-admin-card-head">
+   <div>
+    <div class="dbx-shop-admin-card-title">{card_title}</div>
+    <div class="dbx-shop-admin-card-subtitle">{card_subtitle}</div>
+   </div>
+   <div class="dbx-shop-admin-card-head-actions">{card_badges}</div>
+  </div>
+  <div class="dbx-shop-admin-card-body">
+   <div class="mb-2">{obj:form_msg}</div>
+   {form_body}
+  </div>
+  <div class="dbx-shop-admin-card-actions">
+   <button class="btn btn-primary btn-sm" name="shop_action" value="{save_action}" title="Save"><i class="bi bi-save"></i> Save</button>
+   {delete_button}
+  </div>
+  [dbx:js]
+ {frame_form_close}
+</div>

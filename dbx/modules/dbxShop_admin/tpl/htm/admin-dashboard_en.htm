@@ -1,0 +1,115 @@
+<div class="container-fluid p-3">
+   <div class="row g-3 mb-3">
+      <div class="col-md-6 col-xl-2">
+         <div class="card h-100"><div class="card-body"><small class="text-muted">Open orders</small><h3>{orders_open}</h3></div></div>
+      </div>
+      <div class="col-md-6 col-xl-2">
+         <div class="card h-100"><div class="card-body"><small class="text-muted">Open payments</small><h3>{payments_open}</h3></div></div>
+      </div>
+      <div class="col-md-6 col-xl-2">
+         <div class="card h-100"><div class="card-body"><small class="text-muted">Dispatch open</small><h3>{shipping_open}</h3></div></div>
+      </div>
+      <div class="col-md-6 col-xl-2">
+         <div class="card h-100"><div class="card-body"><small class="text-muted">Revocations open</small><h3>{withdrawals_open}</h3></div></div>
+      </div>
+      <div class="col-md-6 col-xl-2">
+         <div class="card h-100"><div class="card-body"><small class="text-muted">Low stock</small><h3>{stock_low}</h3></div></div>
+      </div>
+      <div class="col-md-6 col-xl-2">
+         <div class="card h-100"><div class="card-body"><small class="text-muted">Active articles</small><h3>{products_active}</h3></div></div>
+      </div>
+   </div>
+   <div class="row g-3">
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{product_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-box-seam"></i> Products</h5>
+               <p class="card-text">Prepare products, prices, variants and media.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{order_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-receipt"></i> Orders</h5>
+               <p class="card-text">Process orders, payment and delivery.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{group_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-diagram-3"></i> Product groups</h5>
+               <p class="card-text">Maintain presentation, VAT, attributes and gallery behavior.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{attribute_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-sliders"></i> Attributes</h5>
+               <p class="card-text">Maintain metadata such as size, colour, material or length per product group.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{shipping_group_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-truck"></i> Dispatch groups</h5>
+               <p class="card-text">Maintain shipping route, costs and shipping rules separately.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{channel_group_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-share"></i> Channel groups</h5>
+               <p class="card-text">Shop, Amazon, eBay, classified ads and mobile.de manage as sets.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{channel_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-broadcast-pin"></i> Channels</h5>
+               <p class="card-text">Shop, Amazon, eBay, classified ads and mobile.de control.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{media_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-images"></i> Shop media</h5>
+               <p class="card-text">Upload, edit and assign product and group images via the CMS media browser.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{legal_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-file-text"></i> Legal texts</h5>
+               <p class="card-text">Version legal texts and prepare snapshots.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none" href="{return_url}">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-arrow-counterclockwise"></i> Revocations</h5>
+               <p class="card-text">Process revocation and return separately.</p>
+            </div>
+         </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+         <a class="card h-100 text-decoration-none dbxConfirm" href="{install_url}"
+            data-confirm-title="Install shop / wait"
+            data-confirm="Synchronize DD scheme, maintain defaults and create missing demo data?"
+            data-confirm-buttons="yesno">
+            <div class="card-body">
+               <h5 class="card-title"><i class="bi bi-tools"></i> Installation and maintenance</h5>
+               <p class="card-text">Scheme and default maintenance consciously execute as an explicit admin action.</p>
+            </div>
+         </a>
+      </div>
+   </div>
+</div>

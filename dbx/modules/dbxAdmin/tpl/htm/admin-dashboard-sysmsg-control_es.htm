@@ -1,0 +1,18 @@
+<div id="dbx_sysmsg_control_{i}" class="dbx-admin-dashboard-cache-overview dbx-admin-dashboard-sysmsg-overview">
+ <div class="dbx-admin-dashboard-cache-status dbx-admin-dashboard-cache-status-{sysmsg_status_tone}">
+  <i class="bi {sysmsg_status_icon}"></i>
+  <div>
+   <strong>{sysmsg_status_label}</strong>
+   <small>{sysmsg_status_hint}</small>
+  </div>
+ </div>
+
+ <form action="{sys_msg_level_save_base}" method="post" id="dbx_form_{i}" class="dbx-admin-dashboard-cache-toggle dbx-admin-dashboard-sysmsg-toggle dbxAjax"
+       data-ajax-target="dbx_sysmsg_control_{i}" data-ajax-mode="html" data-ajax-replace="target">
+  [dbx:form]
+  <select class="form-select form-select-sm" name="sys_msg_level" aria-label="Mostrar mensajes del sistema"
+          data-sysmsg-level-select="form">
+   {sys_msg_level_options}
+  </select>
+ </form>
+</div>

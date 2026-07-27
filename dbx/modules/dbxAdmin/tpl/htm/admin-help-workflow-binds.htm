@@ -1,0 +1,26 @@
+<h4>Wann wird ein Binding benötigt?</h4>
+<p>Ein Workflow kann einfache Werte selbst erfassen. Für echte Fachdaten verbindet ein Modul-Binding die allgemeine Engine deklarativ mit DD, FD, Templates und einer kontrollierten Finish-Aktion. Das Fachmodul muss dafür keine eigene Workflow-Steuerung nachbauen.</p>
+
+<div class="help-flow">Workflow-Definition
+  → bind_ref = modul|bind_key
+  → aktives Modul-Binding
+  → DD-Auswahl / Vorbelegung / Kontext
+  → Finish im Fachmodul</div>
+
+<h4>Vorgehensweise</h4>
+<ol>
+<li><strong>Neues Binding</strong> öffnen.</li>
+<li>Modul und dessen zentrale DD wählen; der Generator erstellt ein Grundgerüst.</li>
+<li><code>record</code>, <code>needs</code> und <code>finish</code> fachlich prüfen und anpassen.</li>
+<li>Binding aktivieren und speichern.</li>
+<li>Im Workflow unter Modul-Anbindung dieselbe Referenz eintragen, zum Beispiel <code>dbxContact|contact_reply</code>.</li>
+<li>Einen neuen Workflow-Durchlauf mit einem Testdatensatz ausführen.</li>
+</ol>
+
+<h4>Hinweise</h4>
+<ul>
+<li><code>modul</code> und <code>bind_key</code> bilden gemeinsam eine eindeutige Referenz.</li>
+<li>Ein deaktiviertes oder unbekanntes Binding liefert keine Fachanbindung.</li>
+<li>Der Generator ist ein Ausgangspunkt. Feldnamen, Auswahlfilter, Templates und Finish-Aktionen müssen zum Fachfall passen.</li>
+<li>Externe Veröffentlichungen, Mailversand und andere schwer rückgängig zu machende Aktionen müssen sichtbar bestätigt und beim Finish erneut geprüft werden.</li>
+</ul>

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="250" viewBox="0 0 980 250" role="img" aria-labelledby="title desc">
+  <title id="title">dbxapp Request Flow</title>
+  <desc id="desc">Symbolischer Ablauf vom HTTP Request ueber Router, Modul, Template und Interpreter zur Ausgabe.</desc>
+  <defs>
+    <style>
+      .box{fill:#fff;stroke:#2165b6;stroke-width:2;rx:8}
+      .core{fill:#edf5ff;stroke:#2165b6;stroke-width:2;rx:8}
+      .tpl{fill:#effaf9;stroke:#0f9f9a;stroke-width:2;rx:8}
+      .text{font:600 15px Arial,sans-serif;fill:#172033}
+      .small{font:12px Arial,sans-serif;fill:#4b5563}
+      .arrow{stroke:#58677a;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#58677a"/>
+    </marker>
+  </defs>
+  <rect class="box" x="25" y="70" width="130" height="80"/>
+  <text class="text" x="90" y="103" text-anchor="middle">Request</text>
+  <text class="small" x="90" y="124" text-anchor="middle">dbx_modul</text>
+  <text class="small" x="90" y="142" text-anchor="middle">dbx_run1/run2</text>
+  <path class="arrow" d="M155 110H210"/>
+  <rect class="core" x="210" y="70" width="140" height="80"/>
+  <text class="text" x="280" y="103" text-anchor="middle">dbxWebApp</text>
+  <text class="small" x="280" y="126" text-anchor="middle">Routing + Zugriff</text>
+  <path class="arrow" d="M350 110H405"/>
+  <rect class="core" x="405" y="70" width="140" height="80"/>
+  <text class="text" x="475" y="103" text-anchor="middle">Modul</text>
+  <text class="small" x="475" y="126" text-anchor="middle">run(), Include</text>
+  <path class="arrow" d="M545 110H600"/>
+  <rect class="tpl" x="600" y="70" width="140" height="80"/>
+  <text class="text" x="670" y="103" text-anchor="middle">dbxTPL</text>
+  <text class="small" x="670" y="126" text-anchor="middle">Templates + Slots</text>
+  <path class="arrow" d="M740 110H795"/>
+  <rect class="core" x="795" y="70" width="150" height="80"/>
+  <text class="text" x="870" y="103" text-anchor="middle">Interpreter</text>
+  <text class="small" x="870" y="126" text-anchor="middle">[modul=...]</text>
+  <path class="arrow" d="M870 150V205H90V150"/>
+  <text class="small" x="480" y="224" text-anchor="middle">Der Interpreter kann weitere Modulinseln aufloesen; geschuetzte norep-Inhalte bleiben unveraendert.</text>
+</svg>

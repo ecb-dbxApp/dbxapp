@@ -1,0 +1,14 @@
+<div id="dbxForm_{i}" class="dbxForm_wrapper dbx-shop-filter-wrapper">
+ <form action="?dbx_modul=dbxShop&amp;dbx_run1=catalog" method="get" class="dbx-shop-filter">
+  <input type="hidden" name="dbx_modul" value="dbxShop">
+  <input type="hidden" name="dbx_run1" value="catalog">
+  {group_hidden}
+  <div class="dbx-shop-filter-main">
+   {obj:q}
+   <div class="dbx-shop-filter-actions"><button class="btn btn-primary btn-sm"><i class="bi bi-search"></i> Filtrar</button></div>
+  </div>
+  {advanced_filters}
+  [dbx:form]
+  [dbx:js]
+ </form>
+</div>

@@ -1,0 +1,37 @@
+{
+  "steps": [
+    {
+      "id": "hero",
+      "action": "media.create_base64",
+      "params": {
+        "file_name": "hero.jpg",
+        "asset_ref": "hero.jpg",
+        "media_folder": "img/hero",
+        "title": "Hero",
+        "alt": "Hero-Bild"
+      }
+    },
+    {
+      "id": "page",
+      "action": "page.create",
+      "params": {
+        "lng": "de",
+        "folder_id": 1,
+        "title": "Neue KI-Seite",
+        "template": "c-title-hero_header-body1-footer",
+        "hero_height": "300px",
+        "content": "<p class=\"lead\">Kurzer Hero-Text</p><hr class=\"dbx-cms-marker dbx-cms-marker-hero\" contenteditable=\"false\" data-dbx-marker=\"dbx:hero\" data-label=\"Hero-Text\"><hr class=\"dbx-cms-marker dbx-cms-marker-header\" contenteditable=\"false\" data-dbx-marker=\"dbx:header\" data-label=\"Header\"><h2>Ueberschrift</h2><p>Haupttext</p><hr class=\"dbx-cms-marker dbx-cms-marker-footer\" contenteditable=\"false\" data-dbx-marker=\"dbx:footer\" data-label=\"Footer\"><p><small>Footer</small></p>"
+      }
+    },
+    {
+      "id": "hero_assign",
+      "action": "media.assign",
+      "params": {
+        "media_id": "$ref:hero.media_id",
+        "content_id": "$ref:page.page_id",
+        "slot": "hero",
+        "lng": "de"
+      }
+    }
+  ]
+}

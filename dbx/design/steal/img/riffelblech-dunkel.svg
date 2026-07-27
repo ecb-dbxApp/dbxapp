@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Dunkles brüniertes Riffelblech">
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#515b60"/>
+      <stop offset=".22" stop-color="#1c2225"/>
+      <stop offset=".48" stop-color="#3a4348"/>
+      <stop offset=".76" stop-color="#111619"/>
+      <stop offset="1" stop-color="#444e53"/>
+    </linearGradient>
+    <linearGradient id="lug" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cbd3d6"/>
+      <stop offset=".18" stop-color="#7d898f"/>
+      <stop offset=".5" stop-color="#242b2f"/>
+      <stop offset=".76" stop-color="#5c676c"/>
+      <stop offset="1" stop-color="#090c0e"/>
+    </linearGradient>
+    <pattern id="diamonds" width="96" height="96" patternUnits="userSpaceOnUse">
+      <g transform="translate(22 22) rotate(45)">
+        <rect x="-18" y="-5" width="36" height="12" rx="6" fill="#050708" opacity=".74"/>
+        <rect x="-18" y="-7" width="36" height="12" rx="6" fill="url(#lug)" stroke="#aeb8bc" stroke-width=".75"/>
+        <path d="M-13-3h26" stroke="#eef2f3" stroke-width="1" opacity=".43"/>
+      </g>
+      <g transform="translate(74 22) rotate(-45)">
+        <rect x="-18" y="-5" width="36" height="12" rx="6" fill="#050708" opacity=".74"/>
+        <rect x="-18" y="-7" width="36" height="12" rx="6" fill="url(#lug)" stroke="#aeb8bc" stroke-width=".75"/>
+        <path d="M-13-3h26" stroke="#eef2f3" stroke-width="1" opacity=".43"/>
+      </g>
+      <g transform="translate(22 74) rotate(-45)">
+        <rect x="-18" y="-5" width="36" height="12" rx="6" fill="#050708" opacity=".74"/>
+        <rect x="-18" y="-7" width="36" height="12" rx="6" fill="url(#lug)" stroke="#aeb8bc" stroke-width=".75"/>
+        <path d="M-13-3h26" stroke="#eef2f3" stroke-width="1" opacity=".43"/>
+      </g>
+      <g transform="translate(74 74) rotate(45)">
+        <rect x="-18" y="-5" width="36" height="12" rx="6" fill="#050708" opacity=".74"/>
+        <rect x="-18" y="-7" width="36" height="12" rx="6" fill="url(#lug)" stroke="#aeb8bc" stroke-width=".75"/>
+        <path d="M-13-3h26" stroke="#eef2f3" stroke-width="1" opacity=".43"/>
+      </g>
+    </pattern>
+  </defs>
+  <rect width="192" height="192" fill="url(#plate)"/>
+  <path d="M0 21h192M0 61h192M0 108h192M0 157h192" stroke="#fff" stroke-width=".65" opacity=".06"/>
+  <rect width="192" height="192" fill="url(#diamonds)"/>
+</svg>

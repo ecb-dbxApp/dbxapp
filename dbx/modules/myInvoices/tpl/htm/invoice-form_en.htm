@@ -1,0 +1,23 @@
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-ajax-root">
+ <div class="dbx-panel-head d-flex justify-content-between align-items-center">
+  <h2 class="h5 mb-0">{form_title}</h2>
+  <a class="btn btn-outline-secondary btn-sm" href="{list_url}">
+   To the list
+  </a>
+ </div>
+ <form action="{action}" method="post" id="dbx_form_{i}"
+       class="dbxAjax" data-target="dbxForm_{i}">
+  <div class="dbx-panel-body">
+   {obj:form_msg}
+   <div class="row g-3">
+    [dbx:form]
+   </div>
+  </div>
+  <div class="dbx-panel-foot">
+   <button class="btn btn-primary" type="submit">
+    <i class="bi bi-save"></i> Save
+   </button>
+  </div>
+  [dbx:js]
+ </form>
+</div>

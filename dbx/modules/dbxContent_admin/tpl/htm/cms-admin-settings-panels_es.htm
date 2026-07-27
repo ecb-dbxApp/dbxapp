@@ -1,0 +1,43 @@
+<div class="dbx-cms-settings" data-cms-settings>
+ <details class="dbx-cms-settings-panel" data-cms-ui-state="hero" open>
+  <summary><i class="bi bi-chevron-right dbx-cms-toggle-icon"></i><span>Hero</span></summary>
+ <div class="dbx-cms-settings-grid">
+   <figure class="dbx-cms-hero-preview" data-cms-hero-preview>
+    <div class="dbx-cms-hero-preview-empty">No hay imagen de héroe seleccionada.</div>
+   </figure>
+   {obj:hero_template}
+   {obj:hero_image_id}
+   {obj:hero_margin_top}
+   {obj:hero_height}
+   {obj:hero_variant}
+   {obj:hero_sticky}
+   {obj:hero_scroll_layer}
+   <div class="dbx-cms-hero-actions">
+    <button type="button" class="btn btn-outline-primary btn-sm dbx-cms-hero-pick" data-cms-action="assign-hero-media" title="Elija la imagen de héroe del navegador multimedia">
+     <i class="bi bi-image"></i><i class="bi bi-camera-video"></i><i class="bi bi-upload"></i><span>Selección</span>
+    </button>
+    <button type="button" class="btn btn-primary btn-sm" data-cms-action="save-settings" title="Guardar configuración de héroe">
+     <i class="bi bi-save"></i><span>Guardar</span>
+    </button>
+   </div>
+  </div>
+ </details>
+ <details class="dbx-cms-settings-panel" data-cms-ui-state="gallery">
+  <summary><i class="bi bi-chevron-right dbx-cms-toggle-icon"></i><span>Galería</span></summary>
+  <div class="dbx-cms-settings-grid">
+   {obj:gallery_overflow}
+   {obj:gallery_click_behavior}
+   <div class="dbx-cms-settings-actions">
+    <button type="button" class="btn btn-outline-primary btn-sm" data-cms-action="assign-media" data-cms-slot="gallery" title="Añadir imágenes del navegador multimedia a la galería">
+     <i class="bi bi-images"></i><i class="bi bi-camera-video"></i><i class="bi bi-upload"></i><span>Selección</span>
+    </button>
+   <button type="button" class="btn btn-primary btn-sm" data-cms-action="save-settings" title="Guardar configuración de la galería">
+     <i class="bi bi-save"></i><span>Guardar</span>
+    </button>
+   </div>
+  </div>
+  <div class="dbx-cms-media-list" data-cms-media="gallery">
+   <div class="dbx-cms-empty">No hay medios en la galería.</div>
+  </div>
+ </details>
+</div>

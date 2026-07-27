@@ -1,0 +1,28 @@
+<h4>¿Para qué es esta visión general?</h4>
+<p>Aquí usted administra las definiciones que el módulo <strong>dbxWorkflow</strong> más tarde. <strong>dbxWorkflow_admin</strong> especifica el objetivo, pasos, pruebas y conexiones de módulos opcionales; <strong>dbxWorkflow</strong> genera una instancia separada para cada inicio.</p>
+
+<div class="help-flow">Definición en dbxWorkflow_admin
+  Activar y probar →
+Comenzando en dbxWorkflow
+  Instalación con instantánea de definición
+→ Pasos de procesamiento
+Examinar y completar</div>
+
+<h4>Procedimiento típico</h4>
+<ol>
+<li><strong>Nuevo flujo de trabajo:</strong> Establecer el objetivo y la clave de flujo de trabajo estable.</li>
+<li><strong>Pasos:</strong> Poner insumos, acciones, pruebas y decisiones en el orden correcto.</li>
+<li><strong>Prueba:</strong> Primero guardar, controlar y luego activar la definición.</li>
+<li><strong>Empezando:</strong> Sobre la acción inicial un nuevo paso dbxWorkflow abierto.</li>
+<li><strong>Supervisión:</strong> Corridas continuas y cerradas bajo <em>Casos de flujo de trabajo</em> Mira.</li>
+</ol>
+
+<h4>Importante</h4>
+<ul>
+<li>Sólo se pueden reiniciar definiciones activas.</li>
+<li>Una clave de flujo de trabajo desconocida o desactivada no es reemplazada por una caducidad de demostración.</li>
+<li>Al inicio, la instancia guarda una instantánea. Por lo tanto, los cambios posteriores sólo se aplican a nuevas carreras.</li>
+<li>Los ejemplos incluidos se crean una vez durante la instalación y se pueden editar como definiciones normales.</li>
+</ul>
+
+<div class="help-example"><strong>Ejemplo:</strong> <code>project_offer</code> Activar en la lista → <em>Empezando</em> → dbxWorkflow Crea una nueva instancia y muestra el primer paso aplicable.</div>

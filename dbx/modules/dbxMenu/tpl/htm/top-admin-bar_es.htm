@@ -1,0 +1,105 @@
+<!-- ============= COMPONENT ============== -->
+ <div class="container d-flex align-items-center">
+
+ <h1 class="logo me-auto"><a href="?dbx_modul=dbxHome">ADMINE</a></h1>
+ <!-- Uncomment below if you prefer to use an image logo -->
+ <!-- <a href="index.html" class="logo me-auto"><img src="./assets/img/logo.png" alt="" class="img-fluid"></a>-->
+
+ <nav id="navbar" class="navbar order-last order-lg-0">
+ <ul>
+ <li><a class="nav-link active" href="?dbx_modul=dbxHome&dbx_run1=home&dbx_run2=run">Home</a></li>
+ <li class="dropdown"><a href="#0"><span>Índice</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=edit_content">Nuevo contenido</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=list_flat">Lista (flat)</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=list_tree">Lista (árbol)</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=new_folder">Nuevas carpetas</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=list_folder">Lista de carpetas</a></li>
+ </ul>
+ </li>
+
+
+
+
+ <li class="dropdown"><a href="#0"><span>Usuarios</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=new_user" >Nuevo usuario</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=list_user" >Lista de usuarios</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=new_group" >Nuevo grupo</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=list_groups">Lista de grupos</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxContact_admin&dbx_run1=list">Solicitudes de contacto</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=edit_selfr">perfil propio</a></li>
+ </ul>
+ </li>
+
+  <li class="dropdown"><a href="#0"><span>DataDic</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=list_server">Servidores</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=list_dd">DD Sync</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=db&dbx_run2=list_db">DB Sync</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=backup_db">DB Backup</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=restore_db">DB Restore</a></li>
+ </ul>
+ </li>
+
+ <li class="dropdown"><a href="#0"><span>Sistema</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=session&dbx_run2=list_session">Período de sesiones</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=missing&dbx_run2=list_missing">Falta</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=list_sysmsg" >SysMsg</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=trace&dbx_run2=list_trace" >Trace</a></li>
+ </ul>
+ </li>
+
+ <li class="dropdown"><a href="#0"><span>Importaciones</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=import_user" >Usuario de importación (CSV)</a></li>
+ <li><a class="nav-link" href="?dbx_modul=myBefund_admin&dbx_run1=import&dbx_run2=import_befund">Conclusiones de importación (TLD)</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxSQL&dbx_run1=sql&dbx_run2=import_sql">Importar SQL</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=csv&dbx_run2=import_csv">Importación CSV</a></li>
+ </ul>
+ </li>
+
+ <li class="dropdown"><a href="#0"><span>Exportación</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=export&dbx_run2=export_user">Usuarios de exportación</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxSQL&dbx_run1=export&dbx_run2=export_sql">Exportar SQL</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=export&dbx_run2=export_csv">Exportación CSV</a></li>
+ </ul>
+ </li>
+
+
+
+ <li class="dropdown"><a href="#0"><span>Módulos</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_new" >Nuevos módulos</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_list">Lista de módulos</a></li>
+ </ul>
+ </li>
+
+
+ <li class="dropdown"><a href="#0"><span>Api</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="?dbx_modul=dbxApi_admin&dbx_run1=api&dbx_run2=list_api" >Lista de llamadas de API</a></li>
+ <li><a class="nav-link" href="?dbx_modul=dbxApi_admin&dbx_run1=api&dbx_run2=edit_api">New API Call</a></li>
+ <li><a class="nav-link" href="?dbx_modul=myBefund">Conclusiones</a></li>
+ <li><a class="nav-link" href="?dbx_modul=myBefund_admin">Conclusiones-Admin</a></li>
+
+</ul>
+ </li>
+
+
+ <i class="bi bi-list mobile-nav-toggle"></i>
+ </nav><!-- .navbar -->
+
+
+ </div>
+<!-- ============= COMPONENT END// ============== -->

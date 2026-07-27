@@ -1,0 +1,21 @@
+<div id="dbx_target_{i}" class="dbx-admin-dashboard-cache-overview dbx-admin-dashboard-performance-config">
+ <div class="dbx-admin-dashboard-cache-status dbx-admin-dashboard-cache-status-{status_tone}">
+  <i class="bi {status_icon}"></i>
+  <div>
+   <strong>{status_label}</strong>
+   <small>{status_hint}</small>
+  </div>
+ </div>
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbx-admin-dashboard-cache-toggle dbx-admin-dashboard-performance-toggle dbxAjax"
+       data-ajax-target="dbx_target_{i}" data-ajax-mode="html" data-ajax-replace="target">
+  [dbx:form]
+  <div class="dbx-admin-dashboard-performance-level">
+   <select class="form-select form-select-sm" id="dbx_performance_level_{i}" name="performance_level">
+    {performance_level_options}
+   </select>
+  </div>
+  <button type="submit" class="btn btn-sm btn-outline-primary">
+   <i class="bi bi-check2-circle"></i> Guardar
+  </button>
+ </form>
+</div>

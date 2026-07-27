@@ -1,0 +1,25 @@
+<div class="dbx-panel dbxReport" id="dbx_target_{i}">
+  <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
+    [dbx:form]
+    [dbx:pagination]
+    <div class="row row-cols-1">
+       <hr class="dbx_split">
+       <div class="col bg-light">
+         <div class="dbxImg">
+            <div class="row">
+              <div class="col"><b>{name}</b></div>
+            </div>
+            <div class="row">
+              <div class="col">{obj:img}</div>
+            </div>
+            <div class="row">
+              <div class="col">{obj:sel}</div>
+              <div class="col">{obj:del}</div>
+            </div>
+         </div>
+       </div>
+    </div>
+    <hr class="dbx_split">
+  [dbx:js]
+  </form>
+</div>

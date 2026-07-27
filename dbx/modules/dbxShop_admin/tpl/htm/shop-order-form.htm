@@ -1,0 +1,63 @@
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-shop-order-form" data-dbx="lib=confirm|class=dbxConfirm|bind=link,button,form">
+ {shop_admin_style}
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax" data-target="dbxForm_{i}">
+  <div class="dbx-bar {bar_class}">
+   <div class="dbx-bar-title {bar_title_class}">
+    {bar_title_pre}
+    <i class="bi {bar_icon}"></i>
+    <span class="dbx-module-bar-copy">
+     <span class="dbx-module-bar-heading"{bar_title_heading_attrs}>{bar_title}</span>
+     <span class="dbx-module-bar-subtitle">{bar_subtitle}</span>
+    </span>
+   </div>
+   {bar_middle}
+   <div class="dbx-bar-actions d-flex align-items-center gap-2 {bar_actions_class}">
+    {bar_actions}{bar_extra}
+   </div>
+  </div>
+  <div class="dbx-panel-body">
+   <div class="mb-3">{order_notice}{obj:form_msg}</div>
+   <div class="dbx-shop-order-detail-grid">
+    <section class="dbx-shop-order-section dbx-shop-order-summary">
+     <h6>Bestelldaten</h6>
+     {obj:order_meta}
+    </section>
+    <section class="dbx-shop-order-section">
+     <h6>Status bearbeiten</h6>
+     {order_quick_actions}
+     <div class="dbx-shop-order-notify"><strong>Kundenmail</strong><small>{notify_customer_hint}</small></div>
+     <div class="row g-3">
+      <div class="col-md-6">{obj:status}</div>
+      <div class="col-md-6">{obj:payment_status}</div>
+      <div class="col-12">{obj:payment_reference}</div>
+      <div class="col-md-6">{obj:invoice_no}</div>
+      <div class="col-md-6">{obj:invoice_date}</div>
+      <div class="col-md-6">{obj:shipping_status}</div>
+      <div class="col-md-6">{obj:shipping_provider}</div>
+      <div class="col-md-6">{obj:tracking_no}</div>
+      <div class="col-md-6">{obj:tracking_url}</div>
+      <div class="col-md-6">{obj:shipped_date}</div>
+      <div class="col-12">{obj:note}</div>
+     </div>
+    </section>
+    <section class="dbx-shop-order-section dbx-shop-order-items">
+     <h6>Positionen</h6>
+     {obj:order_items}
+    </section>
+    <section class="dbx-shop-order-section dbx-shop-order-payload">
+     <h6>Technische Rueckmeldung</h6>
+     {obj:order_payload}
+    </section>
+    <section class="dbx-shop-order-section">
+     <h6>Historie</h6>
+     {obj:order_history}
+    </section>
+    <section class="dbx-shop-order-section">
+     <h6>Widerrufe</h6>
+     {obj:order_withdrawals}
+    </section>
+   </div>
+  </div>
+  [dbx:js]
+ </form>
+</div>

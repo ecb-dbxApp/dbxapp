@@ -1,0 +1,50 @@
+<div id="dbxForm_{i}" class="dbxForm_wrapper dbx-shop-checkout-form">
+ <form action="{action}" method="post" id="dbx_form_{i}">
+  {obj:form_msg}
+  <div class="dbx-shop-checkout">
+   <section class="dbx-shop-checkout-panel dbx-shop-checkout-summary">
+    <div class="dbx-shop-checkout-panel-head">
+     <h3><i class="bi bi-basket"></i> Bestellung</h3>
+     <a class="btn btn-outline-primary btn-sm" href="?dbx_modul=dbxShop&amp;dbx_run1=cart"><i class="bi bi-pencil"></i> Warenkorb bearbeiten</a>
+    </div>
+    {obj:checkout_cart}
+   </section>
+
+   <section class="dbx-shop-checkout-panel">
+    <h3><i class="bi bi-person"></i> Kundendaten</h3>
+    <div class="row g-3">
+     <div class="col-md-6">{obj:customer_name}</div>
+     <div class="col-md-6">{obj:customer_email}</div>
+     <div class="col-md-6">{obj:customer_phone}</div>
+     <div class="col-12">{obj:shipping_address}</div>
+     <div class="col-12">{obj:note}</div>
+    </div>
+   </section>
+
+   <section class="dbx-shop-checkout-panel">
+    <h3><i class="bi bi-credit-card"></i> Zahlung</h3>
+    {obj:payment_method}
+    <div class="dbx-shop-payment-help">{payment_help}</div>
+   </section>
+
+   <section class="dbx-shop-checkout-panel">
+    <h3><i class="bi bi-shield-check"></i> Rechtliches</h3>
+    <div class="dbx-shop-checkout-checks">
+     {obj:accept_legal}
+     {obj:accept_withdrawal}
+    </div>
+   </section>
+
+   <div class="dbx-shop-checkout-actions">
+    <a class="btn btn-outline-secondary" href="?dbx_modul=dbxShop&amp;dbx_run1=catalog"><i class="bi bi-arrow-left"></i> Weiter einkaufen</a>
+    <div class="dbx-shop-checkout-submit">
+     <span class="dbx-shop-demo-order-note"><i class="bi bi-exclamation-triangle-fill"></i> Demo-Shop &ndash; kein Kauf</span>
+     <button class="btn btn-primary" type="submit" aria-describedby="dbx-shop-demo-notice"><i class="bi bi-check2-circle"></i> Bestellablauf testen (kein Kauf)</button>
+    </div>
+   </div>
+   {demo_shop_notice}
+  </div>
+  [dbx:form]
+  [dbx:js]
+ </form>
+</div>

@@ -1,0 +1,12 @@
+<h4>Zweck</h4>
+<p>Der Gast-Full-Page-Cache speichert bei gueltigen Permalink-Aufrufen die vollstaendige Endausgabe. Titel, Description, Keywords, weitere Head-Metadaten, Design, Menues, Interpreter-Platzhalter und enthaltene Module sind darin bereits aufgeloest. Der Cache gilt ausschliesslich fuer Gaeste mit Benutzer-ID 0; angemeldete Benutzer bleiben dynamisch.</p>
+<p>Ein Treffer wird vor der Content-Permalink-/CID-Aufloesung direkt aus der Permalink-Datei geliefert. Dabei ist kein Content-Datenbankzugriff erforderlich; nur die normale Session-Aktualisierung darf bei aktivem Session-DB-Modus die Datenbank verwenden. Sessiongebundene Formular-Tokens werden ohne Modul- oder Interpreterlauf frisch in die Gast-Session eingesetzt.</p>
+<p>Die Cachedatei selbst folgt dem lesbaren Muster <code>permalink_sprache_skin.htm</code>, zum Beispiel <code>kunden-nutzen_de_blau.htm</code>. Ein <code>user_0</code>-Zusatz ist nicht erforderlich, weil nur Benutzer-ID 0 den Cache verwenden darf. Design-, Host-, Query- und Gastzustandsvarianten liegen kollisionsfrei in getrennten Kontext-Unterordnern.</p>
+<h4>Möglichkeiten</h4>
+<ul>
+<li>Anzahl der gecachten Gast-Full-Pages je Sprache lesen.</li>
+<li>Full-Page-Cache bei Template-, Menue- oder Content-Aenderungen manuell leeren.</li>
+</ul>
+<div class="help-flow">Content speichern → Cache invalidiert automatisch (CMS)
+Manuell: Admin → Page-Cache → Leeren → Seite neu laden</div>
+<div class="help-example"><strong>Beispiel:</strong> Content-Aenderung fehlt auf der Live-Seite → Cache leeren → gueltigen Permalink erneut aufrufen.</div>

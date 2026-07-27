@@ -1,0 +1,56 @@
+<div class="dbx-panel dbx-ki-briefing-styles" data-dbx="lib=confirm|class=dbxConfirm|bind=button">
+ [tpl=dbx|module-bar]
+ <div class="container py-4" style="max-width: 960px;">
+  <p class="text-muted small">Los estilos de escritura se insertan en contratos AI como un tono predeterminado. Los valores estándar están en <code>cfg/writing_styles.php</code>; valores almacenados sobreescribirlos en el configuración del módulo.</p>
+
+  <form method="post" action="{save_url}">
+   {obj:form_msg}
+   <div class="table-responsive">
+    <table class="table table-sm align-middle">
+     <thead>
+      <tr>
+       <th style="width:12rem">Llaves</th>
+       <th style="width:14rem">Designación</th>
+       <th>AI prompt</th>
+      </tr>
+     </thead>
+     <tbody id="dbx-ki-styles-rows">
+      {style_rows}
+     </tbody>
+    </table>
+   </div>
+   <div class="d-flex flex-wrap gap-2 mt-3">
+    <button type="button" class="btn btn-outline-secondary btn-sm" id="dbx-ki-style-add"><i class="bi bi-plus"></i> Línea</button>
+    <button type="submit" class="btn btn-primary" name="styles_action" value="save"><i class="bi bi-check-lg"></i> Guardar</button>
+    <button type="submit" class="btn btn-outline-warning btn-sm dbxConfirm"
+            name="styles_action" value="reset"
+            data-confirm-title="¿Reiniciando estilos de escritura?"
+            data-confirm="Todos los estilos de escritura almacenados son reemplazados por los valores predeterminados."
+            data-confirm-buttons="yesno">
+     Restaurar estándar
+    </button>
+   </div>
+   [dbx:form]
+  </form>
+
+  <template id="dbx-ki-style-row-tpl">
+   <tr>
+    <td><input class="form-control form-control-sm" name="style_key[]" placeholder="Por ejemplo, de hecho"></td>
+    <td><input class="form-control form-control-sm" name="style_label[]" placeholder="Designación"></td>
+    <td><textarea class="form-control form-control-sm" name="style_prompt[]" rows="2" placeholder="Instrucción para AI"></textarea></td>
+   </tr>
+  </template>
+  <script>
+  (function(){
+    var add = document.getElementById('dbx-ki-style-add');
+    var body = document.getElementById('dbx-ki-styles-rows');
+    var tpl = document.getElementById('dbx-ki-style-row-tpl');
+    if (add && body && tpl) {
+      add.addEventListener('click', function(){
+        body.appendChild(tpl.content.cloneNode(true));
+      });
+    }
+  })();
+  </script>
+ </div>
+</div>

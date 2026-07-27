@@ -1,0 +1,19 @@
+changelog:
+  categories:
+    - title: Sicherheit
+      labels:
+        - security
+    - title: Neue Funktionen
+      labels:
+        - enhancement
+        - feature
+    - title: Fehlerkorrekturen
+      labels:
+        - bug
+        - fix
+    - title: Dokumentation
+      labels:
+        - documentation
+    - title: Weitere Änderungen
+      labels:
+        - "*"

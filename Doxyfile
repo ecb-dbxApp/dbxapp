@@ -1,0 +1,110 @@
+PROJECT_NAME           = "dbXapp"
+PROJECT_NUMBER         = "5.0"
+PROJECT_BRIEF          = "RAD, CMS, Module und Runtime-IDE fuer dbXapp"
+OUTPUT_DIRECTORY       = C:/xampp/htdocs/dbxapp-docs
+HTML_OUTPUT            = .
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+GENERATE_TREEVIEW      = YES
+TREEVIEW_WIDTH         = 340
+FULL_SIDEBAR           = NO
+DISABLE_INDEX          = NO
+SEARCHENGINE           = YES
+HTML_COLORSTYLE        = LIGHT
+HTML_HEADER            = docs/doxygen-awesome/header.html
+HTML_EXTRA_STYLESHEET  = docs/doxygen-awesome/doxygen-awesome.css \
+                         docs/doxygen-awesome/doxygen-awesome-sidebar-only.css \
+                         docs/doxygen-awesome/doxygen-awesome-sidebar-only-darkmode-toggle.css \
+                         docs/doxygen-awesome/dbxapp-doxygen.css
+HTML_EXTRA_FILES       = docs/doxygen-awesome/doxygen-awesome-darkmode-toggle.js \
+                         docs/doxygen-awesome/doxygen-awesome-fragment-copy-button.js \
+                         docs/doxygen-awesome/doxygen-awesome-paragraph-link.js \
+                         docs/doxygen-awesome/doxygen-awesome-interactive-toc.js
+HTML_COPY_CLIPBOARD    = NO
+PAGE_OUTLINE_PANEL     = NO
+
+INPUT_ENCODING         = UTF-8
+MARKDOWN_SUPPORT       = YES
+USE_MDFILE_AS_MAINPAGE = 00_Doxygen_Mainpage.md
+IMAGE_PATH             = docs/assets
+EXAMPLE_PATH           = .
+
+INPUT                  = 00_Doxygen_Mainpage.md \
+                         01_System_Ueberblick.md \
+                         03_Routing_Templates_Content_Admin.md \
+                         14_dbxInterpreter_Leitfaden.md \
+                         02_RAD_Runtime_IDE.md \
+                         25_Verbindliches_Modulhandbuch.md \
+                         08_Modulaufbau_Patterns.md \
+                         04_dbxTPL_Leitfaden.md \
+                         05_dbxDB_DD_FD_Leitfaden.md \
+                         06_dbxForm_Leitfaden.md \
+                         07_dbxReport_Leitfaden.md \
+                         09_JavaScript_Libs.md \
+                         11_Core_Klassen.md \
+                         12_KI_Verbindliche_Regeln.md \
+                         23_Sicherheit_Integritaet_Performance.md \
+                         22_Aktueller_Stand_Betrieb.md \
+                         24_DB3_MySQL_Roundtrip.md \
+                         10_CMS_dbxKi.md \
+                         15_Design_Themes_Skins.md \
+                         16_Design_KI_Referenz.md \
+                         26_Design_Studio_KI.md \
+                         17_Shop_Leitfaden.md \
+                         18_Shop_KI_Referenz.md \
+                         19_Workflow_Leitfaden.md \
+                         20_Workflow_erstellen.md \
+                         21_Workflow_nutzen.md \
+                         13_Credits_Libraries.md \
+                         files/doku \
+                         index.php \
+                         dbx/include \
+                         dbx/modules \
+                         dbx/js
+
+RECURSIVE              = YES
+FILE_PATTERNS          = *.php \
+                         *.js \
+                         *.md \
+                         *.dox
+
+EXCLUDE                = dbx/vendor \
+                         dbx/add_ons \
+                         files/cache \
+                         files/tmp \
+                         files/temp \
+                         .git \
+                         .playwright-cli
+
+EXCLUDE_PATTERNS       = */node_modules/* \
+                         */vendor/* \
+                         */cache/* \
+                         */tmp/* \
+                         */temp/* \
+                         *.min.js \
+                         *.map
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_PRIV_VIRTUAL   = NO
+EXTRACT_PACKAGE        = NO
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+ALPHABETICAL_INDEX     = YES
+
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = NO
+WARN_NO_PARAMDOC       = NO
+
+JAVADOC_AUTOBRIEF      = YES
+OPTIMIZE_OUTPUT_FOR_C  = NO
+OPTIMIZE_OUTPUT_JAVA   = NO
+OPTIMIZE_FOR_FORTRAN   = NO
+OPTIMIZE_OUTPUT_VHDL   = NO

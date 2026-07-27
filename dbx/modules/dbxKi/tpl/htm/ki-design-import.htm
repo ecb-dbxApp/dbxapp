@@ -1,0 +1,12 @@
+<div class="card border-primary">
+ <div class="card-body">
+  <h3 class="h6"><i class="bi bi-upload"></i> KI-Antwort importieren</h3>
+  <p class="small text-muted">ZIP mit <code>manifest.json</code> und <code>result/design/</code>. Es wird noch nichts veraendert.</p>
+  <form method="post" action="{action}" enctype="multipart/form-data" class="dbxAjax" data-target="dbxForm_{i}">
+   <div class="form_msg {msg_class}">{obj:form_msg}</div>
+   <input class="form-control form-control-sm mb-2" type="file" name="design_zip" accept=".zip" required>
+   <button class="btn btn-outline-primary btn-sm" type="submit"><i class="bi bi-search"></i> ZIP pruefen</button>
+   [dbx:form]
+  </form>
+ </div>
+</div>

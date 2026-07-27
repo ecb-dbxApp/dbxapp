@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 640" role="img" aria-label="Gravierte Stahlzahnräder">
+  <defs>
+    <g id="gear">
+      <circle r="34"/>
+      <circle r="12"/>
+      <rect x="-6" y="-51" width="12" height="18" rx="2"/>
+      <rect x="-6" y="-51" width="12" height="18" rx="2" transform="rotate(45)"/>
+      <rect x="-6" y="-51" width="12" height="18" rx="2" transform="rotate(90)"/>
+      <rect x="-6" y="-51" width="12" height="18" rx="2" transform="rotate(135)"/>
+      <rect x="-6" y="-51" width="12" height="18" rx="2" transform="rotate(180)"/>
+      <rect x="-6" y="-51" width="12" height="18" rx="2" transform="rotate(225)"/>
+      <rect x="-6" y="-51" width="12" height="18" rx="2" transform="rotate(270)"/>
+      <rect x="-6" y="-51" width="12" height="18" rx="2" transform="rotate(315)"/>
+      <path d="M-19 0h38M0-19v38" opacity=".48"/>
+    </g>
+  </defs>
+
+  <!-- Dunkle Fräskante und versetzte Lichtkante ergeben eine Stahlgravur. -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#4d595f" stroke-width="3.2" opacity=".4" transform="translate(1.4 1.6)">
+      <g transform="translate(358 582) rotate(12)"><use href="#gear"/></g>
+      <g transform="translate(295 519) scale(.62) rotate(-18)"><use href="#gear"/></g>
+    </g>
+    <g stroke="#f5f7f8" stroke-width="1.5" opacity=".7" transform="translate(-.6 -.7)">
+      <g transform="translate(358 582) rotate(12)"><use href="#gear"/></g>
+      <g transform="translate(295 519) scale(.62) rotate(-18)"><use href="#gear"/></g>
+    </g>
+    <g stroke="#7b878d" stroke-width="1.2" opacity=".76">
+      <g transform="translate(358 582) rotate(12)"><use href="#gear"/></g>
+      <g transform="translate(295 519) scale(.62) rotate(-18)"><use href="#gear"/></g>
+    </g>
+  </g>
+</svg>

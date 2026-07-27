@@ -1,0 +1,731 @@
+/* =====================================================
+   DBX WINDOW – FINAL (TOKENIZED + UX UPGRADE)
+===================================================== */
+
+
+/* =====================================================
+   ROOT WINDOW
+===================================================== */
+
+:root {
+    --dbx-window-frame: var(--dbx-window-header-bottom, var(--dbx-window-header));
+    --dbx-window-frame-modal: var(--dbx-window-header-modal-bottom, var(--dbx-window-header-modal));
+    --dbx-window-frame-highlight: rgba(255,255,255,0.65);
+    --dbx-window-frame-shadow: rgba(0,0,0,0.45);
+}
+
+
+.dbx-window {
+    background: var(--dbx-window-bg);
+    border-radius: var(--dbx-window-radius);
+
+    border: 3px outset var(--dbx-window-frame);
+
+    box-shadow:
+        inset 1px 1px 0 var(--dbx-window-frame-highlight),
+        inset -1px -1px 0 var(--dbx-window-frame-shadow),
+        0 8px 24px rgba(0,0,0,0.24);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    transition: box-shadow 0.1s ease, border-color 0.1s ease;
+}
+
+.dbx-window:hover {
+    box-shadow:
+        inset 1px 1px 0 var(--dbx-window-frame-highlight),
+        inset -1px -1px 0 var(--dbx-window-frame-shadow),
+        0 10px 28px rgba(0,0,0,0.28);
+
+}
+
+.dbx-window:has(.dbx-cms),
+.dbx-window:has(.dbx-menu-root),
+.dbx-window:has(.jodit-container) {
+    overflow: visible;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.dbx-window-header {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.04) 42%, rgba(0,0,0,.18)),
+        linear-gradient(
+            180deg,
+            var(--dbx-window-header-top, var(--dbx-window-header)),
+            var(--dbx-window-header-bottom, var(--dbx-window-header))
+        );
+
+    color: var(--dbx-window-header-color);
+
+    padding: 6px 12px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    cursor: move;
+    user-select: none;
+
+    border-bottom: 1px solid color-mix(in srgb, var(--dbx-window-header-bottom, var(--dbx-window-header)) 82%, #000000);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.30),
+        inset 0 -1px 0 rgba(0,0,0,0.28),
+        0 2px 5px rgba(0, 15, 38, 0.24);
+}
+
+/* Modal Header */
+.dbx-window-modal .dbx-window-header {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.03) 42%, rgba(0,0,0,.20)),
+        linear-gradient(
+            180deg,
+            var(--dbx-window-header-modal-top, var(--dbx-window-header-modal)),
+            var(--dbx-window-header-modal-bottom, var(--dbx-window-header-modal))
+        );
+}
+
+.dbx-window-title {
+    font-weight: 650;
+    font-size: 14px;
+    letter-spacing: 0.006em;
+    text-shadow: 0 1px 2px rgba(0, 7, 20, 0.76);
+}
+
+.dbx-window-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.dbx-window-controls span {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 4px;
+
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    color: var(--dbx-window-control-color);
+
+    transition: background 0.2s, color 0.2s;
+}
+
+.dbx-window-controls span:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: var(--dbx-window-control-hover);
+}
+
+.dbx-window-controls .dbx-window-close:hover {
+    background: #c92838;
+    border-color: #f17580;
+}
+
+/* =====================================================
+   CONTRAST BAR – DIREKT UNTER DER FENSTERLEISTE
+   ===================================================== */
+
+body.dbx-app .dbx-window .dbx-window-body .dbx-bar,
+body.dbx-app .dbx-window .dbx-window-body .dbx-module-bar,
+body.dbx-app .dbx-window .c-ace .dbx-editor-bar {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.46), rgba(255,255,255,.10) 44%, rgba(12,47,82,.08)),
+        linear-gradient(
+            180deg,
+            var(--dbx-window-subbar-top, #d8ebff),
+            var(--dbx-window-subbar-bottom, #91b9df)
+        );
+    border-color: var(--dbx-window-subbar-border, #3b72a8);
+    border-radius: 0;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.82),
+        inset 0 -1px 0 rgba(19,55,91,.24),
+        0 2px 5px rgba(12,41,72,.16);
+    color: var(--dbx-window-subbar-text, #102b49);
+    text-shadow: 0 1px 0 rgba(255,255,255,.42);
+}
+
+body.dbx-app .dbx-window .dbx-window-body .dbx-bar :where(.dbx-bar-title, .dbx-module-bar-heading, .dbx-bar-meta),
+body.dbx-app .dbx-window .c-ace .dbx-editor-bar > span {
+    color: var(--dbx-window-subbar-text, #102b49);
+}
+
+body.dbx-app .dbx-window .c-ace .dbx-editor-bar button {
+    background: rgba(255,255,255,.72);
+    border-color: color-mix(in srgb, var(--dbx-window-subbar-border, #3b72a8) 62%, #ffffff);
+    color: var(--dbx-window-subbar-text, #102b49);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.92),
+        0 1px 2px rgba(12,41,72,.12);
+}
+
+body.dbx-app .dbx-window .c-ace .dbx-editor-bar button:hover {
+    background: color-mix(in srgb, var(--dbx-primary) 15%, #ffffff);
+    border-color: var(--dbx-window-subbar-border, #3b72a8);
+}
+
+/* Die unmittelbar folgende Werkzeugleiste bleibt bewusst deutlich flacher
+   als die Fensterleiste, ohne die Bedienelemente zu klein werden zu lassen. */
+body.dbx-app .dbx-window .dbx-window-body > .dbx-bar:first-child,
+body.dbx-app .dbx-window .dbx-window-body > .dbx-module-bar:first-child,
+body.dbx-app .dbx-window .c-ace .dbx-editor-bar {
+    gap: 8px;
+    min-height: 38px;
+    padding: 3px 10px;
+}
+
+body.dbx-app .dbx-window .c-ace .dbx-editor-bar .editor-filename {
+    height: 28px;
+    min-height: 28px;
+    padding-block: 2px;
+}
+
+body.dbx-app .dbx-window .c-ace .dbx-editor-bar button {
+    height: 28px;
+    min-height: 28px;
+    min-width: 30px;
+    padding: 2px 8px;
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+.dbx-window-body {
+    flex: 1;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 0;
+
+    padding: 8px;
+
+    background: var(--dbx-window-body-bg);
+    color: var(--dbx-window-body-color);
+
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.dbx-window-inner {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    height: 100%;
+    width: 100%;
+}
+
+/* Scroll aktiv */
+.dbx-window-scroll .dbx-window-body {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.dbx-window-scroll .dbx-window-inner {
+    display: block;
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+}
+
+.dbx-window-has-ace .dbx-window-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dbx-window-has-ace .dbx-window-inner {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.dbx-window-has-ace .c-ace {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+}
+
+.dbx-window-has-ace .c-ace .editor {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.dbx-window-no-scroll .dbx-window-body {
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.dbx-window-footer {
+    flex: 0 0 auto;
+
+    padding: 6px 10px;
+
+    background: var(--dbx-window-footer-bg);
+
+    border-top: 1px solid var(--dbx-window-footer-border);
+
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+
+    font-size: 12px;
+    color: var(--dbx-text-muted);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.dbx-loading {
+    padding: 40px;
+    text-align: center;
+    color: var(--dbx-text-muted);
+}
+
+.dbx-loading i {
+    font-size: 24px;
+    margin-bottom: 10px;
+    display: inline-block;
+    animation: none;
+}
+
+
+/* =====================================================
+   RESIZE HANDLE
+===================================================== */
+
+.dbx-window-resize {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    width: 12px;
+    height: 12px;
+
+    cursor: se-resize;
+
+    background: linear-gradient(
+        135deg,
+        transparent 50%,
+        var(--dbx-border-color) 50%
+    );
+}
+
+.dbx-window-resize:hover {
+    background: linear-gradient(
+        135deg,
+        transparent 50%,
+        var(--dbx-primary) 50%
+    );
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.dbx-window-modal {
+    border: 3px outset var(--dbx-window-frame-modal);
+    box-shadow:
+        inset 1px 1px 0 var(--dbx-window-frame-highlight),
+        inset -1px -1px 0 var(--dbx-window-frame-shadow),
+        0 10px 30px rgba(0,0,0,0.28);
+}
+
+
+/* =====================================================
+   OVERLAY
+===================================================== */
+
+.dbx-window-overlay {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    display: none !important;
+    pointer-events: none !important;
+    transition: none;
+}
+
+
+/* =====================================================
+   FOOTER WINDOW DOCK
+===================================================== */
+
+body.dbx-app #dbxFooter {
+    position: sticky;
+    bottom: 0;
+    z-index: 2200;
+    box-shadow:
+        0 -1px 0 var(--dbx-border-light),
+        0 -3px 10px rgba(0,0,0,0.04);
+}
+
+body.dbx-web #dbxFooter {
+    position: static;
+    bottom: auto;
+    z-index: auto;
+    box-shadow: none;
+}
+
+#windrop.dbx-window-dock {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 1 1 auto;
+    max-width: 100%;
+    min-width: 0;
+    height: 28px;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-align: left;
+    scrollbar-width: thin;
+}
+
+#windrop.dbx-window-dock:empty {
+    min-width: 0;
+}
+
+#windrop.dbx-window-dock:not(:empty) {
+    min-width: 140px;
+}
+
+.dbx-window-drop {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    gap: 7px;
+    flex: 0 0 auto;
+    max-width: 240px;
+    height: 24px;
+    padding: 0 9px;
+    overflow: hidden;
+    border: 1px solid rgba(118, 178, 255, 0.9);
+    border-radius: 4px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.44) 0%, rgba(255,255,255,0.16) 38%, rgba(20,94,190,0.18) 39%, rgba(6,82,174,0.92) 100%),
+        linear-gradient(90deg, #2f8df5, #0d62ce);
+    color: #fff;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.65),
+        inset 0 -1px 0 rgba(0,26,78,0.45),
+        0 1px 0 rgba(255,255,255,0.28),
+        0 2px 5px rgba(0,38,92,0.28);
+    font-size: 12px;
+    line-height: 1;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.28);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.dbx-window-drop::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    top: 1px;
+    height: 44%;
+    border-radius: 3px 3px 8px 8px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.08));
+    pointer-events: none;
+}
+
+.dbx-window-drop i,
+.dbx-window-drop-title {
+    position: relative;
+    z-index: 1;
+}
+
+.dbx-window-drop i {
+    flex: 0 0 auto;
+}
+
+.dbx-window-drop:hover,
+.dbx-window-drop:focus-visible {
+    border-color: rgba(174, 213, 255, 1);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.54) 0%, rgba(255,255,255,0.18) 38%, rgba(52,134,238,0.24) 39%, rgba(3,99,213,0.96) 100%),
+        linear-gradient(90deg, #49a2ff, #0f70e0);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.75),
+        inset 0 -1px 0 rgba(0,26,78,0.42),
+        0 1px 0 rgba(255,255,255,0.34),
+        0 4px 9px rgba(0,65,150,0.32);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.dbx-window-drop.is-minimizing {
+    opacity: 0.65;
+}
+
+.dbx-window-drop-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dbx-window-docking {
+    transform-origin: left top;
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+}
+
+
+/* =====================================================
+   UX UPGRADE – ACTIVE / FOCUS / STATES
+===================================================== */
+
+/* Active Window */
+.dbx-window-active {
+    border-color: var(--dbx-window-frame);
+    box-shadow:
+        inset 1px 1px 0 var(--dbx-window-frame-highlight),
+        inset -1px -1px 0 var(--dbx-window-frame-shadow),
+        0 10px 30px rgba(0,0,0,0.35),
+        0 0 0 1px var(--dbx-window-frame);
+}
+
+.dbx-window-modal.dbx-window-active {
+    border-color: var(--dbx-window-frame-modal);
+    box-shadow:
+        inset 1px 1px 0 var(--dbx-window-frame-highlight),
+        inset -1px -1px 0 var(--dbx-window-frame-shadow),
+        0 10px 30px rgba(0,0,0,0.35),
+        0 0 0 1px var(--dbx-window-frame-modal);
+}
+
+/* Inactive Windows */
+.dbx-window:not(.dbx-window-active) {
+    opacity: 1;
+    filter: none;
+}
+
+/* Focus */
+.dbx-window:focus-visible {
+    outline: none;
+    box-shadow:
+        inset 1px 1px 0 var(--dbx-window-frame-highlight),
+        inset -1px -1px 0 var(--dbx-window-frame-shadow),
+        0 0 0 2px var(--dbx-focus-ring),
+        0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* Header Active */
+.dbx-window-active .dbx-window-header {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* Dragging */
+.dbx-window-dragging {
+    border-style: inset;
+    box-shadow:
+        inset 1px 1px 0 var(--dbx-window-frame-shadow),
+        inset -1px -1px 0 var(--dbx-window-frame-highlight),
+        0 14px 40px rgba(0,0,0,0.4);
+    cursor: grabbing;
+}
+
+/* Resizing */
+.dbx-window-resizing {
+    border-style: inset;
+    box-shadow:
+        inset 1px 1px 0 var(--dbx-window-frame-shadow),
+        inset -1px -1px 0 var(--dbx-window-frame-highlight),
+        0 0 0 2px var(--dbx-window-frame),
+        0 12px 30px rgba(0,0,0,0.35);
+}
+
+
+/* =====================================================
+   FUTURE SNAP STATES
+===================================================== */
+
+.dbx-window-snap-left {
+    border-radius: 0;
+}
+
+.dbx-window-snap-right {
+    border-radius: 0;
+}
+
+.dbx-window-snap-full {
+    border-radius: 0;
+}
+
+.dbx-window-fullscreen {
+    border-radius: 0;
+    border-style: solid;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+    .dbx-window {
+        border-radius: 0;
+    }
+
+    .dbx-window-header {
+        padding: 6px 10px;
+    }
+
+    .dbx-window-controls span {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.dbx-ow-anim-running {
+    animation-duration: var(--dbx-openwin-animation-duration, 200ms);
+    animation-fill-mode: both;
+    animation-timing-function: ease;
+}
+
+.dbx-ow-anim-fade-in {
+    animation-name: dbxOpenWinFadeIn;
+}
+
+.dbx-ow-anim-fade-out {
+    animation-name: dbxOpenWinFadeOut;
+}
+
+.dbx-ow-anim-fade-scale-in {
+    animation-name: dbxOpenWinFadeScaleIn;
+}
+
+.dbx-ow-anim-fade-scale-out {
+    animation-name: dbxOpenWinFadeScaleOut;
+}
+
+.dbx-ow-anim-slide-up-in {
+    animation-name: dbxOpenWinSlideUpIn;
+}
+
+.dbx-ow-anim-slide-down-out {
+    animation-name: dbxOpenWinSlideDownOut;
+}
+
+.dbx-ow-anim-minimize-out {
+    animation-name: dbxOpenWinMinimizeOut;
+}
+
+@keyframes dbxOpenWinFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes dbxOpenWinFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+@keyframes dbxOpenWinFadeScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes dbxOpenWinFadeScaleOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+}
+
+@keyframes dbxOpenWinSlideUpIn {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes dbxOpenWinSlideDownOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+}
+
+@keyframes dbxOpenWinMinimizeOut {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.92) translateY(18px);
+    }
+}
+
+
+.dbx-match {
+    background: #fff3cd;
+}
+
+.dbx-active {
+    background: #cfe2ff;
+}

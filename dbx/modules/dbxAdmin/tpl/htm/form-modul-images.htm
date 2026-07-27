@@ -1,0 +1,28 @@
+<div class="dbx-modimg-manager dbx-module-images-panel" data-dbx="lib=modulesAdmin|mode=images" data-modul="{xmodul}"
+     data-add-url="{images_add_url}" data-module-upload-url="{images_upload_url}" data-remove-url="{images_remove_url}" data-uses-run2="{uses_run2}"
+     data-modimg-media="{media_api_url}" data-modimg-upload="{images_upload_url}"
+     data-modimg-mediafolders="{media_folders_url}"
+     data-modimg-deletemedia=""
+     data-modimg-uploadmax="16777216" data-placeholder-url="{placeholder_url}" data-placeholder-alt="{placeholder_alt}"
+     data-module-messages="{module_messages_json}">
+ <div class="dbx-modimg-head">
+  <h2 class="h5 mb-1">Modul-Bilder: {xmodul}</h2>
+  <p class="text-muted small mb-0">Speicherort: <code>files/mod/</code> — Dateiname: <code>{xmodul}__run1[__run2].ext</code> (jpg, gif, png, webp, …).</p>
+ </div>
+ <div class="dbx-module-images-main">
+  <div class="dbx-module-images-preview-col" data-module-images-preview>
+{images_preview_html}
+  </div>
+  <div class="dbx-module-images-controls-col">
+{images_target_html}
+   <div class="dbx-modimg-toolbar dbx-module-images-toolbar">
+    <button type="button" class="btn btn-outline-primary btn-sm dbx-module-images-pick"><i class="bi bi-images"></i><i class="bi bi-upload"></i> Auswahl</button>
+    <span class="badge text-bg-light border">{image_count} Bild(er)</span>
+   </div>
+  </div>
+ </div>
+ <div class="dbx-module-images-list dbx-modimg-gallery" data-module-images-list>
+{gallery_html}
+ </div>
+ {media_browser_forms}
+</div>

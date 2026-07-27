@@ -1,0 +1,42 @@
+<div id="dbx_admin_dashboard_cache_body" class="dbx-admin-dashboard-cache-target">
+ <div class="dbx-admin-dashboard-cache-overview">
+  <div class="dbx-admin-dashboard-cache-status dbx-admin-dashboard-cache-message dbx-admin-dashboard-cache-status-{cache_status_tone}">
+   <i class="bi {cache_status_icon}"></i>
+   <div>
+    <strong>{cache_status_label}</strong>
+    <small>{cache_status_hint}</small>
+   </div>
+  </div>
+ </div>
+
+ <div class="dbx-admin-dashboard-cache-stats">
+  <article class="dbx-admin-dashboard-cache-stat dbx-admin-dashboard-cache-stat-content">
+   <span class="dbx-admin-dashboard-cache-stat-label">Guest full pages</span>
+   <strong>{cache_content_count}</strong>
+  </article>
+  <article class="dbx-admin-dashboard-cache-stat dbx-admin-dashboard-cache-stat-sitemap">
+   <span class="dbx-admin-dashboard-cache-stat-label">Sitemap</span>
+   <strong>{sitemap_count}</strong>
+   <small>{sitemap_state} {sitemap_generated}</small>
+  </article>
+ </div>
+
+ <p class="dbx-admin-dashboard-cache-dir">
+  <i class="bi bi-folder2-open"></i>
+  <code>{cache_dir}</code>
+ </p>
+ <p class="dbx-admin-dashboard-cache-dir">
+  <i class="bi bi-link-45deg"></i>
+  <a href="{sitemap_url}" target="_blank" rel="noopener">{sitemap_url}</a>
+ </p>
+
+ <div class="dbx-admin-dashboard-cache-lng-head">
+  <span>Language</span>
+  <span>Pages</span>
+  <span>Folders</span>
+  <span>Cage</span>
+ </div>
+ <div class="dbx-admin-dashboard-cache-lng-grid">
+  {lng_rows}
+ </div>
+</div>

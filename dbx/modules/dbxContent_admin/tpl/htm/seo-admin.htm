@@ -1,0 +1,38 @@
+<div class="dbx-seo-admin"
+     data-seo-messages="{seo_messages}"
+     data-dbx="lib=seoAdmin|page={page_url}|save={save_url}|media={media_url}|mediafolders={media_folders_url}|upload={upload_url}|externalvideo={external_video_url}|uploadmax={upload_max_bytes}|cid={cid}">
+ <div class="row g-3 mb-3">
+  <div class="col-12 col-lg-5">
+   <label class="form-label" for="dbxSeoPageSelect">{page_label}</label>
+   <select class="form-select" id="dbxSeoPageSelect" data-seo-page-select>
+    {page_options}
+   </select>
+   <div class="form-text">{page_description_hint}</div>
+  </div>
+  <div class="col-12 col-lg-7 d-flex align-items-end justify-content-lg-end gap-2">
+   <span class="dbx-seo-status text-muted small" data-seo-status></span>
+   <button type="button" class="btn btn-primary btn-sm" data-seo-action="save">
+    <i class="bi bi-check2"></i><span>{save_button}</span>
+   </button>
+  </div>
+ </div>
+
+ <div class="dbx-seo-form-wrap" data-seo-form-wrap>
+  {seo_form}
+  <div class="dbx-cms-system-field dbx-cms-system-field-seo_image mt-3">
+   <label class="dbx-cms-field dbx-cms-field-seo_image_id">{label_og_image}</label>
+   <figure class="dbx-cms-seo-preview" data-seo-preview>
+    <div class="dbx-cms-seo-preview-empty">{og_empty}</div>
+   </figure>
+   <div class="dbx-cms-seo-actions">
+    <button type="button" class="btn btn-outline-primary btn-sm" data-seo-action="assign-media" title="{og_select_title}">
+     <i class="bi bi-image"></i><span>{og_select}</span>
+    </button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-seo-action="clear-media" title="{og_remove_title}">
+     <i class="bi bi-x-lg"></i><span>{og_remove}</span>
+    </button>
+   </div>
+  </div>
+ </div>
+ {media_browser_forms}
+</div>

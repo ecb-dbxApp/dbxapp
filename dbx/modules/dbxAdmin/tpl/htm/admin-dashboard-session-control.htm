@@ -1,0 +1,21 @@
+<div id="dbx_session_control_{i}" class="dbx-admin-dashboard-cache-overview dbx-admin-dashboard-session-overview">
+ <div class="dbx-admin-dashboard-cache-status dbx-admin-dashboard-cache-status-{session_status_tone}">
+  <i class="bi {session_status_icon}"></i>
+  <div>
+   <strong>{session_status_label}</strong>
+   <small>{session_status_hint}</small>
+  </div>
+ </div>
+
+ <form action="{session_save_url}" method="post" id="dbx_form_{i}" class="dbx-admin-dashboard-cache-toggle dbx-admin-dashboard-session-toggle dbxAjax"
+       data-ajax-target="dbx_session_control_{i}" data-ajax-mode="html" data-ajax-replace="target">
+  [dbx:form]
+  <div class="form-check form-switch">
+   <input class="form-check-input" type="checkbox" role="switch" id="dbx_session_db_enabled_{i}" name="session_db" value="1" {session_enabled_checked}>
+   <label class="form-check-label" for="dbx_session_db_enabled_{i}">Session-DB</label>
+  </div>
+  <button type="submit" class="btn btn-sm btn-outline-primary">
+   <i class="bi bi-check2-circle"></i> Speichern
+  </button>
+ </form>
+</div>

@@ -1,0 +1,34 @@
+<form action="{cache_save_url}" method="post" id="dbx_form_{i}" class="dbx-admin-dashboard-cache-bar-form dbxAjax"
+      data-ajax-target="dbx_admin_dashboard_cache_body" data-ajax-mode="html" data-ajax-replace="target">
+ [dbx:form]
+ <div class="form-check form-switch">
+  <input class="form-check-input" type="checkbox" role="switch" id="dbx_content_page_cache_enabled_{i}" name="cache_content" value="1" {cache_enabled_checked}>
+  <label class="form-check-label" for="dbx_content_page_cache_enabled_{i}">Nuevos sitios de interés cache</label>
+ </div>
+ <button type="submit" class="btn btn-sm btn-outline-primary">
+  <i class="bi bi-check2-circle"></i> Guardar
+ </button>
+ <a class="btn btn-warning btn-sm dbxAjax dbxConfirm"
+    href="{cache_flush_url}"
+    title="Página caché vacío"
+    data-ajax-target="dbx_admin_dashboard_cache_body"
+    data-ajax-mode="html"
+    data-ajax-replace="target"
+    data-confirm-title="<i class='bi bi-trash3'></i> Página caché vacío"
+    data-confirm="¿Hay caches completamente vacíos?"
+    data-confirm-hint="<small>Las páginas completas de invitados caché se eliminan. Con la escritura de caché activa, se recrean en la próxima llamada de permalink válida.</small>"
+    data-confirm-buttons="yesno"
+    role="button">
+  <i class="bi bi-trash3"></i> Cache vacío
+ </a>
+ <a class="btn btn-sm btn-outline-primary dbxAjax"
+    href="{sitemap_rebuild_url}"
+    title="Crear un nuevo mapa de sitios"
+    data-ajax-target="dbx_admin_dashboard_cache_body"
+    data-ajax-mode="html"
+    data-ajax-replace="target"
+    role="button">
+  <i class="bi bi-diagram-3"></i> Crear un nuevo mapa de sitios
+ </a>
+</form>
+{bar_extra}

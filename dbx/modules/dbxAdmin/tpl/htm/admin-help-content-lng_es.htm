@@ -1,0 +1,192 @@
+<h4>Idiomas dbXapp - Sinopsis</h4>
+<p>dbXapp distingue dos niveles:</p>
+<ul>
+<li><strong>Idiomas del sistema</strong> - qué idiomas están disponibles en el sitio web y en el administrador (por ejemplo, alemán, inglés, español).</li>
+<li><strong>Idiomas contenidos en CMS</strong> Cada página y cada carpeta existe <em>Por idioma</em> como un conjunto de datos separado, pero las versiones están vinculadas.</li>
+</ul>
+<p>Esta ayuda explica ambos: la configuración de esta página Config y el trabajo diario en el contenido CMS.</p>
+
+<h4>Esta página Config</h4>
+<p>Sendero: <code>?dbx_modul=dbxContent_admin&amp;dbx_run1=content&amp;dbx_run2=config</code></p>
+<p>Aquí usted determina, <strong>Qué idiomas son activos</strong> y <strong>Como traducciones automáticas</strong> Ve a sincronizar.</p>
+
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Campo</th><th>Lo que significa</th></tr></thead>
+<tbody>
+<tr><td><strong>Idioma maestro</strong></td><td>El idioma principal (generalmente DE). La estructura, la comisión y la autosincronización se basan en ella. En el CMS marcado con estrella (*).</td></tr>
+<tr><td><strong>Idiomas disponibles</strong></td><td>Todos los idiomas que son seleccionables en el árbol CMS, en las pestañas de idiomas y para los visitantes. El lenguaje maestro debe estar allí.</td></tr>
+<tr><td><strong>Página de inicio (maestra)</strong></td><td>El ID de contenido de la página principal en el idioma principal. Otros idiomas encuentran su página web automáticamente sobre el enlace.</td></tr>
+<tr><td><strong>Proveedor de traducción</strong></td><td>Controla lo que ocurre durante la transferencia y la autosincronización con textos (copiar, dejar en blanco o API).</td></tr>
+<tr><td><strong>Clave de API / URL / modelo</strong></td><td>Sólo necesario en DeepL o OpenAI. Deja en blanco para "Papel texto".</td></tr>
+</tbody>
+</table>
+<div class="help-example"><strong>Sugerencia:</strong> En el encabezado de esta página se puede ver el <em>Proveedores activos</em> — se aplica inmediatamente después de ahorrar para sincronización y comisión.</div>
+
+<h4>Lenguaje maestro y otros idiomas</h4>
+<div class="help-flow">Master (e.g. DE*)
+.
+- Controla la estructura de carpetas y nuevas páginas
+&quot; Loest “Transferido a otros idiomas” desde
+─ Actualizaciones relativas a idiomas durante el almacenamiento (autosinc)
+
+Otros idiomas (EN, ES, ...)
+.
+- textos propios y enlaces por idioma
+- a menudo son "inactivos" en la comisión primero
+- Sí puede desviarse manualmente.</div>
+<p>El enlace entre versiones de idiomas es <strong>Internos</strong> — Usted no tiene que mantener los mismos IDs de página en DE y EN. En el árbol usted reconoce el estado del <strong>Insignias de idioma</strong> (Presente, falta, coche, manual).</p>
+
+<h4>Trabajando en Contenido CMS</h4>
+<p>Entrada CMS: <code>?dbx_modul=dbxContent_admin&amp;dbx_run1=cms</code></p>
+<ul>
+<li><strong>Fichas de idiomas arriba</strong> (DE*, EN, ES) — cambie el idioma de edición. La estrella muestra el lenguaje maestro.</li>
+<li><strong>Nueva página/carpeta en Master</strong> — después de guardar, el diálogo aparece si es necesario <em>Traducir a otros idiomas</em>.</li>
+<li><strong>Button "Translate"</strong> (Icono de idioma) — crea versiones de idiomas o actualiza la vista previa antes de transferir.</li>
+<li><strong>Botón "Auto-Sync"</strong> (Icono de enlace, sólo maestro) — devuelve idiomas separados a la ejecución automática.</li>
+</ul>
+
+<h4>Transferido a otros idiomas (provisión)</h4>
+<ol>
+<li>La página o carpeta en la <strong>Idioma maestro</strong> Votando.</li>
+<li>Abrir diálogo (después de guardar o mediante el botón de traducción).</li>
+<li>Tick idiomas de destino, textos de verificación — Los proveedores de API generan avances.</li>
+<li><strong>Takeover</strong> - Se crean nuevas versiones. <strong>Las páginas comienzan inactivas</strong>Para que puedas comprobar antes de la publicación.</li>
+</ol>
+<p>In <strong>Carpetas</strong> Puede utilizar opcionalmente el <strong>Todo el subárbol incl. Páginas</strong> también transmitido. Las carpetas perdidas en los idiomas de destino se recrean automáticamente de la estructura maestra.</p>
+
+<h4>Auto-Sync — Save Master</h4>
+<p>Si usted ahorra en el idioma maestro, todos los idiomas relacionados con el estado <code>auto</code> actualizado en el fondo:</p>
+<ul>
+<li>Textos (traducidos o copiados dependiendo del proveedor)</li>
+<li>Estructura, configuración de plantillas, base permalink</li>
+<li>Media connections (hero, galería, imágenes en el texto)</li>
+</ul>
+<p>El <strong>Situación activa/inactiva</strong> el idioma objetivo se conserva – una página EN inactiva no se cambia de repente en vivo por sincronización maestro.</p>
+
+<h4>Fork — Si un idioma es permanecer único</h4>
+<p>Sálvalos en uno <strong>Idioma no maestro</strong>, el enlace se separa ()<code>manual</code> - Fork. Mensaje: <em>Conexión de idiomas por separado (manualmente).</em></p>
+<p>A partir de entonces, el maestro ya no adopta automáticamente este idioma. Esto tiene sentido para textos de marketing adaptados u otros permalinks.</p>
+<p>Para unirse de nuevo: en el idioma maestro <strong>Auto-Sync</strong> Activar — el siguiente ahorro maestro entonces reescribirá el contenido de esclavos.</p>
+
+<h4>proveedor de traducción en detalle</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Proveedores</th><th>Comportamiento</th><th>¿Cuándo usar?</th></tr></thead>
+<tbody>
+<tr><td><code>copy</code></td><td>Adoptar texto sin cambios</td><td><strong>Recomendado como estándar</strong> — libre, sin cuenta, para todas las instalaciones del cliente</td></tr>
+<tr><td><code>none</code></td><td>Dejar los campos de traducción vacío</td><td>Cuando los textos de destino deben comenzar conscientemente vacío</td></tr>
+<tr><td><code>deepl</code></td><td>DeepL API</td><td>Traducción automática; propia clave de API necesaria (libre plan posible)</td></tr>
+<tr><td><code>openai</code></td><td>OpenAI Chat API</td><td>Flexible con selección de modelos; propia clave API, pagada para uso posterior</td></tr>
+<tr><td><code>custom</code></td><td>Lógica propia</td><td>Para los desarrolladores: <code>dbx/modules/dbxContent/translate.php</code></td></tr>
+</tbody>
+</table>
+<p>En caso de errores de API, se toma el texto original. Además, aparece una nota en el CMS y una entrada bajo <strong>Admin by SysMsg</strong> (Sobre:) <code>dbxContentTranslate</code>).</p>
+
+<h4>¿Qué proveedor para quién?</h4>
+<ul>
+<li><strong>Instalación de cliente (estándar):</strong> <code>copy</code> - siempre funciona sin costo y sin servicio externo.</li>
+<li><strong>Sitio web pequeño con traducción automática:</strong> <code>deepl</code> con <strong>DeepL API Gratis</strong> (unos 500.000 caracteres por mes, 0 EUR).</li>
+<li><strong>Sitios más grandes / muchos textos:</strong> DeepL API Pro (pagado) o manualmente con <code>copy</code> mantener el diálogo.</li>
+<li><strong>OpenAI:</strong> Sólo si el operador deliberadamente soporta los costos de API — <strong>ChatGPT Plus/Pro no es acceso a API</strong>.</li>
+<li><strong>Google Traducir:</strong> In dbXapp <em>no</em> instalado. Sólo sobre <code>custom</code> + propio desarrollo posible.</li>
+</ul>
+<div class="help-example"><strong>Importante:</strong> ChatGPT en el navegador (Plus, Pro, ...) y el OpenAI API <em>Dos productos separados</em>. Una suscripción de chat no proporciona una clave de API y ningún crédito de API.</div>
+
+<h4>Aplicar las claves de API y en dbXapp Entradas</h4>
+<p>Las claves de API son claves de acceso personal de un proveedor de traducción. Cada cliente debe, si es que, <strong>suyo</strong> Usa la llave. Las claves pertenecen al campo <strong>Clave API</strong> en esta página de configuración.</p>
+
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Contratación</th><th>DeepL</th><th>OpenAI</th></tr></thead>
+<tbody>
+<tr><td><strong>Proveedores</strong></td><td><code>deepl</code></td><td><code>openai</code></td></tr>
+<tr><td><strong>Clave API</strong></td><td>DeepL API Clave (Las llaves libres a menudo terminan en <code>:fx</code>)</td><td>OpenAI Clave (comienza con) <code>sk-...</code>)</td></tr>
+<tr><td><strong>API</strong></td><td>Deja vacío (Standard: Free API). Sólo en DeepL Pro: <code>https://api.deepl.com/v2/translate</code></td><td>Deja vacío (punto estándar)</td></tr>
+<tr><td><strong>Modelo</strong></td><td>— (no pertinente)</td><td>p. ej.  <code>gpt-4o-mini</code> (paquete, generalmente suficiente para traducciones)</td></tr>
+</tbody>
+</table>
+
+<h5>DeepL API Libre (gratuito, recomendado para la prueba)</h5>
+<ol>
+<li>crear una cuenta; y <strong>DeepL API Gratis</strong> Seleccione:<br>
+ <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener">https://www.deepl.com/pro-api</a></li>
+<li>After notification under <strong>Cuenta → claves de API</strong> (o en el portal DeepL Pro) crear una clave de API.<br>
+ Documentación: <a href="https://developers.deepl.com/docs/getting-started/auth" target="_blank" rel="noopener">https://developers.deepl.com/docs/getting-started/auth</a></li>
+<li>La clave en dbXapp Subsuelo <strong>Clave API</strong> Ingrese, proveedor <code>deepl</code>, URL <strong>vacío</strong> Vete.</li>
+<li>En la prueba CMS: Master page save → commission EN → textos deben ser sugeridos traducidos.</li>
+</ol>
+<p><strong>Plan gratuito:</strong> aprox. 500.000 caracteres por mes, 0 EUR. Para sitios web más grandes a menudo demasiado poco – luego DeepL API Pro o en <code>copy</code> permanecer.</p>
+<p><strong>Nota:</strong> Las teclas gratuitas se utilizan automáticamente <code>api-free.deepl.com</code> - esto es dbXapp Ya es el defecto si la URL de la API está vacía.</p>
+
+<h5>OpenAI API (pagado después del uso)</h5>
+<ol>
+<li>Cuenta separada para desarrolladores (no) ChatGPT-Chat:<br>
+ <a href="https://platform.openai.com" target="_blank" rel="noopener">https://platform.openai.com</a></li>
+<li>Subsuelo <strong>Facturación</strong> Método de pago de depósito (API se carga por separado):<br>
+ <a href="https://platform.openai.com/settings/organization/billing" target="_blank" rel="noopener">https://platform.openai.com/settings/organization/billing</a></li>
+<li>Crear clave de API bajo <strong>Claves de API</strong>:<br>
+ <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">https://platform.openai.com/api-keys</a></li>
+<li>In dbXapp: Proveedor <code>openai</code>introducir llave, modelo, por ejemplo. <code>gpt-4o-mini</code>Deja la URL en blanco.</li>
+</ol>
+<p><strong>Costos:</strong> Pago por uso (por token). Los modelos baratos también causan costos de funcionamiento para muchos páginas. No es adecuado como "libre para todos los clientes".</p>
+
+<h5>Trabajar sin clave de API (estándar)</h5>
+<p>Proveedores <code>copy</code> Seleccione — deje todos los campos para API en blanco. Cuando se transfiere a otros idiomas, el texto maestro se lleva a cabo; Ajuste manualmente los textos en el diálogo de la comisión o en el idioma de destino. Esta es la opción más segura para las instalaciones editoriales y de clientes.</p>
+
+<h5>Google y otros proveedores</h5>
+<p>Traducción de Google Cloud y servicios similares dbXapp <strong>no</strong> directamente como proveedor. Google ofrece una pequeña cuota gratuita para nuevas cuentas de nube, después de lo cual se paga el uso. Una conexión sólo sería sobre el proveedor <code>custom</code> y uno de ellos <code>translate.php</code> posible por un desarrollador.</p>
+
+<h4>Página principal por idioma</h4>
+<p>El <strong>Página de inicio (maestra)</strong> es el ID de contenido de su página de inicio en el idioma principal (por ejemplo, página de inicio con ID 1).</p>
+<ul>
+<li>Visitantes en el idioma principal ver esta página como una página web.</li>
+<li>En EN/ES, el sistema busca la página enlazada (mejor contenido, lenguaje diferente).</li>
+<li>Si falta una versión en idioma de la página principal, no hay página de inicio para este idioma.</li>
+</ul>
+
+<h4>Suprimir en varios idiomas</h4>
+<p>Eliminarlos de la <strong>Idioma maestro</strong> y hay varias versiones de idiomas, aparece un diálogo con las casillas de verificación:</p>
+<ul>
+<li><code>auto</code>-Las vistas son preestablecidas</li>
+<li><code>manual</code>Versiones sólo bajo petición</li>
+<li>Los Permalinks se limpian por idioma</li>
+</ul>
+
+<h4>Medios de comunicación e idiomas</h4>
+<p>Los archivos multimedia son <strong>Idioma neutral</strong> (una imagen, un archivo). Están vinculados por página y idioma (héroe, galería, inline en el texto). En comisión y autosincronización, estos enlaces se copian en los idiomas de destino – no el archivo duplicado.</p>
+
+<h4>Para visitantes del sitio web</h4>
+<ul>
+<li>El <strong>Idiomas disponibles</strong> de este config determinar qué idiomas se ofrecen.</li>
+<li>El menú de control de idiomas seleccionado, resolución de permalink y el archivo de caché de página completa dependiente de voz.</li>
+<li>Sólo <strong>Activo</strong> Las páginas son visibles públicamente — comprobar las nuevas traducciones primero, luego fijarlas activamente.</li>
+</ul>
+
+<h4>Cache y Vista en vivo</h4>
+<p>Después de guardar, el caché de página se actualiza automáticamente. Si faltan cambios en vivo:</p>
+<ol>
+<li><strong>Página de Admin cache</strong> vacío</li>
+<li>Recarga página en el navegador con carga dura</li>
+</ol>
+
+<h4>Preguntas frecuentes</h4>
+<p><strong>¿Por qué falta EN en el árbol?</strong><br>La página fue creada sólo en el idioma principal. Guardar o “Translate” → ejecutar comisión para EN.</p>
+<p><strong>¿Por qué EN ya no está actualizada?</strong><br>La EN fue almacenada manualmente (perro). Re-activar el auto-sinc en el idioma maestro o mantener conscientemente EN usted mismo.</p>
+<p><strong>¿La traducción comete errores?</strong><br>Proveedor y clave API en esta página de configuración <strong>Admin by SysMsg</strong> Leyendo. Hasta la corrección, se copia el texto. Para DeepL: Compruebe la clave gratuita y la URL de API vacía. In OpenAI# Billing on <a href="https://platform.openai.com/settings/organization/billing" target="_blank" rel="noopener">plataforma.openai.com</a> ¿Activo?</p>
+<p><strong>Tengo ChatGPT Pro - ¿Es suficiente?</strong><br>No. ChatGPT Pro es sólo la suscripción de chat en el navegador. Para dbXapp Necesita una clave de API separada <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">plataforma.openai.com</a> (pagado después del uso) - o te quedas con <code>copy</code> DeepL Free.</p>
+<p><strong>¿Hay una traducción gratuita del coche para los clientes?</strong><br><code>copy</code> siempre es gratis. DeepL API Free (unos 500.000 caracteres/mes) es gratis, pero cada cliente necesita su propia cuenta: <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener">deepl.com/pro-api</a>.</p>
+<p><strong>¿Puedo cambiar el idioma maestro?</strong><br>Técnicamente sí — pero se refiere a la lógica y la página de inicio de CMS. Cambiar sólo sabiamente y luego comprobar la estructura/vínculos.</p>
+<p><strong>¿Qué significa el aviso de migración a continuación?</strong><br>Estado interno de la base de datos para tablas multilingües, que no son pertinentes para uso cotidiano, sólo para apoyo/actualizaciones.</p>
+
+<h4>Proceso típico (sitio web multilingüe)</h4>
+<div class="help-flow">1. Aquí: Master Language + Disponible Idiomas + Set de Proveedor
+2. CMS: Crear carpetas y páginas en Master
+3. Comisión → EN (y otros idiomas)
+4. Compruebe los idiomas de destino, ajustar Permalink + texto
+5. Páginas en los idiomas destinatarios en “Activo”
+6. La atención continua sólo en Master* → Auto-Sync mantiene la corriente EN/ES
+7. Desviaciones especiales: edición en EN/ES (Fork)</div>
+<div class="help-example"><strong>Ejemplo:</strong> Homepage ID 1 → Aprovisionamiento EN → EN texto “Bienvenido” cheque → Activar el EN Visitantes con EN ver la página de inicio inglesa retorcida.</div>
+
+<h4>Asistencia adicional</h4>
+<p>El manual general CMS (carpeta, prensa, editor): Botón de ayuda en el CMS con tema <code>content</code>.</p>
+<p>Esta página: <code>?dbx_modul=dbxContent&amp;dbx_run1=help&amp;topic=content_lng</code></p>
+<p>CMS asignación: permalink estable <code>help-content-sprachen</code>. La carpeta se puede cambiar sin el cambio de permalink.</p>

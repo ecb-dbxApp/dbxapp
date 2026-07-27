@@ -1,0 +1,12 @@
+<h4>Purpose</h4>
+<p>The guest full page cache stores the complete final output for valid permalink calls. Title, description, keywords, other head metadata, design, menues, interpreter placeholders and included modules are already solved. The cache only applies to guests with user ID 0; logged-in users remain dynamic.</p>
+<p>A hit is delivered directly from the permalink file before the content permalink/CID resolution. No content database access is required; only the normal session update may use the database when session DB mode is active. Session-bound form tokens are freshly inserted into the guest session without module or interpreter running.</p>
+<p>The cache file itself follows the readable pattern <code>permalink_sprache_skin.htm</code>for example <code>kunden-nutzen_de_blau.htm</code>. One <code>user_0</code>-Addition is not required because only user ID 0 may use the cache. Design, host, query and guest state variants are collision-free in separate context subfolders.</p>
+<h4>Opportunities</h4>
+<ul>
+<li>Number of cached guest full pages per language read.</li>
+<li>Manually empty full-page cache for template, menu or content changes.</li>
+</ul>
+<div class="help-flow">Save content → Cache invalidates automatically (CMS)
+Manual: Admin → Page Cache → Empty → Reload Page</div>
+<div class="help-example"><strong>Example:</strong> Content change missing on the live page → empty cache → revisit valid permalink.</div>

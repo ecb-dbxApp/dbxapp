@@ -1,0 +1,391 @@
+/**
+ * STEAL Revision 10 – nahtloses Riffelblech, kontrastreiches Chrom und ruhige Felder.
+ *
+ * Alle Bildressourcen gehören zum Designpaket. Keine externen URLs, kein
+ * JavaScript und keine Bewegung der Materialtexturen.
+ */
+
+body.dbx-steal-riffel {
+    --steal-chrome-black: #111619;
+    --steal-chrome-mid: #879298;
+    --steal-chrome-light: #f7fafb;
+    background-color: #9da7ac !important;
+    background-image:
+        linear-gradient(115deg, rgba(255, 255, 255, .28), transparent 24%, rgba(16, 21, 24, .16) 58%, transparent 82%),
+        url("../img/riffelblech-hell.svg") !important;
+    background-repeat: no-repeat, repeat !important;
+    background-position: center, center top !important;
+    background-size: cover, 240px 240px !important;
+    background-attachment: fixed, fixed !important;
+}
+
+body.dbx-steal-riffel::before {
+    background:
+        radial-gradient(ellipse at 15% 5%, rgba(255, 255, 255, .35), transparent 32%),
+        radial-gradient(ellipse at 85% 75%, rgba(21, 27, 31, .18), transparent 44%) !important;
+}
+
+body.dbx-steal-riffel #dbxMain {
+    background-color: #b9c2c6 !important;
+    background-image:
+        url("../img/dbx-page-gears-v1.svg"),
+        linear-gradient(90deg, rgba(231, 236, 238, .42), rgba(154, 165, 170, .2) 50%, rgba(231, 236, 238, .42)),
+        url("../img/riffelblech-hell.svg") !important;
+    background-attachment: fixed, fixed, fixed !important;
+    background-position: center top, center, center top !important;
+    background-repeat: no-repeat, no-repeat, repeat !important;
+    background-size: 100vw auto, cover, 240px 240px !important;
+}
+
+body.dbx-steal-riffel :is(#dbxHeader, .dbx-menu-main, .dbx-menu-admin, #dbxFooter) {
+    background-color: #1b2124 !important;
+    background-image:
+        linear-gradient(110deg, rgba(255, 255, 255, .12), transparent 20%, rgba(0, 0, 0, .34) 54%, transparent 82%),
+        url("../img/riffelblech-dunkel.svg") !important;
+    background-repeat: no-repeat, repeat !important;
+    background-position: center, center !important;
+    background-size: cover, 190px 190px !important;
+}
+
+body.dbx-steal-riffel #dbxHeader {
+    border-bottom: 2px solid #edf2f4 !important;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, .62),
+        inset 0 -2px 0 #090c0e,
+        0 7px 18px rgba(8, 11, 13, .46) !important;
+}
+
+body.dbx-steal-riffel .dbx-menu-main::after {
+    height: 3px !important;
+    bottom: -3px !important;
+    background: linear-gradient(
+        90deg,
+        #705412 0%,
+        #ead170 17%,
+        #a77c18 43%,
+        #f4df8b 70%,
+        #76570c 100%
+    ) !important;
+    border: 0 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 249, 205, .72),
+        0 1px 0 #4b3503,
+        0 2px 4px rgba(55, 39, 5, .28) !important;
+}
+
+/*
+ * Navigation: glattes Hochglanz-Chrom nach dem Material des aktiven Punktes.
+ * Die Struktur und alle von dbxMenu erzeugten Links bleiben unverändert.
+ */
+body.dbx-steal-riffel #dbxHeader,
+body.dbx-steal-riffel :is(#dbx_admin_menu, #dbx_main_menu) {
+    background-color: #d6dcde !important;
+    background-image:
+        linear-gradient(110deg, rgba(255, 255, 255, .66), transparent 36%, rgba(58, 68, 73, .08) 72%, rgba(255, 255, 255, .28)),
+        linear-gradient(180deg, #ffffff 0%, #e1e6e8 48%, #abb5b9 100%) !important;
+    background-repeat: no-repeat, no-repeat !important;
+    background-position: center, center !important;
+    background-size: cover, 100% 100% !important;
+}
+
+body.dbx-steal-riffel #dbxHeader {
+    border-bottom: 0 !important;
+    box-shadow:
+        inset 0 2px 0 #fff,
+        inset 0 -1px 0 #424b50,
+        0 9px 20px rgba(45, 22, 10, .34) !important;
+}
+
+body.dbx-steal-riffel :is(#dbx_admin_menu, #dbx_main_menu) {
+    border-top-color: rgba(255, 255, 255, .82) !important;
+    border-bottom-color: #465157 !important;
+    box-shadow:
+        inset 0 2px 0 #fff,
+        inset 0 -2px 0 rgba(41, 49, 53, .82),
+        inset 0 8px 12px rgba(255, 255, 255, .16) !important;
+}
+
+body.dbx-steal-riffel #dbxHeader .dbx-menu :is(a, button, .nav-link, .navbar-brand),
+body.dbx-steal-riffel .dbx-menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
+body.dbx-steal-riffel .dbx-menu.dbx-menu-list > .dbx-menu-item > .dbx-menu-link {
+    color: #11171a !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .92) !important;
+}
+
+body.dbx-steal-riffel #dbxHeader .dbx-menu > :is(ul, .dbx-menu-list) > li {
+    border-right-color: rgba(53, 62, 67, .4) !important;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, .42);
+}
+
+body.dbx-steal-riffel #dbxHeader .dbx-menu > :is(ul, .dbx-menu-list) > li.is-active > :is(a, button),
+body.dbx-steal-riffel .dbx-menu > .dbx-menu-list > .dbx-menu-item.is-active > .dbx-menu-link,
+body.dbx-steal-riffel .dbx-menu.dbx-menu-list > .dbx-menu-item.is-active > .dbx-menu-link {
+    color: #090d0f !important;
+    background:
+        linear-gradient(110deg, rgba(255, 255, 255, .72), transparent 35%, rgba(139, 69, 28, .14)),
+        linear-gradient(180deg, #ffffff, #c9d0d3 45%, #8f9a9f 100%) !important;
+    box-shadow:
+        inset 0 2px 0 #fff,
+        inset 0 -3px 0 #b8662f !important;
+}
+
+/*
+ * Hover/Fokus: dunkles Spiegelchrom mit weißer Schrift. Der aktive Menüpunkt
+ * behält bewusst seine bisherige helle Chromdarstellung.
+ */
+body.dbx-steal-riffel #dbxHeader .dbx-menu .dbx-menu-item:not(.is-active) > .dbx-menu-link:hover,
+body.dbx-steal-riffel #dbxHeader .dbx-menu .dbx-menu-item:not(.is-active) > .dbx-menu-link:focus-visible,
+body.dbx-steal-riffel #dbxHeader .dbx-menu > :is(ul, .dbx-menu-list) > li:not(.is-active) > :is(a, button):hover,
+body.dbx-steal-riffel #dbxHeader .dbx-menu > :is(ul, .dbx-menu-list) > li:not(.is-active) > :is(a, button):focus-visible {
+    color: #ffffff !important;
+    background:
+        linear-gradient(110deg, rgba(255, 255, 255, .22), transparent 32%, rgba(234, 209, 112, .12) 72%),
+        linear-gradient(180deg, #68747a 0%, #303a3f 44%, #10171b 100%) !important;
+    text-shadow: 0 1px 2px #000 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .62),
+        inset 0 -3px 0 #d0a52f,
+        0 2px 7px rgba(8, 12, 14, .38) !important;
+}
+
+body.dbx-steal-riffel #dbxHeader .dbx-menu :is(a, button):focus-visible {
+    outline: 2px solid #d8b33f !important;
+    outline-offset: -2px !important;
+}
+
+body.dbx-steal-riffel #dbxHeader .dbx-menu-item > .dbx-menu-list {
+    border-color: #687379 !important;
+    border-top: 3px solid #c6a12b !important;
+    background:
+        linear-gradient(110deg, rgba(255, 255, 255, .58), transparent 42%, rgba(70, 80, 85, .07) 78%),
+        linear-gradient(180deg, #f7f9fa 0%, #d7dee1 56%, #aeb8bc 100%) !important;
+    background-repeat: no-repeat, no-repeat !important;
+    background-size: cover, 100% 100% !important;
+    box-shadow:
+        inset 0 1px 0 #fff,
+        0 10px 22px rgba(12, 17, 19, .35) !important;
+}
+
+/* Untermenü-Signet: gravierte Zahnräder statt roter Kreisbögen. */
+body.dbx-steal-riffel #dbxHeader .dbx-menu-item > .dbx-menu-list::before {
+    background-image: url("../img/dbx-submenu-mark-v1.svg?v=13") !important;
+}
+
+@media (max-width: 767.98px) {
+    body.dbx-steal-riffel .dbx-menu-main::after {
+        height: 2px !important;
+        bottom: -2px !important;
+    }
+}
+
+body.dbx-steal-riffel #dbxFooter {
+    border-top: 3px solid #f8fafb !important;
+    box-shadow:
+        inset 0 3px 0 rgba(255, 255, 255, .2),
+        0 -7px 20px rgba(8, 11, 13, .38) !important;
+}
+
+/* Große Rahmen zeigen Riffelblech, die eigentliche Lesefläche bleibt ruhiger. */
+body.dbx-steal-riffel :is(
+    .dbx-content-frame:has(.c-cms),
+    .dbx-form,
+    .dbx-report,
+    .dbx-panel,
+    .modal-content,
+    .offcanvas
+) {
+    border: 2px solid #69757b !important;
+    background-color: #a7b1b6 !important;
+    background-image:
+        linear-gradient(rgba(218, 224, 226, .78), rgba(150, 161, 166, .76)),
+        url("../img/riffelblech-hell.svg") !important;
+    background-repeat: no-repeat, repeat !important;
+    background-size: cover, 200px 200px !important;
+    box-shadow:
+        inset 0 2px 0 #fff,
+        inset 2px 0 0 rgba(255, 255, 255, .55),
+        inset -2px 0 0 rgba(26, 33, 37, .42),
+        inset 0 -2px 0 rgba(26, 33, 37, .52),
+        0 14px 34px rgba(11, 15, 17, .3) !important;
+}
+
+body.dbx-steal-riffel .c-cms {
+    border: 2px solid #929da2 !important;
+    background:
+        linear-gradient(138deg, rgba(255, 255, 255, .72), transparent 25%, rgba(70, 79, 84, .09) 52%, transparent 80%),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .13) 0 1px, transparent 1px 5px),
+        linear-gradient(180deg, #e7ebed, #bdc6ca 54%, #d7dddf) !important;
+    box-shadow:
+        inset 0 2px 0 #fff,
+        inset 0 -2px 0 rgba(45, 54, 58, .28),
+        0 6px 18px rgba(17, 22, 25, .22) !important;
+}
+
+/* Glatte Chromprofile für Bars, Kopfbereiche und Akkordeons. */
+body.dbx-steal-riffel :is(
+    .dbx-bar,
+    .dbx-module-bar,
+    .card-header,
+    .card-footer,
+    .modal-header,
+    .modal-footer,
+    .offcanvas-header,
+    .accordion-button,
+    .dbx-content-frame-bar > .dbx-bar
+) {
+    color: #101518 !important;
+    border-color: #515d63 !important;
+    background-color: #d4dadd !important;
+    background-image:
+        linear-gradient(110deg, rgba(255, 255, 255, .64), transparent 34%, rgba(63, 73, 78, .08) 70%, rgba(255, 255, 255, .24)),
+        linear-gradient(180deg, #ffffff 0%, #e0e5e7 48%, #a7b1b5 100%) !important;
+    background-repeat: no-repeat, no-repeat !important;
+    background-size: cover, 100% 100% !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .9) !important;
+    box-shadow:
+        inset 0 2px 0 #fff,
+        inset 0 -2px 0 #4a555a,
+        0 3px 8px rgba(15, 20, 23, .3) !important;
+}
+
+body.dbx-steal-riffel :is(.dbx-module-bar, .card-header, .modal-header) :is(h1, h2, h3, h4, h5, h6, .dbx-module-bar-heading) {
+    color: #111619 !important;
+    text-shadow: 0 1px 0 #fff !important;
+}
+
+/* Karten bleiben ruhig: Metallwirkung entsteht aus Kante und sanfter Walzung. */
+body.dbx-steal-riffel :is(.card, .dbx-card, .list-group-item, .alert) {
+    border: 2px solid #7b878c !important;
+    background-color: #d5dcde !important;
+    background-image: linear-gradient(180deg, #e8ecee 0%, #d9dfe1 52%, #cdd5d8 100%) !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
+    box-shadow:
+        inset 0 2px 0 #fff,
+        inset 0 -2px 0 rgba(42, 50, 54, .38),
+        0 7px 18px rgba(15, 20, 23, .23) !important;
+}
+
+body.dbx-steal-riffel .card:hover {
+    border-color: #404b50 !important;
+    box-shadow:
+        inset 0 2px 0 #fff,
+        inset 0 -2px 0 #3d474c,
+        0 10px 24px rgba(11, 15, 17, .3) !important;
+}
+
+/* Bedienelemente: Spiegelung nur an Aktionen, nicht in der Schreibfläche. */
+body.dbx-steal-riffel .btn:not(.btn-primary):not(.btn-success):not(.btn-danger):not(.btn-warning) {
+    color: #0d1215 !important;
+    border: 1px solid #465157 !important;
+    background-color: #c4ccd0 !important;
+    background-image: url("../img/chrom-reflex.svg") !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
+    text-shadow: 0 1px 0 #fff !important;
+    box-shadow:
+        inset 0 2px 0 #fff,
+        inset 0 -2px 0 #59646a,
+        0 3px 7px rgba(13, 18, 21, .28) !important;
+}
+
+body.dbx-steal-riffel :is(form, .dbx-form) :is(
+    input.form-control,
+    textarea.form-control,
+    select.form-select,
+    .form-control,
+    .form-select,
+    .input-group-text
+) {
+    color: #151b1e !important;
+    border: 1px solid #667278 !important;
+    border-radius: .35rem;
+    background-color: #e2e7e9 !important;
+    background-image: linear-gradient(180deg, #fcfdfd 0%, #edf1f2 12%, #dde3e5 56%, #cbd3d6 100%) !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 100% 100% !important;
+    box-shadow:
+        inset 0 1px 2px rgba(20, 27, 31, .18),
+        inset 0 -1px 0 rgba(255, 255, 255, .7),
+        0 1px 0 rgba(255, 255, 255, .88) !important;
+}
+
+body.dbx-steal-riffel :is(form, .dbx-form) :is(input, textarea, select):focus {
+    color: #0b1114 !important;
+    border-color: #007fae !important;
+    background-color: #f5f7f8 !important;
+    background-image: linear-gradient(180deg, #ffffff 0%, #f5f7f8 22%, #e5eaec 100%) !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
+    box-shadow:
+        0 0 0 .22rem rgba(0, 127, 174, .28),
+        inset 0 1px 2px rgba(15, 20, 23, .16) !important;
+}
+
+/* Bootstrap-Auswahlpfeil auf der ruhigen Metallfläche erhalten. */
+body.dbx-steal-riffel :is(form, .dbx-form) select.form-select {
+    background-image:
+        var(--bs-form-select-bg-img),
+        linear-gradient(180deg, #fcfdfd 0%, #edf1f2 12%, #dde3e5 56%, #cbd3d6 100%) !important;
+    background-repeat: no-repeat, no-repeat !important;
+    background-position: right .75rem center, center !important;
+    background-size: 16px 12px, 100% 100% !important;
+}
+
+body.dbx-steal-riffel :is(form, .dbx-form) select.form-select:focus {
+    background-image:
+        var(--bs-form-select-bg-img),
+        linear-gradient(180deg, #ffffff 0%, #f5f7f8 22%, #e5eaec 100%) !important;
+}
+
+/* Reports: Chromkopf und sauber gewalzte Datenzeilen. */
+body.dbx-steal-riffel :is(.dbx-report, .dbx-report-table-wrap) table thead th,
+body.dbx-steal-riffel .tabulator .tabulator-header,
+body.dbx-steal-riffel .tabulator .tabulator-header .tabulator-col {
+    color: #101518 !important;
+    border-color: #4b565c !important;
+    background-color: #c6ced2 !important;
+    background-image: url("../img/chrom-reflex.svg") !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
+    text-shadow: 0 1px 0 #fff !important;
+    box-shadow: inset 0 2px 0 #fff, inset 0 -2px 0 #566167 !important;
+}
+
+body.dbx-steal-riffel :is(.dbx-report, .dbx-report-table-wrap) table tbody tr:nth-child(odd),
+body.dbx-steal-riffel .tabulator .tabulator-row:nth-child(odd) {
+    background:
+        linear-gradient(rgba(226, 231, 233, .9), rgba(184, 194, 198, .9)),
+        url("../img/riffelblech-hell.svg") center / 120px 120px repeat !important;
+}
+
+body.dbx-steal-riffel :is(.dbx-report, .dbx-report-table-wrap) table tbody tr:nth-child(even),
+body.dbx-steal-riffel .tabulator .tabulator-row:nth-child(even) {
+    background:
+        linear-gradient(rgba(196, 205, 209, .92), rgba(160, 171, 176, .92)),
+        url("../img/riffelblech-hell.svg") center / 120px 120px repeat !important;
+}
+
+@media (max-width: 767.98px) {
+    body.dbx-steal-riffel {
+        background-size: cover, 170px 170px !important;
+    }
+
+    body.dbx-steal-riffel #dbxMain {
+        background-size: min(1000px, 150vw) auto, cover, 170px 170px !important;
+    }
+
+    body.dbx-steal-riffel :is(.dbx-content-frame:has(.c-cms), .dbx-form, .dbx-report, .dbx-panel) {
+        background-size: cover, 150px 150px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.dbx-steal-riffel *,
+    body.dbx-steal-riffel *::before,
+    body.dbx-steal-riffel *::after {
+        background-attachment: scroll !important;
+    }
+}

@@ -1,0 +1,66 @@
+<?php
+$messages = array();
+$messages['save_success'] = 'Daten wurden gespeichert';
+$messages['save_succeass'] = $messages['save_success'];
+$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
+$messages['bar_title'] = 'Widerrufe';
+$messages['bar_subtitle'] = 'Widerrufe und Retouren aus dem Shop';
+$messages['report_info'] = 'Eingegangene Widerrufe suchen und bearbeiten.';
+$messages['column_withdrawal'] = 'Widerruf';
+$messages['column_customer'] = 'Kunde';
+$messages['column_message'] = 'Nachricht';
+$messages['column_status'] = 'Status';
+$messages['column_action'] = 'Aktion';
+$messages['no_results'] = 'Keine Widerrufe für diese Suche gefunden.';
+$messages['without_order_no'] = 'Ohne Bestellnummer';
+$messages['status_new'] = 'Neu';
+$messages['status_processing'] = 'In Bearbeitung';
+$messages['status_accepted'] = 'Angenommen';
+$messages['status_refunded'] = 'Erstattet';
+$messages['status_rejected'] = 'Abgelehnt';
+$messages['status_closed'] = 'Geschlossen';
+$messages['action_processing'] = 'In Bearbeitung';
+$messages['action_accept_title'] = 'Widerruf annehmen';
+$messages['action_accept_question'] = 'Widerruf annehmen und reservierten Bestand zurückbuchen?';
+$messages['action_accept'] = 'Annehmen';
+$messages['action_refund_title'] = 'Widerruf erstatten';
+$messages['action_refund_question'] = 'Widerruf als erstattet markieren und reservierten Bestand zurückbuchen?';
+$messages['action_refunded'] = 'Erstattet';
+$messages['action_reject'] = 'Ablehnen';
+$messages['action_close'] = 'Schließen';
+$messages['edit_legal_title'] = 'Widerrufstext bearbeiten';
+$messages['edit_cms'] = 'CMS bearbeiten';
+$messages['view_page_title'] = 'Widerrufsseite ansehen';
+$messages['shop_view'] = 'Shop-Ansicht';
+$messages['token_error'] = 'Die Aktion wurde aus Sicherheitsgründen abgewiesen. Bitte laden Sie die Seite neu.';
+
+$field = array();
+$field['name'] = 'dbx_rrows';
+$field['type'] = 'int';
+$field['label'] = 'Anz. Seite';
+$field['rules'] = 'int';
+$field['tpl'] = 'select-single-label';
+$field['options'] = '10=10&20=20&30=30&50=50&100=100&0=Alle';
+$field['default'] = '30';
+$fields[] = $field;
+
+$field = array();
+$field['name'] = 'dbx_rwhere';
+$field['type'] = 'varchar';
+$field['label'] = 'Suche';
+$field['rules'] = '*|max=100';
+$field['tpl'] = 'text-label';
+$field['placeholder'] = 'Suchbegriff eingeben';
+$field['default'] = '';
+$fields[] = $field;
+
+$field = array();
+$field['name'] = 'status';
+$field['type'] = 'varchar';
+$field['label'] = 'Status';
+$field['rules'] = 'parameter';
+$field['tpl'] = 'select-single-label';
+$field['options'] = '=Alle&new=Neu&processing=In Bearbeitung&accepted=Angenommen&rejected=Abgelehnt&refunded=Erstattet&closed=Abgeschlossen';
+$field['default'] = '';
+$fields[] = $field;
+?>

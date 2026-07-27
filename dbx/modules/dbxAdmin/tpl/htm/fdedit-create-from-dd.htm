@@ -1,0 +1,35 @@
+<div id="dbx_fdedit_create_{i}" class="dbx-panel dbxForm_wrapper dbx-ddedit-form dbx-fdedit-create-form">
+ <form action="{action}" method="post" id="dbx_fdedit_create_form_{i}" class="dbxAjax" data-target="dbx_fdedit_create_{i}">
+  {obj:form_msg}
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>FD aus DD erstellen</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-3">
+     {obj:source_modul}
+    </div>
+    <div class="col-md-3">
+     {obj:source_dd}
+    </div>
+    <div class="col-md-3">
+     {obj:target_modul}
+    </div>
+    <div class="col-md-3">
+     {obj:target_fd}
+    </div>
+    <div class="col-12">
+     {obj:overwrite}
+    </div>
+   </div>
+  </section>
+
+  <div class="dbx-form-bottom-actions">
+   <button class="btn btn-primary" type="submit" title="FD erstellen">
+    <i class="bi bi-copy me-1"></i>FD erstellen
+   </button>
+  </div>
+  [dbx:form]
+ </form>
+</div>

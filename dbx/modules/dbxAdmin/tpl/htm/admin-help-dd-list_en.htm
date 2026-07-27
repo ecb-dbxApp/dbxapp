@@ -1,0 +1,26 @@
+<h4>Purpose</h4>
+<p>DD Sync compares DataDictionary files ()<code>*.dd.php</code>with the physical database structure.</p>
+
+<h4>Sync sequence</h4>
+<div class="help-flow">DD file (source) DB table (target)
+│ │
+├─ Field missing in DB ──► ALTER / CREATE
+├─ Field missing in DD ──► Warning / Review
+└─ Apply step by step ─► finished</div>
+
+<h4>Procedure</h4>
+<ol>
+<li>Select module/DD in the list.</li>
+<li>Check sync plan (missing fields, indices, types).</li>
+<li><em>Apply</em> Perform gradually — no blind reset into production.</li>
+<li>Then test DB Sync (data access).</li>
+</ol>
+
+<h4>Opportunities</h4>
+<ul>
+<li>Synchronize individual DD or all modules.</li>
+<li>Field comparison (separate menu item) for detail diff.</li>
+<li>Backup/Restore via DD menu (before structural changes).</li>
+</ul>
+
+<div class="help-example"><strong>Example:</strong> New field <code>reply_status</code> in <code>contactRequest.dd.php</code> → DD Sync shows pending field → Apply → column created in MySQL.</div>

@@ -1,0 +1,28 @@
+<section class="dbx-admin-dashboard-error-log" role="alert" aria-label="{error_log_title}">
+   <header class="dbx-admin-dashboard-error-log-header">
+      <div class="dbx-admin-dashboard-error-log-heading">
+         <i class="bi bi-exclamation-octagon-fill" aria-hidden="true"></i>
+         <div>
+            <strong>{error_log_title}</strong>
+            <small>{error_log_subtitle}</small>
+         </div>
+      </div>
+      <a class="btn btn-danger dbxConfirm"
+         href="{delete_action}"
+         title="{delete_title}"
+         data-confirm-title="<i class='bi bi-trash3'></i> {delete_title}"
+         data-confirm="{delete_confirm}"
+         data-confirm-hint="<small>{delete_hint}</small>"
+         data-confirm-buttons="yesno"
+         role="button">
+         <i class="bi bi-trash3" aria-hidden="true"></i>
+         {delete_label}
+      </a>
+   </header>
+   <div class="dbx-admin-dashboard-error-log-meta">
+      <strong>{file_label}:</strong>
+      <code>{file}</code>
+      <span>{size} {bytes_label}</span>
+   </div>
+   <pre class="dbx-admin-dashboard-error-log-content" tabindex="0" aria-label="{file_label}">{content}</pre>
+</section>

@@ -1,0 +1,54 @@
+<div class="dbx-config-dbx-tabs">
+  <ul class="nav nav-tabs dbx-config-dbx-tabstrip" role="tablist">
+    {tabs}
+  </ul>
+  <div class="tab-content dbx-config-dbx-tabcontent">
+    {panes}
+  </div>
+</div>
+<script>
+(function () {
+  if (window.dbxConfigTabsReady) return;
+  window.dbxConfigTabsReady = true;
+  document.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-dbx-config-tab]');
+    if (!button) return;
+
+    var nav = button.closest('.nav-tabs');
+    var root = nav && nav.closest('.dbx-config-dbx-tabs');
+    var targetSelector = button.getAttribute('data-bs-target') || button.getAttribute('href');
+    var target = targetSelector ? document.querySelector(targetSelector) : null;
+
+    if (!nav || !root || !target) return;
+
+    event.preventDefault();
+
+    Array.prototype.forEach.call(nav.querySelectorAll('[data-dbx-config-tab]'), function (tab) {
+      tab.classList.remove('active');
+      tab.setAttribute('aria-selected', 'false');
+    });
+
+    button.classList.add('active');
+    button.setAttribute('aria-selected', 'true');
+
+    var content = null;
+    Array.prototype.some.call(root.children, function (child) {
+      if (child.classList && child.classList.contains('tab-content')) {
+        content = child;
+        return true;
+      }
+      return false;
+    });
+
+    if (!content) return;
+
+    Array.prototype.forEach.call(content.children, function (pane) {
+      if (pane.classList && pane.classList.contains('tab-pane')) {
+        pane.classList.remove('show', 'active');
+      }
+    });
+
+    target.classList.add('show', 'active');
+  });
+})();
+</script>

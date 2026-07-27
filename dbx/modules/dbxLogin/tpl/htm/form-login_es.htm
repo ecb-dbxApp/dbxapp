@@ -1,0 +1,47 @@
+
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-user-auth dbx-user-login">
+  <form action="?dbx_modul=dbxLogin&dbx_run1=login" class="dbxAjax dbxAjax" method="post" id="form_login" data-target="dbxForm_{i}">
+    <div class="dbx-auth-shell">
+      <section class="dbx-auth-panel dbx-auth-panel-main">
+        <div class="dbx-auth-panel-head">
+          <span class="dbx-auth-brand-icon"><i class="bi bi-shield-lock"></i></span>
+          <span class="dbx-auth-panel-title">
+            <strong>Iniciar sesión / Registro</strong>
+          </span>
+          <span class="dbx-auth-panel-actions">{bar_extra}</span>
+        </div>
+
+        <div class="dbx-auth-message">{obj:form_msg}</div>
+
+        <div class="Qd-none">[dbx:form]</div>
+
+        <div class="dbx-auth-fields">
+          {obj:username}
+          {obj:password}
+          <button type="submit" class="btn btn-primary dbx-auth-submit">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Iniciar sesión / Registro</span>
+          </button>
+        </div>
+
+        {obj:register_link}
+      </section>
+
+      <aside class="dbx-auth-panel dbx-auth-panel-side">
+        <div class="dbx-auth-side-brandrow">
+          <div class="dbx-auth-side-icon"><i class="bi bi-stars"></i></div>
+          <div class="dbx-auth-side-wordmark" role="img" aria-label="dbXapp">
+            <span aria-hidden="true">db</span><strong aria-hidden="true">X</strong><span aria-hidden="true">App</span>
+          </div>
+        </div>
+        <h3>Acceso a contenidos, módulos y administración</h3>
+        <ul class="dbx-auth-feature-list">
+          <li><i class="bi bi-check2-circle"></i><span>Ambiente de trabajo personal</span></li>
+          <li><i class="bi bi-window-stack"></i><span>Acceso a módulos y datos</span></li>
+          <li><i class="bi bi-envelope-check"></i><span>Acceso a todos sus propios datos</span></li>
+        </ul>
+      </aside>
+    </div>
+    [dbx:js]
+  </form>
+</div>

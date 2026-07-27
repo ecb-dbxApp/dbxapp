@@ -1,0 +1,19 @@
+<div id="dbxForm_{i}" class="border rounded p-3 mb-3 bg-light dbxForm_wrapper">
+  <div class="fw-semibold mb-2">Crear vinculación automáticamente</div>
+  <p class="small text-muted mb-2">Escanea campos DD y plantillas de resumen de módulos existentes. El módulo en sí sigue sin flujo de trabajo.</p>
+  <form action="{action}" method="post" class="row g-2 align-items-end dbxAjax" data-target="dbxForm_{i}">
+    <div class="col-12">{obj:form_msg}</div>
+    <div class="col-md-3">
+      {obj:gen_modul}
+    </div>
+    <div class="col-md-5">
+      {obj:gen_dd}
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-sm btn-outline-primary" type="submit">
+        <i class="bi bi-magic"></i> Generar vinculación
+      </button>
+    </div>
+    [dbx:form]
+  </form>
+</div>

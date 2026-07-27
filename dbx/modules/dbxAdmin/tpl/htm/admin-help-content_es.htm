@@ -1,0 +1,309 @@
+<h4>Bienvenido al Contenido CMS</h4>
+<p>El Contenido CMS es la interfaz central para el contenido del sitio web en dbXappAquí usted puede manejar <strong>Carpetas</strong>, <strong>Páginas</strong>, <strong>Media</strong>, <strong>Derechos</strong> y, para varios idiomas, <strong>Traducciones</strong>.</p>
+<p><strong>Entrada:</strong> <code>?dbx_modul=dbxContent_admin&dbx_run1=cms</code></p>
+
+<h4>La superficie de un vistazo</h4>
+<div class="help-flow">- No.
+Administrador: Guardar la vida Traducir Ø Auto-Sync Silencioso
+- No.
+################################################################################################################################################################################################################################################################
+Page o editor de carpetas
+. .
++ Lenguaje    Multilingüismo
+.
+- No.</div>
+<ul>
+<li><strong>Izquierda:</strong> Árbol jerárquico (carpeta y páginas). Haga clic selecciona la entrada.</li>
+<li><strong>Centre:</strong> Título, Permalink, Estado, Contenido, Módulos de página.</li>
+<li><strong>Bien.</strong> Hero image, gallery, inline media, settings de traducción.</li>
+<li><strong>Arriba:</strong> Fichas de idiomas (por ejemplo DE*, EN) — star = master language.</li>
+</ul>
+
+<h4>Todos los botones del encabezado CMS</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Función</th><th>Nota importante</th></tr></thead>
+<tbody>
+<tr><td><strong>Árbol de Contenido</strong> (X/arrow)</td><td>Ocultar el árbol lateral izquierdo en o fuera.</td><td>No cambia los datos.</td></tr>
+<tr><td><strong>Almacenamiento</strong> (Diskette)</td><td>Guarda la página editada actualmente o la carpeta abierta junto con la configuración.</td><td>Alternativa <kbd>Strg</kbd>+<kbd>S</kbd>. El punto de status cambia a “Stored”.</td></tr>
+<tr><td><strong>Traducción</strong> (Llanguagos)</td><td>Transfiere la página o carpeta seleccionada del idioma principal a otros idiomas.</td><td>Sólo visible en el lenguaje maestro.</td></tr>
+<tr><td><strong>Auto-Sync</strong> (enlace de cadena)</td><td>Versiones de lenguaje manualmente incoupled con el maestro de nuevo.</td><td>Otros cambios maestros pueden reescribir los idiomas destinatarios.</td></tr>
+<tr><td><strong>Eliminación</strong> (tabla de papel)</td><td>Después de la confirmación, elimina la página actual o la carpeta abierta.</td><td>En el caso de varios idiomas, aparece una selección de las versiones de idiomas que se eliminarán.</td></tr>
+<tr><td><strong>Vista previa</strong> (eye)</td><td>Abre la página actual en la vista previa.</td><td>Aún no se han incluido cambios no almacenados.</td></tr>
+<tr><td><strong>Nueva página</strong> (botón verde con archivo-plus)</td><td>Crea una nueva página con contenido estándar en la carpeta seleccionada y la abre directamente.</td><td>Antes en el árbol elija la carpeta de destino deseada.</td></tr>
+<tr><td><strong>Duplicar página</strong> (Dos archivos)</td><td>Crea una copia nueva y única de la página seleccionada en la misma carpeta.</td><td>Primero salva. El permalink es automáticamente <code>-kopie</code>, <code>-kopie-2</code> etc. aclarado.</td></tr>
+<tr><td><strong>Recargar</strong> (flecha circular)</td><td>Laedt Baum y el estado actual de datos de nuevo desde el servidor.</td><td>Se pueden perder cambios sin restaurar.</td></tr>
+</tbody>
+</table>
+<p><strong>Almacenado/desconexión</strong> no es un botón, sino el indicador de estado para los cambios en el formulario o editor.</p>
+
+<h4>Botones en el árbol de página y en la forma de carpeta</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Función</th></tr></thead>
+<tbody>
+<tr><td><strong>Nuevas carpetas</strong> (más adelante)</td><td>Abre un formulario de carpeta vacía; La carpeta previamente seleccionada se propone como una asignación.</td></tr>
+<tr><td><strong>Nueva página en la carpeta</strong> (File Plus)</td><td>Corresponde al botón verde "Nueva página" y utiliza la carpeta seleccionada actualmente.</td></tr>
+<tr><td><strong>Búsqueda</strong></td><td>Filtra el árbol por nombre de página/carpeta; se puede encontrar un ID numérico de entrada de forma específica.</td></tr>
+<tr><td><strong>Nota de idioma</strong> (DE*, EN, ...)</td><td>Cambia el conjunto de datos CMS al idioma seleccionado. La estrella indica el lenguaje maestro.</td></tr>
+<tr><td><strong>Carpeta abierta/carpeta</strong> (Arrow)</td><td>Mostrar o ocultar las entradas subordinadas.</td></tr>
+<tr><td><strong>Carpetas de llenado</strong> (pen)</td><td>Abre nombre, asignación, plantilla y derechos de lectura de la carpeta.</td></tr>
+<tr><td><strong>Clausura</strong> (X en el formulario de carpeta)</td><td>Cierra el formulario de carpeta y muestra al editor de página de nuevo.</td></tr>
+<tr><td><strong>Eliminar la carpeta</strong></td><td>Eliminar una carpeta vacía después de la confirmación.</td></tr>
+<tr><td><strong>Carpetas de almacenamiento</strong></td><td>Guarda todos los campos del formulario de carpeta.</td></tr>
+</tbody>
+</table>
+
+<h4>Botones para héroe, galería y medios de comunicación en texto</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Función</th></tr></thead>
+<tbody>
+<tr><td><strong>Zona abierta/plegada</strong> (Arriba a héroe, galería o en texto)</td><td>Oculta la configuración de la zona respectiva en o apagado.</td></tr>
+<tr><td><strong>Hero – Selección</strong></td><td>Abre el navegador multimedia y selecciona exactamente una imagen de héroe o vídeo para la página.</td></tr>
+<tr><td><strong>Hero – Salvar</strong></td><td>Guarda Hero Medium y todos los ajustes Hero junto con la página.</td></tr>
+<tr><td><strong>Galería – Selección</strong></td><td>Asigna uno o más medios para la galería a la página.</td></tr>
+<tr><td><strong>Galería – Ahorro</strong></td><td>Guarda la configuración de la galería y el orden actual.</td></tr>
+<tr><td><strong>En el texto – Selección</strong></td><td>Seleccione un medio desde el navegador multimedia e insértelo en el contenido del editor.</td></tr>
+<tr><td><strong>Añadir Medium a Editor</strong> (Símbolo de imagen en el medio)</td><td>Entra en el medio ya asignado en la posición del cursor actual.</td></tr>
+<tr><td><strong>Eliminar la asignación</strong> (Canasta de pago en medio)</td><td>Quita el medio de este página. El archivo en sí permanece en la gestión de los medios.</td></tr>
+</tbody>
+</table>
+<p>Los medios de comunicación pueden ser ordenados por arrastrar y soltar. Duplicación no duplica ningún archivo de imagen o vídeo; la nueva página recibe sus propias entradas activas en <code>media_usage</code>Ellos apuntan a los mismos medios.</p>
+
+<h4>Botones en el Editor de Contenidos</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Función</th></tr></thead>
+<tbody>
+<tr><td><strong>Texto fuente</strong></td><td>Suplementa entre edición visual y texto fuente HTML.</td></tr>
+<tr><td><strong>Almacena todo</strong></td><td>Guarda contenido de página, editor y configuración de página.</td></tr>
+<tr><td><strong>Estilo de texto</strong></td><td>Establece formateos de dibujo como atrevidos, itálicos, subrayados o cruzados.</td></tr>
+<tr><td><strong>Tensión</strong></td><td>Cree una lista desordenada.</td></tr>
+<tr><td><strong>Número</strong></td><td>Cree una lista ordenada.</td></tr>
+<tr><td><strong>Routing</strong></td><td>Reduce el párrafo actual o la lista de entrada.</td></tr>
+<tr><td><strong>Rows</strong></td><td>Aumenta la entrada actual del párrafo o de la lista.</td></tr>
+<tr><td><strong>Formato de venta</strong></td><td>Seleccione párrafo, encabezado u otro formato de bloque.</td></tr>
+<tr><td><strong>Color</strong> (Cepillo)</td><td>Configura texto o color de fondo.</td></tr>
+<tr><td><strong>Enlace</strong></td><td>Crea o procesa una referencia.</td></tr>
+<tr><td><strong>Image/Media browser</strong></td><td>Seleccione una imagen de la administración de medios CMS e insértela.</td></tr>
+<tr><td><strong>Módulo</strong></td><td>Dale. dbXapp- Marcador de posición con los parámetros necesarios.</td></tr>
+<tr><td><strong>BootstrapComponente</strong></td><td>Incluye componentes de diseño preparados como mapas o cuadrículas.</td></tr>
+<tr><td><strong>Video</strong></td><td>Inserte un enlace de vídeo o vídeo.</td></tr>
+<tr><td><strong>Línea de división</strong></td><td>Insertar una línea divisoria horizontal.</td></tr>
+<tr><td><strong>Marcadores</strong></td><td>Dale. dbXappmarcadores estructurales, por ejemplo para columnas o regiones de contenido.</td></tr>
+<tr><td><strong>Reversible</strong></td><td>Devuelve el último paso de procesamiento.</td></tr>
+<tr><td><strong>Repito</strong></td><td>Restaurar el último paso sin hacer.</td></tr>
+<tr><td><strong>Imagen completa</strong></td><td>Aumenta el editor a toda la zona disponible.</td></tr>
+</tbody>
+</table>
+
+<h4>Todos los campos de entrada de una página</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Campo</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td><strong>Título</strong></td><td>Título de página visible y designación en el árbol de página.</td></tr>
+<tr><td><strong>Permalink</strong></td><td>Ruta URL única sin dominio y sin barra de dirección, por ejemplo <code>leistungen/beratung</code>. Cuando se duplica, se extiende automáticamente sin ambigüedades.</td></tr>
+<tr><td><strong>Plantilla de contenido</strong></td><td>Determina el marco y las áreas de contenido de la página. <code>parent</code> Toma el valor predeterminado de la carpeta.</td></tr>
+<tr><td><strong>Situación</strong></td><td><em>Activo</em> publica la página; <em>Inactivo</em> Escondido para visitantes comunes.</td></tr>
+<tr><td><strong>Descripción</strong></td><td>Breve descripción de la página con un máximo de 254 caracteres; también se utiliza para teaser o metadatos dependiendo de la salida.</td></tr>
+<tr><td><strong>Índice</strong></td><td>El gran editor visual para componentes de texto, enlaces, medios, módulos y diseño.</td></tr>
+</tbody>
+</table>
+<p>Las esferas técnicas <strong>ID</strong> y <strong>Carpeta ID</strong> son gestionados automáticamente y por lo tanto no son visibles como campos de entrada normales.</p>
+
+<h4>Todos los campos de héroe y galería</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Campo</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td><strong>Hero – Plantilla</strong></td><td>Determina si el medio Héroe y cómo se gastará. <code>parent</code> Toma la configuración de la carpeta; <code>none</code> Apaga al héroe.</td></tr>
+<tr><td><strong>Héroe – Medio</strong></td><td>se establece sobre "Selección"; el ID de medios permanece oculto y se gestiona automáticamente.</td></tr>
+<tr><td><strong>Hero – Distancia arriba</strong></td><td>Controla la distancia superior. <code>parent</code> Toma el valor predeterminado de la carpeta.</td></tr>
+<tr><td><strong>Hero - Highehe</strong></td><td>Controla la altura de la pantalla del área del Héroe; <code>parent</code> Se hace cargo de la especificación.</td></tr>
+<tr><td><strong>Hero – Variante</strong></td><td>Seleccione la variante color/superposición, por ejemplo original, luz, oscuro o monocromo.</td></tr>
+<tr><td><strong>Hero sticky</strong></td><td>Determina si el héroe permanece fijo al desplazarse. <code>parent</code> Se apodera de la configuración de la carpeta.</td></tr>
+<tr><td><strong>Nivel de rotación</strong></td><td>Determina si el Héroe está bajo o sobre el contenido al desplazarse.</td></tr>
+<tr><td><strong>Galería – Desbordamiento</strong></td><td>Determina la presentación en muchos medios, por ejemplo la red, deslizador o una vista limitada.</td></tr>
+<tr><td><strong>Galería – Haga clic</strong></td><td>Determina la acción al hacer clic en un medio de galería, por ejemplo Lightbox, Link o ninguna acción.</td></tr>
+</tbody>
+</table>
+
+<h4>Todos los campos de entrada de una carpeta</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Campo</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td><strong>Nombre</strong></td><td>Nombre de la carpeta en el árbol de página y base para nuevos permalinks.</td></tr>
+<tr><td><strong>Asignación</strong></td><td>Elige la carpeta padre. “Root / primer nivel” pone la carpeta en la parte superior.</td></tr>
+<tr><td><strong>Plantilla de contenido</strong></td><td>Plantilla estándar para páginas infantiles. <code>parent</code> Tome el nivel más alto.</td></tr>
+<tr><td><strong>Derechos de lectura</strong></td><td>Especifica qué grupos de usuarios pueden leer contenido de esta carpeta. <code>parent</code> asume los derechos de la carpeta padre; <code>*</code> Todo permitido.</td></tr>
+</tbody>
+</table>
+
+<h4>Otros campos de selección y diálogo</h4>
+<ul>
+<li><strong>Búsqueda de árboles:</strong> Abra las páginas y carpetas visibles.</li>
+<li><strong>Anuncio de medios:</strong> Filtros asociados medios por Todos, Galería, Hero, Texto o Tienda.</li>
+<li><strong>Carpeta de medios/destino de carga:</strong> determina de qué carpeta multimedia se muestra o se carga en qué carpeta.</li>
+<li><strong>Selección de archivos:</strong> Seleccione uno o más archivos locales para la carga.</li>
+<li><strong>URL de vídeo externo:</strong> registra una URL de vídeo compatible, por ejemplo YouTube.</li>
+<li><strong>Activar el idioma objetivo:</strong> especifica en el diálogo de traducción qué versiones de idiomas se crean o actualizan.</li>
+<li><strong>Subárbol entero incl. Páginas:</strong> Para carpetas también cubre todas las subcarpetas y páginas.</li>
+</ul>
+
+<h4>Conceptos básicos</h4>
+<ul>
+<li><strong>Carpetas</strong> - estructurar el árbol (como directorios). Tiene derechos de lectura y Héroe opcional.</li>
+<li><strong>página</strong> — contenido real con título, texto, permalink y medios de comunicación.</li>
+<li><strong>Permalink</strong> — ruta URL de la página (por ejemplo. <code>leistungen/beratung</code>).</li>
+<li><strong>Idioma maestro</strong> – lenguaje líder (generalmente DE). Cambios aquí control Auto-Sync.</li>
+<li><strong>Versión del idioma</strong> — el mismo contenido en otro idioma, vinculado al ID interno.</li>
+</ul>
+
+<h4>Creación de una página nueva</h4>
+<ol>
+<li>En el árbol <strong>Carpeta de destino</strong> Haga clic.</li>
+<li>Button <strong>Nueva página</strong> (gruen, icono de archivo).</li>
+<li>Editar el título y el texto en el editor.</li>
+<li><strong>Almacenamiento</strong> (disc) or <kbd>Strg</kbd>+<kbd>S</kbd>).</li>
+<li>En el idioma principal: diálogo <em>Traducir a otros idiomas</em> se abre — incluso cuando se guardan las páginas existentes, si EN/ES sigue desaparecido.</li>
+</ol>
+<div class="help-example"><strong>Ejemplo:</strong> Carpeta “Servicios” → Nueva página → Título “Consulta” → Escribe texto → Guardar → Activar EN versión en diálogo → Tomar el control. EN-side es el primero <em>Inactivo</em>.</div>
+
+<h4>Duplicar la página existente</h4>
+<ol>
+<li>En el árbol para ser copiado <strong>página</strong> Haga clic.</li>
+<li>Si aparece "Unstored", primero <strong>Almacenamiento</strong>.</li>
+<li>A la derecha del botón verde "Nueva página" <strong>Duplicar página</strong> (Dos archivos) clic.</li>
+<li>La nueva página se crea en la misma carpeta y se abre inmediatamente en el editor.</li>
+</ol>
+<p>La copia recibe un nuevo ID de página, un nuevo enlace de idioma y una nueva posición de clasificación. Título, estado, campos SEO, contenido, configuración de héroe/gallery y medios de comunicación se conservarán. El permalink es automáticamente <code>...-kopie</code> establecido; Ya existe, sigue <code>...-kopie-2</code> etc.</p>
+<div class="help-example"><strong>Medios:</strong> Los archivos no se multiplican físicamente. Para Hero, galería y otras áreas crean sus propios <code>media_usage</code>- Asignaciones a la nueva página; Los medios Inline son reasignados del contenido del editor copiado.</div>
+
+<h4>Crear nuevas carpetas</h4>
+<ol>
+<li>Elija carpetas de padres en el árbol (o raíz).</li>
+<li><strong>Nuevas carpetas</strong> en el contexto del árbol o mediante la vista de la carpeta.</li>
+<li>Nombre, Parent and Reading Rights Set → Guardar.</li>
+<li>Como con las páginas: comisionar el diálogo para otros idiomas.</li>
+</ol>
+
+<h4>Editar página o carpeta</h4>
+<ol>
+<li>Haga clic en la entrada en el árbol.</li>
+<li>Ajuste los campos meta (título, permalink, status, template).</li>
+<li>Cambiar contenido en el editor — Módulos por marcador de posición <code>[modul=...]</code>.</li>
+<li>Asignar medios a la derecha (hero, galería, en texto).</li>
+<li>almacenamiento. El punto guardado en el encabezado muestra cambios sin restaurar.</li>
+</ol>
+
+<h4>Media</h4>
+<ul>
+<li><strong>Hero</strong> — Gran imagen de la cabeza en la parte superior de la página.</li>
+<li><strong>Galería</strong> — Galería de imágenes bajo el contenido.</li>
+<li><strong>En texto</strong> — Fotos/videos inline en el editor.</li>
+<li>Los medios están dentro <strong>Navegadores multimedia</strong> seleccionado; Los archivos permanecen en stock incluso si elimina el enlace.</li>
+</ul>
+<div class="help-example"><strong>Sugerencia:</strong> Después de almacenar en el idioma maestro, las conexiones de los medios se toman en los idiomas autosinc.</div>
+
+<h4>Multilingüismo — Así es como funciona</h4>
+<p>dbXapp separa el contenido por idioma en sus propios cuadros ()<code>content_de</code>, <code>content_en</code>Están obligados a <code>lng_uid</code>.</p>
+<div class="help-flow">Maestro de almacenes (DE*)
+.
+► Esclavo con Auto-Sync → se actualiza automáticamente (texto + estructura + medios)
+.
+►► Esclavo con manual → sigue sin afectar (perro)</div>
+
+<h4>Tapas y placas de idiomas en el árbol</h4>
+<ul>
+<li><strong>DE*, EN, ...</strong> — Las pestañas de lenguaje cambian el lenguaje de edición.</li>
+<li><strong>Insignias</strong> en la entrada del árbol: master, auto, manual o desaparecido.</li>
+<li><strong>Master (*)</strong> — sólo aquí: Transferir, activar auto-sinc, eliminar multilingüemente.</li>
+</ul>
+
+<h4>Transferido a otros idiomas (provisión)</h4>
+<ol>
+<li>La página o carpeta en la <strong>Idioma maestro</strong> Votando.</li>
+<li>Button <strong>Traducción</strong> (Icono de lengua) en el encabezado.</li>
+<li>Diálogo: activar los idiomas de destino, revisar los textos y ajustarlos si es necesario.</li>
+<li><strong>Takeover</strong> — se crean nuevas versiones de idiomas (páginas: inactivas).</li>
+</ol>
+<p>In <strong>Carpetas</strong> Aclaraciones adicionales: caja de cambios <em>Subárbol entero incl. Páginas</em> — presenta todas las subcarpetas y páginas en un paso (más adelante, luego páginas).</p>
+
+<h4>Auto-Sync en almacenamiento maestro</h4>
+<p>Si tiene una página o carpeta en el idioma maestro <strong>Actualización</strong>Todos los esclavos conectados con estatus <code>auto</code> Sincronizado en el fondo. Verás un mensaje como “2 versión(s) de lenguaje sincronizado”.</p>
+<ul>
+<li>Los textos se traducen (dependiendo del proveedor).</li>
+<li>Estructura (templato, configuración de héroes, clasificación) se toma sobre.</li>
+<li><strong>Situación activa/inactiva</strong> El página esclavo se mantiene.</li>
+</ul>
+
+<h4>Fork — Desviación manual</h4>
+<p>Sálvalos en uno <strong>Idioma no maestro</strong>, la conexión se separa ()<code>manual</code>) El mensaje dice: <em>Conexión de idiomas por separado (manualmente).</em></p>
+<p>A partir de entonces, el maestro ya no adopta automáticamente este idioma.</p>
+
+<h4>Activar Auto-Sync de nuevo</h4>
+<ol>
+<li>Seleccione la página/carpeta en el idioma principal.</li>
+<li>Button <strong>Auto-Sync</strong> En el encabezado.</li>
+<li>Assertar – todos los esclavos conectados vuelven <code>auto</code>.</li>
+<li>El siguiente maestro ahorra sincronizaciones de nuevo (reescribir contenido de esclavos).</li>
+</ol>
+
+<h4>Eliminación</h4>
+<p><strong>Esclavo:</strong> Confirmación sencilla — solo se elimina esta versión del idioma.</p>
+<p><strong>Master con varios idiomas:</strong> Diálogo con casillas de verificación por idioma.</p>
+<ul>
+<li><code>auto</code>- Las vistas son preestablecidas.</li>
+<li><code>manual</code>- Las versiones no - se marcan deliberadamente si se desea.</li>
+<li>La carpeta sólo se puede eliminar si no hay subcarpetas y no hay páginas (verificado por idioma).</li>
+</ul>
+
+<h4>Configurar la traducción (admin)</h4>
+<p>Sendero: <strong>Admin → Contenido → Config</strong> o directamente:</p>
+<p><code>?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=config</code></p>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Proveedores</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td><code>copy</code></td><td>Copiar texto sin alterar (por defecto, sin clave de API)</td></tr>
+<tr><td><code>none</code></td><td>Dejar los campos de traducción vacío</td></tr>
+<tr><td><code>deepl</code></td><td>DeepL API — API Key required</td></tr>
+<tr><td><code>openai</code></td><td>OpenAI Chat API — API Key + Modelo</td></tr>
+<tr><td><code>custom</code></td><td>lógica propia en <code>dbx/modules/dbxContent/translate.php</code></td></tr>
+</tbody>
+</table>
+<p>Para errores de API: retroceso al texto original, nota en el CMS y entrada bajo <strong>Admin by SysMsg</strong> (Estatus) <code>warning</code>, Sobre <code>dbxContentTranslate</code>).</p>
+
+<h4>Avance y publicación</h4>
+<ul>
+<li><strong>Vista previa</strong> (ícono de ojos) — abre la página en el frontend.</li>
+<li><strong>Situación activa/inactiva</strong> - sólo páginas activas son accesibles al público.</li>
+<li>Nuevos sitios de esclavos comienzan como <strong>Inactivo</strong> - sólo activa después de la verificación.</li>
+</ul>
+
+<h4>Cache</h4>
+<p>Después de guardar, el caché de página completo del huésped se invalida automáticamente. Para Gaeste, almacena la salida final completa de llamadas permalink válidas incluyendo diseño, menús y módulos. Los usuarios registrados siguen siendo dinámicos. Si los cambios no son visibles en vivo:</p>
+<ol>
+<li>Admin → check page cache / vacío.</li>
+<li>Llame de nuevo la página (recargar duro en el navegador).</li>
+</ol>
+
+<h4>Keystrokes</h4>
+<ul>
+<li><kbd>Strg</kbd> + <kbd>S</kbd> — Guardar (página o carpeta)</li>
+</ul>
+
+<h4>Preguntas frecuentes</h4>
+<p><strong>¿Por qué falta EN en el árbol?</strong><br>Page fue creado sólo en DE – Ejecutar el diálogo de la comisión o utilizar el botón de traducción.</p>
+<p><strong>¿Por qué EN ya no está actualizada?</strong><br>El esclavo fue almacenado manualmente (el tenedor). Use botón Auto-Sync o vuelva a editar EN.</p>
+<p><strong>¿Nota sobre carpetas en el diálogo comisión?</strong><br>Las carpetas desaparecidas en EN/ES se crean automáticamente desde la estructura maestra (incluyendo las carpetas de padres) cuando se transfieren. En el diálogo aparece una pista en lugar de un error.</p>
+<p><strong>¿La traducción no funciona?</strong><br>Proveedor y clave API en Modul-Config check → Leer SysMsg.</p>
+<p><strong>¿Dónde puedo encontrar detalles técnicos?</strong><br>Desarrollador documental: <code>04_DBXApp_CMS_Mehrsprachigkeit.md</code> en el proyecto.</p>
+
+<h4>Flujo de trabajo típico (sitio multilingüe)</h4>
+<div class="help-flow">1. Crear estructura de carpetas en DE
+2. Escribir páginas en DE + Media
+3. Comisión → EN (y otros idiomas)
+4. Prueba de EN → Estado “Activo”
+5. Cambios sólo en DE* → Auto-Sync mantiene EN
+6. Textos especiales de EN: Editar en EN (Fork)</div>
+<div class="help-example"><strong>Ejemplo de página web:</strong> DE page “Home” with Hero → Commission EN → Adapt title “Home” / “Start” → Activar EN → Permalink check.</div>
+
+<h4>Botón de ayuda</h4>
+<p>Este manual es siempre sobre el <strong>Botón de ayuda</strong> (?) accesible en el encabezado CMS:</p>
+<p><code>?dbx_modul=dbxContent&amp;dbx_run1=help&amp;topic=content</code></p>

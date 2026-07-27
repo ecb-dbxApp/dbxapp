@@ -1,0 +1,1102 @@
+/* dbx process component */
+
+.dbx-process {
+    width: 100%;
+}
+
+.dbx-process.is-loading {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.dbx-process-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+
+.dbx-process-title {
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.25;
+}
+
+.dbx-process-status {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 1.85rem;
+}
+
+.dbx-process-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+}
+
+.dbx-process-progress {
+    display: grid;
+    gap: .35rem;
+}
+
+.dbx-process-progress-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .75rem;
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.dbx-process-progress-label {
+    color: #213547;
+}
+
+.dbx-process-progress-value {
+    min-width: 3.25rem;
+    text-align: right;
+    color: #1f4e79;
+}
+
+.dbx-process-bar {
+    height: 1rem;
+    overflow: hidden;
+    background: #e9edf2;
+    border: 1px solid rgba(0,0,0,.18);
+    border-radius: .35rem;
+}
+
+.dbx-process-bar-fill {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #2f80ed, #1f9d73);
+    transition: width .18s ease-out;
+}
+
+.dbx-process[data-process-status="finished"] .dbx-process-bar-fill {
+    background: #1f9d73;
+}
+
+.dbx-process[data-process-status="paused"] .dbx-process-bar-fill {
+    background: #c4871a;
+}
+
+.dbx-process[data-process-status="canceled"] .dbx-process-bar-fill,
+.dbx-process[data-process-status="error"] .dbx-process-bar-fill {
+    background: #b42318;
+}
+
+.dbx-process-message {
+    min-height: 2.75rem;
+    padding: .75rem .9rem;
+    background: #f8fafc;
+    border: 1px solid rgba(0,0,0,.14);
+    border-radius: .4rem;
+    color: #1f2937;
+}
+
+.dbx-process-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem .9rem;
+    font-size: .85rem;
+    color: #5d6673;
+}
+
+.dbx-process-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+    margin-top: 1rem;
+}
+
+.dbx-process-actions .btn {
+    min-width: 2.35rem;
+}
+
+.dbx-process[aria-busy="true"] .dbx-process-bar-fill {
+    background-size: 2rem 2rem;
+}
+
+.dbx-workflow-step-nav {
+    display: flex;
+    gap: .5rem;
+    margin: 0 0 1rem;
+    overflow-x: auto;
+    padding: .15rem .05rem .35rem;
+}
+
+.dbx-workflow-step-nav-item {
+    align-items: center;
+    background: #f8fbff;
+    border: 1px solid rgba(66,126,184,.26);
+    border-radius: .45rem;
+    color: #17324d;
+    display: inline-flex;
+    flex: 0 0 12.5rem;
+    gap: .55rem;
+    min-height: 3.2rem;
+    padding: .55rem .7rem;
+    text-decoration: none;
+}
+
+.dbx-workflow-step-nav-item:hover {
+    border-color: rgba(47,128,237,.7);
+    color: #0f4f98;
+    text-decoration: none;
+}
+
+.dbx-workflow-step-nav-item.is-active {
+    background: #e5f0ff;
+    border-color: #2f80ed;
+    box-shadow: 0 0 0 2px rgba(47,128,237,.12);
+}
+
+.dbx-workflow-step-nav-item.is-done {
+    background: #eefaf4;
+    border-color: rgba(31,157,115,.35);
+}
+
+.dbx-workflow-step-nav-item.is-locked {
+    background: #f3f5f7;
+    color: #79818c;
+    cursor: not-allowed;
+}
+
+.dbx-workflow-step-nav-no {
+    align-items: center;
+    background: #fff;
+    border: 1px solid rgba(66,126,184,.2);
+    border-radius: 999px;
+    display: inline-flex;
+    flex: 0 0 1.9rem;
+    font-size: .8rem;
+    font-weight: 700;
+    height: 1.9rem;
+    justify-content: center;
+}
+
+.dbx-workflow-step-nav-text {
+    display: grid;
+    gap: .15rem;
+    min-width: 0;
+}
+
+.dbx-workflow-step-nav-text strong,
+.dbx-workflow-step-nav-text small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dbx-workflow-step-nav-text strong {
+    font-size: .88rem;
+}
+
+.dbx-workflow-step-nav-text small {
+    color: inherit;
+    font-size: .76rem;
+    opacity: .78;
+}
+
+@media (max-width: 576px) {
+    .dbx-process-header,
+    .dbx-process-actions {
+        align-items: stretch;
+    }
+
+    .dbx-process-actions .btn {
+        flex: 1 1 2.75rem;
+    }
+}
+
+/* Workflow definition editor */
+
+.dbx-workflow-admin {
+    max-width: none;
+    --workflow-navy: #123b61;
+    --workflow-blue: #1f78d1;
+    --workflow-cyan: #19a9c7;
+    --workflow-green: #1e9c72;
+    --workflow-amber: #cc8615;
+    --workflow-red: #c94652;
+    --workflow-surface: rgba(248, 252, 255, .94);
+}
+
+.dbx-workflow-head-fields > .col-12:has(textarea[name="description"]),
+.dbx-workflow-head-fields > div:has(textarea[name="description"]) {
+    grid-column: 1 / -1;
+}
+
+.dbx-workflow-head-fields {
+    display: grid;
+    gap: .65rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+}
+
+.dbx-workflow-head-fields > * {
+    flex: none !important;
+    max-width: none !important;
+    padding: 0 !important;
+    width: auto !important;
+}
+
+.dbx-workflow-head-fields textarea[name="description"] {
+    height: 3.6rem !important;
+    min-height: 3.6rem !important;
+    resize: vertical;
+}
+
+.dbx-workflow-head-fields > label[for^="cb_active_"] {
+    align-self: center;
+    grid-column: 1;
+    margin: 0;
+}
+
+.dbx-workflow-head-fields > br {
+    display: none;
+}
+
+.dbx-workflow-head-fields > input[name="active"] {
+    grid-column: 1;
+    height: 1.2rem !important;
+    justify-self: start;
+    margin: -2rem 0 0 3rem !important;
+    min-height: 1.2rem !important;
+    width: 1.2rem !important;
+}
+
+.dbx-workflow-admin .dbx-panel-body > .mb-3 .alert {
+    margin-bottom: 0;
+    padding: .65rem .85rem;
+}
+
+.dbx-workflow-stage-number {
+    align-items: center;
+    background: linear-gradient(145deg, #247fcd, #0e4f88);
+    border: 1px solid rgba(8, 57, 98, .55);
+    border-radius: 50%;
+    box-shadow: 0 .35rem .8rem rgba(23, 91, 148, .2), inset 0 1px rgba(255,255,255,.35);
+    color: #fff;
+    display: inline-flex;
+    flex: 0 0 2.35rem;
+    font-size: 1rem;
+    font-weight: 850;
+    height: 2.35rem;
+    justify-content: center;
+    width: 2.35rem;
+}
+
+.dbx-workflow-goal-stage {
+    background: linear-gradient(145deg, rgba(249,252,255,.98), rgba(232,244,253,.92));
+    border: 1px solid rgba(40,102,158,.3);
+    border-radius: .8rem;
+    box-shadow: 0 .75rem 1.8rem rgba(29,72,111,.1), inset 0 1px rgba(255,255,255,.9);
+    padding: .9rem;
+}
+
+.dbx-workflow-goal-stage > header,
+.dbx-workflow-check-stage > header,
+.dbx-workflow-steps-stage-head,
+.dbx-workflow-runtime-steps-head,
+.dbx-workflow-requirements > header {
+    align-items: center;
+    display: flex;
+    gap: .7rem;
+}
+
+.dbx-workflow-goal-stage > header,
+.dbx-workflow-check-stage > header {
+    border-bottom: 1px solid rgba(51,107,158,.18);
+    margin-bottom: .75rem;
+    padding-bottom: .65rem;
+}
+
+.dbx-workflow-goal-stage header div,
+.dbx-workflow-check-stage header div,
+.dbx-workflow-steps-stage-head div,
+.dbx-workflow-runtime-steps-head div,
+.dbx-workflow-requirements header div { min-width: 0; }
+
+.dbx-workflow-goal-stage header h3,
+.dbx-workflow-check-stage header h3,
+.dbx-workflow-steps-stage-head h3,
+.dbx-workflow-runtime-steps-head h3,
+.dbx-workflow-requirements header h3 {
+    color: #173b5b;
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.dbx-workflow-goal-stage header small,
+.dbx-workflow-check-stage header small,
+.dbx-workflow-steps-stage-head small,
+.dbx-workflow-runtime-steps-head small,
+.dbx-workflow-requirements header small {
+    color: #607e97;
+    display: block;
+    font-size: .69rem;
+    font-weight: 750;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.dbx-workflow-check-stage {
+    background: linear-gradient(145deg, #f5fbff, #e8f5fb);
+    border: 1px solid rgba(25,135,167,.28);
+    border-radius: .7rem;
+    box-shadow: inset 0 1px rgba(255,255,255,.88);
+    margin-bottom: 1rem;
+    padding: .8rem;
+}
+
+.dbx-workflow-check-stage > header > strong {
+    background: #ddf3f8;
+    border: 1px solid rgba(25,135,167,.2);
+    border-radius: 999px;
+    color: #17677d;
+    font-size: .73rem;
+    margin-left: auto;
+    padding: .3rem .55rem;
+    white-space: nowrap;
+}
+
+.dbx-workflow-check-stage header p,
+.dbx-workflow-steps-stage-head p,
+.dbx-workflow-requirements header p {
+    color: #607e97;
+    font-size: .78rem;
+    margin: .08rem 0 0;
+}
+
+.dbx-workflow-check-preview {
+    display: grid;
+    gap: .4rem;
+}
+
+.dbx-workflow-check-preview-item {
+    align-items: center;
+    background: rgba(255,255,255,.86);
+    border: 1px solid rgba(49,113,164,.2);
+    border-left: 3px solid var(--workflow-green);
+    border-radius: .45rem;
+    display: grid;
+    gap: .55rem;
+    grid-template-columns: 1.65rem minmax(12rem,1fr) auto auto minmax(10rem,auto);
+    min-height: 3rem;
+    padding: .42rem .55rem;
+}
+
+.dbx-workflow-check-preview-item > .bi {
+    color: var(--workflow-green);
+    font-size: 1.05rem;
+    text-align: center;
+}
+
+.dbx-workflow-check-preview-item > div { display: grid; min-width: 0; }
+.dbx-workflow-check-preview-item strong { color: #173b5b; font-size: .8rem; }
+.dbx-workflow-check-preview-item small { color: #70879a; font-size: .68rem; }
+
+.dbx-workflow-check-rule,
+.dbx-workflow-check-required,
+.dbx-workflow-check-resolver {
+    border-radius: 999px;
+    font-size: .66rem;
+    font-weight: 700;
+    padding: .25rem .42rem;
+    white-space: nowrap;
+}
+
+.dbx-workflow-check-rule { background: #e8f1fa; color: #315f86; }
+.dbx-workflow-check-required { background: #fff0d9; color: #8e5a0b; }
+.dbx-workflow-check-resolver { background: #e4f7ef; color: #176b4e; }
+
+.dbx-workflow-steps-stage-head {
+    margin: .25rem 0 .8rem;
+}
+
+.dbx-workflow-step-contract {
+    background: linear-gradient(135deg, rgba(229,247,242,.9), rgba(239,250,255,.9));
+    border: 1px solid rgba(28,145,104,.22);
+    border-radius: .5rem;
+    padding: .65rem;
+}
+
+.dbx-workflow-step-contract > header {
+    align-items: center;
+    color: #176247;
+    display: flex;
+    gap: .5rem;
+    margin-bottom: .55rem;
+}
+
+.dbx-workflow-step-contract > header > .bi { font-size: 1.15rem; }
+.dbx-workflow-step-contract > header > div { display: grid; }
+.dbx-workflow-step-contract > header strong { font-size: .8rem; }
+.dbx-workflow-step-contract > header small { color: #527b6d; font-size: .68rem; }
+
+.dbx-workflow-action-options {
+    align-items: stretch;
+    background: rgba(255,255,255,.72);
+    border: 1px solid rgba(43,103,157,.2);
+    border-radius: .45rem;
+    display: grid;
+    gap: .25rem;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    min-height: 2rem;
+    padding: .3rem;
+}
+
+.dbx-workflow-action-choice {
+    align-items: center;
+    border-radius: .3rem;
+    color: #315f86;
+    cursor: pointer;
+    display: flex;
+    font-size: .72rem;
+    font-weight: 700;
+    gap: .35rem;
+    line-height: 1.2;
+    margin: 0;
+    min-width: 0;
+    padding: .25rem .35rem;
+}
+
+.dbx-workflow-action-choice:has(.form-check-input:checked) {
+    background: #e4f1fb;
+    color: #174f7d;
+}
+
+.dbx-workflow-action-choice .form-check-input {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.dbx-workflow-builder {
+    background:
+        radial-gradient(circle at 86% 8%, rgba(31,120,209,.11), transparent 24rem),
+        linear-gradient(155deg, rgba(255,255,255,.96), rgba(235,245,253,.9));
+    border: 1px solid rgba(40,102,158,.3);
+    border-radius: .85rem;
+    box-shadow: 0 1rem 2.5rem rgba(29,72,111,.13), inset 0 1px 0 rgba(255,255,255,.9);
+    margin-top: 1rem;
+    overflow: hidden;
+    padding: 1rem;
+}
+
+.dbx-workflow-runtime-goal {
+    background: linear-gradient(145deg, rgba(246,251,255,.94), rgba(230,243,253,.9));
+    border: 1px solid rgba(43,103,157,.22);
+    border-radius: .65rem;
+    padding: .65rem .75rem;
+}
+
+.dbx-workflow-requirements {
+    background: linear-gradient(145deg, rgba(248,252,255,.96), rgba(233,246,251,.92));
+    border: 1px solid rgba(38,112,158,.25);
+    border-radius: .65rem;
+    margin: .85rem 0 1rem;
+    padding: .75rem;
+}
+
+.dbx-workflow-requirements > header {
+    border-bottom: 1px solid rgba(43,103,157,.18);
+    margin-bottom: .6rem;
+    padding-bottom: .55rem;
+}
+
+.dbx-workflow-requirements.is-complete { border-color: rgba(28,145,104,.38); }
+.dbx-workflow-requirement-list { display: grid; gap: .38rem; }
+
+.dbx-workflow-requirement {
+    align-items: center;
+    background: rgba(255,255,255,.84);
+    border: 1px solid rgba(49,113,164,.2);
+    border-left: 3px solid #8ba5b8;
+    border-radius: .45rem;
+    display: grid;
+    gap: .55rem;
+    grid-template-columns: 1.75rem minmax(12rem,1fr) auto auto;
+    min-height: 3.15rem;
+    padding: .42rem .55rem;
+}
+
+.dbx-workflow-requirement.is-done { border-left-color: var(--workflow-green); }
+.dbx-workflow-requirement.is-missing { border-left-color: var(--workflow-red); }
+.dbx-workflow-requirement.is-optional { border-left-color: var(--workflow-amber); }
+.dbx-workflow-requirement-icon { color: #66839a; font-size: 1.05rem; text-align: center; }
+.dbx-workflow-requirement.is-done .dbx-workflow-requirement-icon { color: var(--workflow-green); }
+.dbx-workflow-requirement.is-missing .dbx-workflow-requirement-icon { color: var(--workflow-red); }
+.dbx-workflow-requirement-copy { display: grid; min-width: 0; }
+.dbx-workflow-requirement-copy strong { color: #173b5b; font-size: .8rem; }
+.dbx-workflow-requirement-copy small { color: #71889b; font-size: .68rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dbx-workflow-requirement-state { color: #557187; font-size: .7rem; font-weight: 800; white-space: nowrap; }
+.dbx-workflow-requirement.is-done .dbx-workflow-requirement-state { color: #167052; }
+.dbx-workflow-requirement.is-missing .dbx-workflow-requirement-state { color: #a22e3a; }
+.dbx-workflow-requirement-action { white-space: nowrap; }
+
+.dbx-workflow-runtime-steps-head { margin: .85rem 0 .6rem; }
+.dbx-workflow-step-data-label { color: #315f86; font-size: .76rem; margin: .55rem 0; }
+.dbx-workflow-step-validation-hint { color: #9b3b43; font-size: .72rem; margin-top: .6rem; }
+
+.dbx-workflow-builder-head {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin: -1rem -1rem 1rem;
+    padding: 1rem 1.1rem;
+    background: linear-gradient(115deg, #0d3151, #175b91 62%, #1e739f);
+    border-bottom: 1px solid rgba(3,33,60,.45);
+    color: #fff;
+    box-shadow: inset 0 1px rgba(255,255,255,.17), inset 0 -1px rgba(0,0,0,.2);
+}
+
+.dbx-workflow-builder-head h3 {
+    color: #fff;
+    font-size: 1.16rem;
+    font-weight: 750;
+    letter-spacing: .01em;
+    margin: .05rem 0 .15rem;
+}
+
+.dbx-workflow-builder-head p {
+    color: rgba(235,247,255,.82);
+    font-size: .87rem;
+    margin: 0;
+}
+
+.dbx-workflow-builder-eyebrow {
+    color: #8ee8fb;
+    font-size: .69rem;
+    font-weight: 800;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+
+.dbx-workflow-builder-legend {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+
+.dbx-workflow-builder-legend span {
+    align-items: center;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: .75rem;
+    gap: .32rem;
+    padding: .3rem .55rem;
+}
+
+.dbx-workflow-designer-layout {
+    align-items: start;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 14.5rem minmax(0, 1fr);
+}
+
+.dbx-workflow-palette {
+    background: linear-gradient(165deg, #eff7fd, #e3f0fa);
+    border: 1px solid rgba(43,103,157,.25);
+    border-radius: .65rem;
+    box-shadow: 0 .5rem 1.25rem rgba(28,67,101,.09), inset 0 1px rgba(255,255,255,.9);
+    display: grid;
+    gap: .5rem;
+    padding: .7rem;
+    position: sticky;
+    top: .75rem;
+    z-index: 3;
+}
+
+.dbx-workflow-palette-title {
+    color: #34536e;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .11em;
+    padding: .1rem .15rem .25rem;
+    text-transform: uppercase;
+}
+
+.dbx-workflow-palette > button {
+    align-items: center;
+    background: rgba(255,255,255,.86);
+    border: 1px solid rgba(50,111,166,.22);
+    border-radius: .5rem;
+    color: #173b5b;
+    cursor: grab;
+    display: grid;
+    gap: .55rem;
+    grid-template-columns: 1.8rem minmax(0, 1fr) auto;
+    min-height: 3.25rem;
+    padding: .5rem .55rem;
+    text-align: left;
+    transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease;
+}
+
+.dbx-workflow-palette > button:hover {
+    border-color: rgba(31,120,209,.6);
+    box-shadow: 0 .38rem .9rem rgba(31,94,148,.14);
+    transform: translateY(-1px);
+}
+
+.dbx-workflow-palette > button > .bi:first-child {
+    align-items: center;
+    background: #e3f1ff;
+    border-radius: .38rem;
+    color: #1768b2;
+    display: inline-flex;
+    font-size: 1rem;
+    height: 1.8rem;
+    justify-content: center;
+    width: 1.8rem;
+}
+
+.dbx-workflow-palette > button:nth-of-type(2) > .bi:first-child { background: #fff0df; color: #b56a05; }
+.dbx-workflow-palette > button:nth-of-type(3) > .bi:first-child { background: #e0f7ef; color: #12805b; }
+.dbx-workflow-palette > button:nth-of-type(4) > .bi:first-child { background: #f2e8ff; color: #7551ad; }
+.dbx-workflow-palette > button:nth-of-type(5) > .bi:first-child { background: #fff0e5; color: #b65327; }
+
+.dbx-workflow-palette button span {
+    display: grid;
+    line-height: 1.12;
+}
+
+.dbx-workflow-palette button strong { font-size: .82rem; }
+.dbx-workflow-palette button small { color: #668096; font-size: .69rem; margin-top: .2rem; }
+.dbx-workflow-palette button > .bi-grip-vertical { color: #91a7ba; }
+
+.dbx-workflow-palette-help {
+    align-items: flex-start;
+    color: #58748c;
+    display: flex;
+    font-size: .72rem;
+    gap: .42rem;
+    line-height: 1.35;
+    padding: .35rem .25rem .1rem;
+}
+
+.dbx-workflow-canvas {
+    background:
+        linear-gradient(rgba(68,126,177,.075) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(68,126,177,.075) 1px, transparent 1px),
+        rgba(249,252,255,.88);
+    background-size: 22px 22px;
+    border: 1px solid rgba(43,103,157,.22);
+    border-radius: .65rem;
+    min-height: 34rem;
+    overflow: hidden;
+    padding: 1rem clamp(.75rem, 3vw, 2.5rem);
+    position: relative;
+}
+
+.dbx-workflow-flow-lines {
+    inset: 0;
+    overflow: visible;
+    pointer-events: none;
+    position: absolute;
+    z-index: 0;
+}
+
+.dbx-workflow-flow-line {
+    fill: none;
+    stroke: #4d92ca;
+    stroke-linecap: round;
+    stroke-width: 2.25;
+}
+
+.dbx-workflow-flow-line.is-decision { stroke: #8b61bd; }
+.dbx-workflow-flow-line.is-check { stroke: #1d9d75; }
+.dbx-workflow-flow-line.is-action { stroke: #c17c17; }
+.dbx-workflow-flow-line.is-finish { stroke: #208b68; }
+.dbx-workflow-flow-lines marker path { fill: #397fb7; }
+
+.dbx-workflow-flow-label {
+    fill: #67428d;
+    font-size: 10px;
+    font-weight: 800;
+    paint-order: stroke;
+    stroke: #f8fbff;
+    stroke-width: 4px;
+}
+
+.dbx-workflow-step-list {
+    display: grid;
+    gap: 2.15rem;
+    margin: 2rem auto;
+    max-width: 62rem;
+    position: relative;
+    z-index: 1;
+}
+
+.dbx-workflow-step-row {
+    background: var(--workflow-surface);
+    border: 1px solid rgba(54,111,164,.34);
+    border-left: 4px solid var(--workflow-blue);
+    border-radius: .65rem;
+    box-shadow: 0 .55rem 1.15rem rgba(27,66,102,.11), inset 0 1px rgba(255,255,255,.95);
+    min-width: 0;
+    position: relative;
+    transition: box-shadow .15s ease, opacity .15s ease, transform .15s ease;
+}
+
+.dbx-workflow-step-row[data-step-kind="action"] { border-left-color: var(--workflow-amber); }
+.dbx-workflow-step-row[data-step-kind="check"] { border-left-color: var(--workflow-green); }
+.dbx-workflow-step-row[data-step-kind="decision"] { border-left-color: #8157ae; }
+.dbx-workflow-step-row.is-dragging { opacity: .55; transform: scale(.985); }
+.dbx-workflow-step-row:hover { box-shadow: 0 .75rem 1.5rem rgba(23,70,111,.16), inset 0 1px rgba(255,255,255,.95); }
+
+.dbx-workflow-step-row-empty {
+    display: none;
+}
+
+.dbx-workflow-step-details > summary { list-style: none; }
+.dbx-workflow-step-details > summary::-webkit-details-marker { display: none; }
+
+.dbx-workflow-step-summary {
+    align-items: center;
+    cursor: pointer;
+    display: grid;
+    gap: .6rem;
+    grid-template-columns: 1.8rem 2.2rem 7.2rem minmax(0,1fr) auto 2rem;
+    min-height: 3.75rem;
+    padding: .55rem .65rem;
+}
+
+.dbx-workflow-drag-handle,
+.dbx-workflow-remove-step {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: .35rem;
+    color: #7791a7;
+    display: inline-flex;
+    height: 2rem;
+    justify-content: center;
+    padding: 0;
+    width: 1.8rem;
+}
+
+.dbx-workflow-drag-handle { cursor: grab; }
+.dbx-workflow-drag-handle:active { cursor: grabbing; }
+.dbx-workflow-remove-step:hover { background: #ffeaec; color: #bb3340; }
+
+.dbx-workflow-step-num {
+    align-items: center;
+    background: #e2effb;
+    border: 1px solid rgba(39,103,161,.18);
+    border-radius: .4rem;
+    color: #1a568a;
+    display: flex;
+    font-size: .76rem;
+    font-weight: 700;
+    height: 2.15rem;
+    justify-content: center;
+}
+
+.dbx-workflow-step-kind {
+    align-items: center;
+    color: #315b7e;
+    display: inline-flex;
+    font-size: .72rem;
+    font-weight: 750;
+    gap: .34rem;
+    text-transform: uppercase;
+}
+
+.dbx-workflow-step-caption {
+    display: grid;
+    min-width: 0;
+}
+
+.dbx-workflow-step-caption strong,
+.dbx-workflow-step-caption small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dbx-workflow-step-caption strong { color: #173b5b; font-size: .94rem; }
+.dbx-workflow-step-caption small { color: #6b8295; font-size: .73rem; margin-top: .12rem; }
+
+.dbx-workflow-auto-badge {
+    align-items: center;
+    background: #e1f7ef;
+    border: 1px solid rgba(28,145,104,.25);
+    border-radius: 999px;
+    color: #137451;
+    display: inline-flex;
+    font-size: .69rem;
+    font-weight: 750;
+    gap: .25rem;
+    padding: .25rem .45rem;
+}
+
+.dbx-workflow-step-main {
+    background: rgba(235,245,252,.58);
+    border-top: 1px solid rgba(54,111,164,.18);
+    padding: .8rem;
+}
+
+.dbx-workflow-step-main .form-label {
+    font-size: .8rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+}
+
+.dbx-workflow-safety-note {
+    align-items: center;
+    background: #eef7f4;
+    border: 1px solid rgba(28,145,104,.18);
+    border-radius: .35rem;
+    color: #31705c;
+    display: inline-flex;
+    font-size: .7rem;
+    gap: .3rem;
+    min-height: 1.95rem;
+    padding: .3rem .45rem;
+}
+
+.dbx-workflow-node-port {
+    background: #fff;
+    border: 2px solid #4389c2;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(67,137,194,.12);
+    height: .68rem;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: .68rem;
+    z-index: 2;
+}
+
+.dbx-workflow-node-port.is-in { top: 0; }
+.dbx-workflow-node-port.is-out { top: 100%; }
+
+.dbx-workflow-terminal {
+    align-items: center;
+    background: linear-gradient(115deg, #144b76, #1d78ad);
+    border: 1px solid rgba(11,62,97,.55);
+    border-radius: 999px;
+    box-shadow: 0 .45rem 1rem rgba(26,75,113,.18), inset 0 1px rgba(255,255,255,.24);
+    color: #fff;
+    display: flex;
+    gap: .55rem;
+    margin: 0 auto;
+    max-width: 23rem;
+    min-height: 3rem;
+    padding: .45rem .9rem;
+    position: relative;
+    width: min(90%, 23rem);
+    z-index: 1;
+}
+
+.dbx-workflow-terminal > .bi {
+    align-items: center;
+    background: rgba(255,255,255,.14);
+    border-radius: 50%;
+    display: inline-flex;
+    height: 2rem;
+    justify-content: center;
+    width: 2rem;
+}
+
+.dbx-workflow-terminal span,
+.dbx-workflow-terminal label { display: grid; flex: 1; font-weight: 700; margin: 0; }
+.dbx-workflow-terminal small { color: #aeeaff; font-size: .62rem; letter-spacing: .13em; }
+.dbx-workflow-terminal.is-finish { background: linear-gradient(115deg, #126548, #1b9670); }
+.dbx-workflow-terminal.is-finish small { color: #c5ffe9; }
+.dbx-workflow-terminal .form-control { border-color: rgba(255,255,255,.38); }
+
+.dbx-workflow-validation {
+    align-items: flex-start;
+    background: #eaf8f2;
+    border: 1px solid rgba(28,145,104,.27);
+    border-radius: .55rem;
+    color: #176247;
+    display: flex;
+    gap: .6rem;
+    margin-top: 1rem;
+    padding: .7rem .8rem;
+}
+
+.dbx-workflow-validation.is-error { background: #fff0f1; border-color: rgba(193,54,67,.28); color: #9d2935; }
+.dbx-workflow-validation.is-warning { background: #fff8e8; border-color: rgba(190,126,20,.3); color: #8e5d0d; }
+.dbx-workflow-validation ul { margin: .3rem 0 0; padding-left: 1.1rem; }
+.dbx-workflow-validation li + li { margin-top: .15rem; }
+
+.dbx-workflow-technical summary {
+    color: #315f8c;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.dbx-workflow-technical textarea {
+    margin-top: .5rem;
+}
+
+.dbx-workflow-module-block {
+    background: #f8fbff;
+    border: 1px solid rgba(66,126,184,.25);
+    border-radius: .45rem;
+    padding: 1rem;
+}
+
+.dbx-workflow-module-head {
+    align-items: flex-start;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.dbx-workflow-module-links {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    justify-content: flex-end;
+}
+
+.dbx-workflow-done-check {
+    align-items: center;
+    background: #fff;
+    border: 1px solid rgba(66,126,184,.18);
+    border-radius: .35rem;
+    display: flex;
+    gap: .55rem;
+    margin: .85rem 0 0;
+    padding: .65rem .75rem;
+}
+
+/* Workflow instance report */
+
+.dbx-workflow-instance-progress {
+    align-items: center;
+    background: #e9edf2;
+    border: 1px solid rgba(0,0,0,.14);
+    border-radius: .35rem;
+    display: grid;
+    grid-template-columns: minmax(5rem, 1fr) 3rem;
+    height: 1.65rem;
+    min-width: 8.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.dbx-workflow-instance-progress-bar {
+    background: linear-gradient(90deg, #2f80ed, #1f9d73);
+    grid-column: 1 / 3;
+    grid-row: 1;
+    height: 100%;
+    min-width: .2rem;
+}
+
+.dbx-workflow-instance-progress span {
+    color: #102a43;
+    font-size: .8rem;
+    font-weight: 700;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+    position: relative;
+    z-index: 1;
+}
+
+.dbx-workflow-instance-message {
+    display: inline-block;
+    max-width: 28rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.dbx-workflow-instance-action {
+    white-space: nowrap;
+}
+
+.dbx-workflow-done-check input {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 1100px) {
+    .dbx-workflow-designer-layout {
+        grid-template-columns: 12rem minmax(0, 1fr);
+    }
+
+    .dbx-workflow-step-summary {
+        grid-template-columns: 1.6rem 2rem minmax(5.8rem, auto) minmax(0, 1fr) 2rem;
+    }
+
+    .dbx-workflow-auto-badge { display: none; }
+
+    .dbx-workflow-check-preview-item {
+        grid-template-columns: 1.65rem minmax(10rem,1fr) auto auto;
+    }
+
+    .dbx-workflow-check-resolver { grid-column: 2 / -1; justify-self: start; }
+}
+
+@media (max-width: 768px) {
+    .dbx-workflow-head-fields { grid-template-columns: minmax(0, 1fr); }
+    .dbx-workflow-head-fields > div:has(textarea[name="description"]) { grid-column: auto; }
+
+    .dbx-workflow-builder-head,
+    .dbx-workflow-module-head { display: block; }
+
+    .dbx-workflow-builder-legend { margin-top: .65rem; }
+
+    .dbx-workflow-designer-layout { grid-template-columns: minmax(0, 1fr); }
+
+    .dbx-workflow-palette {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        position: static;
+    }
+
+    .dbx-workflow-palette-title,
+    .dbx-workflow-palette-help { grid-column: 1 / -1; }
+
+    .dbx-workflow-canvas { padding-inline: .65rem; }
+
+    .dbx-workflow-step-summary {
+        gap: .4rem;
+        grid-template-columns: 1.5rem 1.9rem minmax(0, 1fr) 1.8rem;
+    }
+
+    .dbx-workflow-step-kind { display: none; }
+
+    .dbx-workflow-module-links {
+        justify-content: flex-start;
+        margin-top: .75rem;
+    }
+
+    .dbx-workflow-check-stage > header { align-items: flex-start; flex-wrap: wrap; }
+    .dbx-workflow-check-stage > header > strong { margin-left: 3rem; }
+
+    .dbx-workflow-check-preview-item,
+    .dbx-workflow-requirement {
+        grid-template-columns: 1.65rem minmax(0,1fr);
+    }
+
+    .dbx-workflow-check-rule,
+    .dbx-workflow-check-required,
+    .dbx-workflow-check-resolver,
+    .dbx-workflow-requirement-state,
+    .dbx-workflow-requirement-action { grid-column: 2; justify-self: start; }
+}
+
+@media (max-width: 480px) {
+    .dbx-workflow-palette { grid-template-columns: minmax(0, 1fr); }
+    .dbx-workflow-palette-title,
+    .dbx-workflow-palette-help { grid-column: auto; }
+}

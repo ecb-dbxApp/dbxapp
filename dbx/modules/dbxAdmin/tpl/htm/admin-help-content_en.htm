@@ -1,0 +1,309 @@
+<h4>Welcome to Content CMS</h4>
+<p>The Content CMS is the central interface for website content in dbXapp. Here you can manage <strong>Folders</strong>, <strong>Pages</strong>, <strong>Media</strong>, <strong>Rights</strong> and, for several languages, the <strong>Translations</strong>.</p>
+<p><strong>Entry:</strong> <code>?dbx_modul=dbxContent_admin&dbx_run1=cms</code></p>
+
+<h4>The surface at a glance</h4>
+<div class="help-flow">┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│ Header: Save | Translate | Auto-Sync | Delete │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│ LINKS │ MIDDLE │ RIGHT │
+│ Page or folder editor │ Hero, Gallery, │
+│ baum │ + preview button │ Media in text, │
+│ + Language │ │ Multilingualism │
+│ tabs │ │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</div>
+<ul>
+<li><strong>Left:</strong> Hierarchical tree (folder and pages). Click selects the entry.</li>
+<li><strong>Centre:</strong> Title, Permalink, Status, Content, Page Modules.</li>
+<li><strong>Right:</strong> Hero image, gallery, inline media, translation settings.</li>
+<li><strong>Above:</strong> Language tabs (e.g. DE*, EN) — star = master language.</li>
+</ul>
+
+<h4>All buttons of the CMS header</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Function</th><th>Important note</th></tr></thead>
+<tbody>
+<tr><td><strong>In/out Content Tree</strong> (X/arrow)</td><td>Hide the left side tree on or off.</td><td>Does not change data.</td></tr>
+<tr><td><strong>Storage</strong> (diskette)</td><td>Saves the currently edited page or the opened folder together with settings.</td><td>Alternative <kbd>Strg</kbd>+<kbd>S</kbd>. The status point then changes to “Stored”.</td></tr>
+<tr><td><strong>Translating</strong> (languages)</td><td>Transfers the selected page or folder from the master language to other languages.</td><td>Only visible in the master language.</td></tr>
+<tr><td><strong>Auto-Sync</strong> (chain link)</td><td>Manually uncoupled language versions with the master again.</td><td>Other master changes can rewrite the target languages.</td></tr>
+<tr><td><strong>Deletion</strong> (paper basket)</td><td>After confirmation, deletes the current page or the opened folder.</td><td>In the case of several languages, a selection of the language versions to be deleted appears.</td></tr>
+<tr><td><strong>Preview</strong> (eye)</td><td>Opens the current page in the frontend preview.</td><td>Unstored changes are not yet included.</td></tr>
+<tr><td><strong>New page</strong> (green button with file-plus)</td><td>Creates a new page with standard content in the selected folder and opens it directly.</td><td>Before in the tree choose the desired destination folder.</td></tr>
+<tr><td><strong>Duplicate page</strong> (Two files)</td><td>Creates a new, unique copy of the currently selected page in the same folder.</td><td>First save. The permalink is automatically <code>-kopie</code>, <code>-kopie-2</code> etc. made clear.</td></tr>
+<tr><td><strong>Reload</strong> (circular arrow)</td><td>Laedt Baum and current data status again from the server.</td><td>Unstored changes can be lost.</td></tr>
+</tbody>
+</table>
+<p><strong>Stored/unstored</strong> is not a button, but the status indicator for changes in the form or editor.</p>
+
+<h4>Buttons in the page tree and in the folder form</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Function</th></tr></thead>
+<tbody>
+<tr><td><strong>New folders</strong> (folder-plus)</td><td>Opens an empty folder form; The previously selected folder is proposed as an assignment.</td></tr>
+<tr><td><strong>New page in the folder</strong> (File Plus)</td><td>Corresponds to the green button "New page" and uses the currently selected folder.</td></tr>
+<tr><td><strong>Search</strong></td><td>Filters the tree by page/folder name; an input numerical ID can be found in a targeted manner.</td></tr>
+<tr><td><strong>Language tab</strong> (DE*, EN, ...)</td><td>Changes the CMS dataset to the selected language. The star indicates the master language.</td></tr>
+<tr><td><strong>Folder open/fold</strong> (Arrow)</td><td>Show or hide the subordinate entries.</td></tr>
+<tr><td><strong>Filing folders</strong> (pen)</td><td>Opens name, assignment, template and read rights of the folder.</td></tr>
+<tr><td><strong>Closure</strong> (X in the folder form)</td><td>Closes the folder form and shows the page editor again.</td></tr>
+<tr><td><strong>Delete the folder</strong></td><td>Delete an empty folder after confirmation.</td></tr>
+<tr><td><strong>Store folders</strong></td><td>Saves all fields of the folder form.</td></tr>
+</tbody>
+</table>
+
+<h4>Buttons for hero, gallery and media in text</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Function</th></tr></thead>
+<tbody>
+<tr><td><strong>Area open/folded</strong> (Arrow to Hero, Gallery or In Text)</td><td>Hides the settings of the respective area on or off.</td></tr>
+<tr><td><strong>Hero – Selection</strong></td><td>Opens the media browser and selects exactly one hero image or video for the page.</td></tr>
+<tr><td><strong>Hero – Saving</strong></td><td>Saves Hero Medium and all Hero settings along with the page.</td></tr>
+<tr><td><strong>Gallery – Selection</strong></td><td>Assigns one or more media for the gallery to the page.</td></tr>
+<tr><td><strong>Gallery – Saving</strong></td><td>Saves gallery settings and the current order.</td></tr>
+<tr><td><strong>In the text – Selection</strong></td><td>Select a medium from the media browser and insert it into the editor content.</td></tr>
+<tr><td><strong>Add Medium to Editor</strong> (Image symbol on the medium)</td><td>Enters the already assigned medium at the current cursor position.</td></tr>
+<tr><td><strong>Remove assignment</strong> (Paper basket on medium)</td><td>Remove the medium from this page. The file itself remains in the media management.</td></tr>
+</tbody>
+</table>
+<p>Gallery media can be sorted by drag-and-drop. Duplication does not duplicate any image or video files; the new page receives its own active entries into <code>media_usage</code>They point to the same media.</p>
+
+<h4>Buttons in the Content Editor</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Function</th></tr></thead>
+<tbody>
+<tr><td><strong>Source text</strong></td><td>Alternates between visual editing and HTML source text.</td></tr>
+<tr><td><strong>Store everything</strong></td><td>Saves page, editor content and page settings.</td></tr>
+<tr><td><strong>Text style</strong></td><td>Sets drawing formattings such as bold, italic, underlined or crossed out.</td></tr>
+<tr><td><strong>Tension</strong></td><td>Create a disordered list.</td></tr>
+<tr><td><strong>Numbering</strong></td><td>Create an ordered list.</td></tr>
+<tr><td><strong>Routing</strong></td><td>Reduces the current paragraph or list entry.</td></tr>
+<tr><td><strong>Rows</strong></td><td>Increases the current paragraph or list entry.</td></tr>
+<tr><td><strong>Sales format</strong></td><td>Select paragraph, headline or another block format.</td></tr>
+<tr><td><strong>Colour</strong> (brush)</td><td>Sets text or background color.</td></tr>
+<tr><td><strong>Link</strong></td><td>Creates or processes a reference.</td></tr>
+<tr><td><strong>Image/Media browser</strong></td><td>Select an image from the CMS media administration and insert it.</td></tr>
+<tr><td><strong>Module</strong></td><td>Give one dbXapp-Module placeholder with the necessary parameters.</td></tr>
+<tr><td><strong>BootstrapComponent</strong></td><td>Includes prepared layout components such as maps or grids.</td></tr>
+<tr><td><strong>Video</strong></td><td>Insert a video or video link.</td></tr>
+<tr><td><strong>Dividing line</strong></td><td>Insert a horizontal dividing line.</td></tr>
+<tr><td><strong>Markers</strong></td><td>Give one dbXappstructural markers, for example for columns or content regions.</td></tr>
+<tr><td><strong>Reversible</strong></td><td>Takes back the last processing step.</td></tr>
+<tr><td><strong>Repeat</strong></td><td>Restore the last step undone.</td></tr>
+<tr><td><strong>Full picture</strong></td><td>Increases the editor to the entire available area.</td></tr>
+</tbody>
+</table>
+
+<h4>All input fields of a page</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Field</th><th>Significance</th></tr></thead>
+<tbody>
+<tr><td><strong>Title</strong></td><td>Visible page title and designation in the page tree.</td></tr>
+<tr><td><strong>Permalink</strong></td><td>Unique URL path without domain and without leading slash, for example <code>leistungen/beratung</code>. When duplicated, it is automatically unambiguously extended.</td></tr>
+<tr><td><strong>Content template</strong></td><td>Determines the frame and content areas of the page. <code>parent</code> Takes over the default of the folder.</td></tr>
+<tr><td><strong>Status</strong></td><td><em>Active</em> publishes the page; <em>Inactive</em> Hid it for ordinary visitors.</td></tr>
+<tr><td><strong>Description</strong></td><td>Short description of the page with a maximum of 254 characters; is also used for teaser or metadata depending on the output.</td></tr>
+<tr><td><strong>Content</strong></td><td>The large visual editor for text, links, media, modules and layout components.</td></tr>
+</tbody>
+</table>
+<p>The technical fields <strong>ID</strong> and <strong>Folder ID</strong> are managed automatically and are therefore not visible as normal input fields.</p>
+
+<h4>All Hero and Gallery fields</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Field</th><th>Significance</th></tr></thead>
+<tbody>
+<tr><td><strong>Hero – Template</strong></td><td>Determines whether and how the Hero medium will be spent. <code>parent</code> Takes over the folder setting; <code>none</code> Turn off the hero.</td></tr>
+<tr><td><strong>Hero – Medium</strong></td><td>is set over "Selection"; the media ID remains hidden and is automatically managed.</td></tr>
+<tr><td><strong>Hero – Distance above</strong></td><td>Controls the upper distance. <code>parent</code> Takes over the default of the folder.</td></tr>
+<tr><td><strong>Hero - Highehe</strong></td><td>Controls the display height of the Hero area; <code>parent</code> Takes over the specification.</td></tr>
+<tr><td><strong>Hero – Variant</strong></td><td>Select the color/overlay variant, for example original, light, dark or monochrome.</td></tr>
+<tr><td><strong>Hero sticky</strong></td><td>Determines whether the hero remains fixed when scrolling. <code>parent</code> Takes over the folder setting.</td></tr>
+<tr><td><strong>Scroll level</strong></td><td>Determines whether the Hero is under or over the content when scrolling.</td></tr>
+<tr><td><strong>Gallery – Overflow</strong></td><td>Determines the presentation in many media, for example grid, slider or a limited view.</td></tr>
+<tr><td><strong>Gallery – Click</strong></td><td>Determines the action when clicking on a gallery medium, for example Lightbox, Link or no action.</td></tr>
+</tbody>
+</table>
+
+<h4>All input fields of a folder</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Field</th><th>Significance</th></tr></thead>
+<tbody>
+<tr><td><strong>Name</strong></td><td>Name of the folder in the page tree and basis for new permalinks.</td></tr>
+<tr><td><strong>Assignment</strong></td><td>Choose the parent folder. “Root / first level” puts the folder at the top.</td></tr>
+<tr><td><strong>Content template</strong></td><td>Standard template for child pages. <code>parent</code> Take the higher level.</td></tr>
+<tr><td><strong>Reading rights</strong></td><td>Specifies which user groups are allowed to read content of this folder. <code>parent</code> assumes the rights of the parent folder; <code>*</code> All allowed.</td></tr>
+</tbody>
+</table>
+
+<h4>Further selection and dialog fields</h4>
+<ul>
+<li><strong>Tree search:</strong> Snag the visible pages and folders.</li>
+<li><strong>Media advertisement:</strong> Filters associated media by All, Gallery, Hero, Text or Shop.</li>
+<li><strong>Media folder/upload destination:</strong> determines from which media folder is displayed or uploaded to which folder.</li>
+<li><strong>File selection:</strong> Select one or more local files for the upload.</li>
+<li><strong>External video URL:</strong> records an supported video URL, for example YouTube.</li>
+<li><strong>Activate the target language:</strong> specifies in the translation dialog which language versions are created or updated.</li>
+<li><strong>Entire subtree incl. Pages:</strong> For folders also covers all subfolders and pages.</li>
+</ul>
+
+<h4>Basic concepts</h4>
+<ul>
+<li><strong>Folders</strong> — structure the tree (like directories). Has Reading Rights and optional Hero.</li>
+<li><strong>page</strong> — actual content with title, text, permalink and media.</li>
+<li><strong>Permalink</strong> — URL path of the page (e.g. <code>leistungen/beratung</code>).</li>
+<li><strong>Master language</strong> – leading language (usually DE). Changes here control Auto-Sync.</li>
+<li><strong>Language version</strong> — same content in another language, linked to internal ID.</li>
+</ul>
+
+<h4>Creating a new page</h4>
+<ol>
+<li>In the tree the <strong>Destination folder</strong> Click.</li>
+<li>Button <strong>New page</strong> (gruen, file icon).</li>
+<li>Edit title and text in the editor.</li>
+<li><strong>Storage</strong> (disc) or <kbd>Strg</kbd>+<kbd>S</kbd>).</li>
+<li>In Master Language: Dialogue <em>Translate into other languages</em> opens — even when saving existing pages, if EN/ES is still missing.</li>
+</ol>
+<div class="help-example"><strong>Example:</strong> Folder “Services” → New page → Title “Consultation” → Write text → Save → Enable EN version in dialogue → Take over. EN-page is first <em>Inactive</em>.</div>
+
+<h4>Duplicate existing page</h4>
+<ol>
+<li>In the tree to be copied <strong>page</strong> Click.</li>
+<li>If "Unstored" appears, first <strong>Storage</strong>.</li>
+<li>To the right of the green button "New Page" <strong>Duplicate page</strong> (Two files) click.</li>
+<li>The new page is created in the same folder and immediately opened in the editor.</li>
+</ol>
+<p>The copy receives a new page ID, a new language link and a new sorting position. Title, status, SEO fields, content, hero/gallery settings and media will be preserved. The permalink is automatically <code>...-kopie</code> set; It already exists, follows <code>...-kopie-2</code> etc.</p>
+<div class="help-example"><strong>Media:</strong> The files are not physically multiplied. For Hero, gallery and other areas create their own <code>media_usage</code>-Assignments to the new page; Inline media are reassigned from the copied editor content.</div>
+
+<h4>Create new folders</h4>
+<ol>
+<li>Choose parent folders in the tree (or root).</li>
+<li><strong>New folders</strong> in the tree context or via the folder view.</li>
+<li>Name, Parent and Reading Rights Set → Save.</li>
+<li>As with pages: commission dialogue for other languages.</li>
+</ol>
+
+<h4>Editing page or folder</h4>
+<ol>
+<li>Click entry in the tree.</li>
+<li>Adjust meta fields (title, permalink, status, template).</li>
+<li>Change content in the editor — Modules by placeholder <code>[modul=...]</code>.</li>
+<li>Assign media to the right (hero, gallery, in text).</li>
+<li>storage. The saved point in the header shows unstored changes.</li>
+</ol>
+
+<h4>Media</h4>
+<ul>
+<li><strong>Hero</strong> — Big head image at the top of the page.</li>
+<li><strong>Gallery</strong> — Picture gallery under the content.</li>
+<li><strong>In text</strong> — Pictures/videos inline in the editor.</li>
+<li>The media are in <strong>Media browsers</strong> selected; Files remain in stock even if you remove the link.</li>
+</ul>
+<div class="help-example"><strong>Tip:</strong> After storing in the master language, media connections are taken over in auto-sync languages.</div>
+
+<h4>Multilingualism — This is how it works</h4>
+<p>dbXapp separates content per language into its own tables ()<code>content_de</code>, <code>content_en</code>, ... They are bound to <code>lng_uid</code>.</p>
+<div class="help-flow">Store master (DE*)
+│
+├─► Slave with Auto-Sync → is automatically updated (text + structure + media)
+│
+└─► Slave with manual → remains unaffected (fork)</div>
+
+<h4>Language tabs and badges in the tree</h4>
+<ul>
+<li><strong>DE*, EN, ...</strong> — Language tabs change the editing language.</li>
+<li><strong>Badges</strong> at the tree entry: master, auto, manual or missing.</li>
+<li><strong>Master (*)</strong> — only here: Transfer, activate auto-sync, delete multilingually.</li>
+</ul>
+
+<h4>Transferred to other languages (provision)</h4>
+<ol>
+<li>The page or folder in the <strong>Master language</strong> Voting.</li>
+<li>Button <strong>Translating</strong> (Language icon) in the header.</li>
+<li>Dialogue: activate target languages, check texts and adjust them if necessary.</li>
+<li><strong>Takeover</strong> — new language versions are created (pages: inactive).</li>
+</ol>
+<p>In <strong>Folders</strong> Additional: Checkbox <em>Entire subtree incl. Pages</em> — submits all subfolders and pages in one step (folder first, then pages).</p>
+
+<h4>Auto-Sync in master storage</h4>
+<p>If you have a page or folder in the master language <strong>Update</strong>All connected slaves with status <code>auto</code> Synchronized in the background. You will see a message like “2 language version(s) synchronized”.</p>
+<ul>
+<li>Texts are translated (depending on the provider).</li>
+<li>Structure (template, hero settings, sorting) is taken over.</li>
+<li><strong>Status active/inactive</strong> The slave page is retained.</li>
+</ul>
+
+<h4>Fork — Manual deviation</h4>
+<p>Save them in one <strong>Non-master language</strong>, the connection is separated ()<code>manual</code>) The message reads: <em>Language connection separately (manually).</em></p>
+<p>From then on, the master no longer automatically adopts this language.</p>
+
+<h4>Activate Auto-Sync again</h4>
+<ol>
+<li>Select the page/folder in the master language.</li>
+<li>Button <strong>Auto-Sync</strong> (Link icon) in the header.</li>
+<li>Asserting – all connected slaves get back <code>auto</code>.</li>
+<li>Next master save syncs again (rewrites slave content).</li>
+</ol>
+
+<h4>Deletion</h4>
+<p><strong>Slave language:</strong> Simple confirmation — only this language version is deleted.</p>
+<p><strong>Master with several languages:</strong> Dialogue with checkboxes per language.</p>
+<ul>
+<li><code>auto</code>-Versions are preset.</li>
+<li><code>manual</code>-Versions not - deliberately tick if desired.</li>
+<li>Folder can only be deleted if there are no subfolders and no pages (checked per language).</li>
+</ul>
+
+<h4>Configure translation (admin)</h4>
+<p>Path: <strong>Admin → Content → Config</strong> or directly:</p>
+<p><code>?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=config</code></p>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Providers</th><th>Significance</th></tr></thead>
+<tbody>
+<tr><td><code>copy</code></td><td>Copy text unaltered (default, no API key)</td></tr>
+<tr><td><code>none</code></td><td>Leave translation fields empty</td></tr>
+<tr><td><code>deepl</code></td><td>DeepL API — API Key Required</td></tr>
+<tr><td><code>openai</code></td><td>OpenAI Chat API — API Key + Model</td></tr>
+<tr><td><code>custom</code></td><td>own logic in <code>dbx/modules/dbxContent/translate.php</code></td></tr>
+</tbody>
+</table>
+<p>For API errors: fallback to original text, note in the CMS and entry under <strong>Admin by SysMsg</strong> (status) <code>warning</code>, About <code>dbxContentTranslate</code>).</p>
+
+<h4>Preview and publication</h4>
+<ul>
+<li><strong>Preview</strong> (eye icon) — opens the page in the frontend.</li>
+<li><strong>Status Active/Inactive</strong> — only active pages are publicly accessible.</li>
+<li>New slave sites start as <strong>Inactive</strong> — only set to active after verification.</li>
+</ul>
+
+<h4>Cache</h4>
+<p>After saving, the guest full page cache is automatically invalidated. For Gaeste, it stores the complete final output of valid permalink calls including design, menues and modules. Registered users remain dynamic. If changes are not visible live:</p>
+<ol>
+<li>Admin → check page cache / empty.</li>
+<li>Call up the page again (hard reload in the browser).</li>
+</ol>
+
+<h4>Keystrokes</h4>
+<ul>
+<li><kbd>Strg</kbd> + <kbd>S</kbd> — Save (page or folder)</li>
+</ul>
+
+<h4>Frequent questions</h4>
+<p><strong>Why is EN missing in the tree?</strong><br>Page was created only in DE – Run commission dialogue or use the translation button.</p>
+<p><strong>Why is EN no longer updated?</strong><br>Slave was stored manually (fork). Use Auto-Sync button or re-edit EN.</p>
+<p><strong>Note about folders in the commission dialog?</strong><br>Missing folders in EN/ES are automatically created from the master structure (including parent folders) when transferred. In the dialog, a hint appears instead of an error.</p>
+<p><strong>Does translation not work?</strong><br>Provider and API key in Modul-Config check → Read SysMsg.</p>
+<p><strong>Where can I find technical details?</strong><br>Developer documentary: <code>04_DBXApp_CMS_Mehrsprachigkeit.md</code> in the project.</p>
+
+<h4>Typical workflow (multilingual website)</h4>
+<div class="help-flow">1. Create folder structure in DE
+2. Write pages in DE + Media
+3. Commission → EN (and other languages)
+4. EN test → Status “Active”
+5. Changes only in DE* → Auto-Sync maintains EN
+6. Special EN texts: Edit in EN (Fork)</div>
+<div class="help-example"><strong>Example homepage:</strong> DE page “Home” with Hero → Commission EN → Adapt title “Home” / “Start” → Activate EN → Permalink check.</div>
+
+<h4>Help button</h4>
+<p>This manual is always about the <strong>Help button</strong> (?) accessible in the CMS header:</p>
+<p><code>?dbx_modul=dbxContent&amp;dbx_run1=help&amp;topic=content</code></p>

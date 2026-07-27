@@ -1,0 +1,54 @@
+<?php
+$messages = array();
+$messages['save_success'] = 'Daten wurden gespeichert';
+$messages['save_succeass'] = $messages['save_success'];
+$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
+$messages['bar_title'] = 'Demo-Download';
+$messages['bar_subtitle'] = 'Kostenlose Windows-Demo per E-Mail erhalten';
+$messages['try_limit'] = 'Zu viele fehlerhafte Versuche. Bitte warten Sie {sec} Sekunden und versuchen Sie es dann erneut.';
+$messages['validation_error'] = 'Bitte prüfen Sie die rot markierten Pflichtfelder.';
+$messages['send_success'] = 'Der persönliche Download-Link wurde an Ihre E-Mail-Adresse versendet.';
+$messages['spam_error'] = 'Der Download-Link wurde nicht versendet, weil die Eingabe als Spam erkannt wurde.';
+$messages['spam_field_error'] = 'Spam-Verdacht. Bitte prüfen Sie Ihre Eingabe.';
+$messages['mail_error'] = 'Der Download-Link konnte gerade nicht per E-Mail versendet werden. Bitte versuchen Sie es später erneut.';
+$messages['email_field_error'] = 'Die E-Mail konnte nicht versendet werden.';
+$messages['sent_to'] = 'Der Download-Link wurde an {email} versendet.';
+
+
+$field = array();
+$field['name'] = 'name';
+$field['type'] = 'varchar';
+$field['index'] = '';
+$field['length'] = '160';
+$field['default'] = '';
+$field['label'] = 'Name';
+$field['rules'] = 'varchar|min=2|max=160';
+$field['tooltip'] = '';
+$field['errormsg'] = 'Bitte einen Namen eintragen.';
+$field['placeholder'] = 'Ihr Name';
+$field['convert'] = '';
+$field['protect'] = '0';
+$field['mask'] = '';
+$field['data'] = '';
+$field['options'] = '';
+$field['tpl'] = 'text-label';
+$fields[] = $field;
+
+$field = array();
+$field['name'] = 'email';
+$field['type'] = 'varchar';
+$field['index'] = '';
+$field['length'] = '180';
+$field['default'] = '';
+$field['label'] = 'E-Mail';
+$field['rules'] = 'email|min=6|max=180';
+$field['tooltip'] = '';
+$field['errormsg'] = 'Bitte eine gueltige E-Mail-Adresse eintragen.';
+$field['placeholder'] = 'name@example.org';
+$field['convert'] = '';
+$field['protect'] = '0';
+$field['mask'] = '';
+$field['data'] = '';
+$field['options'] = '';
+$field['tpl'] = 'text-label';
+$fields[] = $field;

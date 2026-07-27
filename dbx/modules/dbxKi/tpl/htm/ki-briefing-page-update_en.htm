@@ -1,0 +1,105 @@
+<div class="dbx-panel dbx-ki-briefing-form dbx-ki-update"
+     data-dbx="lib=kiBriefing|tree={tree_url}|preview={preview_url}|pageid={selected_page_id}|lng={lng}">
+ [tpl=dbx|module-bar]
+ <div class="dbx-ki-update-shell">
+  <header class="dbx-ki-update-head">
+   <div>
+    <span class="dbx-ki-kicker">Change the existing page</span>
+    <h2>{selected_page_title}</h2>
+   </div>
+   <div class="dbx-ki-update-head-controls">
+    <label>
+     <span>Language</span>
+     <select class="form-select form-select-sm" name="lng" form="dbxKiPageUpdateForm" data-ki-lng>{lng_options}</select>
+    </label>
+   </div>
+  </header>
+
+  <div class="dbx-ki-update-workspace">
+   <aside class="dbx-ki-tree-panel">
+    <div class="dbx-ki-panel-head">
+     <strong>Content Tree</strong>
+     <span>Choose the page</span>
+    </div>
+    <div class="dbx-cms-view-tree-tools">
+     <input type="search" class="form-control form-control-sm" data-ki-tree-search placeholder="Searching for Tree">
+    </div>
+    <div class="dbx-cms-tree dbx-ki-tree" data-ki-tree>
+     <div class="dbx-cms-empty">Tree is loaded...</div>
+    </div>
+   </aside>
+
+   <main class="dbx-ki-preview-panel">
+    <div class="dbx-ki-panel-head">
+     <strong data-ki-selected-title>{selected_page_title}</strong>
+     <span data-ki-status>Rendered dbxContentPreview</span>
+    </div>
+    <div class="dbx-ki-preview" data-ki-preview>
+     {current_rendered}
+    </div>
+   </main>
+
+   <aside class="dbx-ki-order-panel">
+   <form method="post" action="{export_url}" id="dbxKiPageUpdateForm" class="dbx-ki-briefing-page-update-form" data-ki-form>
+     {obj:form_msg}
+     <input type="hidden" name="recipe" value="page_update">
+     <input type="hidden" name="page_id" value="{selected_page_id}" data-ki-page-id>
+
+     <section class="dbx-ki-card dbx-ki-selected-context" data-ki-context>
+      {current_context}
+     </section>
+
+     <section class="dbx-ki-card">
+      <h3>Contract</h3>
+      <label class="form-label">Writing style</label>
+      <select class="form-select form-select-sm mb-2" name="writing_style">{style_options}</select>
+
+      <label class="form-label">What should be changed? <span class="text-danger">*</span></label>
+      <textarea class="form-control form-control-sm" name="change_brief" rows="4" required placeholder="e.g. modernize text, get section XY, formulate kuerzer">{change_brief}</textarea>
+     </section>
+
+     <section class="dbx-ki-card">
+      <h3>Fields</h3>
+      <div class="dbx-ki-checkgrid">
+       <label><input type="checkbox" name="change_content" value="1" {field_content_checked}> <span>Content</span></label>
+       <label><input type="checkbox" name="change_title" value="1" {field_title_checked}> <span>Title</span></label>
+       <label><input type="checkbox" name="change_description" value="1" {field_description_checked}> <span>Description</span></label>
+       <label><input type="checkbox" name="change_hero" value="1" {field_hero_checked}> <span>Hero image</span></label>
+      </div>
+      <textarea class="form-control form-control-sm mt-2" name="hero_brief" rows="2" placeholder="Only if Hero image is changed: subject / mood">{hero_brief}</textarea>
+     </section>
+
+     <section class="dbx-ki-card">
+      <h3>BootstrapComponents</h3>
+      <p class="dbx-ki-help dbx-ki-help-top">Only select if the AI is allowed to use these building blocks in the content update.</p>
+      <div class="dbx-ki-checkgrid dbx-ki-component-grid">
+       {bootstrap_component_choices}
+      </div>
+     </section>
+
+     <section class="dbx-ki-card">
+      <h3>Media &amp; Modules</h3>
+      <div class="dbx-ki-radio-stack">
+       <label><input type="radio" name="embedded_policy" value="preserve" {embedded_policy_preserve_checked}> <span>Not changed</span></label>
+       <label><input type="radio" name="embedded_policy" value="reorder" {embedded_policy_reorder_checked}> <span>Rearrange</span></label>
+       <label><input type="radio" name="embedded_policy" value="remove" {embedded_policy_remove_checked}> <span>Removal</span></label>
+      </div>
+      <textarea class="form-control form-control-sm mt-2" name="embedded_change_notes" rows="2" placeholder="What exactly to rearrange or remove?">{embedded_change_notes}</textarea>
+     </section>
+
+     <section class="dbx-ki-card">
+      <h3>Notes</h3>
+      <textarea class="form-control form-control-sm" name="custom_notes" rows="2" placeholder="Further requirements for AI">{custom_notes}</textarea>
+     </section>
+
+     <div class="dbx-ki-actions">
+     <button type="submit" class="btn btn-primary"><i class="bi bi-download"></i> Order ZIP</button>
+     </div>
+     [dbx:form]
+    </form>
+
+    {import_panel}
+   </aside>
+  </div>
+ </div>
+</div>

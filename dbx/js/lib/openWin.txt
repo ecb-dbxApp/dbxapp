@@ -1,0 +1,359 @@
+DBX openWin.js – Dokumentation (Version 2.1.0)
+=============================================
+
+
+--------------------------------------------------
+GRUNDPRINZIP
+--------------------------------------------------
+
+openWin ist eine generische Window- und Interaction-Library.
+
+Ablauf:
+
+1. Klick auf Element mit data-dbx="lib=openWin"
+2. Core (dbx.on) delegiert Event
+3. openWin.handleDataDbxClick()
+4. openWindow()
+5. createWindow()
+6. loadContent()
+7. User interagiert (data-action)
+8. resolve() wird ausgelöst
+9. Ergebnis:
+   - Prompt: Wert wird ins Input geschrieben
+   - Sonst: Event wird gefeuert
+
+
+--------------------------------------------------
+VERWENDUNG
+--------------------------------------------------
+
+<button data-dbx="lib=openWin|url=/test.php">
+<a href="/test.php" data-dbx="lib=openWin|mode=modal">
+
+Mehrere libs möglich (Core Feature):
+data-dbx="lib=openWin|...||lib=grid|..."
+
+
+--------------------------------------------------
+BASIS PARAMETER
+--------------------------------------------------
+
+lib=openWin        Pflicht (Feature Name)
+id=xyz             optional (UI-State Namespace)
+url=/path          URL zum Laden
+ajax=1             Default: 1 → lädt über ajax.js; das AJAX-Kennzeichen setzt ajax.js
+
+
+--------------------------------------------------
+MODES / VERHALTEN
+--------------------------------------------------
+
+mode=panel             Standard Fenster
+mode=modal             mit Overlay
+mode=prompt            Auswahl + Rückgabe
+mode=popup             Browser Popup
+mode=fullscreen        Fullscreen Window
+mode=modal-fullscreen  Fullscreen + Overlay
+
+modal=1                erzwingt Overlay
+
+closable=0/1           schließen erlaubt
+minimizable=1          Minimieren Button
+maximizable=1          Maximieren Button
+draggable=0/1          Drag aktiv
+resizable=0/1          Resize aktiv
+
+
+--------------------------------------------------
+GRÖSSE / POSITION
+--------------------------------------------------
+
+width=400
+width=50%
+
+height=300
+height=auto
+
+minWidth=200
+maxWidth=100%
+
+minHeight=200
+maxHeight=100%
+
+position=center
+position=fullscreen
+position={x:100,y:100}
+
+
+--------------------------------------------------
+ANIMATION
+--------------------------------------------------
+
+animOpen=fade-scale-in       Default: fade-scale-in
+animMin=fade-out             Default: fade-out
+animClose=fade-out           Default: fade-out
+animDuration=200             Dauer in ms
+
+Alias:
+openAnimation=...
+minAnimation=...
+minimizeAnimation=...
+closeAnimation=...
+animationDuration=...
+
+Werte:
+none
+fade-in
+fade-out
+fade-scale-in
+fade-scale-out
+slide-up-in
+slide-down-out
+minimize-out
+
+
+--------------------------------------------------
+INHALT
+--------------------------------------------------
+
+title=Mein Fenster
+footer=<div>Footer</div>
+tools=<span data-action="reload">Reload</span>
+
+scroll=1   → Body scrollt
+
+
+--------------------------------------------------
+AJAX PARAMETER
+--------------------------------------------------
+
+method=GET / POST
+data={id:1}
+headers={Authorization:...}
+timeout=30000
+errorMessage=<div>Fehler</div>
+
+
+--------------------------------------------------
+PROMPT MODE (WICHTIG)
+--------------------------------------------------
+
+mode=prompt aktiviert:
+
+- Rückgabe an Caller (meist input)
+- automatische Positionierung
+
+Parameter:
+
+multi=1        Mehrfachauswahl
+keepOpen=1     Fenster bleibt offen nach Auswahl
+filter=highlight  (Default)
+filter=hide
+
+
+--------------------------------------------------
+TYPEAHEAD / FILTER
+--------------------------------------------------
+
+User tippt → Liste reagiert
+
+filter=highlight
+→ Treffer werden markiert (dbx-match)
+
+filter=hide
+→ Nicht passende werden ausgeblendet
+
+Reset erfolgt nach ~500ms
+
+
+--------------------------------------------------
+EVENT SYSTEM
+--------------------------------------------------
+
+event=name
+
+→ dbx.event.emit("name", value)
+
+
+target=xyz
+
+→ dbx.event.emit("xyz:name", value)
+
+
+target=broadcast
+
+→ dbx.event.emit("name", value) (alle hören)
+
+
+Beispiele:
+
+lib=openWin|event=selected
+→ emit("selected")
+
+lib=openWin|event=update|target=grid1
+→ emit("grid1:update")
+
+
+--------------------------------------------------
+CALLBACKS
+--------------------------------------------------
+
+onOpen(el)
+onLoad(el)
+onError(el, error)
+onClose()
+onBeforeClose(el) → return false verhindert close
+onMaxReached()
+
+
+--------------------------------------------------
+AFTER CLOSE
+--------------------------------------------------
+
+afterClose=reload
+→ reload dieses Fensters
+
+afterClose=reloadAll
+→ alle Fenster reload
+
+afterClose=myFunction
+→ window.myFunction()
+
+afterClose=function() { ... }
+
+
+--------------------------------------------------
+DATA-ACTION SYSTEM
+--------------------------------------------------
+
+Innerhalb des Fensters:
+
+[data-action="close"]
+[data-action="reload"]
+[data-action="fullscreen"]
+[data-action="minimize"]
+[data-action="front"]
+[data-action="select"]
+
+
+--------------------------------------------------
+SELECT (PROMPT)
+--------------------------------------------------
+
+<div data-action="select"
+     data-value="1"
+     data-label="Test">
+
+Fallback:
+
+value = text()
+label = value
+
+
+--------------------------------------------------
+PROMPT FLOW
+--------------------------------------------------
+
+1. openWin öffnet beim Input
+2. User klickt Item
+3. resolve()
+4. Input.value wird gesetzt
+5. change Event wird getriggert
+6. Fenster schließt (außer keepOpen=1)
+
+
+--------------------------------------------------
+MULTI MODE
+--------------------------------------------------
+
+selectedValues intern:
+
+[
+  {value:1,label:"A"},
+  {value:2,label:"B"}
+]
+
+Input Ergebnis:
+
+"1,2,3"
+
+
+--------------------------------------------------
+KEYBOARD STEUERUNG
+--------------------------------------------------
+
+ArrowUp / ArrowDown → Navigation
+Enter               → select
+Tippen              → Filter (Typeahead)
+ESC                 → schließen / fullscreen verlassen
+
+
+--------------------------------------------------
+PROMPT POSITIONING
+--------------------------------------------------
+
+- öffnet unter dem Input
+- erkennt Viewport Grenzen
+- flippt nach oben wenn nötig
+
+
+--------------------------------------------------
+OUTSIDE CLICK
+--------------------------------------------------
+
+nur bei mode=prompt:
+
+- Klick außerhalb → close
+- Caller Element wird korrekt berücksichtigt
+- Event ist windowId scoped
+
+
+--------------------------------------------------
+Z-INDEX SYSTEM
+--------------------------------------------------
+
+Draggable Windows: 3000+
+Modal Windows:     2500+
+
+→ Windows sind IMMER über Modals
+
+
+--------------------------------------------------
+PUBLIC API
+--------------------------------------------------
+
+dbx.openWin.open(cfg, el)
+dbx.openWin.close(windowId)
+dbx.openWin.closeAll()
+dbx.openWin.get(windowId)
+dbx.openWin.getAll()
+dbx.openWin.getCount()
+dbx.openWin.bringToFront(windowId)
+dbx.openWin.popup(url, cfg)
+dbx.openWin.resolve(windowId, value)
+
+
+--------------------------------------------------
+ARCHITEKTUR
+--------------------------------------------------
+
+- vollständig cfg-gesteuert
+- keine globalen Zustände pro Instanz
+- Event Delegation über dbx.on
+- Event System über dbx.event
+- Lifecycle über Core (scan → runTasks)
+- CSS wird über PREPARE geladen
+
+
+--------------------------------------------------
+FAZIT
+--------------------------------------------------
+
+openWin ist:
+
+- Window Manager
+- Prompt System
+- Event Dispatcher
+- Interaction Layer
+
+→ universell für UI Interaktionen nutzbar

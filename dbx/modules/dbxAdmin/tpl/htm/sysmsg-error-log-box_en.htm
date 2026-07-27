@@ -1,0 +1,20 @@
+<div class="card mb-3">
+ <div class="card-header d-flex align-items-center justify-content-between gap-2">
+  <div>
+   <strong>PHP error log</strong>
+   <span class="text-muted ms-2">{file} ({size} Bytes</span>
+  </div>
+  <a class="btn btn-sm btn-danger dbxAjax dbxConfirm"
+     href="{action}"
+     title="Delete PHP error log"
+     data-confirm-title="<i class='bi bi-trash'></i> Delete error log"
+     data-confirm="Really deleting PHP error log?"
+     data-confirm-hint="<small>This action cannot be undone.</small>"
+     data-confirm-buttons="yesno"
+     role="button">
+   <i class="bi bi-trash"></i>
+   Delete the log
+  </a>
+ </div>
+ <pre class="card-body mb-0 bg-light border-top" style="max-height: 280px; overflow: auto; resize: vertical; min-height: 120px; white-space: pre-wrap;">{content}</pre>
+</div>

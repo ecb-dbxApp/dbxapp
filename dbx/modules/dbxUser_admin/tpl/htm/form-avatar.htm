@@ -1,0 +1,40 @@
+<div id="dbx_avatar_{rid}" class="dbx-user-avatar">
+ <div class="dbx-panel dbxForm_wrapper dbx-avatar-compact">
+  <form id="dbx_form_{i}" class="dbxAjax dbx-avatar-form" action="{action}" method="post" enctype="multipart/form-data" data-target="dbx_avatar_{rid}">
+   <div class="dbx-avatar-shell">
+    <div>{obj:form_msg}</div>
+    <div class="dbx-avatar-head">
+     <div class="dbx-avatar-preview">{obj:avatar_preview}</div>
+     <div class="dbx-avatar-copy">
+      <h4 class="dbx-form-title">Profilbild</h4>
+      <div class="dbx-avatar-hint">JPG, PNG, WebP oder GIF bis 2 MB.</div>
+     </div>
+    </div>
+
+   [inc={can_upload}]
+   <div id="admin_avatar_uploader_{i}" class="dbx-avatar-drop" role="button" tabindex="0" data-dbx_get="{action}">
+    <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+    <div>
+     <div class="dbx-avatar-drop-title">Datei ablegen oder auswählen</div>
+     <div class="dbx-avatar-drop-meta">Quadratisch, wird automatisch zugeschnitten.</div>
+    </div>
+   </div>
+   <input class="visually-hidden dbx-avatar-file-input" type="file" name="upload_file" accept="image/jpeg,image/png,image/webp,image/gif">
+   <div class="dbx-avatar-actions">
+    <button type="submit" class="btn btn-primary btn-sm w-100">
+     <i class="bi bi-upload me-1"></i>Hochladen
+    </button>
+   </div>
+   [/inc]
+
+   [inc={cannot_upload}]
+   <div class="dbx-avatar-locked">
+    <i class="bi bi-lock" aria-hidden="true"></i>
+    <span>Zuerst den Benutzer speichern</span>
+   </div>
+   [/inc]
+   </div>
+   [dbx:js]
+  </form>
+ </div>
+</div>

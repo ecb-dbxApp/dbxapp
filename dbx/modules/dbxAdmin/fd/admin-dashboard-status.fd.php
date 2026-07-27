@@ -1,0 +1,24 @@
+<?php
+$messages = array();
+$messages['save_success'] = 'Daten wurden gespeichert';
+$messages['save_succeass'] = $messages['save_success'];
+$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
+$messages['bar_title'] = 'Admin-Dashboard';
+$messages['bar_subtitle'] = 'Systemstatus, Datenbanken und Aktivitäten';
+$messages['status_timestamp'] = 'Stand';
+$messages['performance_aria'] = 'Performance-Durchschnittswerte';
+$messages['system_status_label'] = 'Systemstatus';
+$messages['health_ok'] = 'OK';
+$messages['health_error'] = 'FEHLER';
+$messages['error_log_title'] = 'Systemfehler erkannt';
+$messages['error_log_subtitle'] = 'Die Datei files/dbxError.log ist vorhanden. Der Systemstatus bleibt auf Fehler, bis das Protokoll vollständig gelöscht wurde.';
+$messages['error_log_file_label'] = 'Fehlerprotokoll';
+$messages['error_log_bytes'] = 'Bytes';
+$messages['error_log_delete_label'] = 'Fehlerprotokoll löschen';
+$messages['error_log_delete_title'] = 'Fehlerprotokoll vollständig löschen';
+$messages['error_log_delete_confirm'] = 'Die Datei files/dbxError.log wirklich vollständig löschen?';
+$messages['error_log_delete_hint'] = 'Der gesamte Inhalt wird unwiderruflich entfernt.';
+$messages['error_log_deleted'] = 'Das Fehlerprotokoll wurde vollständig gelöscht.';
+$messages['error_log_empty'] = 'Das Fehlerprotokoll ist bereits gelöscht.';
+$messages['error_log_delete_error'] = 'Das Fehlerprotokoll konnte nicht gelöscht werden.';
+$messages['error_log_read_error'] = 'Der Inhalt des Fehlerprotokolls konnte nicht gelesen werden.';

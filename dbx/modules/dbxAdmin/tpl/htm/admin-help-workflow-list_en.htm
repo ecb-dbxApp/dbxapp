@@ -1,0 +1,28 @@
+<h4>What is this overview for?</h4>
+<p>Here you manage the definitions that the module <strong>dbxWorkflow</strong> later on. <strong>dbxWorkflow_admin</strong> specifies the objective, steps, tests and optional module connections; <strong>dbxWorkflow</strong> generates a separate instance for each start.</p>
+
+<div class="help-flow">Definition in dbxWorkflow_admin
+  Activate and test →
+Starting in dbxWorkflow
+  Instance with Definition Snapshot
+→ Processing steps
+Examine and Complete</div>
+
+<h4>Typical procedure</h4>
+<ol>
+<li><strong>New workflow:</strong> Set goal and stable workflow key.</li>
+<li><strong>Steps:</strong> Put inputs, actions, tests and decisions in the right order.</li>
+<li><strong>Test:</strong> First inactively save, control and then activate definition.</li>
+<li><strong>Starting:</strong> About the start action a new pass in dbxWorkflow open.</li>
+<li><strong>Monitoring:</strong> Continuous and closed runs under <em>Workflow instances</em> check.</li>
+</ol>
+
+<h4>Important</h4>
+<ul>
+<li>Only active definitions can be restarted.</li>
+<li>An unknown or deactivated workflow key is not replaced by a demo expiration.</li>
+<li>At startup, the instance saves a snapshot. Subsequent changes therefore only apply to new runs.</li>
+<li>The included examples are created once during installation and can then be edited like normal definitions.</li>
+</ul>
+
+<div class="help-example"><strong>Example:</strong> <code>project_offer</code> Activate in the list → <em>Starting</em> → dbxWorkflow Creates a new instance and shows the first applicable step.</div>

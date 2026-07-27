@@ -1,0 +1,28 @@
+<h4>Wofür ist diese Übersicht?</h4>
+<p>Hier verwalten Sie die Definitionen, die das Modul <strong>dbxWorkflow</strong> später ausführt. <strong>dbxWorkflow_admin</strong> legt Ziel, Schritte, Prüfungen und optionale Modul-Anbindungen fest; <strong>dbxWorkflow</strong> erzeugt daraus für jeden Start eine eigene Instanz.</p>
+
+<div class="help-flow">Definition in dbxWorkflow_admin
+  → aktivieren und testen
+  → Start in dbxWorkflow
+  → Instanz mit Definitions-Snapshot
+  → Schritte bearbeiten
+  → prüfen und abschließen</div>
+
+<h4>Typischer Ablauf</h4>
+<ol>
+<li><strong>Neuer Workflow:</strong> Ziel und stabilen Workflow Key festlegen.</li>
+<li><strong>Schritte:</strong> Eingaben, Aktionen, Prüfungen und Entscheidungen in die richtige Reihenfolge bringen.</li>
+<li><strong>Test:</strong> Definition zunächst inaktiv speichern, kontrollieren und danach aktivieren.</li>
+<li><strong>Starten:</strong> Über die Start-Aktion einen neuen Durchlauf in dbxWorkflow öffnen.</li>
+<li><strong>Überwachen:</strong> Laufende und abgeschlossene Durchläufe unter <em>Workflow Instanzen</em> prüfen.</li>
+</ol>
+
+<h4>Wichtig</h4>
+<ul>
+<li>Nur aktive Definitionen können neu gestartet werden.</li>
+<li>Ein unbekannter oder deaktivierter Workflow Key wird nicht durch einen Demo-Ablauf ersetzt.</li>
+<li>Beim Start speichert die Instanz einen Snapshot. Spätere Änderungen gelten deshalb erst für neue Durchläufe.</li>
+<li>Die mitgelieferten Beispiele werden bei der Installation einmalig angelegt und können danach wie normale Definitionen bearbeitet werden.</li>
+</ul>
+
+<div class="help-example"><strong>Beispiel:</strong> <code>project_offer</code> in der Liste aktivieren → <em>Starten</em> → dbxWorkflow legt eine neue Instanz an und zeigt den ersten anwendbaren Schritt.</div>

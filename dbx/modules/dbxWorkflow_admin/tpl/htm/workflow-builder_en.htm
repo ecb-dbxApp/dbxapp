@@ -1,0 +1,62 @@
+<section class="dbx-workflow-builder" data-workflow-designer data-workflow-messages="{designer_messages}">
+ <div class="dbx-workflow-builder-head">
+  <div>
+   <span class="dbx-workflow-builder-eyebrow">Target-oriented process designer</span>
+   <h3>Test and steps</h3>
+   <p>Each step also describes which information must be available and correct for the target.</p>
+  </div>
+  <div class="dbx-workflow-builder-legend">
+   <span><i class="bi bi-mouse2"></i> Drawing</span>
+   <span><i class="bi bi-diagram-3"></i> Connections</span>
+   <span><i class="bi bi-shield-check"></i> Testing</span>
+  </div>
+ </div>
+ <section class="dbx-workflow-check-stage">
+  <header>
+   <span class="dbx-workflow-stage-number">2</span>
+   <div>
+    <small>Automatically from the steps</small>
+    <h3>Test</h3>
+    <p>If a mandatory information is missing or does not meet its rule, the workflow remains incomplete.</p>
+   </div>
+   <strong data-workflow-check-count>{need_count} Requirements</strong>
+  </header>
+  <div class="dbx-workflow-check-preview" data-workflow-check-list>{check_rows}</div>
+ </section>
+ <div class="dbx-workflow-steps-stage-head">
+  <span class="dbx-workflow-stage-number">3</span>
+  <div>
+   <small>What needs to be done?</small>
+   <h3>Steps</h3>
+   <p>New steps automatically supplement their requirement at the top of the exam.</p>
+  </div>
+ </div>
+ <div class="dbx-workflow-designer-layout">
+  <aside class="dbx-workflow-palette" aria-label="Workflow building blocks">
+   <div class="dbx-workflow-palette-title">Building blocks</div>
+   <button type="button" draggable="true" data-workflow-add-kind="input"><i class="bi bi-input-cursor-text"></i><span><strong>Entry</strong><small>Capture value</small></span><i class="bi bi-grip-vertical"></i></button>
+   <button type="button" draggable="true" data-workflow-add-kind="action"><i class="bi bi-lightning-charge"></i><span><strong>Action</strong><small>Executing the module</small></span><i class="bi bi-grip-vertical"></i></button>
+   <button type="button" draggable="true" data-workflow-add-kind="check"><i class="bi bi-shield-check"></i><span><strong>Test</strong><small>Automatic, if possible</small></span><i class="bi bi-grip-vertical"></i></button>
+   <button type="button" draggable="true" data-workflow-add-kind="decision"><i class="bi bi-signpost-split"></i><span><strong>Decision</strong><small>Branched result</small></span><i class="bi bi-grip-vertical"></i></button>
+   <button type="button" draggable="true" data-workflow-add-kind="input" data-workflow-add-preset="payment_terms"><i class="bi bi-credit-card-2-front"></i><span><strong>Conditions for payment</strong><small>Selection + examination</small></span><i class="bi bi-grip-vertical"></i></button>
+   <div class="dbx-workflow-palette-help"><i class="bi bi-info-circle"></i><span>Click or drag into the process. Edit details directly on the building block.</span></div>
+  </aside>
+  <div class="dbx-workflow-canvas" data-workflow-canvas>
+   <svg class="dbx-workflow-flow-lines" data-workflow-lines aria-hidden="true"></svg>
+   <div class="dbx-workflow-terminal is-start" data-workflow-start><i class="bi bi-play-fill"></i><span><small>START</small>Workflow begins</span></div>
+   <div class="dbx-workflow-step-list" data-workflow-step-list>{step_rows}</div>
+   <div class="dbx-workflow-terminal is-finish" data-workflow-finish>
+    <i class="bi bi-flag-fill"></i>
+    <label><small>GOAL</small><input class="form-control form-control-sm" name="workflow_finish_label" value="{finish_label}" placeholder="Complete the workflow"></label>
+   </div>
+  </div>
+ </div>
+ <div class="dbx-workflow-validation" data-workflow-validation><i class="bi bi-arrow-repeat"></i><div><strong>Procedure checked</strong></div></div>
+ <details class="dbx-workflow-technical mt-3">
+  <summary>Extended information and technical preview</summary>
+  <label class="form-label mt-2">Module connection</label>
+  <input class="form-control mb-2" name="workflow_bind_ref" value="{bind_ref}" placeholder="optionally, e.g. dbxContact|contact_reply">
+  <textarea class="form-control font-monospace" rows="10" readonly>{technical_preview}</textarea>
+ </details>
+ <script src="dbx/modules/dbxWorkflow_admin/tpl/js/workflow-designer.js?v=2026072701"></script>
+</section>

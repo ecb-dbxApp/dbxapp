@@ -1,0 +1,58 @@
+name: dbx-release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Release bauen
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+
+    steps:
+      - name: Quellcode auschecken
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: PHP einrichten
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: "8.4"
+          extensions: pdo, pdo_sqlite, sqlite3, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Tag und VERSION prüfen
+        shell: bash
+        run: |
+          VERSION="$(tr -d '\r\n' < VERSION)"
+          test "${GITHUB_REF_NAME}" = "v${VERSION}"
+          test "${VERSION}" = "${VERSION%-dev}"
+
+      - name: Produktive Abhängigkeiten installieren
+        run: composer --working-dir=dbx install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Release-Stand prüfen
+        run: composer --working-dir=dbx ci
+
+      - name: Release-ZIP und Prüfsumme bauen
+        run: php tools/build-release.php
+
+      - name: GitHub-Release-Entwurf erstellen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            dist/dbxapp-*.zip \
+            dist/SHA256SUMS \
+            --verify-tag \
+            --generate-notes \
+            --draft \
+            --title "dbxApp ${GITHUB_REF_NAME#v}"

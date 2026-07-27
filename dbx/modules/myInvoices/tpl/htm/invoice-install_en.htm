@@ -1,0 +1,33 @@
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-ajax-root"
+     data-my-invoices-install="1">
+ <div class="dbx-panel-head d-flex justify-content-between align-items-center">
+  <div>
+   <h2 class="h5 mb-0">Install myInvoices</h2>
+   <p class="text-muted mb-0">
+    Synchronize two DD tables and add idempotent demo data.
+   </p>
+  </div>
+  <a class="btn btn-outline-secondary btn-sm" href="{report_url}">
+   The report
+  </a>
+ </div>
+ <form action="{action}" method="post" id="dbx_form_{i}"
+       class="dbxAjax" data-target="dbxForm_{i}">
+  <div class="dbx-panel-body">
+   {obj:form_msg}
+   [dbx:form]
+   <p>
+    Setting audit fields dbxDB automatically. Repeated execution generated
+No double demo bills.
+   </p>
+  </div>
+  <div class="dbx-panel-foot">
+   <button class="btn btn-primary" type="submit"
+           data-install-submit="1">
+    <i class="bi bi-database-check"></i>
+    Provide schema and demo data
+   </button>
+  </div>
+  [dbx:js]
+ </form>
+</div>

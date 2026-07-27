@@ -1,0 +1,26 @@
+[tpl=dbx|frame-head]
+<link rel="stylesheet" href="dbx/design/dbxapp/css/c-process.css?v=2026071804">
+[tpl=dbx|frame-body-open]
+ <div class="dbx-workflow-runtime-goal d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+  <div class="d-flex align-items-center gap-2">
+   <span class="dbx-workflow-stage-number">1</span>
+   <div>
+    <div class="text-muted small">Goal</div>
+    <div class="h4 mb-0">{result_label}</div>
+   </div>
+  </div>
+  <div class="text-end">
+   <div class="text-muted small">Progress</div>
+   <div class="h4 mb-0" data-process-percent="overall">{percent}%</div>
+  </div>
+ </div>
+ <div class="dbx-process-bar mb-3" role="progressbar" aria-valuenow="{percent}" aria-valuemin="0" aria-valuemax="100">
+  <div class="dbx-process-bar-fill {process_bar_class}" data-process-bar="overall" style="width:{percent}%;"></div>
+ </div>
+ {requirements_check}
+ <div class="dbx-workflow-runtime-steps-head"><span class="dbx-workflow-stage-number">3</span><div><small>Processing</small><h3>Steps</h3></div></div>
+ {steps_nav}
+ <div class="mb-3 text-muted" data-process-message>{message}</div>
+ {step_content}
+[tpl=dbx|frame-body-close]
+[tpl=dbx|frame-foot]

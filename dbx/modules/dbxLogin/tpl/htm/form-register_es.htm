@@ -1,0 +1,51 @@
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-user-auth dbx-register">
+  <form action="{action}" method="post" id="form_register" class="dbxAjax" data-target="dbxForm_{i}">
+    <div class="dbx-auth-shell dbx-auth-shell-register">
+      <section class="dbx-auth-panel dbx-auth-panel-main">
+        <div class="dbx-auth-panel-head">
+          <span class="dbx-auth-brand-icon"><i class="bi bi-person-plus"></i></span>
+          <span class="dbx-auth-panel-title">
+            <small>Nueva cuenta</small>
+            <strong>Registro</strong>
+          </span>
+          <span class="dbx-auth-panel-actions">{bar_extra}</span>
+        </div>
+        <div class="dbx-auth-message">{obj:form_msg}</div>
+
+        <div class="dbx-auth-register-grid">
+          {obj:uname}
+          {obj:name}
+          {obj:email}
+          {obj:password}
+          {obj:password2}
+          {obj:language}
+          <button class="btn btn-primary dbx-auth-submit dbx-auth-field-wide" type="submit">
+            <i class="bi bi-envelope-check"></i>
+            <span>Registro inicial</span>
+          </button>
+        </div>
+
+        {obj:login_link}
+        <div class="dbx-auth-alt-link">
+          <a href="?dbx_modul=dbxLogin&dbx_run1=login"><i class="bi bi-arrow-left"></i> Ya tengo una cuenta.</a>
+        </div>
+      </section>
+
+      <aside class="dbx-auth-panel dbx-auth-panel-side">
+        <div class="dbx-auth-panel-head dbx-auth-side-head">
+          <span class="dbx-auth-brand-icon"><i class="bi bi-patch-check"></i></span>
+          <span class="dbx-auth-panel-title">
+            <small>Configuración de la cuenta</small>
+            <strong>Cómo se desbloqueará tu cuenta</strong>
+          </span>
+        </div>
+        <ol class="dbx-auth-step-list">
+          <li><span>1</span><strong>Introduzca datos</strong><small>Su cuenta comienza con el rol registrado.</small></li>
+          <li><span>2</span><strong>Confirmación por correo electrónico</strong><small>Tienes un enlace con un token seguro.</small></li>
+          <li><span>3</span><strong>Convertirse en miembro</strong><small>Después de la confirmación, se establece el miembro.</small></li>
+        </ol>
+      </aside>
+    </div>
+    [dbx:js]
+  </form>
+</div>

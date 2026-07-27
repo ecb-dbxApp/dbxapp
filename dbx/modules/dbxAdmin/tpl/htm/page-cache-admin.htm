@@ -1,0 +1,32 @@
+<div class="dbx-panel">
+[tpl=dbx|module-bar]
+ <div class="dbx-panel-body">
+  {msg}
+
+  <p class="mb-3">
+    Dieser Seiten-Cache speichert bei gueltigen Permalink-Aufrufen die vollstaendige
+    Endausgabe fuer Gaeste. Titel, Description, Keywords, weitere Head-Metadaten,
+    Design, Menues und enthaltene Module sind bereits aufgeloest. Ein Treffer wird
+    direkt ueber die Permalink-Datei geliefert; nur die Session darf dabei noch die
+    Session-Datenbank verwenden. Angemeldete Benutzer bleiben immer dynamisch.
+  </p>
+
+  <table class="table table-sm table-bordered w-auto mb-4">
+   <tbody>
+    <tr><th>Verzeichnis</th><td><code>{cache_dir}</code></td></tr>
+    <tr><th>Gast-Full-Pages</th><td>{content_count}</td></tr>
+   </tbody>
+  </table>
+
+  <a class="btn btn-warning dbxConfirm"
+     href="{flush_url}"
+     title="Page-Cache leeren"
+     data-confirm-title="<i class='bi bi-trash3'></i> Page-Cache leeren"
+     data-confirm="Page-Cache komplett leeren?"
+     data-confirm-hint="<small>Die gecachten Gast-Full-Pages werden entfernt und beim naechsten gueltigen Permalink-Aufruf neu erstellt.</small>"
+     data-confirm-buttons="yesno"
+     role="button">
+   <i class="bi bi-trash3"></i> Cache komplett leeren
+  </a>
+ </div>
+</div>

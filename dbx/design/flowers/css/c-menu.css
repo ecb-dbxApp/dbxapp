@@ -1,0 +1,66 @@
+.dbx-menu a,
+.dbx-menu .dbx-menu-link { color: #f5eadb; text-decoration: none; }
+.dbx-menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
+.dbx-menu.dbx-menu-list > .dbx-menu-item > .dbx-menu-link {
+    border: 1px solid transparent;
+    border-radius: 5px 18px 5px 18px;
+    font-size: .9rem;
+    font-weight: 700;
+    transition: background-color .16s ease, border-color .16s ease, transform .16s ease;
+}
+.dbx-menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link:hover,
+.dbx-menu > .dbx-menu-list > .dbx-menu-item.is-open > .dbx-menu-link,
+.dbx-menu > .dbx-menu-list > .dbx-menu-item.is-active > .dbx-menu-link,
+.dbx-menu > .dbx-menu-list > .dbx-menu-item.is-active-path > .dbx-menu-link {
+    color: #fff;
+    border-color: rgba(226,173,130,.38);
+    background: linear-gradient(105deg, rgba(184,111,66,.46), rgba(78,100,59,.27));
+    box-shadow: inset 0 1px rgba(255,255,255,.12), 0 4px 11px rgba(18,10,6,.13);
+    transform: translateX(3px);
+}
+.dbx-menu-list .dbx-menu-list { border-left: 1px solid rgba(217,169,126,.44); }
+.dbx-menu-list .dbx-menu-list .dbx-menu-link { color: #dfd3c2; border-radius: 4px 13px 4px 13px; font-size: .82rem; }
+.dbx-menu-list .dbx-menu-list .dbx-menu-link:hover,
+.dbx-menu-list .dbx-menu-list .is-active > .dbx-menu-link { color: #fff; background: rgba(142,164,102,.22); }
+.dbx-menu-admin > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link { color: #ddcdb9; font-size: .84rem; }
+.dbx-menu-link i { flex: 0 0 18px; color: #e4a779; text-align: center; }
+.dbx-menu .dbx-user-menu-avatar { width: 27px; height: 27px; object-fit: cover; border: 1px solid #d4a984; border-radius: 50%; }
+.dbx-shop-cart-menu-badge { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; color: #fff; border-radius: 999px; background: var(--fleurop-rose); font-size: .63rem; }
+.dbx-lng-flag { display: inline-block; width: 20px; height: 13px; border-radius: 2px; background-position: center; background-size: cover; }
+.dbx-lng-flag[data-dbx-flag="de"] { background-image: url("../../../modules/dbxMenu/tpl/img/flag-de.svg"); }
+.dbx-lng-flag[data-dbx-flag="gb"] { background-image: url("../../../modules/dbxMenu/tpl/img/flag-gb.svg"); }
+.dbx-lng-flag[data-dbx-flag="es"] { background-image: url("../../../modules/dbxMenu/tpl/img/flag-es.svg"); }
+.dbx-menu-section-label { margin: .35rem .25rem .2rem; padding: .45rem .65rem .3rem; pointer-events: none; color: #c9b79f; border-bottom: 1px solid rgba(226,167,121,.28); font-size: .64rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.dbx-menu-section-label-skin { margin-top: .55rem; border-top: 1px solid rgba(255,255,255,.08); }
+.dbx-menu-section-label > span,
+.dbx-design-opt { display: flex; align-items: center; gap: .48rem; }
+.dbx-design-opt.is-active,
+.dbx-skin-menu-root li.is-active > .dbx-design-opt { color: #fff; font-weight: 800; background: rgba(141,166,106,.18); }
+.dbx-design-check { margin-left: auto; color: var(--fleurop-copper-light); }
+.is-sidebar-collapsed .fleurop-sidebar .dbx-menu-item > .dbx-menu-list { border: 1px solid #8c5e3f; border-radius: 7px 18px 7px 18px; background: linear-gradient(145deg,#64442f,#3c281d); box-shadow: var(--dbx-shadow-lg); }
+
+.fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link {
+    margin: 4px 0;
+    color: #f4eadc;
+    border: 1px solid transparent;
+    border-radius: 5px 13px 5px 13px;
+    font-size: .78rem;
+    font-weight: 700;
+}
+.fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link:hover,
+.fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list > .dbx-menu-item.is-open > .dbx-menu-link,
+.fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list > .dbx-menu-item.is-active > .dbx-menu-link,
+.fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list > .dbx-menu-item.is-active-path > .dbx-menu-link {
+    color: #fff;
+    border-color: rgba(222,162,122,.5);
+    background: linear-gradient(180deg, rgba(184,111,66,.65), rgba(132,71,38,.72));
+    box-shadow: inset 0 1px rgba(255,255,255,.16);
+    transform: none;
+}
+.fleurop-admin-strip .dbx-menu-item > .dbx-menu-list {
+    border: 1px solid #8c5e3f;
+    border-radius: 6px 16px 6px 16px;
+    background: linear-gradient(145deg,#66452f,#3c281d);
+    box-shadow: var(--dbx-shadow-lg);
+}
+.fleurop-admin-strip .dbx-menu-list .dbx-menu-list { border-left: 0; }

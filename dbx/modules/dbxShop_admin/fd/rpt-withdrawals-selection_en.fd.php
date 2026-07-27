@@ -1,0 +1,66 @@
+<?php
+$messages = array();
+$messages['save_success'] = 'Data was saved';
+$messages['save_succeass'] = $messages['save_success'];
+$messages['save_error'] = 'Data could not be saved';
+$messages['bar_title'] = 'Withdrawals';
+$messages['bar_subtitle'] = 'Withdrawals and returns from the shop';
+$messages['report_info'] = 'Search and process incoming withdrawals.';
+$messages['column_withdrawal'] = 'Withdrawal';
+$messages['column_customer'] = 'Customer';
+$messages['column_message'] = 'Message';
+$messages['column_status'] = 'Status';
+$messages['column_action'] = 'Action';
+$messages['no_results'] = 'No withdrawals were found for this search.';
+$messages['without_order_no'] = 'Without order number';
+$messages['status_new'] = 'New';
+$messages['status_processing'] = 'Processing';
+$messages['status_accepted'] = 'Accepted';
+$messages['status_refunded'] = 'Refunded';
+$messages['status_rejected'] = 'Rejected';
+$messages['status_closed'] = 'Closed';
+$messages['action_processing'] = 'Processing';
+$messages['action_accept_title'] = 'Accept withdrawal';
+$messages['action_accept_question'] = 'Accept the withdrawal and release the reserved stock?';
+$messages['action_accept'] = 'Accept';
+$messages['action_refund_title'] = 'Refund withdrawal';
+$messages['action_refund_question'] = 'Mark the withdrawal as refunded and release the reserved stock?';
+$messages['action_refunded'] = 'Refunded';
+$messages['action_reject'] = 'Reject';
+$messages['action_close'] = 'Close';
+$messages['edit_legal_title'] = 'Edit withdrawal text';
+$messages['edit_cms'] = 'Edit CMS';
+$messages['view_page_title'] = 'View withdrawal page';
+$messages['shop_view'] = 'Shop view';
+$messages['token_error'] = 'The action was rejected for security reasons. Please reload the page.';
+
+$field = array();
+$field['name'] = 'dbx_rrows';
+$field['type'] = 'int';
+$field['label'] = 'No. page';
+$field['rules'] = 'int';
+$field['tpl'] = 'select-single-label';
+$field['options'] = '10=10&20=20&30=30&50=50&100=100&0=All';
+$field['default'] = '30';
+$fields[] = $field;
+
+$field = array();
+$field['name'] = 'dbx_rwhere';
+$field['type'] = 'varchar';
+$field['label'] = 'Search';
+$field['rules'] = '*|max=100';
+$field['tpl'] = 'text-label';
+$field['placeholder'] = 'Enter the search term';
+$field['default'] = '';
+$fields[] = $field;
+
+$field = array();
+$field['name'] = 'status';
+$field['type'] = 'varchar';
+$field['label'] = 'Status';
+$field['rules'] = 'parameter';
+$field['tpl'] = 'select-single-label';
+$field['options'] = '=All&new=New&processing=In processing&accepted=Accepted&rejected=Rejected&refunded=Replaced&closed=Completed';
+$field['default'] = '';
+$fields[] = $field;
+?>

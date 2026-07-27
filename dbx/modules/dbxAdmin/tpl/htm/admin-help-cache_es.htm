@@ -1,0 +1,12 @@
+<h4>Propósito</h4>
+<p>El caché de página completa de invitados almacena la salida final completa para llamadas permalink válidas. Título, descripción, palabras clave, otros metadatos, diseño, menús, intérpretes y módulos incluidos ya están resueltos. El caché sólo se aplica a los clientes con ID de usuario 0; los usuarios conectados siguen siendo dinámicos.</p>
+<p>Un golpe se entrega directamente desde el archivo permalink antes de la resolución permalink/CID del contenido. No se requiere acceso a la base de datos de contenido; sólo la actualización normal de la sesión puede utilizar la base de datos cuando el modo DB de sesión está activo. Los tokens de formularios de sesión se insertan de nuevo en la sesión de invitados sin que se ejecute módulo o intérprete.</p>
+<p>El propio archivo cache sigue el patrón legible <code>permalink_sprache_skin.htm</code>por ejemplo <code>kunden-nutzen_de_blau.htm</code>. Uno <code>user_0</code>-La adición no es necesaria porque sólo el ID de usuario 0 puede usar el caché. Las variantes de diseño, host, consulta y estado invitado son libres de colisión en subcarpetas de contexto separados.</p>
+<h4>Oportunidades</h4>
+<ul>
+<li>Número de páginas completas de invitados caché por idioma leído.</li>
+<li>Caché de página completa vacía manualmente para cambios de plantilla, menú o contenido.</li>
+</ul>
+<div class="help-flow">Guardar contenido → Cache invalida automáticamente (CMS)
+Manual: Admin → Page Cache → Empty → Reload Page</div>
+<div class="help-example"><strong>Ejemplo:</strong> Cambio de contenido perdido en la página en vivo → caché vacío → revisit valid permalink.</div>

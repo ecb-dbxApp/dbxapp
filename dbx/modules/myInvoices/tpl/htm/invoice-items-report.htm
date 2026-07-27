@@ -1,0 +1,25 @@
+<div class="dbxReport dbx-invoice-items"
+     id="dbx_invoice_items_{i}"
+     data-invoice-items="{invoice_no}">
+ <h3 class="h6">Positionen zu Rechnung {invoice_no}</h3>
+ <div class="table-responsive">
+  <table class="table table-sm table-bordered mb-0">
+   <thead>
+    <tr class="{tr-class}">[rpt:row]</tr>
+   </thead>
+   <tbody>
+    <hr class="dbx_split">
+    <tr class="{tr-class}">[rpt:row]</tr>
+    <hr class="dbx_split">
+   </tbody>
+   <tfoot>
+    <tr data-item-total="{report_total}">
+     <th colspan="{rpt:colspan}" class="text-end">
+      Endsumme der Positionen
+     </th>
+     <th class="text-end">{report_total}</th>
+    </tr>
+   </tfoot>
+  </table>
+ </div>
+</div>

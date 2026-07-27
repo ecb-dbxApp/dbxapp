@@ -1,0 +1,192 @@
+<h4>Sprachen in dbXapp — Ueberblick</h4>
+<p>dbXapp unterscheidet zwei Ebenen:</p>
+<ul>
+<li><strong>System-Sprachen</strong> — welche Sprachen es auf der Website und im Admin gibt (z. B. Deutsch, Englisch, Spanisch).</li>
+<li><strong>Inhalts-Sprachen im CMS</strong> — jede Seite und jeder Ordner existiert <em>pro Sprache</em> als eigener Datensatz, aber die Versionen sind miteinander verknuepft.</li>
+</ul>
+<p>Diese Hilfe erklaert beides: die Einstellungen auf dieser Config-Seite und die taegliche Arbeit im Content-CMS.</p>
+
+<h4>Diese Config-Seite</h4>
+<p>Pfad: <code>?dbx_modul=dbxContent_admin&amp;dbx_run1=content&amp;dbx_run2=config</code></p>
+<p>Hier legen Sie fest, <strong>welche Sprachen aktiv sind</strong> und <strong>wie automatische Uebersetzungen</strong> beim Sync laufen.</p>
+
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Feld</th><th>Was es bedeutet</th></tr></thead>
+<tbody>
+<tr><td><strong>Master-Sprache</strong></td><td>Die fuehrende Sprache (meist DE). Struktur, Provision und Auto-Sync orientieren sich an ihr. Im CMS mit Stern (*) markiert.</td></tr>
+<tr><td><strong>Verfuegbare Sprachen</strong></td><td>Alle Sprachen, die im CMS-Tree, in Sprach-Tabs und fuer Besucher waehlbar sind. Die Master-Sprache muss dabei sein.</td></tr>
+<tr><td><strong>Startseite (Master)</strong></td><td>Die Content-ID der Startseite in der Master-Sprache. Andere Sprachen finden ihre Startseite automatisch ueber die Verknuepfung.</td></tr>
+<tr><td><strong>Uebersetzungs-Provider</strong></td><td>Steuert, was beim Uebertragen und Auto-Sync mit Texten passiert (kopieren, leer lassen oder API).</td></tr>
+<tr><td><strong>API-Schluessel / URL / Modell</strong></td><td>Nur noetig bei DeepL oder OpenAI. Bei „Text kopieren“ leer lassen.</td></tr>
+</tbody>
+</table>
+<div class="help-example"><strong>Tipp:</strong> In der Kopfzeile dieser Seite sehen Sie den <em>aktiven Provider</em> — er gilt nach dem Speichern sofort fuer Sync und Provision.</div>
+
+<h4>Master-Sprache und weitere Sprachen</h4>
+<div class="help-flow">Master (z. B. DE*)
+  │
+  ├─ steuert Ordnerstruktur und neue Seiten
+  ├─ loest „In andere Sprachen uebertragen“ aus
+  └─ aktualisiert verknuepfte Sprachen beim Speichern (Auto-Sync)
+
+Weitere Sprachen (EN, ES, …)
+  │
+  ├─ eigene Texte und Permalinks pro Sprache
+  ├─ werden bei Provision zuerst oft „inaktiv“ angelegt
+  └─ koennen manuell abweichen (Fork)</div>
+<p>Die Verknuepfung zwischen Sprachversionen ist <strong>intern</strong> — Sie muessen keine gleichen Seiten-IDs in DE und EN pflegen. Im Baum erkennen Sie den Status an den <strong>Sprach-Badges</strong> (vorhanden, fehlend, auto, manual).</p>
+
+<h4>Im Content-CMS arbeiten</h4>
+<p>Einstieg CMS: <code>?dbx_modul=dbxContent_admin&amp;dbx_run1=cms</code></p>
+<ul>
+<li><strong>Sprach-Tabs oben</strong> (DE*, EN, ES) — wechseln die Bearbeitungssprache. Der Stern zeigt die Master-Sprache.</li>
+<li><strong>Neue Seite/Ordner in Master</strong> — nach dem Speichern erscheint bei Bedarf der Dialog <em>In andere Sprachen uebertragen</em>.</li>
+<li><strong>Button „Uebersetzen“</strong> (Sprachen-Icon) — legt fehlende Sprachversionen an oder aktualisiert die Vorschau vor dem Uebernehmen.</li>
+<li><strong>Button „Auto-Sync“</strong> (Link-Icon, nur Master) — stellt getrennte Sprachen wieder auf automatische Mitfuehrung.</li>
+</ul>
+
+<h4>In andere Sprachen uebertragen (Provision)</h4>
+<ol>
+<li>Seite oder Ordner in der <strong>Master-Sprache</strong> waehlen.</li>
+<li>Dialog oeffnen (nach Speichern oder ueber Uebersetzen-Button).</li>
+<li>Zielsprachen ankreuzen, Texte pruefen — bei API-Provider werden Vorschlaege erzeugt.</li>
+<li><strong>Uebernehmen</strong> — neue Versionen werden angelegt. <strong>Seiten starten inaktiv</strong>, damit Sie vor Veroeffentlichung pruefen koennen.</li>
+</ol>
+<p>Bei <strong>Ordnern</strong> koennen Sie optional den <strong>gesamten Unterbaum inkl. Seiten</strong> mit uebertragen. Fehlende Ordner in Zielsprachen werden dabei automatisch aus der Master-Struktur nachgebaut.</p>
+
+<h4>Auto-Sync — Master speichern</h4>
+<p>Wenn Sie in der Master-Sprache speichern, werden alle verknuepften Sprachen mit Status <code>auto</code> im Hintergrund aktualisiert:</p>
+<ul>
+<li>Texte (je nach Provider uebersetzt oder kopiert)</li>
+<li>Struktur, Template-Einstellungen, Permalink-Basis</li>
+<li>Medien-Verknuepfungen (Hero, Galerie, Bilder im Text)</li>
+</ul>
+<p>Der <strong>Aktiv/Inaktiv-Status</strong> der Zielsprache bleibt erhalten — eine inaktive EN-Seite wird durch Master-Sync nicht ploetzlich live geschaltet.</p>
+
+<h4>Fork — Wenn eine Sprache eigenstaendig bleiben soll</h4>
+<p>Speichern Sie in einer <strong>Nicht-Master-Sprache</strong>, trennt sich die Verknuepfung (<code>manual</code> / Fork). Meldung: <em>Sprachverknuepfung getrennt (manuell).</em></p>
+<p>Ab dann uebernimmt der Master diese Sprache nicht mehr automatisch. Das ist sinnvoll fuer angepasste Marketing-Texte oder andere Permalinks.</p>
+<p>Um wieder mitzuziehen: in der Master-Sprache <strong>Auto-Sync</strong> aktivieren — der naechste Master-Save ueberschreibt dann die Slave-Inhalte erneut.</p>
+
+<h4>Uebersetzungs-Provider im Detail</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Provider</th><th>Verhalten</th><th>Wann nutzen?</th></tr></thead>
+<tbody>
+<tr><td><code>copy</code></td><td>Text unveraendert uebernehmen</td><td><strong>Empfohlen als Standard</strong> — kostenlos, kein Account, fuer alle Kundeninstallationen</td></tr>
+<tr><td><code>none</code></td><td>Uebersetzungsfelder leer lassen</td><td>Wenn Zieltexte bewusst leer starten sollen</td></tr>
+<tr><td><code>deepl</code></td><td>DeepL API</td><td>Automatische Uebersetzung; eigener API-Key noetig (Free-Plan moeglich)</td></tr>
+<tr><td><code>openai</code></td><td>OpenAI Chat API</td><td>Flexibel mit Modellwahl; eigener API-Key, kostenpflichtig nach Nutzung</td></tr>
+<tr><td><code>custom</code></td><td>Eigene Logik</td><td>Fuer Entwickler: <code>dbx/modules/dbxContent/translate.php</code></td></tr>
+</tbody>
+</table>
+<p>Bei API-Fehlern wird der Originaltext uebernommen. Zusaetzlich erscheint ein Hinweis im CMS und ein Eintrag unter <strong>Admin → SysMsg</strong> (About: <code>dbxContentTranslate</code>).</p>
+
+<h4>Welcher Provider fuer wen?</h4>
+<ul>
+<li><strong>Kundeninstallation (Standard):</strong> <code>copy</code> — funktioniert immer ohne Kosten und ohne externen Dienst.</li>
+<li><strong>Kleine Website mit Auto-Uebersetzung:</strong> <code>deepl</code> mit <strong>DeepL API Free</strong> (ca. 500.000 Zeichen pro Monat, 0 EUR).</li>
+<li><strong>Groessere Sites / viele Texte:</strong> DeepL API Pro (kostenpflichtig) oder manuell mit <code>copy</code> im Dialog pflegen.</li>
+<li><strong>OpenAI:</strong> Nur wenn der Betreiber bewusst API-Kosten traegt — <strong>ChatGPT Plus/Pro ist kein API-Zugang</strong>.</li>
+<li><strong>Google Translate:</strong> In dbXapp <em>nicht</em> eingebaut. Nur ueber <code>custom</code> + eigene Entwicklung moeglich.</li>
+</ul>
+<div class="help-example"><strong>Wichtig:</strong> ChatGPT im Browser (Plus, Pro, …) und die OpenAI API sind <em>zwei getrennte Produkte</em>. Ein Chat-Abo liefert keinen API-Key und keine API-Gutschriften.</div>
+
+<h4>API-Keys beantragen und in dbXapp eintragen</h4>
+<p>API-Keys sind persoenliche Zugangsschluessel eines Uebersetzungs-Anbieters. Jeder Kunde sollte — wenn ueberhaupt — <strong>seinen eigenen</strong> Key verwenden. Keys gehoeren in das Feld <strong>API-Schluessel</strong> auf dieser Config-Seite.</p>
+
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Einstellung</th><th>DeepL</th><th>OpenAI</th></tr></thead>
+<tbody>
+<tr><td><strong>Provider</strong></td><td><code>deepl</code></td><td><code>openai</code></td></tr>
+<tr><td><strong>API-Schluessel</strong></td><td>DeepL API Key (Free-Keys enden oft auf <code>:fx</code>)</td><td>OpenAI Key (beginnt mit <code>sk-...</code>)</td></tr>
+<tr><td><strong>API-URL</strong></td><td>Leer lassen (Standard: Free-API). Nur bei DeepL Pro: <code>https://api.deepl.com/v2/translate</code></td><td>Leer lassen (Standard-Endpoint)</td></tr>
+<tr><td><strong>Modell</strong></td><td>— (nicht relevant)</td><td>z. B. <code>gpt-4o-mini</code> (guenstig, fuer Uebersetzungen meist ausreichend)</td></tr>
+</tbody>
+</table>
+
+<h5>DeepL API Free (kostenlos, empfohlen zum Testen)</h5>
+<ol>
+<li>Konto anlegen und <strong>DeepL API Free</strong> waehlen:<br>
+ <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener">https://www.deepl.com/pro-api</a></li>
+<li>Nach Anmeldung unter <strong>Account → API keys</strong> (bzw. im DeepL-Pro-Portal) einen API-Key erzeugen.<br>
+ Dokumentation: <a href="https://developers.deepl.com/docs/getting-started/auth" target="_blank" rel="noopener">https://developers.deepl.com/docs/getting-started/auth</a></li>
+<li>Key in dbXapp unter <strong>API-Schluessel</strong> eintragen, Provider <code>deepl</code>, URL <strong>leer</strong> lassen.</li>
+<li>Im CMS testen: Master-Seite speichern → Provision EN → Texte sollten uebersetzt vorgeschlagen werden.</li>
+</ol>
+<p><strong>Free-Plan:</strong> ca. 500.000 Zeichen pro Monat, 0 EUR. Fuer groessere Websites oft zu wenig — dann DeepL API Pro oder bei <code>copy</code> bleiben.</p>
+<p><strong>Hinweis:</strong> Free-Keys nutzen automatisch <code>api-free.deepl.com</code> — das ist in dbXapp bereits der Standard, wenn die API-URL leer ist.</p>
+
+<h5>OpenAI API (kostenpflichtig nach Nutzung)</h5>
+<ol>
+<li>Separates Developer-Konto (nicht ChatGPT-Chat):<br>
+ <a href="https://platform.openai.com" target="_blank" rel="noopener">https://platform.openai.com</a></li>
+<li>Unter <strong>Billing</strong> Zahlungsmethode hinterlegen (API wird separat abgerechnet):<br>
+ <a href="https://platform.openai.com/settings/organization/billing" target="_blank" rel="noopener">https://platform.openai.com/settings/organization/billing</a></li>
+<li>API-Key erzeugen unter <strong>API keys</strong>:<br>
+ <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">https://platform.openai.com/api-keys</a></li>
+<li>In dbXapp: Provider <code>openai</code>, Key eintragen, Modell z. B. <code>gpt-4o-mini</code>, URL leer lassen.</li>
+</ol>
+<p><strong>Kosten:</strong> Pay-per-use (pro Token). Auch guenstige Modelle verursachen bei vielen Seiten laufende Kosten. Nicht als „gratis fuer alle Kunden“ geeignet.</p>
+
+<h5>Ohne API-Key arbeiten (Standard)</h5>
+<p>Provider <code>copy</code> waehlen — alle Felder fuer API leer lassen. Beim Uebertragen in andere Sprachen wird der Master-Text uebernommen; Sie passen die Texte im Provision-Dialog oder in der Zielsprache manuell an. Das ist fuer Redaktion und Kundeninstallationen die sicherste Variante.</p>
+
+<h5>Google und andere Anbieter</h5>
+<p>Google Cloud Translation und aehnliche Dienste sind in dbXapp <strong>nicht</strong> direkt als Provider hinterlegt. Google bietet ein kleines Free-Kontingent fuer neue Cloud-Konten, danach ist die Nutzung kostenpflichtig. Eine Anbindung waere nur ueber den Provider <code>custom</code> und eine eigene <code>translate.php</code> durch einen Entwickler moeglich.</p>
+
+<h4>Startseite pro Sprache</h4>
+<p>Die <strong>Startseite (Master)</strong> ist die Content-ID Ihrer Home-Seite in der Master-Sprache (z. B. Seite „Home“ mit ID 1).</p>
+<ul>
+<li>Besucher in der Master-Sprache sehen diese Seite als Startseite.</li>
+<li>In EN/ES sucht das System die passende verknuepfte Seite (gleicher Inhalt, andere Sprache).</li>
+<li>Fehlt eine Sprachversion der Startseite, gibt es fuer diese Sprache keine aufgeloeste Home-Seite.</li>
+</ul>
+
+<h4>Loeschen in mehreren Sprachen</h4>
+<p>Loeschen Sie aus der <strong>Master-Sprache</strong> und es gibt mehrere Sprachversionen, erscheint ein Dialog mit Checkboxen:</p>
+<ul>
+<li><code>auto</code>-Versionen sind vorausgewaehlt</li>
+<li><code>manual</code>-Versionen nur auf Wunsch</li>
+<li>Permalinks werden pro Sprache bereinigt</li>
+</ul>
+
+<h4>Medien und Sprachen</h4>
+<p>Medien-Dateien selbst sind <strong>sprachneutral</strong> (ein Bild, eine Datei). Verknuepft werden sie pro Seite und Sprache (Hero, Galerie, Inline im Text). Beim Provision und Auto-Sync werden diese Verknuepfungen in die Zielsprachen mitkopiert — nicht die Datei dupliziert.</p>
+
+<h4>Fuer Website-Besucher</h4>
+<ul>
+<li>Die <strong>verfuegbaren Sprachen</strong> aus dieser Config bestimmen, welche Sprachen angeboten werden.</li>
+<li>Die gewaehlte Sprache steuert Menues, Permalink-Aufloesung und die sprachabhaengige Gast-Full-Page-Cachedatei.</li>
+<li>Nur <strong>aktive</strong> Seiten sind oeffentlich sichtbar — neue Uebersetzungen zuerst pruefen, dann aktiv setzen.</li>
+</ul>
+
+<h4>Cache und Live-Ansicht</h4>
+<p>Nach dem Speichern wird der Seiten-Cache normalerweise automatisch aktualisiert. Wenn Aenderungen live fehlen:</p>
+<ol>
+<li><strong>Admin → Page-Cache</strong> leeren</li>
+<li>Seite im Browser mit Hard-Reload neu laden</li>
+</ol>
+
+<h4>Haeufige Fragen</h4>
+<p><strong>Warum fehlt EN im Baum?</strong><br>Die Seite wurde nur in der Master-Sprache angelegt. Speichern oder „Uebersetzen“ → Provision fuer EN ausfuehren.</p>
+<p><strong>Warum wird EN nicht mehr aktualisiert?</strong><br>EN wurde einmal manuell gespeichert (Fork). Auto-Sync in der Master-Sprache wieder aktivieren oder EN bewusst selbst pflegen.</p>
+<p><strong>Uebersetzung liefert Fehler?</strong><br>Provider und API-Key auf dieser Config-Seite pruefen → <strong>Admin → SysMsg</strong> lesen. Bis zur Behebung wird Text kopiert. Bei DeepL: Free-Key und leere API-URL pruefen. Bei OpenAI: Billing auf <a href="https://platform.openai.com/settings/organization/billing" target="_blank" rel="noopener">platform.openai.com</a> aktiv?</p>
+<p><strong>Ich habe ChatGPT Pro — reicht das?</strong><br>Nein. ChatGPT Pro ist nur das Chat-Abo im Browser. Fuer dbXapp brauchen Sie einen separaten API-Key von <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a> (kostenpflichtig nach Nutzung) — oder Sie bleiben bei <code>copy</code> / DeepL Free.</p>
+<p><strong>Gibt es eine kostenlose Auto-Uebersetzung fuer Kunden?</strong><br><code>copy</code> ist immer kostenlos. DeepL API Free (ca. 500.000 Zeichen/Monat) ist kostenlos, aber jeder Kunde braucht einen eigenen Account: <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener">deepl.com/pro-api</a>.</p>
+<p><strong>Kann ich die Master-Sprache wechseln?</strong><br>Technisch ja — betrifft aber CMS-Logik und Startseite. Nur mit Bedacht aendern und danach Struktur/Verknuepfungen pruefen.</p>
+<p><strong>Was bedeutet der Migrations-Hinweis unten?</strong><br>Interner Datenbank-Stand fuer Mehrsprach-Tabellen — fuer den Alltag nicht relevant, nur fuer Support/Updates.</p>
+
+<h4>Typischer Ablauf (mehrsprachige Website)</h4>
+<div class="help-flow">1. Hier: Master-Sprache + verfuegbare Sprachen + Provider setzen
+2. CMS: Ordner und Seiten in Master anlegen
+3. Provision → EN (und weitere Sprachen)
+4. Zielsprachen pruefen, Permalink + Text anpassen
+5. Seiten in Zielsprachen auf „Aktiv“
+6. Laufende Pflege nur in Master* → Auto-Sync haelt EN/ES aktuell
+7. Spezielle Abweichungen: in EN/ES bearbeiten (Fork)</div>
+<div class="help-example"><strong>Beispiel:</strong> DE-Startseite ID 1 → Provision EN → EN-Text „Welcome“ pruefen → EN aktivieren → Besucher mit EN sehen die verknuepfte englische Home-Seite.</div>
+
+<h4>Weitere Hilfe</h4>
+<p>Das allgemeine CMS-Handbuch (Ordner, Medien, Editor): Hilfe-Button im CMS mit Thema <code>content</code>.</p>
+<p>Diese Seite: <code>?dbx_modul=dbxContent&amp;dbx_run1=help&amp;topic=content_lng</code></p>
+<p>CMS-Zuordnung: stabiler Permalink <code>help-content-sprachen</code>. Der Ordner kann geändert werden, ohne dass sich der Permalink ändert.</p>

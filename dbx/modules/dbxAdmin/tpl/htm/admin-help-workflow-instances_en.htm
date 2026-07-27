@@ -1,0 +1,25 @@
+<h4>What does this overview show?</h4>
+<p>Every start in dbxWorkflow Creates its own instance. The list shows workflow key, goal, status, current step, progress, and the last message.</p>
+
+<h4>Understanding status</h4>
+<div class="help-flow">running → paused → running → finished
+└──────────→ canceled
+The error</div>
+<ul>
+<li><strong>Running:</strong> the next applicable step can be processed.</li>
+<li><strong>Stopped:</strong> values are retained; the passage can be continued.</li>
+<li><strong>Cancelled:</strong> no further processing without a conscious restart.</li>
+<li><strong>Finished:</strong> all mandatory steps and the finish logic were successful.</li>
+<li><strong>Error:</strong> Check notification and subject module.</li>
+</ul>
+
+<h4>Search for errors</h4>
+<ol>
+<li>Open instance over the action.</li>
+<li>Read last message and current step.</li>
+<li>In the case of blocked steps, check prerequisite and expected result value.</li>
+<li>For module actions, check the technical data set and the binding used.</li>
+<li>For external actions before a restart, check the provider status first.</li>
+</ol>
+
+<p><strong>Definition status:</strong> New instances save a snapshot at startup. Amendments to dbxWorkflow_admin Therefore, do not change already started processes. Older instances without snapshot continue to use the current definition for compatibility reasons.</p>

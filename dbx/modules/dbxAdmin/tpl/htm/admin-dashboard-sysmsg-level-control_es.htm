@@ -1,0 +1,13 @@
+<div id="dbx_sysmsg_level_control_{i}" class="dbx-admin-dashboard-sysmsg-level-control dbx-ajax-root"
+     data-dbx="lib=ajax|class=dbxAjax|target=dbx_sysmsg_level_control_{i}|replace=target|mode=html">
+ <div class="d-flex align-items-center gap-2">
+  <select class="form-select form-select-sm" name="sys_msg_level" aria-label="SysMsg Level"
+          data-sysmsg-level-select="link">
+   {sys_msg_level_options}
+  </select>
+  <a class="d-none dbxAjax" href="{sys_msg_level_save_base}" data-sysmsg-level-save="1"
+     data-save-base="{sys_msg_level_save_base}"
+     data-target="dbx_sysmsg_level_control_{i}" data-replace="target"
+     aria-hidden="true" tabindex="-1">Guardar niveles de SysMsg</a>
+ </div>
+</div>

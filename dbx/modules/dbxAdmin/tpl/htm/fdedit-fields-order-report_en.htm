@@ -1,0 +1,27 @@
+<details id="dbx_fdedit_fields_order_{i}" class="dbx-panel dbxReport dbx-report dbx-ddedit-order-report dbx-ddedit-fold-panel" data-dbx="lib=report|form=0" data-fdedit-report="fields-order" data-modul="{modul}" data-fd="{fd}" open>
+ <summary class="dbx-ddedit-order-head dbx-ddedit-fold-summary">
+  <span class="dbx-ddedit-fold-icon"><i class="bi bi-chevron-right"></i></span>
+  <span class="dbx-ddedit-fold-title">
+   <strong><i class="bi bi-list-ol me-1"></i>Fields</strong>
+   <small>{count} Fields, Drag & Drop</small>
+  </span>
+ </summary>
+
+ <div class="dbx-ddedit-fold-body">
+  <div class="dbx-ddedit-order-list" data-report-sort-list="fields" data-sort-url="?dbx_modul=dbxAdmin&dbx_run1=edit_fd&dbx_run2=save_field_order&modul={modul}&fd={fd}" data-sort-reload="1">
+<hr class="dbx_split">
+[tpl=dbxAdmin|fdedit-field-order-row]
+<hr class="dbx_split">
+  </div>
+
+  <div class="dbx-ddedit-order-actions mt-3">
+   <a class="btn btn-outline-primary btn-sm w-100 mb-2 dbxAjax" href="{new_field_url}" data-target="{target_id}" data-replace="inner">
+    <i class="bi bi-plus-lg me-1"></i>New field
+   </a>
+   <button type="button" class="btn btn-primary btn-sm w-100" data-report-sort-save="fields">
+    <i class="bi bi-save me-1"></i>Save order
+   </button>
+   <div class="dbx-ddedit-order-status text-muted small mt-2" data-report-sort-status></div>
+  </div>
+ </div>
+</details>

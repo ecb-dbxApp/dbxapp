@@ -1,0 +1,26 @@
+<h4>Propósito</h4>
+<p>DD Sync compara los archivos DataDictionary ()<code>*.dd.php</code>con la estructura de bases de datos físicas.</p>
+
+<h4>Sincronización</h4>
+<div class="help-flow">DD file (source) DB table (target)
+.
+- Campo desaparecido en DB - ► ALTER / CREATE
+- Campo desaparecido en DD - ► Advertencia / revisión
+- Aplicar paso a paso -► terminado</div>
+
+<h4>Procedimiento</h4>
+<ol>
+<li>Seleccione el módulo/DD en la lista.</li>
+<li>Verifique el plan de sincronización (campos perdidos, índices, tipos).</li>
+<li><em>Aplicar</em> Realizar gradualmente, sin reiniciar ciegamente en la producción.</li>
+<li>Luego prueba DB Sync (acceso de datos).</li>
+</ol>
+
+<h4>Oportunidades</h4>
+<ul>
+<li>Sincronizar DD individual o todos los módulos.</li>
+<li>Comparación de campo (objeto de menú separado) para el desvío de detalles.</li>
+<li>Backup/Restore vía DD menu (antes de cambios estructurales).</li>
+</ul>
+
+<div class="help-example"><strong>Ejemplo:</strong> Nuevo campo <code>reply_status</code> dentro <code>contactRequest.dd.php</code> → DD Sync muestra campo pendiente → Aplicar → columna creada en MySQL.</div>

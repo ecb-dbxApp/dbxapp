@@ -1,0 +1,37 @@
+<h4>Proceso de unión</h4>
+<p>Binding describe la conexión técnica entre una definición de flujo de trabajo y un módulo de materia existente. Se almacena como JSON y más <code>modul|bind_key</code> referenciado.</p>
+
+<h4>Empieza con el generador</h4>
+<ol>
+<li>Introduzca el nombre del módulo.</li>
+<li>Seleccione un DD del módulo.</li>
+<li>Cree el marco básico y luego pruebe el JSON.</li>
+<li>Guardar clave única, título comprensible y estado activo.</li>
+</ol>
+
+<h4>Principales esferas</h4>
+<div class="help-flow">registro → Fach-DD y necesidad con el ID de conjunto de datos
+necesita[] → Selección, opciones de campo, preocupación y contexto por paso
+end[]→ permitió el cambio de tema y la acción opcional de seguimiento</div>
+
+<div class="help-example"><strong>Ejemplo simplificado:</strong>
+<pre class="help-flow">{
+  "record": {"dd": "dbxContact|contactRequest", "id_need": "contact_request"},
+  "needs": {
+    "contact_request": {"type": "dd_select", "label": "{subject}"},
+    "status": {"type": "dd_field_options", "field": "status"}
+  },
+  "finish": {
+    "type": "dd_update",
+    "map": {"status": "status"}
+  }
+}</pre></div>
+
+<h4>Compruebe antes de la activación</h4>
+<ul>
+<li>¿Existe DD, nombres de campo y plantillas?</li>
+<li>Shows <code>id_need</code> ¿Un paso de la definición de flujo de trabajo?</li>
+<li>¿Se consideran suficientemente estrictos los filtros de selección y los derechos de configuración de datos?</li>
+<li>Modificado <code>finish</code> ¿Sólo los campos designados?</li>
+<li>¿El correo o una acción externa sólo se ejecuta después de un cambio exitoso?</li>
+</ul>

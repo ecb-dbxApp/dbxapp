@@ -1,0 +1,26 @@
+<h4>Zweck</h4>
+<p>DD Sync vergleicht DataDictionary-Dateien (<code>*.dd.php</code>) mit der physischen Datenbankstruktur.</p>
+
+<h4>Sync-Ablauf</h4>
+<div class="help-flow">DD-Datei (Quelle)     DB-Tabelle (Ziel)
+      │                      │
+      ├─ Feld fehlt in DB ──► ALTER / CREATE
+      ├─ Feld fehlt in DD ──► Warnung / Review
+      └─ Apply schrittweise ─► finished</div>
+
+<h4>Vorgehensweise</h4>
+<ol>
+<li>Modul/DD in der Liste wählen.</li>
+<li>Sync-Plan prüfen (fehlende Felder, Indizes, Typen).</li>
+<li><em>Apply</em> schrittweise ausführen — kein blindes Reset in Produktion.</li>
+<li>Danach DB Sync testen (Datenzugriff).</li>
+</ol>
+
+<h4>Möglichkeiten</h4>
+<ul>
+<li>Einzelnes DD oder alle Module synchronisieren.</li>
+<li>Feldvergleich (separater Menüpunkt) für Detail-Diff.</li>
+<li>Backup/Restore über DD-Menü (vor strukturellen Änderungen).</li>
+</ul>
+
+<div class="help-example"><strong>Beispiel:</strong> Neues Feld <code>reply_status</code> in <code>contactRequest.dd.php</code> → DD Sync zeigt pending Feld → Apply → Spalte in MySQL angelegt.</div>

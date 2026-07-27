@@ -1,0 +1,54 @@
+<?php
+$messages = array();
+$messages['save_success'] = 'Los datos se guardaron';
+$messages['save_succeass'] = $messages['save_success'];
+$messages['save_error'] = 'Los datos no se pudieron guardar';
+$messages['bar_title'] = 'Descargar demo';
+$messages['bar_subtitle'] = 'Reciba por correo electrónico la demo gratuita para Windows';
+$messages['try_limit'] = 'Demasiados intentos fallidos. Espere {sec} segundos y vuelva a intentarlo.';
+$messages['validation_error'] = 'Revise los campos obligatorios resaltados.';
+$messages['send_success'] = 'El enlace de descarga personal se envió a su dirección de correo electrónico.';
+$messages['spam_error'] = 'El enlace de descarga no se envió porque la entrada fue identificada como spam.';
+$messages['spam_field_error'] = 'Posible spam. Revise su entrada.';
+$messages['mail_error'] = 'Ahora no se puede enviar el enlace de descarga por correo electrónico. Inténtelo de nuevo más tarde.';
+$messages['email_field_error'] = 'No se pudo enviar el correo electrónico.';
+$messages['sent_to'] = 'El enlace de descarga se envió a {email}.';
+
+
+$field = array();
+$field['name'] = 'name';
+$field['type'] = 'varchar';
+$field['index'] = '';
+$field['length'] = '160';
+$field['default'] = '';
+$field['label'] = 'Nombre';
+$field['rules'] = 'varchar|min=2|max=160';
+$field['tooltip'] = '';
+$field['errormsg'] = 'Por favor, escriba un nombre.';
+$field['placeholder'] = 'Su nombre';
+$field['convert'] = '';
+$field['protect'] = '0';
+$field['mask'] = '';
+$field['data'] = '';
+$field['options'] = '';
+$field['tpl'] = 'text-label';
+$fields[] = $field;
+
+$field = array();
+$field['name'] = 'email';
+$field['type'] = 'varchar';
+$field['index'] = '';
+$field['length'] = '180';
+$field['default'] = '';
+$field['label'] = 'E-mail';
+$field['rules'] = 'email|min=6|max=180';
+$field['tooltip'] = '';
+$field['errormsg'] = 'Por favor, introduzca una dirección de correo electrónico válida.';
+$field['placeholder'] = 'name@example.org';
+$field['convert'] = '';
+$field['protect'] = '0';
+$field['mask'] = '';
+$field['data'] = '';
+$field['options'] = '';
+$field['tpl'] = 'text-label';
+$fields[] = $field;

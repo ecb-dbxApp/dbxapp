@@ -1,0 +1,24 @@
+<?php
+$messages = array();
+$messages['save_success'] = 'Los datos se guardaron';
+$messages['save_succeass'] = $messages['save_success'];
+$messages['save_error'] = 'Los datos no se pudieron guardar';
+$messages['bar_title'] = 'Panel de administración';
+$messages['bar_subtitle'] = 'Estado del sistema, bases de datos y actividad';
+$messages['status_timestamp'] = 'Estado';
+$messages['performance_aria'] = 'Valores medios de rendimiento';
+$messages['system_status_label'] = 'Estado del sistema';
+$messages['health_ok'] = 'OK';
+$messages['health_error'] = 'ERROR';
+$messages['error_log_title'] = 'Se ha detectado un error del sistema';
+$messages['error_log_subtitle'] = 'El archivo files/dbxError.log existe. El estado del sistema seguirá indicando un error hasta que se elimine completamente el registro.';
+$messages['error_log_file_label'] = 'Registro de errores';
+$messages['error_log_bytes'] = 'bytes';
+$messages['error_log_delete_label'] = 'Eliminar el registro de errores';
+$messages['error_log_delete_title'] = 'Eliminar completamente el registro de errores';
+$messages['error_log_delete_confirm'] = '¿Desea eliminar completamente el archivo files/dbxError.log?';
+$messages['error_log_delete_hint'] = 'Todo el contenido se eliminará de forma irreversible.';
+$messages['error_log_deleted'] = 'El registro de errores se eliminó completamente.';
+$messages['error_log_empty'] = 'El registro de errores ya se ha eliminado.';
+$messages['error_log_delete_error'] = 'No se pudo eliminar el registro de errores.';
+$messages['error_log_read_error'] = 'No se pudo leer el contenido del registro de errores.';

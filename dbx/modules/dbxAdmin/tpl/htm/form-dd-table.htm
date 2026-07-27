@@ -1,0 +1,68 @@
+<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper">  
+ <div class="row">  
+     <div class="col">{obj:report_dd}</div>    
+ </div>  
+
+
+
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">  
+
+  
+ <div class="row">  
+ <div class="col">{obj:form_msg}[dbx:form]</div>  
+ </div>  
+ 
+ <div class="row">  
+     <div class="col-md-4 mb-3">{obj:datadic}</div>    
+     <div class="col-md-4 mb-3">{obj:csv}</div>  
+     <div class="col-md-4 mb-3">{obj:autosync}</div>  
+ </div>  
+  
+ <div class="row">  
+     <div class="col-md-4 mb-3">{obj:server}</div>  
+     <div class="col-md-4 mb-3">{obj:table}</div>  
+     <div class="col-md-4 mb-3">{obj:version}</div>  
+ </div>  
+ 
+  <div class="row">  
+     <div class="col-md-4 mb-3">{obj:primary}</div>  
+     <div class="col-md-4 mb-3">{obj:update_sql}</div>  
+     <div class="col-md-4 mb-3">{obj:default_sort}</div>  
+ </div>  
+ 
+ 
+ <div class="row">  
+    <div class="col-md-4 mb-3">{obj:cache}</div>  
+    <div class="col-md-4 mb-3">{obj:trace}</div>  
+    <div class="col-md-4 mb-3">{obj:trash}</div>  
+ </div>  
+ <div class="row">  
+    <div class="col-md-6 mb-6">{obj:read}</div>  
+    <div class="col-md-6 mb-6">{obj:create}</div>  
+ </div>  
+ <div class="row">  
+    <div class="col-md-6 mb-6">{obj:update}</div>  
+    <div class="col-md-6 mb-6">{obj:delete}</div>  
+ </div>  
+ <div class="row">  
+    <div class="col-md-6 mb-6">{obj:read_owner}</div>  
+    <div class="col-md-6 mb-6">{obj:create_owner}</div>  
+ </div>  
+ <div class="row">  
+    <div class="col-md-6 mb-6">{obj:update_owner}</div>  
+    <div class="col-md-6 mb-6">{obj:delete_owner}</div>  
+ </div>  
+ <div class="row">  
+    <div class="col"><hr/></div>  
+ </div>  
+ <div class="row">  
+ <div class="col">  
+ <button class="btn btn-primary btn-lg btn-block" type="submit">DataDictonary speichern</button>  
+ </div>  
+ </div>  
+ [dbx:js]  
+ </form>  
+ <div class="row">  
+    <div class="col">{obj:dd_fields}</div>  
+ </div> 
+</div>

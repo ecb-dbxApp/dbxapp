@@ -1,0 +1,82 @@
+<div id="{frame_id}" class="dbx-panel {frame_panel_class}" {frame_panel_attrs}>
+<div class="dbx-bar {bar_class}">
+ <div class="dbx-bar-title {bar_title_class}">
+  {bar_title_pre}
+<i class="bi {bar_icon}"></i>
+<span class="dbx-module-bar-copy">
+ <span class="dbx-module-bar-heading"{bar_title_heading_attrs}>{bar_title}</span>
+ <span class="dbx-module-bar-subtitle">{bar_subtitle}</span>
+</span>
+
+
+ </div>
+
+ <div class="dbx-bar-actions d-flex align-items-center gap-2 {bar_actions_class}">
+  {bar_actions}{bar_extra}
+ </div>
+</div>
+
+
+{frame_form_open}
+{frame_subbar}
+
+<div class="dbx-panel-body {frame_body_class}">
+{frame_body_head}
+
+
+ <span class="d-none dbx-win-preload"></span>
+ <div class="dbx-bar dbx-grid-bar"><div class="dbx-grid-bar-left">{grid_stats}<div class="dbx-grid-toolgroup">{dbx_search}<div class="form-check d-flex align-items-center gap-1" title="Autosave" data-dbx-role="autosave"><input class="form-check-input" type="checkbox" checked data-dbx="grid-autosave"><i class="bi bi-cloud-check"></i></div><div class="form-check d-flex align-items-center gap-1" title="Linien" data-dbx-role="gridlines"><input class="form-check-input" type="checkbox" checked data-dbx="grid-lines"><i class="bi bi-border-all"></i></div><div class="d-flex align-items-center" title="Hoehe" data-dbx-role="height"><input type="range" class="dbx-grid-height" data-dbx="grid-height"></div><div data-dbx-role="insert"><button class="btn btn-success btn-sm" data-dbx="grid-insert" title="Neuen Datensatz anlegen"><i class="bi bi-plus-lg"></i></button></div><div data-dbx-role="save"><button class="btn btn-outline-primary btn-sm" data-dbx="grid-save" title="Speichern"><i class="bi bi-save"></i></button></div><div data-dbx-role="reset"><button class="btn btn-outline-secondary btn-sm" data-dbx="grid-reset" title="Layout zuruecksetzen"><i class="bi bi-layout-text-window-reverse"></i></button></div><div data-dbx-role="columns"><button class="btn btn-secondary btn-sm" data-dbx="grid-columns" title="Spalten"><i class="bi bi-layout-three-columns"></i></button></div><div data-dbx-role="export-excel"><button class="btn btn-success btn-sm" data-dbx="grid-export-excel" title="Excel Export"><i class="bi bi-file-earmark-excel"></i></button></div><div data-dbx-role="export-pdf"><button class="btn btn-outline-danger btn-sm" data-dbx="grid-export-pdf" title="PDF Export"><i class="bi bi-file-earmark-pdf"></i></button></div><div data-dbx-role="reload"><button class="btn btn-outline-secondary btn-sm" data-dbx="grid-reload" title="Neu laden"><i class="bi bi-arrow-clockwise"></i></button></div><div class="dbx-grid-sync small text-muted d-flex align-items-center" title="Sync-Status" data-dbx-role="syncstatus"><span class="dbx-grid-sync-led"></span><span class="dbx-grid-sync-count">000</span></div></div></div><div class="dbx-grid-bar-right" data-dbx-role="pagination-bar"><div class="dbx-grid-pagination-counter small text-muted" data-dbx-role="pagination-counter"></div><div class="dbx-grid-pagination" data-dbx-role="pagination-controls"></div></div></div>
+
+ <div id="{grid_id}"
+      data-dbx="
+       lib=grid
+       |id={grid_id}
+       |layout={grid_layout}
+       |height={grid_height}
+       |minHeight=420
+       |maxHeight=900
+       |heightMin=420
+       |heightMax=900
+       |heightStep=60
+       |cols={grid_cols}
+       |read={read_url}
+       |save={save_url}
+       |delete={delete_url}
+       |insert={insert_url}
+       |allowDelete=1
+       |allowEdit=1
+       |allowInsert=1
+       |movableColumns=1
+       |resizableColumns=1
+       |headerFilter=0
+       |headerSort=1
+       |pagination=1
+       |paginationMode=local
+       |pageSize=15
+       |pageSizeSelector=1,5,15,25,50,100,*
+       |paginationControls=1
+       |paginationCounter=rows
+       |searchMode=local
+       |searchPlaceholder=Suche
+       |showSearch=1
+       |showAutosave=1
+       |showGridLines=1
+       |showHeight=0
+       |showReload=1
+       |showReset=1
+       |showSave=1
+       |showInsert=1
+       |showColumns=1
+       |showSyncStatus=1
+       |showExportExcel=1
+       |showExportPdf=0
+       |exportFileName=benutzergruppen
+       |exportSheetName=Gruppen
+      ">
+ </div>
+{frame_body_tail}
+</div>
+
+{frame_form_close}
+
+</div>

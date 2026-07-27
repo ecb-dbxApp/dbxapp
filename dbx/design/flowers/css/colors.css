@@ -1,0 +1,81 @@
+:root {
+    --fleurop-forest-950: #13281d;
+    --fleurop-forest-900: #193425;
+    --fleurop-forest-800: #244a36;
+    --fleurop-forest-700: #315f47;
+    --fleurop-leaf: #557d45;
+    --fleurop-leaf-light: #8da66a;
+    --fleurop-sage: #c9d2b1;
+    --fleurop-cream: #f8f2e5;
+    --fleurop-paper: #fffaf0;
+    --fleurop-paper-warm: #f1e5cf;
+    --fleurop-wood: #6d4932;
+    --fleurop-wood-dark: #3d281d;
+    --fleurop-copper: #b86f42;
+    --fleurop-copper-dark: #844726;
+    --fleurop-copper-light: #dea27a;
+    --fleurop-rose: #b95f72;
+    --fleurop-ink: #273029;
+    --fleurop-muted: #6d756c;
+
+    --dbx-primary: var(--fleurop-copper);
+    --dbx-primary-hover: var(--fleurop-copper-dark);
+    --dbx-secondary: var(--fleurop-leaf);
+    --dbx-success: #4f7a48;
+    --dbx-warning: #c58a3a;
+    --dbx-danger: #a64845;
+    --dbx-info: #5b8175;
+
+    --dbx-text-main: var(--fleurop-ink);
+    --dbx-text-muted: var(--fleurop-muted);
+    --dbx-text-link: var(--fleurop-copper-dark);
+    --dbx-bg-body: var(--fleurop-cream);
+    --dbx-bg-main: var(--fleurop-cream);
+    --dbx-bg-panel: var(--fleurop-paper);
+    --dbx-bg-muted: var(--fleurop-paper-warm);
+    --dbx-bg-footer: #e9ddc8;
+    --dbx-border-color: #d6c6a9;
+    --dbx-border-light: #e7dcc7;
+    --dbx-border-dark: #94795f;
+    --dbx-focus-ring: rgba(184, 111, 66, .28);
+
+    --dbx-input-bg: rgba(255, 252, 244, .96);
+    --dbx-input-bg-focus: #fffefa;
+    --dbx-input-bg-disabled: #eee7da;
+    --dbx-panel-bg-top: #fffdf7;
+    --dbx-panel-bg-bottom: #f7efdf;
+    --dbx-panel-bg-base: var(--fleurop-paper);
+    --dbx-panel-inner-bg-top: #fffefa;
+    --dbx-panel-inner-bg-bottom: #f8f0e2;
+    --dbx-panel-border: #d4c09f;
+    --dbx-panel-border-light: #e6d8bf;
+    --dbx-panel-border-strong: #aa8a68;
+    --dbx-panel-head-bg-top: #e8dec8;
+    --dbx-panel-head-bg-bottom: #d8c7a9;
+    --dbx-panel-head-border: #bca17c;
+    --dbx-panel-head-text: #3c352d;
+    --dbx-panel-inset-highlight: rgba(255,255,255,.78);
+    --dbx-panel-inset-shadow: rgba(72,48,30,.14);
+    --dbx-panel-row-highlight: rgba(255,255,255,.52);
+    --dbx-bar-icon-color: var(--fleurop-copper-dark);
+    --dbx-bar-meta-color: #746353;
+
+    --dbx-window-radius: 18px 7px 18px 7px;
+    --dbx-shadow-sm: 0 4px 12px rgba(57, 38, 25, .10);
+    --dbx-shadow-md: 0 12px 30px rgba(47, 31, 21, .15);
+    --dbx-shadow-lg: 0 22px 55px rgba(31, 24, 18, .22);
+    --dbx-shell-max-width: 1480px;
+
+    --bs-primary: var(--dbx-primary);
+    --bs-secondary: var(--dbx-secondary);
+    --bs-success: var(--dbx-success);
+    --bs-warning: var(--dbx-warning);
+    --bs-danger: var(--dbx-danger);
+    --bs-info: var(--dbx-info);
+    --bs-body-color: var(--dbx-text-main);
+    --bs-body-bg: var(--dbx-bg-body);
+    --bs-border-color: var(--dbx-border-color);
+    --bs-link-color: var(--dbx-text-link);
+    --bs-link-hover-color: var(--dbx-primary);
+    --bs-focus-ring-color: var(--dbx-focus-ring);
+}

@@ -1,0 +1,24 @@
+<?php
+$messages = array();
+$messages['save_success'] = 'Data was saved';
+$messages['save_succeass'] = $messages['save_success'];
+$messages['save_error'] = 'Data could not be saved';
+$messages['bar_title'] = 'Admin dashboard';
+$messages['bar_subtitle'] = 'System status, databases and activity';
+$messages['status_timestamp'] = 'As of';
+$messages['performance_aria'] = 'Performance averages';
+$messages['system_status_label'] = 'System status';
+$messages['health_ok'] = 'OK';
+$messages['health_error'] = 'ERROR';
+$messages['error_log_title'] = 'System error detected';
+$messages['error_log_subtitle'] = 'The file files/dbxError.log exists. The system status remains in error until the log has been deleted completely.';
+$messages['error_log_file_label'] = 'Error log';
+$messages['error_log_bytes'] = 'bytes';
+$messages['error_log_delete_label'] = 'Delete error log';
+$messages['error_log_delete_title'] = 'Delete the complete error log';
+$messages['error_log_delete_confirm'] = 'Do you really want to delete the complete files/dbxError.log file?';
+$messages['error_log_delete_hint'] = 'The entire content will be removed permanently.';
+$messages['error_log_deleted'] = 'The complete error log was deleted.';
+$messages['error_log_empty'] = 'The error log has already been deleted.';
+$messages['error_log_delete_error'] = 'The error log could not be deleted.';
+$messages['error_log_read_error'] = 'The error log content could not be read.';

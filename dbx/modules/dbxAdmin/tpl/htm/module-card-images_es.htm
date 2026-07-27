@@ -1,0 +1,38 @@
+<div class="dbx-module-images-panel" data-modul="{xmodul}" data-add-url="{images_add_url}" data-module-upload-url="{images_upload_url}" data-remove-url="{images_remove_url}" data-symbol-add-url="{symbol_add_url}" data-symbol-media-url="{symbol_media_url}" data-symbol-upload-url="{symbol_upload_url}" data-symbol-mediafolders-url="{symbol_mediafolders_url}" data-symbol-mediafoldercreate-url="{symbol_mediafoldercreate_url}" data-symbol-mediafolderdelete-url="{symbol_mediafolderdelete_url}" data-symbol-deletemedia-url="{symbol_deletemedia_url}" data-uses-run2="{uses_run2}" data-placeholder-url="{placeholder_url}" data-placeholder-alt="{placeholder_alt}" data-default-run1="{default_run1}" data-default-run2="{default_run2}">
+ <div class="dbx-module-images-layout">
+  <div class="dbx-module-symbol-side">
+   <div class="dbx-module-symbol-preview" data-module-symbol-preview>
+{symbol_preview_html}
+   </div>
+   <button type="button" class="btn btn-outline-primary btn-sm dbx-module-symbol-pick dbx-module-images-browser-btn" title="Seleccionar la imagen de símbolo de los medios del CMS">
+    <i class="bi bi-image"></i><span>Imagen simbólica</span>
+   </button>
+  </div>
+  <div class="dbx-module-images-side-gallery">
+   <div class="dbx-module-images-gallery-head">
+    <div class="dbx-module-images-run-fields">
+     <label class="dbx-module-images-run-field">
+      <span>dbx_run1</span>
+      <input type="text" class="form-control form-control-sm dbx-module-images-run1" list="{run1_list_id}" value="{default_run1}" placeholder="p. ej., lista" title="dbx_run1 para el nombre del archivo y la llamada al módulo" required>
+     </label>
+     <label class="dbx-module-images-run-field">
+      <span>dbx_run2</span>
+      <input type="text" class="form-control form-control-sm dbx-module-images-run2" value="{default_run2}" placeholder="opcional" title="dbx_run2 para el nombre del archivo y la llamada al módulo">
+     </label>
+    </div>
+    <div class="dbx-module-images-gallery-actions">
+     <span class="badge text-bg-light border dbx-module-images-count">{image_count}</span>
+     <button type="button" class="btn btn-outline-primary btn-sm dbx-module-images-pick dbx-module-images-browser-btn" title="Administrar la imagen de llamada en el navegador de medios">
+      <i class="bi bi-images"></i><span>Imagen de llamada</span>
+     </button>
+    </div>
+   </div>
+   <datalist id="{run1_list_id}">
+{run1_options_html}
+   </datalist>
+   <div class="dbx-module-images-list" data-module-images-list>
+{images_gallery_html}
+   </div>
+  </div>
+ </div>
+</div>

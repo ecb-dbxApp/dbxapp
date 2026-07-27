@@ -1,0 +1,27 @@
+<form action="{action}" method="post" class="dbxAjax" data-target="{target_id}">
+  {obj:form_msg}
+  <input type="hidden" name="workflow_finish" value="1">
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <div class="border rounded p-3 h-100 bg-light">
+        <div class="text-muted small text-uppercase fw-semibold">Pruefung</div>
+        <h3 class="h5 mt-1 mb-2">{result_label}</h3>
+        <p class="text-muted mb-0">Alle Pflichtangaben sind vorhanden. Der Workflow kann abgeschlossen werden.</p>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      {final_status}
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <tbody>{rows}</tbody>
+        </table>
+      </div>
+      <div class="d-flex justify-content-end">
+        <button class="btn btn-success" type="submit">
+          <i class="bi bi-check2-circle"></i> {finish_label}
+        </button>
+      </div>
+    </div>
+  </div>
+  [dbx:form]
+</form>

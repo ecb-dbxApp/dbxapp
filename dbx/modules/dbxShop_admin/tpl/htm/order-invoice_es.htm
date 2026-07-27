@@ -1,0 +1,36 @@
+<section id="dbx_shop_invoice_{i}" class="dbx-shop-invoice p-4 bg-white">
+ <div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+   <h2>Factura</h2>
+   <strong>{invoice_no}</strong><br>
+   <small>{invoice_date}</small>
+  </div>
+  <button class="btn btn-outline-primary btn-sm noPrint" type="button"
+          data-dbx="lib=print|target=#dbx_shop_invoice_{i}|format=A4|orientation=portrait|margin=12mm">
+   <i class="bi bi-printer"></i> Impresión
+  </button>
+ </div>
+ <dl class="dbx-shop-order-meta mb-4">
+  <dt>Orden</dt><dd>{order_no}</dd>
+  <dt>Cliente</dt><dd>{customer_name}<br>{customer_email}</dd>
+  <dt>Dirección de entrega</dt><dd>{shipping_address}</dd>
+ </dl>
+ <div class="table-responsive">
+  <table class="table table-sm table-bordered">
+   <thead>
+    <tr>
+     <th>Artículo 1</th>
+     <th class="text-end">Cantidad</th>
+     <th class="text-end">Precio único</th>
+     <th class="text-end">IVA</th>
+     <th class="text-end">Total</th>
+    </tr>
+   </thead>
+   <tbody>{rows}</tbody>
+   <tfoot>
+    <tr><th colspan="4" class="text-end">Total</th><th class="text-end">{total_gross}</th></tr>
+   </tfoot>
+  </table>
+ </div>
+ <p class="text-muted small">Este recibo se basa en la instantánea del pedido guardado. Información legal requerida y rango de número por favor cheque final antes de la operación en vivo.</p>
+</section>

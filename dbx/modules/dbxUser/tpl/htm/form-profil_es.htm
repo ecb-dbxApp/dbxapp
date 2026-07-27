@@ -1,0 +1,65 @@
+[tpl=dbx|form-shell-head]
+ <div class="row g-3 align-items-start">
+  <div class="col-lg-9">
+   <div class="row d-none" aria-hidden="true">
+    <div class="col">{obj:obs_rid}{obj:form-profil}</div>
+   </div>
+
+   <section class="dbx-form-group">
+    <div class="dbx-form-group-head">
+     <h5>Datos personales</h5>
+    </div>
+    <div class="row g-3">
+     <div class="col-md-4">{obj:name}</div>
+     <div class="col-md-4">{obj:name2}</div>
+     <div class="col-md-4">{obj:email}</div>
+    </div>
+   </section>
+
+   <section class="dbx-form-group">
+    <div class="dbx-form-group-head">
+     <h5>Comunicación</h5>
+    </div>
+    <div class="row g-3">
+     <div class="col-md-6">{obj:telefon}</div>
+     <div class="col-md-6">{obj:handy}</div>
+    </div>
+   </section>
+
+   <section class="dbx-form-group">
+    <div class="dbx-form-group-head">
+     <h5>Dirección</h5>
+    </div>
+    <div class="row g-3">
+     <div class="col-md-9">{obj:strasse}</div>
+     <div class="col-md-3">{obj:land}</div>
+     <div class="col-md-3">{obj:plz}</div>
+     <div class="col-md-9">{obj:ort}</div>
+    </div>
+   </section>
+
+   <section class="dbx-form-group">
+    <div class="dbx-form-group-head">
+     <h5>Apariencia</h5>
+    </div>
+    <div class="row g-3">
+     <div class="col-md-4">{obj:language}</div>
+     <div class="col-md-4">{obj:design}</div>
+     <div class="col-md-4">{obj:color}</div>
+    </div>
+   </section>
+  </div>
+  <div class="col-lg-3">
+   {obj:avatar}
+   <section class="dbx-form-group mt-3">
+    <div class="dbx-form-group-head">
+     <h5>Contraseña</h5>
+    </div>
+    <div class="row g-3">
+     <div class="col-12">{obj:password_new}</div>
+     <div class="col-12">{obj:password_new2}</div>
+    </div>
+   </section>
+  </div>
+ </div>
+[tpl=dbx|form-shell-foot]

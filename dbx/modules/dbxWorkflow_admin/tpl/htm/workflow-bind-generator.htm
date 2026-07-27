@@ -1,0 +1,19 @@
+<div id="dbxForm_{i}" class="border rounded p-3 mb-3 bg-light dbxForm_wrapper">
+  <div class="fw-semibold mb-2">Binding automatisch erzeugen</div>
+  <p class="small text-muted mb-2">Scannt DD-Felder und vorhandene Summary-Templates des Moduls. Das Modul selbst bleibt workflow-frei.</p>
+  <form action="{action}" method="post" class="row g-2 align-items-end dbxAjax" data-target="dbxForm_{i}">
+    <div class="col-12">{obj:form_msg}</div>
+    <div class="col-md-3">
+      {obj:gen_modul}
+    </div>
+    <div class="col-md-5">
+      {obj:gen_dd}
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-sm btn-outline-primary" type="submit">
+        <i class="bi bi-magic"></i> Binding generieren
+      </button>
+    </div>
+    [dbx:form]
+  </form>
+</div>

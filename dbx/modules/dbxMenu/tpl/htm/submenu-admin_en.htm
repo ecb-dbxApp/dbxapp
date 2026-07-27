@@ -1,0 +1,24 @@
+<li><a class="nav-link" href="?">Home</a></li>
+<li><a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=run">Admin</a></li>
+<li class="dropdown"><a href="#0"><span>Design</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="{self}dbx_design=desktop">Desktop</a></li>
+ <li><a class="nav-link" href="{self}dbx_design=mobile">Mobile</a></li>
+ </ul>
+</li>
+<li class="dropdown"><a href="#0"><span>Sparrow</span>
+ <i class="bi bi-chevron-down"></i></a>
+ <ul>
+ <li><a class="nav-link" href="{self}dbx_lng=de">German</a></li>
+ <li><a class="nav-link" href="{self}dbx_lng=en">English</a></li>
+ </ul>
+</li>
+
+
+<li class="dropdown dbx-edit-menu-slot {edit_state_class}">
+ <a class="nav-link dbxEditToggle" href="#" title="{edit_toggle_title}"><i class="bi bi-pencil"></i><span>{edit_level}</span></a>
+ <ul>
+  {edit_level_menu}
+ </ul>
+</li>

@@ -1,0 +1,384 @@
+<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-module-wizard">
+   <form action="?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_new&dbx_target=dbx_target_{i}" method="post" class="dbxAjax" id="dbxForm_{i}">
+      <div id="dbxform-{i}" class="dbx_form">
+         [tpl=dbx|module-bar]
+
+         <style>
+         .dbx-module-wizard-shell {
+            --wizard-blue: #1475ff;
+            --wizard-blue-dark: #0b57c8;
+            --wizard-cyan: #19bde8;
+            --wizard-ink: #14345a;
+            --wizard-muted: #60758d;
+            --wizard-line: rgba(72, 139, 219, .24);
+            --wizard-soft: rgba(221, 239, 255, .72);
+            width: min(100%, 1920px);
+            margin-inline: auto;
+            padding: 1rem;
+         }
+         .dbx-module-wizard-grid {
+            display: grid;
+            grid-template-columns: minmax(270px, .42fr) minmax(0, 1fr);
+            gap: 1rem;
+            align-items: stretch;
+         }
+         .dbx-module-wizard-assistant,
+         .dbx-module-wizard-work {
+            border: 1px solid var(--wizard-line);
+            border-radius: 18px;
+            background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(223,239,255,.76));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.96), 0 18px 38px rgba(24, 79, 142, .14);
+            overflow: hidden;
+         }
+         .dbx-module-wizard-assistant {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            min-height: 620px;
+         }
+         .dbx-module-wizard-ai-head {
+            display: grid;
+            grid-template-columns: 54px minmax(0, 1fr);
+            gap: .75rem;
+            align-items: center;
+            padding: 1rem;
+            color: #fff;
+            background: linear-gradient(135deg, var(--wizard-blue), var(--wizard-blue-dark));
+            border-bottom: 1px solid rgba(255,255,255,.32);
+         }
+         .dbx-module-wizard-ai-orb {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            background: rgba(255,255,255,.18);
+            border: 1px solid rgba(255,255,255,.36);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.38);
+            font-size: 1.6rem;
+         }
+         .dbx-module-wizard-ai-head h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 850;
+            line-height: 1.15;
+         }
+         .dbx-module-wizard-ai-head p {
+            margin: .18rem 0 0;
+            color: rgba(255,255,255,.82);
+            font-size: .8rem;
+            line-height: 1.25;
+         }
+         .dbx-module-wizard-visual {
+            padding: 1rem 1rem .65rem;
+            display: grid;
+            gap: .8rem;
+         }
+         .dbx-module-wizard-visual img {
+            width: 100%;
+            max-height: 210px;
+            object-fit: contain;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #eef7ff, #c9e2ff);
+            border: 1px solid rgba(80, 145, 220, .22);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.92);
+         }
+         .dbx-module-wizard-steps {
+            display: grid;
+            gap: .55rem;
+            padding: 0 1rem 1rem;
+         }
+         .dbx-module-wizard-step {
+            display: grid;
+            grid-template-columns: 30px minmax(0, 1fr);
+            gap: .6rem;
+            align-items: start;
+            padding: .72rem;
+            border-radius: 14px;
+            background: rgba(255,255,255,.66);
+            border: 1px solid rgba(74, 134, 206, .16);
+         }
+         .dbx-module-wizard-step i {
+            width: 30px;
+            height: 30px;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 10px;
+            color: #fff;
+            background: linear-gradient(180deg, #5aa9ff, #0d68d8);
+         }
+         .dbx-module-wizard-step strong {
+            display: block;
+            color: var(--wizard-ink);
+            font-size: .86rem;
+            line-height: 1.18;
+         }
+         .dbx-module-wizard-step span {
+            display: block;
+            margin-top: .15rem;
+            color: var(--wizard-muted);
+            font-size: .76rem;
+            line-height: 1.28;
+         }
+         .dbx-module-wizard-guard {
+            margin: 0 1rem 1rem;
+            padding: .75rem;
+            border-radius: 14px;
+            color: #174068;
+            background: rgba(236, 247, 255, .8);
+            border: 1px solid rgba(67, 140, 220, .22);
+            font-size: .78rem;
+            line-height: 1.35;
+         }
+         .dbx-module-wizard-tabs {
+            padding: .75rem .75rem 0;
+            background: linear-gradient(180deg, rgba(216,235,255,.95), rgba(240,248,255,.78));
+            border-bottom: 1px solid var(--wizard-line);
+         }
+         .dbx-module-wizard-tabs .nav-tabs {
+            border: 0;
+            gap: .45rem;
+         }
+         .dbx-module-wizard-tabs .nav-link {
+            border: 1px solid rgba(69, 130, 204, .24);
+            border-radius: 13px 13px 0 0;
+            background: rgba(255,255,255,.58);
+            color: #365d86;
+            font-weight: 780;
+            min-height: 42px;
+         }
+         .dbx-module-wizard-tabs .nav-link.active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--wizard-blue), var(--wizard-blue-dark));
+            border-color: rgba(20, 117, 255, .72);
+            box-shadow: 0 9px 20px rgba(20, 117, 255, .22);
+         }
+         .dbx-module-wizard-body {
+            padding: 1rem;
+         }
+         .dbx-module-wizard-pane {
+            display: none;
+         }
+         .dbx-module-wizard-pane.active {
+            display: block;
+         }
+         .dbx-module-wizard-section {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 16px;
+            background: rgba(255,255,255,.72);
+            border: 1px solid rgba(74, 134, 206, .16);
+         }
+         .dbx-module-wizard-section h4 {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin: 0 0 .85rem;
+            color: var(--wizard-ink);
+            font-size: .98rem;
+            font-weight: 850;
+         }
+         .dbx-module-wizard-section h4 i {
+            color: var(--wizard-blue);
+         }
+         .dbx-module-wizard-hint {
+            margin: -.25rem 0 .85rem;
+            color: var(--wizard-muted);
+            font-size: .8rem;
+            line-height: 1.35;
+         }
+         .dbx-module-wizard-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: .6rem;
+            padding: 1rem;
+            border-top: 1px solid var(--wizard-line);
+            background: rgba(223, 239, 255, .48);
+         }
+         .dbx-module-wizard-actions .btn {
+            min-height: 42px;
+            padding-inline: 1rem;
+            font-weight: 780;
+         }
+         .dbx-module-wizard-fallback {
+            display: none;
+         }
+         @media (max-width: 1100px) {
+            .dbx-module-wizard-grid {
+               grid-template-columns: 1fr;
+            }
+            .dbx-module-wizard-assistant {
+               min-height: 0;
+            }
+         }
+         @media (max-width: 720px) {
+            .dbx-module-wizard-shell {
+               padding: .65rem;
+            }
+            .dbx-module-wizard-body,
+            .dbx-module-wizard-section {
+               padding: .75rem;
+            }
+            .dbx-module-wizard-tabs .nav-link {
+               border-radius: 12px;
+            }
+         }
+         </style>
+
+         <div class="dbx-module-wizard-shell">
+            <div class="form_msg {msg_class} mb-3">{obj:form_msg}</div>
+
+            <div class="dbx-module-wizard-grid">
+               <aside class="dbx-module-wizard-assistant" aria-label="AI assistant">
+                  <div class="dbx-module-wizard-ai-head">
+                     <div class="dbx-module-wizard-ai-orb"><i class="bi bi-stars"></i></div>
+                     <div>
+                        <h3>KI Module Assistant</h3>
+                        <p>Guided structure for module, DD, form, report, backup and AI package.</p>
+                     </div>
+                  </div>
+
+                  <div class="dbx-module-wizard-visual">
+                     <img src="dbx/modules/dbxAdmin/tpl/img/module-wizard-assistant.svg" alt="AI Assistant Module Wizard">
+                  </div>
+
+                  <div class="dbx-module-wizard-steps">
+                     <div class="dbx-module-wizard-step">
+                        <i class="bi bi-box-seam"></i>
+                        <div><strong>Defining the module</strong><span>Create new or expand an existing module in a targeted manner.</span></div>
+                     </div>
+                     <div class="dbx-module-wizard-step">
+                        <i class="bi bi-database-check"></i>
+                        <div><strong>DD and SQLite</strong><span>Create DD, use existing DD and start sync cleanly.</span></div>
+                     </div>
+                     <div class="dbx-module-wizard-step">
+                        <i class="bi bi-layout-text-window"></i>
+                        <div><strong>Form and report</strong><span>Prepare basic structure with service include, FD and template.</span></div>
+                     </div>
+                     <div class="dbx-module-wizard-step">
+                        <i class="bi bi-shield-check"></i>
+                        <div><strong>Backup and AI</strong><span>Secure before changes; AI job remains limited in the module.</span></div>
+                     </div>
+                  </div>
+
+                  <div class="dbx-module-wizard-guard">
+                     AI contracts are over dbxKi and process only existing modules. Create new modules first here, then the dbxKi-Create module order with complete module context.
+                  </div>
+               </aside>
+
+               <section class="dbx-module-wizard-work">
+                  <div class="dbx-module-wizard-tabs">
+                     <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item" role="presentation"><button class="nav-link active" type="button" data-dbx-module-wizard-tab="modul" aria-selected="true"><i class="bi bi-box me-1"></i>Module</button></li>
+                        <li class="nav-item" role="presentation"><button class="nav-link" type="button" data-dbx-module-wizard-tab="dd" aria-selected="false"><i class="bi bi-database me-1"></i>DD/DB</button></li>
+                        <li class="nav-item" role="presentation"><button class="nav-link" type="button" data-dbx-module-wizard-tab="generator" aria-selected="false"><i class="bi bi-ui-checks-grid me-1"></i>Generator</button></li>
+                        <li class="nav-item" role="presentation"><button class="nav-link" type="button" data-dbx-module-wizard-tab="ki" aria-selected="false"><i class="bi bi-stars me-1"></i>AI / Backup</button></li>
+                     </ul>
+                  </div>
+
+                  <div class="dbx-module-wizard-body">
+                     <div class="dbx-module-wizard-pane active" data-dbx-module-wizard-pane="modul">
+                        <section class="dbx-module-wizard-section">
+                           <h4><i class="bi bi-signpost-split"></i>Objective</h4>
+                           <p class="dbx-module-wizard-hint">Please select existing modules over the selection. The free module name is intended for new modules.</p>
+                           <div class="row g-3">
+                              <div class="col-md-4">{obj:target_mode}</div>
+                              <div class="col-md-4">{obj:existing_modul}</div>
+                              <div class="col-md-4">{obj:xmodul}</div>
+                              <div class="col-md-6">{obj:title}</div>
+                              <div class="col-md-3">{obj:default_run1}</div>
+                              <div class="col-md-3">{obj:default_run2}</div>
+                           </div>
+                        </section>
+
+                        <section class="dbx-module-wizard-section">
+                           <h4><i class="bi bi-window-stack"></i>Basic template</h4>
+                           <div class="row g-3">
+                              <div class="col-md-6">{obj:module_template}</div>
+                              <div class="col-md-6">{obj:create_templates}</div>
+                           </div>
+                        </section>
+                     </div>
+
+                     <div class="dbx-module-wizard-pane" data-dbx-module-wizard-pane="dd">
+                        <section class="dbx-module-wizard-section">
+                           <h4><i class="bi bi-table"></i>Data Dictionary</h4>
+                           <p class="dbx-module-wizard-hint">Each DD remains completely in the module. For new DDs, base fields, rights and indexes are generated.</p>
+                           <div class="row g-3">
+                              <div class="col-md-4">{obj:dd_mode}</div>
+                              <div class="col-md-8">{obj:dd_ref}</div>
+                              <div class="col-md-4">{obj:dd_name}</div>
+                              <div class="col-md-4">{obj:table_name}</div>
+                              <div class="col-md-4">{obj:db_file}</div>
+                              <div class="col-md-6">{obj:field_preset}</div>
+                              <div class="col-md-6">{obj:sync_mode}</div>
+                           </div>
+                        </section>
+                     </div>
+
+                     <div class="dbx-module-wizard-pane" data-dbx-module-wizard-pane="generator">
+                        <section class="dbx-module-wizard-section">
+                           <h4><i class="bi bi-code-square"></i>Code and surfaces</h4>
+                           <p class="dbx-module-wizard-hint">The wizard only writes within the module folder. Without overwriting, existing files remain untouched.</p>
+                           <div class="row g-3">
+                              <div class="col-md-6 col-xl-3">{obj:create_include}</div>
+                              <div class="col-md-6 col-xl-3">{obj:create_form}</div>
+                              <div class="col-md-6 col-xl-3">{obj:create_report}</div>
+                              <div class="col-md-6 col-xl-3">{obj:overwrite}</div>
+                           </div>
+                        </section>
+                     </div>
+
+                     <div class="dbx-module-wizard-pane" data-dbx-module-wizard-pane="ki">
+                        <section class="dbx-module-wizard-section">
+                           <h4><i class="bi bi-safe"></i>Credit protection</h4>
+                           <div class="row g-3">
+                              <div class="col-md-6">{obj:backup}</div>
+                              <div class="col-md-6">{obj:ki_package}</div>
+                           </div>
+                        </section>
+
+                        <section class="dbx-module-wizard-section">
+                           <h4><i class="bi bi-stars"></i>AI rules</h4>
+                           <p class="dbx-module-wizard-hint mb-0">The AI mission will be in dbxKi produced. It contains the complete existing module, the module boundary, DD sync rule, ZIP/Restore note and the template rule. dbxTPL/get_tpl. The AI must not touch global files or other modules.</p>
+                        </section>
+                     </div>
+
+                     <div class="dbx-module-wizard-fallback">[dbx:form]</div>
+                  </div>
+
+                  <div class="dbx-module-wizard-actions">
+                     <button class="btn btn-outline-secondary" type="reset"><i class="bi bi-arrow-counterclockwise me-1"></i>Resetting</button>
+                     <button class="btn btn-primary" type="submit"><i class="bi bi-magic me-1"></i>Complete the Module Wizard</button>
+                  </div>
+               </section>
+            </div>
+         </div>
+
+         [dbx:js]
+         <script>
+         (function () {
+            if (window.dbxModuleWizardTabsReady) return;
+            window.dbxModuleWizardTabsReady = true;
+            document.addEventListener('click', function (event) {
+               var button = event.target.closest('[data-dbx-module-wizard-tab]');
+               if (!button) return;
+               var root = button.closest('.dbx-module-wizard-work');
+               if (!root) return;
+               event.preventDefault();
+               var key = button.getAttribute('data-dbx-module-wizard-tab');
+               Array.prototype.forEach.call(root.querySelectorAll('[data-dbx-module-wizard-tab]'), function (tab) {
+                  tab.classList.remove('active');
+                  tab.setAttribute('aria-selected', 'false');
+               });
+               Array.prototype.forEach.call(root.querySelectorAll('[data-dbx-module-wizard-pane]'), function (pane) {
+                  pane.classList.toggle('active', pane.getAttribute('data-dbx-module-wizard-pane') === key);
+               });
+               button.classList.add('active');
+               button.setAttribute('aria-selected', 'true');
+            });
+         })();
+         </script>
+      </div>
+   </form>
+</div>

@@ -1,0 +1,11 @@
+<div class="dbx-report-footer-main">
+ <label class="dbx-report-footer-label" for="{action_id}"><i class="bi bi-lightning-fill"></i><span>Action</span></label>
+ <select id="{action_id}" class="form-select form-select-sm" data-report-action="picker">
+  <option value="">Please choose...</option>
+  {report_action_options}
+ </select>
+ <button type="button" class="btn btn-primary btn-sm" data-report-action="run" title="Execute action"><i class="bi bi-play-fill"></i><span>Execute</span></button>
+ <div class="dbx-report-footer-action-links" hidden>
+  {report_action_links}
+ </div>
+</div>

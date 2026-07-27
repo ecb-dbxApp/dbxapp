@@ -1,0 +1,65 @@
+<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-server-form">
+ <div class="dbx-form-intro d-flex justify-content-between align-items-start gap-3 flex-wrap">
+  <div>
+   <h4 class="mb-1">Servidor DB</h4>
+   <div class="text-muted small">Conexión, base de datos y servidor predeterminado.</div>
+  </div>
+ </div>
+
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
+  <div class="row">
+   <div class="col">{obj:form_msg}</div>
+  </div>
+
+  <div class="row d-none" aria-hidden="true">
+   <div class="col">{obj:old_name}{obj:form-server}</div>
+  </div>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Servidor</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-6">{obj:name}</div>
+    <div class="col-md-6">{obj:type}</div>
+   </div>
+  </section>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Conexión</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-8">{obj:host}</div>
+    <div class="col-md-4">{obj:port}</div>
+    <div class="col-md-12">{obj:dbname}</div>
+   </div>
+  </section>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Credenciales</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-6">{obj:user}</div>
+    <div class="col-md-6">{obj:pass}</div>
+   </div>
+  </section>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Sistema</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-6">{obj:is_default}</div>
+   </div>
+  </section>
+
+  <div class="dbx-form-bottom-actions text-end">
+   <button class="btn btn-primary" type="submit" title="Guardar servidor de base de datos">
+    <i class="bi bi-save me-1"></i>Guardar servidor de base de datos
+   </button>
+  </div>
+  [dbx:js]
+ </form>
+</div>

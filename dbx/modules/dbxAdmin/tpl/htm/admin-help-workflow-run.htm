@@ -1,0 +1,32 @@
+<h4>Workflow bearbeiten</h4>
+<p>dbxWorkflow führt Sie durch den Definitionsstand, der beim Start dieser Instanz gespeichert wurde. Ziel, Prüfung, Schrittnavigation und Abschluss gehören zu demselben Durchlauf.</p>
+
+<h4>Oberfläche lesen</h4>
+<ul>
+<li><strong>Ziel:</strong> das fachliche Ergebnis des gesamten Ablaufs.</li>
+<li><strong>Prüfung:</strong> zeigt automatisch, welche Pflichtangaben vollständig, offen oder noch gesperrt sind.</li>
+<li><strong>Schritte:</strong> erledigte Schritte können erneut geöffnet werden; gesperrte Schritte warten auf ihre Voraussetzung.</li>
+<li><strong>Fortschritt:</strong> Anteil erledigter, aktuell relevanter Schritte. 100 Prozent werden erst nach erfolgreichem Abschluss gespeichert.</li>
+</ul>
+
+<h4>Einen Schritt erledigen</h4>
+<ol>
+<li>Hinweis, Pflichtstatus und erwartete Angabe lesen.</li>
+<li>Wert auswählen/eingeben oder das angebotene Fachmodul öffnen.</li>
+<li>Änderungen im Fachmodul dort speichern und zum Workflow zurückkehren.</li>
+<li>Bei einem Modulschritt die Erledigung bewusst bestätigen.</li>
+<li><strong>Übernehmen</strong> wählen. Danach ermittelt die Engine den nächsten anwendbaren Schritt.</li>
+</ol>
+
+<h4>Entscheidungen, Automatik und optionale Schritte</h4>
+<ul>
+<li>Eine Entscheidung kann spätere Zweige ein- oder ausblenden.</li>
+<li>Automatische Prüfungen laufen nur, wenn sie als Nächstes anwendbar sind und das Fachmodul ein sicheres Ergebnis liefert.</li>
+<li>Kann eine Automatik nichts eindeutig bestimmen, bleibt der Schritt manuell bearbeitbar.</li>
+<li>Optionale Schritte können bewusst übersprungen werden; dies wird in der Historie festgehalten.</li>
+</ul>
+
+<h4>Prüfen und abschließen</h4>
+<p>Sobald alle anwendbaren Pflichtschritte gültig sind, öffnet sich der Abschluss. Kontrollieren Sie die Zusammenfassung und führen Sie die Finish-Aktion nur einmal aus. Bei Mailversand, Export oder Veröffentlichung zuerst die Erfolgsmeldung des Fachsystems abwarten.</p>
+
+<p><strong>Bei Problemen:</strong> Meldung unter der Schrittnavigation lesen. Vor einem Neustart nach einer externen Aktion prüfen, ob sie beim Provider bereits ausgeführt wurde.</p>

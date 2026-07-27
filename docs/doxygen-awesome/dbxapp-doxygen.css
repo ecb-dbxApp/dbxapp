@@ -1,0 +1,152 @@
+/* dbXapp branding layered on top of Doxygen Awesome v2.4.2. */
+
+html {
+  --primary-color: #1565c0;
+  --primary-dark-color: #0d4e96;
+  --primary-light-color: #78b4f2;
+  --link-color: #0b63ce;
+  --page-background-color: #ffffff;
+  --page-foreground-color: #172033;
+  --page-secondary-foreground-color: #647286;
+  --side-nav-background: #f4f7fb;
+  --side-nav-foreground: #172033;
+  --fragment-background: #f4f7fb;
+  --fragment-foreground: #172033;
+  --separator-color: #d8e0eb;
+  --content-maxwidth: 1320px;
+  --side-nav-fixed-width: 340px;
+  --border-radius-large: 12px;
+  --border-radius-medium: 8px;
+  --border-radius-small: 5px;
+  --dbx-accent: #0a8f88;
+  --dbx-warn: #b76e00;
+  --dbx-panel-background: #f8fbff;
+  --dbx-warning-background: #fff8eb;
+  --dbx-example-background: #fbf9ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light-mode) {
+    --primary-color: #78b7ff;
+    --primary-dark-color: #a8ceff;
+    --primary-light-color: #2e5c8f;
+    --link-color: #8bc1ff;
+    --page-background-color: #181a1d;
+    --page-foreground-color: #edf2f7;
+    --page-secondary-foreground-color: #aeb8c5;
+    --side-nav-background: #202328;
+    --side-nav-foreground: #edf2f7;
+    --fragment-background: #252a31;
+    --fragment-foreground: #edf2f7;
+    --separator-color: #3b424c;
+    --dbx-accent: #42c4bd;
+    --dbx-warn: #ffbd59;
+    --dbx-panel-background: #20262d;
+    --dbx-warning-background: #302719;
+    --dbx-example-background: #272331;
+  }
+}
+
+html.dark-mode {
+  --primary-color: #78b7ff;
+  --primary-dark-color: #a8ceff;
+  --primary-light-color: #2e5c8f;
+  --link-color: #8bc1ff;
+  --page-background-color: #181a1d;
+  --page-foreground-color: #edf2f7;
+  --page-secondary-foreground-color: #aeb8c5;
+  --side-nav-background: #202328;
+  --side-nav-foreground: #edf2f7;
+  --fragment-background: #252a31;
+  --fragment-foreground: #edf2f7;
+  --separator-color: #3b424c;
+  --dbx-accent: #42c4bd;
+  --dbx-warn: #ffbd59;
+  --dbx-panel-background: #20262d;
+  --dbx-warning-background: #302719;
+  --dbx-example-background: #272331;
+}
+
+.contents h1,
+.contents h2,
+.contents h3 {
+  letter-spacing: 0;
+}
+
+#projectwebsite {
+  margin-top: .22rem;
+  font-size: .84rem;
+  font-weight: 650;
+}
+
+#projectwebsite a {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+#projectwebsite a::before {
+  content: "\2197";
+  font-size: .76rem;
+}
+
+#projectwebsite a:hover,
+#projectwebsite a:focus-visible {
+  text-decoration: underline;
+}
+
+.contents h1 {
+  border-bottom: 2px solid var(--primary-light-color);
+  padding-bottom: .35rem;
+}
+
+.contents h2 {
+  margin-top: 2.2rem;
+}
+
+.contents table {
+  width: 100%;
+}
+
+.contents img {
+  max-width: 100%;
+  height: auto;
+}
+
+.dbx-note,
+.dbx-flow,
+.dbx-example,
+.dbx-warning {
+  border: 1px solid var(--separator-color);
+  border-left: 5px solid var(--primary-color);
+  border-radius: var(--border-radius-medium);
+  padding: .9rem 1rem;
+  margin: 1rem 0;
+  background: var(--dbx-panel-background);
+}
+
+.dbx-flow {
+  border-left-color: var(--dbx-accent);
+}
+
+.dbx-warning {
+  border-left-color: var(--dbx-warn);
+  background: var(--dbx-warning-background);
+}
+
+.dbx-example {
+  border-left-color: #8b6bc7;
+  background: var(--dbx-example-background);
+}
+
+@media screen and (max-width: 767px) {
+  html {
+    --content-maxwidth: 100%;
+  }
+
+  .contents {
+    overflow-wrap: anywhere;
+  }
+}

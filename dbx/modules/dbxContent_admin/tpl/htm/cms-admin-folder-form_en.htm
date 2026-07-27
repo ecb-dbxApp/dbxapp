@@ -1,0 +1,36 @@
+<form class="dbx-cms-folder-editor" data-cms-folder-editor hidden>
+ <div class="dbx-bar dbx-module-bar dbx-cms-folder-editor-bar">
+  <div class="dbx-bar-title dbx-module-bar-titleblock">
+   <i class="bi bi-folder2-open" aria-hidden="true"></i>
+   <span class="dbx-module-bar-copy">
+    <strong class="dbx-module-bar-heading" data-cms-folder-title>Folders</strong>
+    <span class="dbx-module-bar-subtitle">Folder structure and reading rights</span>
+   </span>
+  </div>
+  <div class="dbx-bar-actions dbx-module-bar-actions">
+   {bar_extra}
+   <button type="button" class="btn btn-outline-secondary btn-sm" data-cms-folder-close title="Closure" aria-label="Close folder form">
+    <i class="bi bi-x-lg"></i>
+   </button>
+  </div>
+ </div>
+ <div class="dbx-cms-folder-editor-body">
+  {obj:id}
+  <div class="dbx-cms-folder-grid">
+   {obj:name}
+   {obj:parent_id}
+   {obj:template}
+  </div>
+  <div class="dbx-cms-folder-rights">
+   {obj:group_read}
+  </div>
+  <div class="dbx-cms-folder-editor-actions">
+   <button type="button" class="btn btn-outline-danger btn-sm" data-cms-action="delete-folder" data-cms-folder-delete title="Delete the folder">
+    <i class="bi bi-trash"></i><span>Delete</span>
+   </button>
+   <button type="button" class="btn btn-primary btn-sm" data-cms-action="save-folder" title="Store folders">
+    <i class="bi bi-check-lg"></i><span>Save</span>
+   </button>
+  </div>
+ </div>
+</form>

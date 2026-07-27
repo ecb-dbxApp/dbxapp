@@ -1,0 +1,763 @@
+/* =========================================================
+   dbxapp – BASE.CSS (FINAL / STABLE)
+   ========================================================= */
+
+
+/* =========================================================
+   0. GLOBAL BOX MODEL
+   ========================================================= */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   1. BOOTSTRAP COLOR MAPPING
+   ========================================================= */
+
+:root {
+    --bs-primary:   var(--dbx-primary);
+    --bs-secondary: var(--dbx-secondary);
+    --bs-success:   var(--dbx-success);
+    --bs-warning:   var(--dbx-warning);
+    --bs-danger:    var(--dbx-danger);
+    --bs-info:      var(--dbx-info);
+
+    --bs-body-color:        var(--dbx-text-main);
+    --bs-secondary-color:   var(--dbx-text-muted);
+    --bs-link-color:        var(--dbx-text-link);
+    --bs-link-hover-color:  var(--dbx-primary);
+
+    --bs-body-bg:           var(--dbx-bg-body);
+    --bs-secondary-bg:      var(--dbx-bg-muted);
+    --bs-tertiary-bg:       var(--dbx-bg-panel);
+
+    --bs-border-color:      var(--dbx-border-color);
+    --bs-focus-ring-color:  var(--dbx-focus-ring);
+}
+
+
+/* =========================================================
+   1b. GLOBAL INPUT FIELD BACKGROUNDS
+   ========================================================= */
+
+body.dbx-app input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=reset]):not([type=hidden]):not([type=file]):not([type=image]):not([type=range]):not([type=color]),
+body.dbx-app textarea,
+body.dbx-app select,
+body.dbx-app .form-control,
+body.dbx-app .form-select,
+body.dbx-app .fld-frame input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=reset]):not([type=hidden]):not([type=file]):not([type=image]):not([type=range]):not([type=color]),
+body.dbx-app .fld-frame textarea,
+body.dbx-app .fld-frame select {
+    background-color: var(--dbx-input-bg);
+}
+
+body.dbx-app input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=reset]):not([type=hidden]):not([type=file]):not([type=image]):not([type=range]):not([type=color]):focus,
+body.dbx-app textarea:focus,
+body.dbx-app select:focus,
+body.dbx-app .form-control:focus,
+body.dbx-app .form-select:focus,
+body.dbx-app .fld-frame input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=reset]):not([type=hidden]):not([type=file]):not([type=image]):not([type=range]):not([type=color]):focus,
+body.dbx-app .fld-frame textarea:focus,
+body.dbx-app .fld-frame select:focus {
+    background-color: var(--dbx-input-bg-focus);
+}
+
+body.dbx-app input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=reset]):not([type=hidden]):not([type=file]):not([type=image]):not([type=range]):not([type=color]):disabled,
+body.dbx-app input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=reset]):not([type=hidden]):not([type=file]):not([type=image]):not([type=range]):not([type=color])[readonly],
+body.dbx-app textarea:disabled,
+body.dbx-app textarea[readonly],
+body.dbx-app select:disabled,
+body.dbx-app .form-control:disabled,
+body.dbx-app .form-select:disabled,
+body.dbx-app .form-control[readonly],
+body.dbx-app .form-select[readonly] {
+    background-color: var(--dbx-input-bg-disabled);
+}
+
+
+/* =========================================================
+   2. GLOBAL RESET
+   ========================================================= */
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    background-color: var(--dbx-bg-body);
+    color: var(--dbx-text-main);
+
+    font-family: var(--bs-font-sans-serif);
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* =========================================================
+   3. ROOT APP CONTAINER
+   ========================================================= */
+
+#dbxApp {
+    min-height: 100%;
+}
+
+
+/* =========================================================
+   4. SCROLL CONTRACT
+   ========================================================= */
+
+.dbx-content {
+    width: 100%;
+    min-height: 0;
+}
+
+
+/* =========================================================
+   5. LAYOUT MODES
+   ========================================================= */
+
+
+/* ===============================
+   APP MODE
+   =============================== */
+
+body.dbx-app {
+    overflow: hidden;
+}
+
+body.dbx-app #dbxApp {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+body.dbx-app #dbxMain {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+body.dbx-app .dbx-content {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    position: relative;
+}
+
+/* 🔥 WICHTIGER FIX: KEIN flex für container-fluid */
+body.dbx-app .dbx-content > .container-fluid {
+    flex: 1;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: min(var(--dbx-shell-max-width, 1800px), calc(100vw - 24px));
+    width: 100%;
+}
+
+@media (max-width: 767.98px) {
+    body.dbx-app .dbx-content > .container-fluid {
+        max-width: min(var(--dbx-shell-max-width, 1800px), calc(100vw - 8px));
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+    }
+}
+
+#dbxContent img,
+#dbxContent video,
+#dbxContent iframe,
+#dbxContent embed,
+#dbxContent object {
+    max-width: 100%;
+}
+
+#dbxContent img,
+#dbxContent video {
+    height: auto;
+}
+
+
+/* ===============================
+   WEB MODE
+   =============================== */
+
+body.dbx-web {
+    overflow: auto;
+}
+
+body.dbx-web #dbxApp,
+body.dbx-web #dbxMain,
+body.dbx-web .dbx-content {
+    overflow: visible !important;
+}
+
+body.dbx-web .container-fluid {
+    overflow: visible;
+}
+
+body.dbx-web #dbxApp {
+    min-height: 100%;
+    display: block;
+}
+
+body.dbx-web #dbxMain {
+    display: block;
+}
+
+body.dbx-web .dbx-content {
+    display: block;
+}
+
+body.dbx-web .dbx-content > .container-fluid {
+    display: block;
+}
+
+
+/* =========================================================
+   6. FOOTER
+   ========================================================= */
+
+#dbxFooter {
+    background-color: var(--dbx-bg-footer);
+    border-top: 1px solid var(--dbx-border-light);
+}
+
+#dbxFooter.dbx-app-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 34px;
+    padding: 3px 10px;
+    overflow: hidden;
+    font-size: 12px;
+    background: linear-gradient(
+        to bottom,
+        var(--dbx-bg-menu-main-top),
+        var(--dbx-bg-menu-main-bottom)
+    );
+}
+
+.dbx-footer-dockbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.dbx-footer-info {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex: 0 0 auto;
+    min-width: max-content;
+    color: var(--dbx-text-muted);
+    white-space: nowrap;
+}
+
+.dbx-footer-info-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 24px;
+    padding: 0 8px;
+    border: 1px solid rgba(255,255,255,0.55);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.36);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.6),
+        var(--dbx-shadow-sm);
+    line-height: 1;
+}
+
+.dbx-footer-info-item i {
+    color: var(--dbx-primary);
+    font-size: 13px;
+}
+
+.dbx-footer-info-item strong {
+    color: var(--dbx-text-main);
+    font-weight: 600;
+}
+
+.dbx-footer-brand {
+    color: var(--dbx-text-muted);
+}
+
+.dbx-footer-window-close-all {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 26px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.36);
+    color: var(--dbx-text-muted);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.6),
+        var(--dbx-shadow-sm);
+    cursor: pointer;
+}
+
+#dbxFooter.has-open-windows .dbx-footer-window-close-all {
+    display: inline-flex;
+}
+
+.dbx-footer-window-close-all:hover,
+.dbx-footer-window-close-all:focus-visible {
+    border-color: var(--dbx-danger);
+    color: var(--dbx-danger);
+    outline: none;
+}
+
+@media (max-width: 768px) {
+    #dbxFooter.dbx-app-footer {
+        gap: 6px;
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+    .dbx-footer-info {
+        gap: 6px;
+    }
+
+    .dbx-footer-info-item span {
+        display: none;
+    }
+}
+
+
+/* =========================================================
+   7. MAIN
+   ========================================================= */
+
+#dbxMain {
+    background-color: var(--dbx-bg-main);
+}
+
+
+/* =========================================================
+   8. LINKS
+   ========================================================= */
+
+a {
+    color: var(--dbx-text-link);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--dbx-primary);
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   9. UTILITIES
+   ========================================================= */
+
+.dbx-hidden {
+    display: none !important;
+}
+
+.dbx-muted {
+    color: var(--dbx-text-muted);
+}
+
+.dbx-panel {
+    background:
+        linear-gradient(180deg, var(--dbx-panel-bg-top), var(--dbx-panel-bg-bottom)),
+        var(--dbx-panel-bg-base);
+    border: 1px solid var(--dbx-panel-border);
+    border-radius: var(--dbx-window-radius, 8px);
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight),
+        inset 0 -2px 0 var(--dbx-panel-inset-shadow),
+        var(--dbx-shadow-sm);
+}
+
+.dbx-panel-inner {
+    background: linear-gradient(180deg, var(--dbx-panel-inner-bg-top), var(--dbx-panel-inner-bg-bottom));
+    border: 1px solid var(--dbx-panel-border-light);
+    border-radius: calc(var(--dbx-window-radius, 8px) - 2px);
+    box-shadow: inset 0 1px 0 var(--dbx-panel-row-highlight);
+}
+
+.dbx-panel-head {
+    background:
+        linear-gradient(180deg, var(--dbx-panel-head-bg-top), var(--dbx-panel-head-bg-bottom)),
+        var(--dbx-panel-bg-base);
+    border: 1px solid var(--dbx-panel-head-border);
+    border-radius: calc(var(--dbx-window-radius, 8px) - 2px);
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight),
+        0 1px 2px rgba(15, 23, 42, .08);
+    color: var(--dbx-panel-head-text);
+}
+
+
+/* =========================================================
+   10. AJAX SAFETY
+   ========================================================= */
+
+[data-dbx-replace] {
+    min-height: 1rem;
+}
+
+
+/* =========================================================
+   11. PRELOADER
+   ========================================================= */
+
+.dbx-preloader {
+    position: fixed;
+    inset: 0;
+
+    display: none !important;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent !important;
+    backdrop-filter: none !important;
+
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.dbx-preloader.active {
+    display: none !important;
+    pointer-events: none;
+}
+
+.dbx-preloader::before {
+    content: none;
+
+    width: 40px;
+    height: 40px;
+
+    border: 4px solid var(--dbx-border-light);
+    border-top-color: var(--dbx-primary);
+
+    border-radius: 50%;
+
+    animation: dbx-spin 0.8s linear infinite;
+}
+
+@keyframes dbx-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   12. BACK TO TOP
+   ========================================================= */
+
+#dbxBackToTop {
+    position: fixed;
+
+    right: 20px;
+    bottom: 20px;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: all 0.2s ease;
+
+    z-index: 1100;
+}
+
+#dbxBackToTop.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body.dbx-app #dbxBackToTop {
+    position: absolute;
+}
+
+
+/* =========================================================
+   13. CONSENT OVERLAY & YOUTUBE PLACEHOLDER
+   ========================================================= */
+
+body.dbx-consent-open {
+    overflow: hidden;
+}
+
+.dbx-consent-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.dbx-consent-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: rgba(0, 0, 0, 0.52);
+}
+
+.dbx-consent-modal {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    margin: 0;
+    border: 0;
+}
+
+.dbx-consent-modal-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.dbx-consent-modal-title {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.dbx-consent-modal-text {
+    margin: 0 0 0.75rem;
+    font-size: 0.94rem;
+    line-height: 1.5;
+}
+
+.dbx-consent-modal-links {
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+}
+
+.dbx-consent-modal-links-sep {
+    margin: 0 0.35rem;
+    opacity: 0.55;
+}
+
+.dbx-consent-banner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.dbx-consent-panel .form-check-label {
+    user-select: none;
+}
+
+.dbx-consent-panel-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.dbx-content-page .card .dbx-consent-panel-actions .btn,
+.dbx-consent-panel .dbx-consent-panel-actions .btn {
+    align-self: auto;
+    border-radius: var(--bs-btn-border-radius, 0.375rem);
+    display: inline-flex;
+    justify-content: center;
+    margin: 0;
+    min-height: 32px;
+    width: auto;
+}
+
+.dbx-youtube-consent-placeholder {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #111 center / cover no-repeat;
+    overflow: hidden;
+}
+
+.dbx-youtube-consent-thumb {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dbx-youtube-consent-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 4rem;
+    height: 4rem;
+    border: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.72);
+    color: #fff;
+    font-size: 1.75rem;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.dbx-youtube-consent-play:hover,
+.dbx-youtube-consent-play:focus-visible {
+    transform: translate(-50%, -50%) scale(1.06);
+    background: rgba(220, 0, 0, 0.88);
+}
+
+.dbx-youtube-consent-placeholder .dbx-content-video-player,
+figure.dbx-content-inline-video[style*="height"] .dbx-content-video-player {
+    border: 0;
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+    object-position: center center;
+    position: absolute;
+    width: 100%;
+}
+
+figure.dbx-content-inline-video .dbx-youtube-consent-placeholder,
+.dbx-media-external-video .dbx-youtube-consent-placeholder {
+    min-height: 12rem;
+}
+
+.dbx-footer-consent-link {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.85;
+}
+
+.dbx-footer-consent-link:hover,
+.dbx-footer-consent-link:focus-visible {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+@media (max-width: 575.98px) {
+    .dbx-consent-overlay {
+        padding: 0.75rem;
+    }
+
+    .dbx-consent-modal-body {
+        padding: 1rem 1.1rem 1.15rem;
+    }
+
+    .dbx-consent-banner-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dbx-consent-banner-actions .btn {
+        width: 100%;
+    }
+
+    .dbx-consent-panel-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .dbx-content-page .card .dbx-consent-panel-actions .btn,
+    .dbx-consent-panel .dbx-consent-panel-actions .btn {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   CLEARABLE INPUT (dbx|search)
+   ========================================================= */
+
+.dbx-input-clearable {
+    display: inline-block;
+    position: relative;
+    max-width: 100%;
+}
+
+.dbx-search-icon {
+    align-items: center;
+    color: #5f7fa8;
+    display: inline-flex;
+    font-size: 0.9rem;
+    height: 22px;
+    justify-content: center;
+    left: 9px;
+    line-height: 1;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    z-index: 2;
+}
+
+.dbx-input-clearable .dbx-search {
+    padding-left: 34px;
+}
+
+.dbx-clearable {
+    padding-right: 34px;
+}
+
+.dbx-clear-btn {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    color: #c94f4f;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 18px;
+    font-weight: 700;
+    height: 22px;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+}
+
+.dbx-clear-btn:hover,
+.dbx-clear-btn:focus-visible {
+    background: rgba(201, 79, 79, 0.12);
+    color: #a53f3f;
+    outline: none;
+}
+
+.dbx-clear-btn[hidden] {
+    display: none !important;
+}
+
+
+/* =========================================================
+   END
+   ========================================================= */
+

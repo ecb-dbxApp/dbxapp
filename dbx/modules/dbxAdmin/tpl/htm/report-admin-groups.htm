@@ -1,0 +1,25 @@
+[tpl=dbx|report-panel-head]
+ {obj:tabs}
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
+  [tpl=dbx|report-form-select]
+  [dbx:pagination]
+  <div class="table-responsive">
+   <table id="dbx_table_{i}" class="bootstrap-table bootstrap5 table table-striped table-bordered table-light table-hover align-middle">
+    <thead>
+     <tr class="{tr-class}">[rpt:row]</tr>
+    </thead>
+    <tbody>
+     <hr class="dbx_split">
+     <tr class="{tr-class}">[rpt:row]</tr>
+     <hr class="dbx_split">
+    </tbody>
+    <tfoot>
+     <tr>
+      <td colspan="{rpt:col_count}">{obj:rows_delete}</td>
+     </tr>
+    </tfoot>
+   </table>
+  </div>
+  [dbx:js]
+ </form>
+[tpl=dbx|report-panel-foot]

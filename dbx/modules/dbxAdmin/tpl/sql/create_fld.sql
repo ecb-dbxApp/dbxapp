@@ -1,0 +1,1 @@
+ALTER TABLE {table} ADD COLUMN {name} {type}{length} DEFAULT {default};

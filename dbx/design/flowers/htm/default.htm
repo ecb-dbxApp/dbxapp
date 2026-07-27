@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="{dbx:lng}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#244a36">
+
+    <title>{dbx:title}</title>{dbx:head_meta}
+
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap-icons/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="dbx/design/flowers/css/colors.css?v=1">
+    <link rel="stylesheet" href="{dbx:skin_css}">
+    <link rel="stylesheet" href="dbx/design/flowers/css/base.css?v=9">
+    <link rel="stylesheet" href="dbx/design/flowers/css/theme.css?v=2">
+</head>
+
+<body class="dbx-fleurop {dbx:skin_class}"[inc=is_dbx_edit()] data-dbx="lib=icons_editor"[/inc] data-dbx-skin="{dbx:color}" data-dbx-design="{dbx:design}">
+<div id="dbxApp" class="fleurop-app-shell">
+    <aside id="dbxHeader" class="fleurop-sidebar" aria-label="Seitennavigation">
+        <div class="fleurop-brand-wrap">
+            <a class="fleurop-brand" href="{base_url}" aria-label="Zur Startseite">
+                <span class="fleurop-brand-mark" aria-hidden="true">
+                    <i class="bi bi-flower1"></i>
+                </span>
+                <span class="fleurop-brand-copy">
+                    <strong>flowers</strong>
+                    <small>Blumen · Pflanzen · Freude</small>
+                </span>
+            </a>
+        </div>
+
+        <div class="fleurop-nav" aria-label="Hauptnavigation">
+            <div class="fleurop-nav-label"><span>Entdecken</span></div>
+            <nav id="dbx_main_menu" class="dbx-menu dbx-menu-main" data-dbx='lib=menu|id=user|label=Menü' style="visibility:hidden">
+                [modul=dbxMenu]dbx_run1=load&tpl=modul|dbx-top-main[/modul]
+            </nav>
+
+        </div>
+
+        <div class="fleurop-sidebar-foot">
+            <span class="fleurop-leaf" aria-hidden="true"><i class="bi bi-leaf"></i></span>
+            <span>Mit Liebe gewachsen</span>
+        </div>
+    </aside>
+
+    <div class="fleurop-stage">
+        <div class="fleurop-stage-header">
+            [inc=has_group('admin')]
+            <div class="fleurop-admin-strip" aria-label="Administration">
+                <nav id="dbx_admin_menu" class="dbx-menu dbx-menu-admin" data-dbx='lib=menu|id=admin|label=Verwaltung' style="visibility:hidden">
+                    [modul=dbxMenu]dbx_run1=load&tpl=modul|dbx-top-admin[/modul]
+                </nav>
+            </div>
+            [/inc]
+
+            <header class="fleurop-topbar">
+            <button class="fleurop-sidebar-toggle" type="button" data-fleurop-sidebar-toggle title="Navigation ein- oder ausklappen" aria-label="Navigation ein- oder ausklappen" aria-expanded="true">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="fleurop-page-title">
+                <span class="fleurop-kicker"><i class="bi bi-flower3"></i> Natürlich schön</span>
+                <strong>{dbx:title}</strong>
+            </div>
+            <div class="fleurop-top-ornament" aria-hidden="true">
+                <span></span><i class="bi bi-flower1"></i><span></span>
+            </div>
+            </header>
+        </div>
+
+        <main id="dbxMain">
+            <div class="dbx-content">
+                <div class="container-fluid" id="dbxContent">
+                    [dbx:content]
+                </div>
+            </div>
+        </main>
+
+        <footer id="dbxFooter" class="fleurop-footer">
+            <div class="dbx-footer-dockbar" aria-label="Fensterleiste">
+                <div id="windrop" class="dbx-window-dock" aria-label="Minimierte Fenster"></div>
+                <button id="dbxWindowCloseAll" class="dbx-footer-window-close-all" type="button" title="Alle Fenster schließen" aria-label="Alle Fenster schließen">
+                    <i class="bi bi-x-square"></i>
+                </button>
+            </div>
+            <div class="fleurop-footer-info">
+                <span class="fleurop-footer-leaf"><i class="bi bi-leaf"></i></span>
+                <span data-dbx-runtime data-dbx-php-runtime="" class="visually-hidden">...</span>
+                <a href="datenschutz" class="dbx-footer-consent-link dbx-win" data-dbx="lib=openWin|url=datenschutz|title=Datenschutz|width=900|height=90%|position=center-top|reload=1|minimizable=1|maximizable=1">Datenschutz</a>
+                <span>© flowers</span>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<div id="dbxPreloader" class="dbx-preloader" style="display:none!important;pointer-events:none!important"></div>
+<button id="dbxBackToTop" class="btn fleurop-back-to-top" type="button" title="Nach oben" aria-label="Nach oben">
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="dbx/vendor/components/jquery/jquery.min.js"></script>
+<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v=79"></script>
+<script src="dbx/design/flowers/js/flowers.js?v=1"></script>
+</body>
+</html>

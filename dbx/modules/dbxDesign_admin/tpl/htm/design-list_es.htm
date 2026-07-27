@@ -1,0 +1,20 @@
+<div class="dbx-panel dbx-design-admin">
+ [tpl=dbx|module-bar]
+ <style>
+ .dbx-design-admin{--da-line:color-mix(in srgb,var(--dbx-primary,#2563eb) 18%,transparent)}
+ .dbx-design-intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:center;margin:1rem;padding:1rem 1.15rem;border:1px solid var(--da-line);border-radius:1rem;background:linear-gradient(135deg,color-mix(in srgb,var(--dbx-primary,#2563eb) 9%,white),white)}
+ .dbx-design-intro h2{font-size:1.05rem;margin:0 0 .25rem}.dbx-design-intro p{margin:0;color:var(--dbx-text-muted,#64748b)}
+ .dbx-design-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:1rem;padding:0 1rem 1rem}
+ .dbx-design-card{display:flex;flex-direction:column;min-height:245px;border:1px solid var(--da-line);border-radius:1rem;background:var(--dbx-bg-panel,#fff);overflow:hidden;box-shadow:0 12px 28px rgba(15,23,42,.08)}
+ .dbx-design-card-preview{height:82px;background:linear-gradient(135deg,var(--dbx-primary,#2563eb),color-mix(in srgb,var(--dbx-primary,#2563eb) 35%,#0f172a));position:relative}
+ .dbx-design-card-preview:after{content:"";position:absolute;inset:17px 18px;background:linear-gradient(90deg,rgba(255,255,255,.92) 27%,rgba(255,255,255,.3) 27%);border-radius:.45rem}
+ .dbx-design-card-body{display:flex;flex:1;flex-direction:column;padding:1rem}.dbx-design-card-head{display:flex;justify-content:space-between;gap:.75rem}.dbx-design-card h3{font-size:1.05rem;margin:0}.dbx-design-card code{font-size:.75rem}
+ .dbx-design-card-badges{display:flex;flex-wrap:wrap;gap:.35rem;margin:.65rem 0}.dbx-design-card p{color:var(--dbx-text-muted,#64748b);font-size:.88rem;flex:1}.dbx-design-card-actions{display:flex;flex-wrap:wrap;gap:.4rem}
+ @media(max-width:700px){.dbx-design-intro{grid-template-columns:1fr}.dbx-design-card-grid{grid-template-columns:1fr}}
+ </style>
+ <section class="dbx-design-intro">
+  <div><h2>Su propio diseño sin obstáculos técnicos</h2><p>Seleccione una plantilla, defina la distribución y la marca y abra la vista previa. El original siempre se conserva.</p></div>
+  <i class="bi bi-palette2 fs-1 text-primary" aria-hidden="true"></i>
+ </section>
+ <div class="dbx-design-card-grid">{cards}</div>
+</div>

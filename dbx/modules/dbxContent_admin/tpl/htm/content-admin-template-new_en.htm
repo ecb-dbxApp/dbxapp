@@ -1,0 +1,22 @@
+<section class="dbx-panel dbx-content-admin-template-new p-3">
+ <header class="dbx-bar dbx-module-bar mb-3">
+  <div class="dbx-bar-title">
+   <i class="bi bi-file-earmark-plus"></i>
+   <span class="dbx-module-bar-copy">
+    <span class="dbx-module-bar-heading">New content template</span>
+    <span class="dbx-module-bar-subtitle">c-* Create layout with all areas</span>
+   </span>
+  </div>
+  <div class="dbx-bar-actions dbx-module-bar-actions">{help_button}</div>
+ </header>
+ {obj:form_msg}
+ <form action="{action}" method="post" class="dbxAjax">
+  <div class="mb-3">
+   {obj:template_name}
+   <div class="form-text">File name without ending. shall be as follows: <code>c-name.htm</code> in <code>dbxContent/tpl/htm/</code> stored.</div>
+  </div>
+  <div class="d-flex gap-2">
+   <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Creation</button>
+  </div>
+ </form>
+</section>

@@ -1,0 +1,72 @@
+<div id="{target_id}"
+     class="dbx-panel dbx-process dbx-schema-process"
+     data-dbx="lib=process|id={target_id}|url={next_url}|interval={interval}|autostart={autostart}"
+     data-process-status="{status_key}"
+     data-process-percent="{percent}"
+     data-process-step-percent="{step_percent}"
+     data-process-next-url="{next_url}"
+     data-process-pause-url="{pause_url}"
+     data-process-resume-url="{resume_url}"
+     data-process-continue-url="{continue_url}"
+     data-process-cancel-url="{cancel_url}"
+     data-process-restart-url="{restart_url}"
+     data-process-autostart="{autostart}"
+     data-process-interval="{interval}">
+
+ <div class="dbx-process-header">
+  <h3 class="dbx-process-title">{title}</h3>
+  <span class="dbx-process-status badge {status_class}">
+   <i class="{status_icon}"></i> {status_label}
+  </span>
+ </div>
+
+ <div class="dbx-process-grid">
+  <div class="dbx-process-progress">
+   <div class="dbx-process-progress-head">
+    <span class="dbx-process-progress-label">Gesamt</span>
+    <span class="dbx-process-progress-value" data-process-percent="overall">{percent}%</span>
+   </div>
+   <div class="dbx-process-bar" role="progressbar" aria-valuenow="{percent}" aria-valuemin="0" aria-valuemax="100">
+    <div class="dbx-process-bar-fill {bar_class}" data-process-bar="overall" style="width:{percent}%;"></div>
+   </div>
+  </div>
+
+  <div class="dbx-process-progress">
+   <div class="dbx-process-progress-head">
+    <span class="dbx-process-progress-label">{task_label}: {step_label}</span>
+    <span class="dbx-process-progress-value" data-process-percent="step">{step_percent}%</span>
+   </div>
+   <div class="dbx-process-bar" role="progressbar" aria-valuenow="{step_percent}" aria-valuemin="0" aria-valuemax="100">
+    <div class="dbx-process-bar-fill" data-process-bar="step" style="width:{step_percent}%;"></div>
+   </div>
+  </div>
+
+  <div class="dbx-process-message" data-process-message>{message}</div>
+
+  <div class="dbx-process-meta">
+   <span>Prozess: {process_label}</span>
+   <span>Aktualisiert: {updated_at}</span>
+  </div>
+ </div>
+
+ <div class="dbx-process-actions">
+  <button type="button" class="btn btn-warning" data-process-action="pause" data-process-visible="{pause_visible}" title="Anhalten">
+   <i class="bi bi-pause-fill"></i>
+  </button>
+  <button type="button" class="btn btn-primary" data-process-action="resume" data-process-visible="{resume_visible}" title="Weiter">
+   <i class="bi bi-play-fill"></i>
+  </button>
+  <button type="button" class="btn btn-primary" data-process-action="continue" data-process-visible="{continue_visible}" title="Weiter machen">
+   <i class="bi bi-play-circle"></i>
+  </button>
+  <button type="button" class="btn btn-secondary" data-process-action="restart" data-process-visible="{restart_visible}" title="Neu machen">
+   <i class="bi bi-arrow-clockwise"></i>
+  </button>
+  <button type="button" class="btn btn-danger" data-process-action="cancel" data-process-visible="{cancel_visible}" title="Abbrechen">
+   <i class="bi bi-x-lg"></i>
+  </button>
+  <a class="btn btn-secondary" href="{back_url}" title="Zurueck">
+   <i class="bi bi-arrow-left"></i>
+  </a>
+ </div>
+</div>

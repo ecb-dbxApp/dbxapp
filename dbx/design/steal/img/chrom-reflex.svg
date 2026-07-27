@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 96" role="img" aria-label="Polierte Chromreflexion">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".08" stop-color="#dce4e7"/>
+      <stop offset=".2" stop-color="#747f85"/>
+      <stop offset=".34" stop-color="#f7fafb"/>
+      <stop offset=".49" stop-color="#a2adb2"/>
+      <stop offset=".53" stop-color="#3d474c"/>
+      <stop offset=".66" stop-color="#eef3f5"/>
+      <stop offset=".82" stop-color="#7f8a90"/>
+      <stop offset="1" stop-color="#e4eaec"/>
+    </linearGradient>
+    <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity=".08"/>
+      <stop offset=".16" stop-color="#fff" stop-opacity=".72"/>
+      <stop offset=".3" stop-color="#fff" stop-opacity=".04"/>
+      <stop offset=".62" stop-color="#fff" stop-opacity=".45"/>
+      <stop offset=".78" stop-color="#fff" stop-opacity=".02"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".58"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="96" fill="url(#chrome)"/>
+  <rect width="512" height="96" fill="url(#sweep)"/>
+  <path d="M0 8h512M0 33h512M0 66h512M0 89h512" stroke="#fff" stroke-width="1" opacity=".4"/>
+  <path d="M74 0l-38 96M214 0l-38 96M392 0l-38 96" stroke="#fff" stroke-width="18" opacity=".13"/>
+</svg>

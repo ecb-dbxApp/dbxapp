@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" role="img" aria-label="dbxAdmin avatar_upload">
+  <rect width="800" height="200" fill="#f2faf4" stroke="#c8e8d0" stroke-width="2" rx="8"/>
+  
+  <rect x="40" y="60" width="70" height="24" fill="#2a6a3a" rx="4" opacity="0.8"/>
+  <rect x="120" y="60" width="70" height="24" fill="#2a6a3a" rx="4" opacity="0.55"/>
+  <rect x="200" y="60" width="70" height="24" fill="#2a6a3a" rx="4" opacity="0.35"/>
+  <rect x="40" y="110" width="320" height="60" fill="#fff" stroke="#c8e8d0" rx="6"/>
+  <text x="420" y="58" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="#2a6a3a">dbxAdmin</text>
+  <text x="420" y="88" font-family="Consolas,monospace" font-size="14" fill="#333">dbx_run1=avatar_upload</text>
+  
+  <text x="420" y="150" font-family="Consolas,monospace" font-size="11" fill="#666">dbx_run1=avatar_upload</text>
+  <text x="400" y="182" text-anchor="middle" font-family="Consolas,monospace" font-size="10" fill="#888">[modul=dbxAdmin]dbx_run1=avatar_upload[/modul]</text>
+</svg>

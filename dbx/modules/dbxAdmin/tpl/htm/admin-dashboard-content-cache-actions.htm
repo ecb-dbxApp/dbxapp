@@ -1,0 +1,34 @@
+<form action="{cache_save_url}" method="post" id="dbx_form_{i}" class="dbx-admin-dashboard-cache-bar-form dbxAjax"
+      data-ajax-target="dbx_admin_dashboard_cache_body" data-ajax-mode="html" data-ajax-replace="target">
+ [dbx:form]
+ <div class="form-check form-switch">
+  <input class="form-check-input" type="checkbox" role="switch" id="dbx_content_page_cache_enabled_{i}" name="cache_content" value="1" {cache_enabled_checked}>
+  <label class="form-check-label" for="dbx_content_page_cache_enabled_{i}">Neue Gastseiten cachen</label>
+ </div>
+ <button type="submit" class="btn btn-sm btn-outline-primary">
+  <i class="bi bi-check2-circle"></i> Speichern
+ </button>
+ <a class="btn btn-warning btn-sm dbxAjax dbxConfirm"
+    href="{cache_flush_url}"
+    title="Page-Cache leeren"
+    data-ajax-target="dbx_admin_dashboard_cache_body"
+    data-ajax-mode="html"
+    data-ajax-replace="target"
+    data-confirm-title="<i class='bi bi-trash3'></i> Page-Cache leeren"
+    data-confirm="Page-Cache komplett leeren?"
+    data-confirm-hint="<small>Die gecachten Gast-Full-Pages werden entfernt. Bei aktivem Cache-Schreiben werden sie beim naechsten gueltigen Permalink-Aufruf neu erstellt.</small>"
+    data-confirm-buttons="yesno"
+    role="button">
+  <i class="bi bi-trash3"></i> Cache leeren
+ </a>
+ <a class="btn btn-sm btn-outline-primary dbxAjax"
+    href="{sitemap_rebuild_url}"
+    title="Sitemap neu erstellen"
+    data-ajax-target="dbx_admin_dashboard_cache_body"
+    data-ajax-mode="html"
+    data-ajax-replace="target"
+    role="button">
+  <i class="bi bi-diagram-3"></i> Sitemap neu erstellen
+ </a>
+</form>
+{bar_extra}

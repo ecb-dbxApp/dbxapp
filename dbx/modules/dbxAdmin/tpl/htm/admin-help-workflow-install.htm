@@ -1,0 +1,20 @@
+<h4>Was wird installiert?</h4>
+<p>Die Installation gleicht die vier Workflow-DDs mit der Datenbank ab und legt fehlende Demo-Definitionen sowie Standard-Bindings an.</p>
+
+<div class="help-flow">Install
+  → workflowDefinition synchronisieren
+  → workflowInstance synchronisieren
+  → workflowStep synchronisieren
+  → workflowModuleBind synchronisieren
+  → fehlende Beispiele und Bindings ergänzen</div>
+
+<h4>Wann ausführen?</h4>
+<ul>
+<li>bei der Erstinstallation von dbxWorkflow;</li>
+<li>nach einem Update der Workflow-DDs;</li>
+<li>wenn Tabellen oder mitgelieferte Beispiele noch fehlen.</li>
+</ul>
+
+<p><strong>Bestehende Definitionen bleiben erhalten:</strong> Die Installation ergänzt Demo-Workflows nur, wenn deren Workflow Key noch nicht vorhanden ist. In dbxWorkflow_admin bearbeitete Abläufe werden nicht wieder durch PHP-Vorgaben überschrieben.</p>
+
+<div class="help-example"><strong>Nach diesem Update:</strong> Install einmal ausführen, damit <code>workflowInstance.definition_json</code> für neue Definitions-Snapshots angelegt wird.</div>

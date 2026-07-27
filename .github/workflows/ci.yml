@@ -1,0 +1,62 @@
+name: dbx-ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dbx-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - "8.2"
+          - "8.3"
+          - "8.4"
+          - "8.5"
+
+    steps:
+      - name: Quellcode auschecken
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: PHP einrichten
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo, pdo_sqlite, sqlite3
+          tools: composer:v2
+          coverage: none
+
+      - name: Abhängigkeiten installieren
+        run: composer --working-dir=dbx install --no-interaction --prefer-dist
+
+      - name: dbxApp vollständig prüfen
+        run: composer --working-dir=dbx ci
+
+  required:
+    name: dbx-ci
+    if: always()
+    needs:
+      - quality
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Matrix-Ergebnis prüfen
+        env:
+          MATRIX_RESULT: ${{ needs.quality.result }}
+        run: test "$MATRIX_RESULT" = "success"

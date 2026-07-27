@@ -1,0 +1,31 @@
+<div class="dbxView" id="dbxView_profil">
+    <ul class="nav nav-tabs" id="dbxView_profil_tabs">
+        <li class="nav-item">
+            <a href="#profil" class="nav-link" data-toggle="tab">Profile</a>
+        </li>
+        <li class="nav-item">
+            <a href="#avatar" class="nav-link" data-toggle="tab">Avatar</a>
+        </li>
+        <li class="nav-item">
+            <a href="#access" class="nav-link" data-toggle="tab">Access data</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade" id="profil">
+             [modul=dbxUser]dbx_run1=user&dbx_run2=edit_profil[/modul]
+        </div>
+        <div class="tab-pane fade" id="avatar">
+              [modul=dbxUser]dbx_run1=user&dbx_run2=edit_avatar[/modul]
+        </div>
+        <div class="tab-pane fade" id="access">
+              [modul=dbxUser]dbx_run1=access[/modul]
+        </div>
+    </div>
+</div>
+<script>
+    // https://www.tutorialrepublic.com/codelab.php?topic=bootstrap&file=activate-individual-tabs-via-javascript
+    $(document).ready(function(){
+        //$("#dbxView_profil_tabs a:first").tab('show'); // show last tab on page load
+        $('#dbxView_profil_tabs a[href="#profil"]').tab('show');
+    });
+</script>

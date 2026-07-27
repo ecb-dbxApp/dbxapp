@@ -1,0 +1,70 @@
+<div id="dbx_admin_dashboard" class="c-admin dbx-admin-dashboard dbx-ajax-root" data-dbx="lib=adminDashboard|id=admin-dashboard" data-admin-dashboard="1">
+   {obj:dashboard_message}
+   <div class="container-fluid px-0" data-dbx="lib=ajax|class=dbxAjax|target=dbx_admin_dashboard_work|replace=inner|mode=html">
+      <div class="row g-4 align-items-stretch">
+         <aside class="col-12 col-xl-3 col-xxl-2 dbx-admin-dashboard-sidebar">
+            <div class="card sticky-top shadow-sm">
+               <div class="card-header">
+                  <h5 class="card-title mb-0"><i class="bi bi-speedometer2 me-1"></i>Dashboard</h5>
+                  <div class="text-muted small">Admin-Bereiche</div>
+               </div>
+               <div class="card-body p-2">
+                  <div class="dbx-admin-dashboard-nav-block">
+                     <div class="small text-muted text-uppercase fw-semibold px-1 mb-2">Übersicht</div>
+                     <div class="list-group" role="navigation" aria-label="Dashboard Übersicht">
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=hero" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="hero">
+                           <i class="bi bi-heart-pulse me-2"></i>Status &amp; Health
+                        </a>
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=widgets" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="widgets">
+                           <i class="bi bi-grid-1x2 me-2"></i>Kennzahlen
+                        </a>
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=quick_actions" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="quick_actions">
+                           <i class="bi bi-lightning-charge me-2"></i>Schnellzugriff
+                        </a>
+                     </div>
+                  </div>
+
+                  <div class="dbx-admin-dashboard-nav-block">
+                     <div class="small text-muted text-uppercase fw-semibold px-1 mb-2">Monitoring</div>
+                     <div class="list-group" role="navigation" aria-label="Dashboard Monitoring">
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=sysmsg_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="sysmsg_panel">
+                           <i class="bi bi-bell me-2"></i>Systemmeldungen
+                        </a>
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=session_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="session_panel">
+                           <i class="bi bi-people me-2"></i>Sessions
+                        </a>
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=performance_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="performance_panel">
+                           <i class="bi bi-cpu me-2"></i>Performance
+                        </a>
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=content_cache_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="content_cache_panel">
+                           <i class="bi bi-archive me-2"></i>Content-Cache
+                        </a>
+                     </div>
+                  </div>
+
+                  <div class="dbx-admin-dashboard-nav-block">
+                     <div class="small text-muted text-uppercase fw-semibold px-1 mb-2">Auswertung</div>
+                     <div class="list-group" role="navigation" aria-label="Dashboard Auswertung">
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=chart_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="chart_panel">
+                           <i class="bi bi-bar-chart-line me-2"></i>Diagramme
+                        </a>
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=activity_report" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="activity_report">
+                           <i class="bi bi-activity me-2"></i>Aktivität
+                        </a>
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=database_report" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="database_report">
+                           <i class="bi bi-hdd-stack me-2"></i>Datenbanken
+                        </a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </aside>
+
+         <main class="col-12 col-xl-9 col-xxl-10 dbx-admin-dashboard-main">
+            <div id="dbx_admin_dashboard_work" class="dbx-admin-dashboard-work card shadow-sm" data-admin-section="hero">
+               [modul=dbxAdmin]dbx_run1=dashboard&dbx_run2=hero[/modul]
+            </div>
+         </main>
+      </div>
+   </div>
+</div>

@@ -1,0 +1,14 @@
+[tpl=dbx|frame-head]
+[tpl=dbx|frame-body-open]
+<div class="alert alert-warning">
+ <h2 class="h5">Ticket #{rid} aus Ihrer Ansicht entfernen?</h2>
+ <p class="mb-0">Das Ticket wird fuer Sie ausgeblendet. Fuer den Support bleibt es mit dem vollstaendigen Verlauf erhalten.</p>
+</div>
+{obj:confirm_delete}
+<div class="d-flex justify-content-end gap-2 mt-3">
+ <a class="btn btn-outline-secondary" href="?dbx_modul=dbxContact&amp;dbx_run1=my&amp;dbx_run2=ticket&amp;rid={rid}">Abbrechen</a>
+ <button class="btn btn-danger" type="submit"><i class="bi bi-trash"></i> Entfernen</button>
+</div>
+<div class="d-none">[dbx:form]</div>
+[tpl=dbx|frame-body-close]
+[tpl=dbx|frame-foot]

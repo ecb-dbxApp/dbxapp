@@ -1,0 +1,31 @@
+[tpl=dbx|report-panel-head]
+ <form action="{action}" class="dbxAjax" method="post" id="dbx_form_{i}">
+  <div class="table-responsive">
+   {obj:add_rec}
+   [dbx:form]
+   [inc=1]tpl=report-form-select&modul=dbx[/inc]
+   {obj:sql}
+   <br/>
+   <table class="table table-striped table-bordered">
+    <thead class="thead-light">
+     <tr class="{tr-class}">[rpt:row]</tr>
+    </thead>
+    <tbody>
+     <hr class="dbx_split">
+     <tr class="{tr-class}">[rpt:row]</tr>
+     <hr class="dbx_split">
+    </tbody>
+    <tfoot>
+     <tr>
+      <td colspan="{rpt:col_count}"><hr></td>
+     </tr>
+    </tfoot>
+   </table>
+  </div>
+  <div class="row align-items-center">
+   <div class="col">{obj:maction_select}</div>
+   <div class="col">{obj:maction_submit}</div>
+  </div>
+  [dbx:js]
+ </form>
+[tpl=dbx|report-panel-foot]

@@ -1,0 +1,25 @@
+<h4>¿Qué muestra esta visión general?</h4>
+<p>Cada comienzo en dbxWorkflow Crea su propia instancia. La lista muestra el flujo de trabajo clave, objetivo, estado, paso actual, progreso y el último mensaje.</p>
+
+<h4>Comprensión de la situación</h4>
+<div class="help-flow">running → pausado → running → terminado
+- Se canceló
+El error</div>
+<ul>
+<li><strong>Corriendo:</strong> el siguiente paso aplicable puede ser procesado.</li>
+<li><strong>Detenido:</strong> se mantienen los valores; el pasaje puede continuar.</li>
+<li><strong>Cancelado:</strong> no más procesamiento sin un reinicio consciente.</li>
+<li><strong>Terminado:</strong> todos los pasos obligatorios y la lógica final fueron exitosos.</li>
+<li><strong>Error:</strong> Compruebe la notificación y el módulo de sujeto.</li>
+</ul>
+
+<h4>Buscar errores</h4>
+<ol>
+<li>Abrir instancia sobre la acción.</li>
+<li>Lea el último mensaje y el paso actual.</li>
+<li>En el caso de pasos bloqueados, comprobar el requisito previo y el valor de resultado esperado.</li>
+<li>Para las acciones del módulo, compruebe el conjunto de datos técnicos y el enlace utilizado.</li>
+<li>Para acciones externas antes de reiniciar, consulte primero el estado del proveedor.</li>
+</ol>
+
+<p><strong>Estado de definición:</strong> Nuevas instancias guardan una instantánea al inicio. Enmiendas a dbxWorkflow_admin Por lo tanto, no cambie los procesos ya iniciados. Los casos más antiguos sin instantánea siguen utilizando la definición actual por razones de compatibilidad.</p>

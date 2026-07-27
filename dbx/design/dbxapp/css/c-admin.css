@@ -1,0 +1,198 @@
+/* =========================================================
+   DBX ADMIN SURFACE
+   Bootstrap-Komponenten innerhalb .c-admin
+   ========================================================= */
+
+.c-admin {
+    --dbx-admin-nav-blue: #2878b8;
+    --dbx-admin-nav-blue-dark: #2165b6;
+    --dbx-admin-nav-blue-hover: #e8f2fc;
+    --dbx-admin-nav-blue-hover-top: #f5f9ff;
+    color: var(--dbx-text-main);
+    min-width: 0;
+}
+
+.c-admin .card {
+    color: var(--dbx-text-main);
+    background:
+        linear-gradient(180deg, var(--dbx-panel-bg-top), var(--dbx-panel-bg-bottom)),
+        var(--dbx-panel-bg-base);
+    border: 1px solid var(--dbx-panel-border);
+    border-radius: var(--dbx-window-radius, 8px);
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight),
+        inset 0 -2px 0 var(--dbx-panel-inset-shadow),
+        var(--dbx-shadow-sm);
+}
+
+.c-admin .card.shadow-sm {
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight),
+        inset 0 -2px 0 var(--dbx-panel-inset-shadow),
+        var(--dbx-shadow-sm),
+        0 4px 14px rgba(28, 43, 63, 0.08);
+}
+
+.c-admin .card-header {
+    background:
+        linear-gradient(
+            180deg,
+            var(--dbx-panel-head-bg-top, rgba(220, 235, 255, 0.96)),
+            var(--dbx-panel-head-bg-bottom, rgba(170, 205, 255, 0.96))
+        );
+    border-bottom: 1px solid var(--dbx-panel-head-border);
+    color: var(--dbx-panel-head-text);
+    padding: .65rem .75rem;
+}
+
+.c-admin .card-title {
+    color: var(--dbx-panel-head-text);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.c-admin .card-body {
+    padding: .75rem;
+}
+
+.c-admin .sticky-top {
+    top: 12px;
+    z-index: 2;
+}
+
+.c-admin .dbx-admin-dashboard-nav-block {
+    padding-bottom: .8rem;
+    margin-bottom: .8rem;
+    border-bottom: 1px solid var(--dbx-panel-border-light);
+}
+
+.c-admin .dbx-admin-dashboard-nav-block:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+.c-admin .list-group {
+    display: flex;
+    flex-direction: column;
+    gap: .42rem;
+}
+
+.c-admin .list-group-item.list-group-item-action {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: .55rem .72rem;
+    color: #1a3a5c;
+    text-decoration: none;
+    background:
+        linear-gradient(180deg, var(--dbx-panel-inner-bg-top), var(--dbx-panel-inner-bg-bottom)) !important;
+    border: 1px solid var(--dbx-panel-border-light) !important;
+    border-radius: .45rem !important;
+    box-shadow: inset 0 1px 0 var(--dbx-panel-row-highlight);
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        color .15s ease,
+        box-shadow .15s ease;
+}
+
+.c-admin .list-group-item.list-group-item-action i {
+    color: var(--dbx-admin-nav-blue);
+}
+
+.c-admin .list-group-item.list-group-item-action:hover,
+.c-admin .list-group-item.list-group-item-action:focus {
+    color: #174f94 !important;
+    background:
+        linear-gradient(180deg, var(--dbx-admin-nav-blue-hover-top), var(--dbx-admin-nav-blue-hover)) !important;
+    border-color: rgba(40, 120, 184, .42) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .75),
+        0 0 0 .12rem rgba(40, 120, 184, .12);
+}
+
+.c-admin .list-group-item.list-group-item-action:hover i,
+.c-admin .list-group-item.list-group-item-action:focus i {
+    color: #2165b6;
+}
+
+.c-admin .list-group-item.list-group-item-action.active {
+    z-index: 2;
+    color: #fff !important;
+    font-weight: 650;
+    background:
+        linear-gradient(180deg, #4a9aeb, var(--dbx-admin-nav-blue)) !important;
+    border-color: var(--dbx-admin-nav-blue-dark) !important;
+    border-left: 4px solid #174f94 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .28),
+        0 2px 10px rgba(40, 120, 184, .28);
+}
+
+.c-admin .list-group-item.list-group-item-action.active i {
+    color: #fff !important;
+}
+
+.c-admin .dbx-admin-dashboard-work.card {
+    display: flex;
+    flex-direction: column;
+    min-height: 62vh;
+    overflow: hidden;
+    padding: 0;
+    background:
+        linear-gradient(180deg, var(--dbx-panel-bg-top), var(--dbx-panel-bg-bottom)),
+        var(--dbx-panel-bg-base);
+}
+
+.c-admin .dbx-admin-dashboard-work.card > .dbx-panel,
+.c-admin .dbx-admin-dashboard-work.card > .dbxForm_wrapper,
+.c-admin .dbx-admin-dashboard-work.card > form,
+.c-admin .dbx-admin-dashboard-work.card > .dbxReport,
+.c-admin .dbx-admin-dashboard-work.card > .dbx-admin-dashboard-widget-grid {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    margin: 0;
+    max-width: none;
+    width: 100%;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.c-admin .dbx-admin-dashboard-work.card > .dbxForm_wrapper.dbx-admin-dashboard-actions {
+    padding: 0;
+}
+
+.c-admin .dbx-admin-dashboard-work.card .dbx-module-bar,
+.c-admin .dbx-admin-dashboard-work.card > .dbx-panel > .dbx-bar,
+.c-admin .dbx-admin-dashboard-work.card > .dbxForm_wrapper > .dbx-bar,
+.c-admin .dbx-admin-dashboard-work.card > .dbxForm_wrapper > .dbx-module-bar {
+    flex: 0 0 auto;
+    margin: 0;
+    border-left: 0;
+    border-radius: 0;
+    border-right: 0;
+    border-top: 0;
+    width: 100%;
+}
+
+.c-admin .dbx-admin-dashboard-work.card .dbx-admin-dashboard-panel-body,
+.c-admin .dbx-admin-dashboard-work.card .dbx-admin-dashboard-hero-body,
+.c-admin .dbx-admin-dashboard-work.card .dbx-panel-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 1.15rem 1.25rem 1.35rem;
+    background:
+        linear-gradient(180deg, var(--dbx-panel-inner-bg-top, #fff), var(--dbx-panel-inner-bg-bottom, #f7faff));
+}
+
+@media (max-width: 1199.98px) {
+    .c-admin .sticky-top {
+        position: static;
+        top: auto;
+    }
+}

@@ -1,0 +1,21 @@
+<form class="dbx-cms-browser-upload" data-cms-browser-upload method="post" action="{action}" enctype="multipart/form-data">
+ <label class="dbx-cms-upload-drop" data-cms-dropzone>
+  <input type="file" name="file" accept="image/*,video/*,.pdf" multiple>
+  <span class="dbx-cms-upload-icon"><i class="bi bi-cloud-arrow-up"></i></span>
+  <span class="dbx-cms-upload-text" data-cms-upload-label>Subir medio o soltarlo aquí</span>
+ </label>
+ <div class="dbx-cms-upload-target">
+  <label class="dbx-cms-upload-folder-label">
+   <span class="form-label small mb-1">Carpeta de destino</span>
+   <select class="form-select form-select-sm" name="media_folder" data-cms-upload-folder title="Carpeta de destino para subir"></select>
+  </label>
+  <button type="submit" class="btn btn-primary btn-sm" title="Subir e insertar medio">
+   <i class="bi bi-upload"></i>
+   <span>Subir</span>
+  </button>
+ </div>
+ <input type="hidden" name="slot" value="inline">
+ <input type="hidden" name="template" value="image-inline">
+ <input type="hidden" name="max_image_size" value="2560">
+ [dbx:form]
+</form>

@@ -1,0 +1,32 @@
+<section class="dbx-shop-cart-report dbxReport dbx-ajax-root" id="dbx_target_{i}" data-dbx="lib=report|form=0" data-dbx-shop-cart-count="{cart_count}">
+   <div class="dbx-shop-cart-confirm-root" data-dbx="lib=confirm|class=dbxConfirm">
+      <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax dbx-shop-cart-form">
+         <input type="hidden" name="shop_cart_update" value="1">
+         <div class="dbx-shop-cart table-responsive">
+            <table class="table table-sm align-middle">
+               <thead>
+                  <tr class="{tr-class}">[rpt:row]</tr>
+               </thead>
+               <tbody>
+                  <hr class="dbx_split">
+                  <tr class="{tr-class}">[rpt:row]</tr>
+                  <hr class="dbx_split">
+               </tbody>
+               <tfoot>
+                  <tr>
+                     <th colspan="5" class="text-end">Gesamt</th>
+                     <th class="text-end">{cart_sum}</th>
+                  </tr>
+               </tfoot>
+            </table>
+            <div class="dbx-shop-detail-actions">
+               <button class="btn btn-outline-secondary dbxConfirm" type="submit" name="clear" value="1" data-confirm-title="<i class='bi bi-trash'></i> Warenkorb leeren" data-confirm="Den kompletten Warenkorb leeren?" data-confirm-hint="<small>Alle Positionen werden aus dem Warenkorb entfernt.</small>" data-confirm-buttons="yesno"><i class="bi bi-trash"></i> Warenkorb leeren</button>
+               <button class="btn btn-outline-primary" type="submit"><i class="bi bi-arrow-repeat"></i> Mengen aktualisieren</button>
+               <a class="btn btn-primary" href="?dbx_modul=dbxShop&amp;dbx_run1=checkout"><i class="bi bi-credit-card"></i> Zur Kasse</a>
+            </div>
+         </div>
+         [dbx:form]
+         [dbx:js]
+      </form>
+   </div>
+</section>

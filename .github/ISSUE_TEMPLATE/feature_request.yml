@@ -1,0 +1,24 @@
+name: Erweiterung vorschlagen
+description: Neue kompatible Funktion oder Verbesserung vorschlagen
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem oder Ziel
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Gewünschte Lösung
+      description: Bitte den Nutzen und den dbxApp-Ablauf beschreiben.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Auswirkungen auf Kompatibilität
+      description: Module, DD/FD, DB3/MySQL, Sprachen und bestehende URLs berücksichtigen.

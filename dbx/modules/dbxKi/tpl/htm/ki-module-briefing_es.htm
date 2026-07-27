@@ -1,0 +1,46 @@
+<div class="dbx-panel dbx-ki-module-briefing">
+ [tpl=dbx|module-bar]
+ <div class="container-fluid py-3 px-3 px-xl-4" style="max-width:1500px">
+  <div class="row g-3 align-items-stretch">
+   <div class="col-12 col-xl-4">
+    <div class="card h-100 border-primary shadow-sm overflow-hidden">
+     <div class="card-body p-3 p-xl-4">
+      <div class="d-flex justify-content-center align-items-center bg-light border rounded mb-3" style="min-height:220px">
+       <img src="dbx/modules/dbxKi/tpl/img/dbxKi.png" alt="dbxKi" style="display:block;max-width:82%;max-height:210px;object-fit:contain">
+      </div>
+      <div class="text-uppercase small fw-bold text-muted mb-1">dbxKi Gasoducto del módulo</div>
+      <h2 class="h3 mb-2">Modificar y actualizar módulos</h2>
+      <p class="text-muted mb-3">La AI funciona según la unión dbXapp-Manual de trabajo y referencia ejecutable myInvoices. dbxKi comprueba, guarda y escribe exclusivamente dentro del módulo seleccionado.</p>
+      <div class="row g-2 text-center">
+       <div class="col-4"><div class="border rounded bg-light p-2 h-100"><strong class="d-block">ZIP</strong><small class="text-muted">Contexto</small></div></div>
+       <div class="col-4"><div class="border rounded bg-light p-2 h-100"><strong class="d-block">API</strong><small class="text-muted">Reglas</small></div></div>
+       <div class="col-4"><div class="border rounded bg-light p-2 h-100"><strong class="d-block">Estándar</strong><small class="text-muted">Manual + Referencia</small></div></div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="col-12 col-xl-8">
+    <div class="card h-100 shadow-sm">
+     <div class="card-body p-3 p-xl-4">
+      <form method="post" action="{export_url}">
+       {obj:form_msg}
+       <div class="row g-3">
+        <div class="col-md-6"><label class="form-label fw-semibold">Módulo</label><select name="xmodul" class="form-select" required>{module_options}</select></div>
+        <div class="col-md-6"><label class="form-label fw-semibold">DDD</label><input name="dd_name" class="form-control" value="{dd_name}" placeholder="Facultativo"></div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Tareas</label><select name="task_type" class="form-select">{task_options}</select></div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Contexto</label><select name="include_context" class="form-select">{context_options}</select></div>
+        <div class="col-12"><label class="form-label fw-semibold">Mission for AI</label><textarea name="brief" class="form-control" rows="10" placeholder="¿Qué se debe hacer en el módulo?"></textarea></div>
+        <div class="col-12 d-flex flex-wrap gap-2 pt-1">
+         <button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-download"></i> Crear una cremallera de orden AI</button>
+         <a class="btn btn-success btn-lg" href="{bundle_url}"><i class="bi bi-upload"></i> Respuesta del módulo de importación</a>
+         <a class="btn btn-outline-secondary btn-lg" target="_blank" href="{api_url}"><i class="bi bi-braces"></i> Módulo AI API</a>
+        </div>
+       </div>
+       [dbx:form]
+      </form>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>

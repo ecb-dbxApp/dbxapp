@@ -1,0 +1,14 @@
+[tpl=dbx|frame-head]
+[tpl=dbx|frame-body-open]
+<div class="alert alert-danger">
+ <h2 class="h5"><i class="bi bi-exclamation-triangle"></i> Permanently delete ticket #{rid}?</h2>
+ <p class="mb-0">The request, all replies, internal notes and status messages are permanently removed.</p>
+</div>
+{obj:confirm_delete}
+<div class="d-flex justify-content-end gap-2 mt-3">
+ <a class="btn btn-outline-secondary" href="?dbx_modul=dbxContact_admin&amp;dbx_run1=ticket&amp;rid={rid}">Cancel</a>
+ <button class="btn btn-danger" type="submit"><i class="bi bi-trash"></i> Delete permanently</button>
+</div>
+<div class="d-none">[dbx:form]</div>
+[tpl=dbx|frame-body-close]
+[tpl=dbx|frame-foot]

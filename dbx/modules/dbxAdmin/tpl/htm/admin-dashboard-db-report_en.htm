@@ -1,0 +1,27 @@
+<div class="dbx-panel dbxReport dbx-admin-dashboard-panel dbx-admin-dashboard-db-report" id="dbx_admin_dashboard_db_{i}" data-dbx="lib=report|form=0" data-admin-collapsible-panel="{panel_target}">
+   {obj:database_bar}
+   <div class="dbx-admin-dashboard-panel-body dbx-admin-dashboard-db-body" data-admin-collapsible-body="{panel_target}">
+      <div class="dbx-admin-dashboard-table-head">
+         <span>Data source</span>
+         <span>Utilisation</span>
+         <span>Number</span>
+         <span>Status</span>
+      </div>
+      <div class="dbx-admin-dashboard-db-list">
+         <hr class="dbx_split">
+         <div class="dbx-admin-dashboard-db-row dbx-admin-dashboard-db-row-{tone}">
+            <div>
+               <strong>{title}</strong>
+               <small>{meta}</small>
+            </div>
+            <div class="dbx-admin-dashboard-row-meter">
+               <span style="width:{percent}%"></span>
+            </div>
+            <div class="dbx-admin-dashboard-row-count">{count}</div>
+            <div class="dbx-admin-dashboard-row-status">{status}</div>
+         </div>
+         <hr class="dbx_split">
+      </div>
+   </div>
+   [dbx:js]
+</div>

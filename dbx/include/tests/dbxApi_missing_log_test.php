@@ -1,0 +1,118 @@
+<?php
+
+require_once dirname(__DIR__) . '/dbxApi.php';
+
+class dbxMissingLogTestDb {
+   public array $rows = array();
+   public bool $transaction = false;
+   public int $begins = 0;
+   public int $commits = 0;
+   public int $rollbacks = 0;
+   private int $insertId = 0;
+
+   public function begin(string $dd): int {
+      if ($dd !== 'dbxMissing' || $this->transaction) return 0;
+      $this->transaction = true;
+      $this->begins++;
+      return 1;
+   }
+
+   public function rollback(string $dd): int {
+      $this->transaction = false;
+      $this->rollbacks++;
+      return 1;
+   }
+
+   public function commit(string $dd): int {
+      if (!$this->transaction) return 0;
+      $this->transaction = false;
+      $this->commits++;
+      return 1;
+   }
+
+   public function select1(string $dd, array $where, string $fields, int $verifyAccess) {
+      foreach ($this->rows as $row) {
+         if ($row['missing'] === $where['missing']) {
+            return array('id' => $row['id'], 'count' => $row['count']);
+         }
+      }
+      return array();
+   }
+
+   public function update(string $dd, array $values, $id, ...$options): int {
+      if (!$this->transaction) return 0;
+      foreach ($this->rows as &$row) {
+         if ((int)$row['id'] === (int)$id) {
+            $row = array_merge($row, $values);
+            unset($row);
+            return 1;
+         }
+      }
+      unset($row);
+      return 0;
+   }
+
+   public function insert(string $dd, array $values, ...$options): int {
+      if (!$this->transaction) return 0;
+      $this->insertId++;
+      $values['id'] = $this->insertId;
+      $this->rows[] = $values;
+      return 1;
+   }
+
+   public function get_insert_id(): int {
+      return $this->insertId;
+   }
+}
+
+class dbxMissingLogTestApi extends dbxApi {
+   public dbxMissingLogTestDb $testDb;
+   public array $errors = array();
+
+   public function __construct() {
+      $this->testDb = new dbxMissingLogTestDb();
+   }
+
+   public function get_system_obj(string $class, string $use = ''): ?object {
+      return $class === 'dbxDB' ? $this->testDb : null;
+   }
+
+   public function user($key = 'id') {
+      return 0;
+   }
+
+   public function write_php_error_log(string $type, string $message, string $file = '', int $line = 0): void {
+      $this->errors[] = $type . ': ' . $message;
+   }
+}
+
+$fail = static function (string $message, int $code): void {
+   fwrite(STDERR, "FAIL: $message\n");
+   exit($code);
+};
+
+$api = new dbxMissingLogTestApi();
+$_SERVER['HTTP_REFERER'] = 'https://localhost/dbxapp/home/tutorial?token=secret#bereich';
+
+$firstId = $api->log_missing('assets/missing.svg');
+$secondId = $api->log_missing('assets/missing.svg');
+
+if ($firstId !== 1 || $secondId !== 1 || count($api->testDb->rows) !== 1
+   || (int)$api->testDb->rows[0]['count'] !== 2) {
+   $fail('Wiederholte Ressourcenfehler werden nicht in einer Zeile gezaehlt.', 1);
+}
+
+if (($api->testDb->rows[0]['request'] ?? '') !== 'https://localhost/dbxapp/home/tutorial') {
+   $fail('Aufrufende Seite wird nicht ohne sensible Querydaten gespeichert.', 2);
+}
+
+if ($api->testDb->begins !== 2 || $api->testDb->commits !== 2
+   || $api->testDb->rollbacks !== 0 || $api->testDb->transaction) {
+   $fail('dbxMissing-Schreibvorgaenge sind nicht sauber transaktional.', 3);
+}
+
+if ($api->log_missing('') !== 0 || $api->testDb->begins !== 2 || $api->errors !== array()) {
+   $fail('Leere Eintraege werden nicht sauber ignoriert.', 4);
+}
+
+echo "OK dbxApi missing log\n";

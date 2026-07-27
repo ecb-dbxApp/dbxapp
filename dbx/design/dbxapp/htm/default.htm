@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="{dbx:lng}">
+<head>
+    <!-- =====================================================
+         META
+         ===================================================== -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{dbx:title}</title>{dbx:head_meta}
+
+    <!-- base href wird vom System automatisch ergänzt -->
+    <!-- {dbx:base_href} -->
+
+    <!-- =====================================================
+         VENDOR CSS (via Composer)
+         ===================================================== -->
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap-icons/font/bootstrap-icons.css">
+
+
+
+    <!-- =====================================================
+         DESIGN CSS – dbxapp
+         ===================================================== -->
+    <link rel="stylesheet" href="dbx/design/dbxapp/css/colors.css?v=40">
+    <link rel="stylesheet" href="{dbx:skin_css}?v=36">
+    <link rel="stylesheet" href="dbx/design/dbxapp/css/base.css?v=31">
+    <link rel="stylesheet" href="dbx/design/dbxapp/css/theme.css?v=31">
+    <link rel="stylesheet" href="dbx/design/dbxapp/css/glass-3d.css?v=9">
+</head>
+
+<body class="dbx-app dbx-header-sticky no-bg {dbx:skin_class}"[inc=is_dbx_edit()] data-dbx="lib=icons_editor"[/inc] data-dbx-skin="{dbx:color}" data-dbx-design="{dbx:design}">
+
+<div id="dbxApp">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+    <header id="dbxHeader">
+
+        <!-- ===============================
+             MENU (system container)
+             =============================== -->
+        [inc=has_group('admin')]
+        <nav id="dbx_admin_menu" class="dbx-menu dbx-menu-admin" data-dbx='lib=menu|id=admin|label=<i class="bi bi-shield-lock"></i> Admin' style="visibility:hidden">
+            [modul=dbxMenu]dbx_run1=load&tpl=modul|dbx-top-admin[/modul]
+        </nav>
+        [/inc]
+        <nav id="dbx_main_menu" class="dbx-menu dbx-menu-main" data-dbx='lib=menu|id=user|label=<i class="bi bi-person"></i> Benutzer' style="visibility:hidden">
+            [modul=dbxMenu]dbx_run1=load&tpl=modul|dbx-top-main[/modul]
+        </nav>
+
+
+    </header>
+
+    <!-- =====================================================
+         APP LAYOUT
+         ===================================================== -->
+
+        <!-- MAIN CONTENT -->
+
+        <main id="dbxMain">
+            <div class="dbx-content">
+                <div class="container-fluid py-3" id="dbxContent">
+                    [dbx:content]
+                </div>
+            </div>
+        </main>
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+    <footer id="dbxFooter" class="dbx-app-footer">
+        <div class="dbx-footer-dockbar" aria-label="Fensterleiste">
+            <div id="windrop" class="dbx-window-dock" aria-label="Minimierte Fenster"></div>
+            <button id="dbxWindowCloseAll" class="dbx-footer-window-close-all" type="button" title="Alle Fenster schließen" aria-label="Alle Fenster schließen">
+                <i class="bi bi-x-square"></i>
+            </button>
+        </div>
+
+        <div class="dbx-footer-info" aria-label="Systeminformationen">
+            <span class="dbx-footer-info-item" title="Laufzeit bis die Seite geladen ist">
+                <i class="bi bi-speedometer2"></i>
+                <span>Laufzeit</span>
+                <strong id="dbxScriptRuntime" data-dbx-runtime data-dbx-php-runtime="">...</strong>
+            </span>
+            <a href="datenschutz" class="dbx-footer-consent-link dbx-win" data-dbx="lib=openWin|url=datenschutz|title=Datenschutz|width=900|height=95%|position=center-top|reload=1|minimizable=1|maximizable=1">Datenschutz</a>
+             <span class="dbx-footer-brand">© dbXapp</span>
+        </div>
+    </footer>
+
+</div>
+
+<!-- =========================================================
+     SYSTEM ELEMENTS
+     ========================================================= -->
+
+
+<!-- Global Preloader -->
+<div id="dbxPreloader" class="dbx-preloader" style="display:none!important;pointer-events:none!important;background:transparent!important;box-shadow:none!important;"></div>
+
+<!-- Back to top -->
+<button id="dbxBackToTop" class="btn btn-primary">
+    <i class="bi bi-arrow-up"></i><br><br>
+</button>
+
+<!-- =========================================================
+     DESIGN JS – dbxapp
+     ========================================================= -->
+<script src="dbx/vendor/components/jquery/jquery.min.js"></script>
+<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v=79"></script>
+</body>
+</html>

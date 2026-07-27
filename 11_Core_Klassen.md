@@ -1,0 +1,153 @@
+# Core-Klassen {#dbxapp_core_classes}
+
+[Offizielle dbXapp Website](https://dbxapp.de)
+
+Dieses Kapitel erklaert Sinn und typische Verwendung der wichtigsten
+Systemklassen. Es ist keine vollstaendige API-Referenz; die Detailreferenz
+erzeugt Doxygen direkt aus dem Source.
+
+## Architekturentscheidung für große Kernklassen
+
+`dbxDB`, `dbxDD`, `dbxForm` und `dbxReport` besitzen viele Fähigkeiten, weil
+sie systemweite Fassaden und zustandsbehaftete Pipelines sind. Ihre öffentliche
+API hält Module einfach und einheitlich.
+
+| Beziehung | Architekturzweck |
+| --- | --- |
+| `dbxTPL extends dbxObj` | Templatezugriff nutzt gemeinsamen Objekt- und Systemkontext |
+| `dbxDD extends dbxDB` | Schema-, Backup- und Transferprozesse verwenden denselben DB-Pfad |
+| `dbxReport extends dbxForm` | Reportfilter verwenden dieselbe Feld-, FD- und Validierungspipeline |
+
+Eine Teilung ist nicht allein wegen Zeilenzahl oder Methodenzahl sinnvoll.
+Interne Verantwortungen dürfen erst extrahiert werden, wenn eine echte
+Lebenszyklusgrenze, ein messbarer Nutzen, vollständige Regressionstests und
+eine kompatible Fassade vorhanden sind. Fachmodule dürfen die internen
+Teilklassen anschließend nicht direkt verwenden.
+
+Die verbindliche Entscheidungsmatrix und das vollständige Zusammenspiel stehen
+unter @ref dbxapp_module_reference.
+
+## dbxApi / dbx()
+
+`dbx()` ist der zentrale Zugriffspunkt.
+
+Typische Aufgaben:
+
+- Request- und Modulvariablen lesen.
+- Remember- und Session-Werte setzen.
+- Systemobjekte laden.
+- Include-Objekte laden.
+- Konfiguration lesen/schreiben.
+- mutierende `delete`-/`save`-Links mit `rid` über `action_url()` automatisch
+  erkennen und signieren.
+- zentrale Hilfsfunktionen direkt nutzen; Escaping nur im tatsächlich
+  notwendigen Ausgabekontext.
+
+Beispiel:
+
+```php
+$run1 = dbx()->get_modul_var('dbx_run1', 'list');
+$db   = dbx()->get_system_obj('dbxDB');
+```
+
+## dbxWebApp
+
+`dbxWebApp` fuehrt den Request durch:
+
+- Basis-URL bestimmen.
+- Permalink oder Modulroute aufloesen.
+- automatisch erkannte und dbxReport-eigene Action-Policies vor dem
+  Modulstart prüfen.
+- schreibende dbxReport-Grid-Routen anhand ihrer Route erkennen, nicht anhand
+  eines optionalen Transportmarkers.
+- Design, Sprache, Editmodus bestimmen.
+- Content oder Modul ausgeben.
+- CSS/JS sammeln.
+- Ausgabe finalisieren.
+
+## dbxInterpreter
+
+Der Interpreter verarbeitet Marker wie:
+
+```html
+[modul=dbxAdmin]dbx_run1=session&dbx_run2=list_session[/modul]
+```
+
+Er laeuft fuer die Webseitenausgabe. Im Template-Editor darf er den
+bearbeiteten Rohtext nicht ausfuehren.
+
+Siehe auch: @ref dbxapp_dbxinterpreter.
+
+## dbxTPL
+
+Template-Engine fuer HTML-Templates, Marker und Template-Slots.
+
+## dbxDB
+
+Datenzugriff, DD-Laden, Rechte, Trace, Performance, Backup/Restore/Transfer.
+
+## dbxDD
+
+DD-Synchronisation, DD-Modelle, Feld-/Indexstruktur, DB-zu-DD und DD-zu-DB.
+
+## dbxForm
+
+Formulare, Panels, Feldaufbau, Validierung, Meldungen, Save-Pipeline und
+eigener rotierender POST-Schutz. `init()` übernimmt den direkten Aufrufer als
+Callback-Owner; Methoden nach `{fid}_{event}` werden deshalb ohne Registrierung
+gefunden. `add_rep()` und `replaces()` bilden die gemeinsame
+Template-Replacement-Pipeline. Normale Formular-Actions benötigen keinen
+zusätzlichen `dbx_token`.
+
+## dbxReport
+
+Listen, Suche, Sortierung, Pagination, Aktionen, Multi-Select, Grid-Modus und
+automatische Signierung mutierender Standardaktionen. Im Grid werden Read-URLs
+unverändert gelassen; Save, Insert, Delete, Sort und Sync werden nach der
+verbindlichen Grid-Routenkonvention signiert und unbekannte Schreib-URLs
+fail-closed verworfen. Berechnete Felder und
+Summen gehören standardmäßig in `{fid}_next_record`; spät gesetzte
+`add_rep()`-Werte stehen dem Footer zur Verfügung. `{rpt:col_count}` liefert
+alle Spalten, `{rpt:colspan}` alle Spalten außer der letzten Wertespalte.
+Explizite Owner- oder Callback-Setter sind nur für bewusst abweichende
+Methodennamen nötig.
+
+## dbxSession
+
+Session-Verwaltung und optionale Session-DB. Normale HTTP-Requests und
+HTML-AJAX-Requests koennen Sessionzustand am Request-Ende schreiben. Reine
+JSON-AJAX-Aktionen muessen nicht zwingend Session/Performance schreiben.
+Login und Logout verwerfen das Action-Token-Secret des vorherigen
+Sicherheitskontexts.
+
+## dbxMail
+
+Mail-Versand ueber die konfigurierte Mail-Infrastruktur.
+
+## dbxValidator
+
+Validierung von Request-, Formular- und Feldwerten. Die aktuellen Fachregeln
+enthalten unter anderem `email` für vollständige Internet-E-Mail-Adressen und
+`permalink` für flache CMS-Permalinks aus Kleinbuchstaben, Zahlen und einzelnen
+Bindestrichen.
+
+## dbxUpload / dbxDownload
+
+Upload-/Download-Funktionen, Dateipruefung und Bildbearbeitung.
+
+## dbxProcess
+
+Status- und Prozessverwaltung fuer laengere Operationen wie Sync, Import,
+Transfer oder Batch-Aktionen.
+
+## dbxView
+
+Hilfen fuer Zielbereiche, View-State und AJAX-Targets.
+
+## Grundregel
+
+Kernel-Klassen sind Infrastruktur. Fachmodule sollen sie nutzen, nicht kopieren.
+Kernel-Aenderungen nur auf ausdrueckliche Anforderung.
+
+Weiterlesen: @ref dbxapp_module_reference, @ref dbxapp_dbxdb_dd_fd,
+@ref dbxapp_dbxform und @ref dbxapp_dbxreport.

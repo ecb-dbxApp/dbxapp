@@ -1,0 +1,15 @@
+<h4>What is this module for?</h4>
+<p><strong>dbxWorkflow_admin</strong> is the mandatory source for executable workflow definitions. Here, administrators set goals, steps, exams, decisions and optional subject module bindings.</p>
+
+<div class="help-flow">Define Objective → Arrange Steps → Control Examination → Optionally Assign Binding → Activate → In dbxWorkflow Test test</div>
+
+<h4>Recommended approach</h4>
+<ol>
+<li>Create workflow with a clear key and understandable goal.</li>
+<li>Build input, actions, exams and decisions in the visual designer.</li>
+<li>Control of mandatory information and branches.</li>
+<li>Create a module binding for DD/trayer accesses and <code>bind_ref</code> Assignment.</li>
+<li>Activate and fully test via the start action.</li>
+</ol>
+
+<p>New instances receive a definition snapshot at start. Changes to a definition thus apply to new runs, not retroactively to already running ones.</p>

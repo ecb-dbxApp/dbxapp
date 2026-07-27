@@ -1,0 +1,25 @@
+<h4>Was zeigt diese Übersicht?</h4>
+<p>Jeder Start in dbxWorkflow erzeugt eine eigene Instanz. Die Liste zeigt Workflow Key, Ziel, Status, aktuellen Schritt, Fortschritt und die letzte Meldung.</p>
+
+<h4>Status verstehen</h4>
+<div class="help-flow">running → paused → running → finished
+    └──────────────→ canceled
+                    → error</div>
+<ul>
+<li><strong>Läuft:</strong> der nächste anwendbare Schritt kann bearbeitet werden.</li>
+<li><strong>Angehalten:</strong> Werte bleiben erhalten; der Durchlauf kann fortgesetzt werden.</li>
+<li><strong>Abgebrochen:</strong> keine weitere Bearbeitung ohne bewussten Neustart.</li>
+<li><strong>Fertig:</strong> alle Pflichtschritte und die Finish-Logik waren erfolgreich.</li>
+<li><strong>Fehler:</strong> Meldung und Fachmodul prüfen.</li>
+</ul>
+
+<h4>Fehler suchen</h4>
+<ol>
+<li>Instanz über die Aktion öffnen.</li>
+<li>Letzte Meldung und aktuellen Schritt lesen.</li>
+<li>Bei gesperrten Schritten Voraussetzung und erwarteten Ergebniswert prüfen.</li>
+<li>Bei Modulaktionen den Fachdatensatz und das verwendete Binding kontrollieren.</li>
+<li>Bei externen Aktionen vor einem Neustart zuerst den Providerstatus prüfen.</li>
+</ol>
+
+<p><strong>Definitionsstand:</strong> Neue Instanzen speichern beim Start einen Snapshot. Änderungen in dbxWorkflow_admin verändern daher keine bereits gestarteten Abläufe. Ältere Instanzen ohne Snapshot verwenden aus Kompatibilitätsgründen weiterhin die aktuelle Definition.</p>

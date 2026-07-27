@@ -1,0 +1,26 @@
+<h4>When is a binding required?</h4>
+<p>A workflow can capture simple values itself. For real technical data, a module binding declaratively connects the general engine with DD, FD, templates and a controlled finish action. The subject module does not have to replicate its own workflow control.</p>
+
+<div class="help-flow">Workflow definition
+→ bind_ref = Modulus|bind_key
+  Active module binding
+→ DD selection / pre-occupation / context
+→ Finish in the subject module</div>
+
+<h4>Procedure</h4>
+<ol>
+<li><strong>New binding</strong> open.</li>
+<li>Select the module and its central DD; The generator creates a basic framework.</li>
+<li><code>record</code>, <code>needs</code> and <code>finish</code> technically examine and adapt.</li>
+<li>Activate and save binding.</li>
+<li>Enter the same reference in the workflow under module connection, for example <code>dbxContact|contact_reply</code>.</li>
+<li>Run a new workflow run with a test dataset.</li>
+</ol>
+
+<h4>Notes</h4>
+<ul>
+<li><code>modul</code> and <code>bind_key</code> Together they form a clear reference.</li>
+<li>A deactivated or unknown binding does not provide a specialist connection.</li>
+<li>The generator is a starting point. Field names, selection filters, templates and finish actions must fit the specialist case.</li>
+<li>External publications, mailing and other hard to undo actions must be visibly confirmed and checked again during the finish.</li>
+</ul>

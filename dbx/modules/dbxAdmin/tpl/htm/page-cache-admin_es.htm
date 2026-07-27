@@ -1,0 +1,32 @@
+<div class="dbx-panel">
+[tpl=dbx|module-bar]
+ <div class="dbx-panel-body">
+  {msg}
+
+  <p class="mb-3">
+    Este caché de página almacena la llamada completa de permalink.
+Edición final para Gaeste. Título, descripción, palabras clave, otros metadatos de cabeza,
+El diseño, el menú y los módulos incluidos ya se han disuelto. Un golpe será
+entregado directamente a través del archivo permalink; Sólo se permite el período de sesiones
+Utilice la base de datos del período de sesiones. Los usuarios registrados siempre siguen siendo dinámicos.
+  </p>
+
+  <table class="table table-sm table-bordered w-auto mb-4">
+   <tbody>
+    <tr><th>Lista</th><td><code>{cache_dir}</code></td></tr>
+    <tr><th>Páginas completas de invitados</th><td>{content_count}</td></tr>
+   </tbody>
+  </table>
+
+  <a class="btn btn-warning dbxConfirm"
+     href="{flush_url}"
+     title="Página caché vacío"
+     data-confirm-title="<i class='bi bi-trash3'></i> Página caché vacío"
+     data-confirm="¿Hay caches completamente vacíos?"
+     data-confirm-hint="<small>Las páginas completas de invitados en caché son removidas y recreadas en la próxima llamada válida de permalink.</small>"
+     data-confirm-buttons="yesno"
+     role="button">
+   <i class="bi bi-trash3"></i> Caché completamente vacío
+  </a>
+ </div>
+</div>

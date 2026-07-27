@@ -1,0 +1,32 @@
+<div class="dbx-panel">
+[tpl=dbx|module-bar]
+ <div class="dbx-panel-body">
+  {msg}
+
+  <p class="mb-3">
+    This page cache stores the complete permalink call.
+Final edition for Gaeste. Title, description, keywords, other head metadata,
+Design, menu and included modules have already been dissolved. A hit will be
+delivered directly via the permalink file; Only the session is allowed
+Use the session database. Registered users always remain dynamic.
+  </p>
+
+  <table class="table table-sm table-bordered w-auto mb-4">
+   <tbody>
+    <tr><th>List</th><td><code>{cache_dir}</code></td></tr>
+    <tr><th>Guest full pages</th><td>{content_count}</td></tr>
+   </tbody>
+  </table>
+
+  <a class="btn btn-warning dbxConfirm"
+     href="{flush_url}"
+     title="Page cache empty"
+     data-confirm-title="<i class='bi bi-trash3'></i> Page cache empty"
+     data-confirm="Are page caches completely empty?"
+     data-confirm-hint="<small>The cached guest full pages are removed and recreated at the next valid permalink call.</small>"
+     data-confirm-buttons="yesno"
+     role="button">
+   <i class="bi bi-trash3"></i> Cache completely empty
+  </a>
+ </div>
+</div>

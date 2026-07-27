@@ -1,0 +1,25 @@
+{
+  "contract": "dbx.design.v1",
+  "name": "steal",
+  "title": "STEAL – Hochglanz-Chrom, Feingold & Riffelblech",
+  "description": "Edelstahl-Design mit nahtlosem Riffelblech-Hintergrund, wenigen großen Zahnrad-Gravuren, kontrastreichen Hochglanz-Chrommenüs, ruhigen satinierten Cards und klaren Formularfeldern.",
+  "source_design": "dbxapp",
+  "layout": "top",
+  "menu_style": "dbxapp",
+  "managed_by": "dbxKi",
+  "revision": 11,
+  "material_system": {
+    "canvas": "seamless-light-diamond-plate",
+    "navigation": "smooth-mirror-chrome-with-high-contrast-hover-and-fine-gold-edge",
+    "surfaces": "calm-non-tiled-satin-steel",
+    "controls": "clean-satin-steel",
+    "accents": "polished-chrome-and-gold",
+    "assets": [
+      "img/riffelblech-hell.svg",
+      "img/riffelblech-dunkel.svg",
+      "img/chrom-reflex.svg",
+      "img/dbx-submenu-mark-v1.svg",
+      "img/dbx-page-gears-v1.svg"
+    ]
+  }
+}

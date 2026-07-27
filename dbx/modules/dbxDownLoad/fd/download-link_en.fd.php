@@ -1,0 +1,54 @@
+<?php
+$messages = array();
+$messages['save_success'] = 'Data was saved';
+$messages['save_succeass'] = $messages['save_success'];
+$messages['save_error'] = 'Data could not be saved';
+$messages['bar_title'] = 'Demo download';
+$messages['bar_subtitle'] = 'Receive the free Windows demo by email';
+$messages['try_limit'] = 'Too many unsuccessful attempts. Please wait {sec} seconds and then try again.';
+$messages['validation_error'] = 'Please check the highlighted required fields.';
+$messages['send_success'] = 'The personal download link was sent to your email address.';
+$messages['spam_error'] = 'The download link was not sent because the entry was identified as spam.';
+$messages['spam_field_error'] = 'Suspected spam. Please check your entry.';
+$messages['mail_error'] = 'The download link could not be sent by email at the moment. Please try again later.';
+$messages['email_field_error'] = 'The email could not be sent.';
+$messages['sent_to'] = 'The download link was sent to {email}.';
+
+
+$field = array();
+$field['name'] = 'name';
+$field['type'] = 'varchar';
+$field['index'] = '';
+$field['length'] = '160';
+$field['default'] = '';
+$field['label'] = 'Name';
+$field['rules'] = 'varchar|min=2|max=160';
+$field['tooltip'] = '';
+$field['errormsg'] = 'Please enter a name.';
+$field['placeholder'] = 'Your name';
+$field['convert'] = '';
+$field['protect'] = '0';
+$field['mask'] = '';
+$field['data'] = '';
+$field['options'] = '';
+$field['tpl'] = 'text-label';
+$fields[] = $field;
+
+$field = array();
+$field['name'] = 'email';
+$field['type'] = 'varchar';
+$field['index'] = '';
+$field['length'] = '180';
+$field['default'] = '';
+$field['label'] = 'E-mail';
+$field['rules'] = 'email|min=6|max=180';
+$field['tooltip'] = '';
+$field['errormsg'] = 'Please enter a valid email address.';
+$field['placeholder'] = 'name@example.org';
+$field['convert'] = '';
+$field['protect'] = '0';
+$field['mask'] = '';
+$field['data'] = '';
+$field['options'] = '';
+$field['tpl'] = 'text-label';
+$fields[] = $field;

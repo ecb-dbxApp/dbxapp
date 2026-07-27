@@ -1,0 +1,87 @@
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-shop-product-form">
+ {shop_admin_style}
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax" data-target="dbxForm_{i}">
+  <div class="dbx-bar {bar_class}">
+   <div class="dbx-bar-title {bar_title_class}">
+    {bar_title_pre}
+    <i class="bi {bar_icon}"></i>
+    <span class="dbx-module-bar-copy">
+     <span class="dbx-module-bar-heading"{bar_title_heading_attrs}>{bar_title}</span>
+     <span class="dbx-module-bar-subtitle">{bar_subtitle}</span>
+    </span>
+   </div>
+   {bar_middle}
+   <div class="dbx-bar-actions d-flex align-items-center gap-2 {bar_actions_class}">
+    {bar_actions}{bar_extra}
+   </div>
+  </div>
+  <div class="dbx-panel-body">
+   <div class="mb-3">{obj:form_msg}</div>
+   <div class="row g-3 align-items-start">
+    <div class="col-12 col-lg-8">
+     <div class="row g-3">
+      <div class="col-12">
+       <div class="border rounded bg-light p-3">
+        <h6 class="mb-3">Datos básicos</h6>
+        <div class="row g-3">
+         <div class="col-md-3">{obj:sku}</div>
+         <div class="col-md-3">{obj:slug}</div>
+         <div class="col-md-6">{obj:title}</div>
+         <div class="col-md-4">{obj:category}</div>
+         <div class="col-md-4">{obj:product_group_id}</div>
+         <div class="col-md-4">{obj:product_type}</div>
+         <div class="col-md-2">{obj:active}</div>
+         <div class="col-md-2">{obj:sorter}</div>
+        </div>
+       </div>
+      </div>
+      <div class="col-12">
+       <div class="border rounded bg-light p-3">
+        <h6 class="mb-3">Descripción</h6>
+        <div class="row g-3">
+         <div class="col-12">{obj:summary}</div>
+         <div class="col-12">{obj:description}</div>
+        </div>
+       </div>
+      </div>
+      <div class="col-lg-6">
+       <div class="border rounded bg-light p-3 h-100">
+        <h6 class="mb-3">Precio</h6>
+        <div class="row g-3">
+         <div class="col-md-6">{obj:price_gross}</div>
+        </div>
+        <input type="hidden" name="tax_mode" value="group">
+        <input type="hidden" name="tax_rate" value="-1">
+       </div>
+      </div>
+      <div class="col-lg-6">
+       <div class="border rounded bg-light p-3 h-100">
+        <h6 class="mb-3">Despacho y almacén</h6>
+        <div class="row g-3">
+         <div class="col-md-4">{obj:shipping_mode}</div>
+         <div class="col-md-4">{obj:shipping_gross}</div>
+         <div class="col-md-4">{obj:stock}</div>
+        </div>
+       </div>
+      </div>
+      <div class="col-12">
+       <div class="border rounded bg-light p-3">
+        <h6 class="mb-3">Presentación</h6>
+        <div class="row g-3">
+         <div class="col-md-4">{obj:badge}</div>
+         <div class="col-md-4">{obj:image_icon}</div>
+         <div class="col-md-4">{obj:logo_variant}</div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="col-12 col-lg-4">
+     {obj:product_images}
+     {obj:product_channels}
+    </div>
+   </div>
+  </div>
+ [dbx:js]
+ </form>
+</div>

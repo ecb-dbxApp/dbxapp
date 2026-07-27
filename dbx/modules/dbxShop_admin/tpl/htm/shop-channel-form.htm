@@ -1,0 +1,81 @@
+<details class="dbx-shop-channel-card"{details_open}>
+ <summary class="dbx-shop-channel-summary">
+  <span class="dbx-shop-channel-title"><code>{channel_key_view}</code><strong>{channel_title_view}</strong></span>
+  <span class="dbx-shop-channel-meta"><span>{platform_view}</span><span>{connection_view}</span></span>
+ <span class="dbx-shop-channel-badges">{active_badge}{export_badge}{order_badge}{status_badge}</span>
+  <small class="text-muted">{last_test_date}</small>
+  <span class="dbx-shop-channel-actions">{channel_edit_button}{channel_help_button}</span>
+ </summary>
+ <div id="dbxForm_{i}" class="dbxForm_wrapper dbx-shop-channel-form-wrapper">
+  {frame_form_open}
+   <input type="hidden" name="shop_action" value="save_channel">
+   <div class="dbx-shop-channel-form">
+    <div class="mb-2">{obj:form_msg}</div>
+    <div class="dbx-shop-channel-hints">
+     <div><strong>API</strong><span>{hint_api}</span></div>
+     <div><strong>Listing</strong><span>{hint_listing}</span></div>
+     <div><strong>Rueckmeldung</strong><span>{hint_feedback}</span></div>
+    </div>
+
+    <fieldset>
+    <legend>Stammdaten</legend>
+     <div class="dbx-shop-channel-stammdaten">
+      <div>{obj:channel_key}</div>
+      <div>{obj:title}</div>
+      <div>{obj:platform_type}</div>
+      <div>{obj:connection_mode}</div>
+      <div>{obj:sorter}</div>
+      <div class="dbx-shop-channel-switches">{obj:active}{obj:export_enabled}{obj:order_import_enabled}</div>
+      <div class="dbx-shop-channel-description">{obj:description}</div>
+     </div>
+    </fieldset>
+
+    <fieldset>
+     <legend>Zugangsdaten</legend>
+     <div class="row g-2 align-items-end">
+      <div class="col-md-5">{obj:api_base_url}</div>
+      <div class="col-md-3">{obj:api_client_id}</div>
+      <div class="col-md-4">{obj:api_username}</div>
+      <div class="col-md-3">{obj:api_client_secret}</div>
+      <div class="col-md-3">{obj:api_access_token}</div>
+      <div class="col-md-3">{obj:api_refresh_token}</div>
+      <div class="col-md-3">{obj:api_password}</div>
+     </div>
+    </fieldset>
+
+    <fieldset>
+     <legend>Plattformdaten</legend>
+     <div class="row g-2 align-items-end">
+      <div class="col-md-3">{obj:marketplace_id}</div>
+      <div class="col-md-3">{obj:seller_id}</div>
+      <div class="col-md-3">{obj:account_id}</div>
+      <div class="col-md-3">{obj:location_key}</div>
+      <div class="col-md-3">{obj:category_id}</div>
+      <div class="col-md-3">{obj:payment_policy_id}</div>
+      <div class="col-md-3">{obj:fulfillment_policy_id}</div>
+      <div class="col-md-3">{obj:return_policy_id}</div>
+     </div>
+    </fieldset>
+
+    <fieldset>
+     <legend>Rueckmeldungen</legend>
+     <div class="row g-2 align-items-end">
+      <div class="col-md-4">{obj:notification_destination}</div>
+      <div class="col-md-3">{obj:notification_topic}</div>
+      <div class="col-md-4">{obj:webhook_secret}</div>
+      <div class="col-md-5">{obj:webhook_url}</div>
+      <div class="col-md-7">{obj:api_scope}</div>
+      <div class="col-md-3"><label class="form-label">Letzter Test</label><div class="form-control form-control-sm bg-white">{status_badge}</div></div>
+      {test_message}
+     </div>
+    </fieldset>
+
+    <div class="col-12 text-end">
+     <button class="btn btn-primary btn-sm" name="shop_action" value="save_channel" title="Speichern"><i class="bi bi-save"></i> Speichern</button>
+     {test_button}{delete_button}
+    </div>
+   </div>
+   [dbx:js]
+  {frame_form_close}
+ </div>
+</details>

@@ -1,0 +1,18 @@
+<div id="dbx_ddedit_indexes_{i}" class="dbx-panel dbxReport dbx-report dbx-ddedit-nav-panel dbx-ddedit-indexes-report" data-dbx="lib=report|form=0" data-ddedit-report="indexes" data-modul="{modul}" data-dd="{dd}">
+ <div class="dbx-ddedit-nav-head">
+  <h5 class="mb-1"><i class="bi bi-diagram-3 me-1"></i>Índices</h5>
+  <div class="text-muted small">{count} Índices</div>
+ </div>
+
+ <div class="dbx-ddedit-list dbx-ddedit-index-list">
+<hr class="dbx_split">
+[tpl=dbxAdmin|ddedit-index-row]
+<hr class="dbx_split">
+ </div>
+
+ <div class="dbx-ddedit-nav-actions">
+  <a class="btn btn-outline-primary btn-sm w-100 dbxAjax" href="{new_index_url}" data-target="{target_id}" data-replace="inner">
+   <i class="bi bi-plus-lg me-1"></i>Nuevo índice
+  </a>
+ </div>
+</div>

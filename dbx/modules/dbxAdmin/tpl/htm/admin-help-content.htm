@@ -1,0 +1,309 @@
+<h4>Willkommen im Content CMS</h4>
+<p>Das Content CMS ist die zentrale Oberflaeche fuer Webseiten-Inhalte in dbXapp. Hier verwalten Sie <strong>Ordner</strong>, <strong>Seiten</strong>, <strong>Medien</strong>, <strong>Rechte</strong> und — bei mehreren Sprachen — die <strong>Uebersetzungen</strong>.</p>
+<p><strong>Einstieg:</strong> <code>?dbx_modul=dbxContent_admin&dbx_run1=cms</code></p>
+
+<h4>Die Oberflaeche auf einen Blick</h4>
+<div class="help-flow">┌─────────────────────────────────────────────────────────────┐
+│ Kopfzeile: Speichern | Uebersetzen | Auto-Sync | Loeschen   │
+├──────────┬──────────────────────────────┬────────────────────┤
+│ LINKS    │ MITTE                        │ RECHTS             │
+│ Seiten-  │ Seiten- oder Ordner-Editor   │ Hero, Gallery,     │
+│ baum     │ + Vorschau-Button            │ Medien im Text,    │
+│ + Sprach-│                              │ Mehrsprachigkeit   │
+│ tabs     │                              │                    │
+└──────────┴──────────────────────────────┴────────────────────┘</div>
+<ul>
+<li><strong>Links:</strong> Hierarchischer Baum (Ordner und Seiten). Klick waehlt den Eintrag.</li>
+<li><strong>Mitte:</strong> Titel, Permalink, Status, Inhalt, Seitenmodule.</li>
+<li><strong>Rechts:</strong> Hero-Bild, Galerie, Inline-Medien, Uebersetzungs-Einstellungen.</li>
+<li><strong>Oben:</strong> Sprach-Tabs (z. B. DE*, EN) — Stern = Master-Sprache.</li>
+</ul>
+
+<h4>Alle Buttons der CMS-Kopfzeile</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Funktion</th><th>Wichtiger Hinweis</th></tr></thead>
+<tbody>
+<tr><td><strong>Content Tree ein-/ausklappen</strong> (X/Pfeil)</td><td>Blendet den linken Seitenbaum ein oder aus.</td><td>Aendert keine Daten.</td></tr>
+<tr><td><strong>Speichern</strong> (Diskette)</td><td>Speichert die aktuell bearbeitete Seite beziehungsweise den geoeffneten Ordner samt Einstellungen.</td><td>Alternativ <kbd>Strg</kbd>+<kbd>S</kbd>. Der Statuspunkt wechselt danach auf „Gespeichert“.</td></tr>
+<tr><td><strong>Uebersetzen</strong> (Sprachen)</td><td>Uebertraegt die gewaehlte Seite oder den Ordner aus der Master-Sprache in weitere Sprachen.</td><td>Nur in der Master-Sprache sichtbar.</td></tr>
+<tr><td><strong>Auto-Sync</strong> (Kettenglied)</td><td>Verknuepft manuell abgekoppelte Sprachversionen wieder mit dem Master.</td><td>Kuenftige Master-Aenderungen koennen die Zielsprachen wieder ueberschreiben.</td></tr>
+<tr><td><strong>Loeschen</strong> (Papierkorb)</td><td>Loescht nach Bestaetigung die aktuelle Seite beziehungsweise den geoeffneten Ordner.</td><td>Bei mehreren Sprachen erscheint eine Auswahl der zu loeschenden Sprachversionen.</td></tr>
+<tr><td><strong>Vorschau</strong> (Auge)</td><td>Oeffnet die aktuelle Seite in der Frontend-Vorschau.</td><td>Ungespeicherte Aenderungen sind dort noch nicht enthalten.</td></tr>
+<tr><td><strong>Neue Seite</strong> (gruener Button mit Datei-Plus)</td><td>Legt im gewaehlten Ordner eine neue Seite mit Standardinhalt an und oeffnet sie direkt.</td><td>Vorher im Baum den gewuenschten Zielordner waehlen.</td></tr>
+<tr><td><strong>Seite duplizieren</strong> (zwei Dateien)</td><td>Erstellt im selben Ordner eine neue, eigenstaendige Kopie der aktuell gewaehlten Seite.</td><td>Erst speichern. Der Permalink wird automatisch mit <code>-kopie</code>, <code>-kopie-2</code> usw. eindeutig gemacht.</td></tr>
+<tr><td><strong>Neu laden</strong> (Kreispfeil)</td><td>Laedt Baum und aktuellen Datenstand erneut vom Server.</td><td>Ungespeicherte Aenderungen koennen dabei verloren gehen.</td></tr>
+</tbody>
+</table>
+<p><strong>Gespeichert/Ungespeichert</strong> ist kein Button, sondern die Zustandsanzeige fuer Aenderungen im Formular oder Editor.</p>
+
+<h4>Buttons im Seitenbaum und im Ordnerformular</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Funktion</th></tr></thead>
+<tbody>
+<tr><td><strong>Neuer Ordner</strong> (Ordner-Plus)</td><td>Oeffnet ein leeres Ordnerformular; der zuvor gewaehlte Ordner wird als Zuordnung vorgeschlagen.</td></tr>
+<tr><td><strong>Neue Seite im Ordner</strong> (Datei-Plus)</td><td>Entspricht dem gruenen Button „Neue Seite“ und verwendet den aktuell gewaehlten Ordner.</td></tr>
+<tr><td><strong>Suche</strong></td><td>Filtert den Baum nach Seiten-/Ordnernamen; eine eingegebene numerische ID kann gezielt gefunden werden.</td></tr>
+<tr><td><strong>Sprach-Tab</strong> (DE*, EN, ...)</td><td>Wechselt den CMS-Datenbestand in die gewaehlte Sprache. Der Stern kennzeichnet die Master-Sprache.</td></tr>
+<tr><td><strong>Ordner auf-/zuklappen</strong> (Pfeil)</td><td>Zeigt oder verbirgt die untergeordneten Eintraege.</td></tr>
+<tr><td><strong>Ordner bearbeiten</strong> (Stift)</td><td>Oeffnet Name, Zuordnung, Template und Leserechte des Ordners.</td></tr>
+<tr><td><strong>Schliessen</strong> (X im Ordnerformular)</td><td>Schliesst das Ordnerformular und zeigt wieder den Seiteneditor.</td></tr>
+<tr><td><strong>Ordner loeschen</strong></td><td>Loescht einen leeren Ordner nach Bestaetigung.</td></tr>
+<tr><td><strong>Ordner speichern</strong></td><td>Speichert alle Felder des Ordnerformulars.</td></tr>
+</tbody>
+</table>
+
+<h4>Buttons fuer Hero, Galerie und Medien im Text</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Funktion</th></tr></thead>
+<tbody>
+<tr><td><strong>Bereich auf-/zuklappen</strong> (Pfeil an Hero, Gallery oder Im Text)</td><td>Blendet die Einstellungen des jeweiligen Bereichs ein oder aus.</td></tr>
+<tr><td><strong>Hero – Auswahl</strong></td><td>Oeffnet den Medienbrowser und waehlt genau ein Hero-Bild oder -Video fuer die Seite.</td></tr>
+<tr><td><strong>Hero – Speichern</strong></td><td>Speichert Hero-Medium und alle Hero-Einstellungen zusammen mit der Seite.</td></tr>
+<tr><td><strong>Gallery – Auswahl</strong></td><td>Ordnet der Seite ein oder mehrere Medien fuer die Galerie zu.</td></tr>
+<tr><td><strong>Gallery – Speichern</strong></td><td>Speichert Galerie-Einstellungen und die aktuelle Reihenfolge.</td></tr>
+<tr><td><strong>Im Text – Auswahl</strong></td><td>Waehlt ein Medium aus dem Medienbrowser und fuegt es in den Editorinhalt ein.</td></tr>
+<tr><td><strong>Medium in Editor einfuegen</strong> (Bildsymbol am Medium)</td><td>Fuegt das bereits zugeordnete Medium an der aktuellen Cursorposition ein.</td></tr>
+<tr><td><strong>Zuordnung entfernen</strong> (Papierkorb am Medium)</td><td>Entfernt das Medium aus dieser Seite. Die Datei selbst bleibt in der Medienverwaltung erhalten.</td></tr>
+</tbody>
+</table>
+<p>Galerie-Medien koennen per Drag-and-drop sortiert werden. Beim Duplizieren werden keine Bild- oder Videodateien doppelt gespeichert; die neue Seite erhaelt eigene aktive Eintraege in <code>media_usage</code>, die auf dieselben Medien zeigen.</p>
+
+<h4>Buttons im Inhaltseditor</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Button</th><th>Funktion</th></tr></thead>
+<tbody>
+<tr><td><strong>Quelltext</strong></td><td>Wechselt zwischen visueller Bearbeitung und HTML-Quelltext.</td></tr>
+<tr><td><strong>Alles speichern</strong></td><td>Speichert Seite, Editorinhalt und Seiteneinstellungen.</td></tr>
+<tr><td><strong>Textstil</strong></td><td>Setzt Zeichenformatierungen wie fett, kursiv, unterstrichen oder durchgestrichen.</td></tr>
+<tr><td><strong>Aufzaehlung</strong></td><td>Erstellt eine ungeordnete Liste.</td></tr>
+<tr><td><strong>Nummerierung</strong></td><td>Erstellt eine geordnete Liste.</td></tr>
+<tr><td><strong>Ausruecken</strong></td><td>Verringert die Einrueckung des aktuellen Absatzes oder Listeneintrags.</td></tr>
+<tr><td><strong>Einruecken</strong></td><td>Erhoeht die Einrueckung des aktuellen Absatzes oder Listeneintrags.</td></tr>
+<tr><td><strong>Absatzformat</strong></td><td>Waehlt Absatz, Ueberschrift oder ein anderes Blockformat.</td></tr>
+<tr><td><strong>Farbe</strong> (Pinsel)</td><td>Setzt Text- beziehungsweise Hintergrundfarbe.</td></tr>
+<tr><td><strong>Link</strong></td><td>Erstellt oder bearbeitet einen Verweis.</td></tr>
+<tr><td><strong>Bild/Medienbrowser</strong></td><td>Waehlt ein Bild aus der CMS-Medienverwaltung und fuegt es ein.</td></tr>
+<tr><td><strong>Modul</strong></td><td>Fuegt einen dbXapp-Modulplatzhalter mit den benoetigten Parametern ein.</td></tr>
+<tr><td><strong>Bootstrap-Komponente</strong></td><td>Fuegt vorbereitete Layout-Komponenten wie Karten oder Raster ein.</td></tr>
+<tr><td><strong>Video</strong></td><td>Fuegt ein Video beziehungsweise einen Video-Link ein.</td></tr>
+<tr><td><strong>Trennlinie</strong></td><td>Fuegt eine horizontale Trennlinie ein.</td></tr>
+<tr><td><strong>Marker</strong></td><td>Fuegt einen dbXapp-Strukturmarker, zum Beispiel fuer Spalten oder Inhaltsbereiche, ein.</td></tr>
+<tr><td><strong>Rueckgaengig</strong></td><td>Nimmt den letzten Bearbeitungsschritt zurueck.</td></tr>
+<tr><td><strong>Wiederholen</strong></td><td>Stellt den zuletzt rueckgaengig gemachten Schritt wieder her.</td></tr>
+<tr><td><strong>Vollbild</strong></td><td>Vergroessert den Editor auf die gesamte verfuegbare Flaeche.</td></tr>
+</tbody>
+</table>
+
+<h4>Alle Eingabefelder einer Seite</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Feld</th><th>Bedeutung</th></tr></thead>
+<tbody>
+<tr><td><strong>Titel</strong></td><td>Sichtbarer Seitentitel und Bezeichnung im Seitenbaum.</td></tr>
+<tr><td><strong>Permalink</strong></td><td>Eindeutiger URL-Pfad ohne Domain und ohne fuehrenden Slash, zum Beispiel <code>leistungen/beratung</code>. Beim Duplizieren wird er automatisch eindeutig erweitert.</td></tr>
+<tr><td><strong>Content-Template</strong></td><td>Bestimmt den Rahmen und die Inhaltsbereiche der Seite. <code>parent</code> uebernimmt die Vorgabe des Ordners.</td></tr>
+<tr><td><strong>Status</strong></td><td><em>Aktiv</em> veroeffentlicht die Seite; <em>Inaktiv</em> haelt sie fuer normale Besucher verborgen.</td></tr>
+<tr><td><strong>Beschreibung</strong></td><td>Kurzbeschreibung der Seite mit maximal 254 Zeichen; wird je nach Ausgabe auch fuer Teaser oder Metadaten verwendet.</td></tr>
+<tr><td><strong>Inhalt</strong></td><td>Der grosse visuelle Editor fuer Texte, Links, Medien, Module und Layout-Komponenten.</td></tr>
+</tbody>
+</table>
+<p>Die technischen Felder <strong>ID</strong> und <strong>Ordner-ID</strong> werden automatisch verwaltet und sind deshalb nicht als normale Eingabefelder sichtbar.</p>
+
+<h4>Alle Hero- und Galerie-Felder</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Feld</th><th>Bedeutung</th></tr></thead>
+<tbody>
+<tr><td><strong>Hero – Template</strong></td><td>Legt fest, ob und wie das Hero-Medium ausgegeben wird. <code>parent</code> uebernimmt die Ordnereinstellung; <code>none</code> schaltet den Hero aus.</td></tr>
+<tr><td><strong>Hero – Medium</strong></td><td>Wird ueber „Auswahl“ gesetzt; die Media-ID bleibt verborgen und wird automatisch verwaltet.</td></tr>
+<tr><td><strong>Hero – Abstand oben</strong></td><td>Steuert den oberen Abstand. <code>parent</code> uebernimmt die Vorgabe des Ordners.</td></tr>
+<tr><td><strong>Hero – Hoehe</strong></td><td>Steuert die Darstellungs-Hoehe des Hero-Bereichs; <code>parent</code> uebernimmt die Vorgabe.</td></tr>
+<tr><td><strong>Hero – Variante</strong></td><td>Waehlt die Farb-/Overlay-Variante, zum Beispiel original, hell, dunkel oder monochrom.</td></tr>
+<tr><td><strong>Hero sticky</strong></td><td>Bestimmt, ob der Hero beim Scrollen fixiert bleibt. <code>parent</code> uebernimmt die Ordnereinstellung.</td></tr>
+<tr><td><strong>Scroll-Ebene</strong></td><td>Legt fest, ob der Hero beim Scrollen unter oder ueber dem Inhalt liegt.</td></tr>
+<tr><td><strong>Gallery – Overflow</strong></td><td>Bestimmt die Darstellung bei vielen Medien, zum Beispiel Raster, Slider oder eine begrenzte Ansicht.</td></tr>
+<tr><td><strong>Gallery – Klick</strong></td><td>Bestimmt die Aktion beim Anklicken eines Galerie-Mediums, zum Beispiel Lightbox, Link oder keine Aktion.</td></tr>
+</tbody>
+</table>
+
+<h4>Alle Eingabefelder eines Ordners</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Feld</th><th>Bedeutung</th></tr></thead>
+<tbody>
+<tr><td><strong>Name</strong></td><td>Bezeichnung des Ordners im Seitenbaum und Grundlage fuer neue Permalinks.</td></tr>
+<tr><td><strong>Zuordnung</strong></td><td>Waehlt den Elternordner. „Root / erste Ebene“ legt den Ordner ganz oben ab.</td></tr>
+<tr><td><strong>Content-Template</strong></td><td>Standard-Template fuer untergeordnete Seiten. <code>parent</code> uebernimmt die hoehere Ebene.</td></tr>
+<tr><td><strong>Leserechte</strong></td><td>Legt fest, welche Benutzergruppen Inhalte dieses Ordners lesen duerfen. <code>parent</code> uebernimmt die Rechte des Elternordners; <code>*</code> erlaubt alle.</td></tr>
+</tbody>
+</table>
+
+<h4>Weitere Auswahl- und Dialogfelder</h4>
+<ul>
+<li><strong>Baumsuche:</strong> schraenkt die sichtbaren Seiten und Ordner ein.</li>
+<li><strong>Medien-Anzeige:</strong> filtert zugeordnete Medien nach Alle, Galerie, Hero, Im Text oder Shop.</li>
+<li><strong>Medienordner/Upload-Ziel:</strong> bestimmt, aus welchem Medienordner angezeigt beziehungsweise in welchen Ordner hochgeladen wird.</li>
+<li><strong>Dateiauswahl:</strong> waehlt eine oder mehrere lokale Dateien fuer den Upload.</li>
+<li><strong>Externe Video-URL:</strong> nimmt eine unterstuetzte Video-URL, zum Beispiel YouTube, auf.</li>
+<li><strong>Zielsprache aktivieren:</strong> legt im Uebersetzungsdialog fest, welche Sprachversionen erstellt oder aktualisiert werden.</li>
+<li><strong>Gesamten Unterbaum inkl. Seiten:</strong> uebertraegt bei Ordnern auch alle enthaltenen Unterordner und Seiten.</li>
+</ul>
+
+<h4>Grundbegriffe</h4>
+<ul>
+<li><strong>Ordner</strong> — strukturiert den Baum (wie Verzeichnisse). Hat Leserechte und optional Hero.</li>
+<li><strong>Seite</strong> — eigentlicher Inhalt mit Titel, Text, Permalink und Medien.</li>
+<li><strong>Permalink</strong> — URL-Pfad der Seite (z. B. <code>leistungen/beratung</code>).</li>
+<li><strong>Master-Sprache</strong> — fuehrende Sprache (meist DE). Aenderungen hier steuern Auto-Sync.</li>
+<li><strong>Sprachversion</strong> — derselbe Inhalt in einer anderen Sprache, verknuepft ueber interne ID.</li>
+</ul>
+
+<h4>Neue Seite anlegen</h4>
+<ol>
+<li>Im Baum den <strong>Zielordner</strong> anklicken.</li>
+<li>Button <strong>Neue Seite</strong> (gruen, Datei-Icon).</li>
+<li>Titel und Text im Editor bearbeiten.</li>
+<li><strong>Speichern</strong> (Diskette oder <kbd>Strg</kbd>+<kbd>S</kbd>).</li>
+<li>Bei Master-Sprache: Dialog <em>In andere Sprachen uebertragen</em> oeffnet sich — auch beim Speichern bestehender Seiten, wenn EN/ES noch fehlen.</li>
+</ol>
+<div class="help-example"><strong>Beispiel:</strong> Ordner „Leistungen“ → Neue Seite → Titel „Beratung“ → Text schreiben → Speichern → EN-Version im Dialog aktivieren → Uebernehmen. EN-Seite ist zunaechst <em>inaktiv</em>.</div>
+
+<h4>Bestehende Seite duplizieren</h4>
+<ol>
+<li>Im Baum die zu kopierende <strong>Seite</strong> anklicken.</li>
+<li>Falls „Ungespeichert“ angezeigt wird, zuerst <strong>Speichern</strong>.</li>
+<li>Rechts neben dem gruenen Button „Neue Seite“ auf <strong>Seite duplizieren</strong> (zwei Dateien) klicken.</li>
+<li>Die neue Seite wird im selben Ordner angelegt und sofort im Editor geoeffnet.</li>
+</ol>
+<p>Die Kopie erhaelt eine neue Seiten-ID, eine neue Sprachverknuepfung und eine neue Sortierposition. Titel, Status, SEO-Felder, Inhalt, Hero-/Galerie-Einstellungen und Medien bleiben erhalten. Der Permalink wird automatisch auf <code>...-kopie</code> gesetzt; existiert dieser bereits, folgt <code>...-kopie-2</code> usw.</p>
+<div class="help-example"><strong>Medien:</strong> Die Dateien werden nicht physisch vervielfaeltigt. Fuer Hero, Galerie und weitere Bereiche entstehen eigene <code>media_usage</code>-Zuordnungen zur neuen Seite; Inline-Medien werden aus dem kopierten Editorinhalt neu zugeordnet.</div>
+
+<h4>Neuen Ordner anlegen</h4>
+<ol>
+<li>Elternordner im Baum waehlen (oder Root).</li>
+<li><strong>Neuer Ordner</strong> im Baum-Kontext oder ueber die Ordner-Ansicht.</li>
+<li>Name, Parent und Leserechte setzen → Speichern.</li>
+<li>Wie bei Seiten: Provision-Dialog fuer weitere Sprachen.</li>
+</ol>
+
+<h4>Seite oder Ordner bearbeiten</h4>
+<ol>
+<li>Eintrag im Baum anklicken.</li>
+<li>Meta-Felder (Titel, Permalink, Status, Template) anpassen.</li>
+<li>Inhalt im Editor aendern — Module per Platzhalter <code>[modul=...]</code>.</li>
+<li>Medien rechts zuordnen (Hero, Galerie, Im Text).</li>
+<li>Speichern. Der Punkt „Gespeichert“ in der Kopfzeile zeigt ungespeicherte Aenderungen.</li>
+</ol>
+
+<h4>Medien</h4>
+<ul>
+<li><strong>Hero</strong> — grosses Kopfbild oben auf der Seite.</li>
+<li><strong>Galerie</strong> — Bildergalerie unter dem Inhalt.</li>
+<li><strong>Im Text</strong> — Bilder/Videos inline im Editor.</li>
+<li>Medien werden im <strong>Medienbrowser</strong> ausgewaehlt; Dateien bleiben im Bestand, auch wenn Sie die Verknuepfung loesen.</li>
+</ul>
+<div class="help-example"><strong>Tipp:</strong> Nach dem Speichern in der Master-Sprache werden Medien-Verknuepfungen bei Auto-Sync-Sprachen mit uebernommen.</div>
+
+<h4>Mehrsprachigkeit — So funktioniert es</h4>
+<p>dbXapp trennt Inhalte pro Sprache in eigene Tabellen (<code>content_de</code>, <code>content_en</code>, …). Verknuepft sind sie ueber <code>lng_uid</code>.</p>
+<div class="help-flow">Master (DE*) speichern
+    │
+    ├─► Slave mit Auto-Sync  → wird automatisch aktualisiert (Text + Struktur + Medien)
+    │
+    └─► Slave mit Manuell    → bleibt unberuehrt (Fork)</div>
+
+<h4>Sprach-Tabs und Badges im Baum</h4>
+<ul>
+<li><strong>DE*, EN, …</strong> — Sprach-Tabs wechseln die Bearbeitungssprache.</li>
+<li><strong>Badges</strong> am Baumeintrag: Master, auto, manual oder fehlend.</li>
+<li><strong>Master (*)</strong> — nur hier: Uebertragen, Auto-Sync aktivieren, mehrsprachig Loeschen.</li>
+</ul>
+
+<h4>In andere Sprachen uebertragen (Provision)</h4>
+<ol>
+<li>Seite oder Ordner in der <strong>Master-Sprache</strong> waehlen.</li>
+<li>Button <strong>Uebersetzen</strong> (Sprachen-Icon) in der Kopfzeile.</li>
+<li>Dialog: Zielsprachen aktivieren, Texte pruefen und ggf. anpassen.</li>
+<li><strong>Uebernehmen</strong> — neue Sprachversionen werden angelegt (Seiten: inaktiv).</li>
+</ol>
+<p>Bei <strong>Ordnern</strong> zusaetzlich: Checkbox <em>Gesamten Unterbaum inkl. Seiten</em> — uebertraegt alle Unterordner und Seiten in einem Schritt (Ordner zuerst, dann Seiten).</p>
+
+<h4>Auto-Sync beim Master-Speichern</h4>
+<p>Wenn Sie eine Seite oder einen Ordner in der Master-Sprache <strong>aktualisieren</strong>, werden alle verknuepften Slaves mit Status <code>auto</code> im Hintergrund synchronisiert. Sie sehen eine Meldung wie „2 Sprachversion(en) synchronisiert“.</p>
+<ul>
+<li>Texte werden uebersetzt (je nach Provider).</li>
+<li>Struktur (Template, Hero-Einstellungen, Sortierung) wird uebernommen.</li>
+<li><strong>Status aktiv/inaktiv</strong> der Slave-Seite bleibt erhalten.</li>
+</ul>
+
+<h4>Fork — Manuelle Abweichung</h4>
+<p>Speichern Sie in einer <strong>Nicht-Master-Sprache</strong>, wird die Verknuepfung getrennt (<code>manual</code>). Die Meldung lautet: <em>Sprachverknuepfung getrennt (manuell).</em></p>
+<p>Ab dann uebernimmt der Master diese Sprache nicht mehr automatisch.</p>
+
+<h4>Auto-Sync wieder aktivieren</h4>
+<ol>
+<li>In der Master-Sprache die Seite/Ordner waehlen.</li>
+<li>Button <strong>Auto-Sync</strong> (Link-Icon) in der Kopfzeile.</li>
+<li>Bestaetigen — alle verknuepften Slaves erhalten wieder <code>auto</code>.</li>
+<li>Naechster Master-Save synchronisiert erneut (ueberschreibt Slave-Inhalte).</li>
+</ol>
+
+<h4>Loeschen</h4>
+<p><strong>Slave-Sprache:</strong> Einfache Bestaetigung — nur diese Sprachversion wird geloescht.</p>
+<p><strong>Master mit mehreren Sprachen:</strong> Dialog mit Checkboxen pro Sprache.</p>
+<ul>
+<li><code>auto</code>-Versionen sind vorausgewaehlt.</li>
+<li><code>manual</code>-Versionen nicht — bewusst ankreuzen, wenn gewuenscht.</li>
+<li>Ordner nur loeschbar, wenn keine Unterordner und keine Seiten enthalten sind (pro Sprache geprueft).</li>
+</ul>
+
+<h4>Uebersetzung konfigurieren (Admin)</h4>
+<p>Pfad: <strong>Admin → Content → Config</strong> oder direkt:</p>
+<p><code>?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=config</code></p>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Provider</th><th>Bedeutung</th></tr></thead>
+<tbody>
+<tr><td><code>copy</code></td><td>Text unveraendert kopieren (Standard, kein API-Key)</td></tr>
+<tr><td><code>none</code></td><td>Uebersetzungsfelder leer lassen</td></tr>
+<tr><td><code>deepl</code></td><td>DeepL API — API-Key erforderlich</td></tr>
+<tr><td><code>openai</code></td><td>OpenAI Chat API — API-Key + Modell</td></tr>
+<tr><td><code>custom</code></td><td>Eigene Logik in <code>dbx/modules/dbxContent/translate.php</code></td></tr>
+</tbody>
+</table>
+<p>Bei API-Fehlern: Fallback auf Originaltext, Hinweis im CMS und Eintrag unter <strong>Admin → SysMsg</strong> (Status <code>warning</code>, About <code>dbxContentTranslate</code>).</p>
+
+<h4>Vorschau und Veroeffentlichung</h4>
+<ul>
+<li><strong>Vorschau</strong> (Auge-Icon) — oeffnet die Seite im Frontend.</li>
+<li><strong>Status Aktiv/Inaktiv</strong> — nur aktive Seiten sind oeffentlich erreichbar.</li>
+<li>Neue Slave-Seiten starten als <strong>inaktiv</strong> — erst nach Pruefung auf aktiv stellen.</li>
+</ul>
+
+<h4>Cache</h4>
+<p>Nach dem Speichern wird der Gast-Full-Page-Cache automatisch invalidiert. Er speichert fuer Gaeste die vollstaendige Endausgabe gueltiger Permalink-Aufrufe einschliesslich Design, Menues und aufgeloester Module. Angemeldete Benutzer bleiben dynamisch. Wenn Aenderungen live nicht sichtbar sind:</p>
+<ol>
+<li>Admin → Page-Cache pruefen / leeren.</li>
+<li>Seite erneut aufrufen (Hard-Reload im Browser).</li>
+</ol>
+
+<h4>Tastenkuerzel</h4>
+<ul>
+<li><kbd>Strg</kbd> + <kbd>S</kbd> — Speichern (Seite oder Ordner)</li>
+</ul>
+
+<h4>Haeufige Fragen</h4>
+<p><strong>Warum fehlt EN im Baum?</strong><br>Seite wurde nur in DE angelegt — Provision-Dialog ausfuehren oder Uebersetzen-Button nutzen.</p>
+<p><strong>Warum wird EN nicht mehr aktualisiert?</strong><br>Slave wurde manuell gespeichert (Fork). Auto-Sync-Button nutzen oder EN erneut bearbeiten.</p>
+<p><strong>Hinweis zu Ordnern im Provision-Dialog?</strong><br>Fehlende Ordner in EN/ES werden beim Uebernehmen automatisch aus der Master-Struktur angelegt (inkl. Elternordner). Im Dialog erscheint ein Hinweis statt eines Fehlers.</p>
+<p><strong>Uebersetzung klappt nicht?</strong><br>Provider und API-Key in Modul-Config pruefen → SysMsg lesen.</p>
+<p><strong>Wo finde ich technische Details?</strong><br>Entwickler-Doku: <code>04_DBXApp_CMS_Mehrsprachigkeit.md</code> im Projekt.</p>
+
+<h4>Typischer Workflow (Mehrsprachige Website)</h4>
+<div class="help-flow">1. Ordnerstruktur in DE anlegen
+2. Seiten in DE schreiben + Medien
+3. Provision → EN (und weitere Sprachen)
+4. EN pruefen → Status „Aktiv“
+5. Aenderungen nur in DE* → Auto-Sync pflegt EN
+6. Spezielle EN-Texte: in EN bearbeiten (Fork)</div>
+<div class="help-example"><strong>Beispiel Startseite:</strong> DE-Seite „Home“ mit Hero → Provision EN → Titel „Home“ / „Start“ anpassen → EN aktivieren → Permalink pruefen.</div>
+
+<h4>Hilfe-Button</h4>
+<p>Dieses Handbuch ist jederzeit ueber den <strong>Hilfe-Button</strong> (?) in der CMS-Kopfzeile erreichbar:</p>
+<p><code>?dbx_modul=dbxContent&amp;dbx_run1=help&amp;topic=content</code></p>

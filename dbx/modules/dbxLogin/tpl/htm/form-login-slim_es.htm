@@ -1,0 +1,24 @@
+<div id="dbxForm_div-{i}" class="dbx-panel dbxForm_wrapper dbx-user-auth dbx-user-auth-slim">
+  <form action="?dbx_modul=dbxLogin&dbx_run1=login" method="post" id="form_login" class="dbxAjax" data-target="dbxForm_div-{i}">
+    <div class="dbx-auth-slim-card">
+      <div class="dbx-auth-panel-head">
+        <span class="dbx-auth-brand-icon"><i class="bi bi-shield-check"></i></span>
+        <span class="dbx-auth-panel-title">
+          <small>Acceso seguro</small>
+          <strong>Iniciar sesión / Registro</strong>
+        </span>
+        <span class="dbx-auth-panel-actions">{bar_extra}</span>
+      </div>
+      <div class="dbx-auth-message">{obj:form_msg}[dbx:form]</div>
+      <div class="dbx-auth-slim-fields">
+        {obj:username}
+        {obj:password}
+        <button type="submit" class="btn btn-primary dbx-auth-submit">
+          <i class="bi bi-box-arrow-in-right"></i>
+          <span>Declaraciones</span>
+        </button>
+      </div>
+      {obj:register_link}
+    </div>
+  </form>
+</div>

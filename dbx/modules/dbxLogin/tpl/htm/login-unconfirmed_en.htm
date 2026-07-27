@@ -1,0 +1,33 @@
+<div class="dbx-register-confirm" data-dbx="lib=form">
+  <section class="dbx-auth-panel dbx-register-confirm-card dbx-register-confirm-warning">
+    <div class="dbx-auth-panel-head">
+      <span class="dbx-auth-brand-icon"><i class="bi bi-envelope-exclamation"></i></span>
+      <span class="dbx-auth-panel-title">
+        <small>Pending settlement</small>
+        <strong>E-mail address</strong>
+      </span>
+      <span class="dbx-auth-panel-actions">{help_button}</span>
+    </div>
+
+    <div class="dbx-register-confirm-body">
+      <p class="dbx-register-confirm-lead">Hello {name}Your password is correct. Your email address is not yet confirmed.</p>
+      <div class="dbx-register-confirm-panel">
+        <i class="bi bi-envelope-check"></i>
+        <span>We send the confirmation link to <strong>{email}</strong>. After that, you can fully register.</span>
+      </div>
+      <form class="dbx-register-confirm-actions" method="post" action="?dbx_modul=dbxLogin&amp;dbx_run1=register&amp;dbx_run2=resend_confirm">
+        {obj:form_msg}
+        {obj:dbx_token}
+        <button type="submit" class="btn btn-primary dbx-register-confirm-action">
+          <i class="bi bi-send"></i>
+          <span>Send the confirmation link again</span>
+        </button>
+        <a class="btn btn-outline-secondary dbx-register-confirm-action" href="?dbx_modul=dbxLogin&amp;dbx_run1=login">
+          <i class="bi bi-arrow-left"></i>
+          <span>Back to Login</span>
+        </a>
+        [dbx:form]
+      </form>
+    </div>
+  </section>
+</div>

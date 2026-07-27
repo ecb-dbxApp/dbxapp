@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{dbx:title}</title>
+
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="dbx/design/steal/css/colors.css">
+    <link rel="stylesheet" href="{dbx:skin_css}?v=35">
+    <link rel="stylesheet" href="dbx/design/steal/css/base.css">
+    <link rel="stylesheet" href="dbx/design/steal/css/theme.css">
+</head>
+
+<body class="dbx-app dbx-intro-page no-bg {dbx:skin_class}" data-dbx-skin="{dbx:color}" data-dbx-design="{dbx:design}">
+
+<div id="dbxApp">
+
+    <main id="dbxMain">
+        <div class="dbx-content d-flex align-items-center min-vh-100">
+            <div class="container py-4" id="dbxContent">
+                [dbx:content]
+            </div>
+        </div>
+    </main>
+
+    <footer id="dbxFooter" class="dbx-app-footer border-0 bg-transparent">
+        <div class="dbx-footer-info justify-content-center" aria-label="Systeminformationen">
+            <span class="dbx-footer-brand">© dbXapp</span>
+        </div>
+    </footer>
+
+</div>
+
+<script src="dbx/vendor/components/jquery/jquery.min.js"></script>
+<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v=79"></script>
+</body>
+</html>

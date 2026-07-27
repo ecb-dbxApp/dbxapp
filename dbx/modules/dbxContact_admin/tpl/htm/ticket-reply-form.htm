@@ -1,0 +1,23 @@
+[tpl=dbx|frame-head]
+[tpl=dbx|frame-body-open]
+<div class="row g-3">
+ <div class="col-md-4">{obj:status}</div>
+ <div class="col-md-4">{obj:priority}</div>
+ <div class="col-md-4">{obj:visibility}</div>
+ <div class="col-12">{obj:body}</div>
+ <div class="col-md-7">{obj:send_mail}</div>
+ <div class="col-md-5 d-flex justify-content-end align-items-end gap-2">
+  <a class="btn btn-outline-danger dbxConfirm"
+     href="{delete_action}"
+     data-confirm-title="{delete_confirm_title}"
+     data-confirm="{delete_confirm}"
+     data-confirm-hint="{delete_confirm_hint}"
+     data-confirm-buttons="yesno">
+   <i class="bi bi-trash"></i> Endgültig löschen
+  </a>
+  <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i> Speichern</button>
+ </div>
+</div>
+<div class="d-none">[dbx:form]</div>
+[tpl=dbx|frame-body-close]
+[tpl=dbx|frame-foot]

@@ -1,0 +1,43 @@
+name: Fehler melden
+description: Reproduzierbaren Fehler in dbxApp melden
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Sicherheitslücken bitte nicht hier melden. Verwenden Sie dafür den privaten Meldeweg aus SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: dbxApp-Version
+      placeholder: "z. B. 3.1.0"
+    validations:
+      required: true
+  - type: input
+    id: runtime
+    attributes:
+      label: Umgebung
+      placeholder: "PHP, Webserver, DB3/MySQL, Browser"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zur Reproduktion
+      description: Bitte ohne Passwörter, Tokens oder reale Benutzerdaten.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Tatsächliches Verhalten
+    validations:
+      required: true

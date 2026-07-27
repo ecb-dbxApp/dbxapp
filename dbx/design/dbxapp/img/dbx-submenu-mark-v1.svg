@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 640">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.62" stop-color="#9ed2ff" stop-opacity="0.035"/>
+      <stop offset="1" stop-color="#68b5ff" stop-opacity="0.12"/>
+    </linearGradient>
+    <linearGradient id="arc-red" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff7c86" stop-opacity="0.96"/>
+      <stop offset="0.48" stop-color="#ef3340"/>
+      <stop offset="1" stop-color="#a90d1c" stop-opacity="0.94"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="420" height="640" fill="url(#fade)"/>
+
+  <g fill="none" stroke="#8fcaff" stroke-linecap="square" opacity="0.14">
+    <path d="M74 462h86l34-34h72l38-38h92"/>
+    <path d="M116 510h92l28-28h74l32-32h54"/>
+    <path d="M168 554h58l25-25h62"/>
+    <circle cx="160" cy="462" r="3" fill="#8fcaff"/>
+    <circle cx="266" cy="428" r="3" fill="#8fcaff"/>
+    <circle cx="310" cy="482" r="3" fill="#8fcaff"/>
+  </g>
+
+  <!-- Technisches Relief-Signet: Schatten, roter Kern und obere Lichtkante. -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#650914" opacity="0.72" transform="translate(1.5 2)">
+      <path d="M432.5 587.9 A108 108 0 0 1 367.9 652.5" stroke-width="6.5"/>
+      <path d="M415.9 600 A98 98 0 0 1 380 635.9" stroke-width="5.25"/>
+    </g>
+
+    <g stroke="url(#arc-red)">
+      <path d="M432.5 587.9 A108 108 0 0 1 367.9 652.5" stroke-width="4.75"/>
+      <path d="M415.9 600 A98 98 0 0 1 380 635.9" stroke-width="3.6"/>
+    </g>
+
+    <g stroke="#ffd2d6" opacity="0.82" transform="translate(-0.55 -0.7)">
+      <path d="M432.5 587.9 A108 108 0 0 1 367.9 652.5" stroke-width="1.15"/>
+      <path d="M415.9 600 A98 98 0 0 1 380 635.9" stroke-width="0.9"/>
+    </g>
+  </g>
+</svg>

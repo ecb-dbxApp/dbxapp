@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="277" height="277" viewBox="0 0 277 277" role="img" aria-label="No hay imagen de módulo&#228;HALF">
+  <defs>
+    <linearGradient id="bg-de" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dbeafe"/>
+      <stop offset="100%" stop-color="#eff6ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="277" height="277" fill="url(#bg-de)"/>
+  <g transform="translate(138.5 118)" fill="none" stroke="#2563eb" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M-52 8 L0 -28 L52 8 L52 64 L0 100 L-52 64 Z" fill="#ffffff" stroke="#2563eb"/>
+    <path d="M-52 8 L0 44 L52 8"/>
+    <path d="M0 44 L0 100"/>
+    <rect x="-18" y="30" width="36" height="28" rx="4" fill="#bfdbfe" stroke="none"/>
+    <path d="M-10 44 L-2 52 L14 36" stroke="#1d4ed8" stroke-width="3.5"/>
+  </g>
+  <rect x="0" y="214" width="277" height="63" fill="#ffffff" opacity="0.92"/>
+  <rect x="0" y="214" width="277" height="2" fill="#93c5fd"/>
+  <text x="138.5" y="242" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">Sin módulos</text>
+  <text x="138.5" y="262" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#475569">exw&#228;HALF</text>
+</svg>

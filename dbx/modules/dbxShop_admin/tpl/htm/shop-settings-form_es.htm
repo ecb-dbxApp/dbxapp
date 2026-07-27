@@ -1,0 +1,181 @@
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-shop-settings-wrapper">
+ {shop_admin_style}
+ {frame_form_open}
+  <input type="hidden" name="shop_action" value="save_settings">
+  <div class="dbx-bar {bar_class}">
+   <div class="dbx-bar-title {bar_title_class}">
+    {bar_title_pre}
+    <i class="bi {bar_icon}"></i>
+    <span class="dbx-module-bar-copy">
+     <span class="dbx-module-bar-heading"{bar_title_heading_attrs}>{bar_title}</span>
+     <span class="dbx-module-bar-subtitle">{bar_subtitle}</span>
+    </span>
+   </div>
+   {bar_middle}
+   <div class="dbx-bar-actions d-flex align-items-center gap-2 {bar_actions_class}">
+    {bar_actions}{bar_extra}
+   </div>
+  </div>
+  <div class="dbx-panel-body">
+   <div class="mb-3">{obj:form_msg}</div>
+   <div class="dbx-shop-settings-form">
+    <section>
+     <h5>Opciones</h5>
+     <div class="dbx-shop-settings-switch-grid">
+      {obj:enabled}
+      {obj:b2b_mode}
+      {obj:stock_enabled}
+      {obj:channels_enabled}
+      {obj:checkout_guest_allowed}
+      {obj:legal_snapshot_enabled}
+      {obj:withdrawal_button_enabled}
+      {obj:mail_customer_enabled}
+      {obj:mail_admin_enabled}
+      {obj:payment_bank_transfer_enabled}
+      {obj:payment_invoice_enabled}
+      {obj:payment_paypal_enabled}
+      {obj:payment_amazon_pay_enabled}
+      {obj:delivery_digital_download_enabled}
+      {obj:delivery_flat_shipping_enabled}
+     </div>
+    </section>
+
+    <div class="dbx-shop-settings-top">
+     <section>
+      <h5>Tienda</h5>
+      <div class="dbx-shop-settings-shop-grid">
+       {obj:default_channel}
+       {obj:default_currency}
+       <div class="dbx-shop-settings-field">{obj:price_display}</div>
+       <div class="dbx-shop-settings-field">{obj:default_tax_class}</div>
+       {obj:mail_from}
+       {obj:mail_admin_to}
+       {obj:delivery_flat_shipping_gross_price}
+       {obj:media_usage_slot}
+      </div>
+     </section>
+
+     <section>
+      <div class="dbx-shop-settings-tax-options">
+       <div class="dbx-shop-settings-tax-display-row">{obj:tax_display_enabled}</div>
+      </div>
+      <div class="dbx-shop-settings-tax">
+       <div class="dbx-shop-settings-tax-row">
+        <div class="dbx-shop-settings-tax-key"><span>Categoría</span><code>mwst1</code></div>
+        {obj:tax_title_mwst1}
+        {obj:tax_rate_mwst1}
+       </div>
+       <div class="dbx-shop-settings-tax-row">
+        <div class="dbx-shop-settings-tax-key"><span>Categoría</span><code>mwst2</code></div>
+        {obj:tax_title_mwst2}
+        {obj:tax_rate_mwst2}
+       </div>
+       <div class="dbx-shop-settings-tax-row">
+        <div class="dbx-shop-settings-tax-key"><span>Categoría</span><code>mwst3</code></div>
+        {obj:tax_title_mwst3}
+        {obj:tax_rate_mwst3}
+       </div>
+      </div>
+     </section>
+    </div>
+
+    <section>
+     <h5>Canales</h5>
+     <details class="dbx-shop-settings-foldout">
+      <summary class="dbx-shop-settings-foldout-summary">
+       <span>
+        <strong>Canales externos</strong>
+        <small>Estado de eBay, Amazon, anuncios clasificados, mobile.de y otras plataformas</small>
+       </span>
+       <i class="bi bi-chevron-down"></i>
+      </summary>
+      <div class="dbx-shop-settings-foldout-body">
+       {obj:channels_status}
+      </div>
+     </details>
+    </section>
+
+    <section>
+     <h5>Tipos de pago</h5>
+     <div class="dbx-shop-payment-settings">
+      <details class="dbx-shop-payment-card dbx-shop-payment-foldout">
+       <summary class="dbx-shop-payment-summary">
+        <span>
+         <strong>Pago anticipado</strong>
+         <small>Detalles bancarios y nota para transferencia</small>
+        </span>
+        <i class="bi bi-chevron-down"></i>
+       </summary>
+       <div class="dbx-shop-payment-foldout-body">
+        <div class="dbx-shop-payment-field-grid dbx-shop-payment-field-grid-bank">
+         {obj:payment_bank_transfer_account_owner}
+         {obj:payment_bank_transfer_iban}
+         {obj:payment_bank_transfer_bic}
+         {obj:payment_bank_transfer_bank_name}
+        </div>
+        <div class="dbx-shop-settings-wide">{obj:payment_bank_transfer_instructions}</div>
+       </div>
+      </details>
+
+      <details class="dbx-shop-payment-card dbx-shop-payment-foldout">
+       <summary class="dbx-shop-payment-summary">
+        <span>
+         <strong>Factura</strong>
+         <small>Texto de la nota para la compra de facturas</small>
+        </span>
+        <i class="bi bi-chevron-down"></i>
+       </summary>
+       <div class="dbx-shop-payment-foldout-body">
+        <div class="dbx-shop-settings-wide">{obj:payment_invoice_instructions}</div>
+       </div>
+      </details>
+
+      <details class="dbx-shop-payment-card dbx-shop-payment-foldout">
+       <summary class="dbx-shop-payment-summary">
+        <span>
+         <strong>Datos de acceso de PayPal</strong>
+         <small>Sandbox/Live, ID de cliente y Secret</small>
+        </span>
+        <i class="bi bi-chevron-down"></i>
+       </summary>
+       <div class="dbx-shop-payment-foldout-body">
+        <div class="dbx-shop-payment-field-grid dbx-shop-payment-field-grid-paypal">
+         <div class="dbx-shop-settings-field">{obj:payment_paypal_mode}</div>
+         {obj:payment_paypal_brand_name}
+         {obj:payment_paypal_client_id}
+         {obj:payment_paypal_client_secret}
+        </div>
+       </div>
+      </details>
+
+      <details class="dbx-shop-payment-card dbx-shop-payment-card-wide dbx-shop-payment-foldout">
+       <summary class="dbx-shop-payment-summary">
+        <span>
+         <strong>Datos de acceso de Amazon Pay</strong>
+         <small>Región, comerciante/tienda, clave pública y clave privada</small>
+        </span>
+        <i class="bi bi-chevron-down"></i>
+       </summary>
+       <div class="dbx-shop-payment-foldout-body">
+        <div class="dbx-shop-payment-field-grid dbx-shop-payment-field-grid-amazon">
+         <div class="dbx-shop-settings-field">{obj:payment_amazon_pay_mode}</div>
+         <div class="dbx-shop-settings-field">{obj:payment_amazon_pay_region}</div>
+         {obj:payment_amazon_pay_merchant_id}
+         {obj:payment_amazon_pay_store_id}
+         {obj:payment_amazon_pay_public_key_id}
+         {obj:payment_amazon_pay_sandbox_simulation_code}
+        </div>
+        <div class="dbx-shop-settings-wide">{obj:payment_amazon_pay_private_key}</div>
+       </div>
+      </details>
+     </div>
+    </section>
+
+    <div class="dbx-shop-settings-actions">
+     <button class="btn btn-primary" type="submit"><i class="bi bi-save"></i> Guardar</button>
+    </div>
+   </div>
+  </div>
+  [dbx:js]
+ {frame_form_close}
+</div>

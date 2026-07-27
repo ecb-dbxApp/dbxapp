@@ -1,0 +1,612 @@
+<?php
+namespace dbx\dbxMenu;
+dbx()->use_system_class('dbxForm');
+
+Class dbxMenu {
+  Public $oTPL;
+  private $texts;
+
+  public function __construct() {
+     $this->oTPL=dbx()->get_system_obj('dbxTPL');
+  }
+
+   private function texts() {
+      if ($this->texts) {
+         return $this->texts;
+      }
+      $texts = new \dbxForm();
+      $texts->set_form_help_enabled(false);
+      $texts->_fd = 'dbxMenu|menu-ui';
+      $texts->load_fd_messages();
+      $this->texts = $texts;
+      return $this->texts;
+   }
+
+
+   private function get_menu_tpl($menu='undef') {
+     $access=1; $content='';
+     if (strpos($menu, '_admin')) $access=dbx()->can('admin');
+     if (strpos($menu, '-admin')) $access=dbx()->can('admin');
+     if (strpos($menu, 'admin_')) $access=dbx()->can('admin');
+     if (strpos($menu, 'admin-')) $access=dbx()->can('admin');     
+         
+     dbx()->debug("load get_menu_tpl=($menu)");
+
+     if ($access) {
+       $data=array();
+       $oWeb = dbx()->get_system_obj('dbxWebApp');
+       $baseSelf = $oWeb->normalize_self_url(dbx()->get_system_var('dbx_self_url','?','*'));
+       $data['self'] = $oWeb->route_param_prefix($baseSelf);
+       $edit = (int) dbx()->get_system_var('dbx_edit', 0, 'int');
+       $nextEdit = $this->next_editor_level($edit);
+       $data['edit_level']        = $edit;
+       $data['edit_next_level']   = $nextEdit;
+       $data['edit_toggle_url']   = $this->editor_level_url($baseSelf, $nextEdit);
+       $data['edit_level_menu']   = $this->render_editor_level_menu($baseSelf, $edit);
+       $data['edit_state_class']  = $edit ? 'is-active' : 'is-disabled';
+       $data['edit_toggle_title'] = $this->texts()->format_fd_message(
+          'editor_level_title',
+          array('level' => $edit, 'label' => $this->editor_level_label($edit))
+       );
+       $lng = strtolower(trim((string) dbx()->get_system_var('dbx_lng', 'de')));
+       $lngMeta = $this->language_meta($lng);
+       $data['lng_active']        = $lng;
+       $data['lng_active_flag']   = $lngMeta['flag'];
+       $data['lng_active_label']  = $lngMeta['label'];
+       $data['lng_menu']          = $this->render_language_menu($baseSelf, $lng);
+       $data['lng_toggle_title']  = $this->texts()->format_fd_message(
+          'language_title',
+          array('language' => $lngMeta['label'])
+       );
+        $activeDesign = $this->active_frontend_design();
+        $data['design_active']       = $activeDesign;
+        $data['design_active_label'] = $this->design_label($activeDesign);
+        $activeSkin = $this->normalize_design_skin($activeDesign, dbx()->get_skin());
+        $data['design_skin_menu']      = $this->render_design_skin_menu($baseSelf, $activeDesign, $activeSkin);
+        $data['design_toggle_title']  = $this->texts()->format_fd_message(
+           'display_title',
+           array(
+              'design' => $data['design_active_label'],
+              'skin' => $this->skin_label($activeDesign, $activeSkin),
+           )
+        );
+       $openContactCount = $this->open_contact_count($menu);
+       $data['contact_open_count'] = $openContactCount;
+       $contactKey = $openContactCount === 1
+          ? 'contact_open_one'
+          : 'contact_open_many';
+       $data['contact_open_title'] = $this->texts()->format_fd_message(
+          $contactKey,
+          array('count' => $openContactCount)
+       );
+       $data['contact_open_badge'] = $openContactCount > 0
+          ? '<span class="dbx-contact-open-badge" aria-label="' . $this->h($data['contact_open_title']) . '">'
+             . $openContactCount . '</span>'
+          : '';
+       $cartCount = $this->shop_cart_count();
+       $data['shop_cart_count'] = $cartCount;
+       $data['shop_cart_badge'] = $this->shop_cart_badge($cartCount);
+       $i = dbx()->next_id();
+       $content=$this->oTPL->get_tpl($menu,$data,'htm',$i);
+       $content=$this->replace_cms_placeholders($content);
+     }
+
+     return $content;
+   }
+
+   private function open_contact_count(string $menu): int {
+      if (stripos($menu, 'admin') === false || !dbx()->can('admin')) {
+         return 0;
+      }
+
+      try {
+         $tickets = dbx()->get_include_obj('dbxContactTicket', 'dbxContact');
+         if (is_object($tickets) && method_exists($tickets, 'openCount')) {
+            return max(0, (int) $tickets->openCount());
+         }
+      } catch (\Throwable $e) {
+         dbx()->debug('[dbxMenu] offene Kontaktanfragen konnten nicht gezaehlt werden: ' . $e->getMessage());
+      }
+
+      return 0;
+   }
+
+   private function next_editor_level(int $edit): int {
+      $levels = array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+      $idx = array_search($edit, $levels, true);
+
+      if ($idx === false) {
+         return 0;
+      }
+
+      return $levels[($idx + 1) % count($levels)];
+   }
+
+   private function editor_level_label(int $edit): string {
+      if ($edit >= 0 && $edit <= 9) {
+         return $this->texts()->get_fd_message('editor_level_' . $edit);
+      }
+
+      return $this->texts()->get_fd_message('editor_level_reserve');
+   }
+
+   private function editor_level_icon(int $edit): string {
+      switch ($edit) {
+         case 0: return 'bi-x-circle';
+         case 1:
+         case 2:
+         case 3: return 'bi-pencil-square';
+         case 4: return 'bi-card-checklist';
+         case 5: return 'bi-database';
+         case 6: return 'bi-braces';
+         case 7: return 'bi-cpu';
+         case 8: return 'bi-gear';
+         case 9: return 'bi-files';
+      }
+
+      return 'bi-question-circle';
+   }
+
+   private function render_editor_level_menu(string $baseSelf, int $activeEdit): string {
+      $levels = array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+      $html = '';
+
+      foreach ($levels as $level) {
+         $class = $level === $activeEdit ? ' class="is-active"' : '';
+         $url = htmlspecialchars($this->editor_level_url($baseSelf, $level), ENT_QUOTES, 'UTF-8');
+         $label = htmlspecialchars($this->editor_level_label($level), ENT_QUOTES, 'UTF-8');
+         $icon = htmlspecialchars($this->editor_level_icon($level), ENT_QUOTES, 'UTF-8');
+
+         $html .= '<li' . $class . '>';
+         $title = $this->h($this->texts()->format_fd_message(
+            'editor_level_title',
+            array('level' => $level, 'label' => $this->editor_level_label($level))
+         ));
+         $item = $this->h($this->texts()->format_fd_message(
+            'editor_level_item',
+            array('level' => $level, 'label' => $this->editor_level_label($level))
+         ));
+         $html .= '<a class="dbxEditLevel" href="' . $url . '" title="' . $title . '">';
+         $html .= '<i class="bi ' . $icon . '"></i>';
+         $html .= '<span>' . $item . '</span>';
+         $html .= '</a>';
+         $html .= '</li>';
+      }
+
+      return $html;
+   }
+
+   private function editor_level_url(string $url, int $edit): string {
+      $oWeb = dbx()->get_system_obj('dbxWebApp');
+      return $oWeb->append_route_params(
+         $oWeb->normalize_self_url($url),
+         array('dbx_edit' => (string) $edit)
+      );
+   }
+
+   private function language_catalog(): array {
+      return array(
+         'de' => array('label' => 'Deutsch',  'flag' => 'de'),
+         'en' => array('label' => 'English',  'flag' => 'gb'),
+         'es' => array('label' => 'Español',  'flag' => 'es'),
+      );
+   }
+
+   private function language_options(): array {
+      $config = dbx()->get_config('dbx');
+      $accessible = $config['accessible_lng'] ?? 'de,en,es';
+
+      if (!is_array($accessible)) {
+         $accessible = array_filter(array_map('trim', explode(',', (string) $accessible)));
+      }
+
+      $catalog = $this->language_catalog();
+      $options = array();
+
+      foreach ($accessible as $code) {
+         $code = strtolower(trim((string) $code));
+         if ($code === '' || !isset($catalog[$code])) {
+            continue;
+         }
+         $options[$code] = $catalog[$code];
+      }
+
+      if (empty($options)) {
+         $options['de'] = $catalog['de'];
+      }
+
+      return $options;
+   }
+
+   private function language_meta(string $lng): array {
+      $options = $this->language_options();
+      $lng = strtolower(trim($lng));
+
+      if (isset($options[$lng])) {
+         return $options[$lng];
+      }
+
+      return reset($options);
+   }
+
+   private function language_url(string $url, string $lng): string {
+      $oWeb = dbx()->get_system_obj('dbxWebApp');
+      return $oWeb->append_route_params(
+         $oWeb->normalize_self_url($url),
+         array('dbx_lng' => strtolower(trim($lng)))
+      );
+   }
+
+   private function render_language_menu(string $baseSelf, string $activeLng): string {
+      $activeLng = strtolower(trim($activeLng));
+      $html = '';
+
+      foreach ($this->language_options() as $code => $meta) {
+         $class = $code === $activeLng ? ' class="is-active"' : '';
+         $url = htmlspecialchars($this->language_url($baseSelf, $code), ENT_QUOTES, 'UTF-8');
+         $label = htmlspecialchars($meta['label'], ENT_QUOTES, 'UTF-8');
+         $flag = htmlspecialchars($meta['flag'], ENT_QUOTES, 'UTF-8');
+         $codeLabel = htmlspecialchars(strtoupper($code), ENT_QUOTES, 'UTF-8');
+
+         $html .= '<li' . $class . '>';
+         $html .= '<a class="dbxLngOpt" href="' . $url . '" title="' . $label . '">';
+         $html .= '<span class="dbx-lng-flag" data-dbx-flag="' . $flag . '" aria-hidden="true"></span>';
+         $html .= '<span class="dbx-lng-code">' . $codeLabel . '</span>';
+         $html .= '</a>';
+         $html .= '</li>';
+      }
+
+      return $html;
+   }
+
+   /**
+    * Liefert eigenständige Frontend-Designs mit einer default.htm.
+    * Interne Pakete mit fuehrendem _ oder - werden nicht im Benutzermenue angeboten.
+    */
+   private function frontend_design_options(): array {
+      $options = array();
+      $designRoot = dbx()->get_base_dir() . 'dbx/design';
+
+      foreach (glob($designRoot . '/*', GLOB_ONLYDIR) ?: array() as $dir) {
+         $name = basename($dir);
+         if ($name === '' || $name[0] === '_' || $name[0] === '-') {
+            continue;
+         }
+         if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/', $name)) {
+            continue;
+         }
+         if (!is_file(dbx()->os_path($dir . '/htm/default.htm'))) {
+            continue;
+         }
+
+         $options[$name] = $this->design_label($name);
+      }
+
+      if (empty($options)) {
+         $options['dbxapp'] = 'dbXapp';
+      }
+
+      uasort($options, static function ($a, $b) {
+         return strnatcasecmp((string)$a, (string)$b);
+      });
+
+      return $options;
+   }
+
+   private function design_label(string $design): string {
+      if (strtolower($design) === 'dbxapp') {
+         return 'dbXapp';
+      }
+
+      $label = trim(str_replace(array('-', '_'), ' ', $design));
+      return $label !== '' ? ucfirst($label) : $design;
+   }
+
+   private function active_frontend_design(): string {
+      $config = dbx()->get_config('dbx');
+      $design = trim((string)dbx()->get_system_var('dbx_design', $config['default_design_user'] ?? 'dbxapp'));
+
+      if ($design === 'user') {
+         $design = (string)($config['default_design_user'] ?? 'dbxapp');
+      } elseif ($design === 'admin') {
+         $design = (string)($config['default_design_admin'] ?? 'dbxapp');
+      }
+
+      $options = $this->frontend_design_options();
+      if (!isset($options[$design])) {
+         $default = (string)($config['default_design_user'] ?? 'dbxapp');
+         $design = isset($options[$default]) ? $default : (string)array_key_first($options);
+      }
+
+      return $design;
+   }
+
+   /**
+    * Erstellt den kompatiblen GET-Aufruf fuer eine eindeutige
+    * Design-/Skin-Kombination.
+    */
+   private function design_skin_url(string $url, string $design, string $skin): string {
+      $oWeb = dbx()->get_system_obj('dbxWebApp');
+
+      return $oWeb->append_route_params(
+         $oWeb->normalize_self_url($url),
+         array(
+            'dbx_design' => $design,
+            'dbx_color'  => $this->normalize_design_skin($design, $skin),
+         )
+      );
+   }
+
+   /**
+    * Liefert die Darstellungsdaten fuer die von einem Design bereitgestellten
+    * Skin-Dateien. Die Liste der IDs kommt ausschliesslich aus dbxApi.
+    */
+   private function skin_options(string $design): array {
+      $known = array(
+         'hell'    => array('label' => $this->texts()->get_fd_message('skin_light'),  'icon' => 'bi-sun'),
+         'gelb'    => array('label' => $this->texts()->get_fd_message('skin_yellow'), 'icon' => 'bi-brightness-high'),
+         'rot'     => array('label' => $this->texts()->get_fd_message('skin_red'),    'icon' => 'bi-droplet-fill'),
+         'gruen'   => array('label' => $this->texts()->get_fd_message('skin_green'),  'icon' => 'bi-tree'),
+         'blau'    => array('label' => $this->texts()->get_fd_message('skin_blue'),   'icon' => 'bi-droplet'),
+         'dunkel'  => array('label' => $this->texts()->get_fd_message('skin_dark'),   'icon' => 'bi-moon'),
+      );
+      $options = array();
+
+      foreach (dbx()->get_design_skin_ids($design) as $skin) {
+         $options[$skin] = $known[$skin] ?? array(
+            'label' => ucfirst(str_replace(array('-', '_'), ' ', $skin)),
+            'icon'  => 'bi-palette',
+         );
+      }
+
+      return $options;
+   }
+
+   private function normalize_design_skin(string $design, string $skin): string {
+      return dbx()->normalize_skin($skin, $design);
+   }
+
+   private function skin_label(string $design, string $skin): string {
+      $options = $this->skin_options($design);
+      return (string)($options[$skin]['label'] ?? $skin);
+   }
+
+   /**
+    * Rendert alle Designs mit ihren jeweils eigenen Skins als kompakte
+    * Untermenues. Jeder Skin-Eintrag bleibt ein normaler GET-Link.
+    */
+   private function render_design_skin_menu(
+      string $baseSelf,
+      string $activeDesign,
+      string $activeSkin
+   ): string {
+      $html = '';
+
+      foreach ($this->frontend_design_options() as $design => $designLabel) {
+         $designActive = $design === $activeDesign;
+         $designEsc = $this->h($design);
+         $options = $this->skin_options($design);
+         $designUrl = $this->h($this->design_skin_url($baseSelf, $design, $activeSkin));
+         $html .= '<li class="dbx-design-skin-group' . ($designActive ? ' is-active' : '')
+            . '" data-design="' . $designEsc . '">';
+         $html .= '<a class="dbx-design-opt' . ($designActive ? ' is-active' : '')
+            . '" href="' . $designUrl . '" data-design="' . $designEsc
+            . '" title="Design ' . $this->h($designLabel) . '">';
+         $html .= '<i class="bi bi-window-sidebar dbx-design-icon" aria-hidden="true"></i>';
+         $html .= '<span>' . $this->h($designLabel) . '</span>';
+         if ($designActive) {
+            $html .= '<i class="bi bi-check2 dbx-design-check" aria-hidden="true"></i>';
+         }
+         $html .= '</a>';
+
+         if (!$options) {
+            $html .= '</li>';
+            continue;
+         }
+
+         $html .= '<ul>';
+         foreach ($options as $skin => $meta) {
+            $active = $designActive && $skin === $activeSkin;
+            $skinEsc = $this->h($skin);
+            $labelEsc = $this->h((string)$meta['label']);
+            $iconEsc = $this->h((string)$meta['icon']);
+            $url = $this->h($this->design_skin_url($baseSelf, $design, $skin));
+            $classes = 'dbx-design-skin-opt';
+            if ($designActive) {
+               $classes .= ' dbx-skin-opt';
+            }
+            if ($active) {
+               $classes .= ' is-active';
+            }
+
+            $html .= '<li class="dbx-design-skin-item' . ($active ? ' is-active' : '') . '">';
+            $html .= '<a href="' . $url . '" class="' . $classes . '" data-design="' . $designEsc
+               . '" data-skin="' . $skinEsc . '" title="' . $this->h($designLabel . ': ' . $meta['label']) . '">';
+            $html .= '<i class="bi ' . $iconEsc . '" aria-hidden="true"></i><span>' . $labelEsc . '</span>';
+            if ($active) {
+               $html .= '<i class="bi bi-check2 dbx-skin-check" aria-hidden="true"></i>';
+            }
+            $html .= '</a></li>';
+         }
+         $html .= '</ul></li>';
+      }
+
+      return $html;
+   }
+
+   private function h($value): string {
+      return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+   }
+
+   private function shop_cart_count(): int {
+      if (session_status() === PHP_SESSION_NONE) {
+         if (headers_sent()) {
+            return 0;
+         }
+         session_start();
+      }
+      $cart = $_SESSION['dbxShop_cart'] ?? array();
+      if (!is_array($cart)) {
+         return 0;
+      }
+      $count = 0;
+      foreach ($cart as $qty) {
+         $count += max(0, (int)$qty);
+      }
+      return $count;
+   }
+
+   private function shop_cart_badge(int $count): string {
+      if ($count <= 0) {
+         return '';
+      }
+      $label = $this->texts()->format_fd_message(
+         $count === 1 ? 'cart_item_one' : 'cart_item_many',
+         array('count' => $count)
+      );
+      return '<span class="dbx-shop-cart-menu-badge" aria-label="' . $this->h($label) . '">' . $this->h((string)$count) . '</span>';
+   }
+
+   private function user_avatar_url(int $uid): string {
+      $file = '';
+      try {
+         $db = dbx()->get_system_obj('dbxDB');
+         $rec = $db->select1('dbxUser', $uid, 'avatar', 0);
+         if (is_array($rec)) {
+            $file = trim((string)($rec['avatar'] ?? ''));
+         }
+      } catch (\Throwable $e) {
+         $file = trim((string)dbx()->user('avatar'));
+      }
+
+      if ($file === '' || !preg_match('/^avatar-[0-9]+\.(?:webp|png|jpe?g|gif)$/i', $file)) {
+         $file = 'avatar-0.png';
+      }
+
+      $base = dbx()->get_base_dir();
+      $public = 'files/user/avatar/' . $file;
+      if (is_file(dbx()->os_path($base . $public))) {
+         return dbx()->get_base_url() . $public;
+      }
+
+      $legacy = 'dbx/modules/dbxUser/img/avatar/' . $file;
+      if (is_file(dbx()->os_path($base . $legacy))) {
+         return dbx()->get_base_url() . $legacy;
+      }
+
+      return dbx()->get_base_url() . 'files/user/avatar/avatar-0.png';
+   }
+
+   private function user_menu_html(int $uid): string {
+      $avatar = $this->h($this->user_avatar_url($uid));
+      $cartCount = $this->shop_cart_count();
+      $cartBadge = $this->shop_cart_badge($cartCount);
+      $texts = $this->texts();
+      $user = $this->h($texts->get_fd_message('user'));
+      return '<li class="align-right dbx-user-avatar-menu">'
+         . '<a title="' . $user . '" style="cursor:pointer;">'
+         . '<span class="dbx-user-menu-avatar-wrap">'
+         . '<img class="dbx-user-menu-avatar" src="' . $avatar . '?' . time() . '" alt="' . $user . '">'
+         . '<span class="dbx-user-menu-mail" aria-hidden="true"><i class="bi bi-envelope-fill"></i></span>'
+         . '</span>'
+         . '<span class="dbx-menu-mobile-label">' . $user . '</span>'
+         . '</a>'
+         . '<ul>'
+         . '<li><a href="?dbx_modul=dbxShop&amp;dbx_run1=catalog"><i class="bi bi-bag"></i> ' . $this->h($texts->get_fd_message('shop')) . '</a></li>'
+         . '<li><a class="dbx-shop-cart-menu-link" href="?dbx_modul=dbxShop&amp;dbx_run1=cart"><span class="dbx-shop-cart-menu-icon"><i class="bi bi-basket"></i>' . $cartBadge . '</span> ' . $this->h($texts->get_fd_message('cart')) . '</a></li>'
+         . '<li><a href="?dbx_modul=dbxShop&amp;dbx_run1=orders"><i class="bi bi-receipt"></i> ' . $this->h($texts->get_fd_message('orders')) . '</a></li>'
+         . '<li><a href="?dbx_modul=dbxShop&amp;dbx_run1=withdrawal"><i class="bi bi-arrow-counterclockwise"></i> ' . $this->h($texts->get_fd_message('withdrawal')) . '</a></li>'
+         . '<li><a href="?dbx_modul=dbxContact&amp;dbx_run1=form"><i class="bi bi-envelope-plus"></i> ' . $this->h($texts->get_fd_message('new_request')) . '</a></li>'
+         . '<li><a href="?dbx_modul=dbxContact&amp;dbx_run1=my"><i class="bi bi-envelope"></i> ' . $this->h($texts->get_fd_message('my_requests')) . '</a></li>'
+         . '<li><a href="?dbx_modul=dbxUser&amp;dbx_run1=user&amp;dbx_run2=edit_profil"><i class="bi bi-person-circle"></i> ' . $this->h($texts->get_fd_message('my_profile')) . '</a></li>'
+         . '</ul>'
+         . '</li>';
+   }
+
+   private function replace_cms_placeholders($content) {
+      if (!is_string($content) || strpos($content, '[cms:') === false) {
+         return $content;
+      }
+
+      $hasFlatMarker = stripos($content, '[cms:flat]') !== false;
+      $flatMarkerToken = '###DBX_CMS_FLAT_MARKER_' . md5((string)microtime(true)) . '###';
+      $flatMarkerHtml = '';
+
+      $content = preg_replace_callback('/\[cms:([^\]]*)\]/i', function ($match) use ($hasFlatMarker, $flatMarkerToken, &$flatMarkerHtml) {
+         $raw = trim((string)$match[1]);
+
+         if (preg_match('/^flat$/i', $raw)) {
+            return $flatMarkerToken;
+         }
+
+         $params = array();
+         parse_str(str_replace('&amp;', '&', $raw), $params);
+
+         $root = (int)($params['root'] ?? 0);
+         $flat = (int)($params['flat'] ?? 1);
+         $splitFlat = $hasFlatMarker && $flat === 1;
+
+         $obj = dbx()->get_include_obj('dbxContent_menu');
+         if ($obj && method_exists($obj, 'render_placeholder')) {
+            if ($splitFlat && method_exists($obj, 'render_flat_marker')) {
+               $flatMarkerHtml .= $obj->render_flat_marker($root, $flat);
+            }
+            return $obj->render_placeholder($root, $flat, $splitFlat);
+         }
+
+         return '';
+      }, $content);
+
+      return str_replace($flatMarkerToken, $flatMarkerHtml, $content);
+   }
+
+   public function run() {
+      $action=dbx()->get_modul_var('dbx_run1' ,'a-undef','*');
+      $menu  =dbx()->get_modul_var('tpl'      ,'b-undef','*');
+      $uid   =dbx()->user();
+      $mid   =dbx()->get_system_var('dbx_activ_modul_id',-1);
+      $content="Menu ($menu) not found"; // default output !
+
+      dbx()->debug("#Modul Menu# action=($action) Menu=($menu) Modul-id=($mid)");
+
+      switch ($action) {
+        case 'load':
+          $content=$this->get_menu_tpl($menu);
+        break;
+
+        case 'content':
+          $obj=dbx()->get_include_obj('dbxContent_menu');
+          $content=$obj->run();
+        break;
+      }
+
+
+      if ($uid > 0) {
+         $LoginOut ='LogOut'; $login_out = 'logout'; $login_icon = 'bi-power';
+      } else {
+         $LoginOut ='LogIn' ; $login_out = 'login';  $login_icon = 'bi-person-circle';
+      }
+      $ProfileLink = $this->user_menu_html((int)$uid);
+
+      $AdminMenu='';
+      $design=dbx()->get_system_var('dbx_activ_design');
+      $page  =dbx()->get_system_var('dbx_activ_page');
+      $lng   =dbx()->get_system_var('dbx_activ_lng');
+
+      if (dbx()->can('admin'))         $AdminMenu="Admin";
+      $content=str_replace('{dbx:Admin}'    ,$AdminMenu,$content);
+      $content=str_replace('{dbx:LogInOut}' ,$LoginOut ,$content);
+      $content=str_replace('{dbx:login_out}',$login_out,$content);
+      $content=str_replace('{dbx:login_icon}',$login_icon,$content);
+      $content=str_replace('{dbx:profile_link}',$ProfileLink,$content);
+      $content=str_replace('{dbx:design}'   ,$design   ,$content);
+      $content=str_replace('{dbx:page}'     ,$page     ,$content);
+      $content=str_replace('{dbx:lng}'      ,$lng      ,$content);
+
+
+      return $content;
+   }
+
+}
+
+?>

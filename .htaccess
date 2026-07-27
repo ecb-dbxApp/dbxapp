@@ -1,0 +1,49 @@
+# dbxapp hybrid Apache configuration
+# Works locally in XAMPP subfolders and online on IONOS subdomain/domain.
+
+Options -Indexes
+DirectoryIndex index.php index.html index.htm
+
+<IfModule mod_headers.c>
+    Header set Permissions-Policy "local-network-access=()"
+</IfModule>
+
+<IfModule php_module>
+    php_value upload_max_filesize 256M
+    php_value post_max_size 256M
+    php_value max_input_time 300
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Kanonische Domain: vermeidet Cross-Origin-Probleme bei Fonts/Icons.
+    RewriteCond %{HTTP_HOST} ^www\.dbxapp\.de$ [NC]
+    RewriteRule ^(.*)$ https://dbxapp.de/$1 [R=301,L]
+
+    # index.php selbst nicht erneut umschreiben
+    RewriteRule ^index\.php$ - [L]
+
+    # Block dotfiles, except ACME/Let's Encrypt
+    RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F]
+
+    # Private Dateien nie direkt ausliefern
+    RewriteRule ^files/(media|sys|temp)(/|$) - [F,NC]
+    RewriteRule \.(?:db|db3|sqlite|sqlite3|log|cfx|cfg|ini|inc|sql|bak|old|orig|tmp)$ - [F,NC]
+
+    # Vorhandene Dateien/Ordner direkt ausliefern
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # ONLINE / IONOS: alles an /index.php
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:[0-9]+)?$ [NC]
+    RewriteCond %{HTTP_HOST} !^\[?::1\]?(:[0-9]+)?$ [NC]
+    RewriteCond %{HTTP_HOST} !^192\.168\.[0-9.]+(:[0-9]+)?$ [NC]
+    RewriteCond %{HTTP_HOST} !^10\.[0-9.]+(:[0-9]+)?$ [NC]
+    RewriteCond %{HTTP_HOST} !^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9.]+(:[0-9]+)?$ [NC]
+    RewriteRule ^ /index.php [L,QSA]
+
+    # LOCAL / XAMPP: alles relativ an index.php
+    RewriteRule ^ index.php [L,QSA]
+</IfModule>

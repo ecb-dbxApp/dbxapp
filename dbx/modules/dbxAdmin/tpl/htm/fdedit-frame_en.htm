@@ -1,0 +1,34 @@
+<div id="dbx_fdedit_{i}" class="dbx-panel dbx-ddedit dbx-fdedit dbx-ajax-root" data-fdedit-root="1" data-modul="{modul}" data-fd="{fd}" data-target="{work_target_id}" data-replace="inner">
+[tpl=dbx|module-bar]
+
+ <div class="dbx-ddedit-message">
+  {message}
+ </div>
+
+ <div class="container-xxl dbx-ddedit-body">
+  <div class="row g-4 align-items-stretch">
+   <aside class="dbx-ddedit-left col-12 col-xl-3 col-xxl-3">
+    <div class="dbx-ddedit-left-stack">
+     <section class="dbx-ddedit-nav-panel dbx-fdedit-nav">
+      <div class="dbx-ddedit-nav-head">
+       <h5 class="mb-1"><i class="bi bi-file-earmark-code me-1"></i>FD</h5>
+       <div class="text-muted small">Field definition</div>
+      </div>
+      <a class="dbx-ddedit-nav-row dbxAjax dbx-ajax-root" href="{create_from_dd_url}" data-target="{work_target_id}" data-replace="inner">
+       <span class="dbx-ddedit-nav-icon"><i class="bi bi-copy"></i></span>
+       <span class="dbx-ddedit-nav-label">Create FD from DD</span>
+      </a>
+     </section>
+
+     {fields_order_report}
+    </div>
+   </aside>
+
+   <main class="dbx-ddedit-main col-12 col-xl-9 col-xxl-9">
+    <div id="{work_target_id}" class="dbx-ddedit-work-pane">
+     {work_content}
+    </div>
+   </main>
+  </div>
+ </div>
+</div>

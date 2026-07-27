@@ -1,0 +1,64 @@
+<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-ddedit-form dbx-ddedit-table-form">
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
+  <div class="row">
+   <div class="col">{obj:form_msg}</div>
+  </div>
+
+  <div class="row d-none" aria-hidden="true">
+   <div class="col">{obj:modul}{obj:dd}</div>
+  </div>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>DD / tabla</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-4">{obj:server}</div>
+    <div class="col-md-4">{obj:table}</div>
+    <div class="col-md-4">{obj:datadic}</div>
+    <div class="col-md-3">{obj:primary}</div>
+    <div class="col-md-3">{obj:language}</div>
+    <div class="col-md-3">{obj:version}</div>
+    <div class="col-md-3">{obj:default_sort}</div>
+   </div>
+  </section>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Sistema / sincronización</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-3">{obj:autosync}</div>
+    <div class="col-md-3">{obj:cache}</div>
+    <div class="col-md-3">{obj:trash}</div>
+    <div class="col-md-3">{obj:trace}</div>
+    <div class="col-md-6">{obj:form-dd-table}</div>
+    <div class="col-md-6">{obj:update_sql}</div>
+   </div>
+  </section>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Derechos</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-3">{obj:read}</div>
+    <div class="col-md-3">{obj:create}</div>
+    <div class="col-md-3">{obj:update}</div>
+    <div class="col-md-3">{obj:delete}</div>
+    <div class="col-md-3">{obj:read_owner}</div>
+    <div class="col-md-3">{obj:create_owner}</div>
+    <div class="col-md-3">{obj:update_owner}</div>
+    <div class="col-md-3">{obj:delete_owner}</div>
+   </div>
+  </section>
+
+  <div class="dbx-form-bottom-actions">
+   <button class="btn btn-primary" type="submit" title="Guardar datos de tabla">
+    <i class="bi bi-save me-1"></i>Guardar tabla
+   </button>
+  </div>
+
+  [dbx:js]
+ </form>
+</div>

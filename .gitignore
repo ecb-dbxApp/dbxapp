@@ -1,0 +1,51 @@
+# Local configuration and secrets
+.env
+.env.local
+.env.*.local
+**/cfg/config.local.php
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Dependencies and generated output
+/dbx/vendor/
+/dist/
+/output/
+/tmp/
+/.phpunit.cache/
+/.playwright-cli/
+
+# Runtime storage
+/dbx/files/
+/files/
+*.log
+*.tmp
+*.cache
+*.db3
+*.db3-*
+*.sqlite
+*.sqlite3
+
+# Backups and local work products
+**/backup/
+**/_backup/
+**/.backup/
+**/*.backup
+**/*.bak
+/dbx/modules/dbxKi/work/
+
+# Benutzeravatare sind Laufzeitdaten; nur der neutrale Platzhalter ist Quellcode.
+/dbx/modules/dbxUser/img/avatar/*
+!/dbx/modules/dbxUser/img/avatar/avatar-0.png
+/dbx/modules/dbxUser/tpl/img/avatar/*
+!/dbx/modules/dbxUser/tpl/img/avatar/avatar-0.png
+
+# Editors and operating systems
+/.cursor/
+/.vscode/
+/.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
+desktop.ini

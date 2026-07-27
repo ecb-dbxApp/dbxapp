@@ -1,0 +1,92 @@
+<!-- ============= COMPONENT ============== -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+ <div class="container-fluid">
+      <a class="navbar-brand" href="#">dbXwebApp</a>
+     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main_nav"  aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="main_nav">
+
+
+  	<ul class="navbar-nav">
+  		<li class="nav-item active"> <a class="nav-link" href="?dbx_page=home">Home </a> </li>
+  		<li class="nav-item dropdown">
+  			<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Índice</a>
+  		    <ul class="dropdown-menu">
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_run1=new">Nueva página</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_run1=flat">Lista (flat)</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_run1=tree">Lista (árbol)</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_run1=folder&dbx_run2=edit">Nuevas carpetas</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContent_admin&dbx_run1=folder&dbx_run2=flat">Lista de carpetas</a></li>
+  		    </ul>
+  		</li>
+  	</ul>
+
+
+    <ul class="navbar-nav">
+  		<li class="nav-item dropdown">
+  			<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Usuarios</a>
+  		    <ul class="dropdown-menu">
+             <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_run1=user&dbx_run2=list_user">Usuarios</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxAdmin&dbx_run1=user&dbx_run2=list_groups">Grupos</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxContact_admin&dbx_run1=list">Solicitudes de contacto</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxUser_admin&dbx_run1=sessions">Período de sesiones</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=dbxUser_admin&dbx_run1=import">Importaciones</a></li>
+  		    </ul>
+  		</li>
+  	</ul>
+
+    <ul class="navbar-nav">
+  		<li class="nav-item dropdown">
+  			<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Laboratorio</a>
+  		    <ul class="dropdown-menu">
+             <li><a class="dropdown-item" href="?dbx_modul=myBefund&dbx_run1=list">Lista de conclusiones</a></li>
+             <li><a class="dropdown-item" href="?dbx_modul=myBefund_admin&dbx_run1=import">Conclusiones de importación</a></li>
+  		    </ul>
+  		</li>
+  	</ul>
+
+
+
+  	<ul class="navbar-nav ms-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=user&dbx_run2=list_user">Usuarios</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=modules">Módulos</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=list_dd">DD Sync</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=db&dbx_run2=list_db">DB Sync</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=backup_db">DB Backup</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=restore_db">DB Restore</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=session&dbx_run2=list_session">Período de sesiones</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=missing&dbx_run2=list_missing">Falta</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=list_sysmsg">SysMsg</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?dbx_modul=dbxAdmin&dbx_run1=trace&dbx_run2=list_trace">Trace</a>
+      </li>
+  	</ul>
+
+     <ul class="navbar-nav ms-auto">
+         <li class="nav-item">
+            <a class="nav-link" href="?dbx_modul=dbxLogin&dbx_run1={dbx:login_out}" tabindex="-1" aria-disabled="true">{dbx:LogInOut}</a>
+       </li>
+     </ul>
+  </div> <!-- navbar-collapse.// -->
+ </div> <!-- container-fluid.// -->
+</nav>
+<!-- ============= COMPONENT END// ============== -->

@@ -1,0 +1,38 @@
+<div class="dbx-bar dbx-grid-toolbar dbx-toolbar d-flex justify-content-between align-items-center mb-2 gap-2">
+ <div class="dbx-grid-toolbar-main d-flex align-items-center gap-3 pe-5 flex-wrap">
+  {grid_stats}
+  {dbx_search}
+  <div data-dbx-role="save">
+   <button class="btn btn-outline-primary btn-sm" data-dbx="grid-save" title="Speichern"><i class="bi bi-save"></i></button>
+  </div>
+  <div class="form-check d-flex align-items-center gap-1 ms-2" title="Autosave" data-dbx-role="autosave">
+   <input class="form-check-input" type="checkbox" checked data-dbx="grid-autosave">
+   <i class="bi bi-cloud-check"></i>
+  </div>
+  <div class="form-check d-flex align-items-center gap-1 ms-2" title="Linien" data-dbx-role="gridlines">
+   <input class="form-check-input" type="checkbox" checked data-dbx="grid-lines">
+   <i class="bi bi-border-all"></i>
+  </div>
+  <div class="d-flex align-items-center ms-2" title="Hoehe" data-dbx-role="height">
+   <input type="range" class="dbx-grid-height" min="320" max="960" step="40" value="560" data-dbx="grid-height">
+  </div>
+  <div data-dbx-role="reload">
+   <button class="btn btn-outline-secondary btn-sm" data-dbx="grid-reload" title="Neu laden"><i class="bi bi-arrow-clockwise"></i></button>
+  </div>
+  <div data-dbx-role="reset">
+   <button class="btn btn-outline-secondary btn-sm" data-dbx="grid-reset" title="Layout zuruecksetzen"><i class="bi bi-layout-text-window-reverse"></i></button>
+  </div>
+  <div data-dbx-role="columns">
+   <button class="btn btn-secondary btn-sm" data-dbx="grid-columns" title="Spalten"><i class="bi bi-layout-three-columns"></i></button>
+  </div>
+ </div>
+ <div class="dbx-grid-toolbar-side d-flex align-items-center gap-2 me-4 flex-wrap">
+  <div class="dbx-grid-sync small text-muted d-flex align-items-center me-2" title="Grid Sync" data-dbx-role="syncstatus">
+   <span class="dbx-grid-sync-led"></span>
+   <span class="dbx-grid-sync-count">000</span>
+  </div>
+  <div data-dbx-role="export-excel">
+   <button class="btn btn-success btn-sm" data-dbx="grid-export-excel" title="Excel Export"><i class="bi bi-file-earmark-excel"></i></button>
+  </div>
+ </div>
+</div>

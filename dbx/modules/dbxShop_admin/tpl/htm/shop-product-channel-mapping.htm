@@ -1,0 +1,58 @@
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-shop-product-channel-mapping">
+ {shop_admin_style}
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax" data-target="dbxForm_{i}">
+  <input type="hidden" name="shop_action" value="save_channel_mapping">
+  <input type="hidden" name="product_id" value="{product_id}">
+  <input type="hidden" name="channel_key_ref" value="{channel_key}">
+  <input type="hidden" name="price_gross_inherited" value="{price_gross_inherited}">
+  <input type="hidden" name="price_gross_inherited_value" value="{price_gross_inherited_value}">
+  <input type="hidden" name="shipping_gross_inherited" value="{shipping_gross_inherited}">
+  <input type="hidden" name="shipping_gross_inherited_value" value="{shipping_gross_inherited_value}">
+  <div class="dbx-bar {bar_class}">
+   <div class="dbx-bar-title {bar_title_class}">
+    <i class="bi {bar_icon}"></i>
+    <span class="dbx-module-bar-copy">
+     <span class="dbx-module-bar-heading">{bar_title}</span>
+     <span class="dbx-module-bar-subtitle">{bar_subtitle}</span>
+    </span>
+   </div>
+   <div class="dbx-bar-actions d-flex align-items-center gap-2 {bar_actions_class}">
+    {bar_actions}{bar_extra}
+   </div>
+  </div>
+  <div class="dbx-panel-body">
+   <div class="mb-2">{obj:form_msg}</div>
+   {mapping_message}
+   <div class="alert alert-info">{mapping_intro}</div>
+   <div class="row g-3">
+    <div class="col-12">
+     <div class="border rounded bg-light p-3">
+      <h6 class="mb-3">{mapping_values_title}</h6>
+      <div class="row g-2 align-items-end dbx-shop-channel-values-row">
+       <div class="col-xl-1 col-lg-2 col-md-2">{obj:active}</div>
+       <div class="col-xl-3 col-lg-3 col-md-5">{obj:channel_sku}</div>
+       <div class="col-xl-2 col-lg-2 col-md-3">{obj:price_gross}</div>
+       <div class="col-xl-2 col-lg-2 col-md-3">{obj:shipping_gross}</div>
+       <div class="col-xl-2 col-lg-3 col-md-5">{obj:external_listing_id}</div>
+       <div class="col-xl-2 col-lg-3 col-md-5">{obj:external_offer_id}</div>
+      </div>
+     </div>
+    </div>
+    <div class="col-12">
+     <div class="border rounded bg-light p-3">
+      <h6 class="mb-3">{provider_title}</h6>
+      {obj:provider_mapping}
+     </div>
+    </div>
+    <div class="col-12">
+     <div class="border rounded bg-light p-3">
+      <h6 class="mb-3">{mapping_export_status_title}</h6>
+      <div class="dbx-shop-channel-mapping-status">{export_status_view}</div>
+     </div>
+    </div>
+   </div>
+  </div>
+  [dbx:form]
+  [dbx:js]
+ </form>
+</div>

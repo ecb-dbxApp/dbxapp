@@ -1,0 +1,192 @@
+<h4>Languages in dbXapp — Overview</h4>
+<p>dbXapp distinguishes two levels:</p>
+<ul>
+<li><strong>System languages</strong> — which languages are available on the website and in the admin (e.g. German, English, Spanish).</li>
+<li><strong>Content Languages in CMS</strong> Every page and every folder exists <em>Per language</em> as a separate data set, but the versions are linked.</li>
+</ul>
+<p>This help explains both: the settings on this Config page and the daily work in the content CMS.</p>
+
+<h4>This Config page</h4>
+<p>Path: <code>?dbx_modul=dbxContent_admin&amp;dbx_run1=content&amp;dbx_run2=config</code></p>
+<p>Here you determine, <strong>Which languages are active</strong> and <strong>Like automatic translations</strong> Go to sync.</p>
+
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Field</th><th>What it means</th></tr></thead>
+<tbody>
+<tr><td><strong>Master language</strong></td><td>The leading language (usually DE). Structure, commission and auto-sync are based on it. In the CMS marked with star (*).</td></tr>
+<tr><td><strong>Available languages</strong></td><td>All languages that are selectable in the CMS tree, in language tabs and for visitors. The master language must be there.</td></tr>
+<tr><td><strong>Home page (master)</strong></td><td>The content ID of the homepage in the master language. Other languages find their homepage automatically over the linkage.</td></tr>
+<tr><td><strong>Translation provider</strong></td><td>Controls what happens during transfer and auto-sync with texts (copy, leave blank or API).</td></tr>
+<tr><td><strong>API key / URL / model</strong></td><td>Only necessary at DeepL or OpenAI. Leave blank for "Copy text".</td></tr>
+</tbody>
+</table>
+<div class="help-example"><strong>Tip:</strong> In the header of this page you can see the <em>Active providers</em> — it applies immediately after saving for sync and commission.</div>
+
+<h4>Master language and other languages</h4>
+<div class="help-flow">Master (e.g. DE*)
+│
+├─ controls folder structure and new pages
+├─ loest “Transferred to other languages” from
+└─ updates linked languages during storage (auto-sync)
+
+Other languages (EN, ES, ...)
+│
+├─ own texts and permalinks per language
+├─ are often "inactive" at commission first
+└─ can deviate manually (fork)</div>
+<p>The link between language versions is <strong>Internal</strong> — You do not have to maintain the same page IDs in DE and EN. In the tree you recognize the status of the <strong>Language badges</strong> (Present, missing, car, manual).</p>
+
+<h4>Working in Content CMS</h4>
+<p>Entry CMS: <code>?dbx_modul=dbxContent_admin&amp;dbx_run1=cms</code></p>
+<ul>
+<li><strong>Language tabs above</strong> (DE*, EN, ES) — change the editing language. The star shows the master language.</li>
+<li><strong>New page/folder in Master</strong> — after saving, the dialog appears if necessary <em>Translate into other languages</em>.</li>
+<li><strong>Button "Translate"</strong> (Language icon) — creates missing language versions or updates the preview before transferring.</li>
+<li><strong>Button "Auto-Sync"</strong> (Link icon, master only) — returns separate languages to automatic execution.</li>
+</ul>
+
+<h4>Transferred to other languages (provision)</h4>
+<ol>
+<li>The page or folder in the <strong>Master language</strong> Voting.</li>
+<li>Open dialog (after saving or via translation button).</li>
+<li>Tick target languages, check texts — API providers generate advances.</li>
+<li><strong>Takeover</strong> — New versions are created. <strong>Pages start inactive</strong>, so that you can check before publication.</li>
+</ol>
+<p>In <strong>Folders</strong> You can optionally use the <strong>The entire subtree incl. Pages</strong> also transmitted. Missing folders in target languages are automatically recreated from the master structure.</p>
+
+<h4>Auto-Sync — Save Master</h4>
+<p>If you save in the master language, all linked languages with status <code>auto</code> updated in the background:</p>
+<ul>
+<li>Texts (translated or copied depending on the provider)</li>
+<li>Structure, template settings, permalink base</li>
+<li>Media connections (hero, gallery, pictures in the text)</li>
+</ul>
+<p>The <strong>Active/Inactive status</strong> the target language is preserved – an inactive EN page is not suddenly switched live by master sync.</p>
+
+<h4>Fork — If a language is to remain unique</h4>
+<p>Save them in one <strong>Non-master language</strong>, the linkage is separated ()<code>manual</code> / Fork. Message: <em>Language connection separately (manually).</em></p>
+<p>From then on, the master no longer automatically adopts this language. This makes sense for adapted marketing texts or other permalinks.</p>
+<p>To join again: in the master language <strong>Auto-Sync</strong> Activate — the next master save then rewrites the slave content.</p>
+
+<h4>Translation provider in detail</h4>
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Providers</th><th>Behaviour</th><th>When to use?</th></tr></thead>
+<tbody>
+<tr><td><code>copy</code></td><td>Adopt text unchanged</td><td><strong>Recommended as standard</strong> — free, no account, for all customer installations</td></tr>
+<tr><td><code>none</code></td><td>Leave translation fields empty</td><td>When target texts should consciously start empty</td></tr>
+<tr><td><code>deepl</code></td><td>DeepL API</td><td>Automatic translation; own API key needed (free plan possible)</td></tr>
+<tr><td><code>openai</code></td><td>OpenAI Chat API</td><td>Flexible with model selection; own API key, paid for after use</td></tr>
+<tr><td><code>custom</code></td><td>Own logic</td><td>For developers: <code>dbx/modules/dbxContent/translate.php</code></td></tr>
+</tbody>
+</table>
+<p>In case of API errors, the original text is taken over. In addition, a note appears in the CMS and an entry under <strong>Admin by SysMsg</strong> (About:) <code>dbxContentTranslate</code>).</p>
+
+<h4>Which provider for whom?</h4>
+<ul>
+<li><strong>Customer installation (standard):</strong> <code>copy</code> — always works without cost and without external service.</li>
+<li><strong>Small website with auto translation:</strong> <code>deepl</code> with <strong>DeepL API Free</strong> (about 500,000 characters per month, 0 EUR).</li>
+<li><strong>Larger sites / many texts:</strong> DeepL API Pro (paid) or manually with <code>copy</code> maintain dialogue.</li>
+<li><strong>OpenAI:</strong> Only if the operator deliberately bears API costs — <strong>ChatGPT Plus/Pro is not API access</strong>.</li>
+<li><strong>Google Translate:</strong> In dbXapp <em>not</em> installed. Only over <code>custom</code> + own development possible.</li>
+</ul>
+<div class="help-example"><strong>Important:</strong> ChatGPT in the browser (Plus, Pro, ...) and the OpenAI API are <em>Two separate products</em>. A chat subscription does not provide an API key and no API credits.</div>
+
+<h4>Apply for API keys and in dbXapp Entries</h4>
+<p>API keys are personal access keys of a translation provider. Every customer should, if at all, <strong>his own</strong> Use the key. Keys belong in the field <strong>API key</strong> on this config page.</p>
+
+<table class="table table-sm table-bordered" style="font-size:0.88rem">
+<thead><tr><th>Recruitment</th><th>DeepL</th><th>OpenAI</th></tr></thead>
+<tbody>
+<tr><td><strong>Providers</strong></td><td><code>deepl</code></td><td><code>openai</code></td></tr>
+<tr><td><strong>API key</strong></td><td>DeepL API Key (free keys often end up on <code>:fx</code>)</td><td>OpenAI Key (begins with) <code>sk-...</code>)</td></tr>
+<tr><td><strong>API URL</strong></td><td>Leave empty (Standard: Free API). Only on DeepL Pro: <code>https://api.deepl.com/v2/translate</code></td><td>Leave empty (standard endpoint)</td></tr>
+<tr><td><strong>Model</strong></td><td>— (not relevant)</td><td>e.g.  <code>gpt-4o-mini</code> (cheap, usually sufficient for translations)</td></tr>
+</tbody>
+</table>
+
+<h5>DeepL API Free (free, recommended for testing)</h5>
+<ol>
+<li>create an account; and <strong>DeepL API Free</strong> Select:<br>
+ <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener">https://www.deepl.com/pro-api</a></li>
+<li>After notification under <strong>Account → API keys</strong> (or in the DeepL Pro portal) create an API key.<br>
+ Documentation: <a href="https://developers.deepl.com/docs/getting-started/auth" target="_blank" rel="noopener">https://developers.deepl.com/docs/getting-started/auth</a></li>
+<li>Key in dbXapp Underground <strong>API key</strong> Enter, provider <code>deepl</code>, URL <strong>empty</strong> leave.</li>
+<li>In the CMS test: Master page save → commission EN → texts should be suggested translated.</li>
+</ol>
+<p><strong>Free plan:</strong> approx. 500,000 characters per month, 0 EUR. For larger websites often too little – then DeepL API Pro or at <code>copy</code> remain.</p>
+<p><strong>Note:</strong> Free keys are used automatically <code>api-free.deepl.com</code> — this is in dbXapp Already the default if the API URL is empty.</p>
+
+<h5>OpenAI API (paid after use)</h5>
+<ol>
+<li>Separate Developer account (not) ChatGPT-Chat:<br>
+ <a href="https://platform.openai.com" target="_blank" rel="noopener">https://platform.openai.com</a></li>
+<li>Underground <strong>Billing</strong> Deposit payment method (API is charged separately):<br>
+ <a href="https://platform.openai.com/settings/organization/billing" target="_blank" rel="noopener">https://platform.openai.com/settings/organization/billing</a></li>
+<li>Create API key under <strong>API keys</strong>:<br>
+ <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">https://platform.openai.com/api-keys</a></li>
+<li>In dbXapp: Provider <code>openai</code>enter key, model e.g. <code>gpt-4o-mini</code>Leave the URL blank.</li>
+</ol>
+<p><strong>Costs:</strong> Pay-per-use (per token). Cheap models also cause running costs for many pages. Not suitable as "free for all customers".</p>
+
+<h5>Working without API key (standard)</h5>
+<p>Providers <code>copy</code> Select — leave all fields for API blank. When transferred to other languages, the master text is taken over; You manually adjust the texts in the commission dialog or in the target language. This is the safest option for editorial and customer installations.</p>
+
+<h5>Google and other providers</h5>
+<p>Google Cloud Translation and similar services dbXapp <strong>not</strong> directly as a provider. Google offers a small free quota for new cloud accounts, after which the use is paid. A connection would only be about the provider <code>custom</code> and one of their own <code>translate.php</code> possible by a developer.</p>
+
+<h4>Home page per language</h4>
+<p>The <strong>Home page (master)</strong> is the content ID of your home page in the master language (e.g. home page with ID 1).</p>
+<ul>
+<li>Visitors in the master language see this page as a homepage.</li>
+<li>In EN/ES, the system searches for the matching linked page (same content, different language).</li>
+<li>If a language version of the homepage is missing, there is no home page for this language.</li>
+</ul>
+
+<h4>Delete in several languages</h4>
+<p>Delete them from the <strong>Master language</strong> and there are several language versions, a dialog with checkboxes appears:</p>
+<ul>
+<li><code>auto</code>-Versions are preset</li>
+<li><code>manual</code>Versions only on request</li>
+<li>Permalinks are cleaned per language</li>
+</ul>
+
+<h4>Media and languages</h4>
+<p>Media files themselves are <strong>Language neutral</strong> (one image, one file). They are linked per page and language (hero, gallery, inline in the text). In commission and auto-sync, these links are copied into the target languages – not the file duplicated.</p>
+
+<h4>For website visitors</h4>
+<ul>
+<li>The <strong>Available languages</strong> from this config determine which languages are offered.</li>
+<li>The selected language controls menu, permalink resolution and the voice-dependent guest full-page cache file.</li>
+<li>Only <strong>Active</strong> Pages are publicly visible — check new translations first, then actively set them.</li>
+</ul>
+
+<h4>Cache and Live View</h4>
+<p>After saving, the page cache is usually automatically updated. If changes are missing live:</p>
+<ol>
+<li><strong>Admin page cache</strong> empty</li>
+<li>Reload page in browser with hard reload</li>
+</ol>
+
+<h4>Frequent questions</h4>
+<p><strong>Why is EN missing in the tree?</strong><br>The page was created only in the master language. Save or “Translate” → execute commission for EN.</p>
+<p><strong>Why is EN no longer updated?</strong><br>EN was stored once manually (fork). Re-activate auto-sync in the master language or consciously maintain EN yourself.</p>
+<p><strong>Does translation make mistakes?</strong><br>Provider and API key on this config page <strong>Admin by SysMsg</strong> Reading. Until the correction, text is copied. For DeepL: Check free key and empty API URL. In OpenAI: Billing on <a href="https://platform.openai.com/settings/organization/billing" target="_blank" rel="noopener">platform.openai.com</a> Active?</p>
+<p><strong>I have ChatGPT Pro — is that enough?</strong><br>No. ChatGPT Pro is only the chat subscription in the browser. For dbXapp You need a separate API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a> (paid after use) — or you stay with <code>copy</code> DeepL Free.</p>
+<p><strong>Is there a free car translation for customers?</strong><br><code>copy</code> is always free. DeepL API Free (about 500,000 characters/month) is free, but each customer needs their own account: <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener">deepl.com/pro-api</a>.</p>
+<p><strong>Can I change the master language?</strong><br>Technically yes — but concerns CMS logic and homepage. Change only wisely and then check structure/links.</p>
+<p><strong>What does the migration notice below mean?</strong><br>Internal database status for multilingual tables — not relevant for everyday use, only for support/updates.</p>
+
+<h4>Typical process (multilingual website)</h4>
+<div class="help-flow">1. Here: Master Language + Available Languages + Provider Set
+2. CMS: Create folders and pages in Master
+3. Commission → EN (and other languages)
+4. Check target languages, adjust Permalink + text
+5. Pages in target languages on “Active”
+6. Ongoing care only in Master* → Auto-Sync keeps EN/ES current
+7. Special deviations: edit in EN/ES (Fork)</div>
+<div class="help-example"><strong>Example:</strong> Homepage ID 1 → Provision EN → EN text “Welcome” check → Activate the EN Visitors with EN see the twisted English home page.</div>
+
+<h4>Further assistance</h4>
+<p>The general CMS manual (folder, media, editor): Help button in the CMS with topic <code>content</code>.</p>
+<p>This page: <code>?dbx_modul=dbxContent&amp;dbx_run1=help&amp;topic=content_lng</code></p>
+<p>CMS assignment: stable permalink <code>help-content-sprachen</code>. The folder can be changed without the permalink changing.</p>

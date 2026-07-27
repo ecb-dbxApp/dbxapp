@@ -1,0 +1,35 @@
+<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-ddedit-form dbx-ddedit-index-form">
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
+  <div class="row">
+   <div class="col">{obj:form_msg}</div>
+  </div>
+
+  <div class="row d-none" aria-hidden="true">
+   <div class="col">{obj:modul}{obj:dd}{obj:index_pos}{obj:old_name}</div>
+  </div>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Index</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-4">{obj:name}</div>
+    <div class="col-md-3">{obj:type}</div>
+    <div class="col-md-2">{obj:unique}</div>
+    <div class="col-md-3">{obj:fields}</div>
+    <div class="col-12">{obj:comment}</div>
+   </div>
+  </section>
+
+  <div class="dbx-form-bottom-actions">
+   <button class="btn btn-primary" type="submit" title="Index speichern">
+    <i class="bi bi-save me-1"></i>Index speichern
+   </button>
+   <button class="btn btn-outline-danger dbxAjax ms-2" type="button" data-ajax-url="&dbx_run2=delete_index&modul={modul}&dd={dd}&index_pos={index_pos}" title="Index loeschen">
+    <i class="bi bi-trash me-1"></i>Index löschen
+   </button>
+  </div>
+
+  [dbx:js]
+ </form>
+</div>

@@ -1,0 +1,14 @@
+<div class="dbx-panel dbx-admin-dashboard-panel dbx-admin-dashboard-chart-panel">
+   {obj:chart_bar}
+   <div class="dbx-admin-dashboard-panel-body">
+      <canvas class="dbx-admin-dashboard-bars" width="920" height="320" data-admin-bars="{chart_json}" aria-label="Admin Kennzahlen"></canvas>
+      <div class="dbx-admin-dashboard-mini-metrics">
+         <span><strong>{trace_count}</strong> Trace-Eintraege</span>
+         <span><strong>{missing_count}</strong> Missing</span>
+         <span><strong>{autosync_count}</strong> AutoSync-DDs</span>
+         <span><strong>{trace_enabled_count}</strong> Trace-DDs</span>
+         <span><strong>{request_runtime_ms}</strong> ms Request</span>
+         <span><strong>{memory_peak_kb}</strong> KB DBX Memory</span>
+      </div>
+   </div>
+</div>

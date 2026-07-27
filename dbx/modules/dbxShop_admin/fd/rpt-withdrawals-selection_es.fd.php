@@ -1,0 +1,66 @@
+<?php
+$messages = array();
+$messages['save_success'] = 'Los datos se guardaron';
+$messages['save_succeass'] = $messages['save_success'];
+$messages['save_error'] = 'Los datos no se pudieron guardar';
+$messages['bar_title'] = 'Desistimientos';
+$messages['bar_subtitle'] = 'Desistimientos y devoluciones de la tienda';
+$messages['report_info'] = 'Busque y procese los desistimientos recibidos.';
+$messages['column_withdrawal'] = 'Desistimiento';
+$messages['column_customer'] = 'Cliente';
+$messages['column_message'] = 'Mensaje';
+$messages['column_status'] = 'Estado';
+$messages['column_action'] = 'Acción';
+$messages['no_results'] = 'No se encontraron desistimientos para esta búsqueda.';
+$messages['without_order_no'] = 'Sin número de pedido';
+$messages['status_new'] = 'Nuevo';
+$messages['status_processing'] = 'En proceso';
+$messages['status_accepted'] = 'Aceptado';
+$messages['status_refunded'] = 'Reembolsado';
+$messages['status_rejected'] = 'Rechazado';
+$messages['status_closed'] = 'Cerrado';
+$messages['action_processing'] = 'En proceso';
+$messages['action_accept_title'] = 'Aceptar desistimiento';
+$messages['action_accept_question'] = '¿Aceptar el desistimiento y liberar las existencias reservadas?';
+$messages['action_accept'] = 'Aceptar';
+$messages['action_refund_title'] = 'Reembolsar desistimiento';
+$messages['action_refund_question'] = '¿Marcar el desistimiento como reembolsado y liberar las existencias reservadas?';
+$messages['action_refunded'] = 'Reembolsado';
+$messages['action_reject'] = 'Rechazar';
+$messages['action_close'] = 'Cerrar';
+$messages['edit_legal_title'] = 'Editar texto de desistimiento';
+$messages['edit_cms'] = 'Editar CMS';
+$messages['view_page_title'] = 'Ver página de desistimiento';
+$messages['shop_view'] = 'Vista de la tienda';
+$messages['token_error'] = 'La acción fue rechazada por motivos de seguridad. Vuelva a cargar la página.';
+
+$field = array();
+$field['name'] = 'dbx_rrows';
+$field['type'] = 'int';
+$field['label'] = 'No. página';
+$field['rules'] = 'int';
+$field['tpl'] = 'select-single-label';
+$field['options'] = '10=10&20=20&30=30&50=50&100=100&0=Todos';
+$field['default'] = '30';
+$fields[] = $field;
+
+$field = array();
+$field['name'] = 'dbx_rwhere';
+$field['type'] = 'varchar';
+$field['label'] = 'Búsqueda';
+$field['rules'] = '*|max=100';
+$field['tpl'] = 'text-label';
+$field['placeholder'] = 'Introduzca el término de búsqueda';
+$field['default'] = '';
+$fields[] = $field;
+
+$field = array();
+$field['name'] = 'status';
+$field['type'] = 'varchar';
+$field['label'] = 'Situación';
+$field['rules'] = 'parameter';
+$field['tpl'] = 'select-single-label';
+$field['options'] = '=Todos nuevos=nuevos procedimientos=En procesamiento mutuo=aceptado=aceptado=rechatado';
+$field['default'] = '';
+$fields[] = $field;
+?>

@@ -1,0 +1,23 @@
+<div class="dbx-panel dbx-ki-bundle-preview">
+ [tpl=dbx|module-bar]
+ <div class="container py-3" style="max-width: 920px;">
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+   <span class="badge text-bg-info">{step_count} Schritte</span>
+   <span class="small text-muted">{subtitle}</span>
+  </div>
+
+  <div class="row g-2">
+   <div class="col-lg-8">
+    <ul class="list-group list-group-flush small border rounded">{preview_list}</ul>
+   </div>
+   <div class="col-lg-4">
+    {warning_block}
+    {readme_block}
+   </div>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2 mt-3">
+   {footer_actions}
+  </div>
+ </div>
+</div>

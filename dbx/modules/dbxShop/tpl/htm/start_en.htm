@@ -1,0 +1,24 @@
+{shop_style}
+<div class="dbx-shop">
+   <div class="dbx-shop-bar">
+      <div class="dbx-module-bar-title">
+         <i class="bi bi-bag"></i>
+         <div>
+            <strong>{title}</strong>
+            <small>{subtitle}</small>
+         </div>
+      </div>
+      <div class="dbx-shop-nav">
+         <a class="btn btn-outline-primary btn-sm {active_catalog}" href="?dbx_modul=dbxShop&dbx_run1=catalog"><i class="bi bi-grid"></i> Catalogue</a>
+         <a class="btn btn-outline-primary btn-sm {active_cart}" href="?dbx_modul=dbxShop&dbx_run1=cart"><i class="bi bi-cart"></i> Cart</a>
+         <a class="btn btn-outline-primary btn-sm {active_checkout}" href="?dbx_modul=dbxShop&dbx_run1=checkout"><i class="bi bi-credit-card"></i> Checkout</a>
+         <a class="btn btn-outline-primary btn-sm {active_orders}" href="?dbx_modul=dbxShop&dbx_run1=orders"><i class="bi bi-receipt"></i> Orders</a>
+         <a class="btn btn-outline-primary btn-sm {active_legal}" href="?dbx_modul=dbxShop&dbx_run1=legal"><i class="bi bi-file-text"></i> Legal information</a>
+         <a class="btn btn-outline-primary btn-sm {active_withdrawal}" href="?dbx_modul=dbxShop&dbx_run1=withdrawal"><i class="bi bi-arrow-counterclockwise"></i> Withdrawal</a>
+      </div>
+   </div>
+   <div class="dbx-shop-content">
+      {body}
+   </div>
+</div>
+<script src="dbx/modules/dbxShop/design/js/shop.js?v=4"></script>

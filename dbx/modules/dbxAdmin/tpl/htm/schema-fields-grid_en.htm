@@ -1,0 +1,50 @@
+<div id="dbx_target_{i}" class="dbx-panel dbxReport dbx-grid dbx-dd-fields-grid dbx-ajax-root">[tpl=dbx|module-bar]
+ <div class="dbx-panel-body">[tpl=dbx|grid-bar]
+ <div id="{grid_id}"
+      data-dbx="
+       lib=grid
+       |id={grid_id}
+       |layout={grid_layout}
+       |height={grid_height}
+       |minHeight=360
+       |maxHeight=900
+       |heightMin=360
+       |heightMax=900
+       |heightStep=60
+       |cols={grid_cols}
+       |read={read_url}
+       |save={save_url}
+       |delete={delete_url}
+       |insert={insert_url}
+       |allowDelete=1
+       |allowEdit=1
+       |allowInsert=1
+       |movableColumns=1
+       |resizableColumns=1
+       |headerFilter=1
+       |headerSort=1
+       |pagination=1
+       |paginationMode=local
+       |pageSize=15
+       |pageSizeSelector=1,5,15,25,50,100,*
+       |paginationControls=1
+       |paginationCounter=rows
+       |searchMode=local
+       |searchPlaceholder=Search
+       |showSearch=1
+       |showAutosave=1
+       |showGridLines=1
+       |showHeight=0
+       |showReload=1
+       |showReset=0
+       |showSave=1
+       |showInsert=1
+       |showColumns=1
+       |showSyncStatus=0
+       |showExportExcel=0
+       |showExportPdf=0
+      ">
+ </div>
+ </div>
+ [dbx:js]
+</div>

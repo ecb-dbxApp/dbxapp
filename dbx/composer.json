@@ -1,0 +1,48 @@
+{
+    "name": "dbx/dbxapp",
+    "description": "dbx framework",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "dbx\\": ""
+        }
+    },
+
+    "authors": [
+        {
+            "name": "Armin Braun",
+            "email": "Armin.Braun@dbxapp.de"
+        }
+    ],
+
+    "minimum-stability": "stable",
+
+    "require": {
+        "twbs/bootstrap": "^5.3.8",
+        "components/jquery": "^3.7.1",
+        "twbs/bootstrap-icons": "^1.11",
+        "phpseclib/phpseclib": "^3.0.55",
+        "phpmailer/phpmailer": "^6.10"
+    },
+
+    "scripts": {
+        "ci": [
+            "@composer validate --strict --no-check-publish",
+            "@composer audit --no-dev",
+            "@php ../tools/ci.php"
+        ]
+    },
+
+    "config": {
+        "sort-packages": true
+    }
+}

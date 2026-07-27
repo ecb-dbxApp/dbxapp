@@ -1,0 +1,65 @@
+<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-ddedit-form dbx-ddedit-field-form">
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
+  <div class="row">
+   <div class="col">{obj:form_msg}</div>
+  </div>
+
+  <div class="row d-none" aria-hidden="true">
+   <div class="col">{obj:modul}{obj:dd}{obj:field_pos}{obj:old_name}</div>
+  </div>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Field</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-4">{obj:name}</div>
+    <div class="col-md-3">{obj:type}</div>
+    <div class="col-md-2">{obj:length}</div>
+    <div class="col-md-3">{obj:index}</div>
+   </div>
+  </section>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Display and validation</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-4">{obj:label}</div>
+    <div class="col-md-4">{obj:rules}</div>
+    <div class="col-md-4">{obj:tpl}</div>
+    <div class="col-md-6">{obj:tooltip}</div>
+    <div class="col-md-6">{obj:errormsg}</div>
+    <div class="col-md-6">{obj:placeholder}</div>
+    <div class="col-md-3">{obj:protect}</div>
+    <div class="col-md-3">{obj:group}</div>
+   </div>
+  </section>
+
+  <section class="dbx-form-group">
+   <div class="dbx-form-group-head">
+    <h5>Advanced</h5>
+   </div>
+   <div class="row g-3">
+    <div class="col-md-6">{obj:default}</div>
+    <div class="col-md-6">{obj:convert}</div>
+    <div class="col-md-6">{obj:mask}</div>
+    <div class="col-md-6">{obj:options}</div>
+    <div class="col-md-6">{obj:data}</div>
+    <div class="col-md-6">{obj:js}</div>
+    <div class="col-12">{obj:prompt}</div>
+   </div>
+  </section>
+
+  <div class="dbx-form-bottom-actions">
+   <button class="btn btn-primary" type="submit" title="Save field">
+    <i class="bi bi-save me-1"></i>Save field
+   </button>
+   <button class="btn btn-outline-danger dbxAjax ms-2" type="button" data-ajax-url="&dbx_run2=delete_field&modul={modul}&dd={dd}&field_pos={field_pos}" title="Delete field">
+    <i class="bi bi-trash me-1"></i>Delete field
+   </button>
+  </div>
+
+  [dbx:js]
+ </form>
+</div>

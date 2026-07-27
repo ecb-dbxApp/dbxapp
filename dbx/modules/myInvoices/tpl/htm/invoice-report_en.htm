@@ -1,0 +1,48 @@
+<div class="dbx-panel dbxReport dbx-ajax-root"
+     id="dbx_target_{i}"
+     data-dbx="lib=report|form=0"
+     data-my-invoices-report="1">
+ <div class="dbx-panel-head d-flex justify-content-between align-items-center">
+  <h2 class="h5 mb-0">Invoices</h2>
+  <div class="btn-group btn-group-sm">
+   <a class="btn btn-outline-secondary" href="{install_url}">
+    <i class="bi bi-database-gear"></i> Installation
+   </a>
+   <a class="btn btn-primary"
+      href="?dbx_modul=myInvoices&amp;dbx_run1=form&amp;rid=new">
+    <i class="bi bi-plus-lg"></i> New
+   </a>
+  </div>
+ </div>
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
+  [dbx:form]
+  [tpl=dbx|report-form-select]
+  [dbx:pagination]
+  <div class="table-responsive dbx-report-table-scroll">
+   <table class="table table-striped table-bordered table-hover align-middle">
+    <thead>
+     <tr class="{tr-class}">[rpt:row]</tr>
+    </thead>
+    <tbody>
+     <hr class="dbx_split">
+     <tr class="{tr-class}" data-invoice-no="{invoice_no}">[rpt:row]</tr>
+     <tr class="dbx-invoice-items-row">
+      <td colspan="{rpt:col_count}" class="p-3 bg-body-tertiary">
+       {positions_call}
+      </td>
+     </tr>
+     <hr class="dbx_split">
+    </tbody>
+    <tfoot>
+     <tr data-invoice-page-total="{invoice_report_total}">
+      <th colspan="{rpt:colspan}" class="text-end">
+       Total of the invoices shown
+      </th>
+      <th class="text-end">{invoice_report_total}</th>
+     </tr>
+    </tfoot>
+   </table>
+  </div>
+  [dbx:js]
+ </form>
+</div>

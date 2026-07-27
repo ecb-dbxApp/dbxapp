@@ -1,0 +1,24 @@
+<div id="dbxForm_{i}" class="dbxForm_wrapper dbx-shop-withdrawal-form">
+ {frame_form_open}
+  {obj:form_msg}
+  <div class="dbx-shop-checkout">
+   <section class="dbx-shop-checkout-panel">
+    <div class="dbx-shop-checkout-panel-head">
+     <h2>Widerruf senden</h2>
+    </div>
+    <div class="dbx-shop-checkout-grid">
+     {obj:order_no}
+     {obj:customer_name}
+     {obj:customer_email}
+     {obj:customer_address}
+     {obj:reason}
+    </div>
+   </section>
+   <div class="dbx-shop-checkout-actions">
+    <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i> Widerruf absenden</button>
+   </div>
+  </div>
+  [dbx:form]
+  [dbx:js]
+ {frame_form_close}
+</div>
