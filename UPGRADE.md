@@ -1,5 +1,40 @@
 # dbxApp aktualisieren
 
+## Update über dbxAdmin
+
+Ab dbxApp 4.0.2 steht unter **dbxAdmin → Status & Health → System-Update**
+der verbindliche Standardablauf bereit:
+
+1. **Jetzt prüfen** lädt ausschließlich das Manifest des neuesten stabilen
+   Releases aus `ecb-dbxApp/dbxapp`.
+2. **Paket prüfen** lädt das ZIP in den lokalen Staging-Bereich und prüft
+   HTTPS-Ziel, Version, PHP-Anforderungen, Größe, SHA-256, ZIP-Pfade,
+   Symlinks, Dateiinventar und jede einzelne Datei.
+3. **Update installieren** sichert zuerst alle betroffenen Programmdateien
+   und ersetzt danach den geprüften Release-Stand.
+4. **Letztes Update zurückrollen** stellt die letzte Dateisicherung wieder
+   her.
+
+Lokale Konfigurationen, DB3-/MySQL-Datenbanken, Uploads, Sessions, Caches und
+Logs sind ausdrücklich kein Bestandteil des Release-Pakets. Der Updater
+greift nie direkt auf eine Datenbank zu.
+
+### Einmaliger Übergang von 4.0.1
+
+Version 4.0.1 enthält den dbxAdmin-Updater noch nicht. Der Wechsel auf 4.0.2
+muss deshalb einmal nach dem unten beschriebenen manuellen Verfahren
+erfolgen. Ab der installierten Version 4.0.2 werden spätere stabile
+Dateiupdates über dbxAdmin ausgeführt.
+
+### Datenbankänderungen
+
+Der automatische Ablauf ist absichtlich ein Dateiupdate. Ersetzt ein Release
+DDs oder benötigt eine Datenmigration, nennen die Release Notes die
+zusätzlichen Schritte. Migrationen laufen ausschließlich über `dbxDB` und DD;
+vorher werden die betroffenen DB3-Dateien beziehungsweise MySQL-Dumps
+gesichert. Ohne ausdrücklich dokumentierte Migration wird keine Datenbank
+verändert.
+
 ## Grundregeln
 
 1. Release Notes und dieses Dokument vollständig lesen.
@@ -26,7 +61,9 @@ Alle Anwendungszugriffe laufen weiterhin ausschließlich über `dbxDB`.
 
 ## Rückkehr zur vorherigen Version
 
-Ein Rollback besteht aus zwei zusammengehörenden Teilen:
+Bei einem reinen Dateiupdate genügt die in dbxAdmin angebotene letzte
+Dateisicherung. Sobald eine Datenmigration ausgeführt wurde, besteht ein
+vollständiges Rollback aus zwei zusammengehörenden Teilen:
 
 - vorherige Anwendungsdateien wiederherstellen,
 - dazu passende Datenbanksicherung wiederherstellen.
