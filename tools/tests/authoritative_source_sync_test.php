@@ -51,4 +51,54 @@ foreach ($blocked as $path) {
    );
 }
 
+$testRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR
+   . 'dbx-source-sync-' . bin2hex(random_bytes(6));
+$sourceRoot = $testRoot . DIRECTORY_SEPARATOR . 'source';
+$targetRoot = $testRoot . DIRECTORY_SEPARATOR . 'target';
+$requiredDirectories = array(
+   $sourceRoot . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR . 'include',
+   $targetRoot . DIRECTORY_SEPARATOR . '.git',
+);
+foreach ($requiredDirectories as $directory) {
+   if (!mkdir($directory, 0775, true) && !is_dir($directory)) {
+      fwrite(STDERR, 'Temporäres Testverzeichnis konnte nicht erstellt werden.' . PHP_EOL);
+      exit(1);
+   }
+}
+file_put_contents(
+   $sourceRoot . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR
+      . 'include' . DIRECTORY_SEPARATOR . 'dbxApi.php',
+   "<?php\r\n"
+);
+file_put_contents($sourceRoot . DIRECTORY_SEPARATOR . 'index.php', "<?php\r\necho 1;\r\n");
+file_put_contents($sourceRoot . DIRECTORY_SEPARATOR . 'logo.png', "\x00A\r\nB");
+file_put_contents($targetRoot . DIRECTORY_SEPARATOR . 'RELEASE_PROCESS.md', "# Test\n");
+file_put_contents($targetRoot . DIRECTORY_SEPARATOR . 'index.php', "<?php\necho 1;\n");
+file_put_contents($targetRoot . DIRECTORY_SEPARATOR . 'logo.png', "\x00A\nB");
+
+$lineEndingPlan = AuthoritativeSourceSync::plan($sourceRoot, $targetRoot);
+sync_test_assert(
+   !isset($lineEndingPlan['copy']['index.php']),
+   'CRLF/LF-Unterschiede dürfen bei Textdateien keinen Kopierplan erzeugen.'
+);
+sync_test_assert(
+   isset($lineEndingPlan['copy']['logo.png']),
+   'Binärdateien müssen weiterhin bytegenau verglichen werden.'
+);
+
+$cleanup = static function (string $path) use (&$cleanup): void {
+   if (is_dir($path)) {
+      $items = scandir($path);
+      if (is_array($items)) {
+         foreach (array_diff($items, array('.', '..')) as $item) {
+            $cleanup($path . DIRECTORY_SEPARATOR . $item);
+         }
+      }
+      rmdir($path);
+   } elseif (is_file($path)) {
+      unlink($path);
+   }
+};
+$cleanup($testRoot);
+
 echo "AuthoritativeSourceSync-Vertrag erfolgreich geprüft.\n";
