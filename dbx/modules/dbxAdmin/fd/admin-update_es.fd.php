@@ -25,6 +25,7 @@ $messages['stage_success'] = 'La versión {version} se ha descargado, verificado
 $messages['install_success'] = 'dbxApp se ha actualizado correctamente a la versión {version}.';
 $messages['rollback_success'] = 'Se ha restaurado la copia de archivos de la versión {version}.';
 $messages['operation_invalid'] = 'La acción de actualización solicitada no es válida.';
+$messages['manifest_unavailable'] = 'La versión publicada actualmente todavía no proporciona un manifiesto de actualización. La comprobación automática está disponible a partir de dbxApp 4.0.2.';
 $messages['install_confirm_title'] = 'Actualizar dbxApp';
 $messages['install_confirm'] = '¿Instalar ahora la actualización verificada?';
 $messages['install_confirm_hint'] = 'Primero se guardan por completo los archivos de programa modificados o eliminados. Los datos de ejecución y config.local.php no cambian.';
