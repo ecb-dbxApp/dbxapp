@@ -54,6 +54,21 @@ class dbxUpdate
          );
          try {
             switch ($operation) {
+               case 'start':
+                  $prepared = $service->prepare();
+                  if (!empty($prepared['staged'])) {
+                     $form->set_msg_ok($form->format_fd_message(
+                        'prepare_success',
+                        array('version' => $prepared['manifest']['version'])
+                     ));
+                  } else {
+                     $form->set_msg_ok($form->format_fd_message(
+                        'check_success',
+                        array('version' => $prepared['manifest']['version'])
+                     ));
+                  }
+                  break;
+
                case 'check':
                   $manifest = $service->check(true);
                   $form->set_msg_ok($form->format_fd_message(
@@ -75,6 +90,14 @@ class dbxUpdate
                   $form->set_msg_ok($form->format_fd_message(
                      'install_success',
                      array('version' => $installed['to_version'])
+                  ));
+                  break;
+
+               case 'stop':
+                  $stopped = $service->cancel();
+                  $form->set_msg_ok($form->format_fd_message(
+                     'stop_success',
+                     array('version' => $stopped['version'])
                   ));
                   break;
 
@@ -117,6 +140,22 @@ class dbxUpdate
             . '</a>';
       }
 
+      $hasStagedUpdate = $status['staged_version'] !== '';
+      $canInstall = $hasStagedUpdate && !empty($status['update_available']);
+      if ($canInstall) {
+         $statusClass = 'is-ready';
+         $statusText = $form->format_fd_message(
+            'ready_to_install',
+            array('version' => $status['staged_version'])
+         );
+      } elseif (!empty($status['update_available'])) {
+         $statusClass = 'is-update';
+         $statusText = $form->get_fd_message('update_available');
+      } else {
+         $statusClass = 'is-current';
+         $statusText = $form->get_fd_message('up_to_date');
+      }
+
       $replacements = array(
          'bar_title' => $form->get_fd_message('bar_title'),
          'bar_subtitle' => $form->get_fd_message('bar_subtitle'),
@@ -138,16 +177,19 @@ class dbxUpdate
          'available_version' => dbx()->esc($available),
          'staged_version' => dbx()->esc($staged),
          'checked_at' => dbx()->esc($checked),
-         'status_class' => !empty($status['update_available']) ? 'is-update' : 'is-current',
-         'status_text' => !empty($status['update_available'])
-            ? $form->get_fd_message('update_available')
-            : $form->get_fd_message('up_to_date'),
+         'status_class' => $statusClass,
+         'status_text' => $statusText,
+         'start_label' => $form->get_fd_message('start_label'),
          'check_label' => $form->get_fd_message('check_label'),
          'stage_label' => $form->get_fd_message('stage_label'),
          'install_label' => $form->get_fd_message('install_label'),
+         'stop_label' => $form->get_fd_message('stop_label'),
          'rollback_label' => $form->get_fd_message('rollback_label'),
+         'start_class' => $hasStagedUpdate ? 'd-none' : '',
+         'decision_class' => $hasStagedUpdate ? '' : 'd-none',
          'stage_disabled' => !empty($status['update_available']) ? '' : 'disabled',
-         'install_disabled' => $status['staged_version'] !== '' ? '' : 'disabled',
+         'install_disabled' => $canInstall ? '' : 'disabled',
+         'stop_disabled' => !empty($status['stop_available']) ? '' : 'disabled',
          'rollback_disabled' => !empty($status['rollback_available']) ? '' : 'disabled',
          'install_confirm_title' => $form->get_fd_message('install_confirm_title'),
          'install_confirm' => $form->get_fd_message('install_confirm'),
