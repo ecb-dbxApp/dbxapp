@@ -28,7 +28,7 @@
 
     "require": {
         "twbs/bootstrap": "^5.3.8",
-        "components/jquery": "^3.7.1",
+        "components/jquery": "^4.0.0",
         "twbs/bootstrap-icons": "^1.11",
         "phpseclib/phpseclib": "^3.0.55",
         "phpmailer/phpmailer": "^6.10"
