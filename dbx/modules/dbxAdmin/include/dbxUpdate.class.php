@@ -32,15 +32,22 @@ class dbxUpdate
       $form->_msg_error = '';
       $form->_msg_warning = '';
       $form->_data['update_request'] = 1;
+      $form->_data['update_operation'] = '';
       $form->add_fld(
          'update_request',
          'hidden',
          rules: 'int',
          dd: ''
       );
+      $form->add_fld(
+         'update_operation',
+         'hidden',
+         rules: 'parameter',
+         dd: ''
+      );
 
       if ($form->submit()) {
-         $operation = (string)dbx()->get_modul_var(
+         $operation = (string)$form->get_fld_value(
             'update_operation',
             '',
             'parameter'
@@ -80,10 +87,10 @@ class dbxUpdate
                   break;
 
                default:
-                  $form->set_msg_error($form->get_fd_message('operation_invalid'));
+                  $form->set_error($form->get_fd_message('operation_invalid'));
             }
          } catch (\Throwable $exception) {
-            $form->set_msg_error($exception->getMessage());
+            $form->set_error($exception->getMessage());
          }
       }
 
@@ -149,6 +156,7 @@ class dbxUpdate
          'security_text' => $form->get_fd_message('security_text'),
          'database_title' => $form->get_fd_message('database_title'),
          'database_text' => $form->get_fd_message('database_text'),
+         'msg_class' => '',
       );
       foreach ($replacements as $key => $value) {
          $form->add_rep($key, $value);

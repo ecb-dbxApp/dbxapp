@@ -59,3 +59,14 @@ if (!is_array($probe) || (int)($probe[0]['table_count'] ?? 0) < 1) {
 }
 
 echo "OK dbxDB dynamic reconnect\n";
+
+// Die isolierte Testdatenbank darf nach einem Einzeltest weder den
+// Quellbaum noch den späteren Release-Hygiene-Test verunreinigen.
+unset($db->db[$server]);
+$db->pdo = null;
+foreach (array($databaseFile, $databaseFile . '-wal', $databaseFile . '-shm') as $testFile) {
+    if (is_file($testFile) && !unlink($testFile)) {
+        fwrite(STDERR, "FAIL: Isolierte Testdatenbank konnte nicht entfernt werden.\n");
+        exit(6);
+    }
+}

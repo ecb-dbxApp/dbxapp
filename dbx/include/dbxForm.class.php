@@ -1296,6 +1296,23 @@ class dbxForm extends \dbxObj {
     }
 
     /**
+     * Setzt eine aktive allgemeine Formular-Fehlermeldung.
+     *
+     * Im Gegensatz zu set_msg_error(), das den Standardtext für einen später
+     * erkannten Fehler festlegt, markiert diese Methode das Formular sofort
+     * als fehlerhaft. Controller müssen dafür keine internen Statusfelder
+     * von dbxForm kennen oder verändern.
+     *
+     * @param string $msg Anzuzeigende Fehlermeldung.
+     *
+     * @return void
+     */
+    public function set_error($msg) {
+        $this->_msg_error = $msg;
+        $this->_general_error = $msg;
+    }
+
+    /**
      * Setzt die Formular-Warnmeldung.
      *
      * @param string $msg Meldung

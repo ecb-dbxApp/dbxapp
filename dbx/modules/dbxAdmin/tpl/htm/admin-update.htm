@@ -20,6 +20,7 @@
     <div class="dbx-update-metric"><span>{checked_label}</span><strong>{checked_at}</strong></div>
    </div>
    <div class="dbx-update-state {status_class}"><i class="bi bi-shield-check"></i> {status_text}</div>
+   [dbx:form]
    <div class="dbx-update-actions">
     <button class="btn btn-outline-primary" type="submit" name="update_operation" value="check"><i class="bi bi-cloud-arrow-down"></i> {check_label}</button>
     <button class="btn btn-outline-primary" type="submit" name="update_operation" value="stage" {stage_disabled}><i class="bi bi-box-seam"></i> {stage_label}</button>
@@ -30,7 +31,6 @@
     <article class="dbx-update-note"><h3><i class="bi bi-shield-lock"></i> {security_title}</h3><p>{security_text}</p></article>
     <article class="dbx-update-note"><h3><i class="bi bi-database-check"></i> {database_title}</h3><p>{database_text}</p></article>
    </div>
-   [dbx:form]
   </div>
  </form>
 </div>
