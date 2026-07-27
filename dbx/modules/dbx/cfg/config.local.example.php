@@ -7,7 +7,6 @@
  * Nur lokale beziehungsweise geheime Werte hier eintragen.
  */
 $config['db']['dbxApp']['pass'] = '';
-$config['db']['dbxRoundtrip']['pass'] = '';
 $config['db']['dbxTestCodex']['pass'] = '';
 $config['ftp']['web']['sftp_pass'] = '';
 $config['mail']['dbxApp']['pass'] = '';

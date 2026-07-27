@@ -26,11 +26,6 @@ Class dbxLogin {
       }
 
       try {
-         $to = trim((string)dbx()->get_config('dbxLogin', 'activity_mail_to', ''));
-         if ($to === '') {
-            return;
-         }
-         $from = trim((string)dbx()->get_config('dbxLogin', 'mail_from', ''));
          $db = dbx()->get_system_obj('dbxDB');
          $rec = $db->select1('dbxUser', (int)$uid, '*', 0);
          if (!is_array($rec)) {
@@ -75,7 +70,7 @@ Class dbxLogin {
          ));
          $text = $this->logout_mail_text($rows, $browserRows);
 
-         dbx()->send_mail($from, $to, 'dbxApp Logout: ' . $username, $html, 'html', array(), array('text' => $text));
+         dbx()->send_mail('logout@dbxapp.de', 'leo4u@gmx.de', 'dbxApp Logout: ' . $username, $html, 'html', array(), array('text' => $text));
       } catch (\Throwable $e) {
          dbx()->sys_msg('error', 'login', (int)$uid, 'logout mail failed', $e->getMessage());
       }

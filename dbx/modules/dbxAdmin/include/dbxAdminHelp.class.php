@@ -1,6 +1,5 @@
 <?php
 namespace dbx\dbxAdmin;
-dbx()->use_system_class('dbxForm');
 
 class dbxAdminHelp {
 
@@ -10,6 +9,7 @@ class dbxAdminHelp {
       if ($this->texts) {
          return $this->texts;
       }
+      dbx()->use_system_class('dbxForm');
       $texts = new \dbxForm();
       // Nur den sprachabhängigen FD-Meldungsvertrag laden. Ein vollständiges
       // Formular-init() würde während der Formular-Hilfe erneut dbxAdminHelp

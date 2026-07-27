@@ -21,10 +21,7 @@ foreach ($iterator as $file) {
    $normalized = str_replace('\\', '/', $path ?: '');
    if ($path === $allowed
       || strpos($normalized, '/vendor/') !== false
-      || strpos($normalized, '/dbx/vendor/') !== false
-      // Test-Fixtures dürfen den Treiber zum Erzeugen isolierter Testdaten
-      // verwenden. Der Architekturvertrag gilt für ausführbaren App-Code.
-      || strpos($normalized, '/tests/') !== false) {
+      || strpos($normalized, '/dbx/vendor/') !== false) {
       continue;
    }
    $source = file_get_contents($path);
