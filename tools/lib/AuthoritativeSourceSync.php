@@ -107,8 +107,7 @@ final class AuthoritativeSourceSync
          $targetFile = $target . DIRECTORY_SEPARATOR
             . str_replace('/', DIRECTORY_SEPARATOR, $relative);
          if (!is_file($targetFile)
-            || filesize($absolute) !== filesize($targetFile)
-            || hash_file('sha256', $absolute) !== hash_file('sha256', $targetFile)) {
+            || !self::filesEquivalent($absolute, $targetFile)) {
             $copy[$relative] = $absolute;
          } else {
             $unchanged++;
@@ -249,6 +248,42 @@ final class AuthoritativeSourceSync
    private static function normalizeRelative(string $path): string
    {
       return ltrim(str_replace('\\', '/', trim($path)), '/');
+   }
+
+   /**
+    * Compares binary files byte-for-byte and text files independent of the
+    * CRLF/LF checkout convention used by the two Windows directories.
+    */
+   private static function filesEquivalent(string $source, string $target): bool
+   {
+      $sourceHash = hash_file('sha256', $source);
+      $targetHash = hash_file('sha256', $target);
+      if (is_string($sourceHash)
+         && $sourceHash !== ''
+         && hash_equals($sourceHash, (string)$targetHash)) {
+         return true;
+      }
+
+      $sourceContent = file_get_contents($source);
+      $targetContent = file_get_contents($target);
+      if (!is_string($sourceContent) || !is_string($targetContent)) {
+         return false;
+      }
+
+      // NUL bytes identify binary payloads in the managed tree. Their hashes
+      // must match exactly; no byte sequence is normalized.
+      if (str_contains($sourceContent, "\0")
+         || str_contains($targetContent, "\0")) {
+         return false;
+      }
+
+      $normalize = static fn(string $content): string =>
+         str_replace(array("\r\n", "\r"), "\n", $content);
+
+      return hash_equals(
+         hash('sha256', $normalize($sourceContent)),
+         hash('sha256', $normalize($targetContent))
+      );
    }
 
    private static function isInside(string $path, string $root): bool
