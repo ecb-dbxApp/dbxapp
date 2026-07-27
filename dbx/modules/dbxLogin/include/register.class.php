@@ -89,7 +89,7 @@ class register {
          . "Erst danach erhaelt dein Konto die Rolle " . $this->confirmedRole . ".\n";
 
       $ok = dbx()->send_mail(
-         trim((string)dbx()->get_config('dbxLogin', 'mail_from', '')),
+         'register@dbxapp.de',
          (string)$user['email'],
          'dbxApp Registrierung bestaetigen',
          $html,

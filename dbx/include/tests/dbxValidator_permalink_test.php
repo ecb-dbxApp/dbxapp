@@ -1,6 +1,5 @@
 <?php
-$dbxRoot = dirname(__DIR__, 2);
-$root = dirname($dbxRoot);
+$root = dirname(__DIR__, 3);
 chdir($root);
 $_SERVER['REQUEST_URI'] = '/dbxapp/';
 $_SERVER['HTTP_HOST'] = 'localhost';
@@ -8,17 +7,17 @@ $_SERVER['HTTPS'] = 'on';
 $_SERVER['SCRIPT_NAME'] = '/dbxapp/index.php';
 
 if (!defined('dbxSystem')) {
-   define('dbxSystem', 'dbxWebApp');
+    define('dbxSystem', 'dbxWebApp');
 }
 if (!defined('dbxRunAsAdmin')) {
-   define('dbxRunAsAdmin', 1);
+    define('dbxRunAsAdmin', 1);
 }
 
-require_once $dbxRoot . '/vendor/autoload.php';
-require_once $dbxRoot . '/include/dbxKernel.php';
-require_once $dbxRoot . '/include/dbxValidator.class.php';
-require_once $dbxRoot . '/modules/dbxContent/include/dbxContent_permalink.class.php';
-require_once $dbxRoot . '/modules/dbxAdmin/include/dbxAdminHelp.class.php';
+require_once $root . '/dbx/vendor/autoload.php';
+require_once $root . '/dbx/include/dbxKernel.php';
+require_once dirname(__DIR__) . '/dbxValidator.class.php';
+require_once dirname(__DIR__, 2) . '/modules/dbxContent/include/dbxContent_permalink.class.php';
+require_once dirname(__DIR__, 2) . '/modules/dbxAdmin/include/dbxAdminHelp.class.php';
 
 use dbx\dbxContent\dbxContent_permalink;
 

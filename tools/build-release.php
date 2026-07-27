@@ -74,7 +74,7 @@ foreach ($iterator as $item) {
 }
 
 ksort($files);
-echo 'Release-Dateien: ' . count($files) . PHP_EOL;
+echo 'Release-Dateien: ' . (count($files) + 1) . PHP_EOL;
 
 if ($dryRun) {
    echo "Dry-Run erfolgreich für VERSION {$version}\n";
@@ -107,23 +107,72 @@ foreach ($files as $relative => $absolute) {
    }
 }
 
+$inventoryFiles = array();
+foreach ($files as $relative => $absolute) {
+   $fileHash = hash_file('sha256', $absolute);
+   if (!is_string($fileHash) || $fileHash === '') {
+      $zip->close();
+      fwrite(STDERR, "Dateiprüfsumme konnte nicht berechnet werden: {$relative}\n");
+      exit(10);
+   }
+   $inventoryFiles[$relative] = $fileHash;
+}
+$inventoryFiles['.dbx-release-files.json'] = null;
+ksort($inventoryFiles);
+$inventory = json_encode(array(
+   'schema' => 1,
+   'product' => 'dbxapp',
+   'version' => $version,
+   'files' => $inventoryFiles,
+), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+if (!is_string($inventory)
+   || !$zip->addFromString('.dbx-release-files.json', $inventory . PHP_EOL)) {
+   $zip->close();
+   fwrite(STDERR, "Release-Datei-Inventar konnte nicht erzeugt werden.\n");
+   exit(10);
+}
+
 if (!$zip->close()) {
    fwrite(STDERR, "Release-ZIP konnte nicht abgeschlossen werden.\n");
-   exit(10);
+   exit(11);
 }
 
 $hash = hash_file('sha256', $zipPath);
 if (!is_string($hash) || $hash === '') {
    fwrite(STDERR, "SHA-256 konnte nicht berechnet werden.\n");
-   exit(11);
+   exit(12);
 }
 
 $checksumPath = $dist . DIRECTORY_SEPARATOR . 'SHA256SUMS';
 $checksumLine = $hash . '  ' . basename($zipPath) . PHP_EOL;
 if (file_put_contents($checksumPath, $checksumLine, LOCK_EX) === false) {
    fwrite(STDERR, "SHA256SUMS konnte nicht geschrieben werden.\n");
-   exit(12);
+   exit(13);
+}
+
+$baseUrl = 'https://github.com/ecb-dbxApp/dbxapp';
+$updateManifest = json_encode(array(
+   'schema' => 1,
+   'product' => 'dbxapp',
+   'channel' => 'stable',
+   'version' => $version,
+   'release_url' => $baseUrl . '/releases/tag/v' . $version,
+   'zip_url' => $baseUrl . '/releases/download/v' . $version
+      . '/dbxapp-' . $version . '.zip',
+   'sha256' => $hash,
+   'size' => filesize($zipPath),
+   'requires' => array(
+      'php' => '>=8.2',
+      'extensions' => array('curl', 'json', 'pdo', 'zip'),
+   ),
+), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+$updateManifestPath = $dist . DIRECTORY_SEPARATOR . 'update.json';
+if (!is_string($updateManifest)
+   || file_put_contents($updateManifestPath, $updateManifest . PHP_EOL, LOCK_EX) === false) {
+   fwrite(STDERR, "Update-Manifest konnte nicht geschrieben werden.\n");
+   exit(14);
 }
 
 echo "Erstellt: {$zipPath}\n";
 echo "SHA-256: {$hash}\n";
+echo "Update-Manifest: {$updateManifestPath}\n";

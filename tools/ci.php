@@ -55,6 +55,57 @@ function run_command(array $arguments, string $workingDirectory): array
 }
 
 /**
+ * Führt kurze, voneinander unabhängige Kommandos in begrenzten Gruppen aus.
+ *
+ * PHP-Lint startet pro Datei einen Prozess. Die Parallelisierung reduziert die
+ * lokale und die GitHub-Laufzeit deutlich, ohne Tests oder Datenbanken parallel
+ * zu verändern.
+ *
+ * @param array<string,array<int,string>> $commands
+ * @return array<string,array{code:int,output:string}>
+ */
+function run_commands_parallel(
+   array $commands,
+   string $workingDirectory,
+   int $parallel = 8
+): array {
+   $results = array();
+   foreach (array_chunk($commands, max(1, $parallel), true) as $chunk) {
+      $running = array();
+      foreach ($chunk as $key => $arguments) {
+         $command = implode(' ', array_map('escapeshellarg', $arguments));
+         $process = proc_open($command, array(
+            0 => array('pipe', 'r'),
+            1 => array('pipe', 'w'),
+            2 => array('pipe', 'w'),
+         ), $pipes, $workingDirectory);
+         if (!is_resource($process)) {
+            $results[$key] = array(
+               'code' => 127,
+               'output' => 'Prozess konnte nicht gestartet werden.',
+            );
+            continue;
+         }
+         fclose($pipes[0]);
+         $running[$key] = array('process' => $process, 'pipes' => $pipes);
+      }
+
+      foreach ($running as $key => $job) {
+         $stdout = stream_get_contents($job['pipes'][1]);
+         $stderr = stream_get_contents($job['pipes'][2]);
+         fclose($job['pipes'][1]);
+         fclose($job['pipes'][2]);
+         $results[$key] = array(
+            'code' => (int)proc_close($job['process']),
+            'output' => trim((string)$stdout
+               . ((string)$stderr !== '' ? PHP_EOL . (string)$stderr : '')),
+         );
+      }
+   }
+   return $results;
+}
+
+/**
  * Liefert die vorhandenen lokalen Laufzeitdatenbanken als Set.
  *
  * @return array<string,true>
@@ -163,8 +214,11 @@ sort($publicFiles);
 
 echo 'Public-Hygiene: ' . count($publicFiles) . " Dateien geprüft\n";
 
+$lintCommands = array();
 foreach ($phpFiles as $file) {
-   $result = run_command(array(PHP_BINARY, '-l', $file), $root);
+   $lintCommands[$file] = array(PHP_BINARY, '-l', $file);
+}
+foreach (run_commands_parallel($lintCommands, $root) as $file => $result) {
    if ($result['code'] !== 0) {
       $failures[] = 'PHP-Syntax ' . relative_path($root, $file) . ': ' . $result['output'];
    }

@@ -100,6 +100,11 @@ Class dbxAdmin {
           $content=$obj->run();
         break;
 
+        case 'update':
+          $obj=dbx()->get_include_obj('dbxUpdate');
+          $content=$obj->run();
+        break;
+
         case 'help':
           $obj=dbx()->get_include_obj('dbxContentContextHelp', 'dbxContent');
           $content=is_object($obj) ? $obj->run() : '';

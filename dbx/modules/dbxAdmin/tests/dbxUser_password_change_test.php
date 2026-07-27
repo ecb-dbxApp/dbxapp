@@ -10,24 +10,55 @@ require_once dirname(__DIR__) . '/include/dbxUser.class.php';
 $class = new ReflectionClass('dbx\\dbxAdmin\\dbxUser');
 $user = $class->newInstanceWithoutConstructor();
 $validate = $class->getMethod('validate_password_change');
-$texts = new \dbxForm();
-$texts->set_form_help_enabled(false);
-$texts->_fd = 'dbxAdmin|rpt-admin-user-selection';
-$texts->load_fd_messages();
+$texts = new class {
+   private array $messages = array(
+      'password_required' => 'Bitte ein neues Passwort eingeben.',
+      'password_repeat_required' => 'Bitte das neue Passwort wiederholen.',
+      'password_mismatch' => 'Die Passwoerter stimmen nicht ueberein.',
+      'password_too_short' => 'Das Passwort muss mindestens 6 Zeichen lang sein.',
+      'settings_empty' => 'Leer',
+      'option_yes' => 'Ja',
+      'option_no' => 'Nein',
+      'settings_not_set' => 'Nicht gesetzt',
+      'settings_entries' => '{count} Einträge',
+      'settings_invalid' => 'Ungültig',
+      'settings_email_confirmed' => 'E-Mail bestätigt',
+      'settings_link_expired' => 'Bestätigungslink abgelaufen',
+      'settings_confirmation_pending' => 'Bestätigung ausstehend',
+      'settings_no_confirmation' => 'Keine Bestätigung',
+      'settings_registration_status' => 'Registrierung',
+      'settings_mail_sent' => 'E-Mail versendet',
+      'settings_link_valid_until' => 'Link gültig bis',
+      'settings_password_change' => 'Passwortwechsel erforderlich',
+      'settings_protected' => 'Geschützt',
+      'settings_security_hint' => 'Sicherheitswerte werden nicht angezeigt.',
+   );
+
+   public function get_fd_message(string $key): string {
+      return $this->messages[$key] ?? $key;
+   }
+
+   public function format_fd_message(string $key, array $values): string {
+      $message = $this->get_fd_message($key);
+      foreach ($values as $name => $value) {
+         $message = str_replace('{' . $name . '}', (string)$value, $message);
+      }
+      return $message;
+   }
+};
 
 $cases = array(
    array(false, '', '', false, '', ''),
-   array(true, '', '', false, 'password_new', 'password_required'),
-   array(false, 'abcdef', '', false, 'password_new2', 'password_repeat_required'),
-   array(false, 'abcdef', 'abcdeg', false, 'password_new2', 'password_mismatch'),
-   array(false, 'abc', 'abc', false, 'password_new', 'password_too_short'),
+   array(true, '', '', false, 'password_new', 'Bitte ein neues Passwort eingeben.'),
+   array(false, 'abcdef', '', false, 'password_new2', 'Bitte das neue Passwort wiederholen.'),
+   array(false, 'abcdef', 'abcdeg', false, 'password_new2', 'Die Passwoerter stimmen nicht ueberein.'),
+   array(false, 'abc', 'abc', false, 'password_new', 'Das Passwort muss mindestens 6 Zeichen lang sein.'),
    array(false, 'Sicher-123', 'Sicher-123', true, '', ''),
    array(true, 'Sicher-123', 'Sicher-123', true, '', ''),
 );
 
 foreach ($cases as $index => $case) {
-   [$isNew, $password, $repeat, $change, $field, $messageKey] = $case;
-   $message = $messageKey !== '' ? $texts->get_fd_message($messageKey) : '';
+   [$isNew, $password, $repeat, $change, $field, $message] = $case;
    $result = $validate->invoke($user, $isNew, $password, $repeat, $texts);
    if (($result['change'] ?? null) !== $change
       || ($result['field'] ?? null) !== $field
@@ -70,8 +101,8 @@ $settingsHtml = $settingsView->invoke($user, array(
       'api_secret' => 'DARF-AUCH-NICHT-SICHTBAR-SEIN',
    )),
 ), $texts);
-if (strpos($settingsHtml, $texts->get_fd_message('settings_link_expired')) === false
-   || strpos($settingsHtml, $texts->get_fd_message('settings_password_change')) === false
+if (strpos($settingsHtml, 'Bestätigungslink abgelaufen') === false
+   || strpos($settingsHtml, 'Passwortwechsel erforderlich') === false
    || strpos($settingsHtml, 'Theme') === false
    || strpos($settingsHtml, 'dunkel') === false
    || strpos($settingsHtml, 'DARF-NICHT-SICHTBAR-SEIN') !== false

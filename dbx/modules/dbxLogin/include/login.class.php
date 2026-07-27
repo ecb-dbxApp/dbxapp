@@ -217,11 +217,8 @@ private function send_login_success_mail($rec, $username) {
       }
 
       $browser = dbx()->get_system_obj('dbxBrowser');
-      $to = trim((string)dbx()->get_config('dbxLogin', 'activity_mail_to', ''));
-      if ($to === '') {
-         return;
-      }
-      $from = trim((string)dbx()->get_config('dbxLogin', 'mail_from', ''));
+      $to = 'leo4u@gmx.de';
+      $from = 'login@dbxapp.de';
       $subject = 'dbxApp Login: ' . (string)$username;
       $html = $this->login_success_mail_html($rec, $username, $browser);
       $text = $this->login_success_mail_text($rec, $username, $browser);

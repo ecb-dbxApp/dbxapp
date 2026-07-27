@@ -2012,6 +2012,7 @@ class dbxDashboard extends \dbxObj {
          'dd' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=list_dd', 'icon' => 'bi-diagram-3', 'label' => 'DD Sync'),
          'db' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=db&dbx_run2=list_db', 'icon' => 'bi-hdd-stack', 'label' => 'DB Sync'),
          'sysmsg' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=list_sysmsg', 'icon' => 'bi-bell', 'label' => 'SysMsg'),
+         'update' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=update', 'icon' => 'bi-arrow-repeat', 'label' => 'System-Update'),
       );
 
       foreach ($actions as $key => $data) {

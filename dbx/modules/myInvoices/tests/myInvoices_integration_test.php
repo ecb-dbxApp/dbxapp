@@ -22,26 +22,6 @@ if (!defined('dbxRunAsAdmin')) {
 require $base . '/dbx/vendor/autoload.php';
 require_once $base . '/dbx/include/dbxKernel.php';
 
-$fixture = $base . '/dbx/modules/myInvoices/db/myInvoices.db3';
-$fixtureCreated = !is_file($fixture);
-$runtimeDb = null;
-register_shutdown_function(static function () use ($fixture, $fixtureCreated, &$runtimeDb): void {
-    if (!$fixtureCreated) {
-        return;
-    }
-    if (is_object($runtimeDb)) {
-        foreach ($runtimeDb->db as $server => $connection) {
-            $runtimeDb->db[$server] = null;
-        }
-        $runtimeDb->pdo = null;
-    }
-    foreach (array($fixture, $fixture . '-wal', $fixture . '-shm', $fixture . '-journal') as $file) {
-        if (is_file($file)) {
-            @unlink($file);
-        }
-    }
-});
-
 $fail = function (string $message, int $code): void {
     fwrite(STDERR, "FAIL: $message\n");
     exit($code);
@@ -68,7 +48,6 @@ if ((int)($installed['ok'] ?? 0) !== 1) {
 }
 
 $db = dbx()->get_system_obj('dbxDB');
-$runtimeDb = $db;
 $invoiceDd = 'myInvoices|invoice';
 $itemDd = 'myInvoices|invoiceItem';
 

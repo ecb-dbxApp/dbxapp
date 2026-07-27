@@ -1,5 +1,18 @@
 # Verbindlicher Release-Prozess
 
+## 0. Verbindliche Verzeichnisrollen
+
+- `C:\xampp\htdocs\dbxapp` ist die einzige fachliche Entwicklungsquelle.
+- `C:\xampp\htdocs\dbxapp-github` ist ein kontrollierter Git-/Release-Spiegel
+  und kein zweiter Entwicklungsstand.
+- Vor jedem Release-Commit wird zunächst ein Dry-Run ausgeführt:
+
+  `php tools/sync-authoritative-source.php --source=C:\xampp\htdocs\dbxapp --target=C:\xampp\htdocs\dbxapp-github`
+
+- Danach wird derselbe geprüfte Plan mit `--apply` angewendet. Der Spiegel muss
+  vorher einen sauberen Git-Status haben. Release-Workflows, Security Policy
+  und weitere GitHub-eigene Dateien bleiben vom Abgleich unberührt.
+
 ## 1. Entwicklung
 
 - `main` ist jederzeit prüfbar und grundsätzlich veröffentlichungsfähig.
@@ -26,7 +39,8 @@ Der Release Pull Request:
 2. verschiebt `CHANGELOG.md` von `Unreleased` in die neue Version,
 3. aktualisiert `UPGRADE.md` und `SECURITY.md`,
 4. enthält alle erforderlichen Migrationen,
-5. besteht CI und die manuelle Release-Checkliste.
+5. enthält den aktuellen Source-to-GitHub-Abgleich,
+6. besteht CI und die manuelle Release-Checkliste.
 
 ## 4. Tag und Artefakt
 
@@ -37,8 +51,9 @@ GitHub-Workflow:
 2. installiert Composer-Abhängigkeiten reproduzierbar aus `composer.lock`,
 3. führt `composer ci` aus,
 4. baut das Release-ZIP aus dem frischen Checkout,
-5. erzeugt eine SHA-256-Prüfsumme,
-6. erstellt einen GitHub-Release-Entwurf.
+5. erzeugt ein Datei-Inventar im ZIP,
+6. erzeugt SHA-256 und das stabile `update.json`,
+7. erstellt einen GitHub-Release-Entwurf.
 
 Der Entwurf wird erst nach Sichtprüfung manuell veröffentlicht.
 
@@ -51,7 +66,9 @@ und Release werden gleichzeitig publiziert.
 ## 6. Nach dem Release
 
 - ZIP herunterladen und Prüfsumme kontrollieren.
+- `update.json` über die feste Latest-Release-URL abrufen und prüfen.
 - Neuinstallation in einer leeren Umgebung prüfen.
+- Update und Rollback von der vorherigen stabilen Version prüfen.
 - Upgrade der vorherigen stabilen DB3- und MySQL-Version prüfen.
 - Hauptabläufe entsprechend `RELEASE_CHECKLIST.md` testen.
 - Danach `main` auf die nächste `-dev`-Version setzen.
