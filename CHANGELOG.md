@@ -6,6 +6,8 @@ Semantic Versioning.
 
 ## [Unreleased]
 
+## [4.0.2] - 2026-07-27
+
 ### Added
 
 - Kontrollierter Source-to-GitHub-Abgleich mit Dry-Run, fester
@@ -17,7 +19,9 @@ Semantic Versioning.
 
 ### Changed
 
-- Nach `4.0.1` trägt der Entwicklungsstand die Version `4.0.2-dev`.
+- dbxApp 4 wird ausdrücklich als vollständige Neuentwicklung und nicht als
+  automatischer Upgradepfad von dbxWebApp geführt.
+- Version 4.0.2 bildet die erste updaterfähige Referenz der dbxApp-4-Linie.
 - Öffentliche Modulkonfigurationen enthalten keine installationsbezogenen
   Mail-, SFTP- oder Token-Werte; diese liegen nur in `config.local.php`.
 

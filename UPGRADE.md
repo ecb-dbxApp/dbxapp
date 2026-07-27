@@ -1,9 +1,16 @@
 # dbxApp aktualisieren
 
+Dieses Verfahren gilt ausschließlich für Updates innerhalb der neuen
+dbxApp-4-Produktlinie. dbxApp 4 ist eine vollständige Neuentwicklung und kein
+In-place-Upgrade von dbxWebApp. Eine Übernahme von dbxWebApp-Daten muss, falls
+sie künftig benötigt wird, als gesonderter Import mit eigener Prüfung,
+Sicherung und Dokumentation entwickelt werden.
+
 ## Update über dbxAdmin
 
-Ab dbxApp 4.0.2 steht unter **dbxAdmin → Status & Health → System-Update**
-der verbindliche Standardablauf bereit:
+dbxApp 4.0.2 ist die erste updaterfähige Referenzversion. Von dieser Basis aus
+steht unter **dbxAdmin → Status & Health → System-Update** für spätere stabile
+dbxApp-4-Releases der verbindliche Standardablauf bereit:
 
 1. **Jetzt prüfen** lädt ausschließlich das Manifest des neuesten stabilen
    Releases aus `ecb-dbxApp/dbxapp`.
@@ -18,13 +25,6 @@ der verbindliche Standardablauf bereit:
 Lokale Konfigurationen, DB3-/MySQL-Datenbanken, Uploads, Sessions, Caches und
 Logs sind ausdrücklich kein Bestandteil des Release-Pakets. Der Updater
 greift nie direkt auf eine Datenbank zu.
-
-### Einmaliger Übergang von 4.0.1
-
-Version 4.0.1 enthält den dbxAdmin-Updater noch nicht. Der Wechsel auf 4.0.2
-muss deshalb einmal nach dem unten beschriebenen manuellen Verfahren
-erfolgen. Ab der installierten Version 4.0.2 werden spätere stabile
-Dateiupdates über dbxAdmin ausgeführt.
 
 ### Datenbankänderungen
 
@@ -46,6 +46,9 @@ verändert.
 6. dbxSetup beziehungsweise die dokumentierten Migrationen ausführen.
 7. Login, Formular, Report, Token-Aktionen und zentrale Module testen.
 8. Prüfen, dass `files/dbxError.log` nicht vorhanden ist.
+
+Ein direktes Update von dbxWebApp auf dbxApp 4 ist kein unterstützter Schritt
+dieses Verfahrens.
 
 ## DB3
 

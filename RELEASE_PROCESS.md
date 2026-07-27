@@ -1,5 +1,9 @@
 # Verbindlicher Release-Prozess
 
+Dieser Prozess veröffentlicht und aktualisiert ausschließlich die
+dbxApp-4-Produktlinie. dbxApp 4 ist eine vollständige Neuentwicklung;
+dbxWebApp ist keine Vorgängerversion im automatischen Updatepfad.
+
 ## 0. Verbindliche Verzeichnisrollen
 
 - `C:\xampp\htdocs\dbxapp` ist die einzige fachliche Entwicklungsquelle.
@@ -68,8 +72,10 @@ und Release werden gleichzeitig publiziert.
 - ZIP herunterladen und Prüfsumme kontrollieren.
 - `update.json` über die feste Latest-Release-URL abrufen und prüfen.
 - Neuinstallation in einer leeren Umgebung prüfen.
-- Update und Rollback von der vorherigen stabilen Version prüfen.
-- Upgrade der vorherigen stabilen DB3- und MySQL-Version prüfen.
+- Ab dem zweiten updaterfähigen Release: Update und Rollback von der vorherigen
+  stabilen dbxApp-4-Version prüfen.
+- Falls ein Release eine dokumentierte Datenmigration enthält: Migration der
+  vorherigen stabilen dbxApp-4-DB3- und MySQL-Version prüfen.
 - Hauptabläufe entsprechend `RELEASE_CHECKLIST.md` testen.
 - Danach `main` auf die nächste `-dev`-Version setzen.
 

@@ -3,6 +3,12 @@
 dbxApp ist eine modulare PHP-Anwendungsplattform für CMS, Shop, Formulare,
 Reports, Workflows, Administration und KI-gestützte Arbeitsabläufe.
 
+dbxApp 4 ist eine vollständige Neuentwicklung auf Basis der Erfahrungen mit
+dem früheren dbxWebApp. Es besteht kein Vertrag für ein direktes
+Datei-, Datenbank- oder In-place-Upgrade von dbxWebApp auf dbxApp 4.
+Eine spätere Übernahme alter Daten wäre ein gesonderter, ausdrücklich
+dokumentierter Import und niemals Aufgabe des dbxApp-Updaters.
+
 Die zentrale Architektur besteht aus:
 
 - `dbxDB` für sämtliche Datenbankzugriffe, Rechte, DD-Validierung und Trace,
@@ -90,10 +96,11 @@ Ausführliche Regeln stehen in [CONTRIBUTING.md](CONTRIBUTING.md) und im
 Release-ZIPs werden ausschließlich aus einem geschützten Git-Tag gebaut.
 Lokale Arbeitsverzeichnisse sind keine Release-Quelle.
 
-Ab Version 4.0.2 prüft und installiert `dbxAdmin` stabile Releases über einen
-kurzen, zentralen Ablauf mit SHA-256-, ZIP- und Dateiinventar-Prüfung,
-automatischer Dateisicherung und Rollback. Der einmalige Übergang von 4.0.1
-und die klare Trennung von Dateiupdate und DB-Migration sind in den
+Version 4.0.2 ist die erste updaterfähige Referenzversion der neuen
+dbxApp-4-Linie. Ab dieser Basis prüft und installiert `dbxAdmin` spätere
+stabile dbxApp-4-Releases über einen kurzen, zentralen Ablauf mit SHA-256-,
+ZIP- und Dateiinventar-Prüfung, automatischer Dateisicherung und Rollback.
+Die klare Trennung von Dateiupdate und DB-Migration ist in den
 [Upgrade-Hinweisen](UPGRADE.md) dokumentiert.
 
 ## Lizenz
