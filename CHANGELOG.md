@@ -6,6 +6,21 @@ Semantic Versioning.
 
 ## [Unreleased]
 
+### Added
+
+- Kontrollierter Source-to-GitHub-Abgleich mit Dry-Run, fester
+  Veröffentlichungsgrenze und Schutz lokaler Laufzeitdaten.
+- Release-Datei-Inventar und maschinenlesbares `update.json` für installierte
+  dbxApp-Systeme.
+- Admin-Updateablauf mit HTTPS-Vertrauensgrenze, SHA-256, sicherer
+  ZIP-Prüfung, Staging, Dateisicherung und Rollback.
+
+### Changed
+
+- Nach `4.0.1` trägt der Entwicklungsstand die Version `4.0.2-dev`.
+- Öffentliche Modulkonfigurationen enthalten keine installationsbezogenen
+  Mail-, SFTP- oder Token-Werte; diese liegen nur in `config.local.php`.
+
 ## [4.0.1] - 2026-07-27
 
 ### Added

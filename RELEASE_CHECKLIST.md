@@ -8,6 +8,8 @@
 - [ ] Kein direkter PDO-/mysqli-Zugriff außerhalb von `dbxDB`.
 - [ ] Keine DB3, Dumps, Backups, Logs, Secrets oder Benutzerdateien enthalten.
 - [ ] Tag und `VERSION` stimmen überein.
+- [ ] Source-to-GitHub-Dry-Run wurde geprüft und anschließend angewendet.
+- [ ] Der GitHub-Spiegel enthält keine ungeplanten Handänderungen.
 
 ## Datenbanken
 
@@ -31,11 +33,14 @@
 - [ ] dbxContent-Templateauswahl ist in allen Sprachen verfügbar.
 - [ ] Full-Page-Cache und Invalidierung funktionieren.
 - [ ] `files/dbxError.log` ist nach den Tests nicht vorhanden.
+- [ ] Updateprüfung, Download, SHA-256, Staging, Installation und Rollback
+      funktionieren von der vorherigen stabilen Version.
 
 ## Veröffentlichung
 
 - [ ] `CHANGELOG.md`, `UPGRADE.md` und `SECURITY.md` sind aktuell.
 - [ ] Release-ZIP stammt aus dem geschützten Tag.
 - [ ] SHA-256-Prüfsumme wurde kontrolliert.
+- [ ] `update.json` und `.dbx-release-files.json` sind konsistent.
 - [ ] GitHub-Release-Entwurf wurde visuell geprüft.
 - [ ] Release und gegebenenfalls Security Advisory gleichzeitig publiziert.
