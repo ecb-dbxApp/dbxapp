@@ -19,6 +19,7 @@ class dbxDashboard extends \dbxObj {
    private $performanceModuleAverages = null;
    private $dashboardMessageKey = '';
    private $dashboardMessageError = false;
+   private $updateStatusCache = null;
 
    private function fmt($value) {
       $value = (int) $value;
@@ -127,6 +128,154 @@ class dbxDashboard extends \dbxObj {
             'delete_title'       => dbx()->esc($texts->get_fd_message('error_log_delete_title')),
             'delete_confirm'     => dbx()->esc($texts->get_fd_message('error_log_delete_confirm')),
             'delete_hint'        => dbx()->esc($texts->get_fd_message('error_log_delete_hint')),
+         )
+      );
+   }
+
+   /**
+    * Reads the local updater state once per dashboard request.
+    *
+    * dbxUpdateService::status() only reads files from files/update. A normal
+    * dashboard request therefore never waits for GitHub or another network
+    * service. The explicit update page remains responsible for checking and
+    * downloading releases.
+    *
+    * @return array<string,mixed>
+    */
+   private function update_status(): array {
+      if (is_array($this->updateStatusCache)) {
+         return $this->updateStatusCache;
+      }
+
+      try {
+         dbx()->get_include_obj('dbxUpdateService', 'dbxAdmin');
+         $this->updateStatusCache = dbxUpdateService::configured()->status();
+         $this->updateStatusCache['status_available'] = true;
+      } catch (\Throwable $exception) {
+         $this->updateStatusCache = array(
+            'current_version' => '',
+            'available_version' => '',
+            'update_available' => false,
+            'checked_at' => '',
+            'staged_version' => '',
+            'stop_available' => false,
+            'status_available' => false,
+         );
+      }
+
+      return $this->updateStatusCache;
+   }
+
+   /**
+    * Normalizes the cached updater state for dashboard and navigation output.
+    *
+    * @param array<string,mixed> $status
+    * @return array<string,string>
+    */
+   private function update_state(array $status): array {
+      $current = (string)($status['current_version'] ?? '');
+      $staged = (string)($status['staged_version'] ?? '');
+      $ready = $staged !== ''
+         && ($current === '' || version_compare($staged, $current, '>'));
+
+      if ($ready) {
+         return array(
+            'class' => 'ready',
+            'icon' => 'bi-shield-check',
+            'status_message' => 'update_status_ready',
+            'action_message' => 'update_action_ready',
+            'nav_message' => 'update_nav_ready',
+            'action_class' => 'btn-primary',
+         );
+      }
+
+      if (!empty($status['update_available'])) {
+         return array(
+            'class' => 'available',
+            'icon' => 'bi-cloud-arrow-down-fill',
+            'status_message' => 'update_status_available',
+            'action_message' => 'update_action_available',
+            'nav_message' => 'update_nav_available',
+            'action_class' => 'btn-warning',
+         );
+      }
+
+      if (!empty($status['status_available'])
+         && (string)($status['checked_at'] ?? '') !== '') {
+         return array(
+            'class' => 'current',
+            'icon' => 'bi-check-circle-fill',
+            'status_message' => 'update_status_current',
+            'action_message' => 'update_action_current',
+            'nav_message' => 'update_nav_current',
+            'action_class' => 'btn-outline-primary',
+         );
+      }
+
+      return array(
+         'class' => 'unknown',
+         'icon' => 'bi-question-circle-fill',
+         'status_message' => 'update_status_unknown',
+         'action_message' => 'update_action_unknown',
+         'nav_message' => 'update_nav_unknown',
+         'action_class' => 'btn-outline-primary',
+      );
+   }
+
+   /**
+    * Renders the local update state below Status & Health.
+    */
+   private function update_status_panel(\dbxForm $texts): string {
+      $status = $this->update_status();
+      $state = $this->update_state($status);
+      $current = trim((string)($status['current_version'] ?? ''));
+      $available = trim((string)($status['available_version'] ?? ''));
+      $staged = trim((string)($status['staged_version'] ?? ''));
+
+      if ($state['class'] === 'ready') {
+         $statusText = $texts->format_fd_message(
+            $state['status_message'],
+            array('version' => $staged)
+         );
+      } elseif ($state['class'] === 'available') {
+         $statusText = $texts->format_fd_message(
+            $state['status_message'],
+            array('version' => $available)
+         );
+      } else {
+         $statusText = $texts->get_fd_message($state['status_message']);
+      }
+
+      $versionText = $available !== ''
+         ? $texts->format_fd_message(
+            'update_versions',
+            array('current' => $current, 'available' => $available)
+         )
+         : $texts->format_fd_message(
+            'update_version_current',
+            array('current' => $current !== '' ? $current : '–')
+         );
+      $checkedAt = strtotime((string)($status['checked_at'] ?? ''));
+      $checkedText = $checkedAt
+         ? $texts->format_fd_message(
+            'update_checked',
+            array('date' => date('d.m.Y H:i', $checkedAt))
+         )
+         : $texts->get_fd_message('update_not_checked');
+
+      return dbx()->get_system_obj('dbxTPL')->get_tpl(
+         'dbxAdmin|admin-dashboard-update-status',
+         array(
+            'update_title' => dbx()->esc($texts->get_fd_message('update_title')),
+            'state_class' => dbx()->esc($state['class']),
+            'state_icon' => dbx()->esc($state['icon']),
+            'status_text' => dbx()->esc($statusText),
+            'version_text' => dbx()->esc($versionText),
+            'checked_text' => dbx()->esc($checkedText),
+            'action_class' => dbx()->esc($state['action_class']),
+            'action_label' => dbx()->esc(
+               $texts->get_fd_message($state['action_message'])
+            ),
          )
       );
    }
@@ -2001,18 +2150,20 @@ class dbxDashboard extends \dbxObj {
    private function quick_actions() {
       $oForm = new \dbxForm();
       $oForm->init('admin-dashboard-actions', 'admin-dashboard-actions');
+      $oForm->_fd = 'dbxAdmin|admin-dashboard-status';
+      $oForm->load_fd_messages();
       $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run';
       $oForm->_msg_info = '';
       $oForm->add_obj('actions_bar', 'dbx|component-bar', $this->card_bar_data('Quick Actions', 'bi-lightning-charge'));
 
       $actions = array(
-         'users' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=user&dbx_run2=list_user', 'icon' => 'bi-people', 'label' => 'Benutzer'),
-         'sessions' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=session&dbx_run2=list_session', 'icon' => 'bi-broadcast', 'label' => 'Sessions'),
-         'modules' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_list', 'icon' => 'bi-grid', 'label' => 'Module'),
-         'dd' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=list_dd', 'icon' => 'bi-diagram-3', 'label' => 'DD Sync'),
-         'db' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=db&dbx_run2=list_db', 'icon' => 'bi-hdd-stack', 'label' => 'DB Sync'),
-         'sysmsg' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=list_sysmsg', 'icon' => 'bi-bell', 'label' => 'SysMsg'),
-         'update' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=update', 'icon' => 'bi-arrow-repeat', 'label' => 'System-Update'),
+         'users' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=user&dbx_run2=list_user', 'icon' => 'bi-people', 'label' => 'Benutzer', 'ajax_class' => 'dbxAjax'),
+         'sessions' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=session&dbx_run2=list_session', 'icon' => 'bi-broadcast', 'label' => 'Sessions', 'ajax_class' => 'dbxAjax'),
+         'modules' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_list', 'icon' => 'bi-grid', 'label' => 'Module', 'ajax_class' => 'dbxAjax'),
+         'dd' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=list_dd', 'icon' => 'bi-diagram-3', 'label' => 'DD Sync', 'ajax_class' => 'dbxAjax'),
+         'db' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=db&dbx_run2=list_db', 'icon' => 'bi-hdd-stack', 'label' => 'DB Sync', 'ajax_class' => 'dbxAjax'),
+         'sysmsg' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=list_sysmsg', 'icon' => 'bi-bell', 'label' => 'SysMsg', 'ajax_class' => 'dbxAjax'),
+         'update' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=update', 'icon' => 'bi-arrow-repeat', 'label' => $oForm->get_fd_message('update_title'), 'ajax_class' => ''),
       );
 
       foreach ($actions as $key => $data) {
@@ -2388,6 +2539,7 @@ class dbxDashboard extends \dbxObj {
       $oForm->add_rep('system_status_label', $oForm->get_fd_message('system_status_label'));
       $oForm->add_obj('hero_performance_gauges', 'obj-value', $this->hero_performance_gauges($heroPerformance));
       $oForm->add_obj('hero_status_summaries', 'obj-value', $this->hero_status_summaries());
+      $oForm->add_obj('update_status', 'obj-value', $this->update_status_panel($oForm));
       $oForm->add_obj('error_log', 'obj-value', $hasErrorLog ? $this->error_log_panel($oForm) : '');
 
       return $oForm->run();
@@ -2546,6 +2698,14 @@ class dbxDashboard extends \dbxObj {
             . '<span>' . $message . '</span></div>';
       }
       $oForm->add_obj('dashboard_message', 'obj-value', $messageHtml);
+
+      $updateState = $this->update_state($this->update_status());
+      $oForm->add_rep('update_nav_class', dbx()->esc($updateState['class']));
+      $oForm->add_rep(
+         'update_nav_badge',
+         dbx()->esc($oForm->get_fd_message($updateState['nav_message']))
+      );
+      $oForm->add_rep('update_nav_label', dbx()->esc($oForm->get_fd_message('update_nav_title')));
 
       $metrics = $this->metrics();
       $this->store_history_snapshot($metrics);

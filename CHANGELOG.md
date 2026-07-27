@@ -16,6 +16,10 @@ Semantic Versioning.
   Update sicher stoppen; ZIP, Staging und Status werden vollständig entfernt.
 - Update-, Installations-, Stop- und Rollbackoperationen verwenden eine
   gemeinsame Dateisperre und können nicht gegeneinander laufen.
+- `Status & Health`, Dashboard-Menü und Schnellzugriff zeigen den zentralen
+  Update-Zustand in Deutsch, Englisch und Spanisch an.
+- Die Dashboard-Anzeige liest ausschließlich den lokalen Update-Cache; eine
+  Netzwerkprüfung startet weiterhin nur bewusst auf der Update-Seite.
 
 ## [4.0.2] - 2026-07-27
 

@@ -167,6 +167,27 @@ bleiben DD-gesteuerte `dbxDB`-Migrationen und müssen in den Release-Hinweisen
 ausdrücklich beschrieben werden. `files/`, lokale `config.local.php`,
 Uploads, Sessions, Caches und Logs werden weder ausgeliefert noch ersetzt.
 
+### Anzeige in Admin-Dashboard und Menü
+
+`Status & Health`, die Dashboard-Navigation und der Schnellzugriff zeigen den
+Update-Zustand zentral an:
+
+- **prüfen:** Es liegt noch kein lokaler Prüfstand vor.
+- **aktuell:** Der zuletzt geprüfte stabile Stand ist nicht neuer.
+- **neu:** Ein neuerer stabiler Release ist verfügbar.
+- **bereit:** ZIP, Prüfsumme, Inventar und Staging sind vollständig geprüft;
+  der Administrator kann die Installation fortsetzen oder das Update stoppen.
+
+Diese Anzeigen rufen ausschließlich `dbxUpdateService::status()` auf. Die
+Methode liest den lokalen Zustand aus `files/update` und führt ausdrücklich
+keinen Netzwerkaufruf aus. Nur die Update-Seite startet mit `prepare()` eine
+neue GitHub-Prüfung. Dadurch bleibt das Dashboard schnell und ein Ausfall von
+GitHub beeinflusst weder Menü noch Systemstatus.
+
+Alle Oberflächen beziehen die Service-Konfiguration über
+`dbxUpdateService::configured()`. URL, Cache-Zeit, Sicherheitsprüfung,
+Installation, Stop und Rollback bleiben damit an einer Stelle definiert.
+
 ## dbxView
 
 Hilfen fuer Zielbereiche, View-State und AJAX-Targets.
