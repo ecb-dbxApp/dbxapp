@@ -25,6 +25,7 @@ $messages['stage_success'] = 'Release {version} was downloaded, verified with SH
 $messages['install_success'] = 'dbxApp was updated successfully to version {version}.';
 $messages['rollback_success'] = 'The file backup of version {version} was restored.';
 $messages['operation_invalid'] = 'The requested update action is invalid.';
+$messages['manifest_unavailable'] = 'The currently published release does not provide an update manifest yet. Automatic update checks are available from dbxApp 4.0.2.';
 $messages['install_confirm_title'] = 'Update dbxApp';
 $messages['install_confirm'] = 'Install the verified update now?';
 $messages['install_confirm_hint'] = 'Changed and removed program files are backed up completely first. Runtime data and config.local.php remain unchanged.';

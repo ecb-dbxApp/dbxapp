@@ -744,7 +744,8 @@ class dbxUpdateService
          throw new RuntimeException(
             'Update-Download fehlgeschlagen'
             . ($status > 0 ? ' (HTTP ' . $status . ')' : '')
-            . ($error !== '' ? ': ' . $error : '.')
+            . ($error !== '' ? ': ' . $error : '.'),
+            $status
          );
       }
       $this->assertTrustedUrl($effective, true);

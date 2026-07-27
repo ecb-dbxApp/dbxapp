@@ -25,6 +25,7 @@ $messages['stage_success'] = 'Release {version} wurde geladen, per SHA-256 gepr�
 $messages['install_success'] = 'dbxApp wurde erfolgreich auf Version {version} aktualisiert.';
 $messages['rollback_success'] = 'Die Dateisicherung von Version {version} wurde wiederhergestellt.';
 $messages['operation_invalid'] = 'Die angeforderte Update-Aktion ist ungültig.';
+$messages['manifest_unavailable'] = 'Der aktuell veröffentlichte Release stellt noch kein Update-Manifest bereit. Die automatische Prüfung ist ab dbxApp 4.0.2 verfügbar.';
 $messages['install_confirm_title'] = 'dbxApp aktualisieren';
 $messages['install_confirm'] = 'Das geprüfte Update jetzt installieren?';
 $messages['install_confirm_hint'] = 'Geänderte und entfernte Programmdateien werden vorher vollständig gesichert. Laufzeitdaten und config.local.php bleiben unverändert.';

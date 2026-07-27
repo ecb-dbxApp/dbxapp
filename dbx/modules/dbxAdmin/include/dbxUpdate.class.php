@@ -90,7 +90,10 @@ class dbxUpdate
                   $form->set_error($form->get_fd_message('operation_invalid'));
             }
          } catch (\Throwable $exception) {
-            $form->set_error($exception->getMessage());
+            $message = (int)$exception->getCode() === 404
+               ? $form->get_fd_message('manifest_unavailable')
+               : $exception->getMessage();
+            $form->set_error($message);
          }
       }
 
