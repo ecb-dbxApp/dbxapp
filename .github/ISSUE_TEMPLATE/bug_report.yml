@@ -12,7 +12,7 @@ body:
     id: version
     attributes:
       label: dbxApp-Version
-      placeholder: "z. B. 3.1.0"
+      placeholder: "z. B. 4.0.1"
     validations:
       required: true
   - type: input

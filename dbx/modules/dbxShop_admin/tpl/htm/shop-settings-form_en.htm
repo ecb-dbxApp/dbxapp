@@ -1,4 +1,4 @@
-<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-shop-settings-wrapper">
+<div id="{frame_id}" class="dbx-panel dbxForm_wrapper dbx-shop-settings-wrapper">
  {shop_admin_style}
  {frame_form_open}
   <input type="hidden" name="shop_action" value="save_settings">
@@ -23,6 +23,7 @@
      <h5>Switches</h5>
      <div class="dbx-shop-settings-switch-grid">
       {obj:enabled}
+      {obj:demo_notice_enabled}
       {obj:b2b_mode}
       {obj:stock_enabled}
       {obj:channels_enabled}

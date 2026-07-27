@@ -779,7 +779,7 @@ class dbxShopAdmin {
          . '</section>';
    }
 
-   private function loadShopHelpContentCacheSupport(): void {
+   private function loadContentCacheSupport(): void {
       $bootstrap = dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap.php';
       if (is_file($bootstrap)) {
          require_once $bootstrap;
@@ -798,7 +798,7 @@ class dbxShopAdmin {
       if ($cid <= 0) {
          return;
       }
-      $this->loadShopHelpContentCacheSupport();
+      $this->loadContentCacheSupport();
       if (class_exists('\\dbx\\dbxContent\\dbxContentPageCache')) {
          \dbx\dbxContent\dbxContentPageCache::invalidateContent($cid);
       }
@@ -808,7 +808,7 @@ class dbxShopAdmin {
       if ($cid <= 0 || $permalink === '') {
          return;
       }
-      $this->loadShopHelpContentCacheSupport();
+      $this->loadContentCacheSupport();
       if (class_exists('\\dbx\\dbxContent\\dbxContentPermalinkIndex')) {
          \dbx\dbxContent\dbxContentPermalinkIndex::upsertPage($cid, $permalink, $rights, 1);
       }
@@ -819,7 +819,7 @@ class dbxShopAdmin {
       if ($permalink === '') {
          return;
       }
-      $this->loadShopHelpContentCacheSupport();
+      $this->loadContentCacheSupport();
       if (class_exists('\\dbx\\dbxContent\\dbxContentPermalinkIndex')) {
          \dbx\dbxContent\dbxContentPermalinkIndex::removeByPermalink($permalink);
       }
@@ -3247,6 +3247,7 @@ class dbxShopAdmin {
          'stock_enabled',
          'channels_enabled',
          'checkout_guest_allowed',
+         'demo_notice_enabled',
          'legal_snapshot_enabled',
          'withdrawal_button_enabled',
          'mail_customer_enabled',
@@ -3287,6 +3288,10 @@ class dbxShopAdmin {
       $cfg['media_usage_slot'] = preg_replace('~[^a-z0-9_-]+~i', '', (string)($_POST['media_usage_slot'] ?? 'shop')) ?: 'shop';
 
       dbx()->set_config('dbxShop', $cfg);
+      $this->loadContentCacheSupport();
+      if (class_exists('\\dbx\\dbxContent\\dbxContentPageCache')) {
+         \dbx\dbxContent\dbxContentPageCache::invalidateAllFullPages();
+      }
    }
 
    private function settingsFormData(array $cfg): array {
@@ -3304,6 +3309,7 @@ class dbxShopAdmin {
          'stock_enabled',
          'channels_enabled',
          'checkout_guest_allowed',
+         'demo_notice_enabled',
          'legal_snapshot_enabled',
          'withdrawal_button_enabled',
          'mail_customer_enabled',
@@ -3318,6 +3324,7 @@ class dbxShopAdmin {
          $data[$key] = $this->settingsBool($cfg, $key, in_array($key, array(
             'enabled',
             'checkout_guest_allowed',
+            'demo_notice_enabled',
             'legal_snapshot_enabled',
             'withdrawal_button_enabled',
             'mail_customer_enabled',

@@ -172,12 +172,15 @@ class dbxWebApp {
             $cached_scheme = strtolower((string) ($cached['scheme'] ?? ''));
             $cached_host = strtolower((string) ($cached['host'] ?? ''));
             $cached_port = (int) ($cached['port'] ?? ($cached_scheme === 'https' ? 443 : 80));
+            $cached_path = '/' . trim(str_replace('\\', '/', (string) ($cached['path'] ?? '')), '/');
+            $request_path = '/' . trim(str_replace('\\', '/', $uri), '/');
             $request_port = $port ?: ($protocol === 'https://' ? 443 : 80);
 
             if (
                 $cached_scheme !== rtrim($protocol, ':/') ||
                 $cached_host !== strtolower($host) ||
-                $cached_port !== $request_port
+                $cached_port !== $request_port ||
+                $cached_path !== $request_path
             ) {
                 $base_url = 0;
             }

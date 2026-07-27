@@ -48,6 +48,7 @@ $addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (
 $check = 'dbxShop_admin|shop-settings-check';
 
 $addField('enabled','int','Shop aktiv','int',$check,array('data'=>array('hint'=>'Schaltet die Shop-Funktionen grundsaetzlich frei.')));
+$addField('demo_notice_enabled','int','Demo-Shop-Hinweis anzeigen','int',$check,array('data'=>array('hint'=>'Blendet den mehrsprachigen Hinweisblock „Demo-Shop – kein tatsächlicher Kauf“ im Katalog und Checkout ein.')));
 $addField('default_channel','varchar','Standard-Channel','parameter|max=40','text-label',array('placeholder'=>'shop','tooltip'=>'Technischer Standard-Verkaufskanal fuer normale Shop-Bestellungen.'));
 $addField('default_currency','varchar','Standard-Waehrung','parameter|max=3','text-label',array('placeholder'=>'EUR','tooltip'=>'ISO-Waehrungscode mit drei Buchstaben.'));
 $addField('price_display','varchar','Preisanzeige','parameter|max=12','select-single-label',array('options'=>'gross=Brutto&net=Netto'));

@@ -265,7 +265,8 @@ class dbxContent_content {
       $cid = dbxContentHome::resolveCid();
     }
     if (!$cid > 0) {
-      return "show cid=($cid) nicht gefunden! ";
+      $renderer = dbx()->get_include_obj('dbxContentRenderer', 'dbxContent');
+      return $renderer->renderNotFound();
     }
 
     return $this->renderPage($cid);

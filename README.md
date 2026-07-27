@@ -12,8 +12,8 @@ Die zentrale Architektur besteht aus:
 
 ## Status
 
-Dieses Repository enthält den bereinigten Entwicklungsstand für das erste
-öffentliche Release der Linie 3.1. Die aktuelle Version steht in
+Dieses Repository enthält den bereinigten Stand für das öffentliche Release
+der Linie 4.0. Die aktuelle Version steht in
 [`VERSION`](VERSION). Versionen mit dem Suffix `-dev` sind keine Releases.
 
 ## Voraussetzungen

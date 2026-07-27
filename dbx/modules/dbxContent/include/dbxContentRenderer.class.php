@@ -67,6 +67,14 @@ class dbxContentRenderer {
       return $this->interpretContentModules($this->renderStatic($cid));
    }
 
+   public function renderNotFound(): string {
+      $tpl = dbx()->get_system_obj('dbxTPL');
+      $permalink = trim((string)dbx()->get_system_var('dbx_permalink', ''), '/');
+      return $tpl->get_tpl('dbxContent|no-page', array(
+         'permalink' => dbx()->esc($permalink !== '' ? $permalink : '/'),
+      ));
+   }
+
    public function renderStatic($cid, array $options = array()) {
       $cid = (int)$cid;
       if ($cid <= 0) return 'Keine dbx_cid gesetzt!';
@@ -75,7 +83,7 @@ class dbxContentRenderer {
       $tpl = dbx()->get_system_obj('dbxTPL');
       $rec = $db->select1(dbxContentLng::ddContent(), $cid, '*', 0);
       if (!is_array($rec) || (int)($rec['id'] ?? 0) <= 0) {
-         return $tpl->get_tpl('dbxContent|no-page');
+         return $this->renderNotFound();
       }
 
       $rights = $this->resolve_content_rights($db, $rec);

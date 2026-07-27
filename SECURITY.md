@@ -2,14 +2,13 @@
 
 ## Unterstützte Versionen
 
-Bis zum ersten öffentlichen Release ist `main` ein Entwicklungsstand.
-Anschließend wird ausschließlich die neueste stabile Minor-Version der
-aktuellen Major-Linie mit Sicherheitsupdates versorgt.
+Es wird ausschließlich die neueste stabile Minor-Version der aktuellen
+Major-Linie mit Sicherheitsupdates versorgt.
 
 | Version | Status |
 |---|---|
-| 3.1.x | ab Veröffentlichung unterstützt |
-| 3.0 und älter | nicht öffentlich unterstützt |
+| 4.0.x | unterstützt |
+| 3.x und älter | nicht öffentlich unterstützt |
 
 Der konkrete Status wird bei jedem Release aktualisiert.
 

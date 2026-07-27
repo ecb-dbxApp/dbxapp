@@ -6,6 +6,8 @@ Semantic Versioning.
 
 ## [Unreleased]
 
+## [4.0.1] - 2026-07-27
+
 ### Added
 
 - Öffentlicher Release-, Security- und Contribution-Prozess.
@@ -15,7 +17,7 @@ Semantic Versioning.
 
 ### Changed
 
-- Öffentliche Entwicklungslinie auf `3.1.0-dev` vereinheitlicht.
+- Öffentliche Release-Version auf `4.0.1` festgelegt.
 - Composer-Abhängigkeiten verwenden kompatible Patch-/Minor-Bereiche.
 - phpseclib auf den sicheren 3.0-Zweig ab Version 3.0.55 aktualisiert.
 

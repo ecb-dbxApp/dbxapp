@@ -17,6 +17,7 @@ $config['tax_rates']['mwst3']['rate'] = '22.00';
 $config['b2b_mode'] = false;
 $config['stock_enabled'] = false;
 $config['checkout_guest_allowed'] = true;
+$config['demo_notice_enabled'] = true;
 $config['legal_snapshot_enabled'] = true;
 $config['withdrawal_button_enabled'] = true;
 $config['payment_bank_transfer_enabled'] = true;

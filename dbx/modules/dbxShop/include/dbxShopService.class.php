@@ -81,6 +81,9 @@ class dbxShopService {
    }
 
    private function demoShopNoticeHtml(string $id = '', string $extraClass = '', $texts = null): string {
+      if (!$this->settingsBool($this->shopConfig(), 'demo_notice_enabled', true)) {
+         return '';
+      }
       $texts = $texts ?: $this->texts('dbxShop|shop-catalog-filter-form');
       $idAttribute = $id !== '' ? ' id="' . $this->h($id) . '"' : '';
       $classAttribute = $extraClass !== '' ? ' ' . $this->h($extraClass) : '';
