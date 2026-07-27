@@ -72,3 +72,19 @@ und Release werden gleichzeitig publiziert.
 - Upgrade der vorherigen stabilen DB3- und MySQL-Version prüfen.
 - Hauptabläufe entsprechend `RELEASE_CHECKLIST.md` testen.
 - Danach `main` auf die nächste `-dev`-Version setzen.
+
+## 7. Was installierte Systeme wann erhalten
+
+- Ein `*-dev`-Commit ist nur Entwicklungsstand und wird nie als Update
+  angeboten.
+- Ein geschützter Tag startet CI und erzeugt zunächst einen
+  GitHub-Release-Entwurf. Auch dieser Entwurf wird noch nicht angeboten.
+- Erst das manuelle Veröffentlichen des vollständig geprüften Entwurfs macht
+  dessen `update.json` über
+  `releases/latest/download/update.json` sichtbar.
+- `dbxAdmin` vergleicht die dort angegebene stabile Version mit der lokal
+  installierten Version. Download und Installation bleiben getrennte,
+  ausdrückliche Admin-Aktionen.
+- Veröffentlichte Releases und ihre Assets sind auf GitHub unveränderlich.
+  Eine Korrektur erfolgt deshalb immer als neue Patchversion, niemals durch
+  Austausch eines bestehenden ZIPs.

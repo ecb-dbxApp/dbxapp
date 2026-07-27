@@ -90,6 +90,12 @@ Ausführliche Regeln stehen in [CONTRIBUTING.md](CONTRIBUTING.md) und im
 Release-ZIPs werden ausschließlich aus einem geschützten Git-Tag gebaut.
 Lokale Arbeitsverzeichnisse sind keine Release-Quelle.
 
+Ab Version 4.0.2 prüft und installiert `dbxAdmin` stabile Releases über einen
+kurzen, zentralen Ablauf mit SHA-256-, ZIP- und Dateiinventar-Prüfung,
+automatischer Dateisicherung und Rollback. Der einmalige Übergang von 4.0.1
+und die klare Trennung von Dateiupdate und DB-Migration sind in den
+[Upgrade-Hinweisen](UPGRADE.md) dokumentiert.
+
 ## Lizenz
 
 dbxApp steht unter der GNU General Public License, Version 2 oder jeder
