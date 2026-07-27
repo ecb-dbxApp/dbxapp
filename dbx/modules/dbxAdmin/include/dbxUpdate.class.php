@@ -12,14 +12,7 @@ class dbxUpdate
    public function run(): string
    {
       dbx()->get_include_obj('dbxUpdateService', 'dbxAdmin');
-      $config = dbx()->get_config('dbxAdmin');
-      $manifestUrl = is_array($config)
-         ? (string)($config['update_manifest_url'] ?? '')
-         : '';
-      $cacheTtl = is_array($config)
-         ? (int)($config['update_cache_ttl'] ?? 21600)
-         : 21600;
-      $service = new dbxUpdateService('', $manifestUrl, $cacheTtl);
+      $service = dbxUpdateService::configured();
 
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('admin-system-update', 'admin-update');

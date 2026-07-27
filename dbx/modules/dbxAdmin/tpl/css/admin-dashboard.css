@@ -2803,3 +2803,138 @@
       inset 0 1px 0 rgba(255, 255, 255, .8),
       0 2px 4px rgba(0, 0, 0, .10) !important;
 }
+
+/* Cached system-update state: visible without a network request. */
+.dbx-admin-dashboard-update-nav {
+   display: flex !important;
+   align-items: center;
+   min-width: 0;
+}
+
+.dbx-admin-dashboard-update-nav > span:first-of-type {
+   min-width: 0;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+}
+
+.dbx-admin-dashboard-update-badge {
+   flex: 0 0 auto;
+   margin-left: auto;
+   padding: .18rem .42rem;
+   border: 1px solid rgba(38, 87, 145, .24);
+   border-radius: 999px;
+   background: #e8f2ff;
+   color: #174a82;
+   font-size: .66rem;
+   font-weight: 800;
+   line-height: 1.15;
+}
+
+.dbx-admin-dashboard-update-nav-ready .dbx-admin-dashboard-update-badge {
+   border-color: #2c6db9;
+   background: #dcecff;
+   color: #0d4d98;
+}
+
+.dbx-admin-dashboard-update-nav-available .dbx-admin-dashboard-update-badge {
+   border-color: #c47b00;
+   background: #fff0bd;
+   color: #714600;
+}
+
+.dbx-admin-dashboard-update {
+   display: grid;
+   grid-template-columns: 44px minmax(0, 1fr) auto;
+   gap: .85rem;
+   align-items: center;
+   margin: 1rem 1.35rem 0;
+   padding: .85rem 1rem;
+   border: 1px solid #b7d1ec;
+   border-left-width: 5px;
+   border-radius: .8rem;
+   background: #f7fbff;
+   box-shadow: 0 8px 20px rgba(25, 64, 114, .09);
+}
+
+.dbx-admin-dashboard-update-icon {
+   width: 42px;
+   height: 42px;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   border-radius: .65rem;
+   background: #1976dc;
+   color: #fff;
+   font-size: 1.2rem;
+}
+
+.dbx-admin-dashboard-update-copy {
+   min-width: 0;
+   display: grid;
+   gap: .12rem;
+}
+
+.dbx-admin-dashboard-update-copy strong,
+.dbx-admin-dashboard-update-copy span,
+.dbx-admin-dashboard-update-copy small {
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.dbx-admin-dashboard-update-copy strong {
+   color: #17365b;
+   font-size: .93rem;
+}
+
+.dbx-admin-dashboard-update-copy span {
+   color: #385a7e;
+   font-size: .78rem;
+}
+
+.dbx-admin-dashboard-update-copy small {
+   color: #6a7f95;
+   font-size: .7rem;
+}
+
+.dbx-admin-dashboard-update-current {
+   border-left-color: #239c68;
+}
+
+.dbx-admin-dashboard-update-current .dbx-admin-dashboard-update-icon {
+   background: #239c68;
+}
+
+.dbx-admin-dashboard-update-available {
+   border-left-color: #d18b13;
+   background: #fffaf0;
+}
+
+.dbx-admin-dashboard-update-available .dbx-admin-dashboard-update-icon {
+   background: #c77d00;
+}
+
+.dbx-admin-dashboard-update-ready {
+   border-left-color: #1976dc;
+   background: #f2f8ff;
+}
+
+.dbx-admin-dashboard-update-unknown {
+   border-left-color: #708399;
+}
+
+.dbx-admin-dashboard-update-unknown .dbx-admin-dashboard-update-icon {
+   background: #708399;
+}
+
+@media (max-width: 760px) {
+   .dbx-admin-dashboard-update {
+      grid-template-columns: 42px minmax(0, 1fr);
+      margin: .8rem .8rem 0;
+   }
+
+   .dbx-admin-dashboard-update .btn {
+      grid-column: 1 / -1;
+      width: 100%;
+   }
+}

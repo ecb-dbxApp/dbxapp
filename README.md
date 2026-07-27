@@ -103,6 +103,9 @@ ZIP- und Dateiinventar-Prüfung, automatischer Dateisicherung und Rollback.
 Prüfung, Download und Staging erfolgen mit einem Klick. Vor dem eigentlichen
 Dateiaustausch kann der Administrator das vorbereitete Update installieren
 oder vollständig stoppen und entfernen.
+`Status & Health` zeigt den zuletzt lokal gespeicherten Update-Stand bereits
+im Dashboard und im Admin-Menü. Diese Anzeige erzeugt keinen Netzwerkzugriff;
+eine neue GitHub-Prüfung startet erst auf der Update-Seite.
 Die klare Trennung von Dateiupdate und DB-Migration ist in den
 [Upgrade-Hinweisen](UPGRADE.md) dokumentiert.
 

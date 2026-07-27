@@ -32,6 +32,12 @@ Damit sind Release-Prüfung, Download und vollständige Paketprüfung in einem
 einzigen Startschritt automatisiert. Die bewusste Entscheidung unmittelbar
 vor der ersten Änderung installierter Dateien bleibt beim Administrator.
 
+Dashboard-Menü, `Status & Health` und Schnellzugriff zeigen vier eindeutige
+Zustände: **prüfen**, **aktuell**, **neu** und **bereit**. Sie lesen nur den
+lokalen Zustand in `files/update`; deshalb bleiben Dashboard und Menü auch
+ohne GitHub-Verbindung schnell und funktionsfähig. Bei **bereit** führt der
+Link zurück zur Entscheidung **installieren** oder **Update stoppen**.
+
 Lokale Konfigurationen, DB3-/MySQL-Datenbanken, Uploads, Sessions, Caches und
 Logs sind ausdrücklich kein Bestandteil des Release-Pakets. Der Updater
 greift nie direkt auf eine Datenbank zu.

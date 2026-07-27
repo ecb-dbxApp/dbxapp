@@ -51,7 +51,32 @@ class dbxUpdateService
    }
 
    /**
+    * Creates the centrally configured updater used by all admin surfaces.
+    *
+    * The update page and the dashboard must use the same manifest URL and
+    * cache lifetime. Keeping that wiring here prevents separate update
+    * implementations and leaves the service directly constructible in tests.
+    */
+   public static function configured(): self
+   {
+      $config = dbx()->get_config('dbxAdmin');
+
+      return new self(
+         '',
+         is_array($config)
+            ? (string)($config['update_manifest_url'] ?? '')
+            : '',
+         is_array($config)
+            ? (int)($config['update_cache_ttl'] ?? 21600)
+            : 21600
+      );
+   }
+
+   /**
     * Returns current, cached and staged update information.
+    *
+    * This method performs file reads only. It never opens a network
+    * connection, which makes it safe for menus and dashboards.
     *
     * @return array<string,mixed>
     */
