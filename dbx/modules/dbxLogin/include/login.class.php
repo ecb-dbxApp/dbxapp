@@ -1,16 +1,24 @@
 <?php
 namespace dbx\dbxLogin;
 
+require_once dirname(__DIR__, 3) . '/include/dbxPasswordPolicy.class.php';
+
 Class login {
 
 public function run() {
    $content=''; $ok=false; $redirect='';
    
    $slim =dbx()->get_modul_var('slim',0);
+   $run2 = dbx()->get_modul_var('dbx_run2', '', 'parameter');
    dbx()->set_system_var('dbx_title','LogIn');
    dbx()->set_system_var('dbx_page','default'); 
    $form_tpl='form-login'; if ($slim) $form_tpl='form-login-slim';
    $logout = dbx()->get_modul_var('logout', 0, 'int');
+
+   $pendingPasswordReset = $this->pending_password_reset();
+   if ($pendingPasswordReset || $run2 === 'password_change') {
+      return $this->forced_password_change_page($pendingPasswordReset);
+   }
    
    $uid  =dbx()->user();
    dbx()->debug("##user login=($uid)"); 
@@ -80,9 +88,6 @@ public function run() {
             if (is_array($rec) && (int)($rec['id'] ?? 0) > 0) {
                if (!$this->verify_password($pass, (string)($rec['pass'] ?? ''))) {
                   $rec = array();
-               } elseif ($this->password_reset_required($rec)) {
-                  $oForm->add_fld_error('username',"Benutzer ($user) muss das Passwort neu setzen.");
-                  dbx()->sys_msg('security', 'login', $user, 'password reset required', $_SERVER['REMOTE_ADDR'] ?? '');
                } elseif ((string)($rec['status'] ?? '') === '0') {
                   $oForm->add_fld_error('username',"Benutzer ($user) ist fuer den Login gesperrt.");
                   dbx()->sys_msg('security', 'login', $user, 'locked user login blocked', $_SERVER['REMOTE_ADDR'] ?? '');
@@ -90,6 +95,12 @@ public function run() {
                   dbx()->sys_msg('info', 'login', (int)$rec['id'], 'login pending email confirmation', 'user=' . $user . ' ip=' . ($_SERVER['REMOTE_ADDR'] ?? ''));
                   dbx()->login((int)$rec['id']);
                   return $this->unconfirmed_page($rec);
+               } elseif ($this->password_reset_required($rec, $pass)) {
+                  $this->start_password_reset($rec);
+                  dbx()->sys_msg('security', 'login', $user, 'password reset required', $_SERVER['REMOTE_ADDR'] ?? '');
+                  return $this->forced_password_change_page(
+                     $this->pending_password_reset()
+                  );
                } else {
                   $ok=true;
                }
@@ -169,9 +180,207 @@ private function verify_password(string $password, string $storedHash): bool {
    return password_verify($password, $storedHash);
 }
 
-private function password_reset_required(array $rec): bool {
+private function password_reset_required(array $rec, string $providedPassword = ''): bool {
    $settings = json_decode((string)($rec['settings'] ?? ''), true);
-   return is_array($settings) && !empty($settings['password_reset_required']);
+   $flagged = is_array($settings) && !empty($settings['password_reset_required']);
+   $initialAdmin = strtolower(trim((string)($rec['uname'] ?? ''))) === 'admin'
+      && hash_equals('123456', $providedPassword);
+   return $flagged || $initialAdmin;
+}
+
+private function start_password_reset(array $rec): void {
+   dbx()->set_session_var(
+      'pending_password_reset',
+      array(
+         'uid' => (int)($rec['id'] ?? 0),
+         'username' => (string)($rec['uname'] ?? ''),
+         'expires' => time() + 900,
+      ),
+      'security',
+      'dbxLogin'
+   );
+}
+
+private function pending_password_reset(): array {
+   $pending = dbx()->get_session_var(
+      'pending_password_reset',
+      array(),
+      'security',
+      'dbxLogin'
+   );
+   if (!is_array($pending)
+      || (int)($pending['uid'] ?? 0) <= 0
+      || (int)($pending['expires'] ?? 0) < time()
+   ) {
+      dbx()->delete_session_var(
+         'pending_password_reset',
+         'security',
+         'dbxLogin'
+      );
+      return array();
+   }
+   return $pending;
+}
+
+private function forced_password_change_page(array $pending): string {
+   if (!$pending) {
+      $tpl = dbx()->get_system_obj('dbxTPL');
+      return $tpl->get_tpl(
+         'dbx|alert-warning',
+         array('msg' => 'Die Passwortänderung ist abgelaufen. Bitte erneut mit Ihren bisherigen Zugangsdaten anmelden.')
+      ) . '<p><a class="btn btn-primary" href="?dbx_modul=dbxLogin&amp;dbx_run1=login">Zur Anmeldung</a></p>';
+   }
+
+   $uid = (int)$pending['uid'];
+   $db = dbx()->get_system_obj('dbxDB');
+   $rec = $db->select1('dbxUser', $uid, '*', 0);
+   if (!is_array($rec)
+      || (int)($rec['id'] ?? 0) !== $uid
+      || !hash_equals((string)($pending['username'] ?? ''), (string)($rec['uname'] ?? ''))
+   ) {
+      dbx()->delete_session_var('pending_password_reset', 'security', 'dbxLogin');
+      return dbx()->get_system_obj('dbxTPL')->get_tpl(
+         'dbx|alert-danger',
+         array('msg' => 'Der Benutzer für die Passwortänderung wurde nicht gefunden.')
+      );
+   }
+
+   $form = dbx()->get_system_obj('dbxForm');
+   $form->init('login-password-change', 'form-password-change');
+   $form->_fd = '';
+   $form->_data = array();
+   $form->_action = '?dbx_modul=dbxLogin&dbx_run1=login&dbx_run2=password_change';
+   $form->_msg_info = 'Für diesen Zugang ist ein neues persönliches Passwort erforderlich.';
+   $form->_msg_error = 'Das neue Passwort erfüllt noch nicht alle Anforderungen.';
+   $form->set_form_help_enabled(false);
+   $form->add_module_bar(
+      'Passwort jetzt ändern',
+      'bi-key',
+      'Der Zugang wird nach dem erfolgreichen Passwortwechsel freigegeben.',
+      true
+   );
+   $passwordMinLength = $this->password_min_length();
+   $passwordRecommendation = $passwordMinLength < 12
+      ? ' (12 oder mehr empfohlen)'
+      : '';
+   $form->add_rep('password_min_length', (string)$passwordMinLength);
+   $form->add_rep('password_length_recommendation', $passwordRecommendation);
+   $form->add_fld(
+      'password_new',
+      'auth-password-label',
+      'Neues Passwort',
+      'varchar|min=' . $passwordMinLength . '|max=128',
+      data: 'icon=bi-key&field_class=',
+      placeholder: 'Mindestens ' . $passwordMinLength . ' Zeichen',
+      errormsg: 'Bitte ein neues Passwort mit mindestens ' . $passwordMinLength . ' Zeichen eingeben.',
+      dd: ''
+   );
+   $form->add_fld(
+      'password_repeat',
+      'auth-password-label',
+      'Passwort wiederholen',
+      'varchar|min=' . $passwordMinLength . '|max=128',
+      data: 'icon=bi-shield-check&field_class=',
+      placeholder: 'Neues Passwort wiederholen',
+      errormsg: 'Bitte das neue Passwort wiederholen.',
+      dd: ''
+   );
+
+   if ($form->submit() && !$form->errors()) {
+      $password = (string)$form->get_post_data('password_new', '', '*');
+      $repeat = (string)$form->get_post_data('password_repeat', '', '*');
+      $passwordErrors = $this->password_change_errors(
+         $password,
+         $repeat,
+         (string)($rec['pass'] ?? '')
+      );
+      foreach ($passwordErrors as $field => $message) {
+         $form->add_fld_error($field, $message);
+      }
+      if ($passwordErrors !== array()) {
+         $form->_msg_error = implode(
+            ' ',
+            array_values(array_unique($passwordErrors))
+         );
+      }
+
+      if (!$form->errors()) {
+         $settings = json_decode((string)($rec['settings'] ?? ''), true);
+         $settings = is_array($settings) ? $settings : array();
+         unset($settings['password_reset_required']);
+         $settings['password_changed_at'] = date(DATE_ATOM);
+         $updated = $db->update(
+            'dbxUser',
+            array(
+               'pass' => password_hash($password, PASSWORD_DEFAULT),
+               'settings' => json_encode(
+                  $settings,
+                  JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+               ),
+            ),
+            $uid,
+            0,
+            1,
+            1,
+            0
+         );
+         if ($updated) {
+            dbx()->delete_session_var(
+               'pending_password_reset',
+               'security',
+               'dbxLogin'
+            );
+            dbx()->login($uid);
+            dbx()->sys_msg(
+               'security',
+               'login',
+               $uid,
+               'required password changed',
+               $_SERVER['REMOTE_ADDR'] ?? ''
+            );
+            $success = dbx()->get_system_obj('dbxTPL')->get_tpl(
+               'dbx|alert-success',
+               array('msg' => 'Das Passwort wurde geändert. Die Anmeldung ist jetzt freigegeben.')
+            );
+            return $success . dbx()->redirect(
+               '?dbx_modul=dbxAdmin&dbx_ref=password-change',
+               0
+            );
+         }
+         $form->_msg_error = 'Das neue Passwort konnte nicht gespeichert werden.';
+      }
+   }
+
+   return $form->run();
+}
+
+/**
+ * @return array<string,string>
+ */
+private function password_change_errors(
+   string $password,
+   string $repeat,
+   string $currentHash,
+   ?int $minimumLength = null
+): array {
+   $policyErrors = \dbxPasswordPolicy::errors(
+      $password,
+      $repeat,
+      $currentHash,
+      $minimumLength ?? $this->password_min_length()
+   );
+   $errors = array();
+   if (isset($policyErrors['password'])) {
+      $errors['password_new'] = $policyErrors['password'];
+   }
+   if (isset($policyErrors['repeat'])) {
+      $errors['password_repeat'] = $policyErrors['repeat'];
+   }
+   return $errors;
+}
+
+private function password_min_length(): int {
+   return \dbxPasswordPolicy::minimumLength();
 }
 
 /**

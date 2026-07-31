@@ -9,11 +9,11 @@ use Throwable;
 use ZipArchive;
 
 /**
- * Secure, file-based dbxApp release updater.
+ * Sicherer dbxApp Release-Updater fuer Dateien und optionale DB-Migrationen.
  *
- * The service never accesses a database. DD-controlled schema changes remain
- * the responsibility of dbxDB when the updated application uses them.
- * Runtime data and local configuration are explicitly excluded from packages.
+ * Runtime-Daten und lokale Konfiguration bleiben aus Paketen ausgeschlossen.
+ * Datenbankarbeit wird ausschliesslich an den zentralen DD/dbxDB-Adapter
+ * delegiert und gemeinsam mit dem Datei-Backup zurueckgerollt.
  */
 class dbxUpdateService
 {
@@ -29,11 +29,13 @@ class dbxUpdateService
    private string $workDirectory;
    private string $manifestUrl;
    private int $cacheTtl;
+   private ?object $databaseAdapter;
 
    public function __construct(
       string $root = '',
       string $manifestUrl = '',
-      int $cacheTtl = 21600
+      int $cacheTtl = 21600,
+      ?object $databaseAdapter = null
    ) {
       $resolvedRoot = realpath($root !== '' ? $root : dirname(__DIR__, 4));
       if ($resolvedRoot === false || !is_dir($resolvedRoot)) {
@@ -48,6 +50,16 @@ class dbxUpdateService
          : 'https://github.com/' . self::OWNER_REPOSITORY
             . '/releases/latest/download/update.json';
       $this->cacheTtl = max(300, $cacheTtl);
+      if ($databaseAdapter !== null) {
+         foreach (array('prepare', 'apply', 'rollback') as $method) {
+            if (!method_exists($databaseAdapter, $method)) {
+               throw new RuntimeException(
+                  'DB-Update-Adapter besitzt die Methode nicht: ' . $method
+               );
+            }
+         }
+      }
+      $this->databaseAdapter = $databaseAdapter;
    }
 
    /**
@@ -60,6 +72,9 @@ class dbxUpdateService
    public static function configured(): self
    {
       $config = dbx()->get_config('dbxAdmin');
+      dbx()->get_include_obj('dbxDatabaseMigrationService', 'dbxAdmin');
+      dbx()->get_include_obj('dbxUpdateDatabaseAdapter', 'dbxAdmin');
+      $databaseAdapter = new dbxUpdateDatabaseAdapter();
 
       return new self(
          '',
@@ -68,7 +83,8 @@ class dbxUpdateService
             : '',
          is_array($config)
             ? (int)($config['update_cache_ttl'] ?? 21600)
-            : 21600
+            : 21600,
+         $databaseAdapter
       );
    }
 
@@ -165,7 +181,7 @@ class dbxUpdateService
    /**
     * Validates the release contract and its fixed GitHub trust boundary.
     *
-    * @param array<string,mixed> $manifest
+    * @param array $manifest Release metadata to validate.
     * @return array<string,mixed>
     */
    public function validateManifest(array $manifest): array
@@ -333,7 +349,8 @@ class dbxUpdateService
    /**
     * Validates ZIP paths, symlinks, inventory and package hashes.
     *
-    * @param array<string,mixed> $manifest
+    * @param string $zipFile Absolute path of the downloaded release ZIP.
+    * @param array $manifest Already downloaded release metadata.
     * @return array{files:array<int,string>,hashes:array<string,string>}
     */
    public function inspectPackage(string $zipFile, array $manifest): array
@@ -538,6 +555,15 @@ class dbxUpdateService
          'backup_directory' => $backup,
          'entries' => $entries,
       );
+      $databaseState = array();
+      if ($this->databaseAdapter !== null) {
+         $databaseState = $this->databaseAdapter->prepare(
+            $staging,
+            $manifest,
+            $backup
+         );
+         $backupState['database'] = $databaseState;
+      }
       $this->writeJson($backup . DIRECTORY_SEPARATOR . 'backup.json', $backupState);
 
       try {
@@ -566,13 +592,39 @@ class dbxUpdateService
             }
          }
 
+         if ($this->databaseAdapter !== null && $databaseState !== array()) {
+            $backupState['database_result'] = $this->databaseAdapter->apply(
+               $databaseState
+            );
+            $this->writeJson(
+               $backup . DIRECTORY_SEPARATOR . 'backup.json',
+               $backupState
+            );
+         }
+
          if ($this->currentVersion() !== $manifest['version']) {
             throw new RuntimeException('Die installierte VERSION konnte nicht bestätigt werden.');
          }
       } catch (Throwable $exception) {
-         $this->restoreBackup($backupState);
+         $rollbackErrors = array();
+         if ($this->databaseAdapter !== null && $databaseState !== array()) {
+            try {
+               $this->databaseAdapter->rollback($databaseState);
+            } catch (Throwable $databaseRollbackError) {
+               $rollbackErrors[] = 'DB-Rollback: ' . $databaseRollbackError->getMessage();
+            }
+         }
+         try {
+            $this->restoreBackup($backupState);
+         } catch (Throwable $fileRollbackError) {
+            $rollbackErrors[] = 'Datei-Rollback: ' . $fileRollbackError->getMessage();
+         }
+         $rollbackSuffix = $rollbackErrors !== array()
+            ? ' Rollbackfehler: ' . implode('; ', $rollbackErrors)
+            : '';
          throw new RuntimeException(
-            'Update fehlgeschlagen und wurde zurückgerollt: ' . $exception->getMessage(),
+            'Update fehlgeschlagen und wurde zurückgerollt: '
+               . $exception->getMessage() . $rollbackSuffix,
             0,
             $exception
          );
@@ -647,6 +699,12 @@ class dbxUpdateService
          throw new RuntimeException('Die installierte Version wurde seit dem Update verändert.');
       }
 
+      if ($this->databaseAdapter !== null
+         && is_array($state['database'] ?? null)
+         && $state['database'] !== array()
+      ) {
+         $this->databaseAdapter->rollback($state['database']);
+      }
       $this->restoreBackup($state);
       $state['rolled_back_at'] = gmdate('c');
       $this->writeJson($stateFile, $state);

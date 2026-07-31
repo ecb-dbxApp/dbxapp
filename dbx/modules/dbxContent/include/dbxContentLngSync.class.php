@@ -548,6 +548,7 @@ class dbxContentLngSync {
             $data['activ'] = 0;
             $data['folder'] = $folderId;
             $data['title'] = $title;
+            $data['menu_title'] = trim((string) ($item['menu_title'] ?? $title));
             $data['permalink'] = trim((string) ($item['permalink'] ?? ''));
             if ($data['permalink'] === '') {
                $data['permalink'] = dbxContent_permalink::build($db, dbxContentLng::ddFolder($lng), $folderId, $title, $existingId);
@@ -676,6 +677,12 @@ class dbxContentLngSync {
             $data['activ'] = (int) ($slaveRow['activ'] ?? 0);
             $data['folder'] = $folderId;
             $data['title'] = $title;
+            $data['menu_title'] = dbxContentTranslate::translate(
+               (string) ($masterRow['menu_title'] ?? $masterRow['title'] ?? ''),
+               $master,
+               $lng,
+               'menu_title'
+            );
             $data['description'] = dbxContentTranslate::translate((string) ($masterRow['description'] ?? ''), $master, $lng, 'description');
             $data['keywords'] = dbxContentTranslate::translate((string) ($masterRow['keywords'] ?? ''), $master, $lng, 'keywords');
             $data['content'] = dbxContentTranslate::translate((string) ($masterRow['content'] ?? ''), $master, $lng, 'content');
@@ -1028,7 +1035,7 @@ class dbxContentLngSync {
    }
 
    private static function copyPageStructure(array $masterRow): array {
-      $skip = array('id', 'create_date', 'create_uid', 'update_date', 'update_uid', 'owner', 'title', 'permalink', 'description', 'keywords', 'content', 'lng_uid', 'lng_sync', 'lng_rev', 'lng_synced_rev');
+      $skip = array('id', 'create_date', 'create_uid', 'update_date', 'update_uid', 'owner', 'title', 'menu_title', 'permalink', 'description', 'keywords', 'content', 'lng_uid', 'lng_sync', 'lng_rev', 'lng_synced_rev');
       $data = array();
       foreach ($masterRow as $key => $value) {
          if (in_array($key, $skip, true)) {

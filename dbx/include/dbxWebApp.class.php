@@ -1229,6 +1229,135 @@ function get_self_url($permalink,$unwanted) {
 
   }
 
+  /**
+   * Ermittelt das 301-Ziel fuer den historischen Startseiten-Permalink.
+   *
+   * `home` bleibt intern der Permalink des konfigurierten Content-Datensatzes,
+   * ist extern aber nur ein Alias der Basis-URL. Explizite Modul- und
+   * Aktionsrouten werden nicht umgedeutet.
+   *
+   * @return string Kanonische Basis-URL oder leer, wenn kein Redirect gilt.
+   */
+  public function canonical_home_redirect_target(): string {
+    $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+    if ($method !== 'GET' && $method !== 'HEAD') {
+      return '';
+    }
+
+    $permalink = strtolower(trim(
+      str_replace('\\', '/', (string)dbx()->get_system_var('dbx_permalink', '')),
+      '/'
+    ));
+    if ($permalink !== 'home') {
+      return '';
+    }
+
+    $routeKeys = array(
+      'dbx_modul',
+      'dbx_run1',
+      'dbx_run2',
+      'dbx_action',
+      'dbx_ajax',
+      'dbx_window',
+      'cid',
+      'dbx_cid',
+    );
+    foreach ($routeKeys as $key) {
+      if (trim((string)dbx()->get_request_var($key, '', '*')) !== '') {
+        return '';
+      }
+    }
+
+    return rtrim((string)dbx()->get_base_url(), '/') . '/';
+  }
+
+  /**
+   * Sendet den kanonischen Startseiten-Redirect, sofern er fuer den Request gilt.
+   *
+   * @return bool true, wenn eine Redirect-Response gesetzt wurde.
+   */
+  public function apply_canonical_home_redirect(): bool {
+    $target = $this->canonical_home_redirect_target();
+    if ($target === '' || headers_sent()) {
+      return false;
+    }
+
+    header('Location: ' . $target, true, 301);
+    return true;
+  }
+
+  /**
+   * Liefert das Ziel einer sprachabhängigen Content-Weiterleitung.
+   *
+   * Die Weiterleitungen werden redaktionell im Modul dbxContent gepflegt.
+   * Erlaubt sind ausschließlich die Basis-URL oder gültige interne
+   * Flat-Permalinks. Explizite Modul- und Aktionsrouten bleiben unberührt.
+   *
+   * @return string Absolute Ziel-URL oder leer.
+   */
+  public function content_permalink_redirect_target(): string {
+    $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+    if ($method !== 'GET' && $method !== 'HEAD') {
+      return '';
+    }
+
+    foreach (array(
+      'dbx_modul', 'dbx_run1', 'dbx_run2', 'dbx_run3', 'dbx_action',
+      'dbx_do', 'action', 'dbx_ajax', 'dbx_window', 'cid', 'dbx_cid',
+    ) as $key) {
+      if (trim((string)dbx()->get_request_var($key, '', '*')) !== '') {
+        return '';
+      }
+    }
+
+    $permalink = strtolower(trim(
+      str_replace('\\', '/', (string)dbx()->get_system_var('dbx_permalink', '')),
+      '/'
+    ));
+    if ($permalink === '' || $permalink === 'home') {
+      return '';
+    }
+
+    $lng = strtolower(trim((string)dbx()->get_system_var('dbx_lng', 'de')));
+    if (!preg_match('/^[a-z]{2,3}$/', $lng)) {
+      return '';
+    }
+
+    $redirects = dbx()->get_config('dbxContent', 'permalink_redirects', array());
+    $redirects = is_array($redirects) && is_array($redirects[$lng] ?? null)
+      ? $redirects[$lng]
+      : array();
+    if (!array_key_exists($permalink, $redirects)) {
+      return '';
+    }
+
+    $target = strtolower(trim((string)$redirects[$permalink]));
+    if ($target === '' || $target === '/') {
+      return rtrim((string)dbx()->get_base_url(), '/') . '/';
+    }
+    $target = trim($target, '/');
+    if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $target)) {
+      return '';
+    }
+
+    return rtrim((string)dbx()->get_base_url(), '/') . '/' . $target;
+  }
+
+  /**
+   * Sendet eine konfigurierte permanente Content-Weiterleitung.
+   *
+   * @return bool true, wenn die Redirect-Response gesetzt wurde.
+   */
+  public function apply_content_permalink_redirect(): bool {
+    $target = $this->content_permalink_redirect_target();
+    if ($target === '' || headers_sent()) {
+      return false;
+    }
+
+    header('Location: ' . $target, true, 301);
+    return true;
+  }
+
 
   /**
    * Prueft, ob eine Dateiendung als direkt auslieferbare Ressource gilt.
@@ -1254,6 +1383,32 @@ function get_self_url($permalink,$unwanted) {
   }
 
   /**
+   * Nur von der eigenen Website ausgelöste Ressourcenfehler gehören in die
+   * Qualitätskontrolle. Direkte Requests ohne Referer sind fast immer Bots,
+   * Scanner oder Browser-Probes (z. B. swagger.json, ads.txt und RSC-Dateien).
+   * `www.` wird dabei als Alias derselben Website behandelt.
+   */
+  private function has_internal_resource_referer(): bool {
+    $referer = trim((string)($_SERVER['HTTP_REFERER'] ?? ''));
+    if ($referer === '') {
+      return false;
+    }
+
+    $refererHost = (string)(parse_url($referer, PHP_URL_HOST) ?? '');
+    $requestAuthority = trim((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
+    $requestHost = (string)(parse_url('http://' . $requestAuthority, PHP_URL_HOST) ?? '');
+
+    $normalize = static function (string $host): string {
+      $host = rtrim(strtolower(trim($host)), '.');
+      return str_starts_with($host, 'www.') ? substr($host, 4) : $host;
+    };
+
+    $refererHost = $normalize($refererHost);
+    $requestHost = $normalize($requestHost);
+    return $refererHost !== '' && $requestHost !== '' && hash_equals($requestHost, $refererHost);
+  }
+
+  /**
    * Loest einen Permalink sicher auf eine lokale Ressourcendatei auf.
    *
    * Sicherheitsregel:
@@ -1275,6 +1430,13 @@ function get_self_url($permalink,$unwanted) {
       if ($part === '..') {
         return '';
       }
+    }
+
+    // Safari und einige Crawler fragen diese Standardnamen auch ohne expliziten
+    // Link ab. Das vorhandene Favicon ist die kanonische lokale Quelle.
+    if (preg_match('/^apple-touch-icon(?:-precomposed)?(?:-\d+x\d+)?\.png$/i', $path)) {
+      $path = 'favicon.png';
+      $parts = array($path);
     }
 
     $base = realpath(dbx()->get_base_dir());
@@ -1344,10 +1506,20 @@ function get_self_url($permalink,$unwanted) {
       $config=$this->create_new_cfg('dbx');
     } else {
       if (!isset($config['ok'])) $config=$this->create_new_cfg('dbx');
-    }  
-    dbx()->set_system_var('dbx_install'  ,$config['install']);
-    dbx()->set_system_var('dbx_construct',$config['construct']);
-    If (!$config['ok']) dbx()->set_system_var('dbx_install',1);
+    }
+
+    $install = (int)($config['install'] ?? 1);
+    $ok = (int)($config['ok'] ?? 0);
+    $timezone = trim((string)($config['timezone'] ?? 'Europe/Berlin'));
+    if ($timezone !== '' && in_array($timezone, timezone_identifiers_list(), true)) {
+      date_default_timezone_set($timezone);
+    }
+
+    dbx()->set_system_var('dbx_install', $install);
+    dbx()->set_system_var('dbx_construct', (int)($config['construct'] ?? 0));
+    if (!$ok) {
+      dbx()->set_system_var('dbx_install', 1);
+    }
   }
 
 
@@ -1387,7 +1559,12 @@ function get_self_url($permalink,$unwanted) {
     header('Cache-Control: no-store');
 
     dbx()->debug("## check missing ($permalink)");
-    $ok = dbx()->log_missing($permalink);
+    $ok = 0;
+    if ($this->has_internal_resource_referer()) {
+      $ok = dbx()->log_missing($permalink);
+    } else {
+      dbx()->debug("## missing resource not logged: no internal referer ($permalink)");
+    }
     dbx()->debug("#MISSING# ($permalink) Ext=($ext) ok=($ok)");
     return true;
   }
@@ -1630,6 +1807,34 @@ function get_self_url($permalink,$unwanted) {
 
        $this->load_content_cache_classes();
        $resolved = \dbx\dbxContent\dbxContentPermalinkIndex::resolve($permalink, $lng);
+       if (!is_array($resolved) || (int)($resolved['activ'] ?? 0) !== 1) {
+          // Sprachspezifische Permalinks tragen ihre Sprache bereits eindeutig
+          // in der Content-Tabelle. Dadurch bleiben saubere URLs ohne
+          // dbx_lng-Query auch fuer Suchmaschinen direkt erreichbar.
+          $accessibleLngs = function_exists('dbx_accessible_lngs')
+             ? dbx_accessible_lngs()
+             : array($lng);
+          foreach ($accessibleLngs as $candidateLng) {
+             $candidateLng = strtolower(trim((string)$candidateLng));
+             if ($candidateLng === '' || $candidateLng === $lng) {
+                continue;
+             }
+             $candidate = \dbx\dbxContent\dbxContentPermalinkIndex::resolve(
+                $permalink,
+                $candidateLng
+             );
+             if (!is_array($candidate) || (int)($candidate['activ'] ?? 0) !== 1) {
+                continue;
+             }
+
+             $lng = $candidateLng;
+             $resolved = $candidate;
+             dbx()->set_remember_var('dbx_lng', $lng, 'dbx');
+             dbx()->set_system_var('dbx_lng', $lng);
+             dbx()->debug("##Permalink## Sprache aus sauberer URL erkannt: ($lng)");
+             break;
+          }
+       }
        if (is_array($resolved) && (int)($resolved['activ'] ?? 0) === 1) {
           $cid = (int)($resolved['cid'] ?? 0);
           if ($cid > 0) {
@@ -1686,9 +1891,10 @@ function get_self_url($permalink,$unwanted) {
   public function check_design() {
     $admin =dbx()->can('admin');
     $config=dbx()->get_config('dbx');
-    $user_default = $config['default_design_user'];  
-    $admin_default= $config['default_design_admin'];
-    $construct    = $config['construct'];
+    $user_default = (string)($config['default_design_user'] ?? 'dbxapp');
+    $admin_default= (string)($config['default_design_admin'] ?? 'dbxapp');
+    $construct    = (int)($config['construct'] ?? 0);
+    $install      = (int)($config['install'] ?? 1);
     $intro        = (int) ($config['intro'] ?? 0);
     $ok           = (int) ($config['ok'] ?? 0);
 
@@ -1730,10 +1936,13 @@ function get_self_url($permalink,$unwanted) {
         $action='run';
     }
 
-    if (!$ok) {
+    if ($install || !$ok) {
       dbx()->set_system_var('dbx_install', 1);
       $modul = 'dbxSetup';
-      $design = '_install';
+      // Der Installer verwendet bewusst ein festes, datenbankunabhaengiges
+      // Design. So kann eine defekte oder noch nicht konfigurierte
+      // Kundendesign-Auswahl den Erststart nicht blockieren.
+      $design = 'dbxapp';
       $page   = 'install';
       dbx()->set_system_var('dbx_run1', 'install');
     }

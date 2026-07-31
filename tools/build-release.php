@@ -42,9 +42,11 @@ function release_file_allowed(string $relative): bool
    $base = basename($relative);
    $extension = strtolower(pathinfo($relative, PATHINFO_EXTENSION));
 
-   if (preg_match('#^(?:\.git|\.github|dist|docs|tools|output|tmp)/#', $relative)
+   if (preg_match('#^(?:\.git|\.github|dist|docs|tools|files|output|tmp)/#', $relative)
+      || str_starts_with($relative, 'dbx/files/')
       || preg_match('#/tests/#', '/' . $relative)
-      || preg_match('#/(?:backup|_backup|\.backup|work)/#i', '/' . $relative)
+      || preg_match('#/db/#i', '/' . $relative)
+      || preg_match('#/(?:cache|tmp|work|backup|backups|_backup|\.backup|uploads)/#i', '/' . $relative)
       || preg_match('/^\d{2}_.*\.md$/', $base)
       || in_array($base, array('.gitignore', '.gitattributes', '.editorconfig', 'Doxyfile'), true)
       || str_starts_with($base, 'RELEASE_NOTES_')

@@ -68,6 +68,25 @@ foreach ($cases as $index => $case) {
    }
 }
 
+$settingsAfterChange = $class->getMethod('settings_after_password_change');
+$changedSettings = json_decode(
+   $settingsAfterChange->invoke(
+      $user,
+      json_encode(array(
+         'password_reset_required' => 1,
+         'dashboard_layout' => 'compact',
+      ))
+   ),
+   true
+);
+if (!is_array($changedSettings)
+   || isset($changedSettings['password_reset_required'])
+   || ($changedSettings['dashboard_layout'] ?? '') !== 'compact'
+   || empty($changedSettings['password_changed_at'])) {
+   fwrite(STDERR, "FAIL: Ein geändertes Passwort muss die Installationswarnung dauerhaft aufheben.\n");
+   exit(5);
+}
+
 $template = file_get_contents(dirname(__DIR__) . '/tpl/htm/form-admin-user.htm');
 $profilePos = strpos((string)$template, '>Profil<');
 $passwordPos = strpos((string)$template, '{obj:password_new}');

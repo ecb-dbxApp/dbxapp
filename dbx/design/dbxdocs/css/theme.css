@@ -1,0 +1,830 @@
+/* =========================================================
+   dbxapp – THEME.CSS
+   ---------------------------------------------------------
+   - Layout-Features (z.B. Sticky Header)
+   - Einheitliche UI-Komponenten (Bar, Panel, Toolbar)
+   - Farben nur über Tokens aus colors.css
+   - Feature-CSS (c-*.css) nur fuer Spezialfaelle
+   ========================================================= */
+
+
+/* =========================================================
+   1. HEADER STICKY (FEATURE)
+   ---------------------------------------------------------
+   Aktivierung über:
+   <body class="dbx-header-sticky">
+   ========================================================= */
+
+body.dbx-header-sticky #dbxHeader {
+    position: sticky;
+    top: 0;
+    z-index: 1030; /* über Content */
+    width: 100%;
+}
+
+
+/* =========================================================
+   2. FOOTER BEHAVIOUR
+   ---------------------------------------------------------
+   verhindert Shrink in Flex-Kontexten (App Mode)
+   ========================================================= */
+
+#dbxFooter {
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   3. OPTIONAL: CONTENT FLOW HELPERS
+   ---------------------------------------------------------
+   nur Layout-Unterstützung – keine Styles
+   ========================================================= */
+
+.dbx-content {
+    width: 100%;
+}
+
+
+/* =========================================================
+   4. RESPONSIVE BASIS
+   ---------------------------------------------------------
+   minimale Struktur-Regeln ohne Komponentenbindung
+   ========================================================= */
+
+@media (max-width: 991.98px) {
+
+    #dbxMain {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   5. EINHEITLICHE KOMPONENTEN
+   ---------------------------------------------------------
+   Templates: Bootstrap-Klassen (d-flex, btn, form-control)
+   + dbx-* Komponenten aus diesem File.
+   Aenderungen hier wirken moduluebergreifend.
+   ========================================================= */
+
+/* --- Panel / Surface --- */
+
+.dbx-panel {
+    background:
+        linear-gradient(180deg, var(--dbx-panel-bg-top, var(--dbx-bg-panel)), var(--dbx-panel-bg-bottom, var(--dbx-bg-panel))),
+        var(--dbx-panel-bg-base, var(--dbx-bg-panel));
+    border: 1px solid var(--dbx-panel-border, var(--dbx-border-color, #dee2e6));
+    border-top-color: var(--dbx-bar-outset-light, var(--dbx-panel-inset-highlight));
+    border-radius: var(--dbx-window-radius, 0.5rem);
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-row-highlight, rgba(255, 255, 255, 0.5)),
+        var(--dbx-panel-shadow, 0 4px 14px rgba(15, 23, 42, 0.10));
+    overflow: hidden;
+    width: 100%;
+}
+
+.dbx-panel > .dbx-bar:first-child {
+    border-radius: calc(var(--dbx-window-radius, 0.5rem) - 1px) calc(var(--dbx-window-radius, 0.5rem) - 1px) 0 0;
+}
+
+.dbx-panel-body {
+    padding: 1rem;
+}
+
+
+/* --- Bar (hellblau, 100% im Container) --- */
+
+.dbx-bar,
+.dbx-module-bar,
+.dbx-grid-bar,
+.dbx-report-bar,
+.dbx-report-footer,
+.dbx-admin-dashboard-card-bar,
+.dbxForm_wrapper .dbx-form-bar,
+.dbx-grid-head,
+.dbx-ddedit-head,
+.dbx-grid-toolbar,
+.dbx-component-bar,
+.dbx-panel-head,
+.c-ace .bar {
+    align-items: center;
+    background:
+        linear-gradient(180deg, var(--dbx-panel-head-bg-top), var(--dbx-panel-head-bg-bottom)),
+        var(--dbx-panel-bg-base, #eef4fb);
+    border: 1px solid var(--dbx-panel-head-border);
+    border-top-color: var(--dbx-bar-outset-light, var(--dbx-panel-inset-highlight));
+    border-bottom-color: var(--dbx-bar-inset-dark, var(--dbx-panel-inset-shadow));
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight, rgba(255, 255, 255, 0.96)),
+        inset 0 -2px 0 var(--dbx-panel-inset-shadow, rgba(40, 58, 82, 0.18)),
+        0 2px 8px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(var(--dbx-surface-glass-blur, 8px));
+    color: var(--dbx-panel-head-text, var(--dbx-text-main));
+    display: flex;
+    gap: 0.625rem;
+    justify-content: space-between;
+    min-height: 2.125rem;
+    padding: 0.4375rem 0.625rem;
+    width: 100%;
+}
+
+/* Report filter bar (dbx|report_bar) – Basislayout immer mit theme.css */
+.dbx-report-bar-wrap {
+    width: 100%;
+}
+
+.dbx-report-bar {
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.dbx-report-bar-title {
+    align-items: center;
+    color: var(--dbx-text-muted);
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 0.68rem;
+    font-weight: 700;
+    gap: 0.35rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    min-height: 1.75rem;
+    padding-bottom: 0.125rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.dbx-report-bar-title > i {
+    color: var(--dbx-bar-icon-color, var(--dbx-primary));
+    font-size: 0.8125rem;
+    opacity: 0.85;
+}
+
+.dbx-report-bar-fields {
+    align-items: flex-end;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.375rem 0.625rem;
+    min-width: 0;
+}
+
+.dbx-report-bar-field {
+    flex: 0 1 auto;
+    max-width: 11rem;
+    min-width: 6.5rem;
+}
+
+.dbx-report-bar-field[data-report-field="dbx_rwhere"] {
+    flex: 0 0 auto;
+    max-width: none;
+    min-width: 0;
+    width: auto;
+}
+
+.dbx-report-bar-field[data-report-field="dbx_rwhere"] .dbx-input-clearable {
+    display: inline-block;
+    flex: 0 0 auto;
+    position: relative;
+    width: 220px;
+    max-width: 100%;
+}
+
+.dbx-report-bar-field[data-report-field="dbx_rwhere"] .dbx-grid-search,
+.dbx-report-bar-field[data-report-field="dbx_rwhere"] .dbx-search {
+    min-height: 30px;
+    width: 100%;
+}
+
+.dbx-report-bar-field[data-report-field="dbx_rwhere"] .dbx-clear-btn {
+    z-index: 2;
+}
+
+.dbx-report-bar-field label.control-label {
+    color: var(--dbx-text-muted);
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0 0 0.125rem;
+    white-space: nowrap;
+}
+
+.dbx-report-bar-field .form-select,
+.dbx-report-bar-field .form-control,
+.dbx-report-bar-field .fld-frame .form-control {
+    font-size: 0.8125rem;
+    min-height: 1.75rem;
+    padding: 0.2rem 0.45rem;
+}
+
+.dbx-report-bar-field .fld-frame {
+    margin: 0;
+}
+
+.dbx-report-bar-actions {
+    align-items: flex-end;
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 0.375rem;
+    padding-bottom: 0.0625rem;
+}
+
+.dbx-report-bar-stats {
+    align-items: center;
+    display: inline-flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.5rem;
+    margin-left: auto;
+}
+
+.dbx-report-bar-stat {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(78, 105, 137, 0.22);
+    border-radius: 0.45rem;
+    color: var(--dbx-text-muted);
+    display: inline-flex;
+    font-size: 0.68rem;
+    font-weight: 600;
+    gap: 0.25rem;
+    line-height: 1;
+    min-height: 1.75rem;
+    padding: 0.2rem 0.45rem;
+    white-space: nowrap;
+}
+
+.dbx-report-bar-stat strong,
+.dbx-report-bar-stat [data-report-count] {
+    color: var(--dbx-text-main);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+@media (min-width: 992px) {
+    .dbx-report-bar {
+        flex-wrap: nowrap;
+    }
+
+    .dbx-report-bar-fields {
+        flex-wrap: nowrap;
+    }
+}
+
+.dbx-bar-title,
+.dbx-admin-dashboard-card-title,
+.dbxForm_wrapper .dbx-form-bar-title,
+.dbx-grid-titleblock,
+.dbx-ddedit-title,
+.dbx-grid-toolbar .dbx-grid-toolbar-title {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    font-size: 0.75rem;
+    font-weight: 700;
+    gap: 0.4375rem;
+    line-height: 1.2;
+    min-width: 0;
+}
+
+.dbx-bar-title > i,
+.dbx-bar-title > .bi,
+.dbx-admin-dashboard-card-title > i,
+.dbx-admin-dashboard-card-title .dbx-admin-dashboard-card-icon,
+.dbxForm_wrapper .dbx-form-bar-title strong {
+    align-items: center;
+    color: var(--dbx-bar-icon-color, var(--dbx-primary));
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 0.875rem;
+    justify-content: center;
+    min-height: 1.25rem;
+    min-width: 1.25rem;
+}
+
+.dbx-admin-dashboard-card-title i,
+.dbx-bar-title > i {
+    background: var(--dbx-panel-row-highlight, rgba(255, 255, 255, 0.38));
+    border-radius: 0.3125rem;
+    height: 1.25rem;
+    width: 1.25rem;
+}
+
+.dbx-bar-title > span:not(.dbx-module-bar-copy),
+.dbx-admin-dashboard-card-title > span,
+.dbxForm_wrapper .dbx-form-bar-title strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dbx-bar-kicker,
+.dbxForm_wrapper .dbx-form-bar-kicker {
+    color: var(--dbx-text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.dbx-bar-actions,
+.dbx-admin-dashboard-card-tools,
+.dbxForm_wrapper .dbx-form-bar-actions,
+.dbx-grid-head-actions,
+.dbx-ddedit-head-actions,
+.dbx-grid-stats,
+.dbx-grid-toolbar .dbx-grid-toolgroup,
+.dbx-grid-bar .dbx-grid-toolgroup {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Hilfe ist in jeder Aktionsleiste immer die letzte, ganz rechte Aktion. */
+.dbx-bar-actions,
+.dbx-module-bar-actions,
+.dbxForm_wrapper .dbx-form-bar-actions {
+    margin-left: auto;
+}
+
+.dbx-help-action {
+    flex: 0 0 auto;
+    margin-right: 0 !important;
+    order: 9999;
+}
+
+.dbx-bar-actions > .dbx-help-action,
+.dbx-module-bar-actions > .dbx-help-action,
+.dbxForm_wrapper .dbx-form-bar-actions > .dbx-help-action,
+.dbx-shop-channel-actions > .dbx-help-action {
+    margin-left: auto !important;
+}
+
+.dbx-bar-meta,
+.dbx-admin-dashboard-card-tools small {
+    color: var(--dbx-bar-meta-color, rgba(29, 53, 87, 0.75));
+    font-size: 0.6875rem;
+    white-space: nowrap;
+}
+
+.dbx-bar-meta:empty,
+.dbx-admin-dashboard-card-tools small:empty {
+    display: none;
+}
+
+.dbx-bar .btn,
+.dbx-admin-dashboard-card-tools .btn,
+.dbxForm_wrapper .dbx-form-bar-actions .btn,
+.dbx-grid-toolbar .btn {
+    --bs-btn-padding-y: 0.125rem;
+    --bs-btn-padding-x: 0.5rem;
+    --bs-btn-font-size: 0.75rem;
+}
+
+
+/* --- Toolbar-Variante (optional abgerundet) --- */
+
+.dbx-toolbar {
+    border: 1px solid var(--dbx-panel-head-border);
+    border-radius: var(--dbx-window-radius, 0.5rem);
+    contain: paint;
+    margin-bottom: 0.5rem;
+}
+
+.dbx-grid-toolbar.dbx-toolbar,
+.dbx-grid-toolbar {
+    border: 1px solid var(--dbx-panel-head-border);
+    border-radius: var(--dbx-window-radius, 0.5rem);
+    border-bottom: 1px solid var(--dbx-panel-head-border);
+    margin-bottom: 0.5rem;
+}
+
+
+/* --- Formular-Basics (Bootstrap ergaenzen) --- */
+
+.dbx-form-surface,
+.dbxForm_wrapper {
+    width: 100%;
+}
+
+.dbx-form-surface .form-control,
+.dbx-form-surface .form-select,
+.dbxForm_wrapper .form-control,
+.dbxForm_wrapper .form-select {
+    max-width: 100%;
+}
+
+.dbx-form-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+
+/* --- Report / Grid Typo in Bars --- */
+
+.dbx-grid-head .dbx-grid-title,
+.dbx-ddedit-title h3 {
+    color: inherit;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dbx-bar-title.dbx-grid-titleblock {
+    align-items: flex-start;
+}
+
+/* --- Modul-Bar (einheitlich, kompakt, bündig oben) --- */
+
+.dbx-module-bar {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.625rem;
+    margin: 0;
+    min-height: 2.125rem;
+    width: 100%;
+}
+
+.dbx-panel > .dbx-module-bar,
+.dbx-panel > .dbx-bar.dbx-module-bar {
+    margin-top: 0;
+}
+
+.dbx-panel > .dbx-module-bar:first-child,
+.dbx-panel > .dbx-bar.dbx-module-bar:first-child {
+    border-radius: calc(var(--dbx-window-radius, 0.5rem) - 1px) calc(var(--dbx-window-radius, 0.5rem) - 1px) 0 0;
+    border-top: 0;
+    margin-top: 0;
+}
+
+.dbx-panel:has(> .dbx-bar.dbx-module-bar:first-child),
+.dbx-panel:has(> .dbx-module-bar:first-child) {
+    box-shadow: var(--dbx-panel-shadow, 0 4px 14px rgba(15, 23, 42, 0.10));
+}
+
+/* Modul-Panel in Hosting-Containern: Bar bündig oben, volle Breite */
+.dbx-content-page .dbx-cms-mod-output:has(> .dbx-panel > .dbx-bar.dbx-module-bar:first-child),
+.dbx-content-page > .dbx-panel.dbxForm_wrapper:has(> .dbx-bar.dbx-module-bar:first-child),
+.dbx-content-page > .dbx-panel.dbxReport:has(> .dbx-bar.dbx-module-bar:first-child) {
+    margin-left: calc(-1 * var(--dbx-content-page-pad-x, 0px));
+    margin-right: calc(-1 * var(--dbx-content-page-pad-x, 0px));
+    width: auto;
+}
+
+.dbx-content-page .dbx-cms-mod-output:first-child:has(> .dbx-panel > .dbx-bar.dbx-module-bar:first-child),
+.dbx-content-page > .dbx-panel.dbxForm_wrapper:first-child:has(> .dbx-bar.dbx-module-bar:first-child),
+.dbx-content-page > .dbx-panel.dbxReport:first-child:has(> .dbx-bar.dbx-module-bar:first-child) {
+    margin-top: calc(-1 * var(--dbx-content-page-pad-y, 0px));
+}
+
+.dbx-content-page .dbx-cms-mod-output > .dbx-panel.dbxForm_wrapper,
+.dbx-content-page .dbx-cms-mod-output > .dbx-panel.dbxReport,
+.dbx-content-page > .dbx-panel.dbxForm_wrapper,
+.dbx-content-page > .dbx-panel.dbxReport,
+.container-fluid#dbxContent > .dbx-panel.dbxForm_wrapper,
+.container-fluid#dbxContent > .dbx-panel.dbxReport {
+    margin-top: 0;
+    max-width: none;
+    width: 100%;
+}
+
+.container-fluid#dbxContent > .dbx-panel.dbxForm_wrapper:first-child,
+.container-fluid#dbxContent > .dbx-panel.dbxReport:first-child {
+    margin-top: -1rem;
+}
+
+.container-fluid#dbxContent > .dbx-panel.dbxForm_wrapper,
+.container-fluid#dbxContent > .dbx-panel.dbxReport {
+    margin-left: calc(-0.5 * var(--bs-gutter-x, 1.5rem));
+    margin-right: calc(-0.5 * var(--bs-gutter-x, 1.5rem));
+    width: calc(100% + var(--bs-gutter-x, 1.5rem));
+}
+
+/* dbxContact: Frame max. 960px, horizontal zentriert */
+.dbx-panel.dbx-contact,
+.dbx-panel.dbx-contact-confirm-panel {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: var(--dbx-contact-frame-max, 960px);
+    width: 100%;
+}
+
+.dbx-content-page .dbx-cms-mod-output:has(> .dbx-panel.dbx-contact),
+.dbx-content-page .dbx-cms-mod-output:has(> .dbx-panel.dbx-contact-confirm-panel) {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    width: 100%;
+}
+
+.dbx-content-page .dbx-cms-mod-output > .dbx-panel.dbx-contact,
+.dbx-content-page .dbx-cms-mod-output > .dbx-panel.dbx-contact-confirm-panel,
+.dbx-content-page > .dbx-panel.dbx-contact,
+.dbx-content-page > .dbx-panel.dbx-contact-confirm-panel,
+.container-fluid#dbxContent > .dbx-panel.dbx-contact,
+.container-fluid#dbxContent > .dbx-panel.dbx-contact-confirm-panel,
+.container-fluid#dbxContent > .dbx-panel.dbx-contact:first-child,
+.container-fluid#dbxContent > .dbx-panel.dbx-contact-confirm-panel:first-child {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+    max-width: var(--dbx-contact-frame-max, 960px);
+    width: 100%;
+}
+
+.dbx-module-bar .dbx-module-bar-titleblock,
+.dbx-module-bar .dbx-bar-title {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.4375rem;
+    min-width: 0;
+}
+
+.dbx-module-bar .dbx-module-bar-titleblock > i,
+.dbx-module-bar .dbx-module-bar-titleblock > .bi {
+    flex: 0 0 auto;
+}
+
+.dbx-module-bar-copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.15;
+    min-width: 0;
+    white-space: normal;
+}
+
+.dbx-module-bar-heading {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dbx-module-bar-subtitle {
+    color: var(--dbx-text-muted);
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    line-height: 1.15;
+    margin-top: 0.0625rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dbx-module-bar-subtitle:empty {
+    display: none;
+}
+
+.dbx-module-bar-actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+/*
+ * Mehrere Formularaktionen dürfen auf schmalen Viewports den Titel nicht
+ * verdrängen. Titel und Aktionen erhalten dann je eine eigene Zeile; die
+ * Hilfe bleibt durch ihre hohe order weiterhin die letzte, rechte Aktion.
+ * Eine einzelne Hilfe-Schaltfläche bleibt neben dem Titel.
+ */
+@media (max-width: 575.98px) {
+    .dbx-module-bar:has(.dbx-module-bar-actions > :nth-child(2)) {
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .dbx-module-bar:has(.dbx-module-bar-actions > :nth-child(2)) .dbx-module-bar-titleblock,
+    .dbx-module-bar:has(.dbx-module-bar-actions > :nth-child(2)) .dbx-bar-title {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .dbx-module-bar:has(.dbx-module-bar-actions > :nth-child(2)) .dbx-module-bar-actions {
+        flex: 1 1 100%;
+        justify-content: flex-end;
+        width: 100%;
+    }
+}
+
+.dbx-panel.dbxForm_wrapper > form > .dbx-module-bar:first-child {
+    border-radius: calc(var(--dbx-window-radius, 0.5rem) - 1px) calc(var(--dbx-window-radius, 0.5rem) - 1px) 0 0;
+    border-top: 0;
+    margin-top: 0;
+}
+
+.dbx-panel.dbxForm_wrapper > form {
+    margin: 0;
+}
+
+.dbx-grid-subtitle {
+    color: var(--dbx-text-muted);
+    font-size: 0.78rem;
+    line-height: 1.2;
+    margin-top: 0.125rem;
+}
+
+.dbx-panel.dbxReport > form,
+.dbx-panel.dbxReport > .table-responsive,
+.dbx-panel.dbxReport > table {
+    margin: 0;
+}
+
+.dbx-panel.dbxReport .dbx-panel-body,
+.dbx-panel.dbx-grid .dbx-panel-body {
+    padding: 0.75rem;
+}
+
+.dbx-panel.dbxForm_wrapper {
+    overflow: visible;
+}
+
+.dbx-panel.dbxForm_wrapper > .dbx-bar.dbx-module-bar:first-child,
+.dbx-panel.dbxForm_wrapper > .dbx-module-bar:first-child {
+    position: sticky;
+    top: var(--dbx-module-bar-sticky-top, var(--dbx-cms-sticky-top, 0px));
+    z-index: 1015;
+}
+
+
+/* =========================================================
+   6. CONFIG DBX TABS
+   ---------------------------------------------------------
+   Modul-Konfiguration (dbxAdmin / xmodul=dbx)
+   ========================================================= */
+
+.dbx-config-dbx > .dbx-panel-body {
+    padding-top: 0.75rem;
+}
+
+.dbx-config-dbx-tabs {
+    width: 100%;
+}
+
+.dbx-config-dbx-tabs > .dbx-config-dbx-tabstrip {
+    align-items: flex-end;
+    background:
+        linear-gradient(180deg, var(--dbx-panel-head-bg-top), var(--dbx-panel-head-bg-bottom)),
+        var(--dbx-panel-bg-base);
+    border: 1px solid var(--dbx-panel-head-border);
+    border-bottom: 2px solid var(--dbx-panel-border-strong);
+    border-radius: var(--dbx-window-radius, 0.5rem) var(--dbx-window-radius, 0.5rem) 0 0;
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight),
+        inset 0 -1px 0 var(--dbx-panel-inset-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0.5rem 0.5rem 0;
+}
+
+.dbx-config-dbx-tabs > .dbx-config-dbx-tabstrip .nav-item {
+    margin: 0;
+}
+
+.dbx-config-dbx-tabs > .dbx-config-dbx-tabstrip .nav-link {
+    background: var(--dbx-panel-row-highlight);
+    border: 1px solid var(--dbx-panel-border-light);
+    border-bottom: none;
+    border-radius: 0.4375rem 0.4375rem 0 0;
+    color: var(--dbx-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
+    margin-bottom: 0;
+    padding: 0.5625rem 1rem 0.5rem;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dbx-config-dbx-tabs > .dbx-config-dbx-tabstrip .nav-link:hover,
+.dbx-config-dbx-tabs > .dbx-config-dbx-tabstrip .nav-link:focus-visible {
+    background: var(--dbx-panel-inner-bg-top);
+    border-color: var(--dbx-panel-border);
+    color: var(--dbx-text-main);
+    isolation: isolate;
+}
+
+.dbx-config-dbx-tabs > .dbx-config-dbx-tabstrip .nav-link.active {
+    background:
+        linear-gradient(180deg, var(--dbx-panel-inner-bg-top), var(--dbx-panel-inner-bg-bottom));
+    border-color: var(--dbx-panel-border);
+    border-bottom-color: var(--dbx-panel-inner-bg-bottom);
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight),
+        0 -2px 0 var(--dbx-panel-inner-bg-bottom);
+    color: var(--dbx-primary);
+    font-weight: 700;
+    margin-bottom: -2px;
+    position: relative;
+    z-index: 2;
+}
+
+.dbx-config-dbx-tabs > .dbx-config-dbx-tabcontent {
+    background:
+        linear-gradient(180deg, var(--dbx-panel-inner-bg-top), var(--dbx-panel-inner-bg-bottom));
+    border: 1px solid var(--dbx-panel-border);
+    border-radius: 0 0 var(--dbx-window-radius, 0.5rem) var(--dbx-window-radius, 0.5rem);
+    border-top: none;
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight),
+        inset 0 -1px 0 rgba(40, 58, 82, 0.06);
+    min-height: 8rem;
+    padding: 1rem 1.125rem 1.125rem;
+}
+
+.dbx-config-dbx-tabs > .dbx-config-dbx-tabcontent > .dbx-config-dbx-tabpane.active {
+    animation: dbx-config-tab-in 0.2s ease;
+}
+
+@keyframes dbx-config-tab-in {
+    from {
+        opacity: 0.55;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dbx-config-dbx-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dbx-config-dbx-section > .mb-3 {
+    margin-bottom: 0 !important;
+}
+
+.dbx-config-dbx-section .dbx-config-dbx-tabs > .dbx-config-dbx-tabstrip {
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--dbx-panel-border-light);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0 0 0.35rem;
+}
+
+.dbx-config-dbx-section .dbx-config-dbx-tabs > .dbx-config-dbx-tabstrip .nav-link {
+    background: transparent;
+    border: 0;
+    border-radius: 0.35rem;
+    font-size: 0.75rem;
+    padding: 0.4rem 0.7rem;
+}
+
+.dbx-config-dbx-section .dbx-config-dbx-tabs > .dbx-config-dbx-tabstrip .nav-link.active {
+    background: rgba(13, 110, 253, 0.1);
+    border: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+.dbx-config-dbx-section .dbx-config-dbx-tabs > .dbx-config-dbx-tabcontent {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0.875rem 0 0;
+}
+
+.dbx-config-dbx-tabs .tab-pane > .dbx-config-dbx-form,
+.dbx-config-dbx-section > .mb-3 > .dbx-config-dbx-form {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    margin: 0;
+}
+
+.dbx-config-dbx-section > .mb-3 > .dbx-config-dbx-form {
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--dbx-panel-border-light);
+}

@@ -93,6 +93,9 @@
             window.clearTimeout(reloadTimer);
         }
         reloadTimer = window.setTimeout(function () {
+            if (window.dbx && dbx.utilities && dbx.utilities.leaveGuard) {
+                dbx.utilities.leaveGuard.allowOnce();
+            }
             window.location.reload();
         }, 900);
     }

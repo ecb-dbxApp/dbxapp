@@ -74,4 +74,9 @@ foreach ($disabledFlags as [$module, $config, $path]) {
    }
 }
 
+if (($core['mail_delivery_mode'] ?? '') !== 'internal') {
+   fwrite(STDERR, 'core: öffentlicher Mailstandard muss internal sein.' . PHP_EOL);
+   exit(1);
+}
+
 echo "Public config defaults: OK\n";

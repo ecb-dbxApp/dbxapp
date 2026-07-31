@@ -320,6 +320,24 @@ class dbxTPL extends \dbxObj {
      */
     public function replaces_dbx(string $tpl): string {
 
+        $api = dbx();
+        $coreConfig = is_object($api) && method_exists($api, 'get_config')
+            ? $api->get_config('dbx')
+            : array();
+        $coreConfig = is_array($coreConfig) ? $coreConfig : array();
+        $brand = trim((string)($coreConfig['brand_name'] ?? ''));
+        if ($brand === '') {
+            $brand = trim((string)($coreConfig['site_title'] ?? ($coreConfig['page'] ?? 'dbxapp')));
+        }
+        $tagline = trim((string)($coreConfig['brand_tagline'] ?? ''));
+        $pageTitle = trim((string)dbx()->get_system_var('dbx_title', ''));
+        $documentTitle = $pageTitle;
+        if ($documentTitle === '') {
+            $documentTitle = $brand;
+        } elseif ($brand !== '' && stripos($documentTitle, $brand) === false) {
+            $documentTitle .= ' · ' . $brand;
+        }
+
         $tpl = str_replace('{dbx:base_href}', dbx()->get_base_url(), $tpl);
         $tpl = str_replace('{dbx:design}'   , dbx()->get_system_var('dbx_activ_design', dbx()->get_system_var('dbx_design')), $tpl);
         $tpl = str_replace('{dbx:color}'    , dbx()->get_skin(), $tpl);
@@ -327,7 +345,10 @@ class dbxTPL extends \dbxObj {
         $tpl = str_replace('{dbx:skin_class}', dbx()->get_skin_class(), $tpl);
         $tpl = str_replace('{dbx:page}'     , dbx()->get_system_var('dbx_activ_page', dbx()->get_system_var('dbx_page')), $tpl);
         $tpl = str_replace('{dbx:lng}'      , dbx()->get_system_var('dbx_activ_lng', dbx()->get_system_var('dbx_lng')), $tpl);
-        $tpl = str_replace('{dbx:title}'    , htmlspecialchars((string)dbx()->get_system_var('dbx_title'), ENT_QUOTES, 'UTF-8'), $tpl);
+        $tpl = str_replace('{dbx:title}'    , htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8'), $tpl);
+        $tpl = str_replace('{dbx:document_title}', htmlspecialchars($documentTitle, ENT_QUOTES, 'UTF-8'), $tpl);
+        $tpl = str_replace('{dbx:brand}'    , htmlspecialchars($brand, ENT_QUOTES, 'UTF-8'), $tpl);
+        $tpl = str_replace('{dbx:tagline}'  , htmlspecialchars($tagline, ENT_QUOTES, 'UTF-8'), $tpl);
         $tpl = str_replace('{dbx:perma}'    , dbx()->get_system_var('dbx_perma'), $tpl);
 
         $meta_description = (string)dbx()->get_system_var('dbx_meta_description', '');
@@ -421,18 +442,35 @@ class dbxTPL extends \dbxObj {
     }
 
     private function effective_robots_meta(): string {
+        // Technische Routen sind niemals eigenstaendige Suchergebnisse.
+        // Diese Regel hat Vorrang vor dem SEO-Wert eines eventuell zugleich
+        // geladenen Content-Datensatzes.
+        $technicalKeys = array(
+            'dbx_modul',
+            'dbx_run1',
+            'dbx_run2',
+            'dbx_run3',
+            'dbx_action',
+            'dbx_do',
+            'action',
+            'dbx_edit',
+            'dbx_token',
+        );
+        foreach ($technicalKeys as $key) {
+            if (trim((string)dbx()->get_request_var($key, '', '*')) !== '') {
+                return 'noindex,follow';
+            }
+        }
+
+        $ajax = (int)dbx()->get_system_var('dbx_ajax', 0, 'int');
+        $window = (int)dbx()->get_system_var('dbx_window', 0, 'int');
+        if ($ajax > 0 || $window > 0) {
+            return 'noindex,follow';
+        }
+
         $robots = trim((string)dbx()->get_system_var('dbx_robots', ''));
         if ($robots !== '') {
             return $robots;
-        }
-
-        $modul = trim((string)dbx()->get_request_var('dbx_modul', '', 'parameter'));
-        $action = trim((string)dbx()->get_request_var('dbx_action', '', 'parameter'));
-        $ajax = (int)dbx()->get_system_var('dbx_ajax', 0, 'int');
-        $window = (int)dbx()->get_system_var('dbx_window', 0, 'int');
-
-        if ($modul !== '' || $action !== '' || $ajax > 0 || $window > 0) {
-            return 'noindex,follow';
         }
 
         return '';
@@ -477,11 +515,6 @@ class dbxTPL extends \dbxObj {
 
         $cache =& $_SESSION['dbx']['cache']['tpl'];
 
-        // --- CACHE HIT ---
-        if (isset($cache[$modul][$file][$type][$lng])) {
-            return $cache[$modul][$file][$type][$lng]['tpl'];
-        }
-
         $base = dbx()->get_base_dir() . "dbx/modules/$modul/tpl/$type/";
 
         $path = function_exists('dbx_lng_resolve_file')
@@ -503,14 +536,32 @@ class dbxTPL extends \dbxObj {
             return "<div class='alert alert-danger'>TPL ($modul/$file.$type) not found</div>";
         }
 
-        $tpl = file_get_contents($path);
-
         $relPath = dbx()->editor_file_path($path);
+        $mtime = (int) @filemtime($path);
+        $size = (int) @filesize($path);
+        $cached = $cache[$modul][$file][$type][$lng] ?? null;
+
+        // Eine Session darf geänderte oder neu angelegte Sprach-Templates nicht
+        // dauerhaft verdecken. Der Cache bleibt schnell, validiert aber seine
+        // konkrete Quelldatei bei jedem Lesezugriff.
+        if (is_array($cached)
+            && (string)($cached['path'] ?? '') === $relPath
+            && (int)($cached['mtime'] ?? -1) === $mtime
+            && (int)($cached['size'] ?? -1) === $size) {
+            return (string)($cached['tpl'] ?? '');
+        }
+
+        $tpl = file_get_contents($path);
+        if (!is_string($tpl)) {
+            return "<div class='alert alert-danger'>TPL ($modul/$file.$type) not readable</div>";
+        }
 
         // Cache speichern
         $cache[$modul][$file][$type][$lng] = [
-            'tpl'  => $tpl,
-            'path' => $relPath // 🔥 HIER NICHT MEHR $path!
+            'tpl'   => $tpl,
+            'path'  => $relPath,
+            'mtime' => $mtime,
+            'size'  => $size,
         ];
 
         return $tpl;

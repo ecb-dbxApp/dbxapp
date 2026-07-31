@@ -38,7 +38,21 @@
      </div>
      <div class="row g-2 mt-1">
       <div class="col-md-6">{obj:pass}</div>
-      <div class="col-md-6">{obj:roles}</div>
+      <div class="col-md-6">{obj:pass_repeat}</div>
+     </div>
+     <ul class="dbx-password-rules--compact"
+         data-dbx-password-rules
+         data-password-input="pass"
+         data-password-repeat="pass_repeat"
+         data-password-min="{password_min_length}">
+      <li class="dbx-password-rule" data-password-rule="length"><i class="bi bi-circle"></i><span><strong data-password-min-label>{password_min_length}</strong>+ caracteres{password_length_recommendation}</span></li>
+      <li class="dbx-password-rule" data-password-rule="letters"><i class="bi bi-circle"></i><span>Mayúsculas y minúsculas</span></li>
+      <li class="dbx-password-rule" data-password-rule="number"><i class="bi bi-circle"></i><span>Número</span></li>
+      <li class="dbx-password-rule" data-password-rule="special"><i class="bi bi-circle"></i><span>Carácter especial</span></li>
+      <li class="dbx-password-rule" data-password-rule="match"><i class="bi bi-circle"></i><span>idénticas</span></li>
+     </ul>
+     <div class="row g-2 mt-1">
+      <div class="col-12">{obj:roles}</div>
      </div>
      <div class="row g-2 mt-1">
       <div class="col-md-6">{obj:design}</div>

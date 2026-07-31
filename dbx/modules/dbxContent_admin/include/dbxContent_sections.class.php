@@ -639,7 +639,7 @@ class dbxContent_sections {
          $pages = $db->select(
             dbxContentLng::ddContent($lng),
             '',
-            'id,title,hero_image_id,content',
+            'id,title,hero_image_id,seo_image_id,content',
             'id',
             'ASC',
             '',
@@ -671,8 +671,20 @@ class dbxContent_sections {
             if ($heroId > 0) {
                $this->add_media_usage($map, $heroId, $lng, $pageId, (string)($page['title'] ?? ''), 'page');
             }
-            if (preg_match_all('/data-cms-media-id=["\']?(\d+)/i', (string)($page['content'] ?? ''), $matches)) {
-               foreach ($matches[1] as $mediaId) {
+            $seoId = (int)($page['seo_image_id'] ?? 0);
+            if ($seoId > 0) {
+               $this->add_media_usage($map, $seoId, $lng, $pageId, (string)($page['title'] ?? ''), 'page');
+            }
+            $inlineIds = array();
+            $content = (string)($page['content'] ?? '');
+            if (preg_match_all('/data-cms-media-id=["\']?(\d+)/i', $content, $matches)) {
+               foreach ($matches[1] as $mediaId) $inlineIds[(int)$mediaId] = (int)$mediaId;
+            }
+            if (preg_match_all('/(?:dbx_mid|media_id)=(\d+)(?:[^0-9]|$)/i', $content, $matches)) {
+               foreach ($matches[1] as $mediaId) $inlineIds[(int)$mediaId] = (int)$mediaId;
+            }
+            foreach ($inlineIds as $mediaId) {
+               if ($mediaId > 0) {
                   $this->add_media_usage($map, (int)$mediaId, $lng, $pageId, (string)($page['title'] ?? ''), 'page');
                }
             }
@@ -984,7 +996,7 @@ class dbxContent_sections {
   </div>
 
   <section class="cms-hero {cms:hero_class}" style="{hero:style}">
-    <div class="hero">{cms:hero}<div class="hero-text">{cms:hero_text}</div></div>
+    <div class="hero">{cms:hero}</div>
   </section>
 
   <section class="cms-header header">{cms:header}</section>

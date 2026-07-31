@@ -229,3 +229,9 @@ $index['unique']='1';
 $index['comment']='from field index PRI';
 $indexes[]=$index;
 
+$index['name']='uq_dbx_user_groups_name';
+$index['type']='UNIQUE';
+$index['fields']='name';
+$index['unique']='1';
+$index['comment']='Technischer Gruppenname muss eindeutig sein';
+$indexes[]=$index;

@@ -551,7 +551,7 @@ class dbxShopAdmin {
          . '<dt>Widerruf anzeigen</dt><dd>Steuert, ob der Widerrufsbereich im Shop sichtbar bzw. verwendbar sein soll. Der eigentliche Widerrufstext kommt aus der CMS-Seite <code>/shop-widerruf</code>.</dd>'
          . '<dt>Kunden-Mail senden</dt><dd>Sendet nach Bestellung und Widerruf eine kurze Bestaetigung an die beim Checkout bzw. Widerruf angegebene E-Mail-Adresse.</dd>'
          . '<dt>Admin-Mail senden</dt><dd>Sendet bei neuen Bestellungen und Widerrufen eine interne Benachrichtigung an die Admin-E-Mail-Adresse.</dd>'
-         . '<dt>Mail-Absender</dt><dd>Absenderadresse fuer Shop-Mails. Verwenden Sie eine echte Domain-Adresse, die in der Mail-Konfiguration erlaubt ist, z.B. <code>shop@example.org</code>.</dd>'
+         . '<dt>Shop-Absender</dt><dd>Eigene From-Adresse fuer Bestellungen, Statusmeldungen und Widerrufe. Verwenden Sie eine echte Domain-Adresse, z.B. <code>shop@example.org</code>. Eine stabile Shop-Adresse erleichtert automatische Mailprozesse beim Empfaenger.</dd>'
          . '<dt>Admin-E-Mail</dt><dd>Empfaengeradresse fuer interne Shop-Benachrichtigungen, z.B. <code>admin@example.org</code>.</dd>'
          . '</dl>'
          . '<h3>Zahlungsarten</h3><dl>'
@@ -3287,6 +3287,13 @@ class dbxShopAdmin {
       $cfg['delivery_flat_shipping_gross_price'] = number_format((float)$flatShipping, 2, '.', '');
       $cfg['media_usage_slot'] = preg_replace('~[^a-z0-9_-]+~i', '', (string)($_POST['media_usage_slot'] ?? 'shop')) ?: 'shop';
 
+      $mailLocal = array(
+         'mail_profile' => trim((string)($cfg['mail_profile'] ?? 'dbxApp')) ?: 'dbxApp',
+         'mail_from' => $cfg['mail_from'],
+         'mail_from_name' => trim((string)($cfg['mail_from_name'] ?? 'dbxShop')) ?: 'dbxShop',
+         'mail_admin_to' => $cfg['mail_admin_to'],
+      );
+      dbx()->patch_local_config('dbxShop', $mailLocal);
       dbx()->set_config('dbxShop', $cfg);
       $this->loadContentCacheSupport();
       if (class_exists('\\dbx\\dbxContent\\dbxContentPageCache')) {
@@ -4336,9 +4343,11 @@ class dbxShopAdmin {
    private function sendOrderStatusMail(array $before, array $order): array {
       $cfg = $this->shopConfig();
       $from = trim((string)($cfg['mail_from'] ?? ''));
+      $fromName = trim((string)($cfg['mail_from_name'] ?? 'dbxShop'));
+      $profile = trim((string)($cfg['mail_profile'] ?? ''));
       $to = trim((string)($order['customer_email'] ?? ''));
-      if ($from === '') {
-         return array(false, 'Kundenmail wurde nicht gesendet: Mail-Absender fehlt in den Shop-Einstellungen.');
+      if (filter_var($from, FILTER_VALIDATE_EMAIL) === false) {
+         return array(false, 'Kundenmail wurde nicht gesendet: Der Mail-Absender in den Shop-Einstellungen ist ungültig.');
       }
       if ($to === '' || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
          return array(false, 'Kundenmail wurde nicht gesendet: Die Bestellung hat keine gueltige Kunden-E-Mail.');
@@ -4366,7 +4375,25 @@ class dbxShopAdmin {
          . '<p>Viele Gruesse<br>Ihr Shop-Team</p>';
 
       try {
-         dbx()->send_mail($from, $to, $subject, $html, 'html');
+         $options = $profile !== '' ? array('mail_profile' => $profile) : array();
+         $sent = dbx()->send_mail(
+            array('email' => $from, 'name' => $fromName),
+            $to,
+            $subject,
+            $html,
+            'html',
+            array(),
+            $options
+         );
+         if (!$sent) {
+            $mail = dbx()->get_system_obj('dbxMail');
+            $reason = is_object($mail) ? trim((string)$mail->get_error()) : '';
+            return array(
+               false,
+               'Kundenmail konnte nicht gesendet werden'
+                  . ($reason !== '' ? ': ' . $reason : '.')
+            );
+         }
          $this->repo()->addOrderHistory((int)($order['id'] ?? 0), 'customer_mail', '', $to, 'Statusbenachrichtigung wurde an den Kunden gesendet.');
          return array(true, 'Kundenmail wurde gesendet.');
       } catch (\Throwable $e) {

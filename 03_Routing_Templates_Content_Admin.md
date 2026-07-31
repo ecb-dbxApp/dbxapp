@@ -32,6 +32,115 @@ Beispiel im Content:
 Das Frontend bleibt damit redaktionell steuerbar. Fachfunktionen werden als
 Modulinseln eingebettet.
 
+## Verbindlicher SEO- und URL-Vertrag
+
+Öffentliche Inhalte besitzen genau eine indexierbare URL:
+
+- Die konfigurierte deutsche Startseite wird unter der Basis-URL
+  `https://dbxapp.de/` ausgegeben. Der interne Permalink `home` bleibt für die
+  Content-Auflösung kompatibel, `/home` antwortet aber dauerhaft mit HTTP 301
+  auf `/`.
+- Normale deutsche, englische und spanische Inhaltsseiten verwenden ihren
+  jeweiligen sauberen Permalink und einen selbstreferenziellen Canonical.
+- Erkennt die Permalink-Auflösung einen eindeutigen Permalink in einer anderen
+  Sprachtabelle, wird diese Sprache für den Request automatisch aktiviert.
+  Sprachabhängige Content-URLs benötigen deshalb weder Cookie noch
+  `dbx_lng`-Query und sind direkt abrufbar.
+- `http://dbxapp.de/*` und `https://www.dbxapp.de/*` werden in einem Schritt
+  auf `https://dbxapp.de/*` vereinheitlicht.
+- Interne Startseitenlinks verwenden `{dbx:base_href}` und erzeugen nicht
+  erneut den Alias `home`.
+
+`dbxContentRenderer` setzt Canonical, Robots, Open Graph, JSON-LD und
+`hreflang` als Systemwerte. `dbxTPL` erzeugt daraus den zentralen
+`{dbx:head_meta}`-Block. Jedes vollständige Design-HTML mit `<head>` muss
+diesen Platzhalter genau einmal direkt im Head enthalten:
+
+```html
+<title>{dbx:title}</title>{dbx:head_meta}
+```
+
+Ein Design darf **kein eigenes festes** `<link rel="canonical">` definieren.
+Dadurch gelten dieselben URLs und Robots-Regeln in `dbxapp`, `flowers`,
+`steal`, Fenstern, Intro- und Editor-Seiten. Technische Routen mit
+`dbx_modul`, `dbx_run*`, `dbx_action`, `dbx_edit`, `dbx_token`, Ajax oder
+Fensterkontext erhalten zentral `noindex,follow`; ein zugleich geladener
+Content-Datensatz darf diese Regel nicht mit `index,follow` überstimmen.
+
+Die XML-Sitemap enthält ausschließlich aktive, öffentlich lesbare
+Content-Permalinks. Sie enthält keine Login-, Warenkorb-, Konto-, Admin-,
+Aktions- oder sonstigen `?dbx_*`-URLs und führt die deutsche Startseite nur als
+Basis-URL. `robots.txt` lässt das Crawling zu und verweist auf die Sitemap,
+damit Suchmaschinen die `noindex`-Metadaten technischer Seiten lesen können.
+
+Der Regressionstest
+`dbx/include/tests/dbxSeoCanonicalPolicy_test.php` sichert Redirect,
+Canonical, Robots, Sitemap-Vertrag und die Head-Metablöcke aller Designs.
+Nach einer produktiven Veröffentlichung werden `/`, `/home`, eine normale
+Inhaltsseite, eine Sprachseite, eine technische Route, `sitemap.xml` und
+`robots.txt` geprüft. Erst danach wird in der Google Search Console eine
+erneute Validierung angestoßen.
+
+## Deutsche Marketingstruktur und `/trash`
+
+Die deutsche Website ist die maßgebliche öffentliche Fassung. Ihre Navigation
+ist auf wenige klare Bereiche begrenzt:
+
+- `Lösungen`: Übersicht, CMS und Website, Shop und Multichannel, individuelle
+  Anwendungen, Intranet und Portale sowie dbxKi.
+- `Plattform`: Technik, Pakete, Referenzen, Demo und Kontakt.
+- `Entwickler`: Entwicklerüberblick und Dokumentation.
+
+Öffentliche Zielseiten verwenden das Content-Template
+`c-marketing-body1-footer`. Die Modul-Bar liefert die einzige Überschrift
+erster Ordnung; der Seiteninhalt beginnt danach mit Einleitung und
+Überschriften ab Ebene zwei. Titel, Beschreibung und Inhalt verwenden echte
+deutsche Umlaute. Die Produktbezeichnung lautet immer `dbxapp`.
+
+Redundante, unfertige oder nur zu Testzwecken angelegte Seiten werden nicht
+gelöscht. Sie werden nach `/trash` verschoben und erhalten verbindlich:
+
+- `activ = 0`
+- `addmenu = 0`
+- `group_read = admin`
+- `meta_robots = noindex,nofollow`
+
+Der Ordner `/trash` selbst ist nur für die Gruppe `admin` lesbar. Hilfe- und
+Tutorialseiten, die intern weiter benötigt werden, bleiben aktiv, erscheinen
+aber nicht im Menü und verwenden `noindex,follow`.
+
+Alte deutsche Marketing-Permalinks bleiben als sprachabhängige HTTP-301-
+Weiterleitungen in `dbx/modules/dbxContent/cfg/config.php` erhalten. Die
+Erkennung erfolgt zentral in `dbxWebApp`; Modul- und Aktionsrouten werden davon
+nicht verändert. Da die flachen öffentlichen URLs derzeit kein Sprachsegment
+besitzen, enthält die Sitemap nur die maßgebliche deutsche Sprachfassung.
+Weitere Sprachen dürfen erst mit jeweils eindeutigen kanonischen URLs in die
+Sitemap aufgenommen werden.
+
+Die reproduzierbare Migration liegt unter
+`dbx/modules/dbxContent/tools/restructure_marketing_de.php`:
+
+```powershell
+# Nur Planung, keine Änderung
+php dbx\modules\dbxContent\tools\restructure_marketing_de.php
+
+# Vollständiges DB3-Backup, dbxDB-Transaktion und Anwendung
+php dbx\modules\dbxContent\tools\restructure_marketing_de.php --apply
+```
+
+Alle Datenbankzugriffe laufen über die sprachabhängigen DDs und `dbxDB`.
+Vor dem schreibenden Lauf wird die vollständige `dbxContent.db3` im
+Unterordner `dbx/modules/dbx/db/backup/` gesichert. Ein Fehler führt zum
+Rollback der Transaktion. Der Lauf verändert ausschließlich deutsche Content-
+und Ordnerdatensätze; Englisch und Spanisch werden weder synchronisiert noch
+geschrieben. Anschließend werden Content-, Menü- und Sitemap-Caches
+invalidiert.
+
+Der Test
+`dbx/modules/dbxContent/tests/dbxContentMarketingDeMigration_test.php` prüft
+Zielseiten, Schreibweise, Umlaute, den admin-geschützten `/trash`-Ordner und
+den vollständigen Archivstatus jedes verschobenen Datensatzes.
+
 ## Administration: Parameter-getrieben
 
 In der Administration sind URL-Parameter der Standard.

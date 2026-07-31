@@ -58,6 +58,7 @@ class dbxContentPermalinkIndex {
          'rights' => self::pageRights($row, $renderer),
          'activ' => (int)($row['activ'] ?? 1),
          'permalink' => $permalink,
+         'meta_robots' => trim((string)($row['meta_robots'] ?? '')),
       );
    }
 
@@ -89,7 +90,7 @@ class dbxContentPermalinkIndex {
          $rows = $db->select(
             dbxContentLng::ddContent($activeLng),
             '1=1',
-            'id,permalink,folder,activ',
+            'id,permalink,folder,activ,meta_robots',
             'id',
             'ASC',
             '',
@@ -153,7 +154,7 @@ class dbxContentPermalinkIndex {
          $row = $db->select1(
             dbxContentLng::ddContent($activeLng),
             array('permalink' => $permalink),
-            'id,permalink,folder,activ',
+            'id,permalink,folder,activ,meta_robots',
             0
          );
          if (!is_array($row) || (int)($row['id'] ?? 0) <= 0) {

@@ -264,6 +264,17 @@ class dbxUser {
       return array('change' => true, 'field' => '', 'message' => '');
    }
 
+   private function settings_after_password_change(string $raw): string {
+      $settings = json_decode($raw, true);
+      $settings = is_array($settings) ? $settings : array();
+      unset($settings['password_reset_required']);
+      $settings['password_changed_at'] = date(DATE_ATOM);
+      return (string)json_encode(
+         $settings,
+         JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+      );
+   }
+
    private function user_setting_date($value, $texts): string {
       if (is_numeric($value) && (int)$value > 0) {
          return date('d.m.Y H:i:s', (int)$value);
@@ -708,6 +719,9 @@ class dbxUser {
 
             if ($passwordChanged) {
                $values['pass'] = password_hash($password, PASSWORD_DEFAULT);
+               $values['settings'] = $this->settings_after_password_change(
+                  (string)($data['settings'] ?? '{}')
+               );
             }
 
             $server = $db->get_dd_server($this->ddUser);

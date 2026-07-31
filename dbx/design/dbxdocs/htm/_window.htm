@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="{dbx:lng}">
+<head>
+    <!-- =====================================================
+         META
+         ===================================================== -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{dbx:title}</title>{dbx:head_meta}
+
+    <!-- base href wird vom System automatisch ergänzt -->
+    <!-- {dbx:base_href} -->
+
+    <!-- =====================================================
+         VENDOR CSS (via Composer)
+         ===================================================== -->
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap-icons/font/bootstrap-icons.css">
+
+
+
+    <!-- =====================================================
+         DESIGN CSS – dbxapp
+         ===================================================== -->
+    <link rel="stylesheet" href="dbx/design/dbxapp/css/colors.css">
+    <link rel="stylesheet" href="{dbx:skin_css}?v=35">
+    <link rel="stylesheet" href="dbx/design/dbxapp/css/base.css">
+    <link rel="stylesheet" href="dbx/design/dbxapp/css/theme.css">
+
+
+</head>
+
+<body class="dbx-web dbx-header-sticky no-bg {dbx:skin_class}" data-dbx-skin="{dbx:color}" data-dbx-design="{dbx:design}">
+
+<div id="dbxApp">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+    <header id="dbxHeader">
+
+        <!-- ===============================
+             MENU (system container)
+             =============================== -->
+
+    </header>
+
+    <!-- =====================================================
+         APP LAYOUT
+         ===================================================== -->
+
+        <!-- MAIN CONTENT -->
+
+        <main id="dbxMain">
+            <div class="dbx-content">
+                <div class="container-fluid py-3">
+                    [dbx:content]
+                </div>
+            </div>
+        </main>
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+    <footer id="dbxFooter" class="text-center py-3">
+        <small>© dbXapp</small>
+    </footer>
+
+</div>
+
+<!-- =========================================================
+     SYSTEM ELEMENTS
+     ========================================================= -->
+
+
+<!-- Global Preloader -->
+<div id="dbxPreloader" class="dbx-preloader" style="display:none!important;pointer-events:none!important;background:transparent!important;box-shadow:none!important;"></div>
+
+<!-- Back to top -->
+<button id="dbxBackToTop" class="btn btn-primary">
+    <i class="bi bi-arrow-up"></i><br><br>
+</button>
+
+<!-- =========================================================
+     DESIGN JS – dbxapp
+     ========================================================= -->
+<script src="dbx/vendor/components/jquery/jquery.min.js"></script>
+<script src="dbx/js/lib/core.js?v=90"></script>
+
+</body>
+</html>

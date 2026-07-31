@@ -213,6 +213,41 @@ Beim Speichern gilt:
 Medien sind zentrale Datensätze in `dbxMedia`; ihre Verwendung wird über
 `dbxMediaUsage` einer Seite, einem Ordner und einem Slot zugeordnet.
 
+### Hero und Inline-Medien verbindlich trennen
+
+Ein Bild am Seitenanfang mit darüber positioniertem Titel, Text oder
+Schaltflächen ist kein frei gebauter Inhaltsblock, sondern ein CMS-Hero:
+
+```text
+Seitenfelder
+  template       = Hero-fähiges c-*-Template
+  hero_template  = image-hero
+  hero_image_id  = ID des Hero-Mediums
+
+Content
+  Hero-Text
+  <hr data-dbx-marker="dbx:hero">
+  normaler Seiteninhalt
+
+dbxMediaUsage
+  Hero-Bild       slot=hero
+  Bilder/Videos   slot=inline, wenn sie tatsächlich im Editor-HTML stehen
+```
+
+Der Hero wird dadurch über die vorhandene Hero-Vorschau, Höhe, Variante,
+Sticky- und Scroll-Einstellungen bearbeitet. Ein Inline-Bild mit
+`position-relative`/`position-absolute` als Ersatz-Hero ist nicht zulässig.
+
+Der Bereich **Im Text** wird aus dem aktuell sichtbaren Editorinhalt gebildet.
+Er zeigt deshalb nur tatsächlich eingebettete Medien. Auswahl, Bildbearbeitung
+und Entfernen wirken direkt auf denselben Editorinhalt; die persistente
+`dbxMediaUsage`-Zuordnung wird beim Speichern über die CMS-/dbxDB-Pipeline
+synchronisiert.
+
+`menu_title` gehört zu den Seitenfeldern neben Titel, Permalink, Template und
+Status. Es wird als kurzer Navigationstitel geladen und gespeichert und ist
+kein Bestandteil des freien Content-HTML.
+
 Unterstützte Rollen:
 
 - Hero-Medium.
@@ -862,6 +897,51 @@ Neue Designs basieren auf einer vollständigen Kopie des Ausgangsdesigns und
 bleiben zur Laufzeit eigenständig.
 
 Der vollständige Vertrag steht unter @ref dbxapp_design_studio_ki.
+
+## dbxContent-Tutorials in Doxygen veröffentlichen
+
+Die deutschen, aktiven Seiten im dbxContent-Ordner
+`Dokumentation und Tutorials` sind die maßgebliche Quelle der
+Anwenderdokumentation. Der Export liest Inhalte, Zuordnungen und Medien
+ausschließlich über DD und `dbxDB`:
+
+```text
+content_de (Ordner 15)
+  -> dbxMediaUsage
+  -> dbxMedia
+  -> docs/generated/tutorials/
+  -> Doxygen
+  -> C:/xampp/htdocs/dbxapp-docs/
+```
+
+Es werden keine einzelnen Tutorials von Hand ausgewählt: Alle aktiven Seiten
+des Tutorialordners werden exportiert. Ebenso werden alle aktiven
+`dbxMediaUsage`-Zuordnungen dieser Seiten berücksichtigt. Im Bestand vom
+28. Juli 2026 sind das 18 Seiten, 302 seitenbezogene Medienzuordnungen und
+131 unterschiedliche Bilddateien.
+
+Verbindlicher Ablauf nach einer Änderung an einem Tutorial:
+
+```console
+php dbx/modules/dbxContent/tools/export_doxygen_tutorials_de.php --write
+php dbx/modules/dbxContent/tools/export_doxygen_tutorials_de.php --check
+doxygen Doxyfile
+```
+
+`--write` erzeugt die Doxygen-Seiten und kopiert die zugeordneten Medien in
+den generierten Dokumentationsbestand. `--check` verändert nichts und meldet
+fehlende Medien oder einen nicht aktuellen Export mit einem Fehlercode.
+
+Dateien unter `docs/generated/tutorials/` werden nicht von Hand geändert.
+Eine fachliche Korrektur erfolgt immer an der deutschen dbxContent-Seite und
+wird anschließend erneut exportiert. Die Hierarchie und Zuordnung zu
+Anwender-, Entwickler- und KI-Bereichen steht in
+`docs/doxygen-navigation.dox`.
+
+Alte, doppelt UTF-8-codierte Zeichen in PHP-Kommentaren werden ausschließlich
+für die Dokumentationsausgabe durch
+`docs/tools/doxygen_php_utf8_filter.php` korrigiert. Der Filter verändert
+weder Projektdateien noch PHP-Strings oder ausführbaren Code.
 
 ## Regeln
 

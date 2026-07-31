@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="{dbx:lng}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#082f63">
+
+    <title>{dbx:title}</title>{dbx:head_meta}
+
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap-icons/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="dbx/design/dbxdocs/css/colors.css?v=1">
+    <link rel="stylesheet" href="{dbx:skin_css}?v=2">
+    <link rel="stylesheet" href="dbx/design/dbxdocs/css/base.css?v=1">
+    <link rel="stylesheet" href="dbx/design/dbxdocs/css/theme.css?v=1">
+    <link rel="stylesheet" href="dbx/design/dbxdocs/css/glass-3d.css?v=1">
+    <link rel="stylesheet" href="dbx/design/dbxdocs/css/docs-layout.css?v=8">
+    <link rel="stylesheet" href="dbx/design/dbxdocs/css/docs-content.css?v=4">
+    <link rel="stylesheet" href="dbx/design/dbxdocs/css/docs-cinematic.css?v=9">
+</head>
+
+<body class="dbx-app dbx-docs {dbx:skin_class}"[inc=is_dbx_edit()] data-dbx="lib=icons_editor"[/inc] data-dbx-skin="{dbx:color}" data-dbx-design="{dbx:design}">
+<div id="dbxApp" class="dbxdocs-app-shell">
+    <aside id="dbxHeader" class="dbxdocs-sidebar" aria-label="Dokumentationsnavigation">
+        <div class="dbxdocs-brand-wrap">
+            <a class="dbxdocs-brand" href="{dbx:base_href}" aria-label="Zur Dokumentations-Startseite">
+                <span class="dbxdocs-brand-mark" aria-hidden="true">
+                    <span>db</span><strong>X</strong><span>app</span>
+                </span>
+                <span class="dbxdocs-brand-copy">
+                    <strong>Dokumentation</strong>
+                    <small>Anwender · Entwickler · KI</small>
+                </span>
+            </a>
+        </div>
+
+        <div class="dbxdocs-nav">
+            <div class="dbxdocs-nav-label">
+                <i class="bi bi-compass" aria-hidden="true"></i>
+                <span>Navigation</span>
+            </div>
+            <nav id="dbx_main_menu" class="dbx-menu dbx-menu-main" data-dbx='lib=menu|id=user|label=Dokumentation' data-dbx-menu-active-open="1" style="visibility:hidden">
+                [modul=dbxMenu]dbx_run1=load&tpl=modul|dbx-docs-main[/modul]
+            </nav>
+        </div>
+
+        <div class="dbxdocs-sidebar-foot">
+            <i class="bi bi-shield-check" aria-hidden="true"></i>
+            <span>dbxapp 4 · Wissen aus einer Quelle</span>
+        </div>
+    </aside>
+
+    <div class="dbxdocs-stage">
+        <div class="dbxdocs-stage-header">
+            [inc=has_group('admin')]
+            <div class="dbxdocs-admin-strip" aria-label="Administration">
+                <nav id="dbx_admin_menu" class="dbx-menu dbx-menu-admin" data-dbx='lib=menu|id=admin|label=Verwaltung' style="visibility:hidden">
+                    [modul=dbxMenu]dbx_run1=load&tpl=modul|dbx-top-admin[/modul]
+                </nav>
+            </div>
+            [/inc]
+
+            <header class="dbxdocs-topbar">
+                <button class="dbxdocs-sidebar-toggle" type="button" data-dbxdocs-sidebar-toggle title="Navigation ein- oder ausklappen" aria-label="Navigation ein- oder ausklappen" aria-expanded="true">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="dbxdocs-page-title">
+                    <span class="dbxdocs-kicker"><i class="bi bi-book" aria-hidden="true"></i> dbxapp Wissen</span>
+                    <strong>{dbx:title}</strong>
+                </div>
+                <div class="dbxdocs-audience" aria-label="Dokumentationsbereiche">
+                    <a href="{dbx:base_href}" title="Anwenderdokumentation">
+                        <i class="bi bi-person-check" aria-hidden="true"></i><span>Anwender</span>
+                    </a>
+                    <a href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=overview" title="Technische Referenz">
+                        <i class="bi bi-code-slash" aria-hidden="true"></i><span>Entwickler</span>
+                    </a>
+                </div>
+            </header>
+        </div>
+
+        <main id="dbxMain">
+            <div class="dbx-content">
+                <div class="container-fluid py-3" id="dbxContent">
+                    [dbx:content]
+                </div>
+            </div>
+        </main>
+
+        <footer id="dbxFooter" class="dbxdocs-footer">
+            <div class="dbx-footer-dockbar" aria-label="Fensterleiste">
+                <div id="windrop" class="dbx-window-dock" aria-label="Minimierte Fenster"></div>
+                <button id="dbxWindowCloseAll" class="dbx-footer-window-close-all" type="button" title="Alle Fenster schließen" aria-label="Alle Fenster schließen">
+                    <i class="bi bi-x-square"></i>
+                </button>
+            </div>
+            <div class="dbxdocs-footer-info">
+                <span data-dbx-runtime data-dbx-php-runtime="" class="visually-hidden">...</span>
+                <a href="datenschutz" class="dbx-footer-consent-link dbx-win" data-dbx="lib=openWin|url=datenschutz|title=Datenschutz|width=900|height=90%|position=center-top|reload=1|minimizable=1|maximizable=1">Datenschutz</a>
+                <span>© dbxapp Dokumentation</span>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<div id="dbxPreloader" class="dbx-preloader" style="display:none!important;pointer-events:none!important"></div>
+<button id="dbxBackToTop" class="btn dbxdocs-back-to-top" type="button" title="Nach oben" aria-label="Nach oben">
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="dbx/vendor/components/jquery/jquery.min.js"></script>
+<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v=90"></script>
+<script src="dbx/design/dbxdocs/js/dbxdocs.js?v=1"></script>
+<script src="dbx/design/dbxdocs/js/dbxdocs-cinematic.js?v=4"></script>
+</body>
+</html>

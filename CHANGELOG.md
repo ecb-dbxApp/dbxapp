@@ -4,12 +4,19 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
-## [Unreleased]
+## [4.0.3] - 2026-07-31
+
+### Added
+
+- `dbxSelfTest` mit Komplett-, Schnell- und Einzeltests, dauerhaftem Protokoll
+  sowie PHP- und JavaScript-Prüfungen ohne Node.js-Pflicht im Zielsystem.
+- DD-basierte, protokollierte Datenmigrationen mit Tabellenbackup und
+  gemeinsamem Datei-/Datenbank-Rollback im System-Updater.
+- Dokumentationsportal, mehrsprachige Systemmenüs und ein eigenständiger
+  Viewport-Test für die visuelle Prüfung responsiver Seiten.
 
 ### Changed
 
-- Die laufende Entwicklung nach dem stabilen Release 4.0.2 trägt die Version
-  `4.0.3-dev` und wird nicht als Update angeboten.
 - Der dbxAdmin-Updater prüft, lädt und validiert ein neueres Release mit einem
   einzigen Startschritt.
 - Vor dem eigentlichen Dateiaustausch kann ein Administrator das vorbereitete
@@ -20,6 +27,28 @@ Semantic Versioning.
   Update-Zustand in Deutsch, Englisch und Spanisch an.
 - Die Dashboard-Anzeige liest ausschließlich den lokalen Update-Cache; eine
   Netzwerkprüfung startet weiterhin nur bewusst auf der Update-Seite.
+- Der CMS-Editor lädt Content-Baum und Medien bedarfsgerecht, zeigt sichtbare
+  Medien priorisiert und gleicht Inline-Nutzung, Vorschaubilder und Wartung
+  mit dem tatsächlich gespeicherten Inhalt ab.
+- Videos verwenden konsistente Größen- und Ausrichtungsregeln in Editor und
+  `dbxContent`; horizontale Zentrierung ist verfügbar.
+- Der universelle Inhaltsmarker heißt einheitlich `hero` und kann Text,
+  Bilder oder Videos enthalten.
+
+### Fixed
+
+- Editor-Cursor, Reload-Warnung und Medienzuordnung wurden korrigiert; eine
+  Verlassenswarnung bleibt beim Schließen eines Tabs oder Browsers erhalten.
+- Full-Page-Cache, Sitemap und Fehlressourcen-Erkennung behandeln Sprachen,
+  Permalinks und ungültige Aufrufe konsistent.
+- Lange Selbsttests liefern auch bei PHP-Laufzeitgrenzen eine gültige Antwort
+  und können zuverlässig fortgesetzt oder gestoppt werden.
+
+### Migration
+
+- `core-4.0.3-user-identity` synchronisiert Benutzer- und Gruppen-DDs und
+  stellt die verbindlichen Core-Gruppen wiederholbar sicher. Vorhandene
+  Tabellen werden vor der Migration gesichert.
 
 ## [4.0.2] - 2026-07-27
 

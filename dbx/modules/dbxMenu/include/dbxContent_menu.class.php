@@ -73,7 +73,7 @@ class dbxContent_menu {
   }
 
   private function cms_pages($db, $folder_id) {
-     $rows = $db->select(dbxContentLng::ddContent(), 'folder = ' . (int)$folder_id . ' AND activ = 1', 'id,title,permalink,sorter,folder', 'sorter,title,id', 'ASC', '', 0, 0, 0);
+     $rows = $db->select(dbxContentLng::ddContent(), 'folder = ' . (int)$folder_id . ' AND activ = 1', 'id,title,menu_title,permalink,sorter,folder', 'sorter,title,id', 'ASC', '', 0, 0, 0);
      return is_array($rows) ? $rows : array();
   }
 
@@ -83,9 +83,33 @@ class dbxContent_menu {
   }
 
   private function render_page_li(array $page) {
-     $title = trim((string)($page['title'] ?? ''));
+     $title = trim((string)($page['menu_title'] ?? ''));
+     if ($title === '') $title = trim((string)($page['title'] ?? ''));
      if ($title === '') $title = 'Seite ' . (int)($page['id'] ?? 0);
-     return '<li class="dbx-cms-menu-page"><a href="' . dbx()->esc($this->content_href($page)) . '">' . dbx()->esc($title) . '</a></li>';
+     return '<li class="dbx-cms-menu-page"><a href="' . dbx()->esc($this->content_href($page)) . '"><span>' . dbx()->esc($title) . '</span></a></li>';
+  }
+
+  private function resolve_folder_reference($db, $root) {
+     if (is_int($root) || (is_string($root) && ctype_digit(trim($root)))) {
+        return (int)$root;
+     }
+
+     $path = trim(rawurldecode((string)$root), " \t\n\r\0\x0B/");
+     if ($path === '') return 0;
+
+     $parentId = 0;
+     foreach (preg_split('#\s*/\s*#', $path, -1, PREG_SPLIT_NO_EMPTY) as $name) {
+        $folder = $db->select1(
+           dbxContentLng::ddFolder(),
+           array('parent_id' => $parentId, 'name' => trim((string)$name)),
+           array('id', 'name'),
+           0
+        );
+        $parentId = (int)($folder['id'] ?? 0);
+        if ($parentId <= 0) return 0;
+     }
+
+     return $parentId;
   }
 
   private function render_pages($db, $folder_id) {
@@ -106,7 +130,11 @@ class dbxContent_menu {
      $name = trim((string)($folder['name'] ?? ''));
      if ($name === '') $name = 'Ordner ' . $id;
 
-     return '<li class="dbx-cms-menu-folder"><a>' . dbx()->esc($name) . '</a><ul>' . $inner . '</ul></li>';
+     return '<li class="dbx-cms-menu-folder">'
+        . '<a role="button" tabindex="0" aria-haspopup="true">'
+        . '<i class="bi bi-folder2-open" aria-hidden="true"></i>'
+        . '<span>' . dbx()->esc($name) . '</span>'
+        . '</a><ul>' . $inner . '</ul></li>';
   }
 
   private function render_children($db, $folder_id, $include_pages = true) {
@@ -124,21 +152,22 @@ class dbxContent_menu {
   }
 
   public function render_flat_marker($root = 0, $flat = 1) {
-     $root = (int)$root;
      $flat = (int)$flat;
 
      if ($flat !== 1) return '';
 
      $db = dbx()->get_system_obj('dbxDB');
+     $root = $this->resolve_folder_reference($db, $root);
      if (!$this->folder_allowed($db, $root)) return '';
 
      return $this->render_pages($db, $root);
   }
 
   public function render_placeholder($root = 0, $flat = 1, $split_flat = false) {
-     $root = (int)$root;
      $flat = (int)$flat;
      $split_flat = $split_flat && $flat === 1;
+     $db = dbx()->get_system_obj('dbxDB');
+     $root = $this->resolve_folder_reference($db, $root);
      $lng = dbxContentPageCache::currentLng();
      $variant = dbxContentPageCache::menuVariantFlat($flat);
      if ($split_flat) {
@@ -152,7 +181,6 @@ class dbxContent_menu {
         }
      }
 
-     $db = dbx()->get_system_obj('dbxDB');
      $html = '';
 
      if ($root <= 0) {

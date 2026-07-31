@@ -148,6 +148,16 @@ class dbxMail {
     $this->errstr = '';
     $subject = (string) ($subject !== '' ? $subject : $this->subject);
 
+    $deliveryMode = $this->delivery_mode();
+    if ($deliveryMode !== 'external') {
+      return $this->handle_internal_delivery(
+        $deliveryMode,
+        $to,
+        $subject,
+        is_array($options) ? $options : array()
+      );
+    }
+
     try {
       $mail = new PHPMailer(true);
       $mail->CharSet = 'UTF-8';
@@ -185,6 +195,75 @@ class dbxMail {
     }
 
     $this->sys_msg('error', $to, $subject, $this->errstr);
+    return 0;
+  }
+
+  /**
+   * Liefert die globale Versandart.
+   *
+   * - internal: kein Netzwerkversand, Annahme im internen Systemprotokoll
+   * - disabled: Versand ablehnen und intern protokollieren
+   * - external: konfigurierten PHP-/Sendmail-/SMTP-Transport verwenden
+   */
+  public function delivery_mode(): string {
+    $mode = 'internal';
+    if (function_exists('dbx')) {
+      $configured = dbx()->get_config('dbx', 'mail_delivery_mode', 'internal');
+      if (is_scalar($configured)) {
+        $mode = strtolower(trim((string)$configured));
+      }
+    }
+
+    return in_array($mode, array('internal', 'disabled', 'external'), true)
+      ? $mode
+      : 'internal';
+  }
+
+  /**
+   * Behandelt Mailereignisse, die dbxapp nicht nach außen senden darf.
+   *
+   * Inhalte und Anhänge werden aus Datenschutzgründen nicht gespeichert.
+   * Das interne Protokoll enthält nur Absender, Empfänger und Betreff.
+   */
+  private function handle_internal_delivery(
+    string $mode,
+    $to,
+    string $subject,
+    array $options
+  ): int {
+    $from = $this->normalize_from($options['from'] ?? null);
+    if ($from['email'] === '' && $this->from !== '') {
+      $from = array('email' => $this->from, 'name' => $this->fromname);
+    }
+
+    $details = array(
+      'delivery' => $mode,
+      'from' => $from['email'],
+      'to' => $this->address_debug($to),
+      'subject' => $subject,
+    );
+    if (function_exists('dbx')) {
+      try {
+        dbx()->sys_msg(
+          'warning',
+          $mode === 'internal' ? 'mail-internal' : 'mail-disabled',
+          '',
+          $mode === 'internal'
+            ? 'Externer E-Mail-Versand ist ausgeschaltet; Ereignis wurde intern angenommen.'
+            : 'E-Mail-Versand ist global deaktiviert.',
+          $details
+        );
+      } catch (Throwable $e) {
+        // Der globale Schalter muss auch funktionieren, bevor dbxSysMsg
+        // während der Erstinstallation provisioniert wurde.
+      }
+    }
+
+    if ($mode === 'internal') {
+      return 1;
+    }
+
+    $this->errstr = 'E-Mail-Versand ist global deaktiviert.';
     return 0;
   }
 

@@ -54,6 +54,8 @@ foreach (array('', 'html', 'htm', 'php', 'dbx') as $extension) {
 }
 
 $_SERVER['REQUEST_METHOD'] = 'GET';
+$_SERVER['HTTP_HOST'] = 'dbxapp.de';
+$_SERVER['HTTP_REFERER'] = 'https://www.dbxapp.de/home?preview=1';
 $api->system['dbx_permalink'] = 'assets/__dbx-missing-resource-test__.svg';
 http_response_code(200);
 ob_start();
@@ -64,11 +66,26 @@ if (!$handled || http_response_code() !== 404 || $body !== ''
    $fail('Fehlendes SVG wird nicht leer mit HTTP 404 protokolliert.', 3);
 }
 
+unset($_SERVER['HTTP_REFERER']);
+$api->system['dbx_permalink'] = 'api/openapi.json';
+http_response_code(200);
+if (!$web->check_missing() || http_response_code() !== 404 || count($api->logged) !== 1) {
+   $fail('Direkte Bot-/Scanner-Anfrage ohne interne Herkunft wird protokolliert.', 4);
+}
+
+$_SERVER['HTTP_REFERER'] = 'https://scanner.example/probe';
+$api->system['dbx_permalink'] = 'api/swagger.json';
+http_response_code(200);
+if (!$web->check_missing() || http_response_code() !== 404 || count($api->logged) !== 1) {
+   $fail('Externe Ressourcenanfrage wird als interner Seitenfehler protokolliert.', 5);
+}
+
 $api->system['dbx_permalink'] = 'assets/__dbx-missing-resource-test__%2Ewoff2';
+$_SERVER['HTTP_REFERER'] = 'https://dbxapp.de/home';
 http_response_code(200);
 $handled = $web->check_missing();
 if (!$handled || http_response_code() !== 404 || count($api->logged) !== 2) {
-   $fail('URL-kodierte Ressourcenerweiterung wird nicht erkannt.', 4);
+   $fail('URL-kodierte Ressourcenerweiterung wird nicht erkannt.', 6);
 }
 
 $_SERVER['REQUEST_METHOD'] = 'HEAD';
@@ -78,7 +95,18 @@ ob_start();
 $handled = $web->check_missing();
 $body = ob_get_clean();
 if (!$handled || http_response_code() !== 404 || $body !== '' || count($api->logged) !== 3) {
-   $fail('HEAD fuer eine fehlende Ressource ist nicht konsistent.', 5);
+   $fail('HEAD fuer eine fehlende Ressource ist nicht konsistent.', 7);
+}
+
+$resourceFileMethod = new ReflectionMethod(dbxWebApp::class, 'get_resource_file');
+$appleIconFile = (string)$resourceFileMethod->invoke($web, 'apple-touch-icon.png');
+if ($appleIconFile === '' || realpath($appleIconFile) !== realpath(dirname(__DIR__, 3) . '/favicon.png')) {
+   $fail('Der Standardpfad apple-touch-icon.png wird nicht auf das vorhandene Favicon aufgeloest.', 8);
+}
+
+$defaultTemplate = (string)file_get_contents(dirname(__DIR__, 2) . '/design/dbxapp/htm/default.htm');
+if (!str_contains($defaultTemplate, 'rel="apple-touch-icon"')) {
+   $fail('Das dbxapp-Design deklariert kein Apple-Touch-Icon.', 9);
 }
 
 $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -86,11 +114,11 @@ foreach (array('shop/produkt', 'hilfe/seite.html', 'sitemap.xml', 'robots.txt') 
    $api->system['dbx_permalink'] = $route;
    http_response_code(200);
    if ($web->check_missing() || http_response_code() !== 200) {
-      $fail("Normale/dynamische Route $route wird faelschlich als Ressource behandelt.", 6);
+      $fail("Normale/dynamische Route $route wird faelschlich als Ressource behandelt.", 10);
    }
 }
 if (count($api->logged) !== 3) {
-   $fail('Normale Seiten oder Systemrouten wurden protokolliert.', 7);
+   $fail('Normale Seiten oder Systemrouten wurden protokolliert.', 11);
 }
 
 echo "OK dbxMissing resources\n";

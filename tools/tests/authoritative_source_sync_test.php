@@ -19,6 +19,10 @@ $allowed = array(
    'dbx/include/dbxApi.php',
    'dbx/modules/dbxContent_admin/files/og/dbxapp-og.png',
    'dbx/modules/dbxUser/img/avatar/avatar-0.png',
+   'docs/doxygen-generated-main.dox',
+   'docs/generated/tutorials/example.webp',
+   'docs/tools/doxygen_php_utf8_filter.php',
+   'tools/ci.php',
    'tools/sync-authoritative-source.php',
 );
 foreach ($allowed as $path) {
@@ -43,6 +47,8 @@ $blocked = array(
    'dbx/modules/demo/cache/a.php',
    'dbx/modules/demo/config.local.php',
    'dbx/modules/demo/private.key',
+   'docs/private.key',
+   'docs/backup/internal.md',
 );
 foreach ($blocked as $path) {
    sync_test_assert(

@@ -1,0 +1,197 @@
+/**
+@page dbxcontent_tutorial_tutorial_dbxki_ki_cms Tutorial: CMS mit dbxKi
+
+<!-- Automatisch aus content_de#89 erzeugt. Nicht direkt bearbeiten. -->
+
+@htmlonly
+<div class="dbx-doc-meta"><span>Anwender-Tutorial</span><span>dbxContent #89</span><span>Permalink: <code>tutorial-dbxki-ki-cms</code></span></div>
+@endhtmlonly
+
+> **Kurzbeschreibung:** Neue CMS-Seiten, gezielte Änderungen, Medien, Prüfung und Übersetzungen mit dbxKi – Schritt für Schritt.
+
+@htmlonly
+<div class="dbx-tutorial-source">
+<p class="lead">Mit dbxKi lassen sich neue CMS-Seiten vorbereiten, vorhandene Inhalte gezielt verbessern und Sprachversionen strukturiert erstellen. Dieses Tutorial zeigt den vollständigen Ablauf von der Aufgabenbeschreibung bis zur geprüften Veröffentlichung in dbxContent.</p>
+
+<div class="alert alert-primary"><strong>Grundprinzip:</strong> dbxKi arbeitet innerhalb des CMS-Ablaufs. Sie benennen Ziel, Inhalt und gewünschte Änderung; vor der Freigabe prüfen Sie Seite, Medien, Rechte und Darstellung.</div>
+
+<h2>Was Sie nach diesem Tutorial können</h2>
+<div class="row row-cols-1 row-cols-md-2 g-3 mb-4">
+  <div class="col"><div class="card h-100"><div class="card-body"><h3 class="h5">Neue Inhalte anlegen</h3><p class="mb-0">Zielordner, Seitentitel, Zielgruppe, Aufbau und Medien so beschreiben, dass dbxKi eine vollständige CMS-Seite erzeugen kann.</p></div></div></div>
+  <div class="col"><div class="card h-100"><div class="card-body"><h3 class="h5">Bestehende Seiten ändern</h3><p class="mb-0">Nur die gewünschten Felder überarbeiten lassen und vorhandene Links, Module, Medien und Layout-Marker erhalten.</p></div></div></div>
+  <div class="col"><div class="card h-100"><div class="card-body"><h3 class="h5">Ergebnis im CMS prüfen</h3><p class="mb-0">Content Tree, Seitendaten, Editor, Medienbereiche, SEO und Aktivstatus kontrollieren.</p></div></div></div>
+  <div class="col"><div class="card h-100"><div class="card-body"><h3 class="h5">Übersetzen und nacharbeiten</h3><p class="mb-0">Sprachversionen erstellen und kleine Korrekturen als klar begrenzten Folgeauftrag formulieren.</p></div></div></div>
+</div>
+
+<h2>Vorbereitung</h2>
+<ol>
+  <li>Melden Sie sich mit einem Benutzer an, der Content bearbeiten darf.</li>
+  <li>Öffnen Sie die Zielseite oder merken Sie sich den Zielordner im Content Tree.</li>
+  <li>Notieren Sie Zielgruppe, Kommunikationsziel und gewünschte Seitenelemente.</li>
+  <li>Prüfen Sie, ob passende Bilder bereits im Medienbrowser vorhanden sind.</li>
+  <li>Entscheiden Sie, ob die Seite sofort aktiv oder zunächst als Entwurf angelegt werden soll.</li>
+</ol>
+
+<h2>1. dbxKi öffnen und Auftrag wählen</h2>
+<p>Öffnen Sie im Hauptmenü <strong>dbxKi</strong>. Für Content stehen je nach Aufgabe unterschiedliche Einstiege bereit: neuer Content, vorhandenen Content ändern, einzelne Seite übersetzen oder eine komplette Sprachstruktur synchronisieren. Wählen Sie immer den kleinsten passenden Auftrag.</p>
+<div class="alert alert-info"><strong>Faustregel:</strong> Für eine neue Seite „Neuer Content“, für eine fachliche oder redaktionelle Korrektur „Content ändern“, für eine Sprachversion „Seite übersetzen“ verwenden.</div>
+
+<h2>2. Einen guten Content-Auftrag formulieren</h2>
+<p>Ein belastbarer Auftrag beantwortet sechs Fragen:</p>
+<table class="table table-striped">
+  <thead><tr><th>Frage</th><th>Beispiel</th></tr></thead>
+  <tbody>
+    <tr><td>Wo?</td><td>Unter „Leistungen“, als neue Unterseite</td></tr>
+    <tr><td>Für wen?</td><td>Entscheider in kleinen Unternehmen</td></tr>
+    <tr><td>Wozu?</td><td>Leistung verständlich erklären und Kontaktanfrage auslösen</td></tr>
+    <tr><td>Was?</td><td>Einleitung, drei Vorteile, Ablauf, FAQ und Handlungsaufforderung</td></tr>
+    <tr><td>Wie?</td><td>Klar, sachlich, kurze Absätze, deutsche Sie-Ansprache</td></tr>
+    <tr><td>Welche Grenzen?</td><td>Vorhandene Links und Module behalten; zunächst nicht veröffentlichen</td></tr>
+  </tbody>
+</table>
+
+<pre class="bg-light border rounded p-3"><code>Erstelle im Ordner „Leistungen“ eine neue Seite „CMS-Schulung“.
+Zielgruppe: Redakteure ohne technische Vorkenntnisse.
+Ziel: Ablauf, Nutzen und Vorbereitung einer Schulung erklären.
+Aufbau: kurze Einleitung, 4 Lernziele, Tagesablauf, Voraussetzungen,
+FAQ und Button zur Kontaktanfrage.
+Ton: freundlich, konkret, Sie-Ansprache. Seite zunächst inaktiv anlegen.
+Vorhandene Medien verwenden; keine neuen Produktversprechen ergänzen.</code></pre>
+
+<h2>3. Ziel und Seiteneinstellungen kontrollieren</h2>
+<p>Prüfen Sie vor der Ausführung besonders Zielordner, Seitentitel, Permalink, Content-Template und Aktivstatus. Der Titel ist für Leser sichtbar; der Permalink bestimmt die Adresse. Das Content-Template legt fest, welche Bereiche wie Header, Hero, Gallery, Body oder Footer verfügbar sind.</p>
+<ul>
+  <li><strong>Zielordner:</strong> Passt die Seite fachlich in diesen Bereich?</li>
+  <li><strong>Permalink:</strong> Kurz, eindeutig und ohne unnötige Sonderzeichen?</li>
+  <li><strong>Template:</strong> Unterstützt es den geplanten Aufbau?</li>
+  <li><strong>Aktiv:</strong> Erst aktivieren, wenn Inhalt und Medien geprüft sind.</li>
+</ul>
+
+<h2>4. Ergebnis im Content Tree finden</h2>
+<p>Nach erfolgreicher Ausführung öffnen Sie das CMS. Im linken Content Tree finden Sie Ordner, Seiten und Sprachstatus. Nutzen Sie die Suche, wenn der Baum umfangreich ist. Ein Klick auf die Seite lädt rechts die Bearbeitung.</p>
+<p>Kontrollieren Sie zuerst Titel, Permalink, Beschreibung, Content-Template und Status. Danach lesen Sie den eigentlichen Inhalt vollständig im Editor.</p>
+
+<h2>5. Inhalt im Editor prüfen</h2>
+<p>Gehen Sie den Text nicht nur sprachlich, sondern auch funktional durch:</p>
+<ol>
+  <li>Stimmen Überschriftenhierarchie und Reihenfolge?</li>
+  <li>Sind Fakten, Preise, Termine und Versprechen fachlich korrekt?</li>
+  <li>Führen Links zu den richtigen internen oder externen Zielen?</li>
+  <li>Sind Modulaufrufe, Schaltflächen und CMS-Bereichsmarker erhalten?</li>
+  <li>Ist die Handlungsaufforderung für die Zielgruppe eindeutig?</li>
+</ol>
+<div class="alert alert-warning"><strong>Wichtig:</strong> Eine flüssige Formulierung ist noch keine fachliche Freigabe. Zahlen, Rechtsaussagen, Verfügbarkeiten und Leistungsversprechen müssen von der zuständigen Person geprüft werden.</div>
+
+<h2>6. Medien zuordnen und Darstellung testen</h2>
+<p>Im rechten CMS-Bereich werden Hero, Gallery und Medien „Im Text“ getrennt verwaltet. Prüfen Sie bei jedem Bild Titel, Alternativtext, Bildausschnitt und Verwendung. Das Hero ist das große Kopfbild; Gallery-Medien bilden eine Bilderfolge; Inline-Medien gehören direkt zum Text.</p>
+<ul>
+  <li>Hero nur setzen, wenn das Seitentemplate einen Hero-Bereich besitzt.</li>
+  <li>Gallery-Reihenfolge und sichtbare Anzahl kontrollieren.</li>
+  <li>Alternativtexte beschreiben den Bildinhalt, nicht nur den Dateinamen.</li>
+  <li>Desktop- und Mobilansicht prüfen, bevor die Seite freigegeben wird.</li>
+</ul>
+
+<h2>7. Eine vorhandene Seite gezielt ändern</h2>
+<p>Wählen Sie für Änderungen immer die bestehende Seite als Bezugspunkt und beschreiben Sie genau, was gleich bleiben muss. Kleine, begrenzte Aufträge lassen sich leichter prüfen als eine pauschale Aufforderung wie „Seite verbessern“.</p>
+<pre class="bg-light border rounded p-3"><code>Überarbeite auf der Seite „CMS-Schulung“ nur Einleitung und FAQ.
+Behalte Überschriften, Links, Button, Medien und Modulaufrufe unverändert.
+Kürze die Einleitung auf höchstens 70 Wörter.
+Ergänze im FAQ eine Antwort zur benötigten Vorbereitung.
+Keine Änderung an Titel, Permalink, Template oder Aktivstatus.</code></pre>
+
+<h2>8. Übersetzung erstellen</h2>
+<ol>
+  <li>Ausgangsseite und Zielsprache wählen.</li>
+  <li>Fachbegriffe, Produktnamen und gewünschte Anrede nennen.</li>
+  <li>Übersetzung ausführen und die neue Sprachseite im Content Tree öffnen.</li>
+  <li>Links, Medien, Zahlen, Eigennamen und Handlungsaufforderungen prüfen.</li>
+  <li>Erst danach den Aktivstatus der Sprachversion setzen.</li>
+</ol>
+
+<h2>Abschlusscheck vor der Veröffentlichung</h2>
+<div class="card"><div class="card-body">
+  <ul class="mb-0">
+    <li>Richtiger Ordner, Titel und Permalink</li>
+    <li>Passendes Content-Template und vollständiger Inhalt</li>
+    <li>Fachlich geprüfte Aussagen, funktionierende Links und Module</li>
+    <li>Hero, Gallery und Inline-Medien korrekt zugeordnet</li>
+    <li>Alternativtexte, Beschreibung und SEO-Angaben gepflegt</li>
+    <li>Desktop- und Mobilansicht getestet</li>
+    <li>Aktivstatus erst nach der Schlussprüfung gesetzt</li>
+  </ul>
+</div></div>
+
+<p class="mt-4"><a href="dbxcontent_tutorial_tutorial_cms_content_tree.html">Content Tree vertiefen</a><a href="dbxcontent_tutorial_tutorial_cms_medienverwendung.html">Medien vertiefen</a><a href="dbxcontent_tutorial_tutorials_dbxapp.html">Alle Tutorials</a></p>
+</div>
+@endhtmlonly
+
+## Screenshots aus dbxContent (29)
+
+@htmlonly
+<div class="dbx-tutorial-gallery">
+@endhtmlonly
+@image html dbxcontent-media-306-dbxki-bersicht.png "dbxKi sammelt KI-Aufträge für neue Inhalte, Änderungen, Übersetzungen und Module."
+
+@image html dbxcontent-media-274-hauptmen.png "Das Hauptmenü öffnet die Arbeitsbereiche. Erklärt wird nur, was gerade sichtbar ist."
+
+@image html dbxcontent-media-119-fachanwendungen-auf-dbxapp.webp "Viele Fachanwendungen auf einer gemeinsamen Infrastruktur"
+
+@image html dbxcontent-media-307-neuer-content.png "Beim neuen Content beschreibt der Auftrag Zielseite, Thema, Zielgruppe und Struktur."
+
+@image html dbxcontent-media-282-suchen-und-anlegen.png "Oben im Tree suchen Sie Seiten oder legen neue Ordner und Seiten an."
+
+@image html dbxcontent-media-275-content-men.png "Im geöffneten Content-Menü starten Sie CMS, Medien und SEO-Funktionen."
+
+@image html dbxcontent-media-120-integration-bestehender-systeme.webp "Bestehende Systeme werden angebunden und gemeinsam genutzt"
+
+@image html dbxcontent-media-121-vom-bedarf-zur-fachanwendung.webp "Geführter Weg von der Fachanforderung zur Anwendung"
+
+@image html dbxcontent-media-281-content-tree-offen.png "Wenn der Content Tree offen ist, wird links die Seitenstruktur mit Ordnern und Seiten erklärt."
+
+@image html dbxcontent-media-283-ordner-und-seiten.png "Ordner können aufgeklappt werden. Ein Klick auf eine Seite lädt rechts die Bearbeitung."
+
+@image html dbxcontent-media-276-dbxki-men.png "Im geöffneten dbxKi-Menü liegen KI-Aufträge für Content und Module."
+
+@image html dbxcontent-media-285-titel-und-permalink.png "Titel, Permalink und Status beschreiben die Seite und ihre URL."
+
+@image html dbxcontent-media-284-sprachen-und-aktionen.png "Die kleinen Sprach- und Aktionssymbole zeigen vorhandene Sprachversionen und Bearbeitungsfunktionen."
+
+@image html dbxcontent-media-277-frontend-cms-men.png "Dieses geöffnete Menü startet Bearbeitungen direkt aus der Frontpage heraus."
+
+@image html dbxcontent-media-288-editor.png "Im Editor schreiben Sie den eigentlichen Seiteninhalt."
+
+@image html dbxcontent-media-291-rechter-cms-bereich.png "Rechts steuern Sie Medienverwendung für Hero, Gallery und Inline-Medien."
+
+@image html dbxcontent-media-308-content-ndern.png "Bei Änderungen bleibt die vorhandene Seite Bezugspunkt. Die KI überarbeitet nur die gewählten Bereiche."
+
+@image html dbxcontent-media-309-seite-bersetzen.png "Eine vorhandene Seite wird in eine Ziel-Sprache übertragen."
+
+@image html dbxcontent-media-310-sprache-komplett.png "Die Struktur einer Ausgangssprache kann komplett in Zielsprachen übernommen werden."
+
+@image html dbxcontent-media-395-tutorial-admin-dashboard-status-health.webp "Status & Health: Laufzeiten, Systemzustand, Kontakte und Meldungen gemeinsam prüfen."
+
+@image html dbxcontent-media-396-tutorial-admin-dashboard-kennzahlen.webp "Kennzahlen: aktuelle Mengen, Betriebswerte und ihre Veränderung einordnen."
+
+@image html dbxcontent-media-397-tutorial-admin-dashboard-schnellzugriff.webp "Schnellzugriff: häufige Verwaltungsbereiche ohne Umweg öffnen."
+
+@image html dbxcontent-media-398-tutorial-admin-dashboard-systemmeldungen.webp "Systemmeldungen: Protokollstufe festlegen und technische Ereignisse gezielt filtern."
+
+@image html dbxcontent-media-399-tutorial-admin-dashboard-sessions.webp "Sessions: Speicherung, Benutzerkontext und aufgerufene Modulpfade nachvollziehen."
+
+@image html dbxcontent-media-400-tutorial-admin-dashboard-performance.webp "Performance: Aufzeichnungsstufe und durchschnittliche PHP- und DB-Laufzeiten vergleichen."
+
+@image html dbxcontent-media-401-tutorial-admin-dashboard-content-cache.webp "Content-Cache: Schreibstatus, vorhandene Gastseiten, Sitemap und Sprachwerte kontrollieren."
+
+@image html dbxcontent-media-402-tutorial-admin-dashboard-diagramme.webp "Diagramme: relative Systemmengen sowie Trace-, Missing-, Laufzeit- und Speicherwerte lesen."
+
+@image html dbxcontent-media-403-tutorial-admin-dashboard-aktivit-t.webp "Aktivität: letzte Datenänderungen mit DataDictionary, Datensatz und Zeitpunkt nachvollziehen."
+
+@image html dbxcontent-media-404-tutorial-admin-dashboard-datenbanken.webp "Datenbanken: Datenquellen, Datensatzanzahl, relative Größe und Verfügbarkeit prüfen."
+
+@htmlonly
+</div>
+@endhtmlonly
+
+@note Quelle: deutsche dbxContent-Seite `content_de#89`. Generiert am 28. Juli 2026 über DD, dbxDB und Medienzuordnungen.
+
+*/

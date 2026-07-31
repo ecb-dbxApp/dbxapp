@@ -8,7 +8,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{dbx:title}</title>{dbx:head_meta}
+    <title>{dbx:document_title}</title>{dbx:head_meta}
+
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="favicon.png">
 
     <!-- base href wird vom System automatisch ergänzt -->
     <!-- {dbx:base_href} -->
@@ -26,7 +30,7 @@
          ===================================================== -->
     <link rel="stylesheet" href="dbx/design/dbxapp/css/colors.css?v=40">
     <link rel="stylesheet" href="{dbx:skin_css}?v=36">
-    <link rel="stylesheet" href="dbx/design/dbxapp/css/base.css?v=31">
+    <link rel="stylesheet" href="dbx/design/dbxapp/css/base.css?v=32">
     <link rel="stylesheet" href="dbx/design/dbxapp/css/theme.css?v=31">
     <link rel="stylesheet" href="dbx/design/dbxapp/css/glass-3d.css?v=9">
 </head>
@@ -87,7 +91,7 @@
                 <strong id="dbxScriptRuntime" data-dbx-runtime data-dbx-php-runtime="">...</strong>
             </span>
             <a href="datenschutz" class="dbx-footer-consent-link dbx-win" data-dbx="lib=openWin|url=datenschutz|title=Datenschutz|width=900|height=95%|position=center-top|reload=1|minimizable=1|maximizable=1">Datenschutz</a>
-             <span class="dbx-footer-brand">© dbXapp</span>
+             <span class="dbx-footer-brand">© {dbx:brand}</span>
         </div>
     </footer>
 
@@ -110,6 +114,6 @@
      DESIGN JS – dbxapp
      ========================================================= -->
 <script src="dbx/vendor/components/jquery/jquery.min.js"></script>
-<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v=79"></script>
+<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v=90"></script>
 </body>
 </html>

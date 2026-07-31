@@ -1,0 +1,50 @@
+/* Skin: gruen – gruenes Akzent-Schema */
+:root {
+    --dbx-primary:         #198754;
+    --dbx-text-link:       #157347;
+    --dbx-focus-ring:      rgba(25, 135, 84, 0.28);
+
+    --dbx-panel-bg-top:            rgba(244,252,247,0.98);
+    --dbx-panel-bg-bottom:         rgba(220,242,228,0.98);
+    --dbx-panel-bg-base:           #ecf7f0;
+    --dbx-panel-head-bg-top:       rgba(232, 248, 238, 0.98);
+    --dbx-panel-head-bg-bottom:    rgba(190, 225, 200, 0.98);
+    --dbx-panel-head-border:       rgba(40, 110, 72, .24);
+    --dbx-panel-head-text:         #1a4a32;
+    --dbx-panel-inset-highlight:   rgba(255, 255, 255, 0.90);
+    --dbx-panel-inset-shadow:      rgba(40, 110, 72, 0.18);
+    --dbx-panel-shadow:              0 12px 26px rgba(30, 90, 55, 0.14), 0 3px 8px rgba(30, 90, 55, 0.10);
+    --dbx-bar-icon-color:          #1f4d34;
+    --dbx-bar-outset-light:        rgba(255, 255, 255, 0.85);
+    --dbx-bar-inset-dark:          rgba(40, 110, 72, 0.20);
+    --dbx-menu-glass-light:        rgba(255, 255, 255, 0.50);
+    --dbx-menu-glass-shadow:       rgba(30, 90, 55, 0.16);
+    --dbx-panel-inner-bg-bottom:   #f6fcf8;
+    --dbx-panel-border:            #a8d4b8;
+    --dbx-report-row-striped-bg:   #dff3e8;
+
+    --dbx-menu-mobile-panel-main-bottom:   rgba(230,245,236,0.97);
+    --dbx-menu-mobile-panel-admin-top:     rgba(190,225,200,0.97);
+    --dbx-menu-mobile-panel-admin-bottom:  rgba(150,200,168,0.97);
+    --dbx-bg-menu-main-top:         rgba(210,240,220,0.96);
+    --dbx-bg-menu-main-bottom:      rgba(160,215,178,0.96);
+    --dbx-bg-menu-admin-top:        rgba(47,117,82,0.98);
+    --dbx-bg-menu-admin-bottom:     rgba(24,70,47,0.99);
+    --dbx-menu-main-text:           #163c28;
+    --dbx-menu-admin-text:          #f7fff9;
+    --dbx-menu-accent-glow:         rgba(25,135,84,0.42);
+    --dbx-submenu-bg-bottom:        rgba(230,245,236,0.97);
+    --dbx-submenu-admin-bg-top:     var(--dbx-bg-menu-admin-top);
+    --dbx-submenu-admin-bg-bottom:  var(--dbx-bg-menu-admin-bottom);
+
+    --dbx-window-header-modal:      #146c43;
+    --dbx-window-footer-bg:         rgba(25,135,84,0.10);
+
+    --dbx-grid-header-top:          rgba(225,245,232,0.95);
+    --dbx-grid-header-bottom:       rgba(185,225,198,0.95);
+    --dbx-grid-col-top:             #d4f0de;
+    --dbx-grid-col-bottom:          #a8dbb8;
+    --dbx-grid-col-hover-top:       #c2e8ce;
+    --dbx-grid-col-hover-bottom:    #92cfa6;
+    --dbx-grid-col-text:            #1f4d34;
+}

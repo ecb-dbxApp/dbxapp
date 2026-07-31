@@ -28,6 +28,10 @@ $manualScopeAllowlist = array(
       'Tokenausgabe fuer erneuten Versand der Registrierung',
    'dbxLogin/include/register.class.php' =>
       'Tokenpruefung fuer erneuten Versand der Registrierung',
+   'dbxSetup/include/dbxInstall.class.php' =>
+      'zustandsgebundene Schritte des Erstinstallationsassistenten',
+   'dbxSelfTest/include/dbxSelfTestController.class.php' =>
+      'JSON-Testorchestrierung mit eigenem, admininternem Aktionsscope',
    'dbxShop_admin/include/dbxShopAdmin.class.php' =>
       'Shop-Sammel-, Medien-, Installations- und Statusaktionen',
    'dbxWorkflow/include/dbxWorkflowEngine.class.php' =>

@@ -1,4 +1,4 @@
-<?php 
+<?php
 $config['enabled'] = true;
 $config['version'] = '0.1.0';
 $config['activ'] = '1';
@@ -20,6 +20,10 @@ $config['checkout_guest_allowed'] = true;
 $config['demo_notice_enabled'] = true;
 $config['legal_snapshot_enabled'] = true;
 $config['withdrawal_button_enabled'] = true;
+$config['mail_profile'] = 'dbxApp';
+$config['mail_from'] = 'shop@dbxapp.de';
+$config['mail_from_name'] = 'dbxShop';
+$config['mail_admin_to'] = '';
 $config['payment_bank_transfer_enabled'] = true;
 $config['payment_bank_transfer_account_owner'] = '';
 $config['payment_bank_transfer_iban'] = '';

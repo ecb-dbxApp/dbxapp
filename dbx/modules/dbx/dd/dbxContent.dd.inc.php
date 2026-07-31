@@ -353,6 +353,27 @@ $field['js']='';
 $field['prompt']='';
 $fields[]=$field;
 
+$field['name']='menu_title';
+$field['type']='varchar';
+$field['index']='';
+$field['length']='96';
+$field['default']='';
+$field['label']='menu_title';
+$field['rules']='varchar|max=96';
+$field['tooltip']='Short optional label for navigation and menus.';
+$field['errormsg']='';
+$field['placeholder']='';
+$field['convert']='';
+$field['protect']='0';
+$field['group']='';
+$field['mask']='';
+$field['data']='';
+$field['options']='';
+$field['tpl']='text-label';
+$field['js']='';
+$field['prompt']='';
+$fields[]=$field;
+
 $field['name']='permalink';
 $field['type']='varchar';
 $field['index']='';
@@ -1365,7 +1386,7 @@ $fields[]=$field;
 /* =========================================================
    INDEXES
    ========================================================= */
-$index['name']='idx_content_folder';
+$index['name']='idx_content_' . $__dbx_lng_dd . '_folder';
 $index['type']='INDEX';
 $index['fields']='folder';
 $index['unique']='0';
@@ -1377,4 +1398,18 @@ $index['type']='UNIQUE';
 $index['fields']='permalink';
 $index['unique']='1';
 $index['comment']='unique stable permalink';
+$indexes[]=$index;
+
+$index['name']='idx_content_' . $__dbx_lng_dd . '_title';
+$index['type']='INDEX';
+$index['fields']='title';
+$index['unique']='0';
+$index['comment']='title lookup and sorting';
+$indexes[]=$index;
+
+$index['name']='idx_content_' . $__dbx_lng_dd . '_lng_uid';
+$index['type']='INDEX';
+$index['fields']='lng_uid';
+$index['unique']='0';
+$index['comment']='language sync lookup';
 $indexes[]=$index;

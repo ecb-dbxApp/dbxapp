@@ -1,0 +1,315 @@
+/**
+@page dbxcontent_tutorial_tutorial_admin_dashboard Tutorial: Admin Dashboard
+
+<!-- Automatisch aus content_de#81 erzeugt. Nicht direkt bearbeiten. -->
+
+@htmlonly
+<div class="dbx-doc-meta"><span>Anwender-Tutorial</span><span>dbxContent #81</span><span>Permalink: <code>tutorial-admin-dashboard</code></span></div>
+@endhtmlonly
+
+> **Kurzbeschreibung:** Alle Bereiche des dbxapp Admin-Dashboards: Status, Kennzahlen, Meldungen, Sessions, Performance, Cache, Diagramme, Aktivität und Datenbanken.
+
+@htmlonly
+<div class="dbx-tutorial-source">
+<p class="lead">Das Admin-Dashboard ist die zentrale Betriebsübersicht von dbxapp. Es zeigt Systemzustand, Laufzeiten, Sitzungen, Protokolle, Cache, Datenbanken und die zuletzt ausgeführten Änderungen. Dieses Tutorial erklärt jeden Bereich Schritt für Schritt.</p>
+
+<div class="alert alert-info"><strong>Hinweis zu den Bildern:</strong> Die Screenshots zeigen echte Beispielwerte. Zahlen, Zeitstempel und Listen ändern sich im laufenden Betrieb. Wichtig sind Bedeutung, Richtung und Zusammenhang der Werte – nicht der konkrete Wert im Bild.</div>
+
+<h2>Dashboard öffnen und bedienen</h2>
+<ol>
+  <li>Melden Sie sich mit einem Benutzer an, der den Admin-Bereich lesen darf.</li>
+  <li>Öffnen Sie im oberen Menü <strong>ADMIN</strong>. Die Startseite des Admin-Moduls zeigt das Dashboard.</li>
+  <li>Wählen Sie links einen Bereich. Der Inhalt rechts wird gewechselt, ohne dass Sie das gesamte Dashboard verlassen.</li>
+  <li>Lesen Sie zuerst <strong>Status &amp; Health</strong>, danach <strong>Systemmeldungen</strong> und <strong>Performance</strong>. So sehen Sie zuerst den Gesamtzustand und anschließend die Ursache möglicher Auffälligkeiten.</li>
+</ol>
+
+<table class="table table-striped">
+  <thead><tr><th>Gruppe</th><th>Bereiche</th><th>Zweck</th></tr></thead>
+  <tbody>
+    <tr><td>Übersicht</td><td>Status &amp; Health, Kennzahlen, Schnellzugriff</td><td>Schneller Überblick und direkte Einstiege.</td></tr>
+    <tr><td>Monitoring</td><td>Systemmeldungen, Sessions, Performance, Content-Cache</td><td>Laufenden Betrieb prüfen und technische Ursachen eingrenzen.</td></tr>
+    <tr><td>Auswertung</td><td>Diagramme, Aktivität, Datenbanken</td><td>Entwicklung, letzte Änderungen und Datenbestände beurteilen.</td></tr>
+  </tbody>
+</table>
+
+<h2>1. Status &amp; Health – den Gesamtzustand lesen</h2>
+<p>Dieser Bereich ist die erste Anlaufstelle. Er verbindet gemessene Laufzeiten mit Systemmeldungen und Kontakten. Die drei Instrumente zeigen Durchschnittswerte aus bereits aufgezeichneten Requests.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=395</code></span>
+  <figcaption class="small text-muted mt-2">Status &amp; Health: Request-, PHP- und DB-Laufzeit, Systemzustand sowie Verteilung von Kontakten und Systemmeldungen.</figcaption>
+</figure>
+
+<h3>Die Anzeigen richtig einordnen</h3>
+<ul>
+  <li><strong>Request gesamt:</strong> durchschnittliche Gesamtdauer eines Requests. Darin stecken PHP-Verarbeitung, Datenbankzugriffe und weitere Arbeit des Requests.</li>
+  <li><strong>PHP gesamt:</strong> durchschnittliche Laufzeit ohne den ausgewiesenen DB-Anteil. Steigt nur dieser Wert, liegt die Ursache eher in PHP, Modulen, Templates oder externer Verarbeitung.</li>
+  <li><strong>DB gesamt:</strong> durchschnittliche Summe der Datenbank-Timer. Ein auffällig hoher Anteil weist auf langsame Abfragen, große Datenmengen oder viele einzelne Zugriffe hin.</li>
+  <li><strong>Systemzustand:</strong> zusammengefasster Gesundheitswert. Die Begründung darunter nennt, ob Warnungen oder Fehler berücksichtigt wurden.</li>
+  <li><strong>Kontakte:</strong> verteilt Anfragen nach Offen, In Arbeit, Rückfrage, Beantwortet und Geschlossen.</li>
+  <li><strong>SysMsg:</strong> verteilt gespeicherte Meldungen nach Info, Warning, Error und Security.</li>
+</ul>
+
+<h3>So prüfen Sie eine Auffälligkeit</h3>
+<ol>
+  <li>Vergleichen Sie <strong>Request gesamt</strong> mit <strong>PHP gesamt</strong> und <strong>DB gesamt</strong>.</li>
+  <li>Öffnen Sie bei Meldungen den Bereich <strong>Systemmeldungen</strong> und filtern Sie nach Warning, Error oder Security.</li>
+  <li>Öffnen Sie bei hoher Laufzeit <strong>Performance</strong> und suchen Sie das betroffene Modul.</li>
+  <li>Prüfen Sie bei hohem DB-Anteil zusätzlich <strong>Datenbanken</strong> und den DB-Sync.</li>
+</ol>
+<div class="alert alert-warning"><strong>Wichtig:</strong> Ein einzelner langsamer Request ist noch kein Dauerfehler. Beurteilen Sie Durchschnitt, Verlauf und passende Meldungen gemeinsam.</div>
+
+<h2>2. Kennzahlen – Umfang und Entwicklung überblicken</h2>
+<p>Die Kennzahlenkarten fassen die wichtigsten Mengen und Betriebswerte zusammen. Der große Wert ist der aktuelle Stand; die kleinere Zeile erklärt die Bezugsgröße. Der Verlauf zeigt die Veränderung gegenüber dem zuvor gespeicherten Dashboard-Stand.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=396</code></span>
+  <figcaption class="small text-muted mt-2">Kennzahlen: Benutzer, Online-Sitzungen, Module, Datensätze, Datenbanken, Systemzustand, Request-Zeit und DBX-Speicher.</figcaption>
+</figure>
+
+<table class="table table-striped">
+  <thead><tr><th>Karte</th><th>Bedeutung</th><th>Darauf achten</th></tr></thead>
+  <tbody>
+    <tr><td>Benutzer</td><td>Anzahl der Benutzer und aktuell aktive Benutzer.</td><td>Unerwartete Änderungen oder fehlende aktive Konten.</td></tr>
+    <tr><td>Online</td><td>Aktuelle Online-Einträge und gespeicherte Sessions.</td><td>Ungewöhnlich viele Sitzungen oder lange nicht bereinigte Einträge.</td></tr>
+    <tr><td>Module</td><td>Gefundene Module und definierte DataDictionaries.</td><td>Rückgang nach Deployment oder fehlende DD-Definitionen.</td></tr>
+    <tr><td>Datensätze</td><td>Gesamtzahl der Datensätze und berücksichtigte Tabellen.</td><td>Große Sprünge nach Import, Bereinigung oder Synchronisation.</td></tr>
+    <tr><td>Datenbanken</td><td>Erkannte Datenquellen und erfolgreich verfügbare Quellen.</td><td>Quellen, die nicht mehr als verfügbar gemeldet werden.</td></tr>
+    <tr><td>Systemzustand</td><td>Gesundheitswert und Anzahl relevanter Warnungen/Fehler.</td><td>Sinkender Prozentwert zusammen mit neuen Meldungen.</td></tr>
+    <tr><td>Speed</td><td>Laufzeit des aktuellen PHP-Requests in Millisekunden.</td><td>Wiederholt hohe Werte, nicht nur einen einzelnen Ausschlag.</td></tr>
+    <tr><td>DBX Memory</td><td>Spitzenverbrauch des Requests in Kilobyte.</td><td>Starkes Wachstum nach Modul- oder Datenänderungen.</td></tr>
+  </tbody>
+</table>
+<p>Ein positiver oder negativer Verlauf ist nicht automatisch gut oder schlecht: Mehr Datensätze können erwartet sein, mehr Laufzeit dagegen nicht. Prüfen Sie immer, was sich fachlich geändert hat.</p>
+
+<h2>3. Schnellzugriff – häufige Aufgaben direkt öffnen</h2>
+<p>Der Schnellzugriff ersetzt mehrere Menüwege. Jeder Knopf öffnet den zugehörigen Verwaltungsbereich.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=397</code></span>
+  <figcaption class="small text-muted mt-2">Schnellzugriff: direkte Sprünge zu Benutzer, Sessions, Module, DD Sync, DB Sync und SysMsg.</figcaption>
+</figure>
+<ul>
+  <li><strong>Benutzer:</strong> Konten, Rollen, Status, Verifizierung und Benutzeraktionen verwalten.</li>
+  <li><strong>Sessions:</strong> aktive und gespeicherte Sitzungen prüfen.</li>
+  <li><strong>Module:</strong> installierte Module und deren Status kontrollieren.</li>
+  <li><strong>DD Sync:</strong> DataDictionary-Definitionen mit dem erkannten Stand abgleichen.</li>
+  <li><strong>DB Sync:</strong> Tabellen und Datenbankstrukturen prüfen beziehungsweise synchronisieren.</li>
+  <li><strong>SysMsg:</strong> vollständiges Systemmeldungsprotokoll öffnen.</li>
+</ul>
+<div class="alert alert-info"><strong>Empfehlung:</strong> Verwenden Sie DD Sync und DB Sync nach Moduländerungen kontrolliert. Lesen Sie zuerst die angezeigten Unterschiede und sichern Sie produktive Datenbanken nach Ihrem Betriebsverfahren.</div>
+
+<h2>4. Systemmeldungen – Fehler und Sicherheitsereignisse finden</h2>
+<p>Systemmeldungen protokollieren technische Ereignisse. Ob nur Fehler oder zusätzlich Warnungen und weitere Meldungen gespeichert werden, wird oben im Bereich eingestellt.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=398</code></span>
+  <figcaption class="small text-muted mt-2">Systemmeldungen: Protokollstufe festlegen, Meldungen filtern und den technischen Kontext lesen.</figcaption>
+</figure>
+
+<h3>Protokollstufe</h3>
+<ul>
+  <li><strong>Nur Error:</strong> speichert ausschließlich Fehlermeldungen.</li>
+  <li><strong>Error + Warning:</strong> speichert Fehler und Warnungen; das ist ein sinnvoller Betriebsmodus mit überschaubarem Umfang.</li>
+  <li><strong>Alles:</strong> speichert alle Systemmeldungen und liefert den meisten Diagnosekontext, erzeugt aber mehr Daten.</li>
+</ul>
+
+<h3>Eine Meldung untersuchen</h3>
+<ol>
+  <li>Sortieren Sie zunächst nach <strong>Create</strong> absteigend.</li>
+  <li>Filtern Sie bei Störungen nach <strong>Error</strong>, <strong>Fatal</strong>, <strong>Security</strong> oder <strong>Warning</strong>.</li>
+  <li>Lesen Sie <strong>Bereich</strong>, <strong>Modul</strong>, <strong>Action</strong> und <strong>Work</strong> zusammen. Diese Spalten beschreiben, wo die Meldung entstand.</li>
+  <li>Verwenden Sie <strong>RID</strong> und <strong>User</strong>, um den betroffenen Datensatz oder Benutzer einzugrenzen.</li>
+  <li>Lesen Sie die Nachricht vollständig. Angaben wie <code>why</code> und <code>what</code> erklären Ursache und Kontext.</li>
+  <li>Beheben Sie zuerst die Ursache und laden Sie den betroffenen Ablauf erneut. Löschen Sie Meldungen erst danach, wenn Ihr Betriebs- oder Aufbewahrungskonzept das erlaubt.</li>
+</ol>
+<div class="alert alert-danger"><strong>Achtung:</strong> „Ausgewählte löschen“ und der Papierkorb entfernen Diagnoseinformationen. Vor dem Löschen prüfen, ob die Meldung noch für Fehleranalyse oder Sicherheitsnachweis gebraucht wird.</div>
+
+<h2>5. Sessions – aktive und gespeicherte Sitzungen prüfen</h2>
+<p>Der Session-Bereich zeigt, welche Requests beziehungsweise Sitzungen gespeichert wurden. Der Schalter <strong>Session-DB</strong> steuert, ob normale HTTP- und HTML-AJAX-Requests ihre Session am Request-Ende in die Datenbank schreiben.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=399</code></span>
+  <figcaption class="small text-muted mt-2">Sessions: Speicherung aktivieren, Sitzungen filtern und den zuletzt aufgerufenen Modulpfad nachvollziehen.</figcaption>
+</figure>
+
+<ul>
+  <li><strong>Zugriff:</strong> Zeitpunkt des gespeicherten Requests.</li>
+  <li><strong>User und IP:</strong> zugeordneter Benutzer und Quelladresse.</li>
+  <li><strong>Design, Page, Color und Lng:</strong> Oberflächenkontext der Sitzung.</li>
+  <li><strong>Modul, Run1 und Run2:</strong> aufgerufener dbxapp-Bereich und Arbeitsschritt.</li>
+  <li><strong>Edit:</strong> zeigt den Bearbeitungsmodus.</li>
+  <li><strong>Request:</strong> Kennzeichen für den gespeicherten Request.</li>
+</ul>
+
+<h3>Session-DB ein- oder ausschalten</h3>
+<ol>
+  <li>Ändern Sie den Schalter nur, wenn Sie wissen, ob die Sitzungsliste für Betrieb oder Diagnose benötigt wird.</li>
+  <li>Klicken Sie auf <strong>Speichern</strong>. Der Statusblock bestätigt „Session-DB aktiv“ oder „Session-DB inaktiv“.</li>
+  <li>Bei inaktiver Session-DB laufen Sitzungen weiterhin über die PHP-Session; die Datenbankliste wird jedoch nicht fortgeschrieben.</li>
+</ol>
+<div class="alert alert-warning"><strong>Datenschutz und Sicherheit:</strong> Session-Einträge können Benutzer-, IP- und Navigationskontext enthalten. Zugriff, Aufbewahrung und Löschung müssen zum eigenen Datenschutz- und Sicherheitskonzept passen.</div>
+
+<h2>6. Performance – langsame Module eingrenzen</h2>
+<p>Performance zeigt Durchschnittswerte pro Modul. Dadurch erkennen Sie, ob die Zeit überwiegend in PHP oder in Datenbankzugriffen entsteht. Die Anzahl der Requests gibt an, auf welcher Datenbasis der Durchschnitt beruht.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=400</code></span>
+  <figcaption class="small text-muted mt-2">Performance: Aufzeichnungsstufe wählen und die durchschnittlichen PHP- und DB-Werte pro Modul vergleichen.</figcaption>
+</figure>
+
+<h3>Aufzeichnungsstufe wählen</h3>
+<ul>
+  <li><strong>Aus:</strong> schreibt keine neuen Performance-Daten.</li>
+  <li><strong>Nur Hauptkennzahlen:</strong> schreibt PHP/System-, JavaScript- und DB-Gesamtwerte.</li>
+  <li><strong>Hauptkennzahlen und Details:</strong> schreibt zusätzlich Detail-Timer für eine tiefere Analyse.</li>
+</ul>
+
+<h3>Schrittweise Analyse</h3>
+<ol>
+  <li>Suchen Sie das Modul, in dem der langsame Ablauf ausgeführt wurde.</li>
+  <li>Prüfen Sie die Request-Anzahl. Sehr wenige Requests liefern nur einen groben Hinweis.</li>
+  <li>Vergleichen Sie <strong>PHP gesamt</strong> und <strong>DB gesamt</strong>.</li>
+  <li>Ist DB gesamt hoch, prüfen Sie Datenmenge, Tabellenstatus und Detail-Timer. Ist PHP hoch, prüfen Sie Modulcode, Templates, externe Dienste und große Schleifen.</li>
+  <li>Reproduzieren Sie den Ablauf mehrmals unter vergleichbaren Bedingungen und vergleichen Sie danach erneut.</li>
+</ol>
+<p><strong>Komprimieren</strong> wartet die Performance-Datenbank. <strong>Performance DB leeren</strong> entfernt die aufgezeichnete Vergleichsbasis und sollte nur bewusst verwendet werden.</p>
+<div class="alert alert-danger"><strong>Achtung:</strong> Eine höhere Aufzeichnungsstufe erzeugt mehr Diagnoseinformationen und zusätzlichen Schreibaufwand. Aktivieren Sie Details gezielt und setzen Sie die Stufe nach der Untersuchung wieder auf den benötigten Betriebsmodus.</div>
+
+<h2>7. Content-Cache – Gastseiten und Sitemap verwalten</h2>
+<p>Der Content-Cache speichert die vollständige Endausgabe gültiger Permalinks für nicht angemeldete Gäste. Head-Metadaten, Design, Menüs und Module sind in einem Cache-Hit bereits aufgelöst.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=401</code></span>
+  <figcaption class="small text-muted mt-2">Content-Cache: Schreibstatus, Cache-Verzeichnis, Sitemap und die Zahlen je Sprache kontrollieren.</figcaption>
+</figure>
+
+<h3>Der Schalter „Neue Gastseiten cachen“</h3>
+<ul>
+  <li><strong>Aktiv:</strong> vorhandene Cache-Dateien werden gelesen; ein Cache-Miss wird live gerendert und anschließend als vollständige Endausgabe gespeichert.</li>
+  <li><strong>Inaktiv:</strong> vorhandene Cache-Dateien werden weiterhin gelesen und ausgegeben; ein Cache-Miss wird live gerendert, aber nicht neu gespeichert.</li>
+  <li>Das Ausschalten löscht den Cache nicht. Dafür gibt es die getrennte Aktion <strong>Cache leeren</strong>.</li>
+</ul>
+
+<h3>Bedienelemente und Zahlen</h3>
+<ul>
+  <li><strong>Gast-Full-Pages:</strong> Anzahl der gespeicherten vollständigen Seiten.</li>
+  <li><strong>Sitemap:</strong> Anzahl und Status der erzeugten Sitemap-URLs.</li>
+  <li><strong>Cache-Verzeichnis:</strong> physischer Ablageort der Cache-Dateien.</li>
+  <li><strong>Sprachzeilen:</strong> Seiten, aktive Seiten, Ordner und gecachte HTML-Dateien je Sprache.</li>
+  <li><strong>Cache leeren:</strong> entfernt die gespeicherten Gastseiten; folgende Aufrufe sind zunächst Cache-Misses.</li>
+  <li><strong>Sitemap neu erstellen:</strong> baut die Sitemap aus dem aktuellen Content-Stand neu auf.</li>
+  <li><strong>CMS:</strong> öffnet die Content-Verwaltung.</li>
+</ul>
+<div class="alert alert-warning"><strong>Nach Content-Änderungen:</strong> Prüfen Sie die Seite als Gast. Wenn eine veraltete Ausgabe sichtbar bleibt, leeren Sie gezielt den Content-Cache und rufen Sie die Seite erneut auf. Bei geänderten Permalinks zusätzlich die Sitemap neu erstellen.</div>
+
+<h2>8. Diagramme – Größenverhältnisse schnell erkennen</h2>
+<p>Das Balkendiagramm stellt zentrale Mengen relativ zueinander dar: Benutzer, Online-Einträge, Module, DataDictionaries und Datenbanken. Die Zahlen über den Balken bleiben maßgeblich; die Balkenhöhe erleichtert nur den Vergleich.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=402</code></span>
+  <figcaption class="small text-muted mt-2">Diagramme: relative Verteilung der Systemmengen und ergänzende Werte zu Trace, Missing, Request-Zeit und Speicher.</figcaption>
+</figure>
+
+<p>Unter dem Diagramm stehen ergänzende technische Kennzahlen:</p>
+<ul>
+  <li><strong>Trace-Einträge:</strong> Zahl der aktuell berücksichtigten Aktivitäts- beziehungsweise Trace-Einträge.</li>
+  <li><strong>Missing:</strong> protokollierte fehlende Ressourcen. Ein Wert größer null sollte im Bereich dbxMissing geprüft werden.</li>
+  <li><strong>AutoSync-DDs:</strong> DataDictionaries mit aktivem automatischem Abgleich.</li>
+  <li><strong>Trace-DDs:</strong> DataDictionaries, deren Änderungen im Trace erfasst werden.</li>
+  <li><strong>ms Request:</strong> Laufzeit des aktuellen Requests.</li>
+  <li><strong>KB DBX Memory:</strong> Speicherverbrauch des aktuellen Requests.</li>
+</ul>
+<p>Verwenden Sie die Diagramme als Frühwarnung: Eine unerwartete Veränderung führt zur Detailprüfung in Kennzahlen, Systemmeldungen, Performance oder Datenbanken.</p>
+
+<h2>9. Aktivität – letzte Änderungen nachvollziehen</h2>
+<p>Aktivität zeigt die jüngsten protokollierten Änderungen. Typische Aktionen sind Insert, Update oder Delete. Angezeigt werden das betroffene DataDictionary beziehungsweise der Datensatz und der Zeitstempel.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=403</code></span>
+  <figcaption class="small text-muted mt-2">Aktivität: letzte Datenänderungen mit Aktion, DataDictionary/Datensatz und Zeitpunkt.</figcaption>
+</figure>
+
+<h3>So lesen Sie einen Eintrag</h3>
+<ol>
+  <li>Die erste Zeile nennt die Aktion, zum Beispiel <strong>Insert</strong>.</li>
+  <li>Die zweite Zeile nennt das DataDictionary und häufig die Datensatz-ID, zum Beispiel <code>dbxMediaUsage #3763</code>.</li>
+  <li>Rechts steht der genaue Zeitpunkt.</li>
+  <li>Ordnen Sie den Eintrag einer gerade ausgeführten Admin-, Import-, CMS- oder Workflow-Aktion zu.</li>
+  <li>Bei einer unbekannten oder unerwarteten Änderung prüfen Sie passende Systemmeldungen, Benutzerkontext und den betroffenen Datensatz.</li>
+</ol>
+<div class="alert alert-info"><strong>Einordnung:</strong> Die Aktivitätsliste ist eine kompakte Betriebssicht. Ob sie als vollständiges revisionssicheres Auditprotokoll ausreicht, hängt von der Trace-Konfiguration und den eigenen Anforderungen ab.</div>
+
+<h2>10. Datenbanken – Datenquellen und Tabellenzustand prüfen</h2>
+<p>Der Datenbankreport zeigt die größten beziehungsweise wichtigsten erkannten Datenquellen. Angegeben werden DataDictionary, Server/Datei und Tabelle, relative Auslastung, Datensatzanzahl und Status.</p>
+<figure class="mb-4 dbx-cms-inline-media" data-cms-media-slot="inline">
+  <span class="dbx-runtime-route"><strong></strong><code>index.php?dbx_modul=dbxContent&amp;dbx_run1=media&amp;dbx_mid=404</code></span>
+  <figcaption class="small text-muted mt-2">Datenbanken: Datenquelle, relative Größe, Datensatzanzahl und Verfügbarkeitsstatus.</figcaption>
+</figure>
+
+<ul>
+  <li><strong>Datenquelle:</strong> Name des DataDictionarys sowie zugehörige Datenbankdatei und Tabelle.</li>
+  <li><strong>Auslastung:</strong> relativer Balken im Vergleich zur größten angezeigten Quelle. Er ist kein Festplattenfüllstand.</li>
+  <li><strong>Anzahl:</strong> aktuell ermittelte Datensatzanzahl.</li>
+  <li><strong>Status ok:</strong> Quelle und Tabelle wurden gefunden. Ein fehlender Status muss über DD- und DB-Sync untersucht werden.</li>
+  <li><strong>DB Sync:</strong> öffnet die Synchronisationsprüfung für Datenbankstrukturen.</li>
+</ul>
+
+<h3>Bei einer fehlenden oder unerwarteten Quelle</h3>
+<ol>
+  <li>Notieren Sie DD-Name, Datenbankdatei und Tabelle.</li>
+  <li>Öffnen Sie <strong>DD Sync</strong> und prüfen Sie die Definition.</li>
+  <li>Öffnen Sie <strong>DB Sync</strong> und lesen Sie die Strukturunterschiede.</li>
+  <li>Prüfen Sie Systemmeldungen auf DB- oder Zugriffsfehler.</li>
+  <li>Führen Sie eine Strukturänderung erst nach Prüfung und nach dem vorgesehenen Sicherungsverfahren aus.</li>
+</ol>
+
+<h2>Empfohlener Kontrollablauf</h2>
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+  <div class="col"><div class="card h-100"><div class="card-body"><span class="badge bg-primary mb-2">Täglich</span><h3 class="h5">Betrieb prüfen</h3><p class="mb-0">Status &amp; Health, Systemmeldungen, Kontakte, Cache-Status und auffällige Aktivitäten kontrollieren.</p></div></div></div>
+  <div class="col"><div class="card h-100"><div class="card-body"><span class="badge bg-primary mb-2">Bei Störung</span><h3 class="h5">Ursache eingrenzen</h3><p class="mb-0">Meldung filtern, betroffenen Modulpfad bestimmen, PHP/DB-Anteil vergleichen und Ablauf reproduzieren.</p></div></div></div>
+  <div class="col"><div class="card h-100"><div class="card-body"><span class="badge bg-primary mb-2">Regelmäßig</span><h3 class="h5">Bestand bewerten</h3><p class="mb-0">Kennzahlen, Diagramme, Sessions, Performance-Daten und Datenbankstatus nach dem eigenen Betriebskonzept prüfen.</p></div></div></div>
+</div>
+
+<h2>Typische Fragen</h2>
+<table class="table table-striped">
+  <thead><tr><th>Beobachtung</th><th>Nächster Schritt</th></tr></thead>
+  <tbody>
+    <tr><td>Systemzustand sinkt</td><td>Systemmeldungen nach Warning, Error und Security filtern.</td></tr>
+    <tr><td>Request ist langsam, DB aber niedrig</td><td>Performance pro Modul und PHP-Anteil untersuchen.</td></tr>
+    <tr><td>DB-Anteil ist hoch</td><td>Detail-Timer, Datenmengen, Tabellenstatus und DB-Sync prüfen.</td></tr>
+    <tr><td>Geänderte Seite erscheint für Gäste veraltet</td><td>Content-Cache prüfen und bei Bedarf bewusst leeren.</td></tr>
+    <tr><td>Missing ist größer null</td><td>dbxMissing öffnen und fehlende CSS-, JavaScript-, Bild- oder sonstige Ressourcen prüfen.</td></tr>
+    <tr><td>Viele Sessions erscheinen</td><td>Zeitraum, Benutzer/IP, Modulpfad und Aufbewahrungsregeln kontrollieren.</td></tr>
+    <tr><td>Datenquelle fehlt</td><td>DD Sync, DB Sync und Systemmeldungen gemeinsam prüfen.</td></tr>
+  </tbody>
+</table>
+
+<p class="mt-4"><span class="dbx-runtime-route"><strong>Admin-Dashboard öffnen</strong><code>?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard</code></span><a href="dbxcontent_tutorial_tutorials_dbxapp.html">Alle Tutorials</a></p>
+</div>
+@endhtmlonly
+
+## Screenshots aus dbxContent (2)
+
+@htmlonly
+<div class="dbx-tutorial-gallery">
+@endhtmlonly
+@image html dbxcontent-media-375-dbxapp-mobile.webp "dbxapp Mobile"
+
+@image html dbxcontent-media-377-dbxapp-ki.webp "dbxapp KI"
+
+@htmlonly
+</div>
+@endhtmlonly
+
+@note Quelle: deutsche dbxContent-Seite `content_de#81`. Generiert am 28. Juli 2026 über DD, dbxDB und Medienzuordnungen.
+
+@htmlonly
+<div class="dbx-doxygen-image-deps" aria-hidden="true">
+@endhtmlonly
+@image html dbxcontent-media-395-tutorial-admin-dashboard-status-health.webp
+@image html dbxcontent-media-396-tutorial-admin-dashboard-kennzahlen.webp
+@image html dbxcontent-media-397-tutorial-admin-dashboard-schnellzugriff.webp
+@image html dbxcontent-media-398-tutorial-admin-dashboard-systemmeldungen.webp
+@image html dbxcontent-media-399-tutorial-admin-dashboard-sessions.webp
+@image html dbxcontent-media-400-tutorial-admin-dashboard-performance.webp
+@image html dbxcontent-media-401-tutorial-admin-dashboard-content-cache.webp
+@image html dbxcontent-media-402-tutorial-admin-dashboard-diagramme.webp
+@image html dbxcontent-media-403-tutorial-admin-dashboard-aktivit-t.webp
+@image html dbxcontent-media-404-tutorial-admin-dashboard-datenbanken.webp
+@htmlonly
+</div>
+@endhtmlonly
+
+*/

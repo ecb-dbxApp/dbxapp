@@ -1,3 +1,9 @@
+<!-- Preload the large CMS assets that are always required. The feature
+     loader still controls ordering and initialization. -->
+<link rel="preload" href="dbx/js/lib/cms.js?v=90" as="script" fetchpriority="low">
+<link rel="preload" href="dbx/vendor/jodit/jodit.fat.min.js?v=90" as="script" fetchpriority="low">
+<link rel="preload" href="dbx/vendor/jodit/jodit.fat.min.css?v=90" as="style" fetchpriority="low">
+<link rel="preload" href="dbx/design/{dbx:design}/css/c-cms.css?v=90" as="style" fetchpriority="low">
 <div id="dbx_content_cms_{i}"
      class="dbx-panel dbx-cms dbxReport"
      data-cms-messages="{cms_messages}"

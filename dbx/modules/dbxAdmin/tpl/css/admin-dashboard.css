@@ -22,6 +22,63 @@
    min-width: 0;
 }
 
+.dbx-admin-dashboard-password-warning {
+   display: flex;
+   align-items: center;
+   gap: 14px;
+   margin-bottom: 18px;
+   padding: 16px 18px;
+   border: 1px solid color-mix(in srgb, var(--dbx-admin-amber) 70%, #7b4c00);
+   border-radius: 14px;
+   background:
+      linear-gradient(135deg, rgba(255, 244, 204, .98), rgba(255, 226, 151, .94));
+   color: #3d2a09;
+   box-shadow: 0 8px 24px rgba(111, 72, 8, .13);
+}
+
+.dbx-admin-dashboard-password-warning-icon {
+   display: grid;
+   width: 46px;
+   height: 46px;
+   flex: 0 0 46px;
+   border-radius: 13px;
+   background: rgba(201, 132, 27, .17);
+   color: #8a5607;
+   font-size: 1.5rem;
+   place-items: center;
+}
+
+.dbx-admin-dashboard-password-warning-copy {
+   display: grid;
+   flex: 1 1 auto;
+   gap: 3px;
+   min-width: 0;
+}
+
+.dbx-admin-dashboard-password-warning-copy strong {
+   font-size: 1rem;
+   font-weight: 850;
+}
+
+.dbx-admin-dashboard-password-warning-copy span {
+   line-height: 1.45;
+}
+
+.dbx-admin-dashboard-password-warning .btn {
+   flex: 0 0 auto;
+}
+
+@media (max-width: 720px) {
+   .dbx-admin-dashboard-password-warning {
+      align-items: flex-start;
+      flex-wrap: wrap;
+   }
+
+   .dbx-admin-dashboard-password-warning .btn {
+      width: 100%;
+   }
+}
+
 .c-admin .dbx-admin-dashboard-work.card .dbx-admin-dashboard-hero-body {
    min-height: 260px;
    align-items: stretch;

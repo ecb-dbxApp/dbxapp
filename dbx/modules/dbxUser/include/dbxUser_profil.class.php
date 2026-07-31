@@ -1,6 +1,8 @@
 <?php
 namespace dbx\dbxUser;
 
+require_once dirname(__DIR__, 3) . '/include/dbxPasswordPolicy.class.php';
+
 class dbxUser_profil {
 
    private string $ddUser = 'dbxUser';
@@ -44,6 +46,12 @@ class dbxUser_profil {
       }
       $data['password_new'] = '';
       $data['password_new2'] = '';
+      $passwordMinLength = \dbxPasswordPolicy::minimumLength();
+      $oForm->add_rep('password_min_length', (string)$passwordMinLength);
+      $oForm->add_rep(
+         'password_length_recommendation',
+         $passwordMinLength < 12 ? ' · 12+ empfohlen' : ''
+      );
       $designOptions = $this->design_options();
       $colorOptions = $this->color_options($oForm);
       if (!isset($designOptions[(string)($data['design'] ?? '')])) {
@@ -98,21 +106,54 @@ class dbxUser_profil {
       ));
       $oForm->add_fld('design', 'select-single-label', $oForm->get_fd_message('label_design'), 'parameter|max=32', options: $designOptions);
       $oForm->add_fld('color', 'select-single-label', $oForm->get_fd_message('label_color'), 'parameter|max=32', options: $colorOptions);
-      $oForm->add_fld('password_new', 'password-label', $oForm->get_fd_message('label_password_new'), 'varchar|max=128', placeholder: $oForm->get_fd_message('password_unchanged_placeholder'));
-      $oForm->add_fld('password_new2', 'password-label', $oForm->get_fd_message('label_password_repeat'), 'varchar|max=128', placeholder: $oForm->get_fd_message('password_repeat_placeholder'));
+      $oForm->add_fld(
+         'password_new',
+         'password-label',
+         $oForm->get_fd_message('label_password_new'),
+         'varchar|max=128',
+         placeholder: $oForm->get_fd_message('password_unchanged_placeholder'),
+         tooltip: 'Nur ausfüllen, wenn das Passwort geändert werden soll.'
+      );
+      $oForm->add_fld(
+         'password_new2',
+         'password-label',
+         $oForm->get_fd_message('label_password_repeat'),
+         'varchar|max=128',
+         placeholder: $oForm->get_fd_message('password_repeat_placeholder'),
+         tooltip: 'Das neue Passwort zur Kontrolle noch einmal eingeben.'
+      );
 
 
       if ($oForm->submit()) {
          $passwordNew = (string)$oForm->get_post_data('password_new', '', '*');
          $passwordNew2 = (string)$oForm->get_post_data('password_new2', '', '*');
          $passwordChanged = false;
+         $passwordErrorMessage = '';
 
          if ($passwordNew !== '' || $passwordNew2 !== '') {
-            if ($passwordNew !== $passwordNew2) {
-               $oForm->add_fld_error('password_new2', $oForm->get_fd_message('password_mismatch'));
-            } elseif (mb_strlen($passwordNew) < 6) {
-               $oForm->add_fld_error('password_new', $oForm->get_fd_message('password_too_short'));
-            } else {
+            $passwordErrors = \dbxPasswordPolicy::errors(
+               $passwordNew,
+               $passwordNew2,
+               (string)($data['pass'] ?? ''),
+               $passwordMinLength
+            );
+            if (isset($passwordErrors['password'])) {
+               $oForm->add_fld_error(
+                  'password_new',
+                  $passwordErrors['password']
+               );
+            }
+            if (isset($passwordErrors['repeat'])) {
+               $oForm->add_fld_error(
+                  'password_new2',
+                  $passwordErrors['repeat']
+               );
+            }
+            $passwordErrorMessage = implode(
+               ' ',
+               array_values(array_unique($passwordErrors))
+            );
+            if ($passwordErrors === array()) {
                $passwordChanged = true;
             }
          }
@@ -141,6 +182,14 @@ class dbxUser_profil {
             }
             if ($passwordChanged) {
                $values['pass'] = password_hash($passwordNew, PASSWORD_DEFAULT);
+               $settings = json_decode((string)($data['settings'] ?? ''), true);
+               $settings = is_array($settings) ? $settings : array();
+               unset($settings['password_reset_required']);
+               $settings['password_changed_at'] = date(DATE_ATOM);
+               $values['settings'] = json_encode(
+                  $settings,
+                  JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+               );
             }
 
             $ok = $db->update($this->ddUser, $values, $uid);
@@ -163,7 +212,9 @@ class dbxUser_profil {
                         : $oForm->get_fd_message('profile_saved'))))
                : $oForm->get_fd_message('profile_save_error');
          } else {
-            $oForm->_msg_error = $oForm->get_fd_message('check_input');
+            $oForm->_msg_error = $passwordErrorMessage !== ''
+               ? $passwordErrorMessage
+               : $oForm->get_fd_message('check_input');
          }
       }
 

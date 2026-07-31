@@ -58,16 +58,24 @@ Class dbxMenu {
           'language_title',
           array('language' => $lngMeta['label'])
        );
+        $docsDisplay = stripos((string)$menu, 'dbx-docs-main') !== false;
         $activeDesign = $this->active_frontend_design();
         $data['design_active']       = $activeDesign;
-        $data['design_active_label'] = $this->design_label($activeDesign);
+        $data['design_active_label'] = $docsDisplay ? 'dbxapp (Blau)' : $this->design_label($activeDesign);
         $activeSkin = $this->normalize_design_skin($activeDesign, dbx()->get_skin());
-        $data['design_skin_menu']      = $this->render_design_skin_menu($baseSelf, $activeDesign, $activeSkin);
+        $data['design_skin_menu']      = $this->render_design_skin_menu(
+           $baseSelf,
+           $activeDesign,
+           $activeSkin,
+           $docsDisplay
+        );
         $data['design_toggle_title']  = $this->texts()->format_fd_message(
            'display_title',
            array(
               'design' => $data['design_active_label'],
-              'skin' => $this->skin_label($activeDesign, $activeSkin),
+              'skin' => $docsDisplay
+                 ? ($activeSkin === 'dunkel' ? 'Dark' : 'Light')
+                 : $this->skin_label($activeDesign, $activeSkin),
            )
         );
        $openContactCount = $this->open_contact_count($menu);
@@ -297,6 +305,9 @@ Class dbxMenu {
       if (strtolower($design) === 'dbxapp') {
          return 'dbXapp';
       }
+      if (strtolower($design) === 'dbxdocs') {
+         return 'dbXapp Dokumentation';
+      }
 
       $label = trim(str_replace(array('-', '_'), ' ', $design));
       return $label !== '' ? ucfirst($label) : $design;
@@ -378,14 +389,27 @@ Class dbxMenu {
    private function render_design_skin_menu(
       string $baseSelf,
       string $activeDesign,
-      string $activeSkin
+      string $activeSkin,
+      bool $docsDisplay = false
    ): string {
       $html = '';
+      $designs = $docsDisplay
+         ? array('dbxdocs' => 'dbxapp (Blau)')
+         : $this->frontend_design_options();
 
-      foreach ($this->frontend_design_options() as $design => $designLabel) {
+      foreach ($designs as $design => $designLabel) {
          $designActive = $design === $activeDesign;
          $designEsc = $this->h($design);
          $options = $this->skin_options($design);
+         if ($docsDisplay) {
+            $options = array_intersect_key($options, array('blau' => true, 'dunkel' => true));
+            if (isset($options['blau'])) {
+               $options['blau']['label'] = 'Light';
+            }
+            if (isset($options['dunkel'])) {
+               $options['dunkel']['label'] = 'Dark';
+            }
+         }
          $designUrl = $this->h($this->design_skin_url($baseSelf, $design, $activeSkin));
          $html .= '<li class="dbx-design-skin-group' . ($designActive ? ' is-active' : '')
             . '" data-design="' . $designEsc . '">';
@@ -542,7 +566,10 @@ Class dbxMenu {
          $params = array();
          parse_str(str_replace('&amp;', '&', $raw), $params);
 
-         $root = (int)($params['root'] ?? 0);
+         $root = trim((string)($params['root'] ?? '0'));
+         if (ctype_digit($root)) {
+            $root = (int)$root;
+         }
          $flat = (int)($params['flat'] ?? 1);
          $splitFlat = $hasFlatMarker && $flat === 1;
 

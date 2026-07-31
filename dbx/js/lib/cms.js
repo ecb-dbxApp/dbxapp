@@ -233,6 +233,9 @@
             mediaFilter: "all",
             collapsedFolders: null,
             selectionRestored: false,
+            treeLoaded: false,
+            treeLoading: false,
+            treePromise: null,
             dirty: false,
             loading: false,
             saving: false,
@@ -307,8 +310,12 @@
 
     function isMediaBrowserMulti(modal) {
         const mode = modal && modal.__dbxCmsMediaMode ? modal.__dbxCmsMediaMode : "";
+        if (modal && modal.classList.contains("is-batch-open")) return true;
         if (modal && modal.__dbxCmsSinglePick) return false;
-        return mode === "pick" || (mode === "assign" && modal.__dbxCmsAssignSlot !== "hero");
+        // Im Editor dienen die Auswahl-Schalter dem Batch-Resize und dem
+        // Verschieben mehrerer Medien. Sie muessen daher ebenfalls sammeln,
+        // auch wenn die normale Kartenaktion ein einzelnes Medium einfuegt.
+        return mode === "editor" || mode === "pick" || (mode === "assign" && modal.__dbxCmsAssignSlot !== "hero");
     }
 
     function mediaBrowserUsesConfirmBar(modal) {
@@ -493,6 +500,7 @@
 
     function setTreeHoverExpanded(root, expanded) {
         if (!root) return;
+        if (expanded) ensureTreeLoaded(root, cmsConfig(root));
         root.classList.toggle("is-tree-panel-hover", !!expanded);
         if (isViewMode(cmsConfig(root)) && root.classList.contains("is-tree-collapsed")) {
             if (expanded && !root.classList.contains("is-tree-force-collapsed")) {
@@ -532,10 +540,11 @@
         }, delay);
     }
 
-    function initTreePanelState(root, cfg) {
-        const defaultCollapsed = isViewMode(cfg || {});
-        const collapsed = !!(dbx.uiGet ? dbx.uiGet(LIB, PANEL_UI_ID, "treeCollapsed", defaultCollapsed) : defaultCollapsed);
-        applyTreePanelState(root, collapsed);
+    function initTreePanelState(root) {
+        // Der Content-Baum ist eine teure Sekundaeransicht. Jede neue CMS-
+        // Instanz startet geschlossen; Daten und Zeilen werden erst nach einer
+        // bewussten Benutzeraktion geladen.
+        applyTreePanelState(root, true);
     }
 
     function applyRightPanelState(root, collapsed) {
@@ -586,12 +595,13 @@
         }
     }
 
-    function toggleTreePanel(root) {
+    function toggleTreePanel(root, cfg) {
         const collapsed = !root.classList.contains("is-tree-collapsed");
         clearTreeHoverTimers(root);
         setTreeHoverExpanded(root, false);
         applyTreePanelState(root, collapsed);
         if (dbx.uiSet) dbx.uiSet(LIB, PANEL_UI_ID, "treeCollapsed", collapsed);
+        if (!collapsed) ensureTreeLoaded(root, cfg || cmsConfig(root));
     }
 
     function closeTreePanel(root) {
@@ -829,11 +839,19 @@
         if (root.__dbxCmsEditorHeightFrame) {
             window.cancelAnimationFrame(root.__dbxCmsEditorHeightFrame);
         }
+        if (Array.isArray(root.__dbxCmsEditorHeightTimers)) {
+            root.__dbxCmsEditorHeightTimers.forEach(timer => window.clearTimeout(timer));
+        }
         root.__dbxCmsEditorHeightFrame = window.requestAnimationFrame(() => {
             root.__dbxCmsEditorHeightFrame = null;
             syncEditorHeight(root);
         });
-        [80, 250, 800].forEach(delay => window.setTimeout(() => syncEditorHeight(root), delay));
+        // Ein einziger Nachlauf reicht für Schrift- und Medien-Reflow. Zuvor
+        // entstanden bei jedem Tastendruck drei weitere Layout-Timer.
+        root.__dbxCmsEditorHeightTimers = [180].map(delay => window.setTimeout(() => {
+            syncEditorHeight(root);
+            root.__dbxCmsEditorHeightTimers = [];
+        }, delay));
     }
 
     function bindEditorHeight(root) {
@@ -1658,6 +1676,9 @@
                 return;
             }
             dbx.warn("[cms] openWin.js konnte nicht geladen werden; CMS wird im aktuellen Fenster geoeffnet.");
+            if (dbx.utilities && dbx.utilities.leaveGuard) {
+                dbx.utilities.leaveGuard.allowIfInternal(url);
+            }
             window.location.assign(url);
         });
     }
@@ -1716,7 +1737,7 @@
         const id = Number(row.id || row.media_id || 0);
         const videoUrl = row.embed_url || row.external_url || row.url || "";
         const videoDataAttr = isVideoRow(row)
-            ? ` data-cms-video-url="${escapeHtml(videoUrl)}" data-cms-video-type="${escapeHtml(row.media_type || "")}" data-cms-video-mime="${escapeHtml(row.mime || "")}" data-cms-video-muted="0"`
+            ? ` data-cms-video-url="${escapeHtml(videoUrl)}" data-cms-video-type="${escapeHtml(row.media_type || "")}" data-cms-video-mime="${escapeHtml(row.mime || "")}" data-cms-video-muted="0" data-cms-video-align="left"`
             : "";
         const mediaAttr = id > 0 ? ` data-cms-media-id="${id}" data-cms-media-slot="inline"${videoDataAttr}` : ` data-cms-media-slot="inline"${videoDataAttr}`;
 
@@ -1736,7 +1757,8 @@
     }
 
     function cmsMarkerName(marker) {
-        return String(marker || "").replace(/^dbx:/, "") || "marker";
+        const name = String(marker || "").replace(/^dbx:/i, "").trim().toLowerCase() || "marker";
+        return ["hero_text", "hero-text", "herotext"].includes(name) ? "hero" : name;
     }
 
     function cmsMarkerClassName(marker) {
@@ -1745,7 +1767,7 @@
 
     function cmsMarkerLabel(marker, label) {
         const labels = {
-            "dbx:hero": "Hero-Text",
+            "dbx:hero": "Hero",
             "dbx:split": "col-2 Trenner",
             "dbx:col2": "col-2 Trenner",
             "dbx:col3a": "col-3a Trenner",
@@ -1755,12 +1777,15 @@
             "dbx:footer": "Footer",
             "dbx:pagebreak": "Druck Seitenumbruch"
         };
-        return label || labels[marker] || marker || "dbx:marker";
+        const canonicalMarker = "dbx:" + cmsMarkerName(marker);
+        if (canonicalMarker === "dbx:hero") return "Hero";
+        return label || labels[canonicalMarker] || canonicalMarker || "dbx:marker";
     }
 
     function cmsMarkerHtml(marker, label) {
         if (marker === "dbx:split") marker = "dbx:col2";
         const name = cmsMarkerName(marker);
+        marker = "dbx:" + name;
         const className = cmsMarkerClassName(marker);
         return `<hr class="dbx-cms-marker dbx-cms-marker-${escapeHtml(className)}" contenteditable="false" draggable="false" tabindex="0" data-dbx-marker="dbx:${escapeHtml(name)}" data-label="${escapeHtml(cmsMarkerLabel(marker, label))}">`;
     }
@@ -1848,6 +1873,20 @@
 
     function cmsSaveIcon() {
         return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 3h13l1 1v17H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v14h12V5h-2v5H7V5H5Zm4 0v3h4V5H9Zm-1 8h8v2H8v-2Zm0 3h8v2H8v-2Z"/></svg>';
+    }
+
+    function dedupeSingletonMarkers(container) {
+        if (!container) return;
+        const seen = new Set();
+        qsa(container, ".dbx-cms-marker,[data-dbx-marker]").forEach(marker => {
+            const name = markerNameFromElement(marker);
+            if (name !== "hero") return;
+            if (seen.has(name)) {
+                marker.remove();
+                return;
+            }
+            seen.add(name);
+        });
     }
 
     function cmsTextStyleIcon() {
@@ -2132,7 +2171,8 @@
             `data-cms-video-mime="${escapeHtml(row.mime || "")}"`,
             `data-cms-video-autoplay="${options.autoplay ? "1" : "0"}"`,
             `data-cms-video-loop="${options.loop ? "1" : "0"}"`,
-            `data-cms-video-muted="${options.muted ? "1" : "0"}"`
+            `data-cms-video-muted="${options.muted ? "1" : "0"}"`,
+            `data-cms-video-align="${inlineVideoAlignValue(options.align)}"`
         ];
         if (options.width) attrs.push(`data-cms-video-width="${escapeHtml(options.width)}"`);
         if (options.height) attrs.push(`data-cms-video-height="${escapeHtml(options.height)}"`);
@@ -2142,13 +2182,46 @@
     function inlineVideoOptionsFromElement(el) {
         const media = el ? qs(el, ".dbx-cms-inline-video-thumb,.dbx-cms-inline-video-empty,video,iframe,img") : null;
         const attr = name => String((el && el.getAttribute && el.getAttribute(name)) || (media && media.getAttribute && media.getAttribute(name)) || "");
+        const marginLeft = String(el?.style?.marginLeft || "").toLowerCase();
+        const marginRight = String(el?.style?.marginRight || "").toLowerCase();
+        let align = inlineVideoAlignValue(attr("data-cms-video-align"), "");
+        if (!align && marginLeft === "auto" && marginRight === "auto") align = "center";
+        if (!align && marginLeft === "auto") align = "right";
         return {
             width: cssSizeValue(attr("data-cms-video-width") || el?.style?.width || media?.style?.width || ""),
             height: cssSizeValue(attr("data-cms-video-height") || el?.style?.height || media?.style?.height || ""),
             autoplay: attr("data-cms-video-autoplay") === "1",
             loop: attr("data-cms-video-loop") === "1",
-            muted: attr("data-cms-video-muted") === "1"
+            muted: attr("data-cms-video-muted") === "1",
+            align: align || "left"
         };
+    }
+
+    function inlineVideoAlignValue(value, fallback) {
+        value = String(value || "").trim().toLowerCase();
+        if (value === "center" || value === "zentriert") return "center";
+        if (value === "right" || value === "rechts") return "right";
+        if (value === "left" || value === "links") return "left";
+        return fallback === undefined ? "left" : fallback;
+    }
+
+    function applyInlineVideoAlignment(wrapper, align) {
+        if (!wrapper) return;
+        align = inlineVideoAlignValue(align);
+        wrapper.setAttribute("data-cms-video-align", align);
+        wrapper.style.float = "";
+        if (align === "center") {
+            wrapper.style.marginLeft = "auto";
+            wrapper.style.marginRight = "auto";
+            return;
+        }
+        if (align === "right") {
+            wrapper.style.marginLeft = "auto";
+            wrapper.style.marginRight = "0px";
+            return;
+        }
+        wrapper.style.marginLeft = "";
+        wrapper.style.marginRight = "";
     }
 
     function syncInlineVideoOptionsToMedia(wrapper, options) {
@@ -2164,6 +2237,7 @@
             el.setAttribute("data-cms-video-autoplay", options.autoplay ? "1" : "0");
             el.setAttribute("data-cms-video-loop", options.loop ? "1" : "0");
             el.setAttribute("data-cms-video-muted", options.muted ? "1" : "0");
+            el.setAttribute("data-cms-video-align", inlineVideoAlignValue(options.align));
         });
     }
 
@@ -2243,11 +2317,13 @@
         const options = inlineVideoOptionsFromElement(media);
         const width = qs(modal, "[data-cms-video-options-width]");
         const height = qs(modal, "[data-cms-video-options-height]");
+        const align = qs(modal, "[data-cms-video-options-align]");
         const autoplay = qs(modal, "[data-cms-video-options-autoplay]");
         const loop = qs(modal, "[data-cms-video-options-loop]");
         const muted = qs(modal, "[data-cms-video-options-muted]");
         if (width) width.value = options.width || "";
         if (height) height.value = options.height || "";
+        if (align) align.value = options.align || "left";
         if (autoplay) autoplay.checked = !!options.autoplay;
         if (loop) loop.checked = !!options.loop;
         if (muted) muted.value = options.muted ? "1" : "0";
@@ -2261,6 +2337,7 @@
         if (!media) return false;
         const width = cssSizeValue(qs(modal, "[data-cms-video-options-width]")?.value || "");
         const height = cssSizeValue(qs(modal, "[data-cms-video-options-height]")?.value || "");
+        const align = inlineVideoAlignValue(qs(modal, "[data-cms-video-options-align]")?.value || "left");
         const autoplay = qs(modal, "[data-cms-video-options-autoplay]")?.checked;
         const loop = qs(modal, "[data-cms-video-options-loop]")?.checked;
         let muted = qs(modal, "[data-cms-video-options-muted]")?.value === "1";
@@ -2270,7 +2347,8 @@
             height,
             autoplay: !!autoplay,
             loop: !!loop,
-            muted: !!muted
+            muted: !!muted,
+            align
         };
         if (width) {
             media.style.width = width;
@@ -2290,6 +2368,7 @@
         media.setAttribute("data-cms-video-loop", loop ? "1" : "0");
         media.setAttribute("data-cms-video-muted", muted ? "1" : "0");
         syncInlineVideoOptionsToMedia(media, options);
+        applyInlineVideoAlignment(media, align);
         syncEditorAfterContextAction(root);
         markDirty(root);
         closeInlineVideoOptionsWindow(modal);
@@ -2327,6 +2406,14 @@
                     autoplayLabel.insertAdjacentElement("afterend", loopLabel);
                 }
             }
+            if (!qs(modal, "[data-cms-video-options-align]")) {
+                const heightLabel = qs(modal, "[data-cms-video-options-height]")?.closest("label");
+                if (heightLabel && heightLabel.parentNode) {
+                    const alignLabel = document.createElement("label");
+                    alignLabel.innerHTML = 'Ausrichtung <select class="form-select form-select-sm" data-cms-video-options-align><option value="left">Links</option><option value="center">Horizontal zentriert</option><option value="right">Rechts</option></select>';
+                    heightLabel.insertAdjacentElement("afterend", alignLabel);
+                }
+            }
             return modal;
         }
         modal = document.createElement("div");
@@ -2338,6 +2425,7 @@
             <div class="dbx-cms-video-options-body">
                 <label>Breite <input type="text" class="form-control form-control-sm" data-cms-video-options-width placeholder="z.B. 640px, 80%, leer = Standard"></label>
                 <label>Hoehe <input type="text" class="form-control form-control-sm" data-cms-video-options-height placeholder="z.B. 240px, leer = 16:9"></label>
+                <label>Ausrichtung <select class="form-select form-select-sm" data-cms-video-options-align><option value="left">Links</option><option value="center">Horizontal zentriert</option><option value="right">Rechts</option></select></label>
                 <label class="dbx-cms-video-options-check"><input type="checkbox" data-cms-video-options-autoplay> Autoplay</label>
                 <label class="dbx-cms-video-options-check"><input type="checkbox" data-cms-video-options-loop> Auto Loop</label>
                 <label>Ton <select class="form-select form-select-sm" data-cms-video-options-muted><option value="0">Ton an</option><option value="1">Ton aus</option></select></label>
@@ -2451,6 +2539,37 @@
     function repairInlineVideoHtml(root, html) {
         const wrap = document.createElement("div");
         wrap.innerHTML = String(html || "");
+        qsa(wrap, "video").forEach(video => {
+            if (closestElement(video, ".dbx-cms-inline-video-block")) return;
+
+            const source = qs(video, "source[src]");
+            const url = String(video.getAttribute("src") || source?.getAttribute("src") || "");
+            const idMatch = String(
+                video.getAttribute("data-cms-media-id") || source?.getAttribute("data-cms-media-id") || url
+            ).match(/(?:dbx_mid=)?([0-9]+)/i);
+            const id = Number(idMatch && idMatch[1] || 0);
+            if (id <= 0) return;
+
+            const options = {
+                width: cssSizeValue(video.getAttribute("width") || video.style?.width || ""),
+                height: cssSizeValue(video.getAttribute("height") || video.style?.height || ""),
+                autoplay: video.hasAttribute("autoplay"),
+                loop: video.hasAttribute("loop"),
+                muted: video.hasAttribute("muted")
+            };
+            const row = mediaRowById(root, id) || {
+                id,
+                url,
+                mime: source?.getAttribute("type") || "video/mp4",
+                media_type: "video",
+                thumb_url: video.getAttribute("poster") || "",
+                title: video.getAttribute("aria-label") || video.getAttribute("title") || "Video"
+            };
+            const holder = document.createElement("div");
+            holder.innerHTML = `<figure class="dbx-cms-inline-media dbx-cms-inline-video-block"${inlineVideoDataAttributes(row, id, options)}>${mediaPlayerInnerHtml(row, id, options)}</figure>`;
+            const figure = holder.firstElementChild;
+            if (figure) video.replaceWith(figure);
+        });
         repairInlineVideoPlayers(root, wrap);
         return wrap.innerHTML;
     }
@@ -2546,11 +2665,7 @@
             return false;
         }
         syncInlineVideoBlockSizes(surface);
-        const html = inlineVideoEditorPlayerHtml(row, id, {
-            autoplay: wrapper.getAttribute("data-cms-video-autoplay") === "1",
-            loop: wrapper.getAttribute("data-cms-video-loop") === "1",
-            muted: wrapper.getAttribute("data-cms-video-muted") === "1"
-        });
+        const html = inlineVideoEditorPlayerHtml(row, id, inlineVideoOptionsFromElement(wrapper));
         if (!html) return false;
         wrapper.innerHTML = html;
         wrapper.classList.add("is-playing");
@@ -2737,19 +2852,86 @@
         return Array.isArray(row && row.usage_pages) ? row.usage_pages : [];
     }
 
+    function mediaUsageSlots(row) {
+        const slots = new Set();
+        mediaUsagePages(row).forEach(page => {
+            (Array.isArray(page.slots) ? page.slots : []).forEach(slot => {
+                slot = String(slot || "").trim();
+                if (slot) slots.add(slot);
+            });
+        });
+        if (!slots.size && Number(row?.current_usage_id || row?.usage_id || 0) > 0) {
+            const slot = String(row?.slot || "").trim();
+            if (slot) slots.add(slot);
+        }
+        return Array.from(slots);
+    }
+
+    function currentEditorMediaSlots(root) {
+        const slotsById = new Map();
+        const add = (id, slot) => {
+            id = Number(id || 0);
+            slot = String(slot || "").trim();
+            if (!id || !slot) return;
+            if (!slotsById.has(id)) slotsById.set(id, new Set());
+            slotsById.get(id).add(slot);
+        };
+
+        collectInlineMediaIdsFromEditor(root).forEach(id => add(id, "inline"));
+        const heroId = Number(getField(root, "hero_image_id") || 0);
+        if (heroId > 0) add(heroId, "hero");
+        (state(root).mediaRows || []).forEach(row => {
+            const slot = String(row?.slot || "").trim();
+            if (slot === "gallery" || slot === "shop") add(row.id || row.media_id, slot);
+        });
+        return slotsById;
+    }
+
+    function reconcileMediaBrowserUsageWithEditor(root, rows) {
+        const contentId = Number(getField(root, "id") || 0);
+        if (!contentId || root.classList.contains("is-folder-editing")) return rows;
+        const slotsById = currentEditorMediaSlots(root);
+        const title = getField(root, "title") || "";
+        const folderId = Number(getField(root, "folder") || 0);
+
+        return (rows || []).map(source => {
+            const row = Object.assign({}, source || {});
+            const mediaId = Number(row.id || row.media_id || 0);
+            const pages = mediaUsagePages(row)
+                .filter(page => Number(page.content_id || page.id || 0) !== contentId)
+                .map(page => Object.assign({}, page, {
+                    slots: Array.isArray(page.slots) ? page.slots.slice() : []
+                }));
+            const currentSlots = Array.from(slotsById.get(mediaId) || []);
+            if (currentSlots.length) {
+                pages.push({
+                    id: contentId,
+                    content_id: contentId,
+                    title,
+                    folder_id: folderId,
+                    folder_title: "",
+                    slots: currentSlots
+                });
+                row.slot = currentSlots[0];
+            }
+            pages.sort((a, b) => Number(a.content_id || a.id || 0) - Number(b.content_id || b.id || 0));
+            row.usage_pages = pages;
+            row.used_count = pages.reduce((count, page) => count + Math.max(1, (page.slots || []).length), 0);
+            return row;
+        });
+    }
+
     function mediaUsageLabel(row) {
         row = row || {};
-        const slot = String(row.slot || "").trim();
         const pages = mediaUsagePages(row);
-        const ids = pages.map(page => Number(page.content_id || page.id || 0)).filter(Boolean);
-        const shownIds = ids.slice(0, 3).map(id => "#" + id).join(", ");
-        const suffix = ids.length > 3 ? ", ..." : "";
-        const currentUsageId = Number(row.current_usage_id || row.usage_id || 0);
-        if (currentUsageId > 0 && slot) {
-            return mediaSlotLabel(slot) + (shownIds ? ": " + shownIds + suffix : "");
-        }
+        const shown = pages.slice(0, 3).map(page => {
+            const id = Number(page.content_id || page.id || 0);
+            const slots = (Array.isArray(page.slots) ? page.slots : []).map(mediaSlotLabel).filter(Boolean);
+            return "#" + id + (slots.length ? " (" + slots.join(", ") + ")" : "");
+        }).join(", ");
+        const suffix = pages.length > 3 ? ", ..." : "";
         const count = Number(row.used_count || 0);
-        if (ids.length > 0) return "Verwendet: " + shownIds + suffix;
+        if (shown) return "Verwendet: " + shown + suffix;
         if (count > 0) return count === 1 ? "Verwendet 1x" : "Verwendet " + count + "x";
         return "Nicht verwendet";
     }
@@ -3083,7 +3265,7 @@
                 </button>
                 <button type="button" class="btn btn-outline-primary btn-sm" data-cms-action="bulk-resize-media" data-cms-resize-scope="all">
                     <i class="bi bi-images"></i>
-                    <span>Alle resizen</span>
+                    <span>Alle angezeigten resizen</span>
                 </button>
                 <button type="button" class="btn btn-outline-secondary btn-sm" data-cms-media-batch-close>
                     <i class="bi bi-arrow-left"></i>
@@ -3813,7 +3995,10 @@
         const batchPanel = browserModal && browserModal.__dbxCmsBatchPanel;
         const list = batchPanel && qs(batchPanel, "[data-cms-media-batch-list]");
         if (!list || !browserModal) return;
-        const rows = (browserModal.__dbxCmsRows || []).filter(canEditImage);
+        const sourceRows = Array.isArray(browserModal.__dbxCmsFilteredRows)
+            ? browserModal.__dbxCmsFilteredRows
+            : (browserModal.__dbxCmsRows || []);
+        const rows = sourceRows.filter(canEditImage);
         const selected = browserModal.__dbxCmsSelectedIds || new Set();
         if (!rows.length) {
             list.innerHTML = '<div class="dbx-cms-empty">Keine bearbeitbaren Bilder im aktuellen Medienbrowser-Filter.</div>';
@@ -4035,8 +4220,13 @@
     }
 
     function mediaMaintenanceFolderOptions(modal, includeAll, preferred) {
-        const folders = uploadFolderOptions(modal && modal.__dbxCmsFolders || [])
+        let folders = uploadFolderOptions(modal && modal.__dbxCmsFolders || [])
             .filter(folder => String(folder || "").indexOf("img/") === 0);
+        if (!folders.length && modal) {
+            folders = Array.from(qs(modal, "[data-cms-upload-folder]")?.options || [])
+                .map(option => String(option.value || ""))
+                .filter(folder => folder.indexOf("img/") === 0);
+        }
         const current = String(preferred || "");
         const options = [];
         if (includeAll) options.push('<option value="all">Alle Ordner</option>');
@@ -4063,11 +4253,11 @@
         panel.innerHTML = mediaProcessHeadMarkup() + `
             <div class="dbx-cms-media-maintenance-grid">
                 <section class="dbx-cms-media-maintenance-card">
-                    <strong><i class="bi bi-arrow-repeat"></i> Medien pruefen</strong>
-                    <p>Synchronisiert Mediendateien und Vorschaubilder mit der Datenbank.</p>
+                    <strong><i class="bi bi-arrow-repeat"></i> Medien und Nutzung pruefen</strong>
+                    <p>Vergleicht Seiten, Ordner, Hero-, Inline-, Galerie- und Shop-Verwendungen mit der Datenbank. Fehlende Zuordnungen werden ergaenzt, falsche und alte Eintraege entfernt und die Datenbanken anschliessend komprimiert.</p>
                     <button type="button" class="btn btn-outline-primary btn-sm" data-cms-media-process-start>
                         <i class="bi bi-play-fill"></i>
-                        <span>Wartung starten</span>
+                        <span>Analyse &amp; Reparatur starten</span>
                     </button>
                 </section>
                 <section class="dbx-cms-media-maintenance-card">
@@ -4101,6 +4291,31 @@
     }
 
     function startMediaMaintenance(root, cfg, browserModal, batchPanel) {
+        ensureConfirm().then(ok => {
+            if (!ok) {
+                status(root, "Confirm-Lib ist nicht geladen.", "error");
+                return null;
+            }
+            return dbx.confirm.open({
+                id: "cms-media-maintenance-" + Date.now(),
+                root,
+                title: '<i class="bi bi-tools"></i> Medienwartung',
+                question: "Mediennutzung jetzt vollstaendig analysieren und korrigieren?",
+                hint: "Nachweislich ungueltige und deaktivierte Datenbankeintraege werden dauerhaft entfernt. Danach werden Medien- und Content-Datenbank komprimiert.",
+                buttons: "yesno",
+                labelyes: '<i class="bi bi-play-fill"></i> Analyse starten',
+                labelno: '<i class="bi bi-x-lg"></i> Abbrechen',
+                closable: true,
+                backdropclose: false,
+                escclose: true
+            });
+        }).then(result => {
+            if (!result || result.action !== "yes") return;
+            runMediaMaintenance(root, cfg, browserModal, batchPanel);
+        });
+    }
+
+    function runMediaMaintenance(root, cfg, browserModal, batchPanel) {
         const url = cfgUrl(cfg || {}, "mediaprocess");
         const panel = (browserModal ? qs(browserModal, "[data-cms-media-process-panel]") : null)
             || (batchPanel ? qs(batchPanel, "[data-cms-media-process-panel]") : null);
@@ -4127,13 +4342,6 @@
                 const proc = qs(panel, ".dbx-process");
                 if (proc && proc.getAttribute("data-process-status") === "finished" && browserModal) {
                     status(root, "Medienwartung abgeschlossen.", "success");
-                    openMediaBrowser(root, cfg, {
-                        mode: browserModal.__dbxCmsMediaMode || "editor",
-                        slot: browserModal.__dbxCmsAssignSlot || currentMediaSlot(root),
-                        mediaFolder: browserModal.__dbxCmsMediaFolder || "",
-                        formDataExtra: browserModal.__dbxCmsFormDataExtra || null,
-                        afterAssign: browserModal.__dbxCmsAfterAssign
-                    });
                 }
             })
             .catch(err => {
@@ -4926,25 +5134,23 @@
         modal.setAttribute("aria-busy", "true");
         const requestId = Date.now() + "-" + Math.random();
         modal.__dbxCmsMediaRequest = requestId;
+        let initialMediaParams = null;
         if (search) search.value = "";
         if (list) list.innerHTML = mediaBrowserSkeletonHtml(24);
 
-        refreshMediaFolderControls(root, cfg, modal).then(() => {
-            if (mediaFolder && folderSelect) {
-                folderSelect.value = mediaFolder;
-            }
-            const uploadFolders = modal.__dbxCmsUploadFolders || uploadFolderOptions(modal.__dbxCmsFolders || []);
-            syncUploadFolderSelect(modal, uploadFolders, mediaFolder);
-            const mediaParams = mediaBrowserQueryParams(String(folderSelect?.value || mediaFolder || "all"));
-            if (!modal.__dbxCmsMediaSynced) mediaParams.sync = 1;
-            if (formDataExtra && formDataExtra.xmodul) mediaParams.xmodul = formDataExtra.xmodul;
-            return fetchJson(apiUrl(mediaUrl, mediaParams), { timeout: 30000 });
-        })
+        const requestedFolder = String(mediaFolder || folderSelect?.value || "all");
+        const mediaParams = mediaBrowserQueryParams(requestedFolder);
+        mediaParams.sync = 0;
+        mediaParams.limit = 28;
+        mediaParams.offset = 0;
+        if (formDataExtra && formDataExtra.xmodul) mediaParams.xmodul = formDataExtra.xmodul;
+        initialMediaParams = Object.assign({}, mediaParams);
+
+        fetchJson(apiUrl(mediaUrl, mediaParams), { timeout: 30000 })
             .then(data => {
                 if (modal.__dbxCmsMediaRequest !== requestId) return;
                 if (!data || !data.ok) throw new Error("bad response");
-                const rows = Array.isArray(data.rows) ? data.rows : [];
-                modal.__dbxCmsMediaSynced = true;
+                const rows = reconcileMediaBrowserUsageWithEditor(root, Array.isArray(data.rows) ? data.rows : []);
                 modal.__dbxCmsRows = rows;
                 renderMediaFolderTree(modal, modal.__dbxCmsFolders || []);
                 const render = () => {
@@ -4954,13 +5160,15 @@
                     const selected = modal.__dbxCmsSelectedIds || new Set();
                     const multi = isMediaBrowserMulti(modal);
                     const needsConfirm = mediaBrowserUsesConfirmBar(modal);
-                    const filtered = rows.filter(row => {
+                    const filterRows = row => {
                         const hay = String((row.title || "") + " " + (row.file_name || "") + " " + (row.alt || "")).toLowerCase();
                         const matchTerm = !term || hay.includes(term);
-                        const matchSlot = slotFilter === "all" || String(row.slot || "").trim() === slotFilter;
+                        const matchSlot = slotFilter === "all" || mediaUsageSlots(row).includes(slotFilter);
                         const matchFolder = folderFilter === "all" || String(row.media_folder || "") === folderFilter;
                         return matchTerm && matchSlot && matchFolder;
-                    });
+                    };
+                    const filtered = !term && slotFilter === "all" ? rows : rows.filter(filterRows);
+                    modal.__dbxCmsFilteredRows = filtered;
                     if (!filtered.length) {
                         list.innerHTML = '<div class="dbx-cms-empty">Keine passenden Medien gefunden.</div>';
                         updateMediaBrowserBatchUi(modal);
@@ -4978,6 +5186,13 @@
                     );
                 };
                 render();
+                const folderRefresh = new Promise(resolve => window.setTimeout(resolve, 250))
+                    .then(() => refreshMediaFolderControls(root, cfg, modal))
+                    .then(() => {
+                        if (mediaFolder && folderSelect) folderSelect.value = mediaFolder;
+                        const uploadFolders = modal.__dbxCmsUploadFolders || uploadFolderOptions(modal.__dbxCmsFolders || []);
+                        syncUploadFolderSelect(modal, uploadFolders, mediaFolder);
+                    });
                 if (search && !search.__dbxCmsMediaBrowserBound) {
                     search.__dbxCmsMediaBrowserBound = true;
                     search.addEventListener("input", render);
@@ -5000,6 +5215,44 @@
                         });
                     });
                 }
+
+                let hasMore = Number(data.has_more || 0) === 1;
+                let nextOffset = Number(data.next_offset || rows.length || 0);
+                const loadRemaining = () => {
+                    if (!hasMore || modal.__dbxCmsMediaRequest !== requestId || !initialMediaParams) return;
+                    const params = Object.assign({}, initialMediaParams, {
+                        sync: 0,
+                        limit: 84,
+                        offset: nextOffset
+                    });
+                    fetchJson(apiUrl(mediaUrl, params), { timeout: 30000 }).then(nextData => {
+                        if (modal.__dbxCmsMediaRequest !== requestId || !nextData || !nextData.ok) return;
+                        const incoming = reconcileMediaBrowserUsageWithEditor(root, Array.isArray(nextData.rows) ? nextData.rows : []);
+                        const known = new Set(rows.map(row => Number(row.id || row.media_id || 0)));
+                        incoming.forEach(row => {
+                            const id = Number(row.id || row.media_id || 0);
+                            if (!id || known.has(id)) return;
+                            known.add(id);
+                            rows.push(row);
+                        });
+                        modal.__dbxCmsRows = rows;
+                        hasMore = Number(nextData.has_more || 0) === 1;
+                        nextOffset = Number(nextData.next_offset || (nextOffset + incoming.length));
+
+                        const hasActiveFilter = String(search?.value || "").trim() !== ""
+                            || String(slotSelect?.value || "all") !== "all";
+                        if (hasActiveFilter) {
+                            if (!hasMore) render();
+                        } else if (list && list.__dbxCmsMediaRenderScrollHandler) {
+                            list.__dbxCmsMediaRenderScrollHandler();
+                        }
+                        if (hasMore) window.setTimeout(loadRemaining, 0);
+                    }).catch(err => {
+                        dbx.warn("[cms] remaining media could not be loaded", err);
+                    });
+                };
+                if (hasMore) window.setTimeout(loadRemaining, 0);
+                folderRefresh.then(() => renderMediaFolderTree(modal, modal.__dbxCmsFolders || []));
             })
             .catch(err => {
                 if (modal.__dbxCmsMediaRequest !== requestId) return;
@@ -5850,7 +6103,7 @@
         editor.__dbxJoditReady = true;
         bindModPlaceholderEvents(root);
         const cmsMarkers = [
-            { label: "Hero-Text", marker: "dbx:hero" },
+            { label: "Hero", marker: "dbx:hero" },
             { label: "Header", marker: "dbx:header" },
             { label: "Footer", marker: "dbx:footer" },
             { label: "col-2 Trenner", marker: "dbx:col2" },
@@ -5863,7 +6116,7 @@
             tooltip: cmsText(root, "editor_marker_tooltip", "Trenner für Content-Bereiche einfügen"),
             icon: cmsMarkerMenuIcon(),
             text: "",
-            popup: function (jodit, current, control, close) {
+            popup: function (jodit, current, close) {
                 const box = document.createElement("div");
                 box.className = "dbx-cms-marker-menu";
                 cmsMarkers.forEach(item => {
@@ -5882,9 +6135,6 @@
                     box.appendChild(btn);
                 });
                 return box;
-            },
-            exec: function (jodit) {
-                if (jodit && jodit.e && jodit.e.fire) jodit.e.fire("togglePopup", "dbxMarkerMenu");
             }
         };
         window.Jodit.defaultOptions.controls.dbxImageBrowser = {
@@ -5907,10 +6157,10 @@
             tooltip: cmsText(root, "editor_bootstrap_tooltip", "Bootstrap-Content-Komponente einfügen"),
             icon: cmsBootstrapComponentIcon(),
             text: "",
-            popup: function (jodit, current, control, close) {
+            popup: function (jodit, current, close) {
                 const box = document.createElement("div");
                 box.className = "dbx-cms-marker-menu";
-                bootstrapComponentItems().forEach(item => {
+                bootstrapComponentItems(root).forEach(item => {
                     const btn = document.createElement("button");
                     btn.type = "button";
                     btn.className = "dbx-cms-marker-menu-item";
@@ -5924,16 +6174,13 @@
                     box.appendChild(btn);
                 });
                 return box;
-            },
-            exec: function (jodit) {
-                if (jodit && jodit.e && jodit.e.fire) jodit.e.fire("togglePopup", "dbxBootstrapComponents");
             }
         };
         window.Jodit.defaultOptions.controls.dbxTextStyle = {
             tooltip: cmsText(root, "editor_text_format", "Textformatierung"),
             icon: cmsTextStyleIcon(),
             text: "",
-            popup: function (jodit, current, control, close) {
+            popup: function (jodit, current, close) {
                 const box = document.createElement("div");
                 box.className = "dbx-cms-marker-menu dbx-cms-text-style-menu";
                 const styles = [
@@ -5971,9 +6218,6 @@
                 box.appendChild(divider);
                 alignments.forEach(appendCommand);
                 return box;
-            },
-            exec: function (jodit) {
-                if (jodit && jodit.e && jodit.e.fire) jodit.e.fire("togglePopup", "dbxTextStyle");
             }
         };
         window.Jodit.defaultOptions.controls.dbxHr = {
@@ -6027,16 +6271,15 @@
             ],
             events: {
                 change: function () {
-                    normalizeEditorMarkers(root);
                     const surface = editorSurface(root);
-                    normalizeBootstrapComponents(surface);
-                    normalizeInlineMediaLayout(surface);
-                    normalizeModPlaceholders(surface);
-                    const html = surface ? (surface.innerHTML || "") : (this.value || "");
-                    if (html !== (this.value || "")) this.value = html;
+                    // Jodit liefert hier bereits den aktuellen HTML-Wert. Die
+                    // vollständige DOM-Normalisierung erfolgt bei strukturellen
+                    // Aktionen und vor dem Speichern, nicht bei jedem Zeichen.
+                    const html = String(this.value || (surface ? surface.innerHTML : "") || "");
                     setField(root, "content", html);
                     markDirty(root);
                     scheduleEditorHeight(root);
+                    scheduleEditorMediaRender(root, html);
                 },
                 focus: function () {
                     window.requestAnimationFrame(() => saveEditorSelection(root));
@@ -6172,6 +6415,17 @@
         const sel = doc.getSelection ? doc.getSelection() : null;
         if (!sel) return false;
         const range = doc.createRange();
+        if (!node.parentNode || !surface.contains(node)) {
+            node = surface.lastChild;
+            if (!node) {
+                range.selectNodeContents(surface);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                state(root).editorRange = range.cloneRange();
+                return true;
+            }
+        }
         const next = node.nextSibling;
         if (next && next.nodeType === 1 && /^(P|DIV|H1|H2|H3|H4|H5|H6|BLOCKQUOTE|LI)$/i.test(next.tagName || "")) {
             range.setStart(next, 0);
@@ -6204,7 +6458,18 @@
         });
         qsa(container, ".dbx-cms-inline-media, figure.dbx-cms-inline-video-block").forEach(wrapper => {
             if (!wrapper.getAttribute("data-cms-media-slot")) wrapper.setAttribute("data-cms-media-slot", "inline");
-            if (wrapper.classList.contains("dbx-cms-inline-video-block")) wrapper.removeAttribute("contenteditable");
+            if (wrapper.classList.contains("dbx-cms-inline-video-block")) {
+                wrapper.removeAttribute("contenteditable");
+                const videoMedia = qs(wrapper, "[data-cms-media-id], img[src*='dbx_mid='], video[src*='dbx_mid='], source[src*='dbx_mid=']");
+                const videoIdMatch = String(
+                    wrapper.getAttribute("data-cms-media-id")
+                    || videoMedia?.getAttribute("data-cms-media-id")
+                    || videoMedia?.getAttribute("src")
+                    || ""
+                ).match(/(?:dbx_mid=)?([0-9]+)/i);
+                const videoId = Number(videoIdMatch && videoIdMatch[1] || 0);
+                if (videoId > 0) wrapper.setAttribute("data-cms-media-id", String(videoId));
+            }
             if (wrapper.getAttribute("data-cms-media-id") && !inlineMediaWrapperHasContent(wrapper)) wrapper.remove();
             const inlineImage = qs(wrapper, "img");
             if (inlineImage && !wrapper.classList.contains("dbx-cms-inline-video-block")) {
@@ -6243,7 +6508,7 @@
         p.setAttribute("data-cms-media-slot", "inline");
         p.setAttribute("contenteditable", "false");
         p.setAttribute("tabindex", "0");
-        p.setAttribute("title", "Fehlende Mediendatei auswaehlen, Entf zum Loeschen");
+        p.setAttribute("title", "Fehlende Mediendatei auswählen, Entf zum Löschen");
         const span = doc.createElement("span");
         span.className = "dbx-cms-inline-media-missing";
         span.setAttribute("aria-hidden", "true");
@@ -6341,15 +6606,10 @@
             }
             const media = qs(wrapper, ".dbx-cms-inline-video-thumb, img, video, iframe");
             const size = inlineVideoMediaSize(media);
-            let width = size.width || cssSizeValue(wrapper.style.width || wrapper.getAttribute("data-cms-video-width") || "");
-            let height = size.height || cssSizeValue(wrapper.style.height || wrapper.getAttribute("data-cms-video-height") || "");
-            const rect = wrapper.getBoundingClientRect ? wrapper.getBoundingClientRect() : null;
-            const defaultWidth = Math.min((container.getBoundingClientRect ? container.getBoundingClientRect().width : 720) || 720, 720);
-            if (!width && rect && rect.width > 0 && Math.abs(rect.width - defaultWidth) > 2) width = Math.round(rect.width) + "px";
-            if (!height && rect && rect.height > 0) {
-                const ratioHeight = rect.width > 0 ? rect.width * 9 / 16 : 0;
-                if (!ratioHeight || Math.abs(rect.height - ratioHeight) > 2) height = Math.round(rect.height) + "px";
-            }
+            const wrapperWidth = cssSizeValue(wrapper.style.width || wrapper.getAttribute("data-cms-video-width") || "");
+            const wrapperHeight = cssSizeValue(wrapper.style.height || wrapper.getAttribute("data-cms-video-height") || "");
+            let width = wrapperWidth || size.width;
+            let height = wrapperHeight || size.height;
             if (width) {
                 wrapper.style.width = width;
                 wrapper.setAttribute("data-cms-video-width", width);
@@ -6543,23 +6803,10 @@
     }
 
     function refreshEditorCaretHint(root) {
-        const surface = editorSurface(root);
-        if (!surface || state(root).selectedMarker || state(root).selectedMissingMedia) {
-            hideEditorCaretHint(root);
-            return;
-        }
-        const doc = surface.ownerDocument || document;
-        const sel = doc.getSelection ? doc.getSelection() : null;
-        if (!sel || !sel.rangeCount) {
-            hideEditorCaretHint(root);
-            return;
-        }
-        const range = sel.getRangeAt(0);
-        if (!range.collapsed) {
-            hideEditorCaretHint(root);
-            return;
-        }
-        showEditorCaretHint(root, range);
+        // Der native Browser-/Jodit-Caret ist positionsgenau. Der zusaetzlich
+        // berechnete Overlay-Caret driftete nach Scroll- und Layoutaenderungen
+        // und erzwang bei jeder Auswahl eine synchrone Layoutmessung.
+        hideEditorCaretHint(root);
     }
 
     function hideEditorCaretHint(root) {
@@ -6569,107 +6816,7 @@
             s.editorCaretHintTimer = null;
         }
         const hint = qs(root, "[data-cms-editor-caret-hint]");
-        if (hint) hint.hidden = true;
-    }
-
-    function editorCaretBlock(surface, range) {
-        if (!surface || !range) return null;
-        let el = nodeElement(range.startContainer);
-        if (!el || el === surface) {
-            const child = surface.childNodes[Math.max(0, Math.min(range.startOffset || 0, surface.childNodes.length - 1))];
-            el = nodeElement(child) || surface;
-        }
-        while (el && el !== surface) {
-            if (/^(P|DIV|H1|H2|H3|H4|H5|H6|BLOCKQUOTE|LI|TD|TH)$/i.test(el.tagName || "")) return el;
-            el = el.parentElement;
-        }
-        return null;
-    }
-
-    function editorCaretBlockRect(surface, range) {
-        const block = editorCaretBlock(surface, range);
-        if (!block || !block.getBoundingClientRect) return null;
-        const blockRect = block.getBoundingClientRect();
-        if (!blockRect || !blockRect.width || !blockRect.height) return null;
-        const style = window.getComputedStyle ? window.getComputedStyle(block) : null;
-        const paddingLeft = Number.parseFloat(style?.paddingLeft || "0") || 0;
-        const paddingTop = Number.parseFloat(style?.paddingTop || "0") || 0;
-        let lineHeight = Number.parseFloat(style?.lineHeight || "0") || 0;
-        if (!lineHeight) {
-            const fontSize = Number.parseFloat(style?.fontSize || "16") || 16;
-            lineHeight = fontSize * 1.55;
-        }
-        return {
-            left: blockRect.left + paddingLeft,
-            top: blockRect.top + paddingTop,
-            height: Math.max(18, Math.min(blockRect.height, lineHeight || 24)),
-            blockRect
-        };
-    }
-
-    function caretRectLooksValid(rect, surface, range) {
-        if (!rect || !rect.height) return false;
-        const surfaceRect = surface.getBoundingClientRect ? surface.getBoundingClientRect() : null;
-        if (surfaceRect && (rect.top < surfaceRect.top - 4 || rect.top > surfaceRect.bottom + 4)) return false;
-        const block = editorCaretBlock(surface, range);
-        if (!block || !block.getBoundingClientRect) return true;
-        const blockRect = block.getBoundingClientRect();
-        return rect.top >= blockRect.top - 4 && rect.top <= blockRect.bottom + 4;
-    }
-
-    function editorCaretLineHeight(surface, range) {
-        const block = editorCaretBlock(surface, range);
-        if (!block) return 18;
-        const style = window.getComputedStyle ? window.getComputedStyle(block) : null;
-        let lineHeight = Number.parseFloat(style?.lineHeight || "0") || 0;
-        if (!lineHeight || style?.lineHeight === "normal") {
-            lineHeight = (Number.parseFloat(style?.fontSize || "16") || 16) * 1.45;
-        }
-        return Math.max(14, Math.min(lineHeight, 22));
-    }
-
-    function showEditorCaretHint(root, range) {
-        const surface = editorSurface(root);
-        if (!surface || !range || !range.collapsed) {
-            hideEditorCaretHint(root);
-            return;
-        }
-
-        let rect = null;
-        const rects = range.getClientRects ? Array.from(range.getClientRects()) : [];
-        rect = rects.find(item => item && item.height > 0 && item.height <= 36) || null;
-        if (!rect && range.startContainer && range.startContainer.nodeType === 3) {
-            const probe = range.cloneRange();
-            const text = range.startContainer.nodeValue || "";
-            if (range.startOffset < text.length) probe.setEnd(range.startContainer, range.startOffset + 1);
-            else if (range.startOffset > 0) probe.setStart(range.startContainer, range.startOffset - 1);
-            rect = Array.from(probe.getClientRects ? probe.getClientRects() : []).find(item => item && item.height > 0 && item.height <= 36) || null;
-        }
-        if (!caretRectLooksValid(rect, surface, range)) {
-            hideEditorCaretHint(root);
-            return;
-        }
-
-        const lineHeight = editorCaretLineHeight(surface, range);
-        let hint = qs(root, "[data-cms-editor-caret-hint]");
-        if (!hint) {
-            hint = document.createElement("span");
-            hint.className = "dbx-cms-editor-caret-hint";
-            hint.setAttribute("data-cms-editor-caret-hint", "1");
-            hint.setAttribute("aria-hidden", "true");
-            root.appendChild(hint);
-        }
-
-        hint.hidden = false;
-        hint.style.left = Math.round(rect.left) + "px";
-        hint.style.top = Math.round(rect.top + Math.max(0, (rect.height - lineHeight) / 2)) + "px";
-        hint.style.height = Math.round(lineHeight) + "px";
-
-        const s = state(root);
-        if (s.editorCaretHintTimer) {
-            window.clearTimeout(s.editorCaretHintTimer);
-            s.editorCaretHintTimer = null;
-        }
+        if (hint) hint.remove();
     }
 
     function restoreEditorSelection(root) {
@@ -6764,6 +6911,7 @@
         setField(root, "content", html || "");
         if (!options.silent) markDirty(root);
         scheduleEditorHeight(root);
+        scheduleEditorMediaRender(root, html);
     }
 
     function saveCurrentCms(root, cfg) {
@@ -6964,16 +7112,20 @@
                 marker.replaceWith(hr);
                 marker = hr;
             }
+            Array.from(marker.classList).forEach(className => {
+                if (className.indexOf("dbx-cms-marker-") === 0) marker.classList.remove(className);
+            });
             marker.classList.add("dbx-cms-marker", "dbx-cms-marker-" + cmsMarkerClassName(name));
             marker.setAttribute("data-dbx-marker", "dbx:" + name);
-            if (!marker.getAttribute("data-label")) marker.setAttribute("data-label", cmsMarkerLabel("dbx:" + name));
+            if (name === "hero" || !marker.getAttribute("data-label")) marker.setAttribute("data-label", cmsMarkerLabel("dbx:" + name));
             marker.setAttribute("contenteditable", "false");
             marker.setAttribute("draggable", "false");
             marker.setAttribute("tabindex", "0");
             marker.setAttribute("role", "button");
-            marker.setAttribute("title", "Marker auswaehlen, ziehen zum Verschieben, Entf zum Loeschen");
+            marker.setAttribute("title", "Marker auswählen, ziehen zum Verschieben, Entf zum Löschen");
         });
         hoistEditorMarkersToSurface(surface);
+        dedupeSingletonMarkers(surface);
         dedupeAdjacentMarkers(surface);
         ensureLeadingEditorParagraph(surface);
         if (selectedName) {
@@ -7175,10 +7327,109 @@
     function closestBootstrapComponent(root, target) {
         const surface = editorSurface(root);
         if (!surface || !target) return null;
-        const el = closestElement(target, ".row,.alert,.card,.list-group,.accordion,.table-responsive,.nav-tabs,.tab-content");
+        const row = closestElement(target, ".row");
+        if (row && surface.contains(row) && (bootstrapRowColumns(row).length || qs(row, ".card"))) {
+            return row;
+        }
+        const tabsPart = closestElement(target, ".nav-tabs,.tab-content");
+        if (tabsPart && surface.contains(tabsPart)) {
+            const tabsWrap = tabsPart.parentElement;
+            const tabsChildren = tabsWrap ? Array.from(tabsWrap.children || []) : [];
+            if (tabsWrap && surface.contains(tabsWrap)
+                && tabsChildren.some(child => child.classList?.contains("nav-tabs"))
+                && tabsChildren.some(child => child.classList?.contains("tab-content"))) {
+                return tabsWrap;
+            }
+            return tabsPart;
+        }
+        const el = closestElement(target, ".alert,.card,.list-group,.accordion,.table-responsive");
         if (!el || !surface.contains(el)) return null;
-        if (el.classList.contains("row") && !qs(el, ".col,.card")) return null;
         return el;
+    }
+
+    /**
+     * CMS-Spaltenboxen verwenden Bootstrap-rows mit direkten col-Kindern.
+     * Die Layoutaktionen ändern ausschließlich die Spaltenklassen; Inhalte,
+     * Medien und Module bleiben erhalten. Beim Auflösen werden die Inhalte
+     * in ihrer bisherigen Reihenfolge aus den Spalten herausgehoben.
+     */
+    function bootstrapRowColumns(row) {
+        if (!row || !row.classList || !row.classList.contains("row")) return [];
+        return Array.from(row.children || []).filter(column => {
+            return column.classList && Array.from(column.classList).some(name => /^col(?:$|-)/.test(name));
+        });
+    }
+
+    function bootstrapColumnRow(root, target) {
+        const surface = editorSurface(root);
+        const row = closestElement(target, ".row");
+        return row && surface && surface.contains(row) && bootstrapRowColumns(row).length ? row : null;
+    }
+
+    function clearBootstrapColumnClasses(column) {
+        if (!column || !column.classList) return;
+        Array.from(column.classList).forEach(name => {
+            if (/^col(?:$|-)/.test(name)) column.classList.remove(name);
+        });
+    }
+
+    function finishBootstrapColumnAction(root, focusNode) {
+        normalizeBootstrapComponents(editorSurface(root));
+        syncEditorDom(root);
+        markDirty(root);
+        scheduleEditorHeight(root);
+        if (focusNode && focusNode.parentNode) selectEditorNode(root, focusNode);
+        return true;
+    }
+
+    function setBootstrapColumnLayout(root, row, mode) {
+        const columns = bootstrapRowColumns(row);
+        if (!columns.length) return false;
+        columns.forEach(column => {
+            clearBootstrapColumnClasses(column);
+            column.classList.add("col-12");
+            if (mode === "responsive") column.classList.add("col-md");
+        });
+        return finishBootstrapColumnAction(root, row);
+    }
+
+    function addBootstrapColumn(root, row) {
+        const columns = bootstrapRowColumns(row);
+        if (!row || !columns.length) return false;
+        const doc = row.ownerDocument || document;
+        const column = doc.createElement("div");
+        const responsive = columns.some(existing => {
+            return Array.from(existing.classList || []).some(name => /^col-(?:sm|md|lg|xl|xxl)(?:-|$)/.test(name));
+        });
+        column.className = responsive ? "col-12 col-md" : "col-12";
+        const paragraph = doc.createElement("p");
+        paragraph.textContent = cmsText(root, "editor_columns_new", "Neue Spalte");
+        column.appendChild(paragraph);
+        row.appendChild(column);
+        return finishBootstrapColumnAction(root, column);
+    }
+
+    function dissolveBootstrapColumns(root, row) {
+        const columns = bootstrapRowColumns(row);
+        if (!row || !row.parentNode || !columns.length) return false;
+        const doc = row.ownerDocument || document;
+        const fragment = doc.createDocumentFragment();
+        let firstMoved = null;
+        Array.from(row.childNodes || []).forEach(node => {
+            if (node.nodeType === 1 && columns.includes(node)) {
+                while (node.firstChild) {
+                    const child = node.firstChild;
+                    if (!firstMoved && child.nodeType === 1) firstMoved = child;
+                    fragment.appendChild(child);
+                }
+                return;
+            }
+            if (!firstMoved && node.nodeType === 1) firstMoved = node;
+            fragment.appendChild(node);
+        });
+        row.parentNode.insertBefore(fragment, row);
+        row.remove();
+        return finishBootstrapColumnAction(root, firstMoved);
     }
 
     function contextMissingMediaTarget(root, target) {
@@ -7239,7 +7490,9 @@
         if (mod && surface.contains(mod)) return mod;
         const missing = closestElement(target, ".dbx-cms-inline-media-missing-wrap");
         if (missing && surface.contains(missing)) return missing;
-        const el = closestElement(target, ".dbx-cms-marker,figure,table,img,video,hr");
+        const inlineMedia = closestElement(target, ".dbx-cms-inline-media");
+        if (inlineMedia && surface.contains(inlineMedia)) return inlineMedia;
+        const el = editorContextBlock(root, target);
         if (!el || !surface.contains(el)) return null;
         if ((el.tagName === "IMG" || el.tagName === "VIDEO") && el.parentElement && el.parentElement.tagName === "FIGURE") {
             return el.parentElement;
@@ -7390,7 +7643,17 @@
         if (inlineModTarget(root, target)) return null;
         const surface = editorSurface(root);
         const img = closestElement(target, "img");
-        return img && surface && surface.contains(img) ? img : null;
+        if (img && surface && surface.contains(img)) return img;
+
+        // Alte Inhalte können eine absolut positionierte Textebene über einem
+        // Bild enthalten. Die Textebene darf die Bildaktionen nicht blockieren.
+        const overlay = closestElement(target, ".position-absolute,[style*='position:absolute'],[style*='position: absolute']");
+        const host = overlay?.parentElement || null;
+        if (!host || !surface || !surface.contains(host)) return null;
+        const isRelative = host.classList?.contains("position-relative")
+            || /position\s*:\s*relative/i.test(host.getAttribute("style") || "");
+        if (!isRelative) return null;
+        return Array.from(host.children || []).find(child => child.tagName === "IMG") || null;
     }
 
     function contextLinkTarget(root, target) {
@@ -7553,6 +7816,7 @@
         const videoMedia = inlineVideoEventTarget(root, e);
         const modPlaceholder = inlineModTarget(root, target);
         const component = closestBootstrapComponent(root, target);
+        const columnRow = bootstrapColumnRow(root, target);
         const cell = contextTableCell(root, target);
         const table = contextTableTarget(root, target);
 
@@ -7578,23 +7842,36 @@
         const menu = document.createElement("div");
         menu.className = "dbx-cms-context-menu";
         menu.setAttribute("role", "menu");
-        menu.setAttribute("aria-label", "Editor Kontextmenue");
+        menu.setAttribute("aria-label", cmsText(root, "editor_context_menu", "Editor-Kontextmenü"));
 
         const movable = removableEditorContextTarget(root, target);
         const hasContextTarget = !!(marker || missingMedia || modPlaceholder || component || videoMedia || img || table || movable);
         const items = [
-            ["Rueckgaengig", "bi-arrow-counterclockwise", () => execEditorCommand(root, "undo"), false],
-            ["Wiederholen", "bi-arrow-clockwise", () => execEditorCommand(root, "redo"), false],
-            ["Alles markieren", "bi-check2-square", () => selectEditorContents(root), false],
-            ["Block nach oben", "bi-arrow-up", () => moveEditorContextBlock(root, movable, -1), !movable],
-            ["Block nach unten", "bi-arrow-down", () => moveEditorContextBlock(root, movable, 1), !movable],
-            ["Modul Platzhalter", "bi-puzzle", () => openModPlaceholderOptions(root, modPlaceholder, cmsConfig(root) || {}), !modPlaceholder],
-            ["Video Optionen", "bi-camera-video", () => openInlineVideoOptions(root, videoMedia), !videoMedia],
-            ["Kopieren", "bi-clipboard", () => copyEditorContext(root, target), !hasSelection && !hasContextTarget],
-            ["Ausschneiden", "bi-scissors", () => cutEditorContext(root, target), !hasSelection && !hasContextTarget],
-            ["Einfuegen", "bi-clipboard-plus", () => pasteEditorContext(root), false],
-            ["Loeschen", "bi-trash", () => deleteEditorContext(root, target), !hasSelection && !hasContextTarget]
+            [cmsText(root, "editor_context_undo", "Rückgängig"), "bi-arrow-counterclockwise", () => execEditorCommand(root, "undo"), false],
+            [cmsText(root, "editor_context_redo", "Wiederholen"), "bi-arrow-clockwise", () => execEditorCommand(root, "redo"), false],
+            [cmsText(root, "editor_context_select_all", "Alles markieren"), "bi-check2-square", () => selectEditorContents(root), false],
+            [cmsText(root, "editor_context_block_up", "Block nach oben"), "bi-arrow-up", () => moveEditorContextBlock(root, movable, -1), !movable],
+            [cmsText(root, "editor_context_block_down", "Block nach unten"), "bi-arrow-down", () => moveEditorContextBlock(root, movable, 1), !movable],
+            [cmsText(root, "editor_context_module", "Modul-Platzhalter"), "bi-puzzle", () => openModPlaceholderOptions(root, modPlaceholder, cmsConfig(root) || {}), !modPlaceholder],
+            [cmsText(root, "editor_context_video", "Video-Optionen"), "bi-camera-video", () => openInlineVideoOptions(root, videoMedia), !videoMedia],
+            [cmsText(root, "editor_image_edit", "Bild bearbeiten"), "bi-pencil-square", () => openCmsImageEditor(root, img), !img],
+            [cmsText(root, "editor_image_remove", "Bild aus Inhalt entfernen"), "bi-image-alt", () => removeEditorImage(root, img), !img],
+            [cmsText(root, "editor_context_copy", "Kopieren"), "bi-clipboard", () => copyEditorContext(root, target), !hasSelection && !hasContextTarget],
+            [cmsText(root, "editor_context_cut", "Ausschneiden"), "bi-scissors", () => cutEditorContext(root, target), !hasSelection && !hasContextTarget],
+            [cmsText(root, "editor_context_paste", "Einfügen"), "bi-clipboard-plus", () => pasteEditorContext(root), false],
+            [cmsText(root, "editor_context_delete", "Löschen"), "bi-trash", () => deleteEditorContext(root, target), !hasSelection && !hasContextTarget]
         ];
+
+        if (columnRow) {
+            items.splice(
+                5,
+                0,
+                [cmsText(root, "editor_columns_stacked", "Spalten untereinander"), "bi-layout-three-columns", () => setBootstrapColumnLayout(root, columnRow, "stacked"), false],
+                [cmsText(root, "editor_columns_responsive", "Spalten nebeneinander"), "bi-layout-split", () => setBootstrapColumnLayout(root, columnRow, "responsive"), false],
+                [cmsText(root, "editor_column_add", "Spalte hinzufügen"), "bi-plus-square", () => addBootstrapColumn(root, columnRow), false],
+                [cmsText(root, "editor_columns_dissolve", "Spalten auflösen"), "bi-x-diamond", () => dissolveBootstrapColumns(root, columnRow), false]
+            );
+        }
 
         items.forEach(item => {
             const btn = contextMenuButton(item[0], item[1], item[2], item[3]);
@@ -7986,8 +8263,11 @@
         saveEditorSelection(root);
     }
 
-    function bootstrapComponentItems() {
+    function bootstrapComponentItems(root) {
         const openWinData = "lib=openWin|title=Information|width=900|height=80%|position=center-top|reload=1|minimizable=1|maximizable=1";
+        const firstColumn = escapeHtml(cmsText(root, "editor_columns_first", "Inhalt der ersten Spalte."));
+        const secondColumn = escapeHtml(cmsText(root, "editor_columns_second", "Inhalt der zweiten Spalte."));
+        const thirdColumn = escapeHtml(cmsText(root, "editor_columns_third", "Inhalt der dritten Spalte."));
         return [
             {
                 label: "Hinweis / Alert",
@@ -8000,6 +8280,14 @@
             {
                 label: "3 Karten",
                 html: '<div class="row row-cols-1 row-cols-md-3 g-3"><div class="col"><div class="card h-100"><div class="card-body"><h3 class="card-title">Erste Karte</h3><p class="card-text">Kurzer Text.</p></div></div></div><div class="col"><div class="card h-100"><div class="card-body"><h3 class="card-title">Zweite Karte</h3><p class="card-text">Kurzer Text.</p></div></div></div><div class="col"><div class="card h-100"><div class="card-body"><h3 class="card-title">Dritte Karte</h3><p class="card-text">Kurzer Text.</p></div></div></div></div><p></p>'
+            },
+            {
+                label: cmsText(root, "editor_columns_two", "2 Spalten"),
+                html: `<div class="row g-3"><div class="col-12 col-md"><p>${firstColumn}</p></div><div class="col-12 col-md"><p>${secondColumn}</p></div></div><p></p>`
+            },
+            {
+                label: cmsText(root, "editor_columns_three", "3 Spalten"),
+                html: `<div class="row g-3"><div class="col-12 col-md"><p>${firstColumn}</p></div><div class="col-12 col-md"><p>${secondColumn}</p></div><div class="col-12 col-md"><p>${thirdColumn}</p></div></div><p></p>`
             },
             {
                 label: "List Group",
@@ -8217,6 +8505,61 @@
         return false;
     }
 
+    function editorMediaId(node) {
+        if (!node || !node.getAttribute) return 0;
+        const ownId = Number(node.getAttribute("data-cms-media-id") || 0);
+        if (ownId > 0) return ownId;
+        const src = String(node.getAttribute("src") || "");
+        const match = src.match(/dbx_mid=([0-9]+)/i);
+        return Number(match && match[1] || 0);
+    }
+
+    function editorMediaNodeById(root, id) {
+        id = Number(id || 0);
+        const surface = editorSurface(root);
+        if (!surface || !id) return null;
+        return qsa(surface, "[data-cms-media-id],img[src*='dbx_mid='],video[src*='dbx_mid='],iframe[src*='dbx_mid=']")
+            .find(node => editorMediaId(node) === id) || null;
+    }
+
+    function editorImageRow(root, img) {
+        const id = editorMediaId(img);
+        const stored = mediaRowById(root, id);
+        if (stored) return stored;
+        const src = String(img?.getAttribute("src") || "");
+        return {
+            id,
+            url: src,
+            thumb_url: src,
+            mime: "image/*",
+            media_type: "image",
+            file_name: "",
+            title: img?.getAttribute("title") || img?.getAttribute("alt") || "Bild",
+            alt: img?.getAttribute("alt") || "",
+            width: img?.naturalWidth || img?.getAttribute("width") || "",
+            height: img?.naturalHeight || img?.getAttribute("height") || ""
+        };
+    }
+
+    function openCmsImageEditor(root, img) {
+        if (!img) return false;
+        const row = editorImageRow(root, img);
+        if (Number(row.id || 0) > 0) {
+            openMediaEdit(root, cmsConfig(root) || {}, row);
+            return true;
+        }
+        return openEditorImageProperties(root, img);
+    }
+
+    function removeEditorImage(root, img) {
+        if (!img || !img.parentNode) return false;
+        const wrapper = closestElement(img, ".dbx-cms-inline-media,figure");
+        const target = wrapper && editorSurface(root)?.contains(wrapper) ? wrapper : img;
+        target.remove();
+        syncEditorDom(root);
+        return true;
+    }
+
     function bindBootstrapCardEditingGuards(root) {
         if (!root) return;
         const surface = editorSurface(root);
@@ -8226,9 +8569,11 @@
             handleBootstrapCardDeleteKey(root, event);
         }, true);
         surface.addEventListener("input", () => {
-            window.requestAnimationFrame(() => {
+            window.clearTimeout(surface.__dbxCmsBootstrapNormalizeTimer);
+            surface.__dbxCmsBootstrapNormalizeTimer = window.setTimeout(() => {
+                surface.__dbxCmsBootstrapNormalizeTimer = null;
                 normalizeBootstrapComponents(surface);
-            });
+            }, 180);
         }, true);
     }
 
@@ -8264,7 +8609,8 @@
         normalizeBootstrapComponents(surface);
         bindEditorMarkerEventsRetry(root);
         syncEditorDom(root);
-        setEditorCaretAfterNode(root, nodes[nodes.length - 1]);
+        const caretNode = nodes.slice().reverse().find(node => node.parentNode && surface.contains(node)) || surface.lastChild;
+        setEditorCaretAfterNode(root, caretNode);
         saveEditorSelection(root);
         return true;
     }
@@ -8313,14 +8659,18 @@
                 marker = hr;
             }
             marker.classList.remove("is-selected", "is-dragging", "is-drop-before", "is-drop-after");
+            Array.from(marker.classList).forEach(className => {
+                if (className.indexOf("dbx-cms-marker-") === 0) marker.classList.remove(className);
+            });
             marker.classList.add("dbx-cms-marker", "dbx-cms-marker-" + cmsMarkerClassName(name));
             marker.removeAttribute("data-cms-drag-token");
             marker.setAttribute("data-dbx-marker", "dbx:" + name);
-            if (!marker.getAttribute("data-label")) marker.setAttribute("data-label", cmsMarkerLabel("dbx:" + name));
+            if (name === "hero" || !marker.getAttribute("data-label")) marker.setAttribute("data-label", cmsMarkerLabel("dbx:" + name));
             marker.setAttribute("contenteditable", "false");
             marker.setAttribute("draggable", "false");
             marker.setAttribute("tabindex", "0");
         });
+        dedupeSingletonMarkers(box);
         dedupeAdjacentMarkers(box);
         return box.innerHTML;
     }
@@ -8526,12 +8876,15 @@
             if (box) box.innerHTML = '<div class="dbx-cms-empty">Tree-URL fehlt.</div>';
             return Promise.resolve();
         }
+        if (s.treeLoading && s.treePromise) return s.treePromise;
+        s.treeLoading = true;
         if (box) box.innerHTML = '<div class="dbx-cms-empty">Tree wird geladen...</div>';
 
-        return fetchJson(apiUrl(url, cmsLngParams(root)))
+        s.treePromise = fetchJson(apiUrl(url, cmsLngParams(root)))
             .then(data => {
                 s.tree = Array.isArray(data.nodes) ? data.nodes : [];
                 s.flat = Array.isArray(data.flat) ? data.flat : [];
+                s.treeLoaded = true;
                 renderTree(root);
 
                 if (!s.selectionRestored) {
@@ -8581,14 +8934,72 @@
                     const firstPage = s.flat.find(n => n._type === "page");
                     if (firstPage) return loadPage(root, cfg, firstPage._id);
                 }
+                revealTreeSelection(root);
             })
             .catch(err => {
+                s.treeLoaded = false;
                 dbx.error("[cms] tree load failed", err);
                 if (box) {
                     box.innerHTML = '<div class="dbx-cms-empty">Tree konnte nicht geladen werden.</div>';
                 }
                 status(root, "Tree konnte nicht geladen werden.", "error");
+            })
+            .finally(() => {
+                s.treeLoading = false;
+                s.treePromise = null;
             });
+        return s.treePromise;
+    }
+
+    function ensureTreeLoaded(root, cfg) {
+        const s = state(root);
+        if (s.treeLoaded) return Promise.resolve(s.tree);
+        return loadTree(root, cfg || cmsConfig(root));
+    }
+
+    function loadInitialSelection(root, cfg) {
+        const s = state(root);
+        if (s.selectionRestored) return Promise.resolve();
+        s.selectionRestored = true;
+
+        const requestedPage = Number(cfg && cfg.cid ? cfg.cid : 0) || 0;
+        const requestedFolder = Number(cfg && cfg.fid ? cfg.fid : 0) || 0;
+
+        if (isViewMode(cfg)) {
+            const pageId = requestedPage || Number(s.selectedPage || 0);
+            if (pageId > 0) {
+                setSelectedPage(root, pageId);
+                setSelectedType(root, "page");
+                if (root.getAttribute("data-cms-initial-page-loaded") === "1") {
+                    s.page = { id: pageId, title: "" };
+                    root.removeAttribute("data-cms-initial-page-loaded");
+                    return Promise.resolve();
+                }
+                return loadViewPage(root, cfg, pageId);
+            }
+            return Promise.resolve();
+        }
+
+        if (requestedFolder > 0) {
+            const folderId = requestedFolder;
+            return ensureTreeLoaded(root, cfg).then(() => {
+                const folder = findNode(root, "folder", folderId);
+                if (!folder) return;
+                setSelectedFolder(root, folderId);
+                setSelectedType(root, "folder");
+                showFolderEditor(root, folder);
+                return loadMedia(root, cfg);
+            });
+        }
+
+        const pageId = requestedPage || Number(s.selectedPage || 0);
+        if (pageId > 0) {
+            setSelectedPage(root, pageId);
+            setSelectedType(root, "page");
+            return loadPage(root, cfg, pageId);
+        }
+
+        return Promise.resolve();
     }
 
     function setSelectValues(select, value) {
@@ -9175,11 +9586,12 @@
                 setSelectedFolder(root, row.folder || 0);
                 setSelectedType(root, "page");
 
-                ["id", "folder", "title", "permalink", "description", "keywords", "template", "activ", "hero_template", "hero_image_id", "hero_margin_top", "hero_height", "hero_variant", "hero_sticky", "hero_scroll_layer", "gallery_template", "gallery_visible_count", "gallery_image_size", "gallery_lightbox_width", "gallery_overflow", "gallery_click_behavior"].forEach(key => {
+                ["id", "folder", "title", "menu_title", "permalink", "description", "keywords", "template", "activ", "hero_template", "hero_image_id", "hero_margin_top", "hero_height", "hero_variant", "hero_sticky", "hero_scroll_layer", "gallery_template", "gallery_visible_count", "gallery_image_size", "gallery_lightbox_width", "gallery_overflow", "gallery_click_behavior"].forEach(key => {
                     setField(root, key, cmsFieldValue(row[key]));
                 });
 
                 try {
+                    suppressDirtyFor(root, 300);
                     setEditorHtml(root, row.content || "");
                 } catch (err) {
                     dbx.error("[cms] editor update failed", err);
@@ -9349,6 +9761,7 @@
             id: Number(getField(root, "id") || 0),
             folder: Number(getField(root, "folder") || 0),
             title: getField(root, "title"),
+            menu_title: getField(root, "menu_title"),
             permalink: getField(root, "permalink"),
             description: getField(root, "description"),
             keywords: getField(root, "keywords"),
@@ -9381,23 +9794,97 @@
         };
         const registerNode = (node) => {
             if (!node || !node.getAttribute) return;
-            registerId(node.getAttribute("data-cms-media-id"));
-            const src = String(node.getAttribute("src") || "");
+            const sourceNode = node.matches?.(".dbx-cms-inline-media")
+                ? (qs(node, "img[src*='dbx_mid='],video[src*='dbx_mid='],iframe[src*='dbx_mid='],source[src*='dbx_mid=']")
+                    || qs(node, "img[data-cms-media-id],video[data-cms-media-id],iframe[data-cms-media-id],source[data-cms-media-id]"))
+                : node;
+            const src = String(sourceNode?.getAttribute?.("src") || "");
             const match = src.match(/dbx_mid=([0-9]+)/i);
-            if (match) registerId(match[1]);
+            if (match) {
+                registerId(match[1]);
+                return;
+            }
+            registerId(node.getAttribute("data-cms-media-id") || sourceNode?.getAttribute?.("data-cms-media-id"));
         };
 
         if (surface) {
-            qsa(surface, ".dbx-cms-inline-media[data-cms-media-id], figure.dbx-cms-inline-video-block[data-cms-media-id]").forEach(wrap => {
-                if (!inlineMediaWrapperHasContent(wrap)) return;
-                if (qs(wrap, "img[src*='dbx_mid=']")) return;
-                registerNode(wrap);
+            const selector = ".dbx-cms-inline-media,img[data-cms-media-id],video[data-cms-media-id],iframe[data-cms-media-id],source[data-cms-media-id],img[src*='dbx_mid='],video[src*='dbx_mid='],iframe[src*='dbx_mid='],source[src*='dbx_mid=']";
+            qsa(surface, selector).forEach(node => {
+                const wrapper = closestElement(node, ".dbx-cms-inline-media");
+                if (wrapper && wrapper !== node) return;
+                if (node.matches?.(".dbx-cms-inline-media") && !inlineMediaWrapperHasContent(node)) return;
+                registerNode(node);
             });
-            qsa(surface, "img[data-cms-media-id], video[data-cms-media-id], iframe[data-cms-media-id]").forEach(registerNode);
-            qsa(surface, "img[src*='dbx_mid=']").forEach(registerNode);
         }
 
         return Array.from(ids).filter(Boolean);
+    }
+
+    function inlineMediaRowsFromEditor(root, rows) {
+        const ids = collectInlineMediaIdsFromEditor(root);
+        return ids.map(id => {
+            const stored = (rows || []).find(row => Number(row.id || row.media_id || 0) === id)
+                || mediaRowById(root, id);
+            if (stored) {
+                return Object.assign({}, stored, {
+                    id,
+                    slot: "inline",
+                    usage: "inline",
+                    usage_id: String(stored.slot || "") === "inline" ? stored.usage_id : ""
+                });
+            }
+
+            const node = editorMediaNodeById(root, id);
+            const image = node?.tagName === "IMG" ? node : qs(node, "img");
+            const src = String(image?.getAttribute("src") || node?.getAttribute("src") || "");
+            return {
+                id,
+                slot: "inline",
+                usage: "inline",
+                url: src,
+                thumb_url: image?.getAttribute("src") || src,
+                mime: node?.tagName === "VIDEO" ? "video/*" : "image/*",
+                media_type: node?.tagName === "VIDEO" || closestElement(node, ".dbx-cms-inline-video-block") ? "video" : "image",
+                title: image?.getAttribute("title") || image?.getAttribute("alt") || node?.getAttribute("title") || ("Medium #" + id),
+                alt: image?.getAttribute("alt") || "",
+                width: image?.naturalWidth || image?.getAttribute("width") || "",
+                height: image?.naturalHeight || image?.getAttribute("height") || ""
+            };
+        });
+    }
+
+    function editorInlineMediaSignature(root, html) {
+        const ids = typeof html === "string"
+            ? inlineMediaIds(html)
+            : collectInlineMediaIdsFromEditor(root);
+        return ids
+            .map(id => Number(id || 0))
+            .filter(Boolean)
+            .join(",");
+    }
+
+    function scheduleEditorMediaRender(root, html) {
+        if (!root) return;
+        const signature = editorInlineMediaSignature(root, html);
+        if (signature === root.__dbxCmsMediaRenderSignature) return;
+        root.__dbxCmsMediaRenderSignature = signature;
+        window.clearTimeout(root.__dbxCmsMediaRenderTimer);
+        root.__dbxCmsMediaRenderTimer = window.setTimeout(() => {
+            root.__dbxCmsMediaRenderTimer = null;
+            renderMedia(root);
+        }, 90);
+    }
+
+    function focusInlineMediaInEditor(root, id) {
+        const node = editorMediaNodeById(root, id);
+        const surface = editorSurface(root);
+        if (!node || !surface) return false;
+        qsa(surface, ".is-dbx-cms-selected").forEach(selected => selected.classList.remove("is-dbx-cms-selected"));
+        const target = closestElement(node, ".dbx-cms-inline-media") || node;
+        target.classList.add("is-dbx-cms-selected");
+        selectEditorNode(root, target);
+        if (target.scrollIntoView) target.scrollIntoView({ behavior: "smooth", block: "center" });
+        return true;
     }
 
     function inlineMediaIds(html) {
@@ -9443,6 +9930,7 @@
 
         setEditorHtml(root, wrap.innerHTML);
         markDirty(root);
+        scheduleEditorMediaRender(root);
         return true;
     }
 
@@ -9467,7 +9955,7 @@
             if (row && row.id) {
                 s.loading = true;
                 suppressDirtyFor(root, 250);
-                ["id", "folder", "title", "permalink", "description", "keywords", "template", "activ", "hero_template", "hero_image_id", "hero_margin_top", "hero_height", "hero_variant", "hero_sticky", "hero_scroll_layer", "gallery_template", "gallery_visible_count", "gallery_image_size", "gallery_lightbox_width", "gallery_overflow", "gallery_click_behavior"].forEach(key => {
+                ["id", "folder", "title", "menu_title", "permalink", "description", "keywords", "template", "activ", "hero_template", "hero_image_id", "hero_margin_top", "hero_height", "hero_variant", "hero_sticky", "hero_scroll_layer", "gallery_template", "gallery_visible_count", "gallery_image_size", "gallery_lightbox_width", "gallery_overflow", "gallery_click_behavior"].forEach(key => {
                     if (row[key] !== undefined) setField(root, key, cmsFieldValue(row[key]));
                 });
                 setSelectedPage(root, row.id || data.id || 0);
@@ -9555,6 +10043,7 @@
     function renderMedia(root, rows) {
         const boxes = qsa(root, "[data-cms-media]");
         if (!boxes.length) return;
+        root.__dbxCmsMediaRenderSignature = editorInlineMediaSignature(root);
         const s = state(root);
         if (Array.isArray(rows)) s.mediaRows = rows.slice();
         rows = s.mediaRows || [];
@@ -9567,10 +10056,12 @@
 
         boxes.forEach(box => {
             const boxSlot = String(box.getAttribute("data-cms-media") || "all");
-            const visible = (Array.isArray(rows) ? rows : []).filter(row => {
-                const slot = String(row.slot || "").trim();
-                return mediaSlotMatchesBox(boxSlot, slot, mediaFilter);
-            });
+            const visible = boxSlot === "inline"
+                ? inlineMediaRowsFromEditor(root, rows)
+                : (Array.isArray(rows) ? rows : []).filter(row => {
+                    const slot = String(row.slot || "").trim();
+                    return mediaSlotMatchesBox(boxSlot, slot, mediaFilter);
+                });
 
             if (!visible.length) {
                 const empty = boxSlot === "gallery"
@@ -9592,6 +10083,12 @@
                 counters[slot] = (counters[slot] || 0) + 1;
                 const badge = (prefixes[slot] || "m") + counters[slot];
                 const originLabel = mediaOriginLabel(row);
+                const actions = boxSlot === "inline"
+                    ? `<button type="button" class="btn btn-outline-primary btn-sm" data-cms-inline-focus title="${escapeHtml(cmsText(root, "media_inline_focus", "Im Editor auswählen"))}"><i class="bi bi-crosshair"></i></button>
+                       ${canEditImage(row) ? `<button type="button" class="btn btn-outline-primary btn-sm" data-cms-media-edit-one title="${escapeHtml(cmsText(root, "media_inline_edit", "Bild bearbeiten"))}"><i class="bi bi-pencil-square"></i></button>` : ""}
+                       <button type="button" class="btn btn-outline-primary btn-sm" data-cms-inline-remove title="${escapeHtml(cmsText(root, "media_inline_remove", "Aus Inhalt entfernen"))}"><i class="bi bi-trash"></i></button>`
+                    : `${canEmbed ? '<button type="button" class="btn btn-outline-primary btn-sm" data-cms-media-embed title="Medium direkt in den Editor einfuegen"><i class="bi bi-image"></i></button>' : ''}
+                       <button type="button" class="btn btn-outline-primary btn-sm" data-cms-media-remove title="Zuordnung aus dieser Seite entfernen"><i class="bi bi-trash"></i></button>`;
                 return `<div class="dbx-cms-media-item" draggable="true" data-media-id="${escapeHtml(row.id || "")}" data-usage-id="${escapeHtml(row.usage_id || row.current_usage_id || "")}" data-media-slot="${escapeHtml(slot)}" data-media-folder="${escapeHtml(row.media_folder || "")}" data-url="${escapeHtml(row.url || "")}" data-thumb-url="${escapeHtml(row.thumb_url || "")}" data-mime="${escapeHtml(row.mime || "")}" data-media-type="${escapeHtml(row.media_type || "")}" data-file-name="${escapeHtml(row.file_name || "")}" data-file-path="${escapeHtml(row.file_path || "")}" data-title="${escapeHtml(row.title || "")}" data-alt="${escapeHtml(row.alt || "")}" data-width="${escapeHtml(row.width || "")}" data-height="${escapeHtml(row.height || "")}">
                 <span class="dbx-cms-media-preview"><span class="dbx-cms-media-badge">${escapeHtml(badge)}</span>${preview}</span>
                 <span class="dbx-cms-media-meta">
@@ -9599,8 +10096,7 @@
                     <span class="dbx-cms-media-slot">${escapeHtml(originLabel)}</span>
                 </span>
                 <span class="dbx-cms-media-actions">
-                    ${canEmbed ? '<button type="button" class="btn btn-outline-primary btn-sm" data-cms-media-embed title="Medium direkt in den Editor einfuegen"><i class="bi bi-image"></i></button>' : ''}
-                    <button type="button" class="btn btn-outline-primary btn-sm" data-cms-media-remove title="Zuordnung aus dieser Seite entfernen"><i class="bi bi-trash"></i></button>
+                    ${actions}
                 </span>
             </div>`;
             }).join("");
@@ -9669,7 +10165,7 @@
     }
 
     function mediaEditNeedsRebuild(modal) {
-        return !modal || !!qs(modal, ".dbx-cms-media-edit-actions");
+        return !modal || !!qs(modal, ".dbx-cms-media-edit-actions") || !qs(modal, "[data-cms-media-edit-status]");
     }
 
     function fitMediaEditDialog(modal) {
@@ -9711,6 +10207,7 @@
                 <strong><i class="bi bi-crop"></i> Bild bearbeiten</strong>
                 <button type="button" class="btn btn-outline-secondary btn-sm" data-cms-media-edit-close title="Schliessen"><i class="bi bi-x-lg"></i></button>
             </div>
+            <div class="dbx-cms-media-edit-status" data-cms-media-edit-status aria-live="polite" hidden></div>
             <div class="dbx-cms-media-edit-body">
                 <div class="dbx-cms-media-edit-preview" data-cms-media-edit-preview>
                     <div class="dbx-cms-media-edit-stage" data-cms-media-edit-stage>
@@ -9743,6 +10240,20 @@
         document.body.appendChild(modal);
         s.mediaEditDialog = modal;
         return modal;
+    }
+
+    function setMediaEditLocalStatus(modal, message, type) {
+        const local = qs(modal, "[data-cms-media-edit-status]");
+        if (!local) return;
+        message = String(message || "");
+        local.textContent = message;
+        local.hidden = !message;
+        local.className = "dbx-cms-media-edit-status" + (message && type ? " is-" + type : "");
+    }
+
+    function reportMediaEditStatus(root, modal, message, type) {
+        status(root, message, type);
+        setMediaEditLocalStatus(modal, message, type);
     }
 
     function mediaEditImageSize(modal) {
@@ -9869,15 +10380,15 @@
         const payload = mediaEditPayload(modal, "crop");
         const natural = mediaEditImageSize(modal);
         if (!payload.id) {
-            status(root, "Kein Bild ausgewaehlt.", "error");
+            reportMediaEditStatus(root, modal, "Kein Bild ausgewaehlt.", "error");
             return false;
         }
         if (!modal.__dbxCmsCropActive) {
-            status(root, "Bitte zuerst einen Bildausschnitt waehlen.", "error");
+            reportMediaEditStatus(root, modal, "Bitte zuerst einen Bildausschnitt waehlen.", "error");
             return false;
         }
         if (!img || !img.complete || !natural.width || !natural.height || payload.width < 1 || payload.height < 1) {
-            status(root, "Bitte einen gueltigen Ausschnitt waehlen.", "error");
+            reportMediaEditStatus(root, modal, "Bitte einen gueltigen Ausschnitt waehlen.", "error");
             return false;
         }
         const x = clampMediaCrop(Math.round(payload.x), 0, natural.width - 1);
@@ -9889,14 +10400,14 @@
         canvas.height = height;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
-            status(root, "Vorschau konnte nicht erstellt werden.", "error");
+            reportMediaEditStatus(root, modal, "Vorschau konnte nicht erstellt werden.", "error");
             return false;
         }
         try {
             ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
         } catch (err) {
             dbx.error("[cms] crop preview failed", err);
-            status(root, "Vorschau konnte nicht erstellt werden.", "error");
+            reportMediaEditStatus(root, modal, "Vorschau konnte nicht erstellt werden.", "error");
             return false;
         }
         const previous = modal.__dbxCmsPendingCrop || { x: 0, y: 0 };
@@ -9913,7 +10424,7 @@
         };
         img.src = canvas.toDataURL("image/png");
         if (selection) selection.hidden = true;
-        status(root, "Ausschnitt als Vorschau erstellt. Mit Ausschnitt uebernehmen speichern.", "info");
+        reportMediaEditStatus(root, modal, "Ausschnitt als Vorschau erstellt. Mit Ausschnitt uebernehmen speichern.", "info");
         return true;
     }
 
@@ -9962,11 +10473,11 @@
         options = options || {};
         let payload = mediaEditPayload(modal, action);
         if (!payload.id) {
-            status(root, "Kein Bild ausgewaehlt.", "error");
+            reportMediaEditStatus(root, modal, "Kein Bild ausgewaehlt.", "error");
             return Promise.resolve(false);
         }
         if (action === "resize" && modal.__dbxCmsPendingCrop) {
-            status(root, "Bitte den Ausschnitt zuerst uebernehmen oder den Dialog neu oeffnen.", "warning");
+            reportMediaEditStatus(root, modal, "Bitte den Ausschnitt zuerst uebernehmen oder den Dialog neu oeffnen.", "warning");
             return Promise.resolve(false);
         }
         if (action === "crop" && modal.__dbxCmsPendingCrop) {
@@ -9978,11 +10489,11 @@
             });
         }
         if (action === "crop" && !modal.__dbxCmsPendingCrop && !modal.__dbxCmsCropActive) {
-            status(root, "Bitte zuerst einen Bildausschnitt waehlen.", "error");
+            reportMediaEditStatus(root, modal, "Bitte zuerst einen Bildausschnitt waehlen.", "error");
             return Promise.resolve(false);
         }
         if (action === "crop" && (payload.width < 1 || payload.height < 1)) {
-            status(root, "Bitte einen gueltigen Ausschnitt waehlen.", "error");
+            reportMediaEditStatus(root, modal, "Bitte einen gueltigen Ausschnitt waehlen.", "error");
             return Promise.resolve(false);
         }
         const successMsg = action === "crop"
@@ -9993,9 +10504,16 @@
             silent: false,
             successMsg
         }).then(data => {
-            if (!data || !data.ok) return false;
+            if (!data || !data.ok) {
+                setMediaEditLocalStatus(modal, "Bild konnte nicht bearbeitet werden.", "error");
+                return false;
+            }
             const updated = Array.isArray(data.rows) && data.rows[0] ? data.rows[0] : null;
-            if (!updated) return false;
+            if (!updated) {
+                setMediaEditLocalStatus(modal, "Die aktualisierten Bilddaten fehlen.", "error");
+                return false;
+            }
+            setMediaEditLocalStatus(modal, successMsg, "success");
             const browserModal = qs(document, "[data-cms-media-browser]");
             if (browserModal) patchMediaBrowserRow(browserModal, updated);
             loadMedia(root, cfg);
@@ -10143,6 +10661,7 @@
         modal.__dbxCmsEditRow = row;
         modal.__dbxCmsPendingCrop = null;
         modal.__dbxCmsCropActive = false;
+        setMediaEditLocalStatus(modal, "", "");
         const img = qs(modal, "[data-cms-media-edit-image]");
         const w = qs(modal, "[data-cms-media-edit-width]");
         const h = qs(modal, "[data-cms-media-edit-height]");
@@ -10197,7 +10716,10 @@
     function mediaRowsForResize(root, scope, modal) {
         if (modal) {
             if (scope === "all") {
-                return mediaBrowserAllRows(modal).filter(canEditImage);
+                const shown = Array.isArray(modal.__dbxCmsFilteredRows)
+                    ? modal.__dbxCmsFilteredRows
+                    : mediaBrowserAllRows(modal);
+                return shown.filter(canEditImage);
             }
             if (scope === "visible") {
                 return mediaBrowserRows(modal).filter(canEditImage);
@@ -10570,6 +11092,15 @@
         const editor = qs(root, "[data-cms-editor]");
         if (!editor) return;
         if (marker === "dbx:split") marker = "dbx:col2";
+        const name = cmsMarkerName(marker);
+        if (name === "hero") {
+            const existing = qsa(editorSurface(root), ".dbx-cms-marker,[data-dbx-marker]")
+                .find(item => markerNameFromElement(item) === name);
+            if (existing) {
+                insertEditorHrNode(root, existing);
+                return;
+            }
+        }
         insertEditorMarkerElement(root, marker, label);
     }
 
@@ -10591,13 +11122,6 @@
                 if (proc.getAttribute("data-process-status") !== "finished" || proc.__dbxCmsFinishedHandled) return;
                 proc.__dbxCmsFinishedHandled = true;
                 status(root, "Medienwartung abgeschlossen.", "success");
-                openMediaBrowser(root, cfg, {
-                    mode: modal.__dbxCmsMediaMode || "editor",
-                    slot: modal.__dbxCmsAssignSlot || currentMediaSlot(root),
-                    mediaFolder: modal.__dbxCmsMediaFolder || "",
-                    formDataExtra: modal.__dbxCmsFormDataExtra || null,
-                    afterAssign: modal.__dbxCmsAfterAssign
-                });
             });
         }
 
@@ -10692,7 +11216,7 @@
                 if (e.stopImmediatePropagation) e.stopImmediatePropagation();
 
                 const name = action.getAttribute("data-cms-action");
-                if (name === "toggle-tree-panel") toggleTreePanel(root);
+                if (name === "toggle-tree-panel") toggleTreePanel(root, cfg);
                 if (name === "toggle-right-panel") toggleRightPanel(root, action);
                 if (name === "save") saveCurrentCms(root, cfg);
                 if (name === "save-settings") saveCurrentCms(root, cfg);
@@ -10920,6 +11444,24 @@
             const marker = closestElement(e.target, "[data-cms-marker]");
             if (marker && root.contains(marker)) {
                 insertMarker(root, marker.getAttribute("data-cms-marker"));
+                return;
+            }
+
+            const inlineFocus = closestElement(e.target, "[data-cms-inline-focus]");
+            if (inlineFocus && root.contains(inlineFocus)) {
+                const item = closestElement(inlineFocus, ".dbx-cms-media-item");
+                focusInlineMediaInEditor(root, Number(item?.getAttribute("data-media-id") || 0));
+                return;
+            }
+
+            const inlineRemove = closestElement(e.target, "[data-cms-inline-remove]");
+            if (inlineRemove && root.contains(inlineRemove)) {
+                const item = closestElement(inlineRemove, ".dbx-cms-media-item");
+                const id = Number(item?.getAttribute("data-media-id") || 0);
+                if (removeInlineMediaFromEditor(root, id)) {
+                    renderMedia(root);
+                    status(root, cmsText(root, "media_inline_removed", "Medium wurde aus dem Inhalt entfernt."), "success");
+                }
                 return;
             }
 
@@ -11387,7 +11929,7 @@
             }
             bindStickyHeaderOffset(el);
             bindTreeFlyoutPosition(el);
-            initTreePanelState(el, cfg || {});
+            initTreePanelState(el);
             initRightPanelState(el);
             bindTreeRuntimeEnhancements(el);
             if (!isViewMode(cfg || {})) {
@@ -11404,7 +11946,7 @@
             } catch (err) {
                 dbx.error("[cms] bind failed", err);
             }
-            loadTree(el, cfg || {});
+            loadInitialSelection(el, cfg || {});
         },
 
         rescan(root) {

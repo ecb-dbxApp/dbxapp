@@ -13,22 +13,22 @@
     const dbx = window.dbx;
     const LIB = "content";
 
-    function hasVisibleHeroText(el) {
+    function hasVisibleHeroContent(el) {
         if (!el) return false;
         if (el.querySelector("img,video,iframe,object,embed,table,ul,ol,li,figure,[data-dbx]")) return true;
         return String(el.textContent || "").replace(/\u00a0/g, " ").trim() !== "";
     }
 
-    function cleanupEmptyHeroText(root) {
-        (root || document).querySelectorAll(".c-cms .cms-hero.has-hero .hero-text").forEach(el => {
-            if (!hasVisibleHeroText(el)) el.remove();
+    function cleanupEmptyHeroContent(root) {
+        (root || document).querySelectorAll(".c-cms .cms-hero.has-hero .hero-content").forEach(el => {
+            if (!hasVisibleHeroContent(el)) el.remove();
         });
     }
 
     function init(el, cfg) {
         if (!el || el.__dbxContentReady) return;
         el.__dbxContentReady = true;
-        cleanupEmptyHeroText(el);
+        cleanupEmptyHeroContent(el);
         if (window.dbx && typeof dbx.log === "function") {
             dbx.log("[content] init", cfg && cfg.id ? cfg.id : "");
         }
@@ -38,7 +38,7 @@
         init,
         rescan(ctx) {
             const root = ctx || document;
-            cleanupEmptyHeroText(root);
+            cleanupEmptyHeroContent(root);
             root.querySelectorAll("[data-dbx]").forEach(el => {
                 if (el.__dbxContentReady) return;
                 const cfgList = dbx.parseData(el.getAttribute("data-dbx"));

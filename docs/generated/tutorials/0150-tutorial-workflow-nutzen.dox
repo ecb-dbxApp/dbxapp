@@ -1,0 +1,171 @@
+/**
+@page dbxcontent_tutorial_tutorial_workflow_nutzen Tutorial: Workflow benutzen
+
+<!-- Automatisch aus content_de#128 erzeugt. Nicht direkt bearbeiten. -->
+
+@htmlonly
+<div class="dbx-doc-meta"><span>Anwender-Tutorial</span><span>dbxContent #128</span><span>Permalink: <code>tutorial-workflow-nutzen</code></span></div>
+@endhtmlonly
+
+> **Kurzbeschreibung:** Workflow starten, Aufgaben bearbeiten, automatische Prüfungen verstehen, Fachmodule nutzen und kontrolliert abschließen.
+
+@htmlonly
+<div class="dbx-tutorial-source">
+<p class="lead">Dieses Tutorial erklärt die tägliche Bedienung eines dbxWorkflow-Ablaufs: Start, Eingaben, automatische Prüfungen, Fachmodule, Entscheidungen, Pause und kontrollierter Abschluss.</p>
+
+<div class="alert alert-primary"><strong>Wichtig:</strong> Jeder neue Start erzeugt eine eigene Instanz mit einem Snapshot der zu diesem Zeitpunkt aktiven Admin-Definition. Ein unbekannter oder deaktivierter Workflow-Key wird abgelehnt.</div>
+
+<h2>1. Workflow starten</h2>
+<p>Aktive Workflows werden aus der Workflow-Liste, aus einem Fachmodul oder über einen vorbereiteten Startlink geöffnet. Prüfen Sie vor dem Start Titel und Ziel. Wenn bereits eine Instanz existiert, verwenden Sie nach Möglichkeit deren Fortsetzen-Aktion, statt unbeabsichtigt einen zweiten Durchlauf zu erzeugen.</p>
+<ul>
+  <li><strong>Neuer Start:</strong> erzeugt eine neue Instanz.</li>
+  <li><strong>Fortsetzen:</strong> öffnet eine vorhandene Instanz mit ihren gespeicherten Werten.</li>
+  <li><strong>Vorauswahl:</strong> ein Fachdatensatz kann über den Startkontext bereits ausgewählt sein.</li>
+</ul>
+
+<h2>2. Oberfläche verstehen</h2>
+<p>Eine laufende Instanz zeigt:</p>
+<ul>
+  <li>Workflow-Name und fachliches Ziel</li>
+  <li>Status und Gesamtfortschritt</li>
+  <li>Schrittnavigation mit erledigten, aktuellen und gesperrten Aufgaben</li>
+  <li>Hinweis zur aktuellen Aufgabe</li>
+  <li>Eingabe, Auswahl oder Links zum Fachmodul</li>
+  <li>Meldungen automatischer Prüfungen</li>
+  <li>Review und Abschluss, sobald alle anwendbaren Schritte erledigt sind</li>
+</ul>
+<p>Bei langen Abläufen kann die Schrittnavigation horizontal gescrollt werden. Ein gesperrter Schritt wartet auf eine Voraussetzung; er ist kein technischer Fehler.</p>
+
+<h2>3. Schrittzustände richtig lesen</h2>
+<table class="table table-striped">
+  <thead><tr><th>Anzeige</th><th>Bedeutung</th></tr></thead>
+  <tbody>
+    <tr><td>Aktuell</td><td>Diese Aufgabe kann jetzt bearbeitet werden.</td></tr>
+    <tr><td>Erledigt</td><td>Ein gültiger Wert oder eine Bestätigung wurde gespeichert.</td></tr>
+    <tr><td>Gesperrt</td><td>Eine frühere Voraussetzung fehlt oder der Zweig ist noch nicht entschieden.</td></tr>
+    <tr><td>Optional</td><td>Der Schritt kann bewusst übersprungen werden.</td></tr>
+    <tr><td>Automatik</td><td>Das System versucht eine sichere Prüfung selbst auszuführen.</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Werte erfassen und übernehmen</h2>
+<ol>
+  <li>Hinweis und erwartetes Zwischenergebnis lesen.</li>
+  <li>Bei Einzelauswahl genau einen Wert wählen oder eingeben.</li>
+  <li>Bei Mehrfachauswahl alle benötigten Werte markieren.</li>
+  <li><strong>Übernehmen</strong> wählen.</li>
+  <li>Rückmeldung lesen und prüfen, ob der nächste Schritt aktiv wird.</li>
+</ol>
+<p>Ein bereits erledigter, weiterhin anwendbarer Schritt kann erneut geöffnet werden. Ändern Sie dort einen Wert, kontrollieren Sie anschließend den restlichen Ablauf erneut, weil sich Entscheidungen oder Prüfungen ändern können.</p>
+
+<h2>5. Optionalen Schritt überspringen</h2>
+<p>Optionale Aufgaben können über die vorgesehene Überspringen-Aktion abgeschlossen werden. Das Überspringen wird ausdrücklich gespeichert und bleibt nachvollziehbar. Überspringen Sie einen Schritt nur, wenn das fachliche Ziel auch ohne diesen Nachweis erreicht werden kann.</p>
+
+<h2>6. Automatische Prüfung auswerten</h2>
+<p>Eine automatische <em>observe</em>-Prüfung läuft, sobald sie der nächste anwendbare Schritt ist. Sie liest einen sicheren Fachwert und speichert Ergebnis und Meldung.</p>
+<div class="card mb-3"><div class="card-body"><code>vorherigen Schritt speichern</code><br>→ nächster Schritt wird ermittelt<br>→ Fachmodul liefert Prüfwert<br>→ Ergebnis und Meldung werden gespeichert<br>→ nächster manueller Schritt wird geöffnet</div></div>
+<p>Kann kein eindeutiger Wert bestimmt werden, bleibt die Aufgabe manuell bearbeitbar. Lesen Sie die Meldung vollständig. Sie nennt häufig konkret fehlende Angaben wie Kategorie, Policies, Zugangsdaten oder Mapping.</p>
+
+<h2>7. Fachmodul öffnen und zurückkehren</h2>
+<p>Ein Modulschritt kann Links wie <strong>Artikel bearbeiten</strong>, <strong>eBay-Mapping</strong> oder <strong>Kontaktanfrage öffnen</strong> anbieten.</p>
+<ol>
+  <li>Passendes Fachformular über den angebotenen Link öffnen.</li>
+  <li>Daten im Fachmodul bearbeiten und dort speichern.</li>
+  <li>Zum Workflow-Fenster zurückkehren.</li>
+  <li>Verlangte Bestätigung aktivieren.</li>
+  <li>Schritt mit <strong>Übernehmen</strong> abschließen.</li>
+</ol>
+<div class="alert alert-warning"><strong>Bestätigung ist kein Ersatz für Speichern:</strong> Erst im Fachmodul speichern, danach den Workflow-Schritt bestätigen. Beim Abschluss können entscheidende Fachdaten erneut geprüft werden.</div>
+
+<h2>8. Entscheidungen und Zweige</h2>
+<p>Eine Entscheidung speichert einen eindeutigen Ergebniswert. Nur der dazu passende Zweig wird anschließend für den Abschluss verlangt.</p>
+<div class="card mb-3"><div class="card-body"><code>Freigabe = approved</code><br>→ „Auftrag ausführen“ wird anwendbar<br>→ „Rückfrage bearbeiten“ gehört nicht zum aktiven Zweig</div></div>
+<p>Wird die Entscheidung später geändert, berechnet der Workflow den aktiven Zweig neu. Kontrollieren Sie danach alle nachfolgenden Schritte und Meldungen.</p>
+
+<h2>9. Externe Aktionen bewusst bestätigen</h2>
+<p>Veröffentlichung, Mailversand, Zahlung oder andere schwer rückgängig zu machende Aktionen bleiben sichtbar. Prüfen Sie vor der Bestätigung:</p>
+<ul>
+  <li>richtigen Datensatz und richtiges Zielsystem</li>
+  <li>vollständige Pflichtdaten und aktuelle Vorprüfung</li>
+  <li>Test-/Sandbox- oder Produktivmodus</li>
+  <li>mögliche Kosten, Veröffentlichung oder Benachrichtigung</li>
+  <li>ob die Aktion beim Provider vielleicht bereits erfolgreich war</li>
+</ul>
+
+<h2>10. Fortschritt richtig interpretieren</h2>
+<p>Der Prozentwert basiert auf den aktuell relevanten Schritten. Vor einer Entscheidung können noch beide Zweige im Gesamtumfang enthalten sein; danach werden nicht gewählte Zweige entfernt. 100 Prozent bedeuten erst nach erfolgreichem Finish einen abgeschlossenen Workflow.</p>
+
+<h2>11. Pause, Fortsetzen, Abbrechen und Neustarten</h2>
+<table class="table table-striped">
+  <thead><tr><th>Befehl</th><th>Wirkung</th><th>Wann verwenden?</th></tr></thead>
+  <tbody>
+    <tr><td>Pause</td><td>Bearbeitung anhalten, Werte erhalten</td><td>Rückfrage oder externe Zuarbeit fehlt</td></tr>
+    <tr><td>Fortsetzen</td><td>Pausierte Instanz weiterbearbeiten</td><td>Voraussetzung ist wieder erfüllt</td></tr>
+    <tr><td>Abbrechen</td><td>Instanz kontrolliert beenden</td><td>Ziel soll nicht mehr verfolgt werden</td></tr>
+    <tr><td>Neustart</td><td>Neuen Durchlauf nach vorgesehenen Regeln beginnen</td><td>Definition oder Ausgangslage hat sich wesentlich geändert</td></tr>
+  </tbody>
+</table>
+<div class="alert alert-danger"><strong>Vor Neustart externer Vorgänge:</strong> Prüfen Sie zuerst den Providerstatus. Eine lokale Instanz kann fehlschlagen, obwohl die externe Veröffentlichung oder Zahlung bereits erfolgt ist.</div>
+
+<h2>12. Review und Abschluss</h2>
+<p>Sobald alle anwendbaren Schritte erledigt sind, öffnet sich die Abschlussprüfung.</p>
+<ol>
+  <li>Alle zusammengefassten Ergebnisse lesen.</li>
+  <li>Ziel und ausgewählten Fachdatensatz vergleichen.</li>
+  <li>Automatische Meldungen und externe IDs prüfen.</li>
+  <li>Abschluss bestätigen.</li>
+  <li>Erfolgsmeldung und Status <strong>finished</strong> kontrollieren.</li>
+</ol>
+<p>Die Finish-Logik kann einen Fachdatensatz aktualisieren, eine Nachricht senden oder einen Providerstatus erneut prüfen. Bei fehlender Listing-ID, ungültigem Datensatz oder negativem Exportstatus muss der Abschluss verständlich verweigert werden.</p>
+
+<h2>13. Laufende Instanzen und Historie</h2>
+<p>Administratoren finden im Instanzreport Startzeit, Workflow-Key, Ziel, Status, aktuelle Aufgabe, Fortschritt und letzte Meldung. Die Schritthistorie dokumentiert Position, Schritt-Key, Aktion, Wert, Meldung, Bearbeiter und Zeitpunkt.</p>
+
+<h2>Fehlersuche</h2>
+<table class="table table-striped">
+  <thead><tr><th>Problem</th><th>Prüfung</th></tr></thead>
+  <tbody>
+    <tr><td>Nächster Schritt bleibt gesperrt</td><td>Vorherigen Pflichtschritt, gespeicherten Entscheidungswert und Abhängigkeit prüfen.</td></tr>
+    <tr><td>Automatik läuft nicht</td><td>Ist sie nächster anwendbarer Schritt? Kann das Fachmodul einen Wert liefern?</td></tr>
+    <tr><td>Fortschritt wirkt unerwartet</td><td>Spätere gesperrte Schritte und noch offene Entscheidungszweige berücksichtigen.</td></tr>
+    <tr><td>Finish wird verweigert</td><td>Review-Meldung, Fachdatensatz, Providerstatus und externe ID vollständig prüfen.</td></tr>
+    <tr><td>Änderung im Designer fehlt</td><td>Neue Instanz starten; laufende Instanzen verwenden ihren Definitions-Snapshot.</td></tr>
+  </tbody>
+</table>
+
+<h2>Bediencheckliste</h2>
+<div class="card"><div class="card-body"><ul class="mb-0">
+  <li>Richtigen Workflow und richtigen Fachdatensatz gestartet</li>
+  <li>Keine unbeabsichtigte zweite Instanz erzeugt</li>
+  <li>Aktuelle Aufgabe und Ziel verstanden</li>
+  <li>Pflichtwerte gespeichert, optionale Schritte bewusst bearbeitet</li>
+  <li>Automatische Meldungen gelesen und Fachmodule wirklich gespeichert</li>
+  <li>Externe Aktion erst nach Ziel- und Modusprüfung bestätigt</li>
+  <li>Review vollständig und fachlich plausibel</li>
+  <li>Abschluss meldet fachlichen Erfolg, nicht nur UI-Fortschritt</li>
+</ul></div></div>
+
+<p class="mt-4"><a href="dbxcontent_tutorial_tutorial_workflow_erstellen.html">Workflow erstellen</a><a href="dbxcontent_tutorial_tutorials_dbxapp.html">Alle Tutorials</a></p>
+</div>
+@endhtmlonly
+
+## Screenshots aus dbxContent (4)
+
+@htmlonly
+<div class="dbx-tutorial-gallery">
+@endhtmlonly
+@image html dbxcontent-media-391-workflow-starten.webp "Schritt 1: Ziel prüfen, den richtigen Fachdatensatz auswählen und den ersten Wert mit „Übernehmen“ speichern."
+
+@image html dbxcontent-media-392-automatische-pr-fung.webp "Schritt 2: Automatische Meldung vollständig lesen; fehlende Angaben im Fachmodul ergänzen, bevor der Ablauf fortgesetzt wird."
+
+@image html dbxcontent-media-393-fachmodul-bearbeiten.webp "Schritt 3: Fachformular öffnen, dort speichern, zum Workflow zurückkehren, Bestätigung setzen und übernehmen."
+
+@image html dbxcontent-media-394-review-und-abschluss.webp "Schritt 4: Zusammenfassung, externe Daten und Ziel kontrollieren und erst danach den fachlichen Abschluss bestätigen."
+
+@htmlonly
+</div>
+@endhtmlonly
+
+@note Quelle: deutsche dbxContent-Seite `content_de#128`. Generiert am 28. Juli 2026 über DD, dbxDB und Medienzuordnungen.
+
+*/

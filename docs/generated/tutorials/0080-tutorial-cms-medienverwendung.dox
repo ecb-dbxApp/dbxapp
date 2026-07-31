@@ -1,0 +1,61 @@
+/**
+@page dbxcontent_tutorial_tutorial_cms_medienverwendung Tutorial: CMS Medienverwendung
+
+<!-- Automatisch aus content_de#86 erzeugt. Nicht direkt bearbeiten. -->
+
+@htmlonly
+<div class="dbx-doc-meta"><span>Anwender-Tutorial</span><span>dbxContent #86</span><span>Permalink: <code>tutorial-cms-medienverwendung</code></span></div>
+@endhtmlonly
+
+> **Kurzbeschreibung:** Hero, Gallery und Inline-Medien im rechten CMS-Bereich.
+
+@htmlonly
+<div class="dbx-tutorial-source">
+<p>Hero, Gallery und Inline-Medien im rechten CMS-Bereich.</p><p>Nutzen Sie die Slideshow, um die einzelnen Schritte in Ruhe durchzugehen.</p>
+</div>
+@endhtmlonly
+
+## Screenshots aus dbxContent (16)
+
+@htmlonly
+<div class="dbx-tutorial-gallery">
+@endhtmlonly
+@image html dbxcontent-media-291-rechter-cms-bereich.png "Rechts steuern Sie Medienverwendung für Hero, Gallery und Inline-Medien."
+
+@image html dbxcontent-media-274-hauptmen.png "Das Hauptmenü öffnet die Arbeitsbereiche. Erklärt wird nur, was gerade sichtbar ist."
+
+@image html dbxcontent-media-264-login-starten.png "Benutzername und Passwort werden hier eingegeben. Danach wird die Anmeldung gestartet."
+
+@image html dbxcontent-media-292-hero-bild.png "Hero ist das große Kopfbild der Seite. Auswahl und Speichern wirken auf den Hero-Bereich."
+
+@image html dbxcontent-media-275-content-men.png "Im geöffneten Content-Menü starten Sie CMS, Medien und SEO-Funktionen."
+
+@image html dbxcontent-media-265-anmeldung-pr-fen.png "Nach dem Absenden prüft dbxapp die Zugangsdaten und lädt die Arbeitsumgebung."
+
+@image html dbxcontent-media-293-hero-einstellungen.png "Template, Abstand, Höhe, Variante und Sticky-Verhalten beeinflussen die Darstellung des Hero-Bildes."
+
+@image html dbxcontent-media-276-dbxki-men.png "Im geöffneten dbxKi-Menü liegen KI-Aufträge für Content und Module."
+
+@image html dbxcontent-media-266-nach-dem-login.png "Angemeldete Benutzer sehen Admin-Menüs, Bearbeitungssymbole und persönliche Funktionen."
+
+@image html dbxcontent-media-294-gallery.png "Die Gallery ist die Bilder- oder Medienliste der Seite. Sie besitzt eigene Darstellungsoptionen."
+
+@image html dbxcontent-media-277-frontend-cms-men.png "Dieses geöffnete Menü startet Bearbeitungen direkt aus der Frontpage heraus."
+
+@image html dbxcontent-media-267-avatar-men.png "Das Avatar-Menü führt zu neuen Anfragen, eigenen Anfragen und zum eigenen Profil."
+
+@image html dbxcontent-media-295-inline-medien.png "Im Abschnitt Im Text werden Medien verwaltet, die direkt im Editor-Inhalt verwendet werden."
+
+@image html dbxcontent-media-268-eigene-daten.png "Im Profil werden Kontaktdaten, Adresse, Sprache, Design und Farbe bearbeitet."
+
+@image html dbxcontent-media-296-auswahl-und-speichern.png "Auswahl öffnet den Medienbrowser. Speichern übernimmt die Einstellungen dieses Bereichs."
+
+@image html dbxcontent-media-269-profilbild-und-passwort.png "Profilbild und Passwort liegen rechts im Profil. Passwortänderungen brauchen zwei gleiche Eingaben."
+
+@htmlonly
+</div>
+@endhtmlonly
+
+@note Quelle: deutsche dbxContent-Seite `content_de#86`. Generiert am 28. Juli 2026 über DD, dbxDB und Medienzuordnungen.
+
+*/

@@ -1,0 +1,481 @@
+/* =========================================================
+   DBX MENU – MECHANICS
+   =========================================================
+   AUFGABE DIESER DATEI
+   ---------------------------------------------------------
+   - Struktur
+   - Display / Positionierung
+   - Dropdown-Mechanik
+   - Responsive-Verhalten
+   - Mobile-Opener-Mechanik
+   - Scroll-Verhalten
+   ---------------------------------------------------------
+   ALLES WAS NUR "LOOK / FARBEN / SCHATTEN" IST → c-menu.css
+   ========================================================= */
+
+
+/* =========================================================
+   HEADER CONTEXT
+   =========================================================
+   Falls Dropdowns aus dem Header herausragen, muss der
+   Container overflow sichtbar lassen.
+   ========================================================= */
+
+#dbxHeader {
+    position: relative;
+    z-index: 100;
+    overflow: visible;
+}
+
+
+/* =========================================================
+   MENU ROOT
+   =========================================================
+   Basis-Container eines Menüs.
+   ========================================================= */
+
+.dbx-menu {
+    width: 100%;
+    user-select: none;
+    position: relative;
+}
+
+/* Layer-Reihenfolge mehrerer Menüs */
+.dbx-menu-admin { z-index: 30; }
+.dbx-menu-user  { z-index: 20; }
+
+
+/* =========================================================
+   ROOT LIST – FALLBACK
+   =========================================================
+   Falls ein Menü direkt als UL gerendert wird.
+   ========================================================= */
+
+.dbx-menu.dbx-menu-list {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: 2px;
+    padding: 0 6px;
+}
+
+.dbx-menu.dbx-menu-list > .dbx-menu-item {
+    display: flex;
+    flex: 0 0 auto;
+}
+
+
+/* =========================================================
+   ROOT LIST – LEVEL 1
+   =========================================================
+   Normale Desktop-Hauptnavigation.
+   ========================================================= */
+
+.dbx-menu > .dbx-menu-list {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: 2px;
+    padding: 0 6px;
+}
+
+.dbx-menu > .dbx-menu-list > .dbx-menu-item {
+    display: flex;
+    flex: 0 0 auto;
+    position: relative;
+}
+
+
+/* =========================================================
+   SEPARATOR – STRUKTUR
+   =========================================================
+   Nur Position / Größe.
+   Farbe kommt aus c-menu.css.
+   ========================================================= */
+
+.dbx-menu > .dbx-menu-list > .dbx-menu-item::after {
+    content: "";
+    position: absolute;
+    right: -3px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    z-index: 2;
+}
+
+.dbx-menu > .dbx-menu-list > .dbx-menu-item:last-child::after {
+    display: none;
+}
+
+
+/* =========================================================
+   SUB LISTS
+   =========================================================
+   Unterlisten sind grundsätzlich Block-Container.
+   ========================================================= */
+
+.dbx-menu-list .dbx-menu-list {
+    display: block;
+}
+
+
+/* =========================================================
+   ITEMS
+   ========================================================= */
+
+.dbx-menu-item {
+    position: relative;
+    list-style: none;
+}
+
+.dbx-menu-item.dbx-menu-right {
+    margin-left: auto;
+}
+
+.dbx-menu-item.dbx-menu-right + .dbx-menu-item.dbx-menu-right {
+    margin-left: 0;
+}
+
+.dbx-menu > .dbx-menu-list > .dbx-menu-item.dbx-menu-spacer,
+.dbx-menu.dbx-menu-list > .dbx-menu-item.dbx-menu-spacer {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    list-style: none;
+}
+
+.dbx-menu > .dbx-menu-list > .dbx-menu-item.dbx-menu-spacer::after,
+.dbx-menu.dbx-menu-list > .dbx-menu-item.dbx-menu-spacer::after {
+    display: none;
+}
+
+.dbx-menu-spacer ~ .dbx-menu-item.dbx-menu-right {
+    margin-left: 0;
+}
+
+
+/* =========================================================
+   LINKS – STRUKTUR
+   =========================================================
+   Nur Flex / Ausrichtung / Verhalten.
+   Farben / Hover / Radius in c-menu.css.
+   ========================================================= */
+
+.dbx-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+    position: relative;
+    line-height: 1;
+}
+
+.dbx-menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
+.dbx-menu.dbx-menu-list > .dbx-menu-item > .dbx-menu-link {
+    height: 36px;
+    padding: 0 14px;
+}
+
+
+/* =========================================================
+   CARET – MECHANIK
+   =========================================================
+   Nur Form / Rotation.
+   Farbe folgt currentColor.
+   ========================================================= */
+
+.dbx-menu-link .dbx-caret {
+    margin-left: auto;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid currentColor;
+    transition: transform 0.2s ease;
+}
+
+.dbx-menu-item.is-open > .dbx-menu-link .dbx-caret {
+    transform: rotate(180deg);
+}
+
+
+/* =========================================================
+   DROPDOWNS – DESKTOP
+   =========================================================
+   - Level 1 öffnet unter dem Hauptpunkt
+   - Level 2+ öffnet seitlich
+   ========================================================= */
+
+.dbx-menu-item > .dbx-menu-list {
+    position: absolute;
+    display: none;
+    min-width: 220px;
+    padding: 6px 0;
+    z-index: 1000;
+}
+
+/* Level 1 */
+.dbx-menu > .dbx-menu-list > .dbx-menu-item.has-children > .dbx-menu-list,
+.dbx-menu.dbx-menu-list > .dbx-menu-item.has-children > .dbx-menu-list {
+    top: 100%;
+    left: 0;
+}
+
+/* Level 1 – rechts im Header: Dropdown unter Trigger nach links aufklappen */
+.dbx-menu > .dbx-menu-list > .dbx-menu-item.dbx-menu-right.has-children > .dbx-menu-list,
+.dbx-menu.dbx-menu-list > .dbx-menu-item.dbx-menu-right.has-children > .dbx-menu-list,
+.dbx-menu-item.dbx-user-avatar-menu.has-children > .dbx-menu-list,
+.dbx-menu-item.dbx-edit-menu-slot.has-children > .dbx-menu-list,
+.dbx-menu-item.dbx-editor-files-menu.has-children > .dbx-menu-list {
+    left: auto;
+    right: 0;
+}
+
+/* Öffnen über Statusklasse */
+.dbx-menu-item.is-open > .dbx-menu-list {
+    display: block;
+}
+
+/* Level 2+ */
+.dbx-menu-item > .dbx-menu-list .dbx-menu-item.has-children > .dbx-menu-list {
+    top: 0;
+    left: 100%;
+}
+
+/* Desktop-Hover für tiefere Ebenen */
+.dbx-menu-item > .dbx-menu-list .dbx-menu-item.has-children:hover > .dbx-menu-list {
+    display: block;
+}
+
+
+/* =========================================================
+   SUB LINKS – STRUKTUR
+   ========================================================= */
+
+.dbx-menu-list .dbx-menu-link {
+    height: 32px;
+    padding: 0 16px;
+}
+
+
+/* =========================================================
+   ACTIVE – STRUKTUR
+   =========================================================
+   Nur funktionale Marker.
+   Farben / Balken kommen aus c-menu.css.
+   ========================================================= */
+
+.dbx-menu-item.is-active > .dbx-menu-link {
+    font-weight: 600;
+}
+
+.dbx-menu-item.is-active-path > .dbx-menu-link {
+    position: relative;
+}
+
+.dbx-menu-item > .dbx-menu-list .dbx-menu-item.is-active-path > .dbx-menu-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+.dbx-menu ul,
+.dbx-menu li {
+    margin: 0;
+    padding: 0;
+}
+
+.dbx-menu li {
+    width: auto !important;
+}
+
+
+/* =========================================================
+   MOBILE TOGGLE BAR – MECHANIK
+   =========================================================
+   Diese Leiste wird von menu.js pro Parent erzeugt und
+   enthält einen Button je Menü, z. B.:
+   [≡] admin   [≡] user
+
+   WICHTIG:
+   - die Buttons werden im Mobile-Bereich gleichmäßig verteilt
+   - bei 2 Menüs → 50% / 50%
+   - bei 3 Menüs → 33% / 33% / 33%
+   ========================================================= */
+
+.dbx-menu-mobile-bar {
+    display: none;
+}
+
+.dbx-menu-toggle {
+    display: none;
+    align-items: center;
+}
+
+.dbx-menu-toggle-label {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+/* Zusatztexte fuer sonst reine Icon-Eintraege bleiben auf Desktop unsichtbar. */
+.dbx-menu-mobile-label {
+    display: none;
+}
+
+
+/* =========================================================
+   MOBILE / RESPONSIVE – MECHANIK
+   =========================================================
+   WICHTIG:
+   - Nur Opener sichtbar
+   - Menü selbst nur bei .is-mobile-open sichtbar
+   - Submenüs auf Mobile nur per Klick / Statusklasse
+   - Geöffnete Menüs werden intern scrollbar, wenn der
+     Inhalt höher als das Fenster ist
+   ========================================================= */
+
+@media (max-width: 991.98px) {
+
+    /* ---------------------------------------------
+       Opener-Leiste
+       --------------------------------------------- */
+    .dbx-menu-mobile-bar {
+        display: flex;
+        align-items: stretch;
+        flex-wrap: nowrap;
+        gap: 6px;
+        width: 100%;
+        margin-bottom: 6px;
+    }
+
+    .dbx-menu-mobile-bar .dbx-menu-toggle {
+        display: inline-flex;
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    /* ---------------------------------------------
+       Root-Menüs
+       --------------------------------------------- */
+    .dbx-menu-root {
+        width: 100%;
+    }
+
+    .dbx-menu-root:not(.is-mobile-open) {
+        display: none;
+    }
+
+    .dbx-menu-root.is-mobile-open {
+        display: block;
+    }
+
+    .dbx-menu-root > .dbx-menu-list,
+    .dbx-menu-root.dbx-menu-list {
+        display: block;
+        width: 100%;
+        padding: 6px 6px calc(42px + env(safe-area-inset-bottom));
+    }
+
+    /* ---------------------------------------------
+       Scrollbarer Menü-Innenbereich
+       ---------------------------------------------
+       Falls das Menü länger als die Fensterhöhe ist,
+       scrollt der Listenbereich selbst.
+       Den Offset kannst du hier anpassen:
+       calc(100vh - 120px)
+       --------------------------------------------- */
+    .dbx-menu-root.is-mobile-open > .dbx-menu-list,
+    .dbx-menu-root.dbx-menu-list.is-mobile-open {
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ---------------------------------------------
+       Hauptpunkte untereinander
+       --------------------------------------------- */
+    .dbx-menu.dbx-menu-list > .dbx-menu-item,
+    .dbx-menu > .dbx-menu-list > .dbx-menu-item {
+        display: block;
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .dbx-menu > .dbx-menu-list > .dbx-menu-item::after,
+    .dbx-menu.dbx-menu-list > .dbx-menu-item::after {
+        display: none;
+    }
+
+    .dbx-menu-item.dbx-menu-right {
+        margin-left: 0;
+    }
+
+    .dbx-menu-spacer {
+        display: none;
+    }
+
+    .dbx-menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
+    .dbx-menu.dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
+    .dbx-menu-list .dbx-menu-link {
+        width: 100%;
+        min-height: 40px;
+        justify-content: flex-start;
+        margin: 0;
+    }
+
+    .dbx-menu-link .dbx-caret {
+        margin-left: auto;
+    }
+
+    /* Auf kleinen Displays erhalten alle sonst reinen Icon-Aktionen einen
+       lesbaren Namen. Der Text ist Teil des normalen Link-Flows und vergroessert
+       dadurch zugleich die komfortable Touch-Zielflaeche. */
+    .dbx-menu-mobile-label {
+        display: inline;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .dbx-user-avatar-menu > .dbx-menu-link {
+        justify-content: flex-start !important;
+    }
+
+    /* ---------------------------------------------
+       Submenüs werden im Flow geöffnet
+       --------------------------------------------- */
+    .dbx-menu-item > .dbx-menu-list {
+        position: static;
+        display: none;
+        min-width: 0;
+        width: 100%;
+        padding: 4px 0 0 12px;
+        margin: 0;
+    }
+
+    .dbx-menu-item.is-open > .dbx-menu-list {
+        display: block;
+    }
+
+    /* Hover darf Mobile nicht öffnen */
+    .dbx-menu-item > .dbx-menu-list .dbx-menu-item.has-children:hover > .dbx-menu-list {
+        display: none;
+    }
+
+    .dbx-menu-item > .dbx-menu-list .dbx-menu-item.has-children.is-open > .dbx-menu-list {
+        display: block;
+    }
+}

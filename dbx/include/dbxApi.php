@@ -814,6 +814,88 @@ class dbxApi {
    }
 
    /**
+    * Speichert die vollstaendige lokale Konfiguration eines Moduls.
+    *
+    * `config.local.php` enthaelt installationsbezogene Serverbindungen und
+    * Geheimnisse. Die Datei wird von Releases nicht ausgeliefert und darf
+    * deshalb getrennt von `set_config()` geschrieben werden.
+    */
+   public function set_local_config(string $modul, array $localConfig): int {
+      if (preg_match('/^[A-Za-z0-9_]+$/', $modul) !== 1) {
+         return 0;
+      }
+
+      $dir = $this->os_path($this->get_base_dir() . "dbx/modules/$modul/cfg/");
+      if (!is_dir($dir) && !mkdir($dir, 0700, true) && !is_dir($dir)) {
+         return 0;
+      }
+
+      $localFile = $this->os_path($dir . 'config.local.php');
+      $content = "<?php\n"
+         . dbx_convertArrayToPHPCode($localConfig, '$config');
+      $written = file_put_contents($localFile, $content, LOCK_EX);
+      if ($written === false) {
+         return 0;
+      }
+
+      @chmod($localFile, 0600);
+      unset(
+         $_SESSION['dbx']['config'][$modul],
+         $_SESSION['dbx']['config_signature'][$modul]
+      );
+      $this->get_config($modul);
+
+      return (int)$written;
+   }
+
+   /**
+    * Fuehrt einen lokalen Konfigurationsausschnitt rekursiv zusammen.
+    *
+    * Bestehende Passwoerter oder andere lokale Werte bleiben erhalten, wenn
+    * der Patch nur DD-Serverbindungen ergaenzt.
+    */
+   public function patch_local_config(string $modul, array $patch): int {
+      if (preg_match('/^[A-Za-z0-9_]+$/', $modul) !== 1) {
+         return 0;
+      }
+
+      $localFile = $this->os_path(
+         $this->get_base_dir() . "dbx/modules/$modul/cfg/config.local.php"
+      );
+      $localConfig = $this->read_config_file($localFile);
+      $localConfig = array_replace_recursive($localConfig, $patch);
+
+      return $this->set_local_config($modul, $localConfig);
+   }
+
+   /**
+    * Ersetzt genau einen lokalen Konfigurationsbereich.
+    *
+    * Im Gegensatz zu `patch_local_config()` koennen damit entfernte
+    * DD-Bindungen wirklich geloescht werden, ohne andere lokale Bereiche wie
+    * Datenbankpasswoerter anzutasten.
+    */
+   public function set_local_config_section(
+      string $modul,
+      string $section,
+      array $value
+   ): int {
+      if (preg_match('/^[A-Za-z0-9_]+$/', $modul) !== 1
+          || preg_match('/^[A-Za-z0-9_]+$/', $section) !== 1
+      ) {
+         return 0;
+      }
+
+      $localFile = $this->os_path(
+         $this->get_base_dir() . "dbx/modules/$modul/cfg/config.local.php"
+      );
+      $localConfig = $this->read_config_file($localFile);
+      $localConfig[$section] = $value;
+
+      return $this->set_local_config($modul, $localConfig);
+   }
+
+   /**
     * Sendet eine E-Mail ueber dbxMail/PHPMailer.
     *
     * Beispiel:
@@ -1945,6 +2027,14 @@ class dbxApi {
     * @return int Insert-ID oder 0 bei Fehler/Schutzfall.
     */
    public function sys_msg($status = '', $about = '', $rid = '', $why = '', $what = '') {
+      // Automatisierte Tests dürfen niemals die reale Systemmeldungsdatenbank
+      // verändern. Einzelne, ausdrücklich darauf ausgelegte Isolationstests
+      // können das Schreiben über DBX_SELFTEST_ALLOW_SYSMSG=1 freigeben.
+      if ((string)getenv('DBX_SELFTEST') === '1'
+          && (string)getenv('DBX_SELFTEST_ALLOW_SYSMSG') !== '1') {
+         return 0;
+      }
+
       if ($this->sys_msg_running) {
          return 0;
       }
@@ -2144,11 +2234,13 @@ class dbxApi {
        dbx()->debug("#dbx_redirect  Call=($redirect)  redir=($redir) Ajax=($ajax) timer=($timer)");
     
        $redir_js = json_encode($redir);
+       $allow_internal = "if(window.dbx&&dbx.utilities&&dbx.utilities.leaveGuard)"
+          . "{dbx.utilities.leaveGuard.allowIfInternal($redir_js);}";
    
        if (!$timer) {
-          $script = "<script>window.location.replace($redir_js);</script>";
+          $script = "<script>$allow_internal window.location.replace($redir_js);</script>";
        } else {
-          $script = "<script>setTimeout(function() { window.location.replace($redir_js); }, $timer);</script>";
+          $script = "<script>setTimeout(function() { $allow_internal window.location.replace($redir_js); }, $timer);</script>";
        }
     
        return $script;
@@ -2331,7 +2423,7 @@ class dbxApi {
    /**
     * Erzeugt ein neues Passwort.
     *
-    * @param int $minlength Mindestlaenge.
+    * @param int $minlength Mindestlänge.
     * @param string $special Erlaubte Sonderzeichen.
     * @return string
     */
@@ -2418,25 +2510,47 @@ class dbxApi {
       $this->set_system_var('dbx_activ_modul', 'dbx');
       $webApp->check_request();
       $webApp->check_remember();
-      $webApp->check_lng();
-
-      // Fehlende statische Dateien muessen vor dem Seiten-Cache erkannt
-      // werden. Normale Permalinks bleiben davon unberuehrt.
-      if ($webApp->check_missing()) {
-         exit;
-      }
-
-      $sync = $this->get_request_var('dbx_sync', 1, 'int');
-      $this->load_content_cache_classes();
-      if (\dbx\dbxContent\dbxContentPageCache::prepareFullPageRequest()) {
-         $cachedPage = \dbx\dbxContent\dbxContentPageCache::readFullPage();
-         if ($cachedPage !== null) {
-            $this->serve_full_page_cache_hit($cachedPage);
-         }
-      }
-      $webApp->check_perma();
-      \dbx\dbxContent\dbxContentPageCache::attachResolvedContentRoute();
+      // Der Installationsschalter muss vor Permalink-, Datenbank- und
+      // Seiten-Cache-Zugriffen bekannt sein. Eine frische Auslieferung besitzt
+      // zu diesem Zeitpunkt noch keine provisionierten DD-Tabellen.
       $webApp->check_config();
+      $webApp->check_lng();
+      $sync = $this->get_request_var('dbx_sync', 1, 'int');
+      $installMode = (int)$this->get_system_var('dbx_install', 0, 'int') === 1;
+
+      if (!$installMode) {
+         if ($webApp->apply_canonical_home_redirect()) {
+            $this->timer('system-check');
+            $this->timer('system');
+            return '';
+         }
+         if ($webApp->apply_content_permalink_redirect()) {
+            $this->timer('system-check');
+            $this->timer('system');
+            return '';
+         }
+
+         // Fehlende statische Dateien muessen vor dem Seiten-Cache erkannt
+         // werden. Normale Permalinks bleiben davon unberuehrt.
+         if ($webApp->check_missing()) {
+            exit;
+         }
+
+         $this->load_content_cache_classes();
+         if (\dbx\dbxContent\dbxContentPageCache::prepareFullPageRequest()) {
+            $cachedPage = \dbx\dbxContent\dbxContentPageCache::readFullPage();
+            if ($cachedPage !== null) {
+               $this->serve_full_page_cache_hit($cachedPage);
+            }
+         }
+         $webApp->check_perma();
+         \dbx\dbxContent\dbxContentPageCache::attachResolvedContentRoute();
+      } else {
+         // Ein beliebiger angeforderter Permalink darf den Installer nicht
+         // in Content-Auflösung oder eine 404-Darstellung lenken.
+         $this->set_system_var('dbx_permalink', '');
+      }
+
       $webApp->check_design();
       $webApp->check_modul();
 
@@ -3337,17 +3451,10 @@ function dbx_make_seed(){
 }
 
 /**
- * Generiert ein zufÃ¤lliges Passwort mit einer MindestlÃ¤nge und optionalen Sonderzeichen.
+ * Lädt einen JSON-Cookie in den dbxapp-Sessionbereich.
  *
- * Das Passwort enthÃ¤lt Buchstaben (Klein- und GroÃŸbuchstaben), Zahlen und optionale Sonderzeichen.
- * Etwa 20 % der Zeichen werden zufÃ¤llig in GroÃŸbuchstaben umgewandelt.
- *
- * @param int    $minlength MindestlÃ¤nge des generierten Passworts.
- * @param string $special  Zeichen, die zusÃ¤tzlich zu Buchstaben und Zahlen erlaubt sind (Standard: "-_!").
- * @return string          Das generierte Passwort.
- *
- * @example
- * echo dbx()->new_password(12, '@#$%'); // Gibt ein zufÃ¤lliges Passwort mit mindestens 12 Zeichen aus.
+ * @param string $cookie Name des zu ladenden Cookies.
+ * @return void
  */
 function dbx_load_cookie($cookie) {
    $data=array();

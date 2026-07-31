@@ -21,10 +21,10 @@ class dbxContactForm {
       return $extra;
    }
 
-   private function mail_from_param() {
+   private function mail_from_param(): array {
       $from = trim((string) dbx()->get_config('dbxContact', 'mail_from'));
       $fromName = trim((string) dbx()->get_config('dbxContact', 'mail_from_name'));
-      return ($from !== '') ? array('email' => $from, 'name' => $fromName) : '';
+      return array('email' => $from, 'name' => $fromName);
    }
 
    private function spam_reason(array $data): string {
@@ -47,6 +47,10 @@ class dbxContactForm {
    private function mail_request(array $data, int $rid) {
       $to = trim((string) dbx()->get_config('dbxContact', 'mail_to'));
       if ($to === '') {
+         return false;
+      }
+      $from = $this->mail_from_param();
+      if (filter_var((string)($from['email'] ?? ''), FILTER_VALIDATE_EMAIL) === false) {
          return false;
       }
 
@@ -77,12 +81,16 @@ class dbxContactForm {
          'text'     => $text,
       ));
 
-      return dbx()->send_mail($this->mail_from_param(), $to, $subject, $html, 'html', array(), $options);
+      return dbx()->send_mail($from, $to, $subject, $html, 'html', array(), $options);
    }
 
    private function mail_confirm(array $data, int $rid) {
       $to = trim((string) ($data['email'] ?? ''));
       if ($to === '') {
+         return false;
+      }
+      $from = $this->mail_from_param();
+      if (filter_var((string)($from['email'] ?? ''), FILTER_VALIDATE_EMAIL) === false) {
          return false;
       }
 
@@ -115,7 +123,7 @@ class dbxContactForm {
             . "Wir melden uns so bald wie moeglich bei Ihnen. Sie muessen nichts weiter unternehmen.";
 
       return dbx()->send_mail(
-         $this->mail_from_param(),
+         $from,
          $to,
          $subject,
          $html,

@@ -1,0 +1,225 @@
+/**
+@page dbxapp_user_system_update System-Update sicher durchführen
+
+@brief Neue dbxapp-Versionen prüfen, vorbereiten, installieren, stoppen und
+zurückrollen.
+
+@htmlonly
+<section class="dbx-guide-hero dbx-update-guide-hero">
+  <div class="dbx-guide-hero-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 2a10 10 0 0 0-9.4 6.6l1.9.7A8 8 0 0 1 18.7 7H16v2h6V3h-2v2.5A10 10 0 0 0 12 2Zm7.4 13.4A8 8 0 0 1 5.3 17H8v-2H2v6h2v-2.5A10 10 0 0 0 21.4 16l-2-.6Z"/>
+    </svg>
+  </div>
+  <div>
+    <span class="dbx-doc-kicker">Anleitung für Administratoren</span>
+    <h2>Einfach aktualisieren – mit einer sicheren Entscheidung vor der Installation</h2>
+    <p>dbxapp prüft und lädt ein Update zuerst in einen getrennten
+    Vorbereitungsbereich. Solange noch nicht installiert wurde, können Sie
+    ohne Änderung am laufenden System fortfahren oder das Update stoppen.</p>
+  </div>
+</section>
+@endhtmlonly
+
+## Wo finde ich das Update?
+
+Melden Sie sich als Administrator an und öffnen Sie:
+
+**ADMIN → Dashboard → Status & Health → Update**
+
+Der Update-Hinweis erscheint sowohl im linken Dashboard-Menü als auch im
+Bereich **Status & Health**. Ein Klick öffnet die zentrale Seite
+**System-Update**.
+
+@note Das Dashboard ruft nicht bei jedem Seitenaufruf GitHub auf. Es zeigt den
+zuletzt lokal gespeicherten Prüfstand an und bleibt deshalb schnell. Eine neue
+Online-Prüfung beginnt erst, wenn Sie die Update-Seite ausdrücklich starten.
+
+## Die vier Anzeigen im Dashboard
+
+@htmlonly
+<div class="dbx-update-state-grid">
+  <article class="dbx-update-state-card is-unknown">
+    <span class="dbx-update-state-icon" aria-hidden="true">?</span>
+    <h3>prüfen</h3>
+    <p>Auf dieser Installation wurde noch kein stabiler Release geprüft.</p>
+  </article>
+  <article class="dbx-update-state-card is-current">
+    <span class="dbx-update-state-icon" aria-hidden="true">✓</span>
+    <h3>aktuell</h3>
+    <p>Der zuletzt geprüfte stabile Stand ist nicht neuer als die installierte Version.</p>
+  </article>
+  <article class="dbx-update-state-card is-available">
+    <span class="dbx-update-state-icon" aria-hidden="true">↓</span>
+    <h3>neu</h3>
+    <p>Ein neuerer stabiler Release ist bekannt und kann vorbereitet werden.</p>
+  </article>
+  <article class="dbx-update-state-card is-ready">
+    <span class="dbx-update-state-icon" aria-hidden="true">◆</span>
+    <h3>bereit</h3>
+    <p>Download, Prüfsumme, Paketinhalt und Staging sind geprüft. Sie entscheiden.</p>
+  </article>
+</div>
+@endhtmlonly
+
+## Der empfohlene Ablauf
+
+@htmlonly
+<ol class="dbx-update-steps">
+  <li>
+    <div><strong>Update-Seite öffnen</strong>
+    <span>Installierte, verfügbare und bereitgestellte Version sowie den
+    Zeitpunkt der letzten Prüfung kontrollieren.</span></div>
+  </li>
+  <li>
+    <div><strong>„Update automatisch vorbereiten“ wählen</strong>
+    <span>dbxapp prüft den neuesten stabilen Release, lädt ein neueres Paket
+    und validiert es vollständig. Das laufende Programm und die Datenbanken
+    bleiben dabei unverändert.</span></div>
+  </li>
+  <li>
+    <div><strong>Ergebnis lesen</strong>
+    <span>Bei „bereit“ ist das Paket installierbar. Bei „aktuell“ ist keine
+    weitere Aktion nötig. Eine Fehlermeldung nennt die konkrete Ursache.</span></div>
+  </li>
+  <li>
+    <div><strong>Installieren oder stoppen</strong>
+    <span>„Jetzt sicher installieren“ startet nach einer Bestätigung die
+    eigentliche Aktualisierung. „Update stoppen“ entfernt nur das vorbereitete
+    Paket.</span></div>
+  </li>
+  <li>
+    <div><strong>Erfolg kontrollieren</strong>
+    <span>Nach erfolgreicher Installation muss die neue Versionsnummer unter
+    „Installiert“ erscheinen. Anschließend die wichtigsten Funktionen der
+    eigenen Installation kurz prüfen.</span></div>
+  </li>
+</ol>
+@endhtmlonly
+
+@htmlonly
+<div class="dbx-callout is-success">
+  <strong>Der wichtigste Sicherheitsvorteil</strong>
+  <span>„Update automatisch vorbereiten“ installiert noch nichts. Erst die
+  zweite, ausdrücklich bestätigte Aktion verändert Programmdateien oder
+  Datenbanktabellen.</span>
+</div>
+@endhtmlonly
+
+## Was bedeutet „Update stoppen“?
+
+**Update stoppen** ist für den Zeitraum zwischen Vorbereitung und Installation
+gedacht. dbxapp entfernt dabei gemeinsam:
+
+- das heruntergeladene Release-ZIP;
+- den isoliert entpackten Stagingbereich;
+- den Status „bereitgestellt“.
+
+Installierte Programmdateien und Datenbanken wurden in dieser Phase noch nicht
+verändert. Die Information über die letzte Release-Prüfung und vorhandene
+Sicherungen früherer Installationen bleiben erhalten.
+
+@warning Sobald Sie **Jetzt sicher installieren** bestätigt haben, darf der
+kurze Datei-/Datenbankschritt nicht manuell unterbrochen werden. Ein
+Stop-Schalter während dieses kritischen Abschnitts wäre unsicher und wird
+deshalb bewusst nicht angeboten.
+
+## Was geschieht bei „Jetzt sicher installieren“?
+
+dbxapp führt die folgenden Schritte als einen kontrollierten Vorgang aus:
+
+1. Das bereitgestellte Paket und jede entpackte Datei werden erneut geprüft.
+2. Alle zu ersetzenden oder zu entfernenden Programmdateien werden gesichert.
+3. Für ausstehende Datenbankmigrationen werden die tatsächlich betroffenen
+   DD-Tabellen mit Schema, Indizes und Daten gesichert.
+4. Neue Programmdateien werden installiert und veraltete Release-Dateien
+   entfernt.
+5. Ausstehende, noch nicht protokollierte DD-Migrationen werden ausgeführt.
+6. Die neue `VERSION` wird bestätigt und der Update-Status gespeichert.
+7. Staging und Download werden entfernt; ein vorhandener PHP-OPcache wird
+   zurückgesetzt.
+
+Schlägt ein Installationsschritt fehl, versucht dbxapp automatisch, die
+gesicherten Dateien und betroffenen Datenbanktabellen gemeinsam
+wiederherzustellen. Die Fehlermeldung bleibt für die Diagnose sichtbar.
+
+## Was bleibt bei einem Update unverändert?
+
+Lokale Laufzeitdaten und Konfigurationen werden weder aus dem Release
+übernommen noch überschrieben. Geschützt sind insbesondere:
+
+- `.env`, `.env.local` und lokale `config.local.php`;
+- `files/` und `dbx/files/`;
+- produktive `.db3`-, SQLite- und andere Datenbankdateien;
+- Uploads, Logs, temporäre Dateien, Caches und Sicherungsverzeichnisse;
+- Schlüssel- und Zertifikatsdateien.
+
+Module gehören zum normalen dbxapp-Release und werden deshalb zusammen mit
+dem System aktualisiert. Produktive Daten eines Moduls werden jedoch nicht aus
+dem Release-ZIP kopiert.
+
+## DB3, MySQL und gemischte Installationen
+
+Jede DD behält beim Update ihre **lokal aufgelöste Serverbindung**. Deshalb
+darf eine Installation beispielsweise Benutzer und Bestellungen in MySQL,
+Content in einer DB3-Datei und Sessions in einer weiteren DB3-Datei führen.
+
+Vor einer Datenbankänderung ermittelt dbxapp für jede betroffene DD erneut das
+wirkliche lokale Ziel. Sicherung und Migration laufen ausschließlich über
+`dbxDB` und `dbxDD`.
+
+Ein Release darf ein vorhandenes Datenbankziel nicht unbemerkt ändern. Würde
+ein neuer DD-Standard eine bestehende Tabelle auf einen anderen Server lenken,
+stoppt das Update ohne ausdrückliche lokale Bindung. Der Administrator
+entscheidet dann bewusst über Bindung oder Datentransfer.
+
+## Stoppen und Zurückrollen sind nicht dasselbe
+
+| Aktion | Zeitpunkt | Wirkung |
+| --- | --- | --- |
+| **Update stoppen** | Nach der Vorbereitung, vor der Installation | Entfernt Download und Staging. Das installierte System bleibt unverändert. |
+| **Letztes Update zurückrollen** | Nach einer erfolgreichen Installation | Stellt die beim letzten Update gesicherten Programmdateien und betroffenen DD-Tabellen wieder her. |
+
+Ein Rollback ist nur verfügbar, wenn die letzte Updatesicherung vorhanden,
+noch nicht zurückgerollt und die installierte Version seitdem nicht anderweitig
+verändert wurde.
+
+@warning Ein Datenbank-Rollback stellt die gesicherten betroffenen Tabellen auf
+den Stand **vor** dem Update zurück. Sind nach dem Update bereits neue
+Produktivdaten in diesen Tabellen entstanden, muss vor dem Rollback deren
+Sicherung und weiteres Vorgehen geprüft werden. Rollback ist eine
+Fehlerbehebung, kein normaler „Zurück“-Schalter.
+
+## Typische Meldungen und die richtige Reaktion
+
+| Anzeige oder Meldung | Bedeutung | Empfohlene Reaktion |
+| --- | --- | --- |
+| **Die Installation ist auf dem bekannten Stand** | Kein neuerer stabiler Release wurde gefunden. | Keine weitere Aktion erforderlich. |
+| **Update … ist vollständig geprüft** | Das Paket liegt nur im Staging. | Release-Hinweise lesen, dann installieren oder stoppen. |
+| **Manifest nicht verfügbar** | Der veröffentlichte Release besitzt noch keinen passenden Update-Vertrag oder ist nicht erreichbar. | Später erneut versuchen und Release-Hinweise prüfen. |
+| **PHP-Anforderung oder Erweiterung fehlt** | Der Server erfüllt eine technische Voraussetzung nicht. | PHP-Umgebung zuerst aktualisieren; das Paket nicht erzwingen. |
+| **SHA-256/Paket/Pfad ungültig** | Die Sicherheitsprüfung hat das Paket abgelehnt. | Nicht manuell installieren; Download verwerfen und Ursache klären. |
+| **Update fehlgeschlagen und wurde zurückgerollt** | Die Installation scheiterte; dbxapp hat die Sicherung wiederhergestellt. | Systemstatus und `files/dbxError.log` prüfen, bevor erneut gestartet wird. |
+
+## Kurze Checkliste für produktive Systeme
+
+- Release-Hinweise lesen und ein passendes Wartungsfenster wählen.
+- Vor wichtigen Produktivupdates zusätzlich eine externe Gesamtsicherung
+  erstellen.
+- Nach der Vorbereitung Versionsnummer und Status „bereit“ kontrollieren.
+- Ab **Jetzt sicher installieren** Browser, PHP und Webserver nicht absichtlich
+  unterbrechen.
+- Nach Erfolg Anmeldung, Startseite und die wichtigsten eigenen Module testen.
+- Bei einem Fehler zuerst Meldung und Fehlerprotokoll sichern; Rollback nur
+  nach Prüfung neuer Daten verwenden.
+
+@htmlonly
+<div class="dbx-callout is-info">
+  <strong>Technische Details für Betreiber und Entwickler</strong>
+  <span>Release-Vertrag, DD-Serverbindungen, Migrations-Ledger und
+  Abnahmematrix stehen getrennt unter
+  <a href="dbxapp_install_update_dd_bindings.html">Installation, Updates und
+  DD-Serverbindungen</a>.</span>
+</div>
+@endhtmlonly
+*/

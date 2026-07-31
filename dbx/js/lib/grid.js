@@ -1775,6 +1775,9 @@
                                     allowDuplicate: 0
                                 }, btnShow);
                             } else {
+                                if (window.dbx && dbx.utilities && dbx.utilities.leaveGuard) {
+                                    dbx.utilities.leaveGuard.allowIfInternal(url);
+                                }
                                 window.location.href = url;
                             }
                         });
@@ -1816,6 +1819,9 @@
                                     position: 'center'
                                 }, btnEdit);
                             } else {
+                                if (window.dbx && dbx.utilities && dbx.utilities.leaveGuard) {
+                                    dbx.utilities.leaveGuard.allowIfInternal(url);
+                                }
                                 window.location.href = url;
                             }
                         });
@@ -2457,6 +2463,9 @@
                     uiSet('GRIDLINES', '1');
                     uiSet('AUTOSAVE', '1');
 
+                    if (window.dbx && dbx.utilities && dbx.utilities.leaveGuard) {
+                        dbx.utilities.leaveGuard.allowOnce();
+                    }
                     location.reload();
                 });
             }

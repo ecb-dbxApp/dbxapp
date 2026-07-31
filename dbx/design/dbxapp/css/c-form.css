@@ -1013,6 +1013,68 @@ body.dbx-app .container-fluid#dbxContent > .dbx-panel.dbxForm_wrapper.dbx-user-a
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 
+.dbx-user-login .dbx-password-rule {
+    transition: border-color .18s ease, background-color .18s ease, color .18s ease;
+}
+
+.dbx-user-login .dbx-password-rule.is-valid {
+    background: rgba(12, 92, 66, .62);
+    border-color: rgba(115, 224, 178, .58);
+    color: #effff8;
+}
+
+.dbx-user-login .dbx-password-rule.is-valid i {
+    color: #73e0b2;
+}
+
+.dbx-user-login .dbx-password-rule.is-missing {
+    background: rgba(118, 31, 47, .64);
+    border-color: rgba(255, 154, 169, .58);
+    color: #fff2f4;
+}
+
+.dbx-user-login .dbx-password-rule.is-missing i {
+    color: #ff9aa9;
+}
+
+.dbx-password-rules--compact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    list-style: none;
+    margin: .55rem 0 0;
+    padding: 0;
+}
+
+.dbx-password-rules--compact .dbx-password-rule {
+    align-items: center;
+    background: rgba(100, 116, 139, .08);
+    border: 1px solid rgba(100, 116, 139, .2);
+    border-radius: 999px;
+    color: var(--dbx-color-text-muted, #64748b);
+    display: inline-flex;
+    font-size: .72rem;
+    gap: .3rem;
+    line-height: 1.15;
+    padding: .3rem .48rem;
+}
+
+.dbx-password-rules--compact .dbx-password-rule i {
+    font-size: .72rem;
+}
+
+.dbx-password-rules--compact .dbx-password-rule.is-valid {
+    background: rgba(16, 185, 129, .1);
+    border-color: rgba(16, 185, 129, .35);
+    color: #047857;
+}
+
+.dbx-password-rules--compact .dbx-password-rule.is-missing {
+    background: rgba(239, 68, 68, .1);
+    border-color: rgba(239, 68, 68, .35);
+    color: #b91c1c;
+}
+
 .dbx-auth-panel,
 .dbx-auth-slim-card {
     background:

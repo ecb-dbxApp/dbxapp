@@ -13,6 +13,8 @@ class dbxObj
 
 class dbxTPLRawCacheTestApi
 {
+    public string $baseDir = '';
+
     public array $system = array(
         'dbx_lng' => '',
         'dbx_design' => 'first',
@@ -22,6 +24,9 @@ class dbxTPLRawCacheTestApi
 
     public function get_base_dir(): string
     {
+        if ($this->baseDir !== '') {
+            return $this->baseDir;
+        }
         return __DIR__ . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'dbxTPL' . DIRECTORY_SEPARATOR;
     }
 
@@ -116,4 +121,34 @@ if (trim($design) !== 'visible') {
     exit(1);
 }
 
-echo "OK: dbxTPL cached rohe Templates und setzt DBX-Systemwerte vor Bedingungen bei jeder Ausgabe neu ein.\n";
+$tempRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'dbx-tpl-cache-' . bin2hex(random_bytes(6));
+$tempTplDir = $tempRoot . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR . 'modules'
+    . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm';
+if (!mkdir($tempTplDir, 0777, true) && !is_dir($tempTplDir)) {
+    fwrite(STDERR, "FAIL: Temporaeres Template-Verzeichnis konnte nicht angelegt werden.\n");
+    exit(1);
+}
+$tempTpl = $tempTplDir . DIRECTORY_SEPARATOR . 'test-source-change.htm';
+file_put_contents($tempTpl, 'erste Version');
+dbx()->baseDir = $tempRoot . DIRECTORY_SEPARATOR;
+$_SESSION['dbx']['cache']['tpl'] = array();
+
+$sourceFirst = $tpl->get_tpl('dbx|test-source-change', array());
+file_put_contents($tempTpl, 'zweite, laengere Version');
+clearstatcache(true, $tempTpl);
+$sourceSecond = $tpl->get_tpl('dbx|test-source-change', array());
+
+@unlink($tempTpl);
+@rmdir($tempTplDir);
+@rmdir(dirname($tempTplDir));
+@rmdir(dirname(dirname($tempTplDir)));
+@rmdir(dirname(dirname(dirname($tempTplDir))));
+@rmdir(dirname(dirname(dirname(dirname($tempTplDir)))));
+@rmdir($tempRoot);
+
+if ($sourceFirst !== 'erste Version' || $sourceSecond !== 'zweite, laengere Version') {
+    fwrite(STDERR, "FAIL: Geaenderte Template-Datei blieb in der Session veraltet.\n");
+    exit(1);
+}
+
+echo "OK: dbxTPL cached rohe Templates, aktualisiert geaenderte Quellen und setzt DBX-Systemwerte bei jeder Ausgabe neu ein.\n";

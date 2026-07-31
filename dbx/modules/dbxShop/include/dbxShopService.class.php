@@ -1709,12 +1709,18 @@ HTML;
       );
    }
 
-   private function shopMailFrom(array $cfg) {
+   private function shopMailFrom(array $cfg): array {
       $from = trim((string)($cfg['mail_from'] ?? ''));
-      if ($from === '') {
-         $from = 'shop@dbxapp.de';
+      $fromName = trim((string)($cfg['mail_from_name'] ?? 'dbxShop'));
+      return array('email' => $from, 'name' => $fromName);
+   }
+
+   private function shopMailOptions(array $cfg, array $extra = array()): array {
+      $profile = trim((string)($cfg['mail_profile'] ?? ''));
+      if ($profile !== '') {
+         $extra['mail_profile'] = $profile;
       }
-      return array('email' => $from, 'name' => 'dbxShop');
+      return $extra;
    }
 
    private function orderMailHtml(array $order, string $title): string {
@@ -1740,13 +1746,24 @@ HTML;
 
       $cfg = $this->shopConfig();
       $from = $this->shopMailFrom($cfg);
+      if (filter_var((string)($from['email'] ?? ''), FILTER_VALIDATE_EMAIL) === false) {
+         dbx()->sys_msg(
+            'error',
+            'dbxShop',
+            (string)$orderId,
+            'order mail configuration invalid',
+            'Der konfigurierte Shop-Absender ist keine gültige E-Mail-Adresse.'
+         );
+         return false;
+      }
+      $mailOptions = $this->shopMailOptions($cfg);
       $subject = 'Bestellung ' . (string)($order['order_no'] ?? '');
       $sent = 0;
       try {
          if ($this->settingsBool($cfg, 'mail_customer_enabled', false)) {
             $to = trim((string)($order['customer_email'] ?? ''));
             if ($to !== '') {
-               if (dbx()->send_mail($from, $to, $subject, $this->orderMailHtml($order, 'Ihre Bestellung'), 'html')) {
+               if (dbx()->send_mail($from, $to, $subject, $this->orderMailHtml($order, 'Ihre Bestellung'), 'html', array(), $mailOptions)) {
                   $sent++;
                }
             }
@@ -1754,7 +1771,7 @@ HTML;
          if ($this->settingsBool($cfg, 'mail_admin_enabled', false)) {
             $to = trim((string)($cfg['mail_admin_to'] ?? ''));
             if ($to !== '') {
-               if (dbx()->send_mail($from, $to, '[Shop] ' . $subject, $this->orderMailHtml($order, 'Neue Shop-Bestellung'), 'html')) {
+               if (dbx()->send_mail($from, $to, '[Shop] ' . $subject, $this->orderMailHtml($order, 'Neue Shop-Bestellung'), 'html', array(), $mailOptions)) {
                   $sent++;
                }
             }
@@ -1773,6 +1790,17 @@ HTML;
    private function sendWithdrawalMails(array $withdrawal): void {
       $cfg = $this->shopConfig();
       $from = $this->shopMailFrom($cfg);
+      if (filter_var((string)($from['email'] ?? ''), FILTER_VALIDATE_EMAIL) === false) {
+         dbx()->sys_msg(
+            'error',
+            'dbxShop',
+            (string)($withdrawal['id'] ?? ''),
+            'withdrawal mail configuration invalid',
+            'Der konfigurierte Shop-Absender ist keine gültige E-Mail-Adresse.'
+         );
+         return;
+      }
+      $mailOptions = $this->shopMailOptions($cfg);
       $subject = 'Widerruf ' . (string)($withdrawal['order_no'] ?? '');
       $html = '<h1>Widerruf</h1>'
          . '<p>Bestellnummer: <strong>' . $this->h($withdrawal['order_no'] ?? '') . '</strong></p>'
@@ -1782,13 +1810,13 @@ HTML;
          if ($this->settingsBool($cfg, 'mail_customer_enabled', false)) {
             $to = trim((string)($withdrawal['customer_email'] ?? ''));
             if ($to !== '') {
-               dbx()->send_mail($from, $to, $subject, $html, 'html');
+               dbx()->send_mail($from, $to, $subject, $html, 'html', array(), $mailOptions);
             }
          }
          if ($this->settingsBool($cfg, 'mail_admin_enabled', false)) {
             $to = trim((string)($cfg['mail_admin_to'] ?? ''));
             if ($to !== '') {
-               dbx()->send_mail($from, $to, '[Shop] ' . $subject, $html, 'html');
+               dbx()->send_mail($from, $to, '[Shop] ' . $subject, $html, 'html', array(), $mailOptions);
             }
          }
       } catch (\Throwable $e) {

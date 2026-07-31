@@ -169,6 +169,19 @@ if (is_file($legacyV2)) {
    $fail('Unsichere V2-Datei wurde nicht entfernt.');
 }
 
+$staleV3 = preg_replace(
+   '/_[a-f0-9]{24}_v3\.htm$/',
+   '_000000000000000000000000_v3.htm',
+   $slashPath
+);
+if (!is_string($staleV3) || $staleV3 === $slashPath) {
+   $fail('Testdatei einer alten Cache-Generation konnte nicht abgeleitet werden.');
+}
+file_put_contents($staleV3, '<!doctype html><html></html>');
+if (dbxContentPageCache::purgeStaleFullPages() !== 1 || is_file($staleV3)) {
+   $fail('V3-Datei einer alten Cache-Generation wurde nicht bereinigt.');
+}
+
 if (!dbxContentPageCache::prepareFullPageRequest()) {
    $fail('Gueltiger Gast-Permalink wurde nicht fuer den Cache vorbereitet.');
 }

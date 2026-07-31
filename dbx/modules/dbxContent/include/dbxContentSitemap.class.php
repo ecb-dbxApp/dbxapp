@@ -4,6 +4,7 @@ namespace dbx\dbxContent;
 require_once __DIR__ . '/dbxContentPageCache.class.php';
 require_once __DIR__ . '/dbxContentPermalinkIndex.class.php';
 require_once __DIR__ . '/dbxContentRenderer.class.php';
+require_once __DIR__ . '/dbxContentHome.class.php';
 
 class dbxContentSitemap {
 
@@ -87,7 +88,17 @@ class dbxContentSitemap {
       }
 
       $xml = file_get_contents($path);
-      return (is_string($xml) && trim($xml) !== '') ? $xml : null;
+      if (!is_string($xml) || trim($xml) === '') {
+         return null;
+      }
+
+      // Cache aus Versionen vor der SEO-Bereinigung nicht weiter ausliefern.
+      if (strpos($xml, '?dbx_') !== false
+         || preg_match('#<loc>[^<]+/home/?</loc>#i', $xml)) {
+         return null;
+      }
+
+      return $xml;
    }
 
    private static function writeCache(string $xml): void {
@@ -102,23 +113,29 @@ class dbxContentSitemap {
    private static function build(): string {
       $db = dbx()->get_system_obj('dbxDB');
       $base = rtrim((string) dbx()->get_base_url(), '/') . '/';
-      $lngs = function_exists('dbx_accessible_lngs') ? dbx_accessible_lngs() : array('de');
       $renderer = new dbxContentRenderer();
       $entries = array();
+      $homeCid = dbxContentHome::masterCid();
+      $masterLng = dbxContentLngSync::masterLng();
+      // Die öffentliche URL enthält aktuell kein Sprachsegment. Deshalb darf
+      // jede flache URL nur einmal und in der maßgeblichen Sprache erscheinen.
+      // Weitere Sprachen werden erst mit eigenen kanonischen URLs aufgenommen.
+      $lngs = array($masterLng);
 
       foreach ($lngs as $lng) {
          $lng = strtolower(trim((string) $lng));
          if ($lng === '') {
             continue;
          }
-
          foreach (self::collectPublicPages($db, $renderer, $lng) as $page) {
             $permalink = trim((string) ($page['permalink'] ?? ''), '/');
             if ($permalink === '') {
                continue;
             }
 
-            $loc = $base . $permalink;
+            $loc = $lng === $masterLng && (int) ($page['cid'] ?? 0) === $homeCid
+               ? $base
+               : $base . $permalink;
             $key = strtolower($loc);
             if (!isset($entries[$key])) {
                $entries[$key] = array(
@@ -128,21 +145,6 @@ class dbxContentSitemap {
             } elseif (($page['lastmod'] ?? '') > ($entries[$key]['lastmod'] ?? '')) {
                $entries[$key]['lastmod'] = (string) ($page['lastmod'] ?? '');
             }
-         }
-      }
-
-      foreach (self::collectUserMenuLinks($base) as $link) {
-         $loc = trim((string) ($link['loc'] ?? ''));
-         if ($loc === '') {
-            continue;
-         }
-
-         $key = strtolower($loc);
-         if (!isset($entries[$key])) {
-            $entries[$key] = array(
-               'loc' => $loc,
-               'lastmod' => '',
-            );
          }
       }
 
@@ -173,7 +175,7 @@ class dbxContentSitemap {
          $rows = $db->select(
             dbxContentLng::ddContent($lng),
             'activ = 1',
-            'id,permalink,folder,update_date',
+            'id,permalink,folder,update_date,meta_robots',
             'id',
             'ASC',
             '',
@@ -191,11 +193,14 @@ class dbxContentSitemap {
                if ($cid <= 0 || $permalink === '' || isset($seen[$cid])) {
                   continue;
                }
+               $seen[$cid] = 1;
+               if (self::isNoindex((string) ($row['meta_robots'] ?? ''))) {
+                  continue;
+               }
                if (!self::isPublicRights($renderer->getPublicFolderRights((int) ($row['folder'] ?? 0)))) {
                   continue;
                }
 
-               $seen[$cid] = 1;
                $pages[] = array(
                   'cid' => $cid,
                   'permalink' => $permalink,
@@ -212,6 +217,9 @@ class dbxContentSitemap {
                continue;
             }
             if ((int) ($row['activ'] ?? 0) !== 1) {
+               continue;
+            }
+            if (self::isNoindex((string) ($row['meta_robots'] ?? ''))) {
                continue;
             }
             if (!self::isPublicRights((string) ($row['rights'] ?? '*'))) {
@@ -236,54 +244,6 @@ class dbxContentSitemap {
       return $pages;
    }
 
-   private static function collectUserMenuLinks(string $base): array {
-      $hrefs = array(
-         '?dbx_modul=dbxLogin&dbx_run1=run',
-         '?dbx_modul=dbxShop&dbx_run1=catalog',
-         '?dbx_modul=dbxShop&dbx_run1=cart',
-         '?dbx_modul=dbxShop&dbx_run1=orders',
-         '?dbx_modul=dbxShop&dbx_run1=withdrawal',
-         '?dbx_modul=dbxContact&dbx_run1=form',
-         '?dbx_modul=dbxContact&dbx_run1=my',
-         '?dbx_modul=dbxUser&dbx_run1=user&dbx_run2=edit_profil',
-      );
-
-      $links = array();
-      foreach ($hrefs as $href) {
-         $loc = self::sitemapLocFromHref($href, $base);
-         if ($loc !== '') {
-            $links[] = array('loc' => $loc);
-         }
-      }
-
-      return $links;
-   }
-
-   private static function sitemapLocFromHref(string $href, string $base): string {
-      $href = html_entity_decode(trim($href), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-      if ($href === '' || $href === '#' || $href[0] === '#') {
-         return '';
-      }
-      if (preg_match('/^(?:javascript:|mailto:|tel:)/i', $href)) {
-         return '';
-      }
-      if (preg_match('/^https?:\/\//i', $href)) {
-         return $href;
-      }
-      if ($href[0] === '/') {
-         $parts = parse_url($base);
-         $scheme = (string) ($parts['scheme'] ?? 'http');
-         $host = (string) ($parts['host'] ?? '');
-         $port = isset($parts['port']) ? ':' . (int) $parts['port'] : '';
-         return $host !== '' ? $scheme . '://' . $host . $port . $href : rtrim($base, '/') . $href;
-      }
-      if ($href[0] === '?') {
-         return rtrim($base, '/') . '/' . $href;
-      }
-
-      return rtrim($base, '/') . '/' . ltrim($href, '/');
-   }
-
    private static function statsFromXml(string $xml): array {
       return array(
          'exists' => trim($xml) !== '',
@@ -297,6 +257,10 @@ class dbxContentSitemap {
    private static function isPublicRights(string $rights): bool {
       $rights = trim($rights);
       return $rights === '' || $rights === '*';
+   }
+
+   private static function isNoindex(string $robots): bool {
+      return in_array('noindex', array_map('trim', explode(',', strtolower($robots))), true);
    }
 
    private static function lastmodForCid(int $cid): string {

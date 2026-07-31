@@ -24,9 +24,21 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
    ini_set('session.use_strict_mode', '1');
    ini_set('session.use_only_cookies', '1');
    ini_set('session.use_trans_sid', '0');
+   $sessionScript = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
+   $sessionPath = rtrim(str_replace('\\', '/', dirname($sessionScript)), '/');
+   $sessionPath = ($sessionPath === '' || $sessionPath === '.') ? '/' : $sessionPath . '/';
+   if (preg_match('#^/[A-Za-z0-9._~!$&\'()*+,;=:@%/-]*/$#', $sessionPath) !== 1) {
+      $sessionPath = '/';
+   }
+   $sessionHost = strtolower((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'));
+   $sessionHost = preg_replace('/:\d+$/', '', $sessionHost) ?: 'localhost';
+   session_name(
+      'DBXSESSID'
+      . strtoupper(substr(hash('sha256', $sessionHost . '|' . $sessionPath), 0, 12))
+   );
    session_set_cookie_params(array(
       'lifetime' => 0,
-      'path' => '/',
+      'path' => $sessionPath,
       'domain' => '',
       'secure' => $https,
       'httponly' => true,
