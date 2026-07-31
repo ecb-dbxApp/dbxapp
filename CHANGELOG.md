@@ -4,6 +4,18 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.0.5] - 2026-07-31
+
+### Fixed
+
+- Die beiden von der Benutzeridentitätsmigration betroffenen Core-DDs
+  deklarieren ihren SQLite-Server bereits im Release eindeutig als
+  `dbx|dbxUser.db3`. Damit kann auch der noch installierte Updater aus 4.0.3
+  die Datenbanksicherung vor dem Einspielen der neuen Dateien korrekt
+  vorbereiten.
+- Der Updatepfad von 4.0.2/4.0.3 zu einem Release mit der Migration
+  `core-4.0.3-user-identity` ist als Bootstrap-Szenario abgesichert.
+
 ## [4.0.4] - 2026-07-31
 
 ### Fixed

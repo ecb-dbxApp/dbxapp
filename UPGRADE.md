@@ -12,6 +12,13 @@ dbxApp 4.0.2 ist die erste updaterfähige Referenzversion. Von dieser Basis aus
 steht unter **dbxAdmin → Status & Health → System-Update** für spätere stabile
 dbxApp-4-Releases der verbindliche Standardablauf bereit:
 
+### Besonderheiten in 4.0.5
+
+Version 4.0.5 qualifiziert die SQLite-Ziele der Benutzer- und Gruppen-DDs
+bereits im Release. Dadurch kann ein Updater aus 4.0.3 die zugehörige
+Migration samt Datenbanksicherung vorbereiten, bevor die neuen Programmdateien
+aktiv werden. Lokale DD-Bindungen bleiben unverändert maßgeblich.
+
 ### Besonderheiten in 4.0.4
 
 Version 4.0.4 korrigiert die Sicherheitsprüfung für modulrelative

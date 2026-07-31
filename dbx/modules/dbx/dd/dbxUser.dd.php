@@ -3,7 +3,7 @@
 /* =========================================================
    TABLE
    ========================================================= */
-$table['server']='dbxUser.db3';
+$table['server']='dbx|dbxUser.db3';
 $table['table']='dbx_user';
 $table['datadic']='dbxUser';
 $table['primary']='';

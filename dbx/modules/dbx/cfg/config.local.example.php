@@ -26,4 +26,4 @@ $config['mail_delivery_mode'] = 'internal';
  * DB3 und SQL-Server koennen beliebig gemischt werden.
  */
 $config['dd_server_bindings']['dbx|dbxUser'] = 'dbxApp';
-$config['dd_server_bindings']['dbx|dbxUser_groups'] = 'dbxUser.db3';
+$config['dd_server_bindings']['dbx|dbxUser_groups'] = 'dbx|dbxUser.db3';
