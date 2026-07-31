@@ -1,0 +1,43 @@
+<ul>
+    <li>
+        <a href="{dbx:base_href}"><i class="bi bi-house" aria-hidden="true"></i><span>Home</span></a>
+    </li>
+
+    <li class="dbx-menu-section-label"><span>Documentation</span></li>
+    [cms:root=Documentation&flat=1]
+
+    <li class="dbx-menu-section-label"><span>Source reference</span></li>
+    <li class="dbx-cms-menu-folder">
+        <a role="button" tabindex="0" aria-haspopup="true">
+            <i class="bi bi-code-square" aria-hidden="true"></i><span>Doxygen</span>
+        </a>
+        <ul>
+            <li><a href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=overview"><i class="bi bi-diagram-3" aria-hidden="true"></i><span>Overview</span></a></li>
+            <li><a href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=classes"><i class="bi bi-boxes" aria-hidden="true"></i><span>Classes</span></a></li>
+            <li><a href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=namespaces"><i class="bi bi-braces" aria-hidden="true"></i><span>Namespaces</span></a></li>
+            <li><a href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=files"><i class="bi bi-file-earmark-code" aria-hidden="true"></i><span>Files</span></a></li>
+            <li><a href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=examples"><i class="bi bi-lightbulb" aria-hidden="true"></i><span>Examples</span></a></li>
+        </ul>
+    </li>
+
+    <li class="dbx-menu-section-label"><span>Account &amp; view</span></li>
+    <li class="dbx-lng-menu-root">
+        <a title="{lng_toggle_title}" style="cursor:pointer;">
+            <span class="dbx-lng-flag dbx-lng-flag-active" data-dbx-flag="{lng_active_flag}" aria-hidden="true"></span>
+            <span>{lng_active_label}</span>
+        </a>
+        <ul>{lng_menu}</ul>
+    </li>
+    <li class="dbx-skin-menu-root">
+        <a title="{design_toggle_title}" style="cursor:pointer;">
+            <i class="bi bi-palette" aria-hidden="true"></i><span>Appearance</span>
+        </a>
+        <ul>{design_skin_menu}</ul>
+    </li>
+    {dbx:profile_link}
+    <li>
+        <a href="?dbx_modul=dbxLogin&amp;dbx_run1={dbx:login_out}" title="{dbx:LogInOut}">
+            <i class="bi {dbx:login_icon}" aria-hidden="true"></i><span>{dbx:LogInOut}</span>
+        </a>
+    </li>
+</ul>

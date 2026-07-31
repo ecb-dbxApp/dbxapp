@@ -1,211 +1,106 @@
-# dbXapp 5.0 Dokumentation {#mainpage}
+# dbxapp Dokumentation {#mainpage}
 
-**Offizielle Website:** [dbxapp.de](https://dbxapp.de)
+- **Version:** 4.0.3-dev
+- **Dokumentationsstand:** 28. Juli 2026
+- **Website:** [dbxapp.de](https://dbxapp.de)
 
-**Dokumentationsstand:** 24. Juli 2026
+@htmlonly
+<div class="dbx-doc-hero">
+  <span class="dbx-doc-kicker">Eine Plattform · zwei klare Dokumentationswege</span>
+  <h2>Was möchten Sie mit dbxapp tun?</h2>
+  <p>Wählen Sie zuerst Ihre Rolle. Bedienung und tägliche Arbeit bleiben
+  deutlich von Architektur, Klassen und Modulentwicklung getrennt.</p>
+</div>
+@endhtmlonly
 
-dbXapp ist ein modulares PHP-System für Webanwendungen, CMS, Administration,
-Datenmodelle, Formulare, Reports, Workflows und eine Runtime-IDE. Die
-Dokumentation ist zugleich:
+@htmlonly
+<div class="dbx-audience-grid">
+  <div class="dbx-audience-card dbx-audience-user">
+    <div class="dbx-audience-card-head">
+      <span class="dbx-audience-card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0-8a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 10c-5 0-9 2.5-9 5.5V22h18v-2.5C21 16.5 17 14 12 14Zm-6.9 6c.4-2 3.4-4 6.9-4s6.5 2 6.9 4H5.1Z"/></svg>
+      </span>
+      <span class="dbx-audience-label">Für Anwender</span>
+    </div>
+    <h2>dbxapp benutzen</h2>
+    <p>Login, Navigation, Administration, CMS, Medien, Shop, Workflows,
+    Designs und KI mit nachvollziehbaren Schritten und Screenshots.</p>
+    <p><a href="dbxapp_user_docs.html">Anwenderdokumentation öffnen</a></p>
+  </div>
+  <div class="dbx-audience-card dbx-audience-developer">
+    <div class="dbx-audience-card-head">
+      <span class="dbx-audience-card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="m8.7 16.6-4.6-4.6 4.6-4.6-1.4-1.4L1.3 12l6 6 1.4-1.4Zm6.6 0 1.4 1.4 6-6-6-6-1.4 1.4 4.6 4.6-4.6 4.6ZM14.2 3 8 21h2.1l6.2-18h-2.1Z"/></svg>
+      </span>
+      <span class="dbx-audience-label">Für Entwickler</span>
+    </div>
+    <h2>dbxapp entwickeln</h2>
+    <p>Architektur, Module, dbxDB, DD, FD, dbxForm, dbxReport, dbxTPL,
+    JavaScript, Sicherheit, Tests, Installation und Updates.</p>
+    <p><a href="dbxapp_developer_docs.html">Entwicklerdokumentation öffnen</a></p>
+  </div>
+</div>
+@endhtmlonly
 
-- Einstieg für Entwickler und Betreiber;
-- technische Referenz der vorhandenen Fähigkeiten;
-- verbindlicher Architekturvertrag für neue Module;
-- Arbeitsgrundlage für KI-Agenten.
+@subpage dbxapp_user_docs "Anwenderdokumentation"
 
-## Der wichtigste Einstieg
+@subpage dbxapp_developer_docs "Entwicklerdokumentation"
 
-Wer ein Modul baut oder erweitert, beginnt mit
-@ref dbxapp_module_reference. Das Kapitel zeigt einen vollständigen,
-zusammenhängenden Ablauf mit:
+## Die drei KI-Bereiche
 
-- `dbxTPL`;
-- `dbxDB` und `dbxDD`;
-- DD und FD;
-- `dbxForm`;
-- `dbxReport`;
-- `confirm.js` und `ajax.js`;
-- Routen, Rechte, Action-Token und Mindesttests.
+dbxKi ist nicht ein einzelner allgemeiner KI-Weg. Die Aufgaben sind nach dem
+Gegenstand klar getrennt:
 
-Die Einzelkapitel vertiefen danach jeweils eine Pipeline. Sie sind keine
-alternativen Implementierungswege.
+@htmlonly
+<div class="dbx-ki-summary-grid">
+  <div class="dbx-ki-summary-content"><strong>1 · Content</strong><span>Seiten, Texte, SEO und Übersetzungen</span></div>
+  <div class="dbx-ki-summary-design"><strong>2 · Design</strong><span>Layout, Branding, Skins und Designpakete</span></div>
+  <div class="dbx-ki-summary-modules"><strong>3 · Module</strong><span>Fachlogik, DD, FD, Templates und Tests</span></div>
+</div>
+@endhtmlonly
 
-@image html dbxapp-request-flow.svg "Request-, Modul-, Template- und Interpreter-Ablauf"
+@ref dbxapp_ki_areas "Die drei KI-Bereiche und ihre Grenzen im Überblick"
 
-## Architektur in einer Tabelle
+## Schnelleinstieg für Anwender
 
-| Aufgabe | Verbindliche dbXapp-Schicht |
+- @ref dbxcontent_tutorial_tutorial_login_profil_passwort "Anmelden, Profil und Passwort"
+- @ref dbxcontent_tutorial_tutorial_menue_benutzen "Hauptmenü und Untermenüs"
+- @ref dbxcontent_tutorial_tutorial_admin_dashboard "Admin-Dashboard"
+- @ref dbxapp_user_system_update "System-Update sicher durchführen"
+- @ref dbxcontent_tutorial_tutorial_cms_editor "CMS-Editor"
+- @ref dbxcontent_tutorial_tutorial_shop_frontend "Shop im Frontend"
+- @ref dbxcontent_tutorial_tutorial_workflow_nutzen "Workflow benutzen"
+
+## Schnelleinstieg für Entwickler
+
+1. @ref dbxapp_module_reference "Verbindliches Modulhandbuch"
+2. @ref dbxapp_module_patterns "Modulaufbau und Patterns"
+3. @ref dbxapp_dbxdb_dd_fd "dbxDB, DD und FD"
+4. @ref dbxapp_dbxform "dbxForm"
+5. @ref dbxapp_dbxreport "dbxReport"
+6. @ref dbxapp_dbxtpl "dbxTPL"
+7. @ref dbxapp_security_integrity_performance "Sicherheit, Integrität und Performance"
+
+## Verbindliche technische Grundlage
+
+| Aufgabe | dbxapp-Schicht |
 | --- | --- |
 | Request und Systemzugriff | `dbx()` / `dbxApi` |
 | Fachroute | kleiner Modulrouter |
-| Fachoperation | Modulservice, bei Bedarf Repository/Provider |
-| Ausgabe und Layout | `dbxTPL` und `/tpl` |
+| Fachoperation | Modulservice, bei Bedarf Repository oder Provider |
+| Darstellung | `dbxTPL` und Templates |
 | Datenzugriff | `dbxDB` |
-| Schema und Transfer | `dbxDD` |
-| Datenstruktur und Rechte | DD |
-| Formularsicht | FD |
+| Datenstruktur, Serverbindung und Rechte | DD |
+| Formularsicht und sprachabhängige Meldungen | FD |
 | Eingabe und Validierung | `dbxForm` |
-| Liste, Filter und Pagination | `dbxReport` |
-| Teilreload | `ajax.js` |
-| Bestätigung | `confirm.js` |
-| Fenster | `openWin.js` |
-| UI-State | `core.js` |
-| Content-Inclusion | `dbxInterpreter` |
+| Listen, Filter, Summen und Pagination | `dbxReport` |
+| Teilreload und Bestätigung | `ajax.js` und `confirm.js` |
+| Content-Einbindung | `dbxInterpreter` |
 
-Das System bleibt einfach, weil jedes Modul dieselben Fassaden nutzt. Große
-Kernelklassen werden nicht allein wegen ihrer Zeilenzahl geteilt. Sie bilden
-stabile, fähigkeitsreiche Pipelines. Fachmodule bleiben dagegen klein und
-werden bei klaren Fachgrenzen in Services, Repositories oder Provideradapter
-zerlegt.
-
-## Lesepfade
-
-### Ich möchte ein Modul entwickeln
-
-1. @ref dbxapp_module_reference
-2. @ref dbxapp_module_patterns
-3. das passende Detailkapitel zu Template, Daten, Form oder Report
-4. @ref dbxapp_security_integrity_performance
-
-### Ich möchte das System verstehen
-
-1. @ref dbxapp_system_overview
-2. @ref dbxapp_routing_templates
-3. @ref dbxapp_dbxinterpreter
-4. @ref dbxapp_rad_runtime_ide
-
-### Ich möchte Daten, Formulare oder Reports bauen
-
-1. @ref dbxapp_dbxdb_dd_fd
-2. @ref dbxapp_dbxform
-3. @ref dbxapp_dbxreport
-4. @ref dbxapp_dbxtpl
-5. @ref dbxapp_javascript_libs
-
-### Ich betreibe oder prüfe die Anwendung
-
-1. @ref dbxapp_current_operations
-2. @ref dbxapp_security_integrity_performance
-3. @ref dbxapp_db_roundtrip
-
-### Ich arbeite als KI-Agent
-
-1. @ref dbxapp_ai_rules
-2. @ref dbxapp_module_reference
-3. die zusätzliche Fachreferenz des betroffenen Bereichs
-
-## Dokumentationslandkarte
-
-### Fundament
-
-- @ref dbxapp_system_overview
-- @ref dbxapp_routing_templates
-- @ref dbxapp_dbxinterpreter
-- @ref dbxapp_rad_runtime_ide
-- @ref dbxapp_core_classes
-
-### Verbindliche Modulentwicklung
-
-- @ref dbxapp_module_reference
-- @ref dbxapp_module_patterns
-- @ref dbxapp_ai_rules
-- @ref dbxapp_security_integrity_performance
-
-### Kernpipelines
-
-- @ref dbxapp_dbxtpl
-- @ref dbxapp_dbxdb_dd_fd
-- @ref dbxapp_dbxform
-- @ref dbxapp_dbxreport
-- @ref dbxapp_javascript_libs
-
-### Betrieb und Datenbanken
-
-- @ref dbxapp_current_operations
-- @ref dbxapp_db_roundtrip
-
-### CMS, Design und Fachanwendungen
-
-- @ref dbxapp_cms_dbxki
-- @ref dbxapp_design_themes_skins
-- @ref dbxapp_design_ai_reference
-- @ref dbxapp_design_studio_ki
-- @ref dbxapp_shop_guide
-- @ref dbxapp_shop_ai_reference
-- @ref dbxapp_workflow_guide
-- @ref dbxapp_workflow_create
-- @ref dbxapp_workflow_use
-
-### Herkunft und Bibliotheken
-
-- @ref dbxapp_credits
-
-## Normative Reihenfolge
-
-Bei Widersprüchen gilt:
-
-1. aktuelle Sicherheits- und Integritätsinvarianten;
-2. verbindliches Modulhandbuch;
-3. bereichsspezifische KI-Referenz;
-4. Kernpipeline-Leitfaden;
-5. allgemeines Modulpattern;
-6. ältere oder rein beschreibende Beispiele.
-
-Ein Widerspruch ist kein Anlass, einen Parallelweg zu bauen. Zuerst werden
-Code, Tests und aktuelle Dokumentation gemeinsam geprüft; anschließend wird
-die Dokumentation berichtigt.
-
-## Systemweiter Entwicklungsablauf
-
-1. Fachzweck, Benutzergruppen und Routen festlegen.
-2. Ein ähnliches vorhandenes Modul lesen.
-3. DD und benötigte FDs modellieren.
-4. Templates und eindeutige `{i}`-Targets festlegen.
-5. Kleinen Router und klaren Fachservice implementieren.
-6. Daten ausschließlich über `dbxDB` lesen und schreiben.
-7. Eingaben über `dbxForm`, Listen über `dbxReport` bauen.
-8. Ajax, Confirm, Fenster und UI-State deklarativ an die vorhandenen Libs
-   anbinden.
-9. Mutierende GET-Aktionen mit dem vorhandenen Action-Token schützen; reine
-   Navigation bleibt tokenlos.
-10. Direkten Request, Inclusion, normalen Fallback, Ajax, Rechte,
-    Mehrfachinstanzen und aktive Designs testen.
-11. Doxygen und Modul-README aktualisieren.
-
-## Unveränderliche Grundregeln
-
-1. Kein direkter PDO-Zugriff in Fachmodulen.
-2. Kein SQL und keine Fachmutation in Templates.
-3. Keine großen Formular-HTML-Strings statt `dbxForm`.
-4. Keine eigene Listen-, Such- oder Pagination-Pipeline statt `dbxReport`.
-5. Keine zweite AJAX-, Confirm-, Fenster- oder Storage-Lösung.
-6. DD ist die versionierbare Datenstruktur; FD ist eine konkrete Formularsicht.
-7. Requestwerte werden validiert und Sortierungen gegen Allowlists geprüft.
-8. `dbxDB` setzt Owner-, Benutzer- und Zeitfelder automatisch; Module
-   duplizieren diese Automatik nicht.
-9. Module verwenden `dbx()` direkt und bauen keine Aliasmethoden ohne eigene
-   Fachverantwortung.
-10. Normale DD-, Form- und Reportwerte werden nicht pauschal escaped.
-11. `verify_access=0`, `trace=0` und Kerneländerungen sind begründete
-   Infrastruktur-Ausnahmen.
-12. Mehrfach verwendbare Module besitzen getrennte Parameter- und DOM-Targets.
-13. GET-Kompatibilität bleibt erhalten; nur mutierende GETs benötigen den
-    dokumentierten Aktionsnachweis.
-
-## Wann Arbeit abgeschlossen ist
-
-Eine Änderung gilt erst als fertig, wenn:
-
-- sie die vorgesehene dbXapp-Pipeline nutzt;
-- normale und Ajax-Antwort denselben fachlichen Vertrag erfüllen;
-- Rechte, Validierung, Fehler- und Erfolgsmeldungen sichtbar funktionieren;
-- keine direkten Datenbank- oder JavaScript-Parallelwege entstanden sind;
-- Syntax-, Regression- und Browsertests bestanden sind;
-- Doxygen ohne fehlende Seiten oder Referenzen gebaut wird;
-- Sicherung und Rückweg bei Daten- oder Schemaänderungen dokumentiert sind.
-
+@htmlonly
 <div class="dbx-note">
-dbXapp bleibt schnell und verständlich, wenn die leistungsfähigen gemeinsamen
-Pipelines konsequent genutzt werden und jedes Fachmodul nur seine eigene
-Fachentscheidung ergänzt.
+Anwender-Tutorials werden automatisch aus den maßgeblichen deutschen
+dbxContent-Seiten und ihren Medienzuordnungen erzeugt. Entwicklerdokumentation
+bleibt dateibasiert, versionierbar und direkt mit Klassen und Tests verknüpft.
 </div>
+@endhtmlonly

@@ -545,11 +545,15 @@
                 default: return;
             }
 
-            const maxLeft = window.innerWidth - windowData.element.outerWidth();
-            const maxTop = window.innerHeight - windowData.element.outerHeight();
-
-            newLeft = Math.min(Math.max(newLeft, 0), maxLeft);
-            newTop = Math.min(Math.max(newTop, 0), maxTop);
+            const bounds = this.getViewportPageBounds();
+            newLeft = Math.min(
+                Math.max(newLeft, bounds.left),
+                Math.max(bounds.left, bounds.right - windowData.element.outerWidth())
+            );
+            newTop = Math.min(
+                Math.max(newTop, bounds.top),
+                Math.max(bounds.top, bounds.bottom - windowData.element.outerHeight())
+            );
 
             windowData.element.css({ left: newLeft + 'px', top: newTop + 'px' });
             e.preventDefault();
@@ -1013,6 +1017,62 @@
 
         optionUnset(value) {
             return value == undefined || value == null || value === "";
+        }
+
+        getViewportPageBounds() {
+            const root = document.documentElement;
+            const fallbackLeft = window.pageXOffset || root.scrollLeft || 0;
+            const fallbackTop = window.pageYOffset || root.scrollTop || 0;
+            const visual = window.visualViewport;
+            const width = visual && Number.isFinite(visual.width)
+                ? visual.width
+                : (window.innerWidth || root.clientWidth);
+            const height = visual && Number.isFinite(visual.height)
+                ? visual.height
+                : (window.innerHeight || root.clientHeight);
+            const left = visual && Number.isFinite(visual.pageLeft)
+                ? visual.pageLeft
+                : fallbackLeft;
+            const top = visual && Number.isFinite(visual.pageTop)
+                ? visual.pageTop
+                : fallbackTop;
+
+            return {
+                left: left,
+                top: top,
+                width: width,
+                height: height,
+                right: left + width,
+                bottom: top + height
+            };
+        }
+
+        clampWindowToViewport(windowData) {
+            if (!windowData || this.isMobileViewport()) return;
+
+            const $win = windowData.element;
+            if (!$win || !$win.length || !$win.is(":visible")) return;
+
+            const bounds = this.getViewportPageBounds();
+            const width = $win.outerWidth();
+            const height = $win.outerHeight();
+            const currentLeft = parseFloat($win.css("left"));
+            const currentTop = parseFloat($win.css("top"));
+            const minLeft = bounds.left;
+            const minTop = bounds.top;
+            const maxLeft = Math.max(minLeft, bounds.right - width);
+            const maxTop = Math.max(minTop, bounds.bottom - height);
+
+            $win.css({
+                left: Math.min(Math.max(
+                    Number.isFinite(currentLeft) ? currentLeft : minLeft,
+                    minLeft
+                ), maxLeft) + "px",
+                top: Math.min(Math.max(
+                    Number.isFinite(currentTop) ? currentTop : minTop,
+                    minTop
+                ), maxTop) + "px"
+            });
         }
 
         isMobileViewport() {
@@ -1563,11 +1623,15 @@
             let newLeft = this.activeDrag.startLeft + dx;
             let newTop = this.activeDrag.startTop + dy;
 
-            const maxLeft = window.innerWidth - windowData.element.outerWidth();
-            const maxTop = window.innerHeight - windowData.element.outerHeight();
-
-            newLeft = Math.min(Math.max(newLeft, 0), maxLeft);
-            newTop = Math.min(Math.max(newTop, 0), maxTop);
+            const bounds = this.getViewportPageBounds();
+            newLeft = Math.min(
+                Math.max(newLeft, bounds.left),
+                Math.max(bounds.left, bounds.right - windowData.element.outerWidth())
+            );
+            newTop = Math.min(
+                Math.max(newTop, bounds.top),
+                Math.max(bounds.top, bounds.bottom - windowData.element.outerHeight())
+            );
 
             windowData.element.css({
                 left: newLeft + 'px',
@@ -1642,8 +1706,9 @@
             let newWidth = this.activeResize.startWidth + dx;
             let newHeight = this.activeResize.startHeight + dy;
 
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
+            const bounds = this.getViewportPageBounds();
+            const viewportWidth = bounds.width;
+            const viewportHeight = bounds.height;
 
             const minWidth = this.parseSize(windowData.cfg.minWidth, viewportWidth, CONFIG.MIN_WIDTH);
             const maxWidth = this.parseSize(windowData.cfg.maxWidth, viewportWidth, viewportWidth);
@@ -2053,11 +2118,11 @@
             if (!isRestore && cfg.mode === "prompt" && callerEl && !isMobileViewport) {
 
                 const rect = callerEl.getBoundingClientRect();
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
+                const bounds = this.getViewportPageBounds();
+                const viewportWidth = bounds.width;
 
-                let left = rect.left + window.scrollX;
-                let top  = rect.bottom + window.scrollY;
+                let left = rect.left + bounds.left;
+                let top  = rect.bottom + bounds.top;
 
                 let width  = $win.outerWidth();
                 let height = $win.outerHeight();
@@ -2072,16 +2137,16 @@
                     height = $win.outerHeight();
                 }
 
-                if (left + width > viewportWidth + window.scrollX) {
-                    left = viewportWidth + window.scrollX - width - 10;
+                if (left + width > bounds.right) {
+                    left = bounds.right - width - 10;
                 }
 
-                if (top + height > viewportHeight + window.scrollY) {
-                    top = rect.top + window.scrollY - height;
+                if (top + height > bounds.bottom) {
+                    top = rect.top + bounds.top - height;
                 }
 
-                left = Math.max(10, left);
-                top  = Math.max(10, top);
+                left = Math.max(bounds.left + 10, left);
+                top  = Math.max(bounds.top + 10, top);
 
                 $win.css({
                     left: left,
@@ -2170,6 +2235,7 @@
                     this.applyMobileWindowMode(windowData);
                 }
                 this.bringToFront(windowId);
+                this.clampWindowToViewport(windowData);
 
                 if (!isRestore) {
                     this.animateElement($win, this.getAnimationName(cfg, "open"), cfg);
@@ -2198,8 +2264,9 @@
             const $win = windowData.element;
             const el = $win[0];
 
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
+            const bounds = this.getViewportPageBounds();
+            const viewportWidth = bounds.width;
+            const viewportHeight = bounds.height;
 
             let width = this.parseSize(cfg.width, viewportWidth);
             let height = this.parseSize(cfg.height, viewportHeight);
@@ -2230,22 +2297,28 @@
             let left, top;
 
             if (cfg.position == 'center-top') {
-                left = (viewportWidth - width) / 2;
-                top = Math.max(24, Math.round(viewportHeight * 0.04));
+                left = bounds.left + (viewportWidth - width) / 2;
+                top = bounds.top + Math.max(24, Math.round(viewportHeight * 0.04));
             } else if (cfg.position == 'center') {
-                left = (viewportWidth - width) / 2;
-                top = (viewportHeight - height) / 2;
+                left = bounds.left + (viewportWidth - width) / 2;
+                top = bounds.top + (viewportHeight - height) / 2;
             } else if (cfg.position && typeof cfg.position == 'object') {
-                left = this.parseSize(cfg.position.x, viewportWidth, 100);
-                top = this.parseSize(cfg.position.y, viewportHeight, 100);
+                left = bounds.left + this.parseSize(cfg.position.x, viewportWidth, 100);
+                top = bounds.top + this.parseSize(cfg.position.y, viewportHeight, 100);
             } else {
                 const offset = Math.min(this.stack.length * CONFIG.DRAG_OFFSET, 200);
-                left = 100 + offset;
-                top = 100 + offset;
+                left = bounds.left + 100 + offset;
+                top = bounds.top + 100 + offset;
             }
 
-            left = Math.min(Math.max(left, 0), viewportWidth - 50);
-            top = Math.min(Math.max(top, 0), viewportHeight - 50);
+            left = Math.min(
+                Math.max(left, bounds.left),
+                Math.max(bounds.left, bounds.right - width)
+            );
+            top = Math.min(
+                Math.max(top, bounds.top),
+                Math.max(bounds.top, bounds.bottom - height)
+            );
 
             $win.css({
                 width: width + 'px',
@@ -2482,6 +2555,9 @@
 
             if (!win && cfg.fallback != 0) {
                 if (cfg.fallback == 'redirect') {
+                    if (window.dbx && dbx.utilities && dbx.utilities.leaveGuard) {
+                        dbx.utilities.leaveGuard.allowIfInternal(url);
+                    }
                     window.location.href = url;
                 } else {
                     window.open(url, '_blank');

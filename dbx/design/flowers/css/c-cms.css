@@ -1,1 +1,85 @@
 @import url("./components.css");
+
+.dbx-cms-form-grid-page {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: .75rem;
+    align-items: end;
+}
+
+.dbx-cms-form-grid-page .dbx-cms-system-field-description,
+.dbx-cms-form-grid-page .dbx-cms-system-field-keywords {
+    grid-column: 1 / -1;
+}
+
+.jodit-wysiwyg .is-dbx-cms-selected {
+    outline: 2px solid var(--dbx-primary, #0d6efd);
+    outline-offset: 3px;
+}
+
+@media (max-width: 1200px) {
+    .dbx-cms-form-grid-page {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    .dbx-cms-form-grid-page {
+        grid-template-columns: 1fr;
+    }
+
+    .dbx-cms-form-grid-page .dbx-cms-system-field {
+        grid-column: 1 / -1;
+    }
+}
+
+.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]) {
+    border: 1px dashed transparent;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]):hover {
+    border-color: rgba(13, 110, 253, .55);
+}
+
+.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]):hover > .col,
+.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]):hover > [class*="col-"] {
+    box-shadow: inset 0 0 0 1px rgba(13, 110, 253, .22);
+    min-height: 2.5rem;
+}
+
+.dbx-cms-media-maintenance-report {
+    display: grid;
+    gap: 7px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 10px;
+}
+
+.dbx-cms-media-maintenance-report > div {
+    background: #f8fbff;
+    border: 1px solid #d4dfed;
+    border-radius: 7px;
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    padding: 8px 9px;
+}
+
+.dbx-cms-media-maintenance-report strong {
+    color: #1269d3;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.dbx-cms-media-maintenance-report span {
+    color: #5e6f84;
+    font-size: .72rem;
+    line-height: 1.25;
+}
+
+@media (max-width: 767px) {
+    .dbx-cms-media-maintenance-report {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

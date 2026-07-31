@@ -21,6 +21,54 @@ class dbxDashboard extends \dbxObj {
    private $dashboardMessageError = false;
    private $updateStatusCache = null;
 
+   /**
+    * Warnt, solange der verbindliche Installationszugang admin/123456 aktiv ist.
+    */
+   private function default_admin_password_warning(): string {
+      try {
+         $db = dbx()->get_system_obj('dbxDB');
+         if (!is_object($db)) {
+            return '';
+         }
+         $admin = $db->select1(
+            'dbx|dbxUser',
+            array('uname' => 'admin'),
+            array('id', 'pass'),
+            0
+         );
+      } catch (\Throwable $exception) {
+         return '';
+      }
+
+      return $this->default_admin_password_warning_html(
+         (int)($admin['id'] ?? 0),
+         (string)($admin['pass'] ?? '')
+      );
+   }
+
+   private function default_admin_password_warning_html(
+      int $adminId,
+      string $hash
+   ): string {
+      if ($adminId <= 0 || $hash === '' || !password_verify('123456', $hash)) {
+         return '';
+      }
+
+      $url = '?dbx_modul=dbxAdmin&amp;dbx_run1=user'
+         . '&amp;dbx_run2=edit_user&amp;rid=' . $adminId
+         . '&amp;dbx_page=admin';
+      return '<div class="alert alert-warning dbx-admin-dashboard-password-warning" role="alert">'
+         . '<div class="dbx-admin-dashboard-password-warning-icon">'
+         . '<i class="bi bi-shield-exclamation" aria-hidden="true"></i></div>'
+         . '<div class="dbx-admin-dashboard-password-warning-copy">'
+         . '<strong>Unsicheres Installationspasswort aktiv</strong>'
+         . '<span>Der Administrator verwendet noch den öffentlichen Standardzugang '
+         . '<code>admin / 123456</code>. Ändern Sie das Passwort jetzt.</span></div>'
+         . '<a class="btn btn-warning fw-semibold" href="' . $url . '">'
+         . '<i class="bi bi-key me-1" aria-hidden="true"></i>Passwort ändern</a>'
+         . '</div>';
+   }
+
    private function fmt($value) {
       $value = (int) $value;
       return number_format($value, 0, ',', '.');
@@ -2685,14 +2733,14 @@ class dbxDashboard extends \dbxObj {
          }
       }
 
-      $messageHtml = '';
+      $messageHtml = $this->default_admin_password_warning();
       if ($this->dashboardMessageKey !== '') {
          $message = dbx()->esc($oForm->get_fd_message($this->dashboardMessageKey));
          $tone = $this->dashboardMessageError ? 'danger' : 'success';
          $icon = $this->dashboardMessageError
             ? 'bi-exclamation-triangle-fill'
             : 'bi-check-circle-fill';
-         $messageHtml = '<div class="alert alert-' . $tone
+         $messageHtml .= '<div class="alert alert-' . $tone
             . ' d-flex align-items-center gap-2 mb-3" role="alert">'
             . '<i class="bi ' . $icon . '" aria-hidden="true"></i>'
             . '<span>' . $message . '</span></div>';

@@ -70,7 +70,10 @@ $addField('legal_snapshot_enabled','int','Rechtstext-Snapshot speichern','int',$
 $addField('withdrawal_button_enabled','int','Widerruf anzeigen','int',$check,array('data'=>array('hint'=>'Blendet den Widerrufsbereich im Shop ein. Der Inhalt kommt aus der CMS-Seite /shop-widerruf.')));
 $addField('mail_customer_enabled','int','Kunden-Mail senden','int',$check,array('data'=>array('hint'=>'Sendet nach Bestellung und Widerruf eine Bestaetigung an den Kunden.')));
 $addField('mail_admin_enabled','int','Admin-Mail senden','int',$check,array('data'=>array('hint'=>'Sendet bei Bestellung und Widerruf eine interne Benachrichtigung.')));
-$addField('mail_from','varchar','Mail-Absender','email|max=180','text-label',array('placeholder'=>'shop@example.org'));
+$addField('mail_from','varchar','Shop-Absender','email|max=180','text-label',array(
+   'placeholder'=>'shop@example.org',
+   'data'=>array('hint'=>'Eigene From-Adresse für Bestellungen, Statusmeldungen und Widerrufe.'),
+));
 $addField('mail_admin_to','varchar','Admin-E-Mail','email|max=180','text-label',array('placeholder'=>'admin@example.org'));
 
 $addField('payment_bank_transfer_enabled','int','Vorkasse aktiv','int',$check,array('data'=>array('hint'=>'Aktiviert Vorkasse per Bankueberweisung als Checkout-Zahlungsart.')));

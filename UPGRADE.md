@@ -12,6 +12,15 @@ dbxApp 4.0.2 ist die erste updaterfähige Referenzversion. Von dieser Basis aus
 steht unter **dbxAdmin → Status & Health → System-Update** für spätere stabile
 dbxApp-4-Releases der verbindliche Standardablauf bereit:
 
+### Besonderheiten in 4.0.3
+
+Version 4.0.3 führt die Migration `core-4.0.3-user-identity` aus. Sie
+synchronisiert die DDs `dbx|dbxUser` und `dbx|dbxUser_groups` und stellt die
+verbindlichen Core-Gruppen sicher. Der Updater löst dafür jede lokale
+DD-Serverbindung auf, sichert vorhandene Tabellen vor der Änderung und führt
+Datei- und Datenbank-Rollback gemeinsam aus. Die Migration wird mit ID und
+Prüfsumme protokolliert und bei einem erneuten Lauf nicht doppelt ausgeführt.
+
 1. **Update automatisch vorbereiten** prüft das feste Manifest aus
    `ecb-dbxApp/dbxapp`, lädt ein neueres ZIP in den isolierten Staging-Bereich
    und kontrolliert HTTPS-Ziel, Version, PHP-Anforderungen, Größe, SHA-256,
@@ -22,9 +31,10 @@ dbxApp-4-Releases der verbindliche Standardablauf bereit:
    Staging-Bereich und dessen Status. Installierte Programmdateien wurden bis
    dahin nicht verändert.
 4. **Jetzt sicher installieren** sichert alle betroffenen Programmdateien und
-   ersetzt danach den geprüften Release-Stand. Der kurze Dateiaustausch darf
-   nicht manuell abgebrochen werden; ein Fehler löst automatisch das
-   dateibasierte Rollback aus.
+   bei enthaltenen Migrationen auch die betroffenen DD-Tabellen. Danach wird
+   der geprüfte Release-Stand installiert. Dieser zusammenhängende Schritt
+   darf nicht manuell abgebrochen werden; ein Fehler löst automatisch das
+   gemeinsame Datei-/Datenbank-Rollback aus.
 5. **Letztes Update zurückrollen** stellt bei Bedarf die letzte
    Dateisicherung wieder her.
 

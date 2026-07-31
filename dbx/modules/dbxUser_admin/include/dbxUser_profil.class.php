@@ -1,6 +1,7 @@
 <?php
 namespace dbx\dbxUser_admin;
 dbx()->use_system_class('dbxForm');
+require_once dirname(__DIR__, 3) . '/include/dbxPasswordPolicy.class.php';
 
 Class dbxUser_profil extends \dbxObj {
 
@@ -35,7 +36,15 @@ Class dbxUser_profil extends \dbxObj {
       if (!is_array($data)) {
          return '<div class="alert alert-warning">' . dbx()->esc($texts->get_fd_message('user_not_found')) . '</div>';
       }
+      $currentPasswordHash = (string)($data['pass'] ?? '');
       $data['pass'] = '';
+      $data['pass_repeat'] = '';
+      $passwordMinLength = \dbxPasswordPolicy::minimumLength();
+      $oForm->add_rep('password_min_length', (string)$passwordMinLength);
+      $oForm->add_rep(
+         'password_length_recommendation',
+         $passwordMinLength < 12 ? ' · 12+ empfohlen' : ''
+      );
 
       $actionUrl = $work === 'new_user'
          ? '?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=new_user'
@@ -100,7 +109,23 @@ Class dbxUser_profil extends \dbxObj {
       );
 
       $oForm->add_fld('uname'     ,'text-label', label: $texts->get_fd_message('label_username'));
-      $oForm->add_fld('pass'      ,'password-label', label: $texts->get_fd_message('label_password_new'), rules: 'password|max=32', placeholder: $texts->get_fd_message('password_unchanged_placeholder'));
+      $oForm->add_fld(
+         'pass',
+         'password-label',
+         label: $texts->get_fd_message('label_password_new'),
+         rules: 'varchar|max=128',
+         placeholder: $texts->get_fd_message('password_unchanged_placeholder'),
+         tooltip: 'Nur ausfüllen, wenn ein neues Passwort gesetzt werden soll.'
+      );
+      $oForm->add_fld(
+         'pass_repeat',
+         'password-label',
+         label: $texts->get_fd_message('label_password_repeat'),
+         rules: 'varchar|max=128',
+         placeholder: $texts->get_fd_message('password_repeat_placeholder'),
+         tooltip: 'Das neue Passwort zur Kontrolle noch einmal eingeben.',
+         dd: ''
+      );
       $oForm->add_fld('status'    ,'select-single-label', label: $texts->get_fd_message('label_status'), options: $options_status);
       $oForm->add_fld('is_confirm','select-single-label', label: $texts->get_fd_message('label_confirmed_short'), options: $options_confirm);
       $oForm->add_fld('roles'     ,'multi-select', label: $texts->get_fd_message('label_roles'), rules: 'array|parameter', class: 'dbxMultiSelect2', data: array('size' => 8));
@@ -129,17 +154,59 @@ Class dbxUser_profil extends \dbxObj {
       $oForm->add_fld('logout_pid','text-label', label: $texts->get_fd_message('label_logout_page'));
 
       if($oForm->submit()) {
+         $pas = (string)$oForm->get_post_data('pass', '', '*');
+         $pasRepeat = (string)$oForm->get_post_data(
+            'pass_repeat',
+            '',
+            '*'
+         );
+         $passwordErrorMessage = '';
+         if ($pas !== '' || $pasRepeat !== '') {
+            $passwordErrors = \dbxPasswordPolicy::errors(
+               $pas,
+               $pasRepeat,
+               $currentPasswordHash,
+               $passwordMinLength
+            );
+            if (isset($passwordErrors['password'])) {
+               $oForm->add_fld_error('pass', $passwordErrors['password']);
+            }
+            if (isset($passwordErrors['repeat'])) {
+               $oForm->add_fld_error(
+                  'pass_repeat',
+                  $passwordErrors['repeat']
+               );
+            }
+            $passwordErrorMessage = implode(
+               ' ',
+               array_values(array_unique($passwordErrors))
+            );
+         }
          if(!$oForm->errors()) {
             $change = $oForm->changed();
             if ($change) {
                $saveRid = (int) $rid;
-               $pas = $oForm->get_Post('pass', '', 'password');
 
                if ($pas !== '') {
-                  $oForm->_post['pass'] = md5($pas);
+                  $oForm->_post['pass'] = password_hash(
+                     $pas,
+                     PASSWORD_DEFAULT
+                  );
+                  $settings = json_decode(
+                     (string)($data['settings'] ?? ''),
+                     true
+                  );
+                  $settings = is_array($settings) ? $settings : array();
+                  unset($settings['password_reset_required']);
+                  $settings['password_changed_at'] = date(DATE_ATOM);
+                  $oForm->_post['settings'] = json_encode(
+                     $settings,
+                     JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                  );
                } else {
                   unset($oForm->_post['pass']);
                }
+               unset($oForm->_post['pass_repeat']);
 
                if ($saveRid > 0) {
                   unset($oForm->_post['id']);
@@ -161,7 +228,10 @@ Class dbxUser_profil extends \dbxObj {
             foreach ($oForm->_errors as $key => $value) {
                $err_flds .= $key . ' ';
             }
-            $oForm->_msg_error = $texts->get_fd_message('check_input') . ' (' . trim($err_flds) . ')';
+            $oForm->_msg_error = $passwordErrorMessage !== ''
+               ? $passwordErrorMessage
+               : $texts->get_fd_message('check_input')
+                  . ' (' . trim($err_flds) . ')';
          }
       }
 

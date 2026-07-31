@@ -107,10 +107,18 @@ foreach ($candidates as $candidate) {
             'HTML-Tagfolge' => array($tagPattern, 1),
             'URL-Attribute' => array($urlPattern, 2),
         ) as $label => $rule) {
-            if (
-                $extract($rule[0], $source, $rule[1])
-                !== $extract($rule[0], $target, $rule[1])
-            ) {
+            $sourceParts = $extract($rule[0], $source, $rule[1]);
+            $targetParts = $extract($rule[0], $target, $rule[1]);
+            if ($label === 'technische Marker') {
+                $normalizeCmsRoot = static fn(string $marker): string => preg_replace(
+                    '/(\[cms:root=)[^&\]]+/i',
+                    '$1{translated-root}',
+                    $marker
+                ) ?? $marker;
+                $sourceParts = array_map($normalizeCmsRoot, $sourceParts);
+                $targetParts = array_map($normalizeCmsRoot, $targetParts);
+            }
+            if ($sourceParts !== $targetParts) {
                 $errors[] = $targetPath . ': ' . $label . ' verändert';
             }
         }

@@ -26,6 +26,7 @@ final class AuthoritativeSourceSync
 
    /** @var array<string,true> */
    private const SHARED_RELEASE_TOOLS = array(
+      'tools/ci.php' => true,
       'tools/lib/AuthoritativeSourceSync.php' => true,
       'tools/sync-authoritative-source.php' => true,
       'tools/tests/authoritative_source_sync_test.php' => true,
@@ -46,6 +47,18 @@ final class AuthoritativeSourceSync
          || preg_match('/^\d{2}_[A-Za-z0-9_.-]+\.md$/', $relative)
          || preg_match('/^RELEASE_NOTES_[A-Za-z0-9_.-]+\.md$/', $relative)) {
          return true;
+      }
+
+      if (str_starts_with($relative, 'docs/')) {
+         $base = basename($relative);
+         $extension = strtolower(pathinfo($relative, PATHINFO_EXTENSION));
+         return !preg_match('#/(?:cache|tmp|work|backup|backups|_backup|\.backup|uploads)/#i', '/' . $relative)
+            && !in_array($base, array('.env', '.env.local', 'config.local.php'), true)
+            && (in_array($base, array('LICENSE', 'README'), true)
+               || in_array($extension, array(
+                  'dox', 'md', 'txt', 'html', 'htm', 'css', 'js', 'php',
+                  'svg', 'png', 'jpg', 'jpeg', 'gif', 'webp',
+               ), true));
       }
 
       if (!str_starts_with($relative, 'dbx/')) {

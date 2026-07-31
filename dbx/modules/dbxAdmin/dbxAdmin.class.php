@@ -62,6 +62,11 @@ Class dbxAdmin {
           $content=$obj->run('db');
           break;
 
+        case 'dd_bindings':
+          $obj=dbx()->get_include_obj('dbxDDServerBindings');
+          $content=$obj->run();
+          break;
+
         case 'missing':
           $obj=dbx()->get_include_obj('dbxMissing');
           $content=$obj->run();

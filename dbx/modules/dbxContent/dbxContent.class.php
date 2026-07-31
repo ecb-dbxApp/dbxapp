@@ -67,7 +67,7 @@ class dbxContent {
         http_response_code(304);
         header('ETag: ' . $etag);
         header('Last-Modified: ' . $lastModified);
-        header('Cache-Control: public, max-age=31536000, immutable');
+        header('Cache-Control: private, no-cache');
         exit;
      }
 
@@ -100,7 +100,7 @@ class dbxContent {
      header('X-Content-Type-Options: nosniff');
      header('ETag: ' . $etag);
      header('Last-Modified: ' . $lastModified);
-     header('Cache-Control: public, max-age=31536000, immutable');
+     header('Cache-Control: private, no-cache');
      $out = fopen($file, 'rb');
      if ($out) {
         if ($start > 0) fseek($out, $start);

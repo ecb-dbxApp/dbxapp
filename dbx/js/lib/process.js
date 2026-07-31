@@ -12,6 +12,7 @@
 
     const dbx = window.dbx;
     const timers = new WeakMap();
+    const retryTimers = new WeakMap();
 
     dbx.process = dbx.process || {};
 
@@ -53,6 +54,11 @@
         if (timer) {
             window.clearTimeout(timer);
             timers.delete(root);
+        }
+        const retryTimer = retryTimers.get(root);
+        if (retryTimer) {
+            window.clearTimeout(retryTimer);
+            retryTimers.delete(root);
         }
     }
 
@@ -102,7 +108,7 @@
                 url: url,
                 method: "GET",
                 mode: "html",
-                timeout: 30000
+                timeout: 45000
             });
         }
 
@@ -164,6 +170,7 @@
 
         return requestHtml(url)
             .then(html => {
+                root.__dbxProcessRetryCount = 0;
                 const next = replaceRoot(root, html);
                 emit("process:after", {
                     root: next,
@@ -176,7 +183,19 @@
                 dbx.warn("[process] request failed", err);
                 root.classList.add("has-error");
                 const msg = root.querySelector("[data-process-message]");
-                if (msg) msg.textContent = "Prozess-Anfrage fehlgeschlagen.";
+                const running = status(root) === "running";
+                const retryCount = (parseInt(root.__dbxProcessRetryCount, 10) || 0) + 1;
+                root.__dbxProcessRetryCount = retryCount;
+                if (running && retryCount <= 3) {
+                    if (msg) msg.textContent = "Antwort dauert laenger – Status wird erneut abgefragt.";
+                    const retryTimer = window.setTimeout(function () {
+                        retryTimers.delete(root);
+                        loadIntoRoot(root, url, "retry");
+                    }, Math.min(5000, 1000 * retryCount));
+                    retryTimers.set(root, retryTimer);
+                } else if (msg) {
+                    msg.textContent = "Prozess-Anfrage fehlgeschlagen. Bitte erneut laden.";
+                }
                 return root;
             })
             .finally(() => setBusy(root, false));

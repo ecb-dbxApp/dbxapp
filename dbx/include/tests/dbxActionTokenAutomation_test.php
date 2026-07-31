@@ -286,7 +286,7 @@ if ((string)($rowRoute['params']['dbx_do'] ?? '') !== 'row_delete'
    $fail('dbxReport tokenisiert die Row-Delete-URL nicht automatisch.', 12);
 }
 
-$report->enable_delete_tab('testModule|records');
+$report->enable_delete_tab('dbxMissing');
 $deleteTableHtml = html_entity_decode($report->deleteTableButton(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 if (strpos($deleteTableHtml, 'dbx_do=delete_tab') === false
     || strpos($deleteTableHtml, 'dbx_token=') === false) {

@@ -2,16 +2,36 @@
 
 $root = dirname(__DIR__, 3);
 $doxyfile = $root . '/Doxyfile';
-$mainFile = $root . '/00_Doxygen_Mainpage.md';
+$mainFile = $root . '/docs/doxygen-generated-main.dox';
 $referenceFile = $root . '/25_Verbindliches_Modulhandbuch.md';
 $referenceModule = $root . '/dbx/modules/myInvoices';
+$navigationFile = $root . '/docs/doxygen-navigation.dox';
+$updateUserFile = $root . '/docs/dbxapp-system-update-user.dox';
+$kiAreasFile = $root . '/28_KI_Bereiche.md';
+$tutorialExport = $root . '/dbx/modules/dbxContent/tools/export_doxygen_tutorials_de.php';
+$tutorialDir = $root . '/docs/generated/tutorials';
+$brandingHeader = $root . '/docs/doxygen-awesome/header.html';
+$brandingCss = $root . '/docs/doxygen-awesome/dbxapp-doxygen.css';
+$utf8Filter = $root . '/docs/tools/doxygen_php_utf8_filter.php';
+$releaseVersion = trim((string)file_get_contents($root . '/VERSION'));
 
 $fail = static function (string $message, int $code): void {
     fwrite(STDERR, "FAIL: {$message}\n");
     exit($code);
 };
 
-foreach ([$doxyfile, $mainFile, $referenceFile] as $requiredFile) {
+foreach ([
+    $doxyfile,
+    $mainFile,
+    $referenceFile,
+    $navigationFile,
+    $updateUserFile,
+    $kiAreasFile,
+    $tutorialExport,
+    $brandingHeader,
+    $brandingCss,
+    $utf8Filter,
+] as $requiredFile) {
     if (!is_file($requiredFile)) {
         $fail('Erforderliche Doxygen-Datei fehlt: ' . $requiredFile, 1);
     }
@@ -71,6 +91,22 @@ foreach ($docs as $doc) {
     }
 }
 
+foreach (array($navigationFile, $updateUserFile) as $doxygenPageFile) {
+    $content = (string)file_get_contents($doxygenPageFile);
+    if (preg_match_all('/@page\s+(dbxapp_[A-Za-z0-9_]+)/', $content, $matches)) {
+        foreach ($matches[1] as $anchor) {
+            if (isset($anchors[$anchor])) {
+                $duplicateAnchors[$anchor] = array(
+                    $anchors[$anchor],
+                    basename($doxygenPageFile),
+                );
+                continue;
+            }
+            $anchors[$anchor] = basename($doxygenPageFile);
+        }
+    }
+}
+
 if ($duplicateAnchors) {
     $fail(
         'Doppelte Doxygen-Anker: ' . implode(', ', array_keys($duplicateAnchors)),
@@ -87,45 +123,200 @@ if ($missingReferences) {
 }
 
 $doxyContent = (string)file_get_contents($doxyfile);
-foreach ($docs as $doc) {
-    $name = basename($doc);
-    if (strpos($doxyContent, $name) === false) {
-        $fail('Doxygen INPUT enthaelt die Seite nicht: ' . $name, 5);
-    }
-}
-
-$expectedOrder = array(
-    '00_Doxygen_Mainpage.md',
+foreach (array(
+    'docs/doxygen-navigation.dox',
+    'docs/dbxapp-system-update-user.dox',
+    'docs/generated/tutorials',
     '25_Verbindliches_Modulhandbuch.md',
-    '08_Modulaufbau_Patterns.md',
-    '04_dbxTPL_Leitfaden.md',
-    '05_dbxDB_DD_FD_Leitfaden.md',
-    '06_dbxForm_Leitfaden.md',
-    '07_dbxReport_Leitfaden.md',
-    '09_JavaScript_Libs.md',
-    '23_Sicherheit_Integritaet_Performance.md',
-    '22_Aktueller_Stand_Betrieb.md',
-    '24_DB3_MySQL_Roundtrip.md',
-);
-$lastPosition = -1;
-foreach ($expectedOrder as $name) {
-    $position = strpos($doxyContent, $name);
-    if ($position === false || $position <= $lastPosition) {
-        $fail('Doxygen INPUT-Reihenfolge ist inkonsistent bei: ' . $name, 6);
+    'files/doku',
+) as $editorialInput) {
+    if (strpos($doxyContent, $editorialInput) !== false) {
+        $fail('Redaktioneller CMS-Inhalt darf nicht mehr Doxygen-INPUT sein: ' . $editorialInput, 5);
     }
-    $lastPosition = $position;
 }
 
 $mainContent = (string)file_get_contents($mainFile);
 foreach (array(
-    '@ref dbxapp_module_reference',
-    '## Lesepfade',
-    '## Dokumentationslandkarte',
-    '## Normative Reihenfolge',
-    '## Systemweiter Entwicklungsablauf',
+    '@mainpage dbxapp Quellcode-Referenz',
+    '@ref annotated "Klassen"',
+    '@ref namespaces "Namespaces"',
+    '@ref files "Dateien"',
+    '@ref examples "Beispiele"',
+    'dbxapp-Dokumentationsportal öffnen',
 ) as $needle) {
     if (strpos($mainContent, $needle) === false) {
         $fail('Mainpage-Vertrag fehlt: ' . $needle, 7);
+    }
+}
+
+$navigationContent = (string)file_get_contents($navigationFile);
+foreach (array(
+    '@page dbxapp_user_docs Anwenderdokumentation',
+    '@page dbxapp_user_start Einstieg und Bedienung',
+    '@page dbxapp_user_admin Administration und Systemstatus',
+    '@subpage dbxapp_user_system_update',
+    '@page dbxapp_user_content Inhalte, CMS und Medien',
+    '@page dbxapp_user_shop Shop bedienen und administrieren',
+    '@page dbxapp_user_workflows Workflows erstellen und benutzen',
+    '@page dbxapp_user_design Designs manuell und mit KI erstellen',
+    '@page dbxapp_user_ki_content KI-Bereich 1: Content',
+    '@page dbxapp_user_ki_design KI-Bereich 2: Design',
+    '@page dbxapp_user_ki_modules KI-Bereich 3: Module',
+    '@page dbxapp_developer_docs Entwicklerdokumentation',
+    '@page dbxapp_dev_orientation Architektur und Laufzeit',
+    '@page dbxapp_dev_modules Verbindliche Modulentwicklung',
+    '@page dbxapp_dev_pipelines Kernpipelines und Bibliotheken',
+    '@page dbxapp_dev_content_design CMS, KI, Design und Fachmodule',
+    '@page dbxapp_dev_operations Installation, Updates und Betrieb',
+) as $needle) {
+    if (strpos($navigationContent, $needle) === false) {
+        $fail('Doxygen-Navigation ist unvollständig: ' . $needle, 19);
+    }
+}
+
+$updateUserContent = (string)file_get_contents($updateUserFile);
+foreach (array(
+    '@page dbxapp_user_system_update System-Update sicher durchführen',
+    'Update automatisch vorbereiten',
+    'Update stoppen',
+    'Jetzt sicher installieren',
+    'Letztes Update zurückrollen',
+    'DB3, MySQL und gemischte Installationen',
+    'files/dbxError.log',
+    'dbxapp_install_update_dd_bindings.html',
+) as $needle) {
+    if (strpos($updateUserContent, $needle) === false) {
+        $fail('Anwender-Updateanleitung ist unvollständig: ' . $needle, 32);
+    }
+}
+
+$kiAreasContent = (string)file_get_contents($kiAreasFile);
+foreach (array(
+    '<span class="dbx-area-number">1</span>',
+    '<h2>Content</h2>',
+    '<span class="dbx-area-number">2</span>',
+    '<h2>Design</h2>',
+    '<span class="dbx-area-number">3</span>',
+    '<h2>Module</h2>',
+    '@subpage dbxapp_user_ki_content',
+    '@subpage dbxapp_user_ki_design',
+    '@subpage dbxapp_user_ki_modules',
+) as $needle) {
+    if (strpos($kiAreasContent, $needle) === false) {
+        $fail('Trennung der drei KI-Bereiche fehlt: ' . $needle, 20);
+    }
+}
+
+$tutorialFiles = glob($tutorialDir . '/*.dox');
+if (!is_array($tutorialFiles) || count($tutorialFiles) !== 18) {
+    $fail('Der generierte dbxContent-Tutorialbestand muss 18 Seiten enthalten.', 21);
+}
+
+$tutorialLabels = array();
+foreach ($tutorialFiles as $tutorialFile) {
+    $tutorialContent = (string)file_get_contents($tutorialFile);
+    if (!preg_match('/^\/\*\*\s+@page\s+(dbxcontent_tutorial_[a-z0-9_]+)\s+/s', $tutorialContent, $match)) {
+        $fail('Generierte Tutorialseite besitzt keinen stabilen @page-Anker: '
+            . basename($tutorialFile), 22);
+    }
+    if (strpos($tutorialContent, 'dbxContent #') === false
+        || strpos($tutorialContent, '@note Quelle: deutsche dbxContent-Seite') === false) {
+        $fail('Quellnachweis der Tutorialseite fehlt: ' . basename($tutorialFile), 23);
+    }
+    $tutorialLabels[$match[1]] = true;
+}
+if (count($tutorialLabels) !== 18) {
+    $fail('Generierte Tutorial-Anker sind nicht eindeutig.', 24);
+}
+
+$tutorialOverview = (string)file_get_contents(
+    $tutorialDir . '/0010-tutorials-dbxapp.dox'
+);
+preg_match_all('/@image html (dbxcontent-media-[^\s"]+)/', $tutorialOverview, $overviewMedia);
+if (count($overviewMedia[1] ?? array()) === 0) {
+    $fail('Die Tutorialübersicht enthält keine zugeordneten Medien.', 31);
+}
+foreach (array_unique($overviewMedia[1]) as $asset) {
+    if (!is_file($tutorialDir . '/assets/' . $asset)) {
+        $fail('Der Tutorialübersicht fehlt die exportierte Mediendatei: ' . $asset, 31);
+    }
+}
+
+foreach (array_keys($tutorialLabels) as $tutorialLabel) {
+    if (strpos($navigationContent, $tutorialLabel) === false) {
+        $fail('Tutorial ist keiner Doxygen-Navigation zugeordnet: ' . $tutorialLabel, 25);
+    }
+}
+
+$tutorialExportContent = (string)file_get_contents($tutorialExport);
+foreach (array(
+    "get_system_obj('dbxDB')",
+    "dbxContentLng::ddContent('de')",
+    "'folder = 15 AND activ = 1'",
+    "'dbxMediaUsage'",
+    "'dbxMedia'",
+    "'--write'",
+    "'--check'",
+) as $needle) {
+    if (strpos($tutorialExportContent, $needle) === false) {
+        $fail('Tutorial-Exportvertrag ist unvollständig: ' . $needle, 26);
+    }
+}
+foreach (array('/\bPDO\b/', '/\bmysqli?\b/i', '/\bSQLite3\b/') as $forbiddenPattern) {
+    if (preg_match($forbiddenPattern, $tutorialExportContent)) {
+        $fail('Tutorial-Export umgeht dbxDB: ' . $forbiddenPattern, 27);
+    }
+}
+
+foreach (array(
+    'PROJECT_NAME           = "dbxapp"',
+    'PROJECT_NUMBER         = "' . $releaseVersion . '"',
+    'PROJECT_LOGO           = dbXapp-Logo.jpeg',
+    'FULL_SIDEBAR           = YES',
+    'FULL_PATH_NAMES        = NO',
+    'PAGE_OUTLINE_PANEL     = NO',
+    'STRIP_FROM_PATH        = .',
+    'FILTER_PATTERNS        = *dbxApi.php="php docs/tools/doxygen_php_utf8_filter.php"',
+    'FILTER_SOURCE_FILES    = YES',
+    'docs/doxygen-generated-main.dox',
+    'docs/doxygen-awesome/header.html',
+    'docs/doxygen-awesome/dbxapp-doxygen.css',
+) as $needle) {
+    if (strpos($doxyContent, $needle) === false) {
+        $fail('Doxygen-Branding- oder Strukturkonfiguration fehlt: ' . $needle, 28);
+    }
+}
+
+$headerContent = (string)file_get_contents($brandingHeader);
+$cssContent = (string)file_get_contents($brandingCss);
+foreach (array(
+    'Anwender',
+    'Entwickler',
+    'KI-Bereiche',
+    'data-dbx-section="user"',
+    'dbx-doc-nav-icon',
+    'dbx-doc-tools',
+    'dbx-doc-embedded',
+) as $needle) {
+    if (strpos($headerContent, $needle) === false) {
+        $fail('Zielgruppen-Navigation im dbxapp-Header fehlt: ' . $needle, 29);
+    }
+}
+foreach (array(
+    '--dbx-brand-navy',
+    '--dbx-brand-red',
+    '.dbx-doc-hero',
+    '.dbx-audience-grid',
+    '#dbx-doc-audience a.is-active',
+    '.dbx-doc-nav-icon',
+    '.dbx-doc-tools',
+    '.dbx-user-nav-grid',
+    '.dbx-update-steps',
+    '.dbx-update-state-grid',
+    'html.dbx-doc-embedded #doc-content',
+) as $needle) {
+    if (strpos($cssContent, $needle) === false) {
+        $fail('dbxapp-Branding-CSS ist unvollständig: ' . $needle, 30);
     }
 }
 

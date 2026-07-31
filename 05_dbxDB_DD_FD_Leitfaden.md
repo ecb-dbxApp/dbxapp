@@ -203,6 +203,24 @@ der DD vorhanden, setzt `dbxDB` sie automatisch. Ein Fachmodul soll diese
 Infrastrukturwerte weder im Formular noch vor `insert()`, `update()` oder
 `save()` nachbauen.
 
+### Lokale Serverbindung pro DD
+
+`$table['server']` ist der ausgelieferte Standard, nicht eine globale
+Festlegung für das ganze System. Eine Installation kann jede DD in
+`config.local.php` einzeln auf eine DB3-Datei oder einen aktiven SQL-Server
+binden. `dbxDB` löst diese Bindung zentral auf; Fachmodule bleiben unverändert.
+
+```php
+$config['dd_server_bindings'] = array(
+    'dbx|dbxUser' => 'dbxInstall',
+    'dbxShop|shopOrder' => 'dbxShop|dbxShop.db3',
+);
+```
+
+Ungültige explizite Bindungen werden abgelehnt und fallen nicht unbemerkt auf
+den DD-Standard zurück. Installation, Migration, Sicherung und Rollback sind
+unter @ref dbxapp_install_update_dd_bindings verbindlich beschrieben.
+
 ### Feldattribute
 
 | Attribut | Bedeutung |

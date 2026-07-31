@@ -243,17 +243,17 @@
 
 .dbx-content-hero-with-header .dbx-content-header-in-hero .dbx-content-inline-video[style*="height"] .dbx-content-video-player,
 .dbx-content-hero-with-header .dbx-content-header-in-hero .dbx-content-inline-video[style*="height"] iframe {
-    height: max(100%, calc(100cqw * 9 / 16));
-    left: 50%;
+    aspect-ratio: auto;
+    height: 100%;
+    inset: 0;
     max-width: none;
-    min-height: 100%;
-    min-width: 100%;
+    min-height: 0;
+    min-width: 0;
     object-fit: cover;
     object-position: center center;
     position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: max(100%, calc(100cqh * 16 / 9));
+    transform: none;
+    width: 100%;
 }
 
 .dbx-content-hero-with-header .dbx-content-header-in-hero > :last-child,
@@ -350,7 +350,7 @@
 }
 
 .dbx-content-page .card .card-img-top {
-    aspect-ratio: 9 / 16;
+    aspect-ratio: 16 / 9;
     display: block;
     height: auto;
     max-height: none;
@@ -464,7 +464,7 @@
 .dbx-content-page .card .card-body > img[data-cms-media-id]:first-child,
 .dbx-content-page .card .card-body > .dbx-cms-inline-media:first-child > img[data-cms-media-id]:only-child,
 .dbx-content-page .card .card-body > p:first-child > img[data-cms-media-id]:only-child {
-    aspect-ratio: 9 / 16;
+    aspect-ratio: 16 / 9;
     background: transparent;
     border: 0;
     border-radius: 0;
@@ -559,10 +559,71 @@
 }
 
 .dbx-content-inline-video {
-    container-type: size;
     overflow: hidden;
     position: relative;
     width: min(100%, 760px);
+}
+
+.ratio > .dbx-content-inline-video {
+    height: 100%;
+    inset: 0;
+    margin: 0;
+    max-width: none;
+    position: absolute;
+    width: 100%;
+}
+
+.ratio:has(> .dbx-content-inline-video[style*="width"]),
+.ratio:has(> .dbx-content-inline-video[style*="height"]) {
+    --bs-aspect-ratio: 0;
+    display: block;
+    max-width: 100%;
+    width: fit-content;
+}
+
+.ratio:has(> .dbx-content-inline-video[style*="width"])::before,
+.ratio:has(> .dbx-content-inline-video[style*="height"])::before {
+    padding-top: 0;
+}
+
+.ratio > .dbx-content-inline-video[style*="width"],
+.ratio > .dbx-content-inline-video[style*="height"] {
+    height: auto;
+    inset: auto;
+    max-width: 100%;
+    position: relative;
+}
+
+.dbx-content-inline-video[data-video-align="left"] {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+.dbx-content-inline-video[data-video-align="center"] {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dbx-content-inline-video[data-video-align="right"] {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.ratio:has(> .dbx-content-inline-video[data-video-align="center"]) {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ratio:has(> .dbx-content-inline-video[data-video-align="right"]) {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.ratio > .dbx-content-inline-video .dbx-content-video-player {
+    aspect-ratio: auto;
+    height: 100%;
+    max-width: none;
+    width: 100%;
 }
 
 .dbx-content-video-player {
@@ -574,18 +635,18 @@
     width: 100%;
 }
 
+#dbxContent .dbx-content-inline-video[style*="height"] .dbx-content-video-player,
 .dbx-content-inline-video[style*="height"] .dbx-content-video-player {
-    aspect-ratio: 16 / 9;
-    height: max(100%, calc(100cqw * 9 / 16));
-    left: 50%;
+    aspect-ratio: auto;
+    height: 100%;
+    inset: 0;
     max-width: none;
-    min-height: 100%;
-    min-width: 100%;
+    min-height: 0;
+    min-width: 0;
     object-fit: cover;
     position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: max(100%, calc(100cqh * 16 / 9));
+    transform: none;
+    width: 100%;
 }
 
 .dbx-media-hero img,

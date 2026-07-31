@@ -1,14 +1,15 @@
-PROJECT_NAME           = "dbXapp"
-PROJECT_NUMBER         = "5.0"
-PROJECT_BRIEF          = "RAD, CMS, Module und Runtime-IDE fuer dbXapp"
-OUTPUT_DIRECTORY       = C:/xampp/htdocs/dbxapp-docs
-HTML_OUTPUT            = .
+PROJECT_NAME           = "dbxapp"
+PROJECT_NUMBER         = "4.0.3"
+PROJECT_BRIEF          = "CMS, Shop, Workflows und modulare Geschäftsanwendungen"
+PROJECT_LOGO           = dbXapp-Logo.jpeg
+OUTPUT_DIRECTORY       = C:/xampp/htdocs/dbxapp-docs/reference
+HTML_OUTPUT            = current
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
 GENERATE_XML           = NO
 GENERATE_TREEVIEW      = YES
 TREEVIEW_WIDTH         = 340
-FULL_SIDEBAR           = NO
+FULL_SIDEBAR           = YES
 DISABLE_INDEX          = NO
 SEARCHENGINE           = YES
 HTML_COLORSTYLE        = LIGHT
@@ -25,39 +26,15 @@ HTML_COPY_CLIPBOARD    = NO
 PAGE_OUTLINE_PANEL     = NO
 
 INPUT_ENCODING         = UTF-8
+FULL_PATH_NAMES        = NO
+STRIP_FROM_PATH        = .
+STRIP_FROM_INC_PATH    = .
 MARKDOWN_SUPPORT       = YES
-USE_MDFILE_AS_MAINPAGE = 00_Doxygen_Mainpage.md
+USE_MDFILE_AS_MAINPAGE =
 IMAGE_PATH             = docs/assets
 EXAMPLE_PATH           = .
 
-INPUT                  = 00_Doxygen_Mainpage.md \
-                         01_System_Ueberblick.md \
-                         03_Routing_Templates_Content_Admin.md \
-                         14_dbxInterpreter_Leitfaden.md \
-                         02_RAD_Runtime_IDE.md \
-                         25_Verbindliches_Modulhandbuch.md \
-                         08_Modulaufbau_Patterns.md \
-                         04_dbxTPL_Leitfaden.md \
-                         05_dbxDB_DD_FD_Leitfaden.md \
-                         06_dbxForm_Leitfaden.md \
-                         07_dbxReport_Leitfaden.md \
-                         09_JavaScript_Libs.md \
-                         11_Core_Klassen.md \
-                         12_KI_Verbindliche_Regeln.md \
-                         23_Sicherheit_Integritaet_Performance.md \
-                         22_Aktueller_Stand_Betrieb.md \
-                         24_DB3_MySQL_Roundtrip.md \
-                         10_CMS_dbxKi.md \
-                         15_Design_Themes_Skins.md \
-                         16_Design_KI_Referenz.md \
-                         26_Design_Studio_KI.md \
-                         17_Shop_Leitfaden.md \
-                         18_Shop_KI_Referenz.md \
-                         19_Workflow_Leitfaden.md \
-                         20_Workflow_erstellen.md \
-                         21_Workflow_nutzen.md \
-                         13_Credits_Libraries.md \
-                         files/doku \
+INPUT                  = docs/doxygen-generated-main.dox \
                          index.php \
                          dbx/include \
                          dbx/modules \
@@ -66,8 +43,11 @@ INPUT                  = 00_Doxygen_Mainpage.md \
 RECURSIVE              = YES
 FILE_PATTERNS          = *.php \
                          *.js \
-                         *.md \
                          *.dox
+
+FILTER_PATTERNS        = *dbxApi.php="php docs/tools/doxygen_php_utf8_filter.php" \
+                         *dbxUpload.class.php="php docs/tools/doxygen_php_utf8_filter.php"
+FILTER_SOURCE_FILES    = YES
 
 EXCLUDE                = dbx/vendor \
                          dbx/add_ons \

@@ -851,30 +851,170 @@ class dbxDB {
     }
 
     /**
-     * Ermittelt den Server einer Datenbeschreibung (DD).
+     * Liefert die installationsbezogenen Serverbindungen der DDs.
      *
-     * Falls in der DD kein Server gesetzt ist,
-     * wird `default` verwendet.
+     * Die Bindungen liegen absichtlich in der lokalen dbx-Konfiguration.
+     * Release-DDs bleiben damit portabel und ein Update kann eine lokale
+     * SQLite-/MySQL-Entscheidung nicht ueberschreiben.
      *
-     * @param string $dd Name der Datenbeschreibung
-     *
-     * @return string Servername der DD oder `default`
+     * @return array<string,string>
      */
-    public function get_dd_server(string $dd): string {
-        $dd_server = 'default';
+    protected function get_dd_server_bindings(): array {
+        $config = dbx()->get_config('dbx');
+        $bindings = $config['dd_server_bindings'] ?? array();
 
-        $dd_sys    = $this->load_dd($dd);
-        $dd_status = $dd_sys['dd_status'] ?? 0;
-        $dd_modul  = $dd_sys['dd_modul'] ?? '';
-        $dd_name   = $dd_sys['dd_name'] ?? '';
+        return is_array($bindings) ? $bindings : array();
+    }
 
-        if ($dd_status == 1) {
-            $dd_server = $_SESSION['dbx']['cache']['dd'][$dd_modul][$dd_name]['table']['server'] ?? 'default';
+    /**
+     * Sucht eine Bindung ohne von der Schreibweise des DD-Schluessels
+     * abzuhaengen. Der verbindliche Schluessel ist `modul|dd`; der reine
+     * DD-Name bleibt als Rueckwaertskompatibilitaet erhalten.
+     */
+    private function find_dd_server_binding(
+        array $bindings,
+        string $ddModule,
+        string $ddName
+    ): array {
+        $exact = $ddModule . '|' . $ddName;
+        $candidates = array($exact, $ddName);
+
+        foreach ($candidates as $candidate) {
+            if (array_key_exists($candidate, $bindings)) {
+                return array(
+                    'key' => $candidate,
+                    'server' => trim((string)$bindings[$candidate]),
+                );
+            }
         }
 
-        //dbx()->debug("get_dd_server dd=($dd) server=($dd_server)");
+        $lowerCandidates = array_map('strtolower', $candidates);
+        foreach ($bindings as $key => $server) {
+            $position = array_search(strtolower(trim((string)$key)), $lowerCandidates, true);
+            if ($position !== false) {
+                return array(
+                    'key' => (string)$key,
+                    'server' => trim((string)$server),
+                );
+            }
+        }
 
-        return $dd_server;
+        return array('key' => '', 'server' => '');
+    }
+
+    /**
+     * Prueft eine lokale DD-Serverbindung, ohne eine Verbindung aufzubauen.
+     *
+     * DB3-Bindungen duerfen nur aus optionalem Modulnamen und Dateinamen
+     * bestehen. SQL-Bindungen muessen auf einen aktiven, lokal konfigurierten
+     * Server zeigen. Bei einer fehlerhaften Bindung gibt es keinen stillen
+     * Fallback auf die im DD genannte Datenbank.
+     */
+    protected function is_valid_dd_server_binding(string $server): bool {
+        $server = trim($server);
+        if ($server === '') {
+            return false;
+        }
+
+        if (preg_match('/\.(db3|sqlite|sqlite3)$/i', $server)) {
+            $parts = strpos($server, '|') !== false
+                ? explode('|', $server, 2)
+                : array('', $server);
+            $module = trim((string)($parts[0] ?? ''));
+            $file = trim((string)($parts[1] ?? ''));
+
+            return ($module === '' || preg_match('/^[A-Za-z0-9_]+$/', $module) === 1)
+                && basename($file) === $file
+                && preg_match('/^[A-Za-z0-9_.-]+\.(db3|sqlite|sqlite3)$/i', $file) === 1;
+        }
+
+        $config = dbx()->get_config('dbx');
+        $dbConfig = $config['db'][$server] ?? null;
+
+        return is_array($dbConfig)
+            && $this->db_server_config_is_active($server, $dbConfig);
+    }
+
+    /**
+     * Liefert Herkunft und Ergebnis der Serveraufloesung einer DD.
+     *
+     * Jede DD kann unabhaengig gebunden werden. Dadurch sind auch innerhalb
+     * eines Moduls beliebige Mischungen aus DB3- und SQL-Servern moeglich.
+     *
+     * @return array{
+     *   dd:string,
+     *   binding_key:string,
+     *   declared_server:string,
+     *   resolved_server:string,
+     *   source:string,
+     *   valid:bool
+     * }
+     */
+    public function get_dd_server_binding_info(string $dd): array {
+        $dd_sys    = $this->load_dd($dd);
+        $dd_status = $dd_sys['dd_status'] ?? 0;
+        $dd_modul  = (string)($dd_sys['dd_modul'] ?? '');
+        $dd_name   = (string)($dd_sys['dd_name'] ?? '');
+
+        if ($dd_status != 1) {
+            return array(
+                'dd' => $dd,
+                'binding_key' => '',
+                'declared_server' => '',
+                'resolved_server' => '',
+                'source' => 'missing-dd',
+                'valid' => false,
+            );
+        }
+
+        $cache = $_SESSION['dbx']['cache']['dd'][$dd_modul][$dd_name] ?? array();
+        $declared = trim((string)(
+            $cache['declared_server']
+            ?? ($cache['table']['server'] ?? 'default')
+        ));
+        $binding = $this->find_dd_server_binding(
+            $this->get_dd_server_bindings(),
+            $dd_modul,
+            $dd_name
+        );
+        $resolved = $binding['key'] !== '' ? $binding['server'] : $declared;
+        $valid = $binding['key'] === ''
+            ? $resolved !== ''
+            : $this->is_valid_dd_server_binding($resolved);
+
+        if (!$valid && $binding['key'] !== '') {
+            dbx()->sys_msg(
+                'error',
+                'db',
+                $dd_modul . '|' . $dd_name,
+                'ungueltige lokale DD-Serverbindung',
+                $binding['key'] . ' => ' . $resolved
+            );
+            $resolved = '';
+        }
+
+        return array(
+            'dd' => $dd_modul . '|' . $dd_name,
+            'binding_key' => $binding['key'],
+            'declared_server' => $declared,
+            'resolved_server' => $resolved,
+            'source' => $binding['key'] !== '' ? 'local-binding' : 'dd-default',
+            'valid' => $valid,
+        );
+    }
+
+    /**
+     * Ermittelt den lokal wirksamen Server einer Datenbeschreibung.
+     *
+     * Vorrang:
+     * 1. `dd_server_bindings['modul|dd']` aus config.local.php
+     * 2. Serverangabe des ausgelieferten DDs
+     *
+     * @return string Servername oder leer bei ungueltiger lokaler Bindung
+     */
+    public function get_dd_server(string $dd): string {
+        $binding = $this->get_dd_server_binding_info($dd);
+        return (string)($binding['resolved_server'] ?? '');
     }
 
     /**
@@ -1047,6 +1187,9 @@ class dbxDB {
 
         if ($dd_status == 1 && $rec) {
             $dd_table = $_SESSION['dbx']['cache']['dd'][$dd_modul][$dd_name]['table'] ?? 0;
+            if (is_array($dd_table)) {
+                $dd_table['server'] = $this->get_dd_server((string)$dd);
+            }
         }
 
         return $dd_table;
@@ -1282,6 +1425,7 @@ class dbxDB {
             'indexes'          => $indexes,
             'file'             => $this->normalize_editor_file_path($dd_file),
             'language_dynamic' => $language_dynamic,
+            'declared_server'  => (string)($table['server'] ?? 'default'),
         ];
 
         //dbx()->debug("#session set dd ($dd) Modul=($dd_modul) Name=($dd_name)");

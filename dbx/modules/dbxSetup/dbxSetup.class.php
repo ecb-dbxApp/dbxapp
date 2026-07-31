@@ -11,8 +11,9 @@ class dbxSetup {
 
      $content="";
      if (!$action) $action=dbx()->get_modul_var('dbx_run1');
-     dbx()->set_system_var('dbx_design','_install');
+     dbx()->set_system_var('dbx_design','dbxapp');
      dbx()->set_system_var('dbx_page'  ,'install');
+     dbx()->set_system_var('dbx_title' ,'dbxapp installieren');
      dbx()->set_system_var('dbx_has_access'  , 1); 
 
      switch ($action) {

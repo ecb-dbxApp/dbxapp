@@ -169,6 +169,9 @@ Class dbxUser_avatar {
     var targetId = drop.getAttribute('data-dbx_target');
     var target = targetId ? document.getElementById(targetId) : null;
     if (!target) {
+      if (window.dbx && dbx.utilities && dbx.utilities.leaveGuard) {
+        dbx.utilities.leaveGuard.allowOnce();
+      }
       location.reload();
       return;
     }

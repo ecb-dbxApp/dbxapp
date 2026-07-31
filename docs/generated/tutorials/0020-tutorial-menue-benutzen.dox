@@ -1,0 +1,47 @@
+/**
+@page dbxcontent_tutorial_tutorial_menue_benutzen Tutorial: Menü benutzen
+
+<!-- Automatisch aus content_de#82 erzeugt. Nicht direkt bearbeiten. -->
+
+@htmlonly
+<div class="dbx-doc-meta"><span>Anwender-Tutorial</span><span>dbxContent #82</span><span>Permalink: <code>tutorial-menue-benutzen</code></span></div>
+@endhtmlonly
+
+> **Kurzbeschreibung:** Hauptmenü und geöffnete Untermenüs sicher benutzen.
+
+@htmlonly
+<div class="dbx-tutorial-source">
+<p>Hauptmenü und geöffnete Untermenüs sicher benutzen.</p><p>Nutzen Sie die Slideshow, um die einzelnen Schritte in Ruhe durchzugehen.</p>
+</div>
+@endhtmlonly
+
+## Screenshots aus dbxContent (9)
+
+@htmlonly
+<div class="dbx-tutorial-gallery">
+@endhtmlonly
+@image html dbxcontent-media-274-hauptmen.png "Das Hauptmenü öffnet die Arbeitsbereiche. Erklärt wird nur, was gerade sichtbar ist."
+
+@image html dbxcontent-media-119-fachanwendungen-auf-dbxapp.webp "Viele Fachanwendungen auf einer gemeinsamen Infrastruktur"
+
+@image html dbxcontent-media-275-content-men.png "Im geöffneten Content-Menü starten Sie CMS, Medien und SEO-Funktionen."
+
+@image html dbxcontent-media-120-integration-bestehender-systeme.webp "Bestehende Systeme werden angebunden und gemeinsam genutzt"
+
+@image html dbxcontent-media-121-vom-bedarf-zur-fachanwendung.webp "Geführter Weg von der Fachanforderung zur Anwendung"
+
+@image html dbxcontent-media-276-dbxki-men.png "Im geöffneten dbxKi-Menü liegen KI-Aufträge für Content und Module."
+
+@image html dbxcontent-media-277-frontend-cms-men.png "Dieses geöffnete Menü startet Bearbeitungen direkt aus der Frontpage heraus."
+
+@image html dbxcontent-media-376-dbxapp-desktop.webp "dbxapp Desktop"
+
+@image html dbxcontent-media-378-dbxapp-erweiterbar.webp "dbxapp erweiterbar"
+
+@htmlonly
+</div>
+@endhtmlonly
+
+@note Quelle: deutsche dbxContent-Seite `content_de#82`. Generiert am 28. Juli 2026 über DD, dbxDB und Medienzuordnungen.
+
+*/

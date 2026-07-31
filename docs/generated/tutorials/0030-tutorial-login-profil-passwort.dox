@@ -1,0 +1,43 @@
+/**
+@page dbxcontent_tutorial_tutorial_login_profil_passwort Tutorial: Login, Profil und Passwort
+
+<!-- Automatisch aus content_de#80 erzeugt. Nicht direkt bearbeiten. -->
+
+@htmlonly
+<div class="dbx-doc-meta"><span>Anwender-Tutorial</span><span>dbxContent #80</span><span>Permalink: <code>tutorial-login-profil-passwort</code></span></div>
+@endhtmlonly
+
+> **Kurzbeschreibung:** Anmeldung, Avatar-Menü, Profilbild und eigenes Passwort.
+
+@htmlonly
+<div class="dbx-tutorial-source">
+<p>Anmeldung, Avatar-Menü, Profilbild und eigenes Passwort.</p><p>Nutzen Sie die Slideshow, um die einzelnen Schritte in Ruhe durchzugehen.</p>
+</div>
+@endhtmlonly
+
+## Screenshots aus dbxContent (7)
+
+@htmlonly
+<div class="dbx-tutorial-gallery">
+@endhtmlonly
+@image html dbxcontent-media-264-login-starten.png "Benutzername und Passwort werden hier eingegeben. Danach wird die Anmeldung gestartet."
+
+@image html dbxcontent-media-265-anmeldung-pr-fen.png "Nach dem Absenden prüft dbxapp die Zugangsdaten und lädt die Arbeitsumgebung."
+
+@image html dbxcontent-media-266-nach-dem-login.png "Angemeldete Benutzer sehen Admin-Menüs, Bearbeitungssymbole und persönliche Funktionen."
+
+@image html dbxcontent-media-267-avatar-men.png "Das Avatar-Menü führt zu neuen Anfragen, eigenen Anfragen und zum eigenen Profil."
+
+@image html dbxcontent-media-268-eigene-daten.png "Im Profil werden Kontaktdaten, Adresse, Sprache, Design und Farbe bearbeitet."
+
+@image html dbxcontent-media-269-profilbild-und-passwort.png "Profilbild und Passwort liegen rechts im Profil. Passwortänderungen brauchen zwei gleiche Eingaben."
+
+@image html dbxcontent-media-376-dbxapp-desktop.webp "dbxapp Desktop"
+
+@htmlonly
+</div>
+@endhtmlonly
+
+@note Quelle: deutsche dbxContent-Seite `content_de#80`. Generiert am 28. Juli 2026 über DD, dbxDB und Medienzuordnungen.
+
+*/

@@ -1,0 +1,24 @@
+<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-dd-bindings">
+ <form action="{action}" method="post" class="dbxAjax" data-target="dbx_target_{i}" id="dbxForm_{i}">
+  [tpl=dbx|module-bar]
+  <style>
+   .dbx-dd-bindings-body{padding:1rem}
+   .dbx-dd-bindings-summary{display:flex;gap:.75rem;flex-wrap:wrap;margin:0 0 1rem}
+   .dbx-dd-bindings-summary span{padding:.45rem .75rem;border:1px solid rgba(100,116,139,.22);border-radius:.65rem;background:var(--dbx-bg-panel,#fff)}
+   .dbx-dd-bindings [dbx-fld]{margin-bottom:.55rem}
+   .dbx-dd-bindings-actions{position:sticky;bottom:0;display:flex;justify-content:flex-end;padding:.85rem;background:color-mix(in srgb,var(--dbx-bg-panel,#fff) 94%,transparent);border-top:1px solid rgba(100,116,139,.2)}
+  </style>
+  <div class="dbx-dd-bindings-body">
+   <div class="form_msg mb-3">{obj:form_msg}</div>
+   <div class="dbx-dd-bindings-summary">
+    <span><strong>{dd_count}</strong> {dd_count_label}</span>
+    <span><strong>{binding_count}</strong> {binding_count_label}</span>
+   </div>
+   [dbx:form]
+  </div>
+  <div class="dbx-dd-bindings-actions">
+   <button class="btn btn-primary" type="submit"><i class="bi bi-save"></i> {save_label}</button>
+  </div>
+  [dbx:js]
+ </form>
+</div>

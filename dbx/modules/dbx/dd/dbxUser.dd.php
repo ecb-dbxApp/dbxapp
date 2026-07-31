@@ -775,3 +775,10 @@ $index['fields']='id';
 $index['unique']='1';
 $index['comment']='from field index PRI';
 $indexes[]=$index;
+
+$index['name']='uq_dbx_user_uname';
+$index['type']='UNIQUE';
+$index['fields']='uname';
+$index['unique']='1';
+$index['comment']='Loginname muss systemweit eindeutig sein';
+$indexes[]=$index;

@@ -261,8 +261,13 @@ class dbxDD extends dbxDB
             return [];
         }
 
+        $table = $_SESSION['dbx']['cache']['dd'][$dd_modul][$dd_name]['table'] ?? [];
+        if (is_array($table)) {
+            $table['server'] = $this->get_dd_server($dd);
+        }
+
         return [
-            'table'   => $_SESSION['dbx']['cache']['dd'][$dd_modul][$dd_name]['table']   ?? [],
+            'table'   => $table,
             'fields'  => $_SESSION['dbx']['cache']['dd'][$dd_modul][$dd_name]['fields']  ?? [],
             'indexes' => $_SESSION['dbx']['cache']['dd'][$dd_modul][$dd_name]['indexes'] ?? [],
         ];

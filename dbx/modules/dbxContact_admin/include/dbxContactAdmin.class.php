@@ -440,7 +440,10 @@ class dbxContactAdmin {
 
       $from = trim((string) dbx()->get_config('dbxContact', 'mail_from'));
       $fromName = trim((string) dbx()->get_config('dbxContact', 'mail_from_name'));
-      $fromParam = $from !== '' ? array('email' => $from, 'name' => $fromName) : '';
+      if (filter_var($from, FILTER_VALIDATE_EMAIL) === false) {
+         return false;
+      }
+      $fromParam = array('email' => $from, 'name' => $fromName);
       $subject = 'Antwort zu Ticket #' . (int) $ticket['id'] . ': ' . (string) ($ticket['subject'] ?? 'Kontaktanfrage');
       $html = $this->tpl()->get_tpl('dbxContact|mail-contact-reply', array(
          'subject' => $this->h($ticket['subject'] ?? ''),

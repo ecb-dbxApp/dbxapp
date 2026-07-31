@@ -105,6 +105,19 @@ class dbxContentMediaResponse {
       if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
 
       $size = (int)filesize($file);
+      $mtime = (int)(filemtime($file) ?: time());
+      $etag = '"' . md5($file . '|' . $size . '|' . $mtime) . '"';
+      $lastModified = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
+      $ifNoneMatch = trim((string)($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''));
+      $ifModifiedSince = trim((string)($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? ''));
+      if ($ifNoneMatch === $etag || ($ifModifiedSince !== '' && strtotime($ifModifiedSince) >= $mtime)) {
+         http_response_code(304);
+         header('ETag: ' . $etag);
+         header('Last-Modified: ' . $lastModified);
+         header('Cache-Control: private, no-cache');
+         exit;
+      }
+
       $start = 0;
       $end = $size > 0 ? $size - 1 : 0;
       $range = trim((string)($_SERVER['HTTP_RANGE'] ?? ''));
@@ -129,7 +142,9 @@ class dbxContentMediaResponse {
       header('Content-Length: ' . max(0, $end - $start + 1));
       header('Content-Disposition: inline; filename="' . $fileName . '"');
       header('Accept-Ranges: bytes');
-      header('Cache-Control: private, max-age=3600');
+      header('ETag: ' . $etag);
+      header('Last-Modified: ' . $lastModified);
+      header('Cache-Control: private, no-cache');
       header('X-Content-Type-Options: nosniff');
 
       if (strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'HEAD') {

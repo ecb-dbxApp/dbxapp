@@ -207,10 +207,35 @@
             .addClass('bi-list');
     }
 
-    function closeAllMenus() {
+    function closeAllMenus(preservePersistent) {
         $('.dbx-menu-root').each(function () {
-            closeMenu($(this));
+            const $menu = $(this);
+
+            if (preservePersistent === true
+                && $menu.attr('data-dbx-menu-active-open') === '1'
+            ) {
+                return;
+            }
+
+            closeMenu($menu);
         });
+    }
+
+    /**
+     * Schliesst einen kompletten Menuezweig. Auch verdeckte Unterebenen
+     * verlieren ihren Oeffnungszustand, damit sie spaeter nicht unerwartet
+     * wieder erscheinen.
+     */
+    function closeBranch($item) {
+
+        if (!$item || !$item.length) return;
+
+        const $branchItems = $item.add($item.find('.dbx-menu-item'));
+
+        $branchItems.removeClass('is-open');
+        $branchItems
+            .children('.dbx-menu-link[aria-expanded]')
+            .attr('aria-expanded', 'false');
     }
 
     /**
@@ -247,6 +272,10 @@
         _lastMobileState = mobile;
 
         closeAllMenus();
+
+        $('.dbx-menu-root[data-dbx-menu-active-open="1"]').each(function () {
+            restoreActivePath($(this));
+        });
 
         log("responsive sync", mobile ? "mobile" : "desktop");
     }
@@ -320,8 +349,18 @@
 
         $(root).find('.dbx-menu-link[href]').each(function () {
 
-            const href = $(this).attr('href');
+            const $link = $(this);
+            const href = $link.attr('href');
             if (!href || href === '#') return;
+
+            /*
+             * Sprach- und Designoptionen ändern nur die Darstellung der
+             * aktuellen Route. Sie dürfen deshalb nicht den eigentlichen
+             * Seitenlink als aktiven Menüpunkt verdrängen.
+             */
+            if ($link.is('.dbxLngOpt, .dbx-design-opt, .dbx-design-skin-opt, .dbx-skin-opt')) {
+                return;
+            }
 
             const score = linkScore(href, currentUrl, currentParams);
 
@@ -347,12 +386,11 @@
 
             const $parent = $(this);
 
-            $parent.addClass('is-active is-active-path');
-
-            const $link = $parent.children('.dbx-menu-link');
-            if ($link.length) {
-                $parent.addClass('is-active');
-            }
+            /*
+             * Nur die aufgerufene Seite ist aktiv. Eltern markieren lediglich
+             * den Pfad und bleiben dadurch von der aktiven Seite unterscheidbar.
+             */
+            $parent.addClass('is-active-path');
         });
 
         storeHistory(bestMatch);
@@ -424,17 +462,15 @@
                 const willOpen    = !$item.hasClass('is-open');
 
                 $parentList.children('.dbx-menu-item.is-open').not($item).each(function () {
-                    $(this)
-                        .removeClass('is-open')
-                        .children('.dbx-menu-link')
-                        .attr('aria-expanded', 'false');
+                    closeBranch($(this));
                 });
 
-                $item.toggleClass('is-open', willOpen);
-                $link.attr('aria-expanded', willOpen ? 'true' : 'false');
-
                 if (willOpen) {
+                    $item.addClass('is-open');
+                    $link.attr('aria-expanded', 'true');
                     restoreActivePath($item);
+                } else {
+                    closeBranch($item);
                 }
 
                 log("toggle item", willOpen ? "open" : "close");
@@ -489,7 +525,7 @@
         dbx.on('click', 'body', function (e) {
 
             if (!e.target.closest('.dbx-menu-root') && !e.target.closest('.dbx-menu-toggle')) {
-                closeAllMenus();
+                closeAllMenus(true);
             }
         });
 
@@ -547,6 +583,9 @@
 
             bindEvents();
             syncResponsiveState(true);
+            if ($el.attr('data-dbx-menu-active-open') === '1') {
+                restoreActivePath($el);
+            }
 
             el.style.visibility = 'visible';
         }

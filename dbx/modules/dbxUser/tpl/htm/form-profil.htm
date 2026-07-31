@@ -59,6 +59,17 @@
      <div class="col-12">{obj:password_new}</div>
      <div class="col-12">{obj:password_new2}</div>
     </div>
+    <ul class="dbx-password-rules--compact"
+        data-dbx-password-rules
+        data-password-input="password_new"
+        data-password-repeat="password_new2"
+        data-password-min="{password_min_length}">
+     <li class="dbx-password-rule" data-password-rule="length"><i class="bi bi-circle"></i><span><strong data-password-min-label>{password_min_length}</strong>+ Zeichen{password_length_recommendation}</span></li>
+     <li class="dbx-password-rule" data-password-rule="letters"><i class="bi bi-circle"></i><span>Groß &amp; klein</span></li>
+     <li class="dbx-password-rule" data-password-rule="number"><i class="bi bi-circle"></i><span>Zahl</span></li>
+     <li class="dbx-password-rule" data-password-rule="special"><i class="bi bi-circle"></i><span>Sonderzeichen</span></li>
+     <li class="dbx-password-rule" data-password-rule="match"><i class="bi bi-circle"></i><span>identisch</span></li>
+    </ul>
    </section>
   </div>
  </div>

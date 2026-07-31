@@ -17,9 +17,15 @@ DirectoryIndex index.php index.html index.htm
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Kanonische Domain: vermeidet Cross-Origin-Probleme bei Fonts/Icons.
-    RewriteCond %{HTTP_HOST} ^www\.dbxapp\.de$ [NC]
-    RewriteRule ^(.*)$ https://dbxapp.de/$1 [R=301,L]
+    # Startseitenalias direkt (ohne Redirect-Kette) auf die kanonische URL.
+    RewriteCond %{HTTP_HOST} ^(?:www\.)?dbxapp\.de$ [NC]
+    RewriteRule ^home/?$ https://dbxapp.de/ [R=301,L,NE,QSD]
+
+    # Kanonische Domain und HTTPS in einem Schritt erzwingen.
+    RewriteCond %{HTTP_HOST} ^(?:www\.)?dbxapp\.de$ [NC]
+    RewriteCond %{HTTPS} !=on [OR]
+    RewriteCond %{HTTP_HOST} !^dbxapp\.de$ [NC]
+    RewriteRule ^ https://dbxapp.de%{REQUEST_URI} [R=301,L,NE]
 
     # index.php selbst nicht erneut umschreiben
     RewriteRule ^index\.php$ - [L]

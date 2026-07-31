@@ -1,0 +1,1386 @@
+:root {
+  --install-ink: #10213d;
+  --install-muted: #64748b;
+  --install-line: #dce5f1;
+  --install-canvas: #f4f7fb;
+  --install-surface: #ffffff;
+  --install-primary: #2563eb;
+  --install-primary-dark: #1d4ed8;
+  --install-cyan: #06b6d4;
+  --install-success: #0f9f6e;
+  --install-warning: #d97706;
+  --install-danger: #dc2626;
+  --install-sidebar: #0b1730;
+  --install-sidebar-soft: #122447;
+  --install-radius: 22px;
+  --install-shadow: 0 24px 70px rgba(15, 35, 67, .12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body.dbx-install-page {
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 76% 8%, rgba(37, 99, 235, .10), transparent 28rem),
+    var(--install-canvas);
+  color: var(--install-ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.dbx-install-layout {
+  display: grid;
+  grid-template-columns: 318px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.dbx-install-sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 32px 24px 24px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 0 0, rgba(6, 182, 212, .20), transparent 18rem),
+    linear-gradient(160deg, var(--install-sidebar), #071124 72%);
+  box-shadow: 18px 0 55px rgba(5, 15, 35, .12);
+}
+
+.dbx-install-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 8px 26px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.dbx-install-brand:hover {
+  color: #fff;
+}
+
+.dbx-install-brand__mark {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  box-shadow: 0 12px 28px rgba(6, 182, 212, .20);
+  font-size: 1.4rem;
+}
+
+.dbx-install-brand span:last-child {
+  display: grid;
+  line-height: 1.15;
+}
+
+.dbx-install-brand strong {
+  font-size: 1.35rem;
+  letter-spacing: -.03em;
+}
+
+.dbx-install-brand small {
+  margin-top: 4px;
+  color: #a9b9d2;
+  font-size: .76rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.dbx-install-progress {
+  height: 4px;
+  margin: 0 8px 28px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .10);
+}
+
+.dbx-install-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #38bdf8, #34d399);
+  transition: width .35s ease;
+}
+
+.dbx-install-sidebar nav {
+  display: grid;
+  gap: 6px;
+}
+
+.dbx-install-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 66px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  color: #9fb0ca;
+  text-decoration: none;
+  transition: .2s ease;
+}
+
+a.dbx-install-step:hover {
+  border-color: rgba(255, 255, 255, .09);
+  background: rgba(255, 255, 255, .05);
+  color: #fff;
+}
+
+.dbx-install-step__number {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .05);
+  font-size: .84rem;
+  font-weight: 800;
+}
+
+.dbx-install-step__text {
+  display: grid;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.dbx-install-step__text small {
+  margin-bottom: 4px;
+  font-size: .67rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  opacity: .65;
+  text-transform: uppercase;
+}
+
+.dbx-install-step__text strong {
+  overflow: hidden;
+  font-size: .91rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dbx-install-step.is-active {
+  border-color: rgba(96, 165, 250, .24);
+  background: linear-gradient(120deg, rgba(37, 99, 235, .28), rgba(6, 182, 212, .08));
+  color: #fff;
+  box-shadow: inset 3px 0 #38bdf8;
+}
+
+.dbx-install-step.is-active .dbx-install-step__number {
+  border-color: transparent;
+  background: #fff;
+  color: var(--install-primary);
+}
+
+.dbx-install-step.is-complete {
+  color: #b8f3db;
+}
+
+.dbx-install-step.is-complete .dbx-install-step__number {
+  border-color: rgba(52, 211, 153, .24);
+  background: rgba(16, 185, 129, .14);
+  color: #6ee7b7;
+}
+
+.dbx-install-step.is-pending {
+  opacity: .58;
+}
+
+.dbx-install-sidebar__foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding: 18px 14px 2px;
+  color: #879bb9;
+  font-size: .75rem;
+  line-height: 1.4;
+}
+
+.dbx-install-sidebar__foot > i {
+  color: #6ee7b7;
+  font-size: 1.3rem;
+}
+
+.dbx-install-sidebar__foot strong {
+  color: #c6d4e8;
+}
+
+.dbx-install-main {
+  min-width: 0;
+  background-color: #edf6ff;
+  background-image: url("../img/dbx-content-blue-v1.svg?v=2");
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.dbx-install-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 82px;
+  padding: 18px clamp(24px, 5vw, 72px);
+  border-bottom: 1px solid rgba(203, 213, 225, .72);
+  background: rgba(255, 255, 255, .72);
+  backdrop-filter: blur(16px);
+}
+
+.dbx-install-topbar > div {
+  display: grid;
+  line-height: 1.25;
+}
+
+.dbx-install-topbar span {
+  color: var(--install-muted);
+  font-size: .75rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.dbx-install-topbar strong {
+  font-size: .96rem;
+}
+
+.dbx-install-version {
+  padding: 8px 12px;
+  border: 1px solid var(--install-line);
+  border-radius: 999px;
+  background: #fff;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.dbx-install-content {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 48px clamp(24px, 5vw, 72px) 72px;
+}
+
+.dbx-install-surface {
+  padding: clamp(26px, 4vw, 48px);
+  border: 1px solid rgba(203, 213, 225, .72);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, .84);
+  box-shadow: var(--install-shadow);
+  backdrop-filter: blur(12px) saturate(112%);
+}
+
+.dbx-install-section-head {
+  max-width: 780px;
+  margin-bottom: 34px;
+}
+
+.dbx-install-kicker {
+  display: inline-flex;
+  margin-bottom: 10px;
+  color: var(--install-primary);
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.dbx-install-section-head h2 {
+  margin: 0 0 12px;
+  color: #0a1932;
+  font-size: clamp(2rem, 4vw, 3.15rem);
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1.04;
+}
+
+.dbx-install-section-head p {
+  margin: 0;
+  color: var(--install-muted);
+  font-size: 1.04rem;
+  line-height: 1.7;
+}
+
+.dbx-install-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+.dbx-install-metric {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 16px;
+  border: 1px solid var(--install-line);
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.dbx-install-metric > i {
+  color: var(--install-primary);
+  font-size: 1.35rem;
+}
+
+.dbx-install-metric span {
+  display: grid;
+  min-width: 0;
+}
+
+.dbx-install-metric small {
+  color: var(--install-muted);
+  font-size: .7rem;
+  text-transform: uppercase;
+}
+
+.dbx-install-metric strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dbx-install-checks {
+  overflow: hidden;
+  border: 1px solid var(--install-line);
+  border-radius: 18px;
+}
+
+.dbx-install-check {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  border-bottom: 1px solid #e8eef6;
+  background: #fff;
+}
+
+.dbx-install-check:last-child {
+  border-bottom: 0;
+}
+
+.dbx-install-check__icon {
+  font-size: 1.05rem;
+}
+
+.dbx-install-check--ok .dbx-install-check__icon {
+  color: var(--install-success);
+}
+
+.dbx-install-check--warning .dbx-install-check__icon {
+  color: var(--install-warning);
+}
+
+.dbx-install-check--error {
+  background: #fff7f7;
+}
+
+.dbx-install-check--error .dbx-install-check__icon {
+  color: var(--install-danger);
+}
+
+.dbx-install-check__body {
+  display: grid;
+  min-width: 0;
+}
+
+.dbx-install-check__body strong {
+  font-size: .92rem;
+}
+
+.dbx-install-check__body small {
+  margin-top: 3px;
+  color: var(--install-muted);
+  font-size: .77rem;
+}
+
+.dbx-install-check__value {
+  color: #40516c;
+  font-size: .8rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.dbx-install-card {
+  height: 100%;
+  padding: 24px;
+  border: 1px solid var(--install-line);
+  border-radius: var(--install-radius);
+  background: rgba(255, 255, 255, .88);
+  box-shadow: 0 12px 35px rgba(22, 45, 80, .05);
+  backdrop-filter: blur(8px);
+  transition: opacity .2s ease, filter .2s ease;
+}
+
+.dbx-install-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 22px;
+  font-size: 1.12rem;
+  font-weight: 800;
+}
+
+.dbx-install-card h3 i {
+  color: var(--install-primary);
+}
+
+.dbx-install-card--muted {
+  opacity: .52;
+  filter: grayscale(.35);
+}
+
+.dbx-install-form .form-label {
+  color: #2b3d59;
+  font-size: .82rem;
+  font-weight: 750;
+}
+
+.dbx-install-form .form-label span {
+  color: var(--install-danger);
+}
+
+.dbx-install-tooltip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
+  color: var(--install-primary) !important;
+  font-size: .8rem;
+  line-height: 1;
+  cursor: help;
+  vertical-align: middle;
+}
+
+.dbx-install-security-card .dbx-install-tooltip {
+  color: #93c5fd !important;
+}
+
+.dbx-install-tooltip:focus {
+  border-radius: 50%;
+  outline: 3px solid rgba(37, 99, 235, .2);
+  outline-offset: 2px;
+}
+
+.dbx-install-form .form-control,
+.dbx-install-form .form-select {
+  min-height: 48px;
+  border-color: #cfdbea;
+  border-radius: 12px;
+  background-color: #fbfdff;
+  color: var(--install-ink);
+  box-shadow: none;
+}
+
+.dbx-install-form .form-control:focus,
+.dbx-install-form .form-select:focus {
+  border-color: #60a5fa;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, .10);
+}
+
+.dbx-install-password-control {
+  position: relative;
+}
+
+.dbx-install-password-control .form-control {
+  padding-right: 52px;
+}
+
+.dbx-install-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  z-index: 2;
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #4772ad;
+  transform: translateY(-50%);
+}
+
+.dbx-install-password-toggle:hover,
+.dbx-install-password-toggle:focus {
+  background: #eaf2ff;
+  color: var(--install-primary);
+}
+
+.dbx-install-password-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+}
+
+.dbx-install-help {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0 0;
+  color: var(--install-muted);
+  font-size: .8rem;
+  line-height: 1.55;
+}
+
+.dbx-install-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 34px;
+  padding-top: 26px;
+  border-top: 1px solid var(--install-line);
+}
+
+.dbx-install-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50px;
+  padding-inline: 21px;
+  border-radius: 13px;
+  font-size: .92rem;
+  font-weight: 750;
+}
+
+.dbx-install-actions .btn-primary {
+  border-color: var(--install-primary);
+  background: linear-gradient(135deg, var(--install-primary), var(--install-primary-dark));
+  box-shadow: 0 12px 24px rgba(37, 99, 235, .20);
+}
+
+.dbx-install-action-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dbx-install-check-status {
+  margin-top: 24px;
+}
+
+.dbx-install-storage-confirm .dbx-install-switch {
+  margin-top: 14px;
+}
+
+.dbx-install-storage-confirm .dbx-install-switch small {
+  color: inherit;
+  opacity: .82;
+}
+
+.dbx-install-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dbx-install-choice-grid--compact .dbx-install-choice__body {
+  min-height: 168px;
+  padding: 18px;
+}
+
+.dbx-install-mail-card {
+  padding: 18px;
+}
+
+.dbx-install-mail-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dbx-install-mail-section {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--install-line);
+  border-radius: 15px;
+  background: rgba(248, 251, 255, .78);
+}
+
+.dbx-install-mail-section h3 {
+  margin: 0 0 13px;
+  font-size: .98rem;
+}
+
+.dbx-install-mail-section .mb-3 {
+  margin-bottom: .65rem !important;
+}
+
+.dbx-install-mail-section .form-label {
+  margin-bottom: 5px;
+  font-size: .76rem;
+}
+
+.dbx-install-mail-section .dbx-install-switch {
+  margin-top: 9px;
+}
+
+.dbx-install-mail-intro,
+.dbx-install-field-note {
+  margin: -4px 0 10px;
+  color: var(--install-muted);
+  font-size: .76rem;
+  line-height: 1.45;
+}
+
+.dbx-install-field-note i {
+  margin-right: 5px;
+}
+
+.dbx-install-choice {
+  position: relative;
+  cursor: pointer;
+}
+
+.dbx-install-choice > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.dbx-install-choice__body {
+  position: relative;
+  display: flex;
+  min-height: 210px;
+  flex-direction: column;
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid var(--install-line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .88);
+  box-shadow: 0 12px 30px rgba(22, 45, 80, .04);
+  backdrop-filter: blur(8px);
+  transition: .2s ease;
+}
+
+.dbx-install-choice:hover .dbx-install-choice__body {
+  transform: translateY(-2px);
+  border-color: #a7c6f9;
+  box-shadow: 0 16px 34px rgba(37, 99, 235, .09);
+}
+
+.dbx-install-choice__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.dbx-install-choice__top > i {
+  color: var(--install-primary);
+  font-size: 1.75rem;
+}
+
+.dbx-install-choice__top em {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #edf4ff;
+  color: var(--install-primary);
+  font-size: .65rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.dbx-install-choice__body > strong {
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.dbx-install-choice__body > small {
+  color: var(--install-muted);
+  font-size: .82rem;
+  line-height: 1.55;
+}
+
+.dbx-install-choice__check {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border: 1px solid var(--install-line);
+  border-radius: 50%;
+  color: transparent;
+  font-size: .85rem;
+}
+
+.dbx-install-choice > input:checked + .dbx-install-choice__body {
+  border-color: var(--install-primary);
+  background: linear-gradient(150deg, #fff, #f4f8ff);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .08), 0 18px 40px rgba(37, 99, 235, .10);
+}
+
+.dbx-install-choice > input:checked + .dbx-install-choice__body .dbx-install-choice__check {
+  border-color: var(--install-primary);
+  background: var(--install-primary);
+  color: #fff;
+}
+
+.dbx-install-help-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -6px 0 24px;
+}
+
+.dbx-install-help-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 11px;
+  font-weight: 700;
+}
+
+.dbx-install-help-actions--card {
+  margin: 14px 0 0;
+}
+
+.dbx-install-help-window {
+  padding: clamp(18px, 3vw, 32px);
+  color: var(--install-ink);
+}
+
+.dbx-install-help-window > h2 {
+  margin: 0 0 12px;
+  color: #0b1e3b;
+  font-size: clamp(1.65rem, 4vw, 2.35rem);
+  font-weight: 850;
+  letter-spacing: -.04em;
+}
+
+.dbx-install-help-window > p {
+  max-width: 760px;
+  color: var(--install-muted);
+  line-height: 1.7;
+}
+
+.dbx-install-help-window__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.dbx-install-help-window__facts section {
+  padding: 20px;
+  border: 1px solid var(--install-line);
+  border-radius: 18px;
+  background: #f8fbff;
+}
+
+.dbx-install-help-window__facts i {
+  color: var(--install-primary);
+  font-size: 1.4rem;
+}
+
+.dbx-install-help-window__facts h3 {
+  margin: 10px 0 6px;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.dbx-install-help-window__facts p {
+  margin: 0;
+  color: var(--install-muted);
+  font-size: .9rem;
+  line-height: 1.55;
+}
+
+.dbx-install-help-steps {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 0;
+  counter-reset: install-help-step;
+  list-style: none;
+}
+
+.dbx-install-help-steps li {
+  position: relative;
+  min-height: 52px;
+  padding: 4px 0 4px 58px;
+  counter-increment: install-help-step;
+}
+
+.dbx-install-help-steps li::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: #e8f1ff;
+  color: var(--install-primary);
+  content: counter(install-help-step);
+  font-weight: 850;
+  place-items: center;
+}
+
+.dbx-install-help-steps strong,
+.dbx-install-help-steps span {
+  display: block;
+}
+
+.dbx-install-help-steps span {
+  margin-top: 3px;
+  color: var(--install-muted);
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
+.dbx-install-help-subtitle {
+  margin: 30px 0 14px;
+  color: #0b1e3b;
+  font-size: 1.15rem;
+  font-weight: 850;
+}
+
+.dbx-install-help-sender-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 24px;
+}
+
+.dbx-install-help-sender-grid section {
+  padding: 18px;
+  border: 1px solid var(--install-line);
+  border-radius: 16px;
+  background: #f8fbff;
+}
+
+.dbx-install-help-sender-grid i {
+  color: var(--install-primary);
+  font-size: 1.3rem;
+}
+
+.dbx-install-help-sender-grid h3 {
+  margin: 9px 0 6px;
+  font-size: .95rem;
+  font-weight: 800;
+}
+
+.dbx-install-help-sender-grid p {
+  margin: 0;
+  color: var(--install-muted);
+  font-size: .86rem;
+  line-height: 1.55;
+}
+
+.dbx-install-inline-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 16px;
+}
+
+.dbx-install-inline-note > i {
+  margin-top: 2px;
+  font-size: 1.25rem;
+}
+
+.dbx-install-inline-note > div {
+  display: grid;
+}
+
+.dbx-install-inline-note span {
+  margin-top: 3px;
+  font-size: .84rem;
+}
+
+.dbx-install-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 18px;
+  cursor: pointer;
+}
+
+.dbx-install-switch .form-check-input {
+  width: 2.35rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.dbx-install-switch > span {
+  display: grid;
+}
+
+.dbx-install-switch strong {
+  font-size: .86rem;
+}
+
+.dbx-install-switch small {
+  margin-top: 3px;
+  color: var(--install-muted);
+  font-size: .76rem;
+}
+
+.dbx-install-plan,
+.dbx-install-summary {
+  overflow: hidden;
+  border: 1px solid var(--install-line);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.dbx-install-plan__row,
+.dbx-install-summary__row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e8eef6;
+}
+
+.dbx-install-plan__row:last-child,
+.dbx-install-summary__row:last-child {
+  border-bottom: 0;
+}
+
+.dbx-install-plan__row > i:first-child,
+.dbx-install-summary__row > i:first-child {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 13px;
+  background: #edf4ff;
+  color: var(--install-primary);
+  font-size: 1.18rem;
+}
+
+.dbx-install-plan__row > i:last-child,
+.dbx-install-summary__row > i:last-child {
+  color: var(--install-success);
+}
+
+.dbx-install-plan__row span,
+.dbx-install-summary__row span {
+  display: grid;
+}
+
+.dbx-install-plan__row small,
+.dbx-install-summary__row small {
+  color: var(--install-muted);
+  font-size: .72rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.dbx-install-plan__row strong,
+.dbx-install-summary__row strong {
+  margin-top: 3px;
+  font-size: .94rem;
+}
+
+.dbx-install-summary__row em {
+  margin-top: 3px;
+  color: var(--install-muted);
+  font-size: .78rem;
+  font-style: normal;
+}
+
+.dbx-install-security-card {
+  background: linear-gradient(145deg, #0f2345, #142f58);
+  color: #fff;
+}
+
+.dbx-install-security-card > i {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(52, 211, 153, .14);
+  color: #6ee7b7;
+  font-size: 1.6rem;
+}
+
+.dbx-install-security-card h3 {
+  margin-bottom: 14px;
+}
+
+.dbx-install-security-card ul {
+  padding-left: 1.2rem;
+  color: #d5e0f0;
+  font-size: .84rem;
+  line-height: 1.8;
+}
+
+.dbx-install-security-card .dbx-install-password-rules {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+  line-height: 1.45;
+}
+
+.dbx-install-password-rules li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border: 1px solid rgba(185, 211, 255, .18);
+  border-radius: 10px;
+  background: rgba(4, 24, 52, .42);
+  transition: border-color .18s ease, background-color .18s ease;
+}
+
+.dbx-install-password-rules li > i {
+  color: #9fb0ca;
+}
+
+.dbx-install-password-rules li.is-valid {
+  border-color: rgba(110, 231, 183, .48);
+  background: rgba(15, 118, 90, .34);
+}
+
+.dbx-install-password-rules li.is-valid > i {
+  color: #6ee7b7;
+}
+
+.dbx-install-password-rules li.is-missing {
+  border-color: rgba(253, 164, 175, .48);
+  background: rgba(159, 18, 57, .3);
+}
+
+.dbx-install-password-rules li.is-missing > i {
+  color: #fda4af;
+}
+
+.dbx-install-security-card p {
+  margin: 18px 0 0;
+  color: #9fb0ca;
+  font-size: .8rem;
+  line-height: 1.6;
+}
+
+.dbx-install-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #b9d3ff;
+  border-radius: 16px;
+  background: #f3f7ff;
+  cursor: pointer;
+}
+
+.dbx-install-confirm input {
+  margin-top: 3px;
+}
+
+.dbx-install-confirm span {
+  display: grid;
+}
+
+.dbx-install-confirm small {
+  margin-top: 4px;
+  color: var(--install-muted);
+}
+
+.dbx-install-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(23, 41, 73, .06);
+}
+
+.dbx-install-finished {
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  overflow: hidden;
+  place-items: center;
+  padding: 32px;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(56, 189, 248, .35), transparent 32rem),
+    linear-gradient(145deg, #071126, #0d2851 55%, #0d5970);
+}
+
+.dbx-install-finished__glow {
+  position: absolute;
+  width: 32rem;
+  height: 32rem;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 90px rgba(255, 255, 255, .025),
+    0 0 0 180px rgba(255, 255, 255, .018);
+}
+
+.dbx-install-finished__card {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 100%);
+  padding: clamp(34px, 7vw, 70px);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 30px;
+  background: rgba(10, 29, 60, .74);
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(18px);
+}
+
+.dbx-install-finished__icon {
+  display: grid;
+  width: 86px;
+  height: 86px;
+  margin: 0 auto 26px;
+  place-items: center;
+  border: 1px solid rgba(110, 231, 183, .34);
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgba(16, 185, 129, .22), rgba(6, 182, 212, .18));
+  color: #6ee7b7;
+  font-size: 2.7rem;
+  box-shadow: 0 16px 45px rgba(16, 185, 129, .14);
+}
+
+.dbx-install-finished .dbx-install-kicker {
+  color: #7dd3fc;
+}
+
+.dbx-install-finished h1 {
+  margin: 0 0 14px;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 850;
+  letter-spacing: -.05em;
+}
+
+.dbx-install-finished__card > p {
+  max-width: 560px;
+  margin: 0 auto;
+  color: #b9c9de;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.dbx-install-finished__facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 34px 0;
+}
+
+.dbx-install-finished__facts span {
+  display: grid;
+  min-width: 0;
+  padding: 18px 12px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .05);
+}
+
+.dbx-install-finished__facts i {
+  margin-bottom: 10px;
+  color: #7dd3fc;
+  font-size: 1.25rem;
+}
+
+.dbx-install-finished__facts strong,
+.dbx-install-finished__facts small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dbx-install-finished__facts small {
+  margin-top: 4px;
+  color: #91a6c3;
+}
+
+.dbx-install-finished .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding-inline: 26px;
+  border-radius: 14px;
+  color: #10213d;
+  font-weight: 800;
+}
+
+.dbx-install-finished__hint {
+  display: block;
+  margin-top: 18px;
+  color: #8298b6;
+}
+
+@media (max-width: 1080px) {
+  .dbx-install-layout {
+    grid-template-columns: 250px minmax(0, 1fr);
+  }
+
+  .dbx-install-sidebar {
+    padding-inline: 16px;
+  }
+
+  .dbx-install-step__text strong {
+    font-size: .82rem;
+  }
+
+  .dbx-install-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dbx-install-mail-sections {
+    grid-template-columns: 1fr;
+  }
+
+  .dbx-install-choice__body {
+    min-height: 165px;
+  }
+}
+
+@media (max-width: 780px) {
+  .dbx-install-layout {
+    display: block;
+  }
+
+  .dbx-install-sidebar {
+    position: relative;
+    height: auto;
+    padding: 18px;
+  }
+
+  .dbx-install-brand {
+    margin-bottom: 16px;
+  }
+
+  .dbx-install-progress {
+    margin-bottom: 14px;
+  }
+
+  .dbx-install-sidebar nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    overflow-x: hidden;
+    padding-bottom: 4px;
+  }
+
+  .dbx-install-step {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+    max-width: 48px;
+    min-height: auto;
+    padding: 5px;
+    border-radius: 14px;
+  }
+
+  .dbx-install-step__number {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dbx-install-step__text,
+  .dbx-install-sidebar__foot {
+    display: none;
+  }
+
+  .dbx-install-topbar {
+    min-height: 68px;
+    padding: 14px 20px;
+  }
+
+  .dbx-install-version {
+    display: none;
+  }
+
+  .dbx-install-content {
+    padding: 24px 16px 44px;
+  }
+
+  .dbx-install-surface {
+    padding: 24px 18px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .90);
+    backdrop-filter: blur(8px);
+  }
+
+  .dbx-install-main {
+    background-attachment: scroll;
+    background-position: 64% bottom;
+  }
+
+  .dbx-install-metrics,
+  .dbx-install-finished__facts {
+    grid-template-columns: 1fr;
+  }
+
+  .dbx-install-help-window__facts {
+    grid-template-columns: 1fr;
+  }
+
+  .dbx-install-help-sender-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dbx-install-check {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+
+  .dbx-install-check__value {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .dbx-install-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .dbx-install-actions .btn {
+    width: 100%;
+  }
+
+  .dbx-install-action-group {
+    width: 100%;
+    flex-direction: column-reverse;
+  }
+
+  .dbx-install-finished {
+    padding: 16px;
+  }
+}

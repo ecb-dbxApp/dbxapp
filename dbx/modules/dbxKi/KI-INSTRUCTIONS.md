@@ -303,6 +303,8 @@ Optional: `package_media_id` und `package_image_alt` im `patch`. Das Modul erset
 - Wenn der Auftrag lautet, ein neues Hero-Bild fuer eine Seite zu erstellen/zu setzen:
   `page.hero_create_image` verwenden. dbxKi legt das neue Bild verbindlich unter `files/media/img/hero` ab, registriert es als Medium und setzt es als Hero der Seite.
 - Hero-Bilder werden nie in `img/ki` abgelegt. Fuer Hero ist immer `img/hero` zu verwenden; der Ordner wird bei Bedarf angelegt.
+- Ein Seitenkopf mit Bild und ueberlagertem Text ist immer ein CMS-Hero. Das Bild wird ueber `page.hero_create_image`, `page.hero_replace_image` oder `media.assign` mit `slot: "hero"` gesetzt; der Hero-Text steht vor dem Marker `data-dbx-marker="dbx:hero"`.
+- Ein Hero darf niemals als Inline-Bild mit `position-relative`/`position-absolute` im Feld `content` nachgebaut werden. dbxKi lehnt einen solchen Auftrag technisch ab.
 
 ### Gallery-Bilder
 

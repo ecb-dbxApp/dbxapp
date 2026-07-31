@@ -11,6 +11,7 @@ use dbx\dbxContent\dbxContentTranslate;
 use dbx\dbxContent\dbxContent_permalink;
 
 require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
+require_once __DIR__ . '/dbxContentMediaUsageMaintenance.class.php';
 
 class dbxContent_cms extends \dbxObj {
 
@@ -55,11 +56,21 @@ class dbxContent_cms extends \dbxObj {
          'selection_label', 'tree_show', 'tree_hide', 'right_show', 'right_hide',
          'editor_marker_tooltip', 'editor_media_tooltip', 'editor_module_tooltip',
          'editor_bootstrap_tooltip', 'editor_text_format', 'editor_horizontal_rule',
+         'editor_columns_two', 'editor_columns_three',
+         'editor_columns_first', 'editor_columns_second', 'editor_columns_third',
+         'editor_columns_new', 'editor_columns_stacked', 'editor_columns_responsive',
+         'editor_column_add', 'editor_columns_dissolve',
+         'editor_context_menu', 'editor_context_undo', 'editor_context_redo',
+          'editor_context_select_all', 'editor_context_block_up', 'editor_context_block_down',
+          'editor_context_module', 'editor_context_video', 'editor_image_edit', 'editor_image_remove',
+          'editor_context_copy',
+         'editor_context_cut', 'editor_context_paste', 'editor_context_delete',
          'editor_save_all', 'editor_bold', 'editor_italic', 'editor_underline',
          'editor_strike', 'editor_align_left', 'editor_align_center',
          'editor_align_right', 'editor_align_justify', 'editor_print_break',
          'hero_parent_empty',
-         'media_inline_empty', 'media_gallery_empty', 'media_hero_empty',
+          'media_inline_empty', 'media_inline_focus', 'media_inline_edit',
+          'media_inline_remove', 'media_inline_removed', 'media_gallery_empty', 'media_hero_empty',
          'media_area_empty', 'media_all_folders', 'media_folders_title',
          'media_no_folders', 'media_folder_empty', 'media_back',
          'media_folder_instruction', 'media_folder_label', 'media_count',
@@ -620,13 +631,45 @@ class dbxContent_cms extends \dbxObj {
       $html = (string)$html;
       $html = preg_replace_callback('/<figure\b([^>]*dbx-cms-inline-video-block[^>]*)>[\s\S]*?<\/figure>/i', function($m) {
          $attrs = $m[1];
-         if (!preg_match('/data-cms-media-id=["\']?([0-9]+)/i', $attrs, $id_match)) return $m[0];
+         if (!preg_match('/data-cms-media-id=["\']?([0-9]+)/i', $attrs, $id_match)
+            && !preg_match('/data-cms-media-id=["\']?([0-9]+)/i', $m[0], $id_match)
+            && !preg_match('/dbx_mid=([0-9]+)/i', $m[0], $id_match)) return $m[0];
          $id = (int)$id_match[1];
          $placeholder = $this->inline_media_placeholder_html($id);
          if ($placeholder === '') return $m[0];
          $attrs = preg_replace('/\scontenteditable=(["\']).*?\1/i', '', $attrs);
+         $attrs = preg_replace('/\sdata-cms-media-id\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $attrs);
+         $attrs .= ' data-cms-media-id="' . $id . '"';
          if (stripos($attrs, 'data-cms-media-slot=') === false) $attrs .= ' data-cms-media-slot="inline"';
          return '<figure' . $attrs . '>' . $placeholder . '</figure>';
+      }, $html);
+      /*
+       * Alte CMS-Seiten konnten Videos als freies <video><source ...></video>
+       * enthalten. Der Editor arbeitet inzwischen mit stabilen, über die
+       * Medien-ID gerenderten Platzhaltern. Die Konvertierung hält bestehende
+       * Inhalte beim nächsten Speichern kompatibel.
+       */
+      $html = preg_replace_callback('/<video\b([^>]*)>([\s\S]*?)<\/video>/i', function($m) {
+         $attrs = (string)($m[1] ?? '');
+         $inner = (string)($m[2] ?? '');
+         $source = $attrs . ' ' . $inner;
+         $id = 0;
+         if (preg_match('/data-cms-media-id=["\']?([0-9]+)/i', $source, $id_match)
+            || preg_match('/dbx_mid=([0-9]+)/i', $source, $id_match)) {
+            $id = (int)($id_match[1] ?? 0);
+         }
+         if ($id <= 0) return $m[0];
+
+         $placeholder = $this->inline_media_placeholder_html($id);
+         if ($placeholder === '') return $m[0];
+
+         $video_attrs = ' class="dbx-cms-inline-media dbx-cms-inline-video-block"'
+            . ' data-cms-media-id="' . $id . '" data-cms-media-slot="inline"';
+         foreach (array('autoplay', 'loop', 'muted') as $option) {
+            $enabled = preg_match('/(?:^|\s)' . $option . '(?:\s|=|$)/i', $attrs) === 1;
+            $video_attrs .= ' data-cms-video-' . $option . '="' . ($enabled ? '1' : '0') . '"';
+         }
+         return '<figure' . $video_attrs . '>' . $placeholder . '</figure>';
       }, $html);
       $html = preg_replace('/<(video|iframe|source)\b[^>]*data-cms-media-id=["\']?([0-9]+)[^>]*>(?:\s*<\/\1>)?/i', '', $html);
       $html = preg_replace_callback('/<(img|video|iframe|source)\b([^>]*?)>/i', function($m) {
@@ -656,6 +699,9 @@ class dbxContent_cms extends \dbxObj {
          $tag = (string)($m[1] ?? 'p');
          $attrs = (string)($m[2] ?? '');
          $inner = (string)($m[3] ?? '');
+         if (stripos($attrs, 'dbx-cms-inline-video-block') !== false) {
+            return $m[0];
+         }
          if (!preg_match('/<img\b[^>]*\bsrc\s*=\s*(?:"[^"]*dbx_mid=([0-9]+)[^"]*"|\'[^\']*dbx_mid=([0-9]+)[^\']*\')/i', $inner, $id_match)) {
             return $m[0];
          }
@@ -872,7 +918,7 @@ class dbxContent_cms extends \dbxObj {
       $id = (int)$id;
       if ($id <= 0) return '';
       $label = 'Mediendatei #' . $id . ' nicht verfuegbar';
-      return '<p class="dbx-cms-inline-media dbx-cms-inline-media-missing-wrap" data-cms-media-id="' . $id . '" data-cms-media-slot="inline" contenteditable="false" tabindex="0" title="Fehlende Mediendatei auswaehlen, Entf zum Loeschen"><span class="dbx-cms-inline-media-missing" aria-hidden="true">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span></p>';
+      return '<p class="dbx-cms-inline-media dbx-cms-inline-media-missing-wrap" data-cms-media-id="' . $id . '" data-cms-media-slot="inline" contenteditable="false" tabindex="0" title="Fehlende Mediendatei auswählen, Entf zum Löschen"><span class="dbx-cms-inline-media-missing" aria-hidden="true">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span></p>';
    }
 
    private function inline_media_placeholder_html($id) {
@@ -985,13 +1031,27 @@ class dbxContent_cms extends \dbxObj {
       $permalink = dbxContent_permalink::isValid($rawPermalink)
          ? $rawPermalink
          : dbxContent_permalink::canonicalFromLegacy($rawPermalink);
-      if ($permalink === '') {
-         return 0;
+      $db = dbx()->get_system_obj('dbxDB');
+      if ($permalink !== '') {
+         $rec = $db->select1(dbxContentLng::ddContent(), array('permalink' => $permalink), 'id', 0);
+         $permalinkId = is_array($rec) ? (int)($rec['id'] ?? 0) : 0;
+         if ($permalinkId > 0) return $permalinkId;
       }
 
-      $db = dbx()->get_system_obj('dbxDB');
-      $rec = $db->select1(dbxContentLng::ddContent(), array('permalink' => $permalink), 'id', 0);
-      return is_array($rec) ? (int)($rec['id'] ?? 0) : 0;
+      // Eine initiale Seite wird mit einer kleinen Einzelabfrage bestimmt.
+      // Dafuer muss der vollstaendige Content-Baum nicht aufgebaut werden.
+      $rows = $db->select(
+         dbxContentLng::ddContent(),
+         '',
+         'id',
+         'sorter,title,id',
+         'ASC',
+         '',
+         1,
+         0,
+         0
+      );
+      return is_array($rows) && isset($rows[0]) ? (int)($rows[0]['id'] ?? 0) : 0;
    }
 
    private function attach_unreachable_tree_nodes(array $tree): array {
@@ -1128,29 +1188,64 @@ class dbxContent_cms extends \dbxObj {
       return $row;
    }
 
-   private function tree_row_html(array $node) {
-      $tpl = dbx()->get_system_obj('dbxTPL');
-      $type = ($node['_type'] ?? '') === 'folder' ? 'folder' : 'page';
-      $id = (int)($node['_id'] ?? 0);
-      $title = htmlspecialchars((string)($node['_title'] ?? ''), ENT_QUOTES, 'UTF-8');
-      $rights = htmlspecialchars((string)($node['_rights'] ?? ''), ENT_QUOTES, 'UTF-8');
-      $data = array(
-         '_type' => $type,
-         '_id' => (string)$id,
-         '_parent' => (string)($node['_parent'] ?? ($type === 'folder' ? $id : 0)),
-         'icon' => $type === 'folder' ? '<i class="bi bi-folder2-open"></i>' : '<i class="bi bi-file-earmark-text"></i>',
-         'folder_edit_btn' => $type === 'folder'
-            ? '<button type="button" class="dbx-cms-tree-edit" data-cms-folder-edit-btn title="Ordner bearbeiten" aria-label="Ordner bearbeiten"><i class="bi bi-pencil-square"></i></button>'
-            : '',
-         'folder_id_label' => '',
-         'title_label' => $type === 'page' ? '<span class="dbx-cms-page-id">(' . $id . ')</span> ' . $title : $title,
-         'rights_label' => ($type === 'folder' && $rights !== '') ? '<span class="dbx-cms-rights" data-cms-folder-edit title="Ordnerrechte bearbeiten">' . $rights . '</span>' : '',
-         'lng_badges' => (string)($node['_lng_badges'] ?? ''),
-      );
-      return $tpl->get_tpl('dbxContent_admin|cms-tree-row', $data);
+   private function tree_records_by_id($db, string $dd, string $fields): array {
+      $rows = $db->select($dd, '', $fields, 'id', 'ASC', '', 0, 0, 0);
+      $out = array();
+      foreach (is_array($rows) ? $rows : array() as $row) {
+         $id = (int)($row['id'] ?? 0);
+         if ($id > 0) $out[$id] = $row;
+      }
+      return $out;
    }
 
-   private function attach_lng_coverage(array $node, $db): array {
+   private function tree_lng_coverage_rows($db): array {
+      $out = array('folder' => array(), 'page' => array());
+      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
+         foreach (array(
+            'folder' => array(dbxContentLng::ddFolder($lng), 'id,lng_uid,lng_sync,name', 'name'),
+            'page' => array(dbxContentLng::ddContent($lng), 'id,lng_uid,lng_sync,title', 'title'),
+         ) as $entity => $definition) {
+            [$dd, $fields, $titleField] = $definition;
+            $rows = $db->select($dd, '', $fields, 'id', 'ASC', '', 0, 0, 0);
+            foreach (is_array($rows) ? $rows : array() as $row) {
+               $lngUid = trim((string)($row['lng_uid'] ?? ''));
+               if ($lngUid === '') continue;
+               $out[$entity][$lngUid][$lng] = array(
+                  'id' => (int)($row['id'] ?? 0),
+                  'title' => (string)($row[$titleField] ?? ''),
+                  'lng_sync' => strtolower(trim((string)($row['lng_sync'] ?? 'auto'))) ?: 'auto',
+               );
+            }
+         }
+      }
+      return $out;
+   }
+
+   private function tree_lng_coverage(string $type, string $lngUid, array $coverageRows): array {
+      $master = dbxContentLngSync::masterLng();
+      $coverage = array(
+         'lng_uid' => $lngUid,
+         'entity' => $type,
+         'master_lng' => $master,
+         'current_lng' => dbxContentLng::current(),
+         'languages' => array(),
+      );
+      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
+         $row = $coverageRows[$type][$lngUid][$lng] ?? null;
+         $sync = is_array($row) ? (string)($row['lng_sync'] ?? 'auto') : '';
+         $coverage['languages'][$lng] = array(
+            'lng' => $lng,
+            'status' => is_array($row) ? ($lng === $master ? 'master' : ($sync ?: 'auto')) : 'missing',
+            'id' => is_array($row) ? (int)($row['id'] ?? 0) : 0,
+            'title' => is_array($row) ? (string)($row['title'] ?? '') : '',
+            'lng_sync' => $sync,
+            'is_master' => $lng === $master ? 1 : 0,
+         );
+      }
+      return $coverage;
+   }
+
+   private function attach_lng_coverage(array $node, $db, array &$coverageRows): array {
       $type = ($node['_type'] ?? '') === 'folder' ? 'folder' : 'page';
       $id = (int)($node['_id'] ?? 0);
       $dd = $type === 'folder' ? dbxContentLng::ddFolder() : dbxContentLng::ddContent();
@@ -1162,7 +1257,15 @@ class dbxContent_cms extends \dbxObj {
 
       $node['_lng_uid'] = $lngUid;
       if ($lngUid !== '') {
-         $coverage = dbxContentLngSync::coverageForUid($db, $type, $lngUid);
+         $currentLng = dbxContentLng::current();
+         if (!isset($coverageRows[$type][$lngUid][$currentLng])) {
+            $coverageRows[$type][$lngUid][$currentLng] = array(
+               'id' => $id,
+               'title' => (string)($node['_title'] ?? ''),
+               'lng_sync' => strtolower(trim((string)($node['lng_sync'] ?? 'auto'))) ?: 'auto',
+            );
+         }
+         $coverage = $this->tree_lng_coverage($type, $lngUid, $coverageRows);
          $node['_lng_coverage'] = $coverage;
          $node['_lng_badges'] = dbxContentLngSync::badgesHtml($coverage);
       }
@@ -1170,13 +1273,12 @@ class dbxContent_cms extends \dbxObj {
       return $node;
    }
 
-   private function decorate_tree_nodes(array $nodes, array &$flat) {
-      $db = dbx()->get_system_obj('dbxDB');
+   private function decorate_tree_nodes(array $nodes, array &$flat, $db, array $folderRows, array $pageRows, array &$coverageRows) {
       $out = array();
       foreach ($nodes as $node) {
          if (!is_array($node)) continue;
          if (($node['_type'] ?? '') === 'folder' && (int)($node['_id'] ?? 0) > 0) {
-            $full = $db->select1(dbxContentLng::ddFolder(), (int)$node['_id'], '*', 0);
+            $full = $folderRows[(int)$node['_id']] ?? null;
             if (is_array($full)) {
                foreach (array('template','group_read','hero_template','hero_image_id','hero_margin_top','hero_height','hero_variant','hero_sticky','hero_scroll_layer') as $key) {
                   if (array_key_exists($key, $full)) {
@@ -1187,41 +1289,45 @@ class dbxContent_cms extends \dbxObj {
                $node['_template'] = $full['template'] ?? ($node['_template'] ?? '');
                $node['_rights'] = $full['group_read'] ?? ($node['_rights'] ?? '');
                $node['lng_uid'] = $full['lng_uid'] ?? '';
+               $node['lng_sync'] = $full['lng_sync'] ?? 'auto';
             }
          }
          if (($node['_type'] ?? '') === 'page' && (int)($node['_id'] ?? 0) > 0) {
-            $full = $db->select1(dbxContentLng::ddContent(), (int)$node['_id'], 'lng_uid,lng_sync', 0);
+            $full = $pageRows[(int)$node['_id']] ?? null;
             if (is_array($full)) {
                $node['lng_uid'] = $full['lng_uid'] ?? '';
+               $node['lng_sync'] = $full['lng_sync'] ?? 'auto';
             }
          }
-         $node = $this->attach_lng_coverage($node, $db);
-         $node['_row_html'] = $this->tree_row_html($node);
+         $node = $this->attach_lng_coverage($node, $db, $coverageRows);
          $flat[] = $node;
          if (isset($node['_children']) && is_array($node['_children'])) {
-            $node['_children'] = $this->decorate_tree_nodes($node['_children'], $flat);
+            $node['_children'] = $this->decorate_tree_nodes($node['_children'], $flat, $db, $folderRows, $pageRows, $coverageRows);
          }
          $out[] = $node;
       }
       return $out;
    }
 
-   private function render_tree_report(array $flat) {
-      $report = dbx()->get_system_obj('dbxReport');
-      $report->init('cms-content-tree', 'cms-tree-row');
-      $report->_mode = 'tpl';
-      $report->_rdata = $flat;
-      $report->_rcount = count($flat);
-      $report->_rrows = max(1, count($flat));
-      $report->_rflds = array();
-      return $report->run();
-   }
-
    private function decorate_tree(array $tree) {
+      $db = dbx()->get_system_obj('dbxDB');
+      $folderRows = $this->tree_records_by_id(
+         $db,
+         dbxContentLng::ddFolder(),
+         'id,template,group_read,hero_template,hero_image_id,hero_margin_top,hero_height,hero_variant,hero_sticky,hero_scroll_layer,lng_uid,lng_sync'
+      );
+      $pageRows = $this->tree_records_by_id($db, dbxContentLng::ddContent(), 'id,lng_uid,lng_sync');
+      $coverageRows = $this->tree_lng_coverage_rows($db);
       $flat = array();
-      $tree['nodes'] = $this->decorate_tree_nodes(is_array($tree['nodes'] ?? null) ? $tree['nodes'] : array(), $flat);
+      $tree['nodes'] = $this->decorate_tree_nodes(
+         is_array($tree['nodes'] ?? null) ? $tree['nodes'] : array(),
+         $flat,
+         $db,
+         $folderRows,
+         $pageRows,
+         $coverageRows
+      );
       $tree['flat'] = $flat;
-      $tree['tree_html'] = $this->render_tree_report($flat);
       return $tree;
    }
 
@@ -1311,6 +1417,56 @@ class dbxContent_cms extends \dbxObj {
       $base = realpath($root);
       $real = realpath($file);
       return $base && $real && strpos($real, $base) === 0 && is_file($real) && is_readable($real);
+   }
+
+   private function media_thumbnail_supported($row): bool {
+      $row = is_array($row) ? $row : array();
+      $type = $this->media_type($row);
+      if ($type === 'video') return true;
+      if ($type !== 'image' || !function_exists('imagecreatetruecolor')) return false;
+      $name = (string)($row['file_name'] ?? $row['file_path'] ?? '');
+      $mime = strtolower(trim((string)($row['mime'] ?? '')));
+      // SVG wird im Browser verlustfrei direkt dargestellt. Ein GD-Thumbnail
+      // ist weder moeglich noch erforderlich und deshalb kein Wartungsfehler.
+      return $mime !== 'image/svg+xml' && !preg_match('/\.svg$/i', $name);
+   }
+
+   /**
+    * Eine vorhandene Datei allein reicht nicht: Nach Austausch, Umbenennung
+    * oder Bildbearbeitung kann der DB-Eintrag noch auf ein altes Motiv zeigen.
+    * Videos duerfen ein bewusst gesetztes Poster verwenden; lokale Rasterbilder
+    * muessen dagegen zu Name, Zeitstand und erwarteter Groesse der Quelle passen.
+    */
+   private function media_thumbnail_is_current($row): bool {
+      $row = is_array($row) ? $row : array();
+      if (!$this->media_thumb_exists($row)) return false;
+      if ($this->media_type($row) !== 'image') return true;
+      if (!$this->media_thumbnail_supported($row)) return true;
+
+      $source = $this->source_media_file($row);
+      $thumb = $this->source_thumb_file($row);
+      if ($source === '' || $thumb === '') return false;
+
+      $source_time = @filemtime($source);
+      $thumb_time = @filemtime($thumb);
+      if ($source_time !== false && $thumb_time !== false && $source_time > $thumb_time) return false;
+
+      $source_name = (string)($row['file_name'] ?? basename($source));
+      $source_stem = strtolower((string)pathinfo($source_name, PATHINFO_FILENAME));
+      $thumb_stem = strtolower((string)pathinfo(basename($thumb), PATHINFO_FILENAME));
+      if ($source_stem !== '' && strpos($thumb_stem, $source_stem) === false) return false;
+
+      $source_size = @getimagesize($source);
+      $thumb_size = @getimagesize($thumb);
+      if (!is_array($source_size) || !is_array($thumb_size)) return false;
+      $source_w = (int)($source_size[0] ?? 0);
+      $source_h = (int)($source_size[1] ?? 0);
+      if ($source_w <= 0 || $source_h <= 0) return false;
+      $scale = min(640 / $source_w, 480 / $source_h, 1);
+      $expected_w = max(1, (int)round($source_w * $scale));
+      $expected_h = max(1, (int)round($source_h * $scale));
+      return abs((int)($thumb_size[0] ?? 0) - $expected_w) <= 1
+         && abs((int)($thumb_size[1] ?? 0) - $expected_h) <= 1;
    }
 
    private function valid_media_slot($slot, $default = 'gallery') {
@@ -1577,22 +1733,35 @@ class dbxContent_cms extends \dbxObj {
          }
       }
 
-      $content_rows = $db->select(dbxContentLng::ddContent(), "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,folder,content', 'id');
-      if (is_array($content_rows)) {
-         foreach ($content_rows as $row) {
+      foreach ($this->ordered_media_languages() as $lng) {
+         $content_rows = $db->select(dbxContentLng::ddContent($lng), '', 'id,folder,hero_image_id,seo_image_id,content', 'id');
+         foreach (is_array($content_rows) ? $content_rows : array() as $row) {
             if (!is_array($row)) continue;
             $content_id = (int)($row['id'] ?? 0);
+            $folder_id = (int)($row['folder'] ?? 0);
+            $direct = array(
+               'hero' => (int)($row['hero_image_id'] ?? 0),
+               'seo' => (int)($row['seo_image_id'] ?? 0),
+            );
+            foreach ($direct as $slot => $media_id) {
+               if ($media_id <= 0) continue;
+               if (!isset($map[$media_id])) $map[$media_id] = array();
+               $map[$media_id][] = array('media_id' => $media_id, 'content_id' => $content_id, 'folder_id' => $folder_id, 'slot' => $slot);
+            }
             foreach ($this->inline_media_ids($row['content'] ?? '') as $media_id) {
                $media_id = (int)$media_id;
                if ($media_id <= 0) continue;
                if (!isset($map[$media_id])) $map[$media_id] = array();
-               $map[$media_id][] = array(
-                  'media_id' => $media_id,
-                  'content_id' => $content_id,
-                  'folder_id' => (int)($row['folder'] ?? 0),
-                  'slot' => 'inline',
-               );
+               $map[$media_id][] = array('media_id' => $media_id, 'content_id' => $content_id, 'folder_id' => $folder_id, 'slot' => 'inline');
             }
+         }
+         $folder_rows = $db->select(dbxContentLng::ddFolder($lng), '', 'id,hero_image_id', 'id');
+         foreach (is_array($folder_rows) ? $folder_rows : array() as $row) {
+            $media_id = is_array($row) ? (int)($row['hero_image_id'] ?? 0) : 0;
+            $folder_id = is_array($row) ? (int)($row['id'] ?? 0) : 0;
+            if ($media_id <= 0 || $folder_id <= 0) continue;
+            if (!isset($map[$media_id])) $map[$media_id] = array();
+            $map[$media_id][] = array('media_id' => $media_id, 'content_id' => 0, 'folder_id' => $folder_id, 'slot' => 'hero');
          }
       }
       return $map;
@@ -1702,6 +1871,314 @@ class dbxContent_cms extends \dbxObj {
          'found' => count($orphans),
          'removed' => $removed,
          'reasons' => $reasons,
+      );
+   }
+
+   private function ordered_media_languages(): array {
+      $languages = array_values(array_unique(array_map('strval', dbxContentLngSync::accessibleLngs())));
+      $current = strtolower(trim((string)dbx()->get_system_var('dbx_lng', dbxContentLngSync::masterLng())));
+      $ordered = array();
+      if ($current !== '' && in_array($current, $languages, true)) $ordered[] = $current;
+      foreach ($languages as $language) {
+         $language = strtolower(trim($language));
+         if ($language !== '' && !in_array($language, $ordered, true)) $ordered[] = $language;
+      }
+      return $ordered;
+   }
+
+   private function add_expected_media_usage(array &$expected, int $media_id, int $content_id, int $folder_id, string $slot, string $template = ''): void {
+      if ($media_id <= 0 || ($content_id <= 0 && $folder_id <= 0)) return;
+      $key = dbxContentMediaUsageMaintenance::usageKey($media_id, $content_id, $folder_id, $slot);
+      if (!isset($expected[$key])) {
+         $expected[$key] = array(
+            'media_id' => $media_id,
+            'content_id' => $content_id,
+            'folder_id' => $folder_id,
+            'slot' => $slot,
+            'template' => $template,
+            'valid_folders' => array(),
+         );
+      }
+      if ($content_id > 0 && $folder_id > 0) {
+         $expected[$key]['valid_folders'][$folder_id] = 1;
+      }
+   }
+
+   /**
+    * Baut die Soll-Nutzung aus den tatsaechlichen Seiten- und Ordnerfeldern
+    * aller verfuegbaren Sprachen. Galerie-/Shop-Zuordnungen bleiben bewusst
+    * eigenstaendige Datensaetze und werden nur auf Gueltigkeit geprueft.
+    */
+   private function media_usage_snapshot($db): array {
+      $media_rows = $db->select($this->dd_media, '', '*', 'id', 'ASC', '', 0, 0, 0);
+      if (!is_array($media_rows)) $media_rows = array();
+      $valid_media_ids = array();
+      foreach ($media_rows as $row) {
+         if (!is_array($row)) continue;
+         $id = (int)($row['id'] ?? 0);
+         if ($id > 0 && (int)($row['active'] ?? 0) === 1 && $this->media_file_exists($row)) {
+            $valid_media_ids[$id] = 1;
+         }
+      }
+
+      $expected = array();
+      $content_folders = array();
+      $folder_ids = array();
+      $seo_media_ids = array();
+      $seo_references = 0;
+      foreach ($this->ordered_media_languages() as $lng) {
+         try {
+            $pages = $db->select(
+               dbxContentLng::ddContent($lng),
+               '',
+               'id,folder,hero_image_id,seo_image_id,content',
+               'id',
+               'ASC',
+               '',
+               0,
+               0,
+               0
+            );
+            foreach (is_array($pages) ? $pages : array() as $page) {
+               if (!is_array($page)) continue;
+               $content_id = (int)($page['id'] ?? 0);
+               $folder_id = (int)($page['folder'] ?? 0);
+               if ($content_id <= 0) continue;
+               if (!isset($content_folders[$content_id])) $content_folders[$content_id] = array();
+               if ($folder_id > 0) $content_folders[$content_id][$folder_id] = 1;
+
+               $hero_id = (int)($page['hero_image_id'] ?? 0);
+               if (isset($valid_media_ids[$hero_id])) {
+                  $this->add_expected_media_usage($expected, $hero_id, $content_id, $folder_id, 'hero', 'image-hero');
+               }
+               $seo_id = (int)($page['seo_image_id'] ?? 0);
+               if (isset($valid_media_ids[$seo_id])) {
+                  $seo_media_ids[$seo_id] = 1;
+                  $seo_references++;
+               }
+               foreach ($this->inline_media_ids((string)($page['content'] ?? '')) as $media_id) {
+                  $media_id = (int)$media_id;
+                  if (isset($valid_media_ids[$media_id])) {
+                     $this->add_expected_media_usage($expected, $media_id, $content_id, $folder_id, 'inline', 'image-inline');
+                  }
+               }
+            }
+
+            $folders = $db->select(
+               dbxContentLng::ddFolder($lng),
+               '',
+               'id,hero_image_id',
+               'id',
+               'ASC',
+               '',
+               0,
+               0,
+               0
+            );
+            foreach (is_array($folders) ? $folders : array() as $folder) {
+               if (!is_array($folder)) continue;
+               $folder_id = (int)($folder['id'] ?? 0);
+               if ($folder_id <= 0) continue;
+               $folder_ids[$folder_id] = 1;
+               $hero_id = (int)($folder['hero_image_id'] ?? 0);
+               if (isset($valid_media_ids[$hero_id])) {
+                  $this->add_expected_media_usage($expected, $hero_id, 0, $folder_id, 'hero', 'image-hero');
+               }
+            }
+         } catch (\Throwable $e) {
+            dbx()->debug('dbxContent media usage snapshot skipped lng=' . $lng, $e->getMessage());
+         }
+      }
+
+      return array(
+         'media_rows' => $media_rows,
+         'valid_media_ids' => $valid_media_ids,
+         'expected' => $expected,
+         'content_folders' => $content_folders,
+         'folder_ids' => $folder_ids,
+         'seo_media_ids' => $seo_media_ids,
+         'seo_references' => $seo_references,
+      );
+   }
+
+   private function physical_delete_ids($db, string $dd, array $ids): int {
+      $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+      $removed = 0;
+      foreach (array_chunk($ids, 250) as $chunk) {
+         $where = 'id IN (' . implode(',', $chunk) . ')';
+         $before = (int)$db->count($dd, $where);
+         if ($before <= 0) continue;
+         $db->delete($dd, $where, 1, 0);
+         $after = (int)$db->count($dd, $where);
+         $removed += max(0, $before - $after);
+      }
+      return $removed;
+   }
+
+   private function reconcile_media_usage($db): array {
+      $snapshot = $this->media_usage_snapshot($db);
+      $usage_rows = $db->select($this->dd_media_usage, '', '*', 'id', 'ASC', '', 0, 0, 0);
+      if (!is_array($usage_rows)) $usage_rows = array();
+      $plan = dbxContentMediaUsageMaintenance::plan(
+         $usage_rows,
+         $snapshot['valid_media_ids'],
+         $snapshot['expected'],
+         $snapshot['content_folders'],
+         $snapshot['folder_ids'],
+         array('hero', 'gallery', 'inline', 'header', 'teaser', 'footer', 'shop')
+      );
+
+      // SQLite ist bei vielen einzelnen Schreibvorgaengen ohne Transaktion
+      // unverhaeltnismaessig langsam. Die komplette Korrektur ist eine
+      // atomare Wartungsoperation und wird deshalb gemeinsam committed.
+      // Gleichzeitig dient die vorhandene Nutzung als Sorter-Seed, damit
+      // neue Soll-Zuordnungen keine SELECT-Abfrage pro Datensatz benoetigen.
+      $sorter_max = array();
+      foreach ($usage_rows as $row) {
+         if (!is_array($row) || (int)($row['active'] ?? 0) !== 1) continue;
+         $sorter_key = (int)($row['content_id'] ?? 0) . ':'
+            . (int)($row['folder_id'] ?? 0) . ':'
+            . $this->valid_media_slot($row['slot'] ?? 'gallery');
+         $sorter_max[$sorter_key] = max(
+            (int)($sorter_max[$sorter_key] ?? 0),
+            (int)($row['sorter'] ?? 0)
+         );
+      }
+
+      $cache_targets = array();
+      foreach ($usage_rows as $row) {
+         $id = is_array($row) ? (int)($row['id'] ?? 0) : 0;
+         if ($id <= 0 || !isset($plan['delete'][$id])) continue;
+         $content_id = (int)($row['content_id'] ?? 0);
+         $folder_id = (int)($row['folder_id'] ?? 0);
+         $cache_targets[$content_id . ':' . $folder_id] = array($content_id, $folder_id);
+      }
+      $removed = 0;
+      $updated = 0;
+      $added = 0;
+      $transaction_started = (int)$db->begin($this->dd_media_usage) === 1;
+      try {
+         $removed = $this->physical_delete_ids($db, $this->dd_media_usage, array_keys($plan['delete']));
+
+         foreach ($plan['update'] as $id => $data) {
+            if ((int)$db->update($this->dd_media_usage, $data, (int)$id, 0, 1, 1, 0) >= 0) $updated++;
+         }
+
+         foreach ($plan['insert'] as $reference) {
+            $content_id = (int)($reference['content_id'] ?? 0);
+            $folder_id = (int)($reference['folder_id'] ?? 0);
+            $slot = $this->valid_media_slot($reference['slot'] ?? 'gallery');
+            $sorter_key = $content_id . ':' . $folder_id . ':' . $slot;
+            $sorter_max[$sorter_key] = (int)($sorter_max[$sorter_key] ?? 0) + 10;
+            $insert = array(
+               'active' => 1,
+               'media_id' => (int)($reference['media_id'] ?? 0),
+               'content_id' => $content_id,
+               'folder_id' => $folder_id,
+               'slot' => $slot,
+               'sorter' => sprintf('%04d', $sorter_max[$sorter_key]),
+               'template' => (string)($reference['template'] ?? ''),
+               'caption' => '',
+               'settings' => '',
+            );
+            if ($db->insert($this->dd_media_usage, $insert, 0, 1, 1, 0) === 1) {
+               $added++;
+               $cache_targets[$content_id . ':' . $folder_id] = array($content_id, $folder_id);
+            }
+         }
+
+         if ($transaction_started && (int)$db->commit($this->dd_media_usage) !== 1) {
+            throw new \RuntimeException('media_usage_commit_failed');
+         }
+      } catch (\Throwable $e) {
+         if ($transaction_started) $db->rollback($this->dd_media_usage);
+         throw $e;
+      }
+
+      foreach ($cache_targets as $target) {
+         $this->flush_media_cache($db, (int)$target[0], (int)$target[1]);
+      }
+
+      return array(
+         'analyzed' => (int)$plan['analyzed'],
+         'actual_references' => (int)$plan['kept'] + $added + (int)($snapshot['seo_references'] ?? 0),
+         'kept' => (int)$plan['kept'],
+         'added' => $added,
+         'updated' => $updated,
+         'removed' => $removed,
+         'planned_removed' => count($plan['delete']),
+         'reasons' => $plan['reasons'],
+      );
+   }
+
+   private function cleanup_invalid_structured_media_references($db): array {
+      $snapshot = $this->media_usage_snapshot($db);
+      $valid = $snapshot['valid_media_ids'];
+      $refs = 0;
+      $pages = 0;
+      $folders_count = 0;
+      $previous_lng = (string)dbx()->get_system_var('dbx_lng', dbxContentLngSync::masterLng());
+
+      try {
+         foreach ($this->ordered_media_languages() as $lng) {
+            dbx()->set_system_var('dbx_lng', $lng);
+            $content_dd = dbxContentLng::ddContent($lng);
+            $page_rows = $db->select($content_dd, '', 'id,hero_image_id,seo_image_id', 'id', 'ASC', '', 0, 0, 0);
+            foreach (is_array($page_rows) ? $page_rows : array() as $row) {
+               if (!is_array($row)) continue;
+               $id = (int)($row['id'] ?? 0);
+               if ($id <= 0) continue;
+               $update = array();
+               $hero_id = (int)($row['hero_image_id'] ?? 0);
+               $seo_id = (int)($row['seo_image_id'] ?? 0);
+               if ($hero_id > 0 && !isset($valid[$hero_id])) $update['hero_image_id'] = '0';
+               if ($seo_id > 0 && !isset($valid[$seo_id])) $update['seo_image_id'] = 0;
+               if (!$update) continue;
+               if ((int)$db->update($content_dd, $update, $id, 0, 1, 1, 0) >= 0) {
+                  $refs += count($update);
+                  $pages++;
+                  $this->flush_saved_page_cache($db, $id);
+               }
+            }
+
+            $folder_dd = dbxContentLng::ddFolder($lng);
+            $folder_rows = $db->select($folder_dd, '', 'id,hero_image_id', 'id', 'ASC', '', 0, 0, 0);
+            foreach (is_array($folder_rows) ? $folder_rows : array() as $row) {
+               if (!is_array($row)) continue;
+               $id = (int)($row['id'] ?? 0);
+               $hero_id = (int)($row['hero_image_id'] ?? 0);
+               if ($id <= 0 || $hero_id <= 0 || isset($valid[$hero_id])) continue;
+               if ((int)$db->update($folder_dd, array('hero_image_id' => 'parent'), $id, 0, 1, 1, 0) >= 0) {
+                  $refs++;
+                  $folders_count++;
+               }
+            }
+         }
+      } finally {
+         dbx()->set_system_var('dbx_lng', $previous_lng);
+      }
+
+      return array('refs' => $refs, 'pages' => $pages, 'folders' => $folders_count);
+   }
+
+   private function purge_invalid_media_records($db): array {
+      $rows = $db->select($this->dd_media, 'active <> 1', '*', 'id', 'ASC', '', 0, 0, 0);
+      if (!is_array($rows)) $rows = array();
+      $ids = array();
+      $deleted_thumbs = 0;
+      foreach ($rows as $row) {
+         if (!is_array($row)) continue;
+         $id = (int)($row['id'] ?? 0);
+         $path = ltrim(str_replace('\\', '/', (string)($row['file_path'] ?? '')), '/');
+         if ($id <= 0 || $this->is_excluded_cms_media_folder((string)($row['media_folder'] ?? '')) || strpos($path, 'media/module/') === 0) continue;
+         $ids[] = $id;
+         $thumb = $this->source_thumb_file($row);
+         if ($thumb !== '' && is_file($thumb) && @unlink($thumb)) $deleted_thumbs++;
+      }
+      return array(
+         'found' => count($ids),
+         'removed' => $this->physical_delete_ids($db, $this->dd_media, $ids),
+         'deleted_thumbs' => $deleted_thumbs,
       );
    }
 
@@ -1954,15 +2431,26 @@ class dbxContent_cms extends \dbxObj {
          if ($path !== '') $by_path[$path] = $id;
          $thumb = ltrim(str_replace('\\', '/', (string)($row['thumb_file_path'] ?? '')), '/');
          if ($thumb !== '') $referenced_thumbs[$thumb] = 1;
-         if ($id > 0 && preg_match('~^media/(hero|gallery|inline|header|teaser|footer)/~', $path)) {
+         $is_external = strtolower((string)($row['storage_type'] ?? '')) === 'external'
+            || $this->media_type($row) === 'external_video';
+         $is_excluded = $this->is_excluded_cms_media_folder((string)($row['media_folder'] ?? ''))
+            || strpos($path, 'media/module/') === 0;
+         $is_legacy_path = (bool)preg_match('~^media/(hero|gallery|inline|header|teaser|footer)/~', $path);
+         $file_exists = $this->media_file_exists($row);
+         $needs_record_check = $is_legacy_path
+            || (!$is_external && !$is_excluded && (((int)($row['active'] ?? 0) !== 1 && $file_exists) || ((int)($row['active'] ?? 0) === 1 && !$file_exists)))
+            || ($is_external && (int)($row['active'] ?? 0) === 1 && !$file_exists);
+         if ($id > 0 && $needs_record_check) {
             $tasks[] = array('type' => 'record', 'id' => $id);
-            if (!$this->media_file_exists($row)) $needs_content_cleanup = true;
+            if (!$file_exists) $needs_content_cleanup = true;
          }
          if ($id > 0
-            && (int)($row['active'] ?? 0) === 1
-            && $this->media_file_exists($row)
-            && preg_match('~^media/(img|video|file|module)/~', $path)
-            && (empty($row['thumb_file_path']) || !$this->media_thumb_exists($row))) {
+             && !$needs_record_check
+             && (int)($row['active'] ?? 0) === 1
+             && $this->media_file_exists($row)
+             && $this->media_thumbnail_supported($row)
+             && preg_match('~^media/(img|video|file|module)/~', $path)
+             && !$this->media_thumbnail_is_current($row)) {
             $tasks[] = array('type' => 'thumb', 'id' => $id);
          }
          if ($id > 0 && (int)($row['active'] ?? 0) !== 1) $needs_content_cleanup = true;
@@ -1988,10 +2476,9 @@ class dbxContent_cms extends \dbxObj {
          $tasks[] = array('type' => 'content_placeholder_repair');
       }
 
-      $orphan_usage_count = count($this->orphan_media_usage_rows($db));
-      if ($orphan_usage_count > 0) {
-         $tasks[] = array('type' => 'usage_cleanup', 'expected' => $orphan_usage_count);
-      }
+      $tasks[] = array('type' => 'structured_reference_cleanup');
+      $tasks[] = array('type' => 'usage_reconcile');
+      $tasks[] = array('type' => 'media_record_purge');
 
       $cache_content_ids = $this->content_media_reference_ids($db);
       if ($cache_content_ids) {
@@ -2021,6 +2508,16 @@ class dbxContent_cms extends \dbxObj {
          'repaired_inline_refs' => 0,
          'flushed_content_pages' => 0,
          'removed_orphan_usage' => 0,
+         'usage_rows_analyzed' => 0,
+         'actual_media_references' => 0,
+         'usage_rows_added' => 0,
+         'usage_rows_updated' => 0,
+         'usage_rows_removed' => 0,
+         'usage_inactive_removed' => 0,
+         'usage_stale_removed' => 0,
+         'usage_duplicate_removed' => 0,
+         'cleaned_structured_refs' => 0,
+         'purged_media_records' => 0,
          'database_optimized' => 0,
          'errors' => 0,
          'percent' => empty($tasks) ? 100 : 0,
@@ -2048,8 +2545,12 @@ class dbxContent_cms extends \dbxObj {
       if ((int)($state['cleaned_inline_refs'] ?? 0) > 0) $parts[] = 'Content bereinigt ' . (int)$state['cleaned_inline_refs'];
       if ((int)($state['repaired_inline_refs'] ?? 0) > 0) $parts[] = 'Inline repariert ' . (int)$state['repaired_inline_refs'];
       if ((int)($state['flushed_content_pages'] ?? 0) > 0) $parts[] = 'Cache aktualisiert ' . (int)$state['flushed_content_pages'];
-      if ((int)($state['removed_orphan_usage'] ?? 0) > 0) $parts[] = 'Verwaiste Zuordnungen entfernt ' . (int)$state['removed_orphan_usage'];
-      if ((int)($state['database_optimized'] ?? 0) > 0) $parts[] = 'Datenbank optimiert';
+      if ((int)($state['usage_rows_added'] ?? 0) > 0) $parts[] = 'Nutzung ergaenzt ' . (int)$state['usage_rows_added'];
+      if ((int)($state['usage_rows_updated'] ?? 0) > 0) $parts[] = 'Nutzung korrigiert ' . (int)$state['usage_rows_updated'];
+      if ((int)($state['usage_rows_removed'] ?? 0) > 0) $parts[] = 'Ungueltige Zuordnungen entfernt ' . (int)$state['usage_rows_removed'];
+      if ((int)($state['cleaned_structured_refs'] ?? 0) > 0) $parts[] = 'Defekte Inhaltsverweise bereinigt ' . (int)$state['cleaned_structured_refs'];
+      if ((int)($state['purged_media_records'] ?? 0) > 0) $parts[] = 'Ungueltige Medien-Datensaetze entfernt ' . (int)$state['purged_media_records'];
+      if ((int)($state['database_optimized'] ?? 0) > 0) $parts[] = 'Datenbanken optimiert ' . (int)$state['database_optimized'];
       if ((int)($state['errors'] ?? 0) > 0) $parts[] = 'Fehler ' . (int)$state['errors'];
       $msg = empty($parts) ? 'Keine Aenderungen.' : implode(' | ', $parts);
       if ($current !== '') $msg .= ' | ' . $current;
@@ -2057,13 +2558,15 @@ class dbxContent_cms extends \dbxObj {
    }
 
    private function content_inline_cleanup_needed($db) {
-      $rows = $db->select(dbxContentLng::ddContent(), "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,content', 'id');
-      if (!is_array($rows)) return false;
-      foreach ($rows as $row) {
-         if (!is_array($row)) continue;
-         foreach ($this->inline_media_ids($row['content'] ?? '') as $id) {
-            $media = $db->select1($this->dd_media, $id);
-            if (!is_array($media) || (int)($media['active'] ?? 0) !== 1 || !$this->media_file_exists($media)) return true;
+      foreach ($this->ordered_media_languages() as $lng) {
+         $rows = $db->select(dbxContentLng::ddContent($lng), "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,content', 'id');
+         if (!is_array($rows)) continue;
+         foreach ($rows as $row) {
+            if (!is_array($row)) continue;
+            foreach ($this->inline_media_ids($row['content'] ?? '') as $id) {
+               $media = $db->select1($this->dd_media, $id);
+               if (!is_array($media) || (int)($media['active'] ?? 0) !== 1 || !$this->media_file_exists($media)) return true;
+            }
          }
       }
       return false;
@@ -2209,29 +2712,38 @@ class dbxContent_cms extends \dbxObj {
    }
 
    private function clean_content_inline_media($db) {
-      $rows = $db->select(dbxContentLng::ddContent(), "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,folder,content', 'id');
-      if (!is_array($rows)) return array('pages' => 0, 'refs' => 0);
       $pages = 0;
       $refs = 0;
-      foreach ($rows as $row) {
-         if (!is_array($row)) continue;
-         $content_id = (int)($row['id'] ?? 0);
-         if ($content_id <= 0) continue;
-         $bad = array();
-         foreach ($this->inline_media_ids($row['content'] ?? '') as $id) {
-            $media = $db->select1($this->dd_media, $id);
-            if (!is_array($media) || (int)($media['active'] ?? 0) !== 1 || !$this->media_file_exists($media)) $bad[] = $id;
+      $previous_lng = (string)dbx()->get_system_var('dbx_lng', dbxContentLngSync::masterLng());
+      try {
+         foreach ($this->ordered_media_languages() as $lng) {
+            dbx()->set_system_var('dbx_lng', $lng);
+            $content_dd = dbxContentLng::ddContent($lng);
+            $rows = $db->select($content_dd, "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,folder,content', 'id');
+            if (!is_array($rows)) continue;
+            foreach ($rows as $row) {
+               if (!is_array($row)) continue;
+               $content_id = (int)($row['id'] ?? 0);
+               if ($content_id <= 0) continue;
+               $bad = array();
+               foreach ($this->inline_media_ids($row['content'] ?? '') as $id) {
+                  $media = $db->select1($this->dd_media, $id);
+                  if (!is_array($media) || (int)($media['active'] ?? 0) !== 1 || !$this->media_file_exists($media)) $bad[] = $id;
+               }
+               if (!$bad) continue;
+               $removed = 0;
+               $clean = $this->remove_inline_media_ids_from_html((string)($row['content'] ?? ''), $bad, $removed);
+               if ($clean !== (string)($row['content'] ?? '')) {
+                  $db->update($content_dd, array('content' => $clean), $content_id);
+                  $this->sync_inline_media_usage($db, $content_id, $clean, (int)($row['folder'] ?? 0));
+                  $this->flush_saved_page_cache($db, $content_id);
+                  $pages++;
+                  $refs += max($removed, count($bad));
+               }
+            }
          }
-         if (!$bad) continue;
-         $removed = 0;
-         $clean = $this->remove_inline_media_ids_from_html((string)($row['content'] ?? ''), $bad, $removed);
-         if ($clean !== (string)($row['content'] ?? '')) {
-            $db->update(dbxContentLng::ddContent(), array('content' => $clean), $content_id);
-            $this->sync_inline_media_usage($db, $content_id, $clean, (int)($row['folder'] ?? 0));
-            $this->flush_saved_page_cache($db, $content_id);
-            $pages++;
-            $refs += max($removed, count($bad));
-         }
+      } finally {
+         dbx()->set_system_var('dbx_lng', $previous_lng);
       }
       return array('pages' => $pages, 'refs' => $refs);
    }
@@ -2319,6 +2831,10 @@ class dbxContent_cms extends \dbxObj {
          $row = $id > 0 ? $db->select1($this->dd_media, $id) : array();
          if (!is_array($row)) return '#' . $id;
          $rel = ltrim(str_replace('\\', '/', (string)($row['file_path'] ?? '')), '/');
+         if (!$this->media_thumbnail_supported($row)) {
+            $state['phase'] = 'media_thumbs';
+            return basename($rel);
+         }
          $file = $this->file_from_media_rel($rel);
          if ($file === '' || !is_file($file) || !is_readable($file)) {
             $state['errors'] = (int)($state['errors'] ?? 0) + 1;
@@ -2327,10 +2843,15 @@ class dbxContent_cms extends \dbxObj {
          $name = basename($file);
          $meta = $this->media_file_meta($file, $name);
          $media_folder = $this->media_folder_from_path($rel, $meta['media_type']);
+         $old_thumb = $this->source_thumb_file($row);
          $thumb = $this->create_media_thumbnail($file, $media_folder, $name, $meta['mime']);
          if ($thumb) {
             $db->update($this->dd_media, $thumb, $id);
             $state['created_thumbs'] = (int)($state['created_thumbs'] ?? 0) + 1;
+            $new_thumb = $this->file_from_media_rel((string)($thumb['thumb_file_path'] ?? ''));
+            if ($old_thumb !== '' && $old_thumb !== $new_thumb && is_file($old_thumb) && @unlink($old_thumb)) {
+               $state['deleted_thumbs'] = (int)($state['deleted_thumbs'] ?? 0) + 1;
+            }
          } else {
             $state['errors'] = (int)($state['errors'] ?? 0) + 1;
          }
@@ -2390,6 +2911,45 @@ class dbxContent_cms extends \dbxObj {
          return 'Cache';
       }
 
+      if ($type === 'structured_reference_cleanup') {
+         $done = $this->cleanup_invalid_structured_media_references($db);
+         $state['cleaned_structured_refs'] = (int)($state['cleaned_structured_refs'] ?? 0) + (int)($done['refs'] ?? 0);
+         $state['cleaned_content_pages'] = (int)($state['cleaned_content_pages'] ?? 0) + (int)($done['pages'] ?? 0);
+         $state['phase'] = 'media_reference_cleanup';
+         return 'Inhaltsverweise';
+      }
+
+      if ($type === 'usage_reconcile') {
+         $done = $this->reconcile_media_usage($db);
+         $state['usage_rows_analyzed'] = (int)($state['usage_rows_analyzed'] ?? 0) + (int)($done['analyzed'] ?? 0);
+         $state['actual_media_references'] = (int)($done['actual_references'] ?? 0);
+         $state['usage_rows_added'] = (int)($state['usage_rows_added'] ?? 0) + (int)($done['added'] ?? 0);
+         $state['usage_rows_updated'] = (int)($state['usage_rows_updated'] ?? 0) + (int)($done['updated'] ?? 0);
+         $state['usage_rows_removed'] = (int)($state['usage_rows_removed'] ?? 0) + (int)($done['removed'] ?? 0);
+         $state['removed_orphan_usage'] = (int)($state['removed_orphan_usage'] ?? 0) + (int)($done['removed'] ?? 0);
+         $reasons = is_array($done['reasons'] ?? null) ? $done['reasons'] : array();
+         $state['usage_inactive_removed'] = (int)($state['usage_inactive_removed'] ?? 0) + (int)($reasons['inactive'] ?? 0);
+         $state['usage_duplicate_removed'] = (int)($state['usage_duplicate_removed'] ?? 0) + (int)($reasons['duplicate'] ?? 0);
+         $state['usage_stale_removed'] = (int)($state['usage_stale_removed'] ?? 0)
+            + max(0, (int)($done['removed'] ?? 0) - (int)($reasons['inactive'] ?? 0) - (int)($reasons['duplicate'] ?? 0));
+         if ((int)($done['removed'] ?? 0) < (int)($done['planned_removed'] ?? 0)) {
+            $state['errors'] = (int)($state['errors'] ?? 0) + ((int)$done['planned_removed'] - (int)$done['removed']);
+         }
+         $state['phase'] = 'media_usage_reconcile';
+         return 'Nutzungsanalyse';
+      }
+
+      if ($type === 'media_record_purge') {
+         $done = $this->purge_invalid_media_records($db);
+         $state['purged_media_records'] = (int)($state['purged_media_records'] ?? 0) + (int)($done['removed'] ?? 0);
+         $state['deleted_thumbs'] = (int)($state['deleted_thumbs'] ?? 0) + (int)($done['deleted_thumbs'] ?? 0);
+         if ((int)($done['removed'] ?? 0) < (int)($done['found'] ?? 0)) {
+            $state['errors'] = (int)($state['errors'] ?? 0) + ((int)$done['found'] - (int)$done['removed']);
+         }
+         $state['phase'] = 'media_record_purge';
+         return 'Medien-Datenbank';
+      }
+
       if ($type === 'usage_cleanup') {
          $done = $this->cleanup_orphan_media_usage($db);
          $state['removed_orphan_usage'] = (int)($state['removed_orphan_usage'] ?? 0) + (int)($done['removed'] ?? 0);
@@ -2401,20 +2961,29 @@ class dbxContent_cms extends \dbxObj {
       }
 
       if ($type === 'database_optimize') {
-         $ok = (int)$db->optimize_tab($this->dd_media_usage);
-         if ($ok === 1) {
-            $state['database_optimized'] = 1;
-         } else {
-            $state['errors'] = (int)($state['errors'] ?? 0) + 1;
+         $optimized = 0;
+         foreach (array($this->dd_media_usage, dbxContentLng::ddContent()) as $dd) {
+            if ((int)$db->optimize_tab($dd) === 1) $optimized++;
+            else $state['errors'] = (int)($state['errors'] ?? 0) + 1;
          }
+         $state['database_optimized'] = $optimized;
          $state['phase'] = 'database_optimize';
-         return 'Datenbank';
+         return 'Datenbanken';
       }
 
       if ($type === 'record') {
          $id = (int)($task['id'] ?? 0);
          $row = $id > 0 ? $db->select1($this->dd_media, $id) : array();
          if (!is_array($row)) return '#' . $id;
+
+         if (strtolower((string)($row['storage_type'] ?? '')) === 'external' || $this->media_type($row) === 'external_video') {
+            if (!$this->media_file_exists($row) && (int)($row['active'] ?? 0) !== 0) {
+               $db->update($this->dd_media, array('active' => 0), $id);
+               $state['deactivated_media'] = (int)($state['deactivated_media'] ?? 0) + 1;
+            }
+            $state['phase'] = 'media_cleanup';
+            return (string)($row['title'] ?? ('#' . $id));
+         }
 
          $rel = ltrim(str_replace('\\', '/', (string)($row['file_path'] ?? '')), '/');
          $file = $this->file_from_media_rel($rel);
@@ -2457,11 +3026,16 @@ class dbxContent_cms extends \dbxObj {
             );
          }
 
-         if (empty($row['thumb_file_path']) || !$this->media_thumb_exists($row)) {
+         if (!$this->media_thumbnail_is_current($row)) {
+            $old_thumb = $this->source_thumb_file($row);
             $thumb = $this->create_media_thumbnail($file, $slot, $name, $meta['mime']);
             if ($thumb) {
                $update = array_merge($update, $thumb);
                $state['created_thumbs'] = (int)($state['created_thumbs'] ?? 0) + 1;
+               $new_thumb = $this->file_from_media_rel((string)($thumb['thumb_file_path'] ?? ''));
+               if ($old_thumb !== '' && $old_thumb !== $new_thumb && is_file($old_thumb) && @unlink($old_thumb)) {
+                  $state['deleted_thumbs'] = (int)($state['deleted_thumbs'] ?? 0) + 1;
+               }
             }
          }
 
@@ -2522,6 +3096,16 @@ class dbxContent_cms extends \dbxObj {
       $pause_url = $this->append_url_params($next_url, array('proc_cmd' => 'pause'));
       $autostart = ($status === 'running' && $next_url !== '') ? 1 : 0;
       $target_id = 'dbx_cms_media_process_' . substr(md5($token ?: 'media'), 0, 14);
+      $report = '<div class="dbx-cms-media-maintenance-report" aria-label="Ergebnis der Medienwartung">'
+         . '<div><strong>' . (int)($state['usage_rows_analyzed'] ?? 0) . '</strong><span>DB-Zuordnungen geprueft</span></div>'
+         . '<div><strong>' . (int)($state['actual_media_references'] ?? 0) . '</strong><span>Echte Verwendungen erkannt</span></div>'
+         . '<div><strong>' . (int)($state['usage_rows_added'] ?? 0) . '</strong><span>Zuordnungen ergaenzt</span></div>'
+         . '<div><strong>' . (int)($state['usage_rows_updated'] ?? 0) . '</strong><span>Zuordnungen korrigiert</span></div>'
+         . '<div><strong>' . (int)($state['usage_rows_removed'] ?? 0) . '</strong><span>Alt-/Fehleintraege entfernt</span></div>'
+         . '<div><strong>' . (int)($state['purged_media_records'] ?? 0) . '</strong><span>Medien-Datensaetze entfernt</span></div>'
+         . '<div><strong>' . (int)($state['cleaned_structured_refs'] ?? 0) . '</strong><span>Defekte Inhaltsverweise entfernt</span></div>'
+         . '<div><strong>' . (int)($state['database_optimized'] ?? 0) . '</strong><span>Datenbanken optimiert</span></div>'
+         . '</div>';
 
       return '<div id="' . dbx()->esc($target_id) . '"'
          . ' class="container-fluid dbx-process dbx-cms-media-process"'
@@ -2546,6 +3130,7 @@ class dbxContent_cms extends \dbxObj {
          . '<div class="dbx-process-message" data-process-message>' . dbx()->esc((string)($state['message'] ?? '')) . '</div>'
          . '<div class="dbx-process-meta"><span>Eintraege: ' . (int)($state['pos'] ?? 0) . ' / ' . (int)($state['total'] ?? 0) . '</span><span>Aktualisiert: ' . dbx()->esc((string)($state['updated_at'] ?? '')) . '</span></div>'
          . '</div>'
+         . $report
          . '<div class="dbx-process-actions">'
          . '<button type="button" class="btn btn-warning btn-sm" data-process-action="pause" data-process-visible="running" title="Anhalten"><i class="bi bi-pause-fill"></i></button>'
          . '<button type="button" class="btn btn-primary btn-sm" data-process-action="resume" data-process-visible="paused" title="Weiter"><i class="bi bi-play-fill"></i></button>'
@@ -2840,10 +3425,13 @@ class dbxContent_cms extends \dbxObj {
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
       $texts = $this->cms_texts();
-      $tree = $this->cms_tree();
-      $page_count = is_array($tree['items'] ?? null) ? count($tree['items']) : 0;
-      $folder_count = is_array($tree['folders'] ?? null) ? count($tree['folders']) : 0;
+      // Der eigentliche Content-Baum wird ueber cms_tree erst auf Anforderung
+      // geladen. Fuer die Kopfleiste reichen drei kleine COUNT-Abfragen.
+      $page_count = (int)$db->count(dbxContentLng::ddContent(), '');
+      $folder_count = (int)$db->count(dbxContentLng::ddFolder(), '');
       $active_count = $db->count(dbxContentLng::ddContent(), 'activ = 1');
+      if ($page_count < 0) $page_count = 0;
+      if ($folder_count < 0) $folder_count = 0;
       if ($active_count < 0) $active_count = 0;
 
       $cms_cid = $this->resolve_cms_page_id();
@@ -3499,6 +4087,7 @@ class dbxContent_cms extends \dbxObj {
          'activ' => $this->bool_int($payload['activ'] ?? 1, 1),
          'folder' => $folder,
          'title' => $title,
+         'menu_title' => $this->clean_text($payload['menu_title'] ?? '', 96),
          'permalink' => $permalink,
          'description' => $this->clean_text($payload['description'] ?? '', 254),
          'template' => $this->clean_text($payload['template'] ?? 'parent', 254),
@@ -3609,6 +4198,7 @@ class dbxContent_cms extends \dbxObj {
          'activ' => 1,
          'folder' => $folder,
          'title' => $title,
+         'menu_title' => '',
          'permalink' => dbxContent_permalink::build($db, dbxContentLng::ddFolder(), $folder, $title),
          'template' => 'parent',
          'hero_template' => 'parent',
@@ -4163,6 +4753,8 @@ class dbxContent_cms extends \dbxObj {
       $slot = trim((string)dbx()->get_modul_var('slot', '', 'varchar'));
       $query = trim((string)dbx()->get_modul_var('query', '', 'varchar'));
       $usage_only = (int)dbx()->get_modul_var('usage', 0, 'int');
+      $limit = max(0, min(200, (int)dbx()->get_modul_var('limit', 0, 'int')));
+      $offset = max(0, (int)dbx()->get_modul_var('offset', 0, 'int'));
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
       if ($sync) $this->sync_cms_media_files($db);
@@ -4180,21 +4772,37 @@ class dbxContent_cms extends \dbxObj {
          $q = str_replace("'", "''", $query);
          $where .= " AND (title LIKE '%$q%' OR alt LIKE '%$q%' OR caption LIKE '%$q%' OR tags LIKE '%$q%' OR file_name LIKE '%$q%')";
       }
-      $rows = $db->select($this->dd_media, $where, '*', 'media_folder,title,id');
+      $select_limit = $limit > 0 ? $limit + 1 : 0;
+      $rows = $db->select($this->dd_media, $where, '*', 'media_folder,title,id', 'ASC', '', $select_limit, $offset, 0);
       if (!is_array($rows)) $rows = array();
-      $rows = $this->filter_existing_media($db, $rows);
-      $usage_rows = $db->select($this->dd_media_usage, 'active = 1', '*', 'media_id,id', 'ASC', '', 0, 0, 0);
+      $has_more = $limit > 0 && count($rows) > $limit;
+      if ($has_more) $rows = array_slice($rows, 0, $limit);
+      $page_row_count = count($rows);
+      if ($limit <= 0) $rows = $this->filter_existing_media($db, $rows);
+
+      $usage_where = 'active = 1';
+      if ($limit > 0) {
+         $page_media_ids = array_values(array_filter(array_map(function($row) {
+            return (int)($row['id'] ?? 0);
+         }, $rows)));
+         $usage_where .= $page_media_ids
+            ? ' AND media_id IN (' . implode(',', $page_media_ids) . ')'
+            : ' AND 1 = 0';
+      }
+      $usage_rows = $db->select($this->dd_media_usage, $usage_where, '*', 'media_id,id', 'ASC', '', 0, 0, 0);
       $usage_count = array();
       $usage_pages = $this->media_usage_page_map($db, $usage_rows);
       $current_usage = array();
       $current_usage_row = array();
+      $has_usage_context = $content_id > 0 || $folder_id > 0 || $slot !== '';
       if (is_array($usage_rows)) {
          foreach ($usage_rows as $usage) {
             if (!is_array($usage)) continue;
             $mid = (int)($usage['media_id'] ?? 0);
             if ($mid <= 0) continue;
             $usage_count[$mid] = ($usage_count[$mid] ?? 0) + 1;
-            if (($content_id <= 0 || (int)($usage['content_id'] ?? 0) === $content_id)
+            if ($has_usage_context
+                && ($content_id <= 0 || (int)($usage['content_id'] ?? 0) === $content_id)
                 && ($folder_id <= 0 || (int)($usage['folder_id'] ?? 0) === $folder_id)
                 && ($slot === '' || (string)($usage['slot'] ?? '') === $slot)) {
                $current_usage[$mid] = (int)($usage['id'] ?? 0);
@@ -4223,7 +4831,12 @@ class dbxContent_cms extends \dbxObj {
             return (int)($row['current_usage_id'] ?? 0) > 0;
          }));
       }
-      $this->cms_json_response(array('ok' => 1, 'rows' => $rows));
+      $this->cms_json_response(array(
+         'ok' => 1,
+         'rows' => $rows,
+         'has_more' => $has_more ? 1 : 0,
+         'next_offset' => $limit > 0 ? $offset + $page_row_count : 0,
+      ));
    }
 
    private function media_usage_rows_for_context($db, $content_id = 0, $folder_id = 0, $slot = '') {
@@ -5215,7 +5828,7 @@ class dbxContent_cms extends \dbxObj {
       foreach (dbxContentLngSync::accessibleLngs() as $lng) {
          $contentDd = dbxContentLng::ddContent((string)$lng);
          $folderDd = dbxContentLng::ddFolder((string)$lng);
-         if ($db->count($contentDd, 'hero_image_id = ' . $id) > 0 || $db->count($folderDd, 'hero_image_id = ' . $id) > 0) {
+         if ($db->count($contentDd, 'hero_image_id = ' . $id . ' OR seo_image_id = ' . $id) > 0 || $db->count($folderDd, 'hero_image_id = ' . $id) > 0) {
             return true;
          }
          $pages = $db->select($contentDd, '', 'content', 'id', 'ASC', '', 0, 0, 0);
@@ -5773,10 +6386,12 @@ class dbxContent_cms extends \dbxObj {
          'meta_robots' => 'index,follow',
          'seo_title' => '',
          'seo_image_id' => 0,
+         'menu_title' => '',
       );
       $form->add_fld('id', 'dbxContent_admin|cms-field-hidden', data: array('cms_field' => 'id'));
       $form->add_fld('folder', 'dbxContent_admin|cms-field-hidden', data: array('cms_field' => 'folder'));
       $form->add_fld('title', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_title'), rules: 'varchar|min=1', data: array('cms_field' => 'title'));
+      $form->add_fld('menu_title', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_menu_title'), rules: 'varchar|max=96', data: array('cms_field' => 'menu_title'), placeholder: $texts->get_fd_message('placeholder_menu_title'));
       $form->add_fld('permalink', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_permalink'), rules: 'permalink|max=254', data: array('cms_field' => 'permalink'), tooltip: $texts->get_fd_message('tooltip_permalink'));
       $form->add_fld('activ', 'dbxContent_admin|cms-field-select', label: $texts->get_fd_message('label_status'), rules: 'int', data: array('cms_field' => 'activ'), options: array('1' => $texts->get_fd_message('option_active'), '0' => $texts->get_fd_message('option_inactive')));
       $form->add_fld('template', 'dbxContent_admin|cms-field-content-template-select', label: $texts->get_fd_message('label_template'), rules: 'varchar', data: array('cms_field' => 'template'), options: $this->content_template_values());

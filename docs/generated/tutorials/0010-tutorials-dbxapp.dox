@@ -1,0 +1,132 @@
+/**
+@page dbxcontent_tutorial_tutorials_dbxapp dbxapp Tutorials
+
+<!-- Automatisch aus content_de#79 erzeugt. Nicht direkt bearbeiten. -->
+
+@htmlonly
+<div class="dbx-doc-meta"><span>Anwender-Tutorial</span><span>dbxContent #79</span><span>Permalink: <code>tutorials-dbxapp</code></span></div>
+@endhtmlonly
+
+> **Kurzbeschreibung:** dbxapp Tutorials für Login, Admin-Dashboard, dbxContent-Felder, CMS-Editor, dbxKi, Shop-Dashboard, Shop-Administration, Frontend und Workflows.
+
+@htmlonly
+<div class="dbx-tutorial-source">
+<p class="lead">Diese Tutorials erklären dbxapp vom ersten Login bis zu Content-, Shop- und Workflow-Aufgaben. Jede Seite kombiniert Screenshots mit ausführlichen Schrittfolgen, Kontrollpunkten und typischen Fehlern.</p>
+
+<h2>Grundlagen</h2>
+<div class="list-group mb-4">
+  <a href="dbxcontent_tutorial_tutorial_login_profil_passwort.html">Tutorial: Login, Profil und PasswortAnmeldung, Avatar-Menü, Profilbild und eigenes Passwort.</a>
+  <a href="dbxcontent_tutorial_tutorial_admin_dashboard.html">Tutorial: Admin DashboardDashboard-Bereiche, Statuskarten und Systemübersicht.</a>
+  <a href="dbxcontent_tutorial_tutorial_menue_benutzen.html">Tutorial: Menü benutzenHauptmenü und geöffnete Untermenüs sicher benutzen.</a>
+</div>
+
+<h2>dbxContent und dbxKi</h2>
+<div class="list-group mb-4">
+  <a href="dbxcontent_tutorial_tutorial_dbxki_ki_cms.html">Tutorial: dbxContent mit dbxKiNeue Seiten, gezielte Änderungen, CMS-Prüfung, Medien und Übersetzungen als vollständiger Arbeitsablauf.</a>
+  <a href="dbxcontent_tutorial_tutorial_frontpage_direkt_cms.html">Tutorial: Frontpage direkt bearbeitenContent direkt aus der sichtbaren Frontpage im CMS öffnen.</a>
+  <a href="dbxcontent_tutorial_tutorial_cms_content_tree.html">Tutorial: CMS Content TreeContent Tree, Ordner, Seiten, Sprachen und Aktionen.</a>
+  <a href="dbxcontent_tutorial_tutorial_cms_felder_editor.html">Tutorial: CMS Felder, Kopfleiste und EinstellungenAlle Aktionen der CMS-Kopfleiste, Seitenfelder sowie Hero, Gallery und Inline-Medien Schritt für Schritt.</a>
+  <a href="dbxcontent_tutorial_tutorial_cms_editor.html">Tutorial: CMS EditorAlle Schaltflächen und Untermenüs des Editors: Text, Listen, Links, Medien, Module, Komponenten, Marker und Quelltext.</a>
+  <a href="dbxcontent_tutorial_tutorial_cms_medienverwendung.html">Tutorial: CMS MedienverwendungHero, Gallery und Inline-Medien im rechten CMS-Bereich.</a>
+  <a href="dbxcontent_tutorial_tutorial_medienbrowser.html">Tutorial: MedienbrowserMedien suchen, organisieren, hochladen, auswählen und bearbeiten.</a>
+  <a href="dbxcontent_tutorial_tutorial_medienwartung_seo.html">Tutorial: Medienwartung und SEOUnbenutzte Medien, Übersetzung, SEO und OG-Bild.</a>
+</div>
+
+<h2>Design</h2>
+<div class="list-group mb-4">
+  <a href="dbxcontent_tutorial_tutorial_design_manuell_dbxki.html">Tutorial: Designs manuell und mit dbxKi erstellenDesign-Wizard, manuelle Feinarbeit, KI-Designauftrag, sichere Antwort-ZIP, drei reale Designbeispiele und vollständige Kompatibilitätsprüfung.</a>
+</div>
+
+<h2>Shop</h2>
+<div class="list-group mb-4">
+  <a href="dbxcontent_tutorial_tutorial_shop_dashboard.html">Tutorial: Shop DashboardAlle Kennzahlen und Arbeitsbereiche des Shop-Dashboards mit eigenen Screenshots, Bedienabläufen und Auswirkungen.</a>
+  <a href="dbxcontent_tutorial_tutorial_shop_admin.html">Tutorial: Shop administrierenGrundeinstellungen, Artikel, Medien, Zahlungen, Channels und Bestellungen.</a>
+  <a href="dbxcontent_tutorial_tutorial_shop_frontend.html">Tutorial: Shop im Frontend benutzenKatalog, Produktdetail, Warenkorb, Kasse, Rechtliches und Bestellstatus.</a>
+</div>
+
+<h2>Workflow</h2>
+<div class="list-group mb-4">
+  <a href="dbxcontent_tutorial_tutorial_workflow_erstellen.html">Tutorial: Workflow erstellenDefinition, Bausteine, Entscheidungen, Automatik, Modul-Bindings und Tests.</a>
+  <a href="dbxcontent_tutorial_tutorial_workflow_nutzen.html">Tutorial: Workflow benutzenStart, Aufgaben, Fachmodule, Fortschritt, Review, Abschluss und Fehlersuche.</a>
+</div>
+
+<div class="alert alert-info mb-0"><strong>Empfehlung:</strong> Neue Benutzer beginnen mit Login und Menü. Redakteure lesen CMS Content Tree, CMS Felder und danach das eigene Editor-Tutorial. Shop-Verantwortliche lesen Shop-Dashboard, Administration und Frontend zusammen. Workflow-Administratoren bearbeiten zuerst „Workflow erstellen“ und testen anschließend mit „Workflow benutzen“.</div>
+</div>
+@endhtmlonly
+
+## Screenshots aus dbxContent (32)
+
+@htmlonly
+<div class="dbx-tutorial-gallery">
+@endhtmlonly
+@image html dbxcontent-media-119-fachanwendungen-auf-dbxapp.webp "Viele Fachanwendungen auf einer gemeinsamen Infrastruktur"
+
+@image html dbxcontent-media-120-integration-bestehender-systeme.webp "Bestehende Systeme werden angebunden und gemeinsam genutzt"
+
+@image html dbxcontent-media-121-vom-bedarf-zur-fachanwendung.webp "Geführter Weg von der Fachanforderung zur Anwendung"
+
+@image html dbxcontent-media-375-dbxapp-mobile.webp "dbxapp Mobile"
+
+@image html dbxcontent-media-341-dbxapp-laptop-sleeve.webp "dbxapp Laptop Sleeve"
+
+@image html dbxcontent-media-342-dbxapp-smartphone-huelle.webp "dbxapp Smartphone-Huelle"
+
+@image html dbxcontent-media-343-dbxapp-beanie.webp "dbxapp Beanie"
+
+@image html dbxcontent-media-344-dbxapp-socken.webp "dbxapp Socken"
+
+@image html dbxcontent-media-345-dbxapp-poster.webp "dbxapp Poster"
+
+@image html dbxcontent-media-346-dbxapp-schluesselanhaenger.webp "dbxapp Schluesselanhaenger"
+
+@image html dbxcontent-media-347-dbxapp-powerbank.webp "dbxapp Powerbank"
+
+@image html dbxcontent-media-348-dbxapp-usb-stick.webp "dbxapp USB-Stick"
+
+@image html dbxcontent-media-349-dbxapp-thermobecher.webp "dbxapp Thermobecher"
+
+@image html dbxcontent-media-350-dbxapp-trinkflasche.webp "dbxapp Trinkflasche"
+
+@image html dbxcontent-media-351-dbxapp-stofftasche.webp "dbxapp Stofftasche"
+
+@image html dbxcontent-media-352-dbxapp-lanyard.webp "dbxapp Lanyard"
+
+@image html dbxcontent-media-353-dbxapp-kugelschreiber-set.webp "dbxapp Kugelschreiber Set"
+
+@image html dbxcontent-media-354-dbxapp-notizbuch.webp "dbxapp Notizbuch"
+
+@image html dbxcontent-media-355-dbxapp-sticker-set.webp "dbxapp Sticker Set"
+
+@image html dbxcontent-media-356-dbxapp-deskmat.webp "dbxapp Deskmat"
+
+@image html dbxcontent-media-357-dbxapp-mauspad-xl.webp "dbxapp Mauspad XL"
+
+@image html dbxcontent-media-358-dbxapp-mauspad-classic.webp "dbxapp Mauspad Classic"
+
+@image html dbxcontent-media-359-dbxapp-kaffeetasse-weiss.webp "dbxapp Kaffeetasse Weiss"
+
+@image html dbxcontent-media-360-dbxapp-kaffeetasse-blau.webp "dbxapp Kaffeetasse Blau"
+
+@image html dbxcontent-media-361-hoodie-mit-dbxapp-logo.webp "Hoodie mit dbxapp Logo"
+
+@image html dbxcontent-media-362-hoodie.svg "Hoodie"
+
+@image html dbxcontent-media-363-kappe-mit-dbxapp-logo.webp "Kappe mit dbxapp Logo"
+
+@image html dbxcontent-media-364-kappe.svg "Kappe"
+
+@image html dbxcontent-media-365-t-shirt-mit-dbxapp-logo.webp "T-Shirt mit dbxapp Logo"
+
+@image html dbxcontent-media-366-t-shirt.svg "T-Shirt"
+
+@image html dbxcontent-media-367-zubehoer.svg "Zubehoer"
+
+@image html dbxcontent-media-368-service-und-schulung.svg "Service und Schulung"
+
+@htmlonly
+</div>
+@endhtmlonly
+
+@note Quelle: deutsche dbxContent-Seite `content_de#79`. Generiert am 28. Juli 2026 über DD, dbxDB und Medienzuordnungen.
+
+*/

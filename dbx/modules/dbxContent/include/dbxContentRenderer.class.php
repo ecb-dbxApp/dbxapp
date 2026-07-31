@@ -131,7 +131,7 @@ class dbxContentRenderer {
       $hero_style = $this->css_custom_properties(array(
          'cms-hero-margin-top' => $this->css_length_value($settings['hero_margin_top'] ?? '0', '0'),
          'cms-hero-height' => $this->css_length_value($settings['hero_height'] ?? 'auto', 'auto'),
-      ) + $this->hero_text_custom_properties($settings['hero_height'] ?? 'auto'));
+      ) + $this->hero_content_custom_properties($settings['hero_height'] ?? 'auto'));
       $gallery_style = $this->css_custom_properties(array(
          'dbx-gallery-visible-count' => (string)max(1, min(12, (int)($settings['gallery_visible_count'] ?? 3))),
          'dbx-gallery-aspect-ratio' => $this->gallery_aspect_ratio($settings['gallery_image_size'] ?? 'original'),
@@ -158,7 +158,7 @@ class dbxContentRenderer {
          'col_3' => $parsed['col3'],
          'content:h1' => $parsed['h1'],
          'content:header' => $parsed['header'],
-         'content:hero_text' => $parsed['hero_text'],
+         'content:hero' => $parsed['hero'],
          'content:teaser' => $parsed['teaser'],
          'content:thesar' => $parsed['teaser'],
          'content:footer' => $parsed['footer'],
@@ -167,7 +167,6 @@ class dbxContentRenderer {
          'content:col2' => $parsed['col2'],
          'content:col3' => $parsed['col3'],
          'cms:title' => $this->render_title_slot($tpl, $template_html, (string)($rec['title'] ?? '')),
-         'cms:hero_text' => $this->render_inline($tpl, 'hero', $parsed['hero_text'], 'hero'),
          'cms:header' => $this->render_inline($tpl, 'header', $parsed['header']),
          'cms:teaser' => $this->render_inline($tpl, 'header', $parsed['header'], 'header'),
          'cms:content' => $this->render_inline($tpl, 'content', $parsed['content']),
@@ -202,9 +201,18 @@ class dbxContentRenderer {
          'gallery:style' => $gallery_style,
       ));
       $merge = array_merge($merge, $this->render_media_merge($db, $tpl, $cid, $slots, $rec, $settings));
-      $merge['cms:hero'] = $merge['media:hero'] ?? '';
+      $hero_media = trim((string)($merge['media:hero'] ?? ''));
+      $hero_content = $this->render_inline($tpl, 'hero', $parsed['hero'], 'hero');
+      $hero_content = trim((string)$hero_content);
+      $merge['cms:hero'] = $hero_media
+         . ($hero_content !== '' ? '<div class="hero-content">' . $hero_content . '</div>' : '');
       $merge['cms:gallery'] = $merge['media:gallery'] ?? '';
-      $merge['cms:hero_class'] = trim((trim($merge['cms:hero']) !== '' ? 'has-hero ' : 'no-hero ') . ($merge['hero:class'] ?? ''));
+      $hero_state_classes = array(
+         ($hero_media !== '' || $hero_content !== '') ? 'has-hero' : 'no-hero',
+         $hero_media !== '' ? 'has-hero-media' : '',
+         $hero_content !== '' ? 'has-hero-content' : '',
+      );
+      $merge['cms:hero_class'] = trim(implode(' ', array_filter($hero_state_classes)) . ' ' . ($merge['hero:class'] ?? ''));
       $merge['cms:gallery_class'] = trim((trim($merge['cms:gallery']) !== '' ? 'has-gallery ' : 'no-gallery ') . ($merge['gallery:class'] ?? ''));
       $has_gallery_slot = !empty($slots['media']['gallery']) || !empty($slots['cms']['gallery']);
       $has_gallery_media = trim((string)($merge['cms:gallery'] ?? '')) !== '';
@@ -267,7 +275,11 @@ class dbxContentRenderer {
       }
 
       $keywords = trim((string)($rec['keywords'] ?? ''));
-      $canonical = $this->seoCanonicalUrl((string)($rec['permalink'] ?? ''));
+      $currentLng = strtolower(trim((string)dbx()->get_system_var('dbx_lng', 'de')));
+      if ($currentLng === '') $currentLng = 'de';
+      $isHomePage = $currentLng === dbxContentLngSync::masterLng()
+         && dbxContentHome::masterCid() === $cid;
+      $canonical = $this->seoCanonicalUrl((string)($rec['permalink'] ?? ''), $isHomePage);
       $activ = (int)($rec['activ'] ?? 1);
       $metaRobots = trim((string)($rec['meta_robots'] ?? ''));
       if ($metaRobots === '') {
@@ -278,9 +290,6 @@ class dbxContentRenderer {
 
       $og_title = $displayTitle;
       $og_image = $this->seoOgImageUrl($db, $rec);
-      $currentLng = strtolower(trim((string)dbx()->get_system_var('dbx_lng', 'de')));
-      if ($currentLng === '') $currentLng = 'de';
-
       dbx()->set_system_var('dbx_meta_description', $description);
       dbx()->set_system_var('dbx_meta_keywords', $keywords);
       dbx()->set_system_var('dbx_canonical', $canonical);
@@ -526,8 +535,8 @@ class dbxContentRenderer {
             $slot = strtolower($slot);
             $slots['cms'][$slot] = 1;
             if (in_array($slot, array('hero', 'gallery'), true)) $slots['media'][$slot] = 1;
+            if ($slot === 'hero') $slots['content']['hero'] = 1;
             if ($slot === 'header') $slots['content']['header'] = 1;
-            if ($slot === 'hero_text') $slots['content']['hero_text'] = 1;
             if ($slot === 'teaser') $slots['content']['teaser'] = 1;
             if ($slot === 'content') $slots['content']['content'] = 1;
             if ($slot === 'footer') $slots['content']['footer'] = 1;
@@ -556,12 +565,12 @@ class dbxContentRenderer {
       $footer_blocks = $segments['footer'];
       $body_blocks = $segments['content'];
 
-      $has_hero_text_slot = !empty($slots['content']['hero_text']) || !empty($slots['cms']['hero_text']);
+      $has_hero_slot = !empty($slots['content']['hero']) || !empty($slots['cms']['hero']);
       $has_header_slot = !empty($slots['content']['header']) || !empty($slots['content']['teaser'])
          || !empty($slots['content']['thesar']) || !empty($slots['cms']['header']);
       $has_footer_slot = !empty($slots['content']['footer']) || !empty($slots['cms']['footer']);
 
-      if (!$has_hero_text_slot) {
+      if (!$has_hero_slot) {
          $body_blocks = array_merge($hero_blocks, $body_blocks);
          $hero_blocks = array();
       }
@@ -581,7 +590,7 @@ class dbxContentRenderer {
 
       return array(
          'h1' => '',
-         'hero_text' => $this->strip_dbx_markers($this->join_blocks($hero_blocks)),
+         'hero' => $this->strip_dbx_markers($this->join_blocks($hero_blocks)),
          'header' => $this->strip_dbx_markers($this->join_blocks($header_blocks)),
          'teaser' => $this->strip_dbx_markers($this->join_blocks($header_blocks)),
          'footer' => $this->strip_dbx_markers($this->join_blocks($footer_blocks)),
@@ -1190,12 +1199,18 @@ class dbxContentRenderer {
 
    private function marker_name_from_html($html) {
       $html = (string)$html;
-      if (preg_match('/<!--\s*dbx:([a-z0-9_-]+)/i', $html, $m)) return strtolower($m[1]);
-      if (preg_match('/\bdata-dbx-marker=["\'](?:dbx:)?([a-z0-9_-]+)["\']/i', $html, $m)) return strtolower($m[1]);
-      if (preg_match('/\bclass=["\'][^"\']*\bdbx-cms-marker-([a-z0-9_-]+)\b/i', $html, $m)) return strtolower($m[1]);
-      if (preg_match('/\bclass=["\'][^"\']*\bdbx_marker_([a-z0-9_-]+)\b/i', $html, $m)) return strtolower($m[1]);
+      if (preg_match('/<!--\s*dbx:([a-z0-9_-]+)/i', $html, $m)) return $this->canonical_marker_name($m[1]);
+      if (preg_match('/\bdata-dbx-marker=["\'](?:dbx:)?([a-z0-9_-]+)["\']/i', $html, $m)) return $this->canonical_marker_name($m[1]);
+      if (preg_match('/\bclass=["\'][^"\']*\bdbx-cms-marker-([a-z0-9_-]+)\b/i', $html, $m)) return $this->canonical_marker_name($m[1]);
+      if (preg_match('/\bclass=["\'][^"\']*\bdbx_marker_([a-z0-9_-]+)\b/i', $html, $m)) return $this->canonical_marker_name($m[1]);
       if (preg_match('/\bclass=["\'][^"\']*\bdbx_split\b/i', $html)) return 'col2';
       return '';
+   }
+
+   private function canonical_marker_name($name) {
+      $name = strtolower(trim((string)$name));
+      if (in_array($name, array('hero_text', 'hero-text', 'herotext'), true)) return 'hero';
+      return $name;
    }
 
    private function convert_mod_placeholders($html) {
@@ -1344,6 +1359,7 @@ class dbxContentRenderer {
       $autoplay = !empty($video_options['autoplay']);
       $loop = !empty($video_options['loop']);
       $muted = !empty($video_options['muted']);
+      $align = (string)($video_options['align'] ?? 'left');
       if ($autoplay) {
          $muted = true;
       }
@@ -1351,7 +1367,7 @@ class dbxContentRenderer {
       $title = htmlspecialchars((string)($row['title'] ?? $row['alt'] ?? $row['file_name'] ?? 'Video'), ENT_QUOTES, 'UTF-8');
       $caption = trim((string)($row['caption'] ?? ''));
       $caption_html = $caption !== '' ? '<figcaption>' . htmlspecialchars($caption, ENT_QUOTES, 'UTF-8') . '</figcaption>' : '';
-      $figure_attr = ' class="dbx-content-inline-media dbx-content-inline-video" data-media-id="' . $id . '"' . $style;
+      $figure_attr = ' class="dbx-content-inline-media dbx-content-inline-video" data-media-id="' . $id . '" data-video-align="' . htmlspecialchars($align, ENT_QUOTES, 'UTF-8') . '"' . $style;
 
       if ($type === 'external_video') {
          $url = (string)($row['embed_url'] ?? $row['external_url'] ?? '');
@@ -1382,6 +1398,7 @@ class dbxContentRenderer {
 
       $width = $this->attr_value_from_html($source_attrs, 'data-cms-video-width');
       $height = $this->attr_value_from_html($source_attrs, 'data-cms-video-height');
+      $align_raw = $this->attr_value_from_html($source_attrs, 'data-cms-video-align');
       if ($width === '') $width = $this->attr_value_from_html($source_attrs, 'width');
       if ($height === '') $height = $this->attr_value_from_html($source_attrs, 'height');
 
@@ -1391,6 +1408,7 @@ class dbxContentRenderer {
          if ($height === '') $height = $this->attr_value_from_html($media_attrs, 'data-cms-video-height');
          if ($width === '') $width = $this->attr_value_from_html($media_attrs, 'width');
          if ($height === '') $height = $this->attr_value_from_html($media_attrs, 'height');
+         if ($align_raw === '') $align_raw = $this->attr_value_from_html($media_attrs, 'data-cms-video-align');
          if ($style === '' && preg_match('/\sstyle=(["\'])(.*?)\1/i', $media_attrs, $style_match)) {
             $style = $this->safe_inline_video_style($style_match[2]);
          }
@@ -1401,6 +1419,18 @@ class dbxContentRenderer {
       $style_parts = $this->style_to_map($style);
       if ($width !== '') $style_parts['width'] = $width;
       if ($height !== '') $style_parts['height'] = $height;
+      $align = $this->inline_video_align_value($align_raw, $style_parts);
+      if ($align === 'center') {
+         unset($style_parts['float']);
+         $style_parts['margin-left'] = 'auto';
+         $style_parts['margin-right'] = 'auto';
+      } elseif ($align === 'right') {
+         unset($style_parts['float']);
+         $style_parts['margin-left'] = 'auto';
+         $style_parts['margin-right'] = '0px';
+      } elseif ($align_raw !== '') {
+         unset($style_parts['float'], $style_parts['margin-left'], $style_parts['margin-right']);
+      }
 
       $autoplay_raw = $this->attr_value_from_html($source_attrs, 'data-cms-video-autoplay');
       if ($autoplay_raw === '' && (string)$source_html !== '' && preg_match('/<(?:img|video|iframe)\b([^>]*)>/i', (string)$source_html, $media_match)) {
@@ -1421,7 +1451,18 @@ class dbxContentRenderer {
          'autoplay' => preg_match('/^(1|true|yes|ja|on)$/i', trim((string)$autoplay_raw)) === 1,
          'loop' => preg_match('/^(1|true|yes|ja|on)$/i', trim((string)$loop_raw)) === 1,
          'muted' => preg_match('/^(1|true|yes|ja|on)$/i', trim((string)$muted_raw)) === 1,
+         'align' => $align,
       );
+   }
+
+   private function inline_video_align_value($value, array $style = array()) {
+      $value = strtolower(trim((string)$value));
+      if (in_array($value, array('left', 'center', 'right'), true)) return $value;
+      $margin_left = strtolower(trim((string)($style['margin-left'] ?? '')));
+      $margin_right = strtolower(trim((string)($style['margin-right'] ?? '')));
+      if ($margin_left === 'auto' && $margin_right === 'auto') return 'center';
+      if ($margin_left === 'auto') return 'right';
+      return 'left';
    }
 
    private function attr_value_from_html($attrs, $name) {
@@ -1833,19 +1874,19 @@ class dbxContentRenderer {
       return $value;
    }
 
-   private function hero_text_custom_properties($height) {
-      $scale = $this->hero_text_scale($height);
+   private function hero_content_custom_properties($height) {
+      $scale = $this->hero_content_scale($height);
       return array(
-         'cms-hero-text-scale' => $this->css_number($scale),
-         'cms-hero-text-size' => $this->css_px(18 * $scale),
+         'cms-hero-content-scale' => $this->css_number($scale),
+         'cms-hero-content-size' => $this->css_px(18 * $scale),
          'cms-hero-title-size' => $this->css_px(46 * $scale),
          'cms-hero-subtitle-size' => $this->css_px(30 * $scale),
-         'cms-hero-text-padding' => $this->css_px(10 * $scale),
-         'cms-hero-text-offset' => $this->css_px(34 * $scale),
+         'cms-hero-content-padding' => $this->css_px(10 * $scale),
+         'cms-hero-content-offset' => $this->css_px(34 * $scale),
       );
    }
 
-   private function hero_text_scale($height) {
+   private function hero_content_scale($height) {
       $px = $this->css_length_to_px($height);
       if ($px <= 0) return 1.0;
 
@@ -1940,7 +1981,18 @@ class dbxContentRenderer {
       return rtrim((string)dbx()->get_base_url(), '/') . '/' . ltrim($path, '/');
    }
 
-   private function seoCanonicalUrl($permalink) {
+   /**
+    * Liefert die kanonische URL einer Inhaltsseite.
+    *
+    * Die konfigurierte Startseite ist unter der Basis-URL kanonisch. Ihr
+    * interner Permalink bleibt zur Inhaltsauflösung erhalten, erzeugt aber
+    * keine zweite indexierbare Startseiten-URL.
+    */
+   private function seoCanonicalUrl($permalink, bool $isHomePage = false) {
+      if ($isHomePage) {
+         return rtrim((string)dbx()->get_base_url(), '/') . '/';
+      }
+
       $permalink = trim((string)$permalink);
       if ($permalink !== '' && preg_match('/^https?:\/\//i', $permalink)) {
          return $permalink;
@@ -2013,6 +2065,8 @@ class dbxContentRenderer {
 
       $alternates = array();
       $escapedUid = str_replace("'", "''", $lngUid);
+      $isHomeGroup = dbxContentHome::resolveCid($currentLng) === (int)($rec['id'] ?? 0);
+      $masterLng = dbxContentLngSync::masterLng();
 
       foreach ($lngs as $lng) {
          $lng = strtolower(trim((string)$lng));
@@ -2023,7 +2077,10 @@ class dbxContentRenderer {
 
          $alternates[] = array(
             'lng' => $lng,
-            'url' => $this->seoCanonicalUrl($permalink),
+            'url' => $this->seoCanonicalUrl(
+               $permalink,
+               $isHomeGroup && $lng === $masterLng
+            ),
          );
       }
 
@@ -2107,7 +2164,7 @@ class dbxContentRenderer {
       $html = preg_replace('/<footer\b([^>]*class="[^"]*\bdbx-content-footer\b[^"]*"[^>]*)>\s*<\/footer>/i', '', $html);
       $html = preg_replace('/<div\b([^>]*class="[^"]*\bdbx-content-teaser\b[^"]*"[^>]*)>\s*<\/div>/i', '', $html);
       $html = preg_replace('/<section\b([^>]*class="[^"]*\bdbx-content-hero\b[^"]*"[^>]*)>\s*<\/section>/i', '', $html);
-      $html = preg_replace('/<div\b([^>]*class="[^"]*\bhero-text\b[^"]*"[^>]*)>\s*<\/div>/i', '', $html);
+      $html = preg_replace('/<div\b([^>]*class="[^"]*\bhero-content\b[^"]*"[^>]*)>\s*<\/div>/i', '', $html);
       return $html;
    }
 }

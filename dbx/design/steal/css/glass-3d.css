@@ -505,8 +505,8 @@ body.dbx-app .cms-hero .dbx-media {
         0 28px 64px color-mix(in srgb, var(--dbx-primary) 13%, transparent);
 }
 
-body.dbx-app .cms-hero .hero-text,
-body.dbx-app .dbx-hero .hero-text {
+body.dbx-app .cms-hero .hero-content,
+body.dbx-app .dbx-hero .hero-content {
     background:
         linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.34)),
         color-mix(in srgb, var(--dbx-bg-panel) 58%, transparent);
@@ -774,8 +774,8 @@ body.dbx-app.skin-dunkel .btn-outline-secondary {
         var(--dbx-glass-surface-soft);
 }
 
-body.dbx-app.theme-dark .cms-hero .hero-text,
-body.dbx-app.skin-dunkel .cms-hero .hero-text {
+body.dbx-app.theme-dark .cms-hero .hero-content,
+body.dbx-app.skin-dunkel .cms-hero .hero-content {
     background:
         linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04)),
         rgba(6, 13, 24, 0.68);

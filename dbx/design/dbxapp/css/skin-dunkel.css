@@ -241,7 +241,7 @@ body.dbx-app.skin-dunkel :where(.text-muted, .text-secondary) {
     color: var(--dbx-text-muted) !important;
 }
 
-body.dbx-app.skin-dunkel .cms-hero .hero-text {
+body.dbx-app.skin-dunkel .cms-hero .hero-content {
     color: var(--dbx-text-main) !important;
 }
 

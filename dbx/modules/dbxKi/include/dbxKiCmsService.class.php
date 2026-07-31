@@ -284,13 +284,15 @@ class dbxKiCmsService {
                'Verwendete Inline-/Gallery-/Hero-Medien mit media.assign zuordnen.',
                'dbxKi importiert job.json, validiert jeden Step und fuehrt den Prozess aus.',
             ),
-            'fixed_rules' => array(
-               'folder_id, lng und title aus dem Auftrag nicht eigenmaechtig aendern.',
-               'template nur aus Auftrag/Guide verwenden; bei Root-Seiten nie parent verwenden.',
-               'Kein SQL, keine direkten Dateipfade files/media/... in img src.',
-               'HTML ist erlaubt; Bootstrap-5-Klassen sind erlaubt; kein eigenes JavaScript.',
-               'Hero-Bilder unter img/hero, Gallery-Bilder unter img/gallery, normale Inline-Bilder unter img/images.',
-            ),
+             'fixed_rules' => array(
+                'folder_id, lng und title aus dem Auftrag nicht eigenmaechtig aendern.',
+                'template nur aus Auftrag/Guide verwenden; bei Root-Seiten nie parent verwenden.',
+                'Kein SQL, keine direkten Dateipfade files/media/... in img src.',
+                'HTML ist erlaubt; Bootstrap-5-Klassen sind erlaubt; kein eigenes JavaScript.',
+                'Hero-Bilder unter img/hero, Gallery-Bilder unter img/gallery, normale Inline-Bilder unter img/images.',
+                'Ein Seitenkopf mit Bild und ueberlagertem Text ist immer ein CMS-Hero: Bild per media.assign slot=hero und hero_image_id/hero_template setzen; Hero-Text vor den dbx:hero-Marker schreiben.',
+                'Niemals einen Hero als Inline-Bild mit position-relative/position-absolute im Content nachbauen.',
+             ),
          ),
          'page_update' => array(
             'guide_action' => 'page.update_guide',
@@ -302,12 +304,14 @@ class dbxKiCmsService {
                'page.update nur fuer Seitenfelder verwenden; Medien danach bei Bedarf mit media.assign verknuepfen.',
                'dbxKi importiert job.json, validiert jeden Step und fuehrt den Prozess aus.',
             ),
-            'fixed_rules' => array(
-               'id, lng und permalink der Zielseite nicht eigenmaechtig aendern.',
-               'Kein page.delete in KI-Auftraegen.',
-               'Keine vorhandenen Medienpfade manuell umschreiben.',
-               'Wenn content nicht in change_fields steht, content unveraendert lassen.',
-            ),
+             'fixed_rules' => array(
+                'id, lng und permalink der Zielseite nicht eigenmaechtig aendern.',
+                'Kein page.delete in KI-Auftraegen.',
+                'Keine vorhandenen Medienpfade manuell umschreiben.',
+                'Wenn content nicht in change_fields steht, content unveraendert lassen.',
+                'Hero-Aenderungen nur ueber page.hero_replace_image/page.hero_create_image oder Hero-Felder plus media.assign slot=hero ausfuehren.',
+                'Keinen Inline-Schein-Hero mit absolut positioniertem Text am Seitenanfang erzeugen.',
+             ),
          ),
       );
    }
@@ -494,8 +498,13 @@ class dbxKiCmsService {
       return array(
          'html_allowed' => true,
          'bootstrap_allowed' => true,
-         'forbidden' => array('SQL', 'direkte SQLite-Aenderungen', 'eigene PHP-Tools', 'eigene JavaScript-Logik im Content', 'files/media/... als img src'),
+         'forbidden' => array('SQL', 'direkte SQLite-Aenderungen', 'eigene PHP-Tools', 'eigene JavaScript-Logik im Content', 'files/media/... als img src', 'Inline-Schein-Hero mit position-relative/position-absolute'),
          'inline_media' => 'Immer inline_src/index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid={id} plus data-cms-media-id verwenden.',
+         'hero' => array(
+            'image' => 'Das Hero-Bild gehoert in die CMS-Hero-Zuordnung (slot=hero und hero_image_id), niemals in content.',
+            'text' => 'Hero-Text steht vor dem hr-Marker data-dbx-marker="dbx:hero".',
+            'validation' => 'dbxKi lehnt einen Inline-Bildblock mit absolut ueberlagertem Hero-Text am Seitenanfang ab.',
+         ),
          'openwin' => 'openWin nur ueber class dbx-win und data-dbx="lib=openWin|url=...|title=...|width=...|height=..." verwenden.',
          'markers' => array(
             'dbx:hero' => 'Text davor wird Hero-Text.',
@@ -1166,11 +1175,13 @@ class dbxKiCmsService {
       if ($folder > 0 && !is_array($this->db->select1(dbxContentLng::ddFolder($lng), $folder))) {
          throw new \RuntimeException('Zielordner nicht gefunden.');
       }
+      $data = $this->page_data($params, $lng, $folder, $title);
+      $this->assert_no_fake_inline_hero((string)($data['content'] ?? ''));
       return array(
          'operation' => 'insert',
          'entity' => 'page',
          'lng' => $lng,
-         'data' => $this->page_data($params, $lng, $folder, $title),
+         'data' => $data,
       );
    }
 
@@ -1189,13 +1200,14 @@ class dbxKiCmsService {
       $packageImageAlt = $this->clean($patch['package_image_alt'] ?? '', 254);
       unset($patch['package_product_image'], $patch['package_media_id'], $patch['package_image_alt']);
       $allowed = array(
-          'activ', 'folder', 'title', 'seo_title', 'permalink', 'description', 'keywords', 'group_read', 'template', 'content', 'sorter',
+          'activ', 'folder', 'title', 'menu_title', 'seo_title', 'permalink', 'description', 'keywords', 'group_read', 'template', 'content', 'sorter',
          'hero_template', 'hero_image_id', 'hero_margin_top', 'hero_height', 'hero_variant', 'hero_sticky',
          'hero_scroll_layer', 'gallery_template', 'gallery_visible_count', 'gallery_image_size',
          'gallery_lightbox_width', 'gallery_overflow', 'gallery_click_behavior'
       );
       $data = $this->whitelist($patch, $allowed);
       if (isset($data['title'])) $data['title'] = $this->clean($data['title'], 254);
+      if (isset($data['menu_title'])) $data['menu_title'] = $this->clean($data['menu_title'], 96);
       if (isset($data['seo_title'])) $data['seo_title'] = $this->clean($data['seo_title'], 254);
       if (array_key_exists('permalink', $data)) {
          $data['permalink'] = trim($this->clean($data['permalink'], 254));
@@ -1233,6 +1245,9 @@ class dbxKiCmsService {
             $this->apply_package_product_image($content, $mediaId, $packageImageAlt)
          );
          $packageMediaApplied = $mediaId;
+      }
+      if (array_key_exists('content', $data)) {
+         $this->assert_no_fake_inline_hero((string)$data['content']);
       }
       $plan = array('operation' => 'update', 'entity' => 'page', 'lng' => $lng, 'id' => $id, 'before' => $before, 'changes' => $data);
       if ($packageMediaApplied > 0) {
@@ -2314,6 +2329,7 @@ class dbxKiCmsService {
          'activ' => $this->bool_value($params['activ'] ?? true) ? 1 : 0,
           'folder' => $folder,
           'title' => $title,
+          'menu_title' => $this->clean($params['menu_title'] ?? '', 96),
           'seo_title' => $this->clean($params['seo_title'] ?? $title, 254),
           'permalink' => $permalink,
          'description' => $this->clean($params['description'] ?? '', 254),
@@ -2334,8 +2350,91 @@ class dbxKiCmsService {
          'gallery_overflow' => $this->clean($params['gallery_overflow'] ?? 'grid', 32),
          'gallery_click_behavior' => $this->clean($params['gallery_click_behavior'] ?? 'lightbox', 32),
          'sorter' => $this->clean($params['sorter'] ?? '', 32),
-         'content' => $this->normalize_content_inline_media_urls((string)($params['content'] ?? '')),
-      );
+          'content' => $this->normalize_content_inline_media_urls((string)($params['content'] ?? '')),
+       );
+    }
+
+   /**
+    * Verhindert einen im Content nachgebauten Hero.
+    *
+    * Ein Bild mit umfangreicher absoluter Textebene im ersten Inhaltsblock
+    * muss die vorhandene CMS-Hero-Logik verwenden. Kleine Badges auf Karten
+    * bleiben erlaubt.
+    */
+   private function assert_no_fake_inline_hero(string $html): void {
+      if (stripos($html, '<img') === false || stripos($html, 'position') === false) {
+         return;
+      }
+
+      $doc = new \DOMDocument('1.0', 'UTF-8');
+      $previous = libxml_use_internal_errors(true);
+      try {
+         $loaded = $doc->loadHTML(
+            '<div data-dbx-ki-content-root="1">' . $html . '</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+         );
+      } finally {
+         libxml_clear_errors();
+         libxml_use_internal_errors($previous);
+      }
+      if (!$loaded) {
+         return;
+      }
+
+      $xpath = new \DOMXPath($doc);
+      $roots = $xpath->query('//*[@data-dbx-ki-content-root="1"]');
+      $root = $roots instanceof \DOMNodeList ? $roots->item(0) : null;
+      if (!$root instanceof \DOMElement) {
+         return;
+      }
+      $first = null;
+      foreach ($root->childNodes as $child) {
+         if ($child instanceof \DOMElement) {
+            $first = $child;
+            break;
+         }
+      }
+      if (!$first instanceof \DOMElement) {
+         return;
+      }
+
+      $images = $first->getElementsByTagName('img');
+      foreach ($images as $image) {
+         $host = $image->parentNode;
+         while ($host instanceof \DOMElement && $host !== $root) {
+            $class = ' ' . strtolower($host->getAttribute('class')) . ' ';
+            $style = strtolower($host->getAttribute('style'));
+            $relative = str_contains($class, ' position-relative ')
+               || preg_match('/position\s*:\s*relative/i', $style) === 1;
+            if ($relative) {
+               foreach ($host->getElementsByTagName('*') as $candidate) {
+                  if ($candidate === $image || !$candidate instanceof \DOMElement) {
+                     continue;
+                  }
+                  $candidateClass = ' ' . strtolower($candidate->getAttribute('class')) . ' ';
+                  $candidateStyle = strtolower($candidate->getAttribute('style'));
+                  $absolute = str_contains($candidateClass, ' position-absolute ')
+                     || preg_match('/position\s*:\s*absolute/i', $candidateStyle) === 1;
+                  $text = trim(preg_replace('/\s+/u', ' ', $candidate->textContent ?? '') ?? '');
+                  $structuredText = $candidate->getElementsByTagName('h1')->length
+                     + $candidate->getElementsByTagName('h2')->length
+                     + $candidate->getElementsByTagName('p')->length
+                     + $candidate->getElementsByTagName('a')->length;
+                  if ($absolute && (mb_strlen($text) >= 80 || $structuredText >= 2)) {
+                     throw new \InvalidArgumentException(
+                        'dbxKi: Ein Bild mit ueberlagertem Text am Seitenanfang ist ein CMS-Hero. '
+                        . 'Hero-Bild ueber hero_image_id/media.assign slot=hero setzen und den Hero-Text '
+                        . 'vor den dbx:hero-Marker schreiben; kein Inline-Schein-Hero.'
+                     );
+                  }
+               }
+            }
+            if ($host === $first) {
+               break;
+            }
+            $host = $host->parentNode;
+         }
+      }
    }
 
    private function patch(array $params): array {

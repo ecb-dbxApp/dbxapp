@@ -84,7 +84,7 @@
             </header>
             <div class="dbx-viewport-stage" data-dbx-viewport-stage>
                 <div class="dbx-viewport-device" data-dbx-viewport-device>
-                    <iframe data-dbx-viewport-frame title="Responsive Vorschau der aktuellen Seite"></iframe>
+                    <iframe data-dbx-viewport-frame scrolling="yes" title="Responsive Vorschau der aktuellen Seite"></iframe>
                 </div>
             </div>`;
 

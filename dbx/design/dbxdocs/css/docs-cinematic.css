@@ -1,0 +1,1200 @@
+.dbx-cinema {
+    --dbx-cinema-blue: #30a7ff;
+    --dbx-cinema-red: #ff334f;
+    --dbx-cinema-gold: #ffd76a;
+    --dbx-cinema-duration: 84s;
+    position: relative;
+    width: min(100%, 92rem);
+    margin: 0 auto 2rem;
+    color: #eaf5ff;
+}
+
+.dbx-cinema-screen {
+    position: relative;
+    isolation: isolate;
+    aspect-ratio: 16 / 7.3;
+    min-height: 21rem;
+    overflow: hidden;
+    border: 1px solid rgba(91, 185, 255, .5);
+    border-radius: 20px 20px 4px 4px;
+    background:
+        radial-gradient(circle at 50% 115%, rgba(16, 103, 199, .42), transparent 35%),
+        radial-gradient(circle at 82% 14%, rgba(145, 26, 96, .19), transparent 23%),
+        linear-gradient(180deg, #02050d 0%, #020817 58%, #06152e 100%);
+    box-shadow:
+        0 22px 60px rgba(3, 30, 70, .35),
+        inset 0 0 70px rgba(31, 127, 220, .1);
+    perspective: 720px;
+}
+
+.dbx-cinema-screen::before {
+    content: "";
+    position: absolute;
+    z-index: 8;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, rgba(0, 0, 0, .42), transparent 12%, transparent 88%, rgba(0, 0, 0, .42)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .018) 0 1px, transparent 1px 4px);
+    mix-blend-mode: screen;
+}
+
+.dbx-cinema-stars,
+.dbx-cinema-stars::before,
+.dbx-cinema-stars::after {
+    position: absolute;
+    inset: -40%;
+    content: "";
+    pointer-events: none;
+    background-repeat: repeat;
+}
+
+.dbx-cinema-stars-a {
+    opacity: .8;
+    background-image:
+        radial-gradient(circle, #fff 0 1px, transparent 1.4px),
+        radial-gradient(circle, #7dc5ff 0 1px, transparent 1.5px);
+    background-position: 0 0, 43px 61px;
+    background-size: 97px 113px, 151px 137px;
+}
+
+.dbx-cinema-stars-a::before {
+    opacity: .5;
+    background-image: radial-gradient(circle, #fff 0 1.3px, transparent 1.7px);
+    background-position: 71px 29px;
+    background-size: 181px 167px;
+}
+
+.dbx-cinema-stars-b {
+    opacity: .34;
+    background-image: radial-gradient(circle, #4fb3ff 0 1px, transparent 2px);
+    background-position: 19px 83px;
+    background-size: 223px 211px;
+    filter: blur(.25px);
+}
+
+.dbx-cinema.is-playing .dbx-cinema-stars-a {
+    animation: dbxCinemaStars var(--dbx-cinema-duration) linear both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-stars-b {
+    animation: dbxCinemaStars calc(var(--dbx-cinema-duration) * .72) linear both reverse;
+}
+
+.dbx-cinema-glints,
+.dbx-cinema-shooting-star {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.dbx-cinema-glints i {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+        0 0 5px 1px #fff,
+        0 0 15px 4px rgba(80, 185, 255, .72);
+    opacity: 0;
+}
+
+.dbx-cinema-glints i::before,
+.dbx-cinema-glints i::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(226, 247, 255, .9), transparent);
+    transform: translate(-50%, -50%);
+}
+
+.dbx-cinema-glints i::before {
+    width: 2.4rem;
+    height: 1px;
+}
+
+.dbx-cinema-glints i::after {
+    width: 1px;
+    height: 2.4rem;
+}
+
+.dbx-cinema-glints i:nth-child(1) { top: 20%; left: 74%; }
+.dbx-cinema-glints i:nth-child(2) { top: 64%; left: 19%; }
+.dbx-cinema-glints i:nth-child(3) { top: 29%; left: 43%; }
+
+.dbx-cinema.is-playing .dbx-cinema-glints i:nth-child(1) {
+    animation: dbxCinemaGlint 2.8s ease-in-out 14s both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-glints i:nth-child(2) {
+    animation: dbxCinemaGlint 3.1s ease-in-out 43s both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-glints i:nth-child(3) {
+    animation: dbxCinemaGlint 2.6s ease-in-out 73s both;
+}
+
+.dbx-cinema-shooting-star::before {
+    content: "";
+    position: absolute;
+    top: 18%;
+    left: -12%;
+    width: 7rem;
+    height: 1px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(116, 205, 255, .25), #fff);
+    box-shadow: 0 0 10px rgba(91, 190, 255, .5);
+    opacity: 0;
+    transform: rotate(-12deg);
+    transform-origin: right center;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-shooting-star::before {
+    animation: dbxCinemaShootingStar 2.9s cubic-bezier(.22, .61, .36, 1) 47s both;
+}
+
+.dbx-cinema-horizon {
+    position: absolute;
+    z-index: 0;
+    left: 12%;
+    right: 12%;
+    bottom: -26%;
+    height: 48%;
+    border: 1px solid rgba(50, 167, 255, .33);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 0, rgba(40, 141, 255, .42), rgba(4, 17, 39, .1) 46%, transparent 68%);
+    box-shadow: 0 -12px 55px rgba(37, 149, 255, .2);
+}
+
+.dbx-cinema-scene {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 3.5vw, 3rem);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dbx-cinema-eyebrow {
+    margin: 0;
+    color: #8bcfff !important;
+    font-size: clamp(.68rem, 1.2vw, .95rem);
+    font-weight: 850;
+    letter-spacing: .22em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.dbx-cinema-platform {
+    align-content: center;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 1rem;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-platform {
+    animation: dbxCinemaScene 32s linear both;
+}
+
+.dbx-cinema-scene-title {
+    position: absolute;
+    top: 8%;
+    left: 7%;
+    right: 7%;
+    display: grid;
+    gap: .35rem;
+    text-align: center;
+}
+
+.dbx-cinema-scene-title span {
+    color: #78c8ff;
+    font-size: clamp(.65rem, 1vw, .86rem);
+    font-weight: 850;
+    letter-spacing: .22em;
+}
+
+.dbx-cinema-scene-title strong {
+    color: #fff;
+    font-size: clamp(1.2rem, 2.6vw, 2.3rem);
+}
+
+.dbx-cinema-orbit {
+    position: relative;
+    width: min(47rem, 78vw);
+    aspect-ratio: 2 / 1;
+    margin-top: 3rem;
+    border: 1px solid rgba(63, 169, 255, .23);
+    border-radius: 50%;
+    box-shadow: inset 0 0 55px rgba(34, 136, 235, .06);
+}
+
+.dbx-cinema-orbit::before,
+.dbx-cinema-orbit::after {
+    content: "";
+    position: absolute;
+    inset: 15%;
+    border: 1px solid rgba(255, 63, 92, .17);
+    border-radius: 50%;
+    transform: rotate(-8deg);
+}
+
+.dbx-cinema-orbit::after {
+    inset: 30%;
+    border-color: rgba(91, 192, 255, .2);
+    transform: rotate(12deg);
+}
+
+.dbx-cinema-core {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    width: clamp(7rem, 16vw, 11rem);
+    aspect-ratio: 1;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(115, 201, 255, .64);
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 32%, #174f91, #061329 68%);
+    box-shadow: 0 0 55px rgba(43, 153, 255, .38), inset 0 0 32px rgba(81, 182, 255, .18);
+    color: #fff;
+    font-size: clamp(1.25rem, 3vw, 2.25rem);
+    transform: translate(-50%, -50%);
+}
+
+.dbx-cinema.is-playing .dbx-cinema-core {
+    animation: dbxCinemaCorePulse 3.8s ease-in-out 1s infinite;
+}
+
+.dbx-cinema-core b {
+    color: #ff334f;
+    font-size: 1.3em;
+}
+
+.dbx-cinema-core small {
+    position: absolute;
+    bottom: 19%;
+    color: #84cbff;
+    font-size: .5em;
+    letter-spacing: .22em;
+}
+
+.dbx-cinema-node {
+    position: absolute;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .45rem .65rem;
+    border: 1px solid rgba(114, 200, 255, .4);
+    border-radius: 999px;
+    background: rgba(5, 22, 47, .9);
+    box-shadow: 0 7px 22px rgba(0, 0, 0, .3);
+    color: #e9f7ff;
+    font-size: clamp(.6rem, 1.1vw, .82rem);
+    font-weight: 800;
+    letter-spacing: .06em;
+}
+
+.dbx-cinema-node i {
+    color: #55b9ff;
+}
+
+.node-cms { top: 5%; left: 18%; }
+.node-shop { top: 12%; right: 12%; }
+.node-app { top: 45%; right: -2%; }
+.node-flow { bottom: 4%; right: 18%; }
+.node-data { bottom: 8%; left: 13%; }
+.node-ki { top: 42%; left: -1%; }
+
+.dbx-cinema.is-playing .dbx-cinema-node {
+    animation: dbxCinemaNodeIn 2s cubic-bezier(.22, 1, .36, 1) 3s both;
+}
+.dbx-cinema.is-playing .node-shop { animation-delay: 4.2s; }
+.dbx-cinema.is-playing .node-app { animation-delay: 5.4s; }
+.dbx-cinema.is-playing .node-flow { animation-delay: 6.6s; }
+.dbx-cinema.is-playing .node-data { animation-delay: 7.8s; }
+.dbx-cinema.is-playing .node-ki { animation-delay: 9s; }
+
+.dbx-cinema-infrastructure {
+    align-content: center;
+    gap: .8rem;
+    background: radial-gradient(circle at 50% 54%, rgba(5, 27, 58, .96), rgba(2, 8, 23, .9) 66%, rgba(2, 8, 23, .38));
+    text-align: center;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-infrastructure {
+    animation: dbxCinemaScene 28s linear 29s both;
+}
+
+.dbx-cinema-device-flow {
+    display: grid;
+    grid-template-columns: 1fr .7fr 1.35fr .7fr 1fr;
+    width: min(62rem, 88vw);
+    align-items: center;
+    gap: clamp(.35rem, 1.5vw, 1.1rem);
+    margin-top: clamp(2.8rem, 8vh, 4.4rem);
+}
+
+.dbx-cinema-device,
+.dbx-cinema-datacenter {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    gap: .18rem;
+    opacity: 0;
+    transform: translateY(1.5rem) scale(.86);
+}
+
+.dbx-cinema-device {
+    min-height: 8.7rem;
+    padding: .85rem;
+    border: 1px solid rgba(91, 190, 255, .42);
+    border-radius: 18px;
+    background:
+        linear-gradient(145deg, rgba(27, 101, 172, .32), rgba(3, 17, 37, .88)),
+        rgba(4, 20, 43, .8);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .32), inset 0 0 28px rgba(70, 177, 255, .08);
+}
+
+.dbx-cinema-device > i {
+    color: #78caff;
+    font-size: clamp(2.2rem, 5vw, 4.3rem);
+    filter: drop-shadow(0 0 14px rgba(56, 174, 255, .45));
+}
+
+.dbx-cinema-device strong,
+.dbx-cinema-datacenter strong {
+    color: #fff;
+    font-size: clamp(.8rem, 1.4vw, 1.05rem);
+}
+
+.dbx-cinema-device small,
+.dbx-cinema-datacenter small {
+    color: #91bddc;
+    font-size: clamp(.58rem, 1vw, .76rem);
+}
+
+.dbx-cinema-datacenter {
+    min-height: 10rem;
+    grid-template-columns: repeat(3, minmax(1.5rem, 2.5rem));
+    justify-content: center;
+    padding: .8rem;
+    border: 1px solid rgba(255, 70, 99, .38);
+    border-radius: 22px;
+    background: radial-gradient(circle at 50% 12%, rgba(45, 143, 231, .32), rgba(4, 16, 35, .94) 68%);
+    box-shadow: 0 0 55px rgba(42, 151, 247, .2), inset 0 0 34px rgba(255, 52, 85, .06);
+}
+
+.dbx-cinema-datacenter strong,
+.dbx-cinema-datacenter small {
+    grid-column: 1 / -1;
+}
+
+.dbx-cinema-rack {
+    display: grid;
+    gap: .24rem;
+    width: 100%;
+    padding: .36rem;
+    border: 1px solid #285982;
+    border-radius: 6px;
+    background: #07172b;
+}
+
+.dbx-cinema-rack i {
+    display: block;
+    height: .7rem;
+    border-radius: 3px;
+    background:
+        radial-gradient(circle at 14% 50%, #58d7ff 0 1px, transparent 2px),
+        linear-gradient(90deg, #143b60, #081c32);
+    box-shadow: inset 0 0 7px rgba(94, 197, 255, .16);
+}
+
+.dbx-cinema-data-stream {
+    position: relative;
+    height: 2px;
+    overflow: visible;
+    background: linear-gradient(90deg, rgba(53, 177, 255, .05), rgba(83, 195, 255, .75), rgba(255, 53, 84, .4));
+    box-shadow: 0 0 13px rgba(57, 178, 255, .4);
+    opacity: 0;
+}
+
+.dbx-cinema-data-stream span {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: .42rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #dff7ff;
+    box-shadow: 0 0 12px #4dbdff, 0 0 24px rgba(52, 174, 255, .55);
+    transform: translate(-50%, -50%);
+}
+
+.dbx-cinema.is-playing .dbx-cinema-mobile {
+    animation: dbxCinemaDeviceIn 2.4s cubic-bezier(.22, 1, .36, 1) 30.5s both;
+}
+
+.dbx-cinema.is-playing .stream-in {
+    animation: dbxCinemaLineIn 2s cubic-bezier(.22, .61, .36, 1) 32s both;
+}
+
+.dbx-cinema.is-playing .stream-in span {
+    animation: dbxCinemaPacket 3s linear 32.7s infinite;
+}
+
+.dbx-cinema.is-playing .stream-in span:nth-child(2) {
+    animation-delay: 33.45s;
+}
+
+.dbx-cinema.is-playing .stream-in span:nth-child(3) {
+    animation-delay: 34.2s;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-datacenter {
+    animation: dbxCinemaDeviceIn 2.4s cubic-bezier(.22, 1, .36, 1) 35s both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-rack i {
+    animation: dbxCinemaRackBlink 2.4s ease-in-out 36s infinite;
+}
+
+.dbx-cinema.is-playing .stream-out {
+    animation: dbxCinemaLineIn 2s cubic-bezier(.22, .61, .36, 1) 37.7s both;
+}
+
+.dbx-cinema.is-playing .stream-out span {
+    animation: dbxCinemaPacket 3s linear 38.4s infinite;
+}
+
+.dbx-cinema.is-playing .stream-out span:nth-child(2) {
+    animation-delay: 39.15s;
+}
+
+.dbx-cinema.is-playing .stream-out span:nth-child(3) {
+    animation-delay: 39.9s;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-desktop {
+    animation: dbxCinemaDeviceIn 2.4s cubic-bezier(.22, 1, .36, 1) 41s both;
+}
+
+.dbx-cinema-infrastructure-copy {
+    margin: .2rem 0 0;
+    color: #d5efff !important;
+    font-size: clamp(.8rem, 1.4vw, 1.05rem);
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.dbx-cinema-transform {
+    align-content: center;
+    gap: .8rem;
+    background: radial-gradient(circle at 50% 50%, rgba(7, 34, 72, .98), rgba(2, 8, 23, .94) 64%, rgba(2, 8, 23, .62));
+    text-align: center;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-transform {
+    animation: dbxCinemaScene 18s linear 54s both;
+}
+
+.dbx-cinema-transform-before,
+.dbx-cinema-transform-after {
+    margin: 0;
+    font-size: clamp(1.5rem, 5vw, 4.8rem);
+    font-weight: 950;
+    letter-spacing: .08em;
+    opacity: 0;
+}
+
+.dbx-cinema-transform-before {
+    color: #728398 !important;
+    text-decoration: line-through;
+    text-decoration-color: #ff334f;
+}
+
+.dbx-cinema-transform-after {
+    color: #eaf7ff !important;
+    text-shadow: 0 0 24px rgba(48, 167, 255, .46) !important;
+}
+
+.dbx-cinema-transform-line {
+    width: min(36rem, 68vw);
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ff334f, #fff, #30a7ff, transparent);
+    box-shadow: 0 0 25px rgba(48, 167, 255, .6);
+    opacity: 0;
+}
+
+.dbx-cinema-values {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .55rem;
+    margin-top: 1.1rem;
+    opacity: 0;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-transform-before {
+    animation: dbxCinemaContentRise 1.8s cubic-bezier(.22, 1, .36, 1) 55.1s both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-transform-line {
+    animation: dbxCinemaContentRise 1.8s cubic-bezier(.22, 1, .36, 1) 55.6s both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-transform-after {
+    animation: dbxCinemaContentRise 1.8s cubic-bezier(.22, 1, .36, 1) 56.1s both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-values {
+    animation: dbxCinemaContentRise 1.8s cubic-bezier(.22, 1, .36, 1) 56.8s both;
+}
+
+.dbx-cinema-values span {
+    padding: .45rem .75rem;
+    border: 1px solid rgba(86, 187, 255, .36);
+    border-radius: 999px;
+    background: rgba(10, 43, 83, .72);
+    color: #bee5ff;
+    font-size: clamp(.68rem, 1.25vw, .92rem);
+    font-weight: 750;
+}
+
+.dbx-cinema-finale {
+    position: absolute;
+    align-content: center;
+    gap: .35rem;
+    padding-block: .65rem;
+    background:
+        radial-gradient(circle at 50% 47%, rgba(21, 113, 213, .34), transparent 42%),
+        rgba(2, 8, 23, .9);
+    text-align: center;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-finale {
+    animation: dbxCinemaFinale 15s cubic-bezier(.22, .61, .36, 1) 69s both;
+}
+
+.dbx-cinema-final-rays,
+.dbx-cinema-final-orbits,
+.dbx-cinema-final-particles,
+.dbx-cinema-final-flare {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.dbx-cinema-final-rays {
+    inset: -70%;
+    opacity: 0;
+    background: repeating-conic-gradient(
+        from 15deg,
+        rgba(57, 177, 255, .16) 0 2deg,
+        transparent 2deg 11deg,
+        rgba(255, 45, 78, .08) 11deg 13deg,
+        transparent 13deg 24deg
+    );
+    -webkit-mask: radial-gradient(circle, transparent 0 8%, #000 28%, transparent 66%);
+    mask: radial-gradient(circle, transparent 0 8%, #000 28%, transparent 66%);
+}
+
+.dbx-cinema.is-playing .dbx-cinema-final-rays {
+    animation: dbxCinemaRays 14.5s linear 69.5s both;
+}
+
+.dbx-cinema-final-orbits {
+    inset: 50%;
+}
+
+.dbx-cinema-final-orbits span {
+    --dbx-orbit-angle: 0deg;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: min(46rem, 74vw);
+    aspect-ratio: 2.8 / 1;
+    border: 1px solid rgba(89, 192, 255, .45);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--dbx-orbit-angle)) scale(.1);
+    box-shadow: 0 0 26px rgba(54, 170, 255, .16);
+}
+
+.dbx-cinema-final-orbits span:nth-child(2) {
+    --dbx-orbit-angle: 32deg;
+    width: min(35rem, 58vw);
+    border-color: rgba(255, 60, 92, .32);
+}
+
+.dbx-cinema-final-orbits span:nth-child(3) {
+    --dbx-orbit-angle: -28deg;
+    width: min(27rem, 45vw);
+    border-color: rgba(255, 226, 137, .38);
+}
+
+.dbx-cinema.is-playing .dbx-cinema-final-orbits span {
+    animation: dbxCinemaOrbitBurst 7s cubic-bezier(.16, 1, .3, 1) 69.4s both;
+}
+.dbx-cinema.is-playing .dbx-cinema-final-orbits span:nth-child(2) { animation-delay: 69.75s; }
+.dbx-cinema.is-playing .dbx-cinema-final-orbits span:nth-child(3) { animation-delay: 70.1s; }
+
+.dbx-cinema-final-particles {
+    inset: 0;
+}
+
+.dbx-cinema-final-particles i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: .28rem;
+    height: 16rem;
+    opacity: 0;
+    background: linear-gradient(180deg, #fff, rgba(69, 185, 255, .6), transparent);
+    filter: drop-shadow(0 0 7px #6dccff);
+    transform-origin: 50% 100%;
+    transform: translate(-50%, -100%) rotate(0deg);
+}
+
+.dbx-cinema-final-particles i:nth-child(2) { transform: translate(-50%, -100%) rotate(45deg); }
+.dbx-cinema-final-particles i:nth-child(3) { transform: translate(-50%, -100%) rotate(90deg); }
+.dbx-cinema-final-particles i:nth-child(4) { transform: translate(-50%, -100%) rotate(135deg); }
+.dbx-cinema-final-particles i:nth-child(5) { transform: translate(-50%, -100%) rotate(180deg); }
+.dbx-cinema-final-particles i:nth-child(6) { transform: translate(-50%, -100%) rotate(225deg); }
+.dbx-cinema-final-particles i:nth-child(7) { transform: translate(-50%, -100%) rotate(270deg); }
+.dbx-cinema-final-particles i:nth-child(8) { transform: translate(-50%, -100%) rotate(315deg); }
+
+.dbx-cinema.is-playing .dbx-cinema-final-particles i {
+    animation: dbxCinemaParticleRush 5.5s ease-out 69.5s both;
+}
+
+.dbx-cinema-final-flare {
+    top: 50%;
+    left: 50%;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    box-shadow:
+        0 0 22px 8px #fff,
+        0 0 85px 34px rgba(55, 179, 255, .75),
+        0 0 160px 64px rgba(255, 40, 76, .25);
+    transform: translate(-50%, -50%);
+}
+
+.dbx-cinema.is-playing .dbx-cinema-final-flare {
+    animation: dbxCinemaFinalFlare 14.7s ease 69.3s both;
+}
+
+.dbx-cinema-logo {
+    position: relative;
+    z-index: 3;
+    display: inline-flex !important;
+    width: max-content !important;
+    max-width: 92%;
+    flex: 0 0 auto !important;
+    flex-flow: row nowrap !important;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(3rem, 8vw, 7.4rem);
+    font-weight: 900;
+    letter-spacing: -.08em;
+    line-height: .95;
+    text-shadow: 0 0 40px rgba(63, 170, 255, .28);
+    filter: drop-shadow(0 0 28px rgba(65, 177, 255, .2));
+    opacity: 0;
+    transform: scale(.08);
+    transform-origin: center;
+}
+
+.dbx-cinema-logo > span,
+.dbx-cinema-logo > strong {
+    display: inline-block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-logo {
+    animation: dbxCinemaLogoImpact 5.2s cubic-bezier(.16, 1, .3, 1) 70s both;
+}
+
+.dbx-cinema-logo strong {
+    margin-inline: -.02em;
+    color: #ff2446;
+    font-size: 1.15em;
+    text-shadow: 0 0 24px rgba(255, 36, 70, .25);
+}
+
+.dbx-cinema-logo::after {
+    content: "";
+    position: absolute;
+    top: -20%;
+    bottom: -20%;
+    left: -30%;
+    width: 24%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .92), transparent);
+    opacity: 0;
+    filter: blur(2px);
+    transform: skewX(-18deg);
+}
+
+.dbx-cinema.is-playing .dbx-cinema-logo::after {
+    animation: dbxCinemaLogoShine 2.2s ease 74.2s both;
+}
+
+.dbx-cinema-finale > .dbx-cinema-eyebrow,
+.dbx-cinema-finale > h2,
+.dbx-cinema-finale > p,
+.dbx-cinema-finale > .dbx-cinema-actions {
+    position: relative;
+    z-index: 3;
+    opacity: 0;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-finale > .dbx-cinema-eyebrow {
+    animation: dbxCinemaContentRise 1.6s cubic-bezier(.22, 1, .36, 1) 71.8s both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-finale > h2 {
+    animation: dbxCinemaContentRise 1.6s cubic-bezier(.22, 1, .36, 1) 72.3s both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-finale > p:not(.dbx-cinema-eyebrow) {
+    animation: dbxCinemaContentRise 1.6s cubic-bezier(.22, 1, .36, 1) 72.7s both;
+}
+
+.dbx-cinema.is-playing .dbx-cinema-finale > .dbx-cinema-actions {
+    animation: dbxCinemaContentRise 1.6s cubic-bezier(.22, 1, .36, 1) 73.1s both;
+}
+
+.dbx-cinema-finale h2 {
+    margin: .25rem 0 0;
+    padding: 0;
+    border: 0;
+    color: #fff !important;
+    font-size: clamp(1.05rem, 2.25vw, 2rem);
+}
+
+.dbx-cinema-finale > p:not(.dbx-cinema-eyebrow) {
+    margin: 0;
+    color: #b9ddf8 !important;
+    font-size: clamp(.82rem, 1.6vw, 1.15rem);
+}
+
+.dbx-cinema-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .6rem;
+    margin-top: .35rem;
+    pointer-events: auto;
+}
+
+.dbx-cinema-actions a {
+    padding: .55rem .9rem;
+    border: 1px solid #49adf5;
+    border-radius: 999px;
+    background: rgba(3, 19, 41, .82);
+    color: #fff !important;
+    font-size: .82rem;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.dbx-cinema-actions a:hover,
+.dbx-cinema-actions a:focus-visible {
+    background: #147bc7;
+}
+
+.dbx-cinema-vignette {
+    position: absolute;
+    z-index: 7;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 90px 24px rgba(0, 0, 0, .58);
+}
+
+.dbx-cinema-start {
+    position: absolute;
+    z-index: 12;
+    top: 50%;
+    left: 50%;
+    display: none;
+    align-items: center;
+    gap: .55rem;
+    padding: .72rem 1rem;
+    border: 1px solid rgba(112, 199, 255, .68);
+    border-radius: 999px;
+    background: rgba(3, 20, 45, .92);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, .38);
+    color: #fff;
+    font-weight: 800;
+    transform: translate(-50%, -50%);
+}
+
+.dbx-cinema-start i {
+    font-size: 1.2rem;
+}
+
+.dbx-cinema:not(.is-playing) .dbx-cinema-platform {
+    opacity: 1;
+}
+
+.dbx-cinema:not(.is-playing) .dbx-cinema-start {
+    display: inline-flex;
+}
+
+.dbx-cinema.is-ended .dbx-cinema-start {
+    display: none;
+}
+
+.dbx-cinema.is-ended [data-cinema-toggle] {
+    display: none;
+}
+
+.dbx-cinema-controls {
+    display: flex;
+    min-height: 3.35rem;
+    align-items: center;
+    gap: .45rem;
+    padding: .55rem .7rem;
+    border: 1px solid #173d67;
+    border-top: 0;
+    border-radius: 0 0 14px 14px;
+    background: linear-gradient(180deg, #081a30, #061426);
+}
+
+.dbx-cinema-controls button {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .42rem .58rem;
+    border: 1px solid #285781;
+    border-radius: 8px;
+    background: #0c2745;
+    color: #e9f6ff;
+    font-size: .76rem;
+    font-weight: 750;
+}
+
+.dbx-cinema-controls button:hover,
+.dbx-cinema-controls button:focus-visible {
+    border-color: #59b9ff;
+    background: #12406e;
+}
+
+.dbx-cinema-progress-wrap {
+    display: grid;
+    grid-template-columns: minmax(5rem, 1fr) auto;
+    flex: 1;
+    align-items: center;
+    gap: .65rem;
+    margin-left: .35rem;
+}
+
+.dbx-cinema-progress {
+    height: .36rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #18324e;
+}
+
+.dbx-cinema-progress span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #157fd2, #58c1ff, #ff3a54);
+    box-shadow: 0 0 10px rgba(71, 182, 255, .55);
+}
+
+.dbx-cinema-time {
+    color: #aac8e2;
+    font: 700 .7rem/1 Consolas, "Courier New", monospace;
+}
+
+.dbx-cinema-caption {
+    margin: .55rem .2rem 0;
+    color: #60748a !important;
+    font-size: .75rem;
+    text-align: center;
+}
+
+.dbx-cinema.is-paused :is(
+    .dbx-cinema-stars,
+    .dbx-cinema-stars::before,
+    .dbx-cinema-stars::after,
+    .dbx-cinema-glints i,
+    .dbx-cinema-shooting-star::before,
+    .dbx-cinema-scene,
+    .dbx-cinema-core,
+    .dbx-cinema-node,
+    .dbx-cinema-device,
+    .dbx-cinema-datacenter,
+    .dbx-cinema-data-stream,
+    .dbx-cinema-data-stream span,
+    .dbx-cinema-rack i,
+    .dbx-cinema-transform-before,
+    .dbx-cinema-transform-line,
+    .dbx-cinema-transform-after,
+    .dbx-cinema-values,
+    .dbx-cinema-final-rays,
+    .dbx-cinema-final-orbits span,
+    .dbx-cinema-final-particles i,
+    .dbx-cinema-final-flare,
+    .dbx-cinema-logo,
+    .dbx-cinema-logo::after,
+    .dbx-cinema-finale > .dbx-cinema-eyebrow,
+    .dbx-cinema-finale > h2,
+    .dbx-cinema-finale > p,
+    .dbx-cinema-finale > .dbx-cinema-actions
+) {
+    animation-play-state: paused !important;
+}
+
+@keyframes dbxCinemaStars {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to { transform: translate3d(-7%, 18%, 0) scale(1.12); }
+}
+
+@keyframes dbxCinemaScene {
+    0% { opacity: 0; filter: blur(1.5px); transform: translateY(.25rem) scale(.992); }
+    10% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+    88% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+    100% { opacity: 0; filter: blur(1.2px); transform: translateY(-.18rem) scale(1.006); }
+}
+
+@keyframes dbxCinemaGlint {
+    0%, 24%, 76%, 100% { opacity: 0; transform: scale(.35) rotate(0deg); }
+    43% { opacity: .25; transform: scale(.78) rotate(9deg); }
+    52% { opacity: .92; transform: scale(1.05) rotate(18deg); }
+    61% { opacity: .2; transform: scale(.72) rotate(25deg); }
+}
+
+@keyframes dbxCinemaShootingStar {
+    0%, 18% { opacity: 0; transform: translate3d(0, 0, 0) rotate(-12deg) scaleX(.35); }
+    31% { opacity: .58; }
+    78% { opacity: .24; }
+    100% { opacity: 0; transform: translate3d(118vw, 24vh, 0) rotate(-12deg) scaleX(1); }
+}
+
+@keyframes dbxCinemaCorePulse {
+    0%, 100% { box-shadow: 0 0 42px rgba(43, 153, 255, .3), inset 0 0 32px rgba(81, 182, 255, .18); }
+    50% { box-shadow: 0 0 72px rgba(43, 153, 255, .52), inset 0 0 43px rgba(81, 182, 255, .28); }
+}
+
+@keyframes dbxCinemaNodeIn {
+    from { opacity: 0; filter: blur(5px); transform: translateY(.4rem) scale(.9); }
+    to { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+@keyframes dbxCinemaDeviceIn {
+    0% { opacity: 0; filter: blur(7px); transform: translateY(.8rem) scale(.94); }
+    100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+}
+
+@keyframes dbxCinemaLineIn {
+    from { opacity: 0; transform: scaleX(.05); }
+    to { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes dbxCinemaPacket {
+    0% { left: 0; opacity: 0; }
+    12%, 82% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+}
+
+@keyframes dbxCinemaRackBlink {
+    0%, 100% { filter: brightness(.8); }
+    50% { filter: brightness(1.65); }
+}
+
+@keyframes dbxCinemaContentRise {
+    from { opacity: 0; filter: blur(2px); transform: translateY(.55rem) scale(.992); }
+    to { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+}
+
+@keyframes dbxCinemaFinale {
+    0% { opacity: 0; filter: blur(7px); transform: scale(.975); }
+    19%, 100% { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+@keyframes dbxCinemaLogoImpact {
+    0% { opacity: 0; filter: blur(18px) brightness(1.9); transform: scale(.2); }
+    42% { opacity: 1; filter: blur(0) brightness(1.12); transform: scale(1.045); }
+    68% { opacity: 1; filter: blur(0) brightness(1); transform: scale(.992); }
+    100% { opacity: 1; filter: blur(0) brightness(1); transform: scale(1); }
+}
+
+@keyframes dbxCinemaLogoShine {
+    0% { left: -30%; opacity: 0; }
+    24% { opacity: .95; }
+    70% { opacity: .6; }
+    100% { left: 112%; opacity: 0; }
+}
+
+@keyframes dbxCinemaRays {
+    0% { opacity: 0; transform: rotate(0deg) scale(.55); }
+    20% { opacity: .62; }
+    100% { opacity: .22; transform: rotate(34deg) scale(1.08); }
+}
+
+@keyframes dbxCinemaOrbitBurst {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--dbx-orbit-angle)) scale(.1); }
+    34% { opacity: .8; }
+    100% { opacity: .28; transform: translate(-50%, -50%) rotate(var(--dbx-orbit-angle)) scale(1.22); }
+}
+
+@keyframes dbxCinemaParticleRush {
+    0% { height: 1rem; opacity: 0; filter: blur(4px); }
+    22% { opacity: .88; }
+    100% { height: 18rem; opacity: 0; filter: blur(0); }
+}
+
+@keyframes dbxCinemaFinalFlare {
+    0%, 9% { opacity: 0; transform: translate(-50%, -50%) scale(.05); }
+    13% { opacity: .95; transform: translate(-50%, -50%) scale(1); }
+    24% { opacity: .08; transform: translate(-50%, -50%) scale(1.8); }
+    76% { opacity: .06; transform: translate(-50%, -50%) scale(1.1); }
+    82% { opacity: .72; transform: translate(-50%, -50%) scale(.6); }
+    91%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); }
+}
+
+@media (max-width: 767px) {
+    .dbx-cinema-screen {
+        min-height: 18.5rem;
+        aspect-ratio: 10 / 7.2;
+        border-radius: 14px 14px 3px 3px;
+    }
+
+    .dbx-cinema-scene {
+        padding: 1.2rem;
+    }
+
+    .dbx-cinema-orbit {
+        width: 86vw;
+        margin-top: 4rem;
+    }
+
+    .dbx-cinema-node {
+        padding: .35rem .45rem;
+    }
+
+    .dbx-cinema-device-flow {
+        width: 94vw;
+        grid-template-columns: 1fr .38fr 1.25fr .38fr 1fr;
+        gap: .18rem;
+        margin-top: 3.2rem;
+    }
+
+    .dbx-cinema-device {
+        min-height: 6.4rem;
+        padding: .4rem .25rem;
+        border-radius: 12px;
+    }
+
+    .dbx-cinema-datacenter {
+        min-height: 7.4rem;
+        grid-template-columns: repeat(3, minmax(.9rem, 1.45rem));
+        padding: .42rem;
+        border-radius: 14px;
+    }
+
+    .dbx-cinema-rack {
+        gap: .12rem;
+        padding: .2rem;
+    }
+
+    .dbx-cinema-rack i {
+        height: .42rem;
+    }
+
+    .dbx-cinema-device small,
+    .dbx-cinema-datacenter small {
+        display: none;
+    }
+
+    .dbx-cinema-finale > .dbx-cinema-eyebrow {
+        display: none;
+    }
+
+    .dbx-cinema-logo {
+        font-size: clamp(2.8rem, 14vw, 5rem);
+    }
+
+    .dbx-cinema-controls {
+        flex-wrap: wrap;
+    }
+
+    .dbx-cinema-controls button span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .dbx-cinema-progress-wrap {
+        min-width: 100%;
+        margin: .2rem 0 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dbx-cinema-screen {
+        min-height: 19rem;
+    }
+
+    .dbx-cinema .dbx-cinema-scene {
+        display: none;
+        animation: none !important;
+    }
+
+    .dbx-cinema .dbx-cinema-finale {
+        display: grid;
+        opacity: 1;
+        transform: none;
+    }
+
+    .dbx-cinema .dbx-cinema-logo {
+        opacity: 1;
+        filter: none;
+        transform: none;
+    }
+
+    .dbx-cinema .dbx-cinema-finale > .dbx-cinema-eyebrow,
+    .dbx-cinema .dbx-cinema-finale > h2,
+    .dbx-cinema .dbx-cinema-finale > p,
+    .dbx-cinema .dbx-cinema-finale > .dbx-cinema-actions {
+        opacity: 1;
+    }
+
+    .dbx-cinema .dbx-cinema-stars {
+        animation: none !important;
+    }
+
+    .dbx-cinema-start,
+    .dbx-cinema-controls [data-cinema-toggle],
+    .dbx-cinema-controls [data-cinema-replay] {
+        display: none !important;
+    }
+}

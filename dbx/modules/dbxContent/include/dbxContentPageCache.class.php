@@ -177,6 +177,7 @@ class dbxContentPageCache {
       dbx()->set_system_var('dbx_full_page_cache_file', '');
       dbx()->set_system_var('dbx_full_page_cache_generation', '');
       dbx()->set_system_var('dbx_full_page_cache_cid', 0);
+      dbx()->set_system_var('dbx_full_page_cache_lng', '');
 
       if (!self::isRawPermalinkRequest()) {
          return false;
@@ -205,6 +206,7 @@ class dbxContentPageCache {
       dbx()->set_system_var('dbx_full_page_cache_file', basename($path));
       dbx()->set_system_var('dbx_full_page_cache_permalink', $permalink);
       dbx()->set_system_var('dbx_full_page_cache_design', $design);
+      dbx()->set_system_var('dbx_full_page_cache_lng', $lng);
       dbx()->set_system_var('dbx_full_page_cache_generation', $generation);
 
       return true;
@@ -213,6 +215,16 @@ class dbxContentPageCache {
    /** Bindet nach einem MISS die live aufgeloeste Content-ID an den Schreibvorgang. */
    public static function attachResolvedContentRoute(): bool {
       if (!self::isPreparedFullPageRequest()) {
+         return false;
+      }
+
+      // Ein sprachspezifischer Permalink kann die aktive Sprache erst bei der
+      // Content-Aufloesung eindeutig bestimmen. Den vorbereiteten Schreibpfad
+      // dann auf die erkannte Sprache umstellen, statt fremdsprachigen Inhalt
+      // unter dem vorherigen Session-Sprachschluessel abzulegen.
+      $preparedLng = (string)dbx()->get_system_var('dbx_full_page_cache_lng', '');
+      $currentLng = self::safeToken(self::currentLng(), 'de');
+      if ($preparedLng !== $currentLng && !self::prepareFullPageRequest()) {
          return false;
       }
 
@@ -374,6 +386,7 @@ class dbxContentPageCache {
 
       self::purgeLegacyMenuCache();
       self::purgeLegacyPageCache();
+      self::purgeStaleFullPages();
       self::$dirsReady = true;
    }
 
@@ -650,9 +663,9 @@ class dbxContentPageCache {
       // Zuerst die Generation wechseln: Ab diesem Moment koennen neue Requests
       // weder alte Dateien lesen noch unter deren Namen schreiben. Das schliesst
       // die Race Condition "Speichern waehrend ein alter Request rendert".
-      self::cacheGeneration(true);
+      $generation = self::cacheGeneration(true);
 
-      $removed = 0;
+      $removed = self::purgeStaleFullPages($generation);
       foreach (array('permalink-*.*.full-*.html', 'cid-*.*.full-*.html') as $pattern) {
          foreach (glob(self::baseDir() . 'content/' . $pattern) ?: array() as $file) {
             if (@unlink($file)) {
@@ -668,11 +681,6 @@ class dbxContentPageCache {
          @unlink(self::fullPageMetaPath($file));
          @rmdir(dirname($file));
       }
-      foreach (glob(self::baseDir() . 'content/full-page/*.htm') ?: array() as $file) {
-         if (@unlink($file)) {
-            $removed++;
-         }
-      }
       foreach (glob(self::baseDir() . 'content/full-page/*.htm.meta.json') ?: array() as $metaFile) {
          @unlink($metaFile);
       }
@@ -682,6 +690,38 @@ class dbxContentPageCache {
       foreach (glob(self::baseDir() . 'content/full-page/*/*.htm.meta.json') ?: array() as $metaFile) {
          @unlink($metaFile);
          @rmdir(dirname($metaFile));
+      }
+      return $removed;
+   }
+
+   /**
+    * Entfernt V3-Dateien alter Generationen. Das ist insbesondere nach einem
+    * Deployment wichtig, bei dem die Generation-Datei neu angelegt wurde,
+    * waehrend alte HTML-Dateien im persistenten Cache-Verzeichnis verblieben.
+    */
+   public static function purgeStaleFullPages(string $generation = ''): int {
+      if ($generation === '') {
+         $generation = self::cacheGeneration();
+      }
+      if (!preg_match('/^[a-f0-9]{24}$/', $generation)) {
+         return 0;
+      }
+
+      $removed = 0;
+      $currentSuffix = '_' . $generation . '_' . self::FULL_PAGE_CACHE_VERSION . '.htm';
+      foreach (glob(self::baseDir() . 'content/full-page/*.htm') ?: array() as $file) {
+         if (str_ends_with(strtolower(basename($file)), $currentSuffix)) {
+            continue;
+         }
+         if (@unlink($file)) {
+            $removed++;
+         }
+         @unlink(self::fullPageMetaPath($file));
+      }
+      foreach (glob(self::baseDir() . 'content/full-page/*.tmp-*') ?: array() as $temporary) {
+         if (is_file($temporary) && (int)@filemtime($temporary) < time() - 300) {
+            @unlink($temporary);
+         }
       }
       return $removed;
    }
@@ -745,6 +785,7 @@ class dbxContentPageCache {
 
    public static function cacheStats(): array {
       self::ensureDirs();
+      self::purgeStaleFullPages();
       $content = array_values(array_filter(
          glob(self::baseDir() . 'content/full-page/*.htm') ?: array(),
          static fn(string $path): bool => str_ends_with(strtolower(basename($path)), '_' . self::FULL_PAGE_CACHE_VERSION . '.htm')

@@ -346,6 +346,27 @@ $field['js']='';
 $field['prompt']='';
 $fields[]=$field;
 
+$field['name']='menu_title';
+$field['type']='varchar';
+$field['index']='';
+$field['length']='96';
+$field['default']='';
+$field['label']='menu_title';
+$field['rules']='varchar|max=96';
+$field['tooltip']='Etiqueta breve y opcional para la navegacion y los menus.';
+$field['errormsg']='';
+$field['placeholder']='';
+$field['convert']='';
+$field['protect']='0';
+$field['group']='';
+$field['mask']='';
+$field['data']='';
+$field['options']='';
+$field['tpl']='text-label';
+$field['js']='';
+$field['prompt']='';
+$fields[]=$field;
+
 $field['name']='permalink';
 $field['type']='varchar';
 $field['index']='';

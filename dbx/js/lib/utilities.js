@@ -15,6 +15,8 @@
     const CONSENT_PRIVACY_URL = "datenschutz";
     const CONSENT_IMPRESSUM_URL = "impressum";
     const DEFAULT_CONSENT = { cookies: true, youtube: false, decided: false, ts: 0 };
+    let leaveGuardEnabled = true;
+    let leaveGuardAllowUntil = 0;
 
     function hasDbx() {
         return !!(window.dbx && window.dbx.feature);
@@ -26,6 +28,95 @@
         } else {
             fn();
         }
+    }
+
+    function allowLeaveGuardNavigation(durationMs = 2000) {
+        leaveGuardAllowUntil = Date.now() + Math.max(250, Number(durationMs) || 2000);
+    }
+
+    function isSameWebsiteNavigation(url) {
+        try {
+            const target = new URL(url, window.location.href);
+            return target.origin === window.location.origin;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function allowIfInternalNavigation(url, durationMs = 2000) {
+        if (!isSameWebsiteNavigation(url)) {
+            return false;
+        }
+        allowLeaveGuardNavigation(durationMs);
+        return true;
+    }
+
+    function initLeaveGuard() {
+        if (document.__dbxUtilitiesLeaveGuardBound) {
+            return;
+        }
+        document.__dbxUtilitiesLeaveGuardBound = true;
+
+        document.addEventListener("click", function (event) {
+            const explicit = event.target && event.target.closest
+                ? event.target.closest("[data-dbx-leave-allow]")
+                : null;
+            if (explicit) {
+                allowLeaveGuardNavigation();
+                return;
+            }
+
+            const link = event.target && event.target.closest
+                ? event.target.closest("a[href]")
+                : null;
+            if (!link) {
+                return;
+            }
+            const target = String(link.getAttribute("target") || "").toLowerCase();
+            if (target && target !== "_self") {
+                return;
+            }
+            if (isSameWebsiteNavigation(link.href)) {
+                allowLeaveGuardNavigation();
+            }
+        }, true);
+
+        document.addEventListener("submit", function (event) {
+            const form = event.target;
+            if (!form || !form.action) {
+                return;
+            }
+            if (isSameWebsiteNavigation(form.action)) {
+                allowLeaveGuardNavigation();
+            }
+        }, true);
+
+        // Ein Reload verlaesst fachlich weder Datensatz noch Anwendung. Die
+        // native Browserwarnung ist dabei nur stoerend. Tastatur-Reloads
+        // werden auch in Browsern ohne Navigation API erkannt; Chromium und
+        // andere moderne Browser melden zusaetzlich Toolbar-/API-Reloads hier.
+        document.addEventListener("keydown", function (event) {
+            const key = String(event.key || "").toLowerCase();
+            if (key === "f5" || ((event.ctrlKey || event.metaKey) && key === "r")) {
+                allowLeaveGuardNavigation(10000);
+            }
+        }, true);
+
+        if (window.navigation && typeof window.navigation.addEventListener === "function") {
+            window.navigation.addEventListener("navigate", function (event) {
+                if (event && event.navigationType === "reload") {
+                    allowLeaveGuardNavigation(10000);
+                }
+            });
+        }
+
+        window.addEventListener("beforeunload", function (event) {
+            if (!leaveGuardEnabled || Date.now() <= leaveGuardAllowUntil) {
+                return;
+            }
+            event.preventDefault();
+            event.returnValue = "";
+        });
     }
 
     function storeGet(key, def) {
@@ -471,6 +562,92 @@
         });
     }
 
+    function initPasswordCriteria(root) {
+        root = root || document;
+        const rulesList = [];
+        if (root.matches && root.matches("[data-dbx-password-rules]")) {
+            rulesList.push(root);
+        }
+        if (root.querySelectorAll) {
+            root.querySelectorAll("[data-dbx-password-rules]").forEach(
+                rules => rulesList.push(rules)
+            );
+        }
+
+        rulesList.forEach(function (rules) {
+            if (rules.dataset.dbxPasswordRulesBound === "1") {
+                return;
+            }
+            const form = rules.closest("form") || document;
+            const passwordName = rules.dataset.passwordInput || "";
+            const repeatName = rules.dataset.passwordRepeat || "";
+            const password = passwordName && form.elements
+                ? form.elements.namedItem(passwordName)
+                : null;
+            const repeat = repeatName && form.elements
+                ? form.elements.namedItem(repeatName)
+                : null;
+            if (!password || !repeat) {
+                return;
+            }
+            rules.dataset.dbxPasswordRulesBound = "1";
+
+            function setRule(name, valid, active) {
+                const item = rules.querySelector(
+                    "[data-password-rule='" + name + "']"
+                );
+                if (!item) return;
+                const icon = item.querySelector("i");
+                item.classList.toggle("is-valid", active && valid);
+                item.classList.toggle("is-missing", active && !valid);
+                if (icon) {
+                    icon.className = "bi " + (!active
+                        ? "bi-circle"
+                        : (valid
+                            ? "bi-check-circle-fill"
+                            : "bi-x-circle-fill"));
+                }
+            }
+
+            function updateRules() {
+                const value = password.value || "";
+                const repeated = repeat.value || "";
+                const active = value !== "" || repeated !== "";
+                const minimumLength = Math.max(
+                    6,
+                    Math.min(128, Number(rules.dataset.passwordMin) || 6)
+                );
+                const minimumLabel = rules.querySelector(
+                    "[data-password-min-label]"
+                );
+                if (minimumLabel) {
+                    minimumLabel.textContent = String(minimumLength);
+                }
+                setRule(
+                    "length",
+                    Array.from(value).length >= minimumLength,
+                    active
+                );
+                setRule(
+                    "letters",
+                    /[A-Z]/.test(value) && /[a-z]/.test(value),
+                    active
+                );
+                setRule("number", /[0-9]/.test(value), active);
+                setRule("special", /[^A-Za-z0-9]/.test(value), active);
+                setRule(
+                    "match",
+                    value !== "" && value === repeated,
+                    active
+                );
+            }
+
+            password.addEventListener("input", updateRules);
+            repeat.addEventListener("input", updateRules);
+            updateRules();
+        });
+    }
+
     function getCollapseState(key) {
         if (!key || !window.dbx || typeof dbx.uiGet !== "function") return "";
         return dbx.uiGet(COLLAPSE_LIB, key, "state", "");
@@ -875,6 +1052,7 @@
             dbx.openWin.open(cfg);
             return;
         }
+        allowIfInternalNavigation(url);
         window.location.href = url;
     }
 
@@ -1171,10 +1349,12 @@
 
         initClearableInputs();
         initBackToTop();
+        initLeaveGuard();
         initModeTheme();
         initConsent(root);
         initCollapsible(root);
         initHtmlTooltips(root);
+        initPasswordCriteria(root);
 
         if (window.dbx && typeof dbx.log === "function") {
             dbx.log("[utilities] init");
@@ -1216,6 +1396,22 @@
             show: showTooltip,
             hide: hideTooltip
         },
+        passwordRules: {
+            init: initPasswordCriteria
+        },
+        leaveGuard: {
+            allowOnce: allowLeaveGuardNavigation,
+            allowIfInternal: allowIfInternalNavigation,
+            enable: function () {
+                leaveGuardEnabled = true;
+            },
+            disable: function () {
+                leaveGuardEnabled = false;
+            },
+            enabled: function () {
+                return leaveGuardEnabled;
+            }
+        },
         consent: consentApi
     };
 
@@ -1228,6 +1424,7 @@
                 const ajaxRoot = data && (data.targetElement || data.root) ? (data.targetElement || data.root) : document;
                 initCollapsible(ajaxRoot);
                 initHtmlTooltips(ajaxRoot);
+                initPasswordCriteria(ajaxRoot);
             });
         }
 
