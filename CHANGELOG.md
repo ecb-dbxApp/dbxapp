@@ -4,6 +4,18 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.0.4] - 2026-07-31
+
+### Fixed
+
+- Der System-Updater erkennt den relativen SQLite-DD-Server
+  `dbxUser.db3` und die vom laufenden DD-Loader qualifizierte Form
+  `dbx|dbxUser.db3` als dasselbe physische Ziel. Dadurch kann die
+  Benutzer-/Gruppenmigration auch in Installationen mit vorhandener lokaler
+  DB3-Datei sicher vorbereitet werden.
+- Die Migrationsprüfung deckt jetzt sowohl äquivalente SQLite-Schreibweisen
+  als auch weiterhin gesperrte echte DD-Serverwechsel ab.
+
 ## [4.0.3] - 2026-07-31
 
 ### Added

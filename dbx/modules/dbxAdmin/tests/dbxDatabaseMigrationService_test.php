@@ -26,6 +26,7 @@ final class MigrationDbStub
 {
     public array $rows = array();
     public array $writes = array();
+    public array $bindingOverride = array();
     private int $nextId = 1;
 
     public function get_dd_server(string $dd): string
@@ -47,14 +48,14 @@ final class MigrationDbStub
 
     public function get_dd_server_binding_info(string $dd): array
     {
-        return array(
+        return array_replace(array(
             'source' => 'local-binding',
             'valid' => true,
             'resolved_server' => $dd === 'dbx|dbxUser'
                 ? 'mysqlUsers'
                 : 'dbxUser.db3',
             'declared_server' => 'dbxUser.db3',
-        );
+        ), $this->bindingOverride);
     }
 
     public function select1(string $dd, array $where, mixed $columns, int $access): array
@@ -196,6 +197,50 @@ try {
         ($servers['dbx|dbxUser'] ?? '') === 'mysqlUsers'
             && ($servers['dbx|dbxUser_groups'] ?? '') === 'dbxUser.db3',
         'Gemischte DD-Serverbindungen wurden im Migrationsplan nicht erhalten.'
+    );
+
+    $equivalentDb = new MigrationDbStub();
+    $equivalentDb->bindingOverride = array(
+        'source' => 'dd-default',
+        'resolved_server' => 'dbx|dbxUser.db3',
+        'declared_server' => 'dbx|dbxUser.db3',
+    );
+    $equivalentService = new dbxDatabaseMigrationService(
+        $equivalentDb,
+        new MigrationDdStub()
+    );
+    $equivalentState = $equivalentService->prepare(
+        $root,
+        '4.0.4',
+        $backup . '/equivalent'
+    );
+    migration_assert(
+        $equivalentState['pending'] === array('core-4.0.3-user-identity'),
+        'Qualifizierter und relativer SQLite-Server wurden nicht als identisch erkannt.'
+    );
+
+    $changedDb = new MigrationDbStub();
+    $changedDb->bindingOverride = array(
+        'source' => 'dd-default',
+        'resolved_server' => 'legacyUsers',
+        'declared_server' => 'legacyUsers',
+    );
+    $changedService = new dbxDatabaseMigrationService(
+        $changedDb,
+        new MigrationDdStub()
+    );
+    $serverChangeRejected = false;
+    try {
+        $changedService->prepare($root, '4.0.4', $backup . '/changed');
+    } catch (RuntimeException $exception) {
+        $serverChangeRejected = str_contains(
+            $exception->getMessage(),
+            'DD-Serverwechsel'
+        );
+    }
+    migration_assert(
+        $serverChangeRejected,
+        'Ein echter DD-Serverwechsel wurde nicht blockiert.'
     );
 
     $applied = $service->apply($state);
