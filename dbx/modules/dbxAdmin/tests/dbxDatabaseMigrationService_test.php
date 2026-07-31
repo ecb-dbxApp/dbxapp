@@ -218,6 +218,15 @@ try {
         $equivalentState['pending'] === array('core-4.0.3-user-identity'),
         'Qualifizierter und relativer SQLite-Server wurden nicht als identisch erkannt.'
     );
+    $canonicalServer = new ReflectionMethod(
+        dbxDatabaseMigrationService::class,
+        'canonicalServerReference'
+    );
+    migration_assert(
+        $canonicalServer->invoke($equivalentService, 'dbxUser.db3', 'dbx')
+            === 'dbx|dbxUser.db3',
+        'Modulrelativer SQLite-Server wurde nicht kanonisch qualifiziert.'
+    );
 
     $changedDb = new MigrationDbStub();
     $changedDb->bindingOverride = array(

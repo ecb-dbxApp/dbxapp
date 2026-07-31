@@ -166,7 +166,7 @@ $userDefinition = array_values(array_filter(
     static fn(array $record): bool => $record['dd'] === 'dbx|dbxUser'
 ))[0] ?? array();
 installation_assert(
-    ($userDefinition['declared_server'] ?? '') === 'dbxUser.db3'
+    ($userDefinition['declared_server'] ?? '') === 'dbx|dbxUser.db3'
         && ($userDefinition['table'] ?? '') === 'dbx_user',
     'Deklarierter DD-Quellspeicher wird nicht erkannt.'
 );
