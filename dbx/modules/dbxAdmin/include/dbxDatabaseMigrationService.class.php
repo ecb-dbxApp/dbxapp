@@ -329,12 +329,38 @@ class dbxDatabaseMigrationService
         })($file);
         $stagedServer = trim((string)($stagedTable['server'] ?? ''));
         $declared = trim((string)($binding['declared_server'] ?? ''));
-        if ($stagedServer !== '' && $declared !== '' && $stagedServer !== $declared) {
+        $module = trim((string)$parts[0]);
+        if ($stagedServer !== ''
+            && $declared !== ''
+            && $this->canonicalServerReference($stagedServer, $module)
+                !== $this->canonicalServerReference($declared, $module)
+        ) {
             throw new RuntimeException(
                 'DD-Serverwechsel benoetigt eine explizite lokale Bindung: '
                 . $ddRef . ' (' . $declared . ' -> ' . $stagedServer . ')'
             );
         }
+    }
+
+    /**
+     * SQLite-Server ohne Modulpräfix sind relativ zum DD-Modul. Der laufende
+     * DD-Loader ergänzt dieses Präfix, sobald die lokale DB-Datei existiert;
+     * im DB-freien Release-Staging bleibt dagegen der kurze Name erhalten.
+     * Beide Schreibweisen bezeichnen dasselbe physische Ziel.
+     */
+    private function canonicalServerReference(string $server, string $module): string
+    {
+        $server = trim($server);
+        if ($server === '' || $module === '') {
+            return $server;
+        }
+        if (strpos($server, '|') !== false) {
+            return $server;
+        }
+        if (preg_match('/\.(?:db3|sqlite|sqlite3)$/i', $server)) {
+            return $module . '|' . $server;
+        }
+        return $server;
     }
 
     public function apply(array $state): array

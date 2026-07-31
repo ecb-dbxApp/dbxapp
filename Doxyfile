@@ -1,5 +1,5 @@
 PROJECT_NAME           = "dbxapp"
-PROJECT_NUMBER         = "4.0.3"
+PROJECT_NUMBER         = "4.0.4"
 PROJECT_BRIEF          = "CMS, Shop, Workflows und modulare Geschäftsanwendungen"
 PROJECT_LOGO           = dbXapp-Logo.jpeg
 OUTPUT_DIRECTORY       = C:/xampp/htdocs/dbxapp-docs/reference
