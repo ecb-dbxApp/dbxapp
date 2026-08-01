@@ -104,6 +104,14 @@ foreach (array_unique($paths) as $relative) {
     }
 }
 
+$releaseBuilder = $root . '/tools/build-release.php';
+if (is_file($releaseBuilder)) {
+    $releaseBuilderContent = (string)file_get_contents($releaseBuilder);
+    if (str_contains($releaseBuilderContent, "preg_match('#/tests/#'")) {
+        $failures[] = 'Kunden-Releases müssen die dbxSelfTest-Vertragstests enthalten.';
+    }
+}
+
 if ($failures !== array()) {
     fwrite(STDERR, "FAIL\n- " . implode("\n- ", $failures) . "\n");
     exit(1);
