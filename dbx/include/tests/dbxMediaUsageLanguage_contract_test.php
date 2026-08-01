@@ -10,6 +10,7 @@ $check = static function(bool $condition, string $message) use (&$failures): voi
 $dd = (string)file_get_contents($root . '/dbx/modules/dbx/dd/dbxMediaUsage.dd.php');
 $cms = (string)file_get_contents($root . '/dbx/modules/dbxContent_admin/include/dbxContent_cms.class.php');
 $renderer = (string)file_get_contents($root . '/dbx/modules/dbxContent/include/dbxContentRenderer.class.php');
+$scope = (string)file_get_contents($root . '/dbx/modules/dbxContent/include/dbxContentMediaUsageScope.class.php');
 $shop = (string)file_get_contents($root . '/dbx/modules/dbxShop_admin/include/dbxShopAdmin.class.php');
 $ki = (string)file_get_contents($root . '/dbx/modules/dbxKi/include/dbxKiCmsService.class.php');
 $migrationPath = $root . '/dbx/modules/dbx/migrations/4.1.0-001-media-usage-language.migration.php';
@@ -37,6 +38,10 @@ $check(str_contains($cms, "slot IN ('hero','gallery','header','teaser','footer')
 $check(!str_contains($cms, "active = 1 AND slot <> 'inline'"), 'Page copying must never select every non-inline slot (that copied shop data).');
 $check(str_contains($cms, 'dbxContentMediaUsageScope::withLanguage'), 'CMS usage reads and writes must be language scoped.');
 $check(str_contains($renderer, 'dbxContentMediaUsageScope::withLanguage'), 'Frontend rendering must be language scoped.');
+$check(
+    str_contains($scope, 'if (!class_exists(dbxContentMediaUsageScope::class, false))'),
+    'The staged media-usage scope must be safe to include when the active release already loaded the class.'
+);
 $check(str_contains($shop, "'content_lng' => \$this->shopMediaUsageLng()"), 'Shop usage must be assigned to the stable master language.');
 $check(str_contains($shop, "\$db->delete(") && str_contains($shop, 'sourceNeedle'), 'Shop synchronization must replace its own snapshot instead of accumulating inactive rows.');
 $check(str_contains($ki, "slot IN ('hero','gallery','inline','header','teaser','footer')"), 'KI page translation/copy must exclude the shop slot.');

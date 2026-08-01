@@ -8,6 +8,7 @@ namespace dbx\dbxContent;
  * Abfrage auf dbxMediaUsage, die ein Content-Ziel betrifft, muss deshalb die
  * Sprache einschliessen.
  */
+if (!class_exists(dbxContentMediaUsageScope::class, false)) {
 final class dbxContentMediaUsageScope {
 
    public static function language(string $lng = ''): string {
@@ -43,4 +44,5 @@ final class dbxContentMediaUsageScope {
          ? $prefix . 'content:' . $contentId
          : $prefix . 'folder:' . max(0, $folderId);
    }
+}
 }

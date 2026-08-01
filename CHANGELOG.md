@@ -4,6 +4,17 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.1.3] - 2026-08-01
+
+### Fixed
+
+- Die sprachübergreifende Medien-Reparaturmigration kann bei einem Update
+  aus einer bereits laufenden 4.1.x-Installation gefahrlos die geprüfte
+  Klasse aus dem Release-Staging laden, ohne eine PHP-Klassendeklaration zu
+  wiederholen.
+- Ein Regressionstest schützt den Wiederaufnahme- und Reparaturpfad für
+  bereits begonnene Updates.
+
 ## [4.1.2] - 2026-08-01
 
 ### Fixed

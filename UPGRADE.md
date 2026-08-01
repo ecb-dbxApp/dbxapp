@@ -12,9 +12,18 @@ dbxApp 4.0.2 ist die erste updaterfähige Referenzversion. Von dieser Basis aus
 steht unter **dbxAdmin → Status & Health → System-Update** für spätere stabile
 dbxApp-4-Releases der verbindliche Standardablauf bereit:
 
+### Besonderheiten in 4.1.3
+
+Version 4.1.3 ist der verbindliche Zielstand der 4.1-Linie. Sie enthält den
+vollständigen Reparaturpfad aus 4.1.2 und verhindert zusätzlich einen
+Klassenkonflikt, wenn die neue Medien-Sprachkontextklasse in einer bereits
+teilweise aktualisierten 4.1.x-Installation schon geladen ist. Auch ein nach
+einem abgebrochenen 4.1.2-Lauf erneut gestartetes Update kann dadurch die
+offene Migration sicher fortsetzen.
+
 ### Besonderheiten in 4.1.2
 
-Version 4.1.2 ist der verbindliche Zielstand der 4.1-Linie. Sie verwendet für
+Version 4.1.2 verwendet für
 `sync_dd` die DD-Datei aus dem geprüften Release-Staging und führt zusätzlich
 `core-4.1.2-media-usage-schema-repair` aus. Die Migration prüft, dass
 `dbxMediaUsage.content_lng` physisch vorhanden ist, bevor sie die
