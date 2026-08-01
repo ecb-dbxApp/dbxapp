@@ -131,6 +131,7 @@ final class MigrationDdStub
 {
     public bool $ledgerCreated = false;
     public array $dropped = array();
+    public array $syncDefinitions = array();
 
     public function get_table_exist(string $server, string $table): bool
     {
@@ -145,6 +146,13 @@ final class MigrationDdStub
 
     public function sync_dd_to_db(string $module, string $dd, string $mode): array
     {
+        if ($mode !== 'reset') {
+            $fields = $_SESSION['dbx']['cache']['dd'][$module][$dd]['fields'] ?? array();
+            $this->syncDefinitions[$module . '|' . $dd] = array_values(array_map(
+                static fn(array $field): string => (string)($field['name'] ?? ''),
+                is_array($fields) ? $fields : array()
+            ));
+        }
         return array(
             'status' => $mode === 'reset' ? 'reset' : 'finished',
             'message' => 'ok',
@@ -252,11 +260,43 @@ try {
         'Ein echter DD-Serverwechsel wurde nicht blockiert.'
     );
 
+    $hadUserCache = isset($_SESSION['dbx']['cache']['dd']['dbx'])
+        && array_key_exists('dbxUser', $_SESSION['dbx']['cache']['dd']['dbx']);
+    $previousUserCache = $hadUserCache
+        ? $_SESSION['dbx']['cache']['dd']['dbx']['dbxUser']
+        : null;
+    $_SESSION['dbx']['cache']['dd']['dbx']['dbxUser'] = array(
+        'table' => array('server' => 'legacyUsers', 'table' => 'legacy_user'),
+        'fields' => array(array('name' => 'legacy_only')),
+        'indexes' => array(),
+    );
+
     $applied = $service->apply($state);
     migration_assert(
         $applied['applied'] === array('core-4.0.3-user-identity'),
         'Migration wurde nicht ausgefuehrt.'
     );
+    migration_assert(
+        in_array('uname', $dd->syncDefinitions['dbx|dbxUser'] ?? array(), true)
+            && !in_array('legacy_only', $dd->syncDefinitions['dbx|dbxUser'] ?? array(), true),
+        'sync_dd hat nicht die DD-Definition aus dem Releasebaum verwendet.'
+    );
+    migration_assert(
+        in_array(
+            'legacy_only',
+            array_column(
+                $_SESSION['dbx']['cache']['dd']['dbx']['dbxUser']['fields'] ?? array(),
+                'name'
+            ),
+            true
+        ),
+        'Der vorherige DD-Cache wurde nach der Migration nicht wiederhergestellt.'
+    );
+    if ($hadUserCache) {
+        $_SESSION['dbx']['cache']['dd']['dbx']['dbxUser'] = $previousUserCache;
+    } else {
+        unset($_SESSION['dbx']['cache']['dd']['dbx']['dbxUser']);
+    }
     $ledger = $db->select1(
         dbxDatabaseMigrationService::LEDGER_DD,
         array('migration_id' => 'core-4.0.3-user-identity'),
