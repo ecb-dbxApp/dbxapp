@@ -302,6 +302,9 @@ foreach (array(
     'Kanonische Seite',
     'dbxForm · Gesamtdokument',
     'dbxReport · Gesamtdokument',
+    'ARRAY_FILTER_USE_BOTH',
+    '$navigation !== array()',
+    "'id,folder,menu_title,sorter'",
 ) as $needle) {
     docs_portal_assert(
         str_contains($docsProvision, $needle),

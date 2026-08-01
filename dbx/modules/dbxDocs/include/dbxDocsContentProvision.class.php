@@ -662,8 +662,18 @@ class dbxDocsContentProvision
         if ($id <= 0) {
             return;
         }
-        $updated = $this->db->update(dbxContentLng::ddContent($language), array(
-            'folder' => (int)($this->folderIds[$language]['service'] ?? 0),
+        $dd = dbxContentLng::ddContent($language);
+        $targetFolder = (int)($this->folderIds[$language]['service'] ?? 0);
+        $existing = $this->db->select1($dd, array('id' => $id), 'id,folder,menu_title,sorter', 0);
+        if (
+            (int)($existing['folder'] ?? 0) === $targetFolder
+            && (string)($existing['menu_title'] ?? '') === $menuTitle
+            && (string)($existing['sorter'] ?? '') === $sorter
+        ) {
+            return;
+        }
+        $updated = $this->db->update($dd, array(
+            'folder' => $targetFolder,
             'menu_title' => $menuTitle,
             'sorter' => $sorter,
         ), $id, 0, 1, 0, 1);
@@ -1063,7 +1073,17 @@ class dbxDocsContentProvision
             }
             if (!$this->force && !$isImported) {
                 $navigation = array_intersect_key($data, array_flip(array('folder', 'menu_title', 'sorter')));
-                if ($this->db->update($dd, $navigation, $id, 0, 1, 0, 1) === 1) {
+                $navigation = array_filter(
+                    $navigation,
+                    static function (mixed $value, string $field) use ($existing): bool {
+                        if ($field === 'folder') {
+                            return (int)($existing[$field] ?? 0) !== (int)$value;
+                        }
+                        return (string)($existing[$field] ?? '') !== (string)$value;
+                    },
+                    ARRAY_FILTER_USE_BOTH
+                );
+                if ($navigation !== array() && $this->db->update($dd, $navigation, $id, 0, 1, 0, 1) === 1) {
                     $this->result['pages_updated']++;
                 }
                 return $id;

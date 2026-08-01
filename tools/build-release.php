@@ -42,13 +42,13 @@ function release_file_allowed(string $relative): bool
    $base = basename($relative);
    $extension = strtolower(pathinfo($relative, PATHINFO_EXTENSION));
 
-   if (preg_match('#^(?:\.git|\.github|dist|docs|tools|files|output|tmp)/#', $relative)
+   if (preg_match('#^(?:\.git|\.github|dist|tools|files|output|tmp)/#', $relative)
       || str_starts_with($relative, 'dbx/files/')
       || preg_match('#/tests/#', '/' . $relative)
       || preg_match('#/db/#i', '/' . $relative)
       || preg_match('#/(?:cache|tmp|work|backup|backups|_backup|\.backup|uploads)/#i', '/' . $relative)
       || preg_match('/^\d{2}_.*\.md$/', $base)
-      || in_array($base, array('.gitignore', '.gitattributes', '.editorconfig', 'Doxyfile'), true)
+      || in_array($base, array('.gitignore', '.gitattributes', '.editorconfig'), true)
       || str_starts_with($base, 'RELEASE_NOTES_')
       || in_array($base, array('.env', '.env.local', 'config.local.php'), true)
       || in_array($extension, array('db3', 'sqlite', 'sqlite3', 'log', 'tmp', 'bak', 'backup', 'pem', 'key', 'p12', 'pfx'), true)) {
