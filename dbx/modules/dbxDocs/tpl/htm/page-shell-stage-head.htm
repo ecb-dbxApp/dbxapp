@@ -1,0 +1,26 @@
+            </nav>
+        </div>
+        <div class="dbxdocs-sidebar-foot"><i class="bi bi-shield-check" aria-hidden="true"></i><span>dbxapp 4 · Wissen aus einer Quelle</span></div>
+    </aside>
+
+    <div class="dbxdocs-stage">
+        <div class="dbxdocs-stage-header">
+            [inc=has_group('admin')]
+            <div class="dbxdocs-admin-strip" aria-label="Administration">
+                <nav id="dbx_admin_menu" class="dbx-menu dbx-menu-admin" data-dbx='lib=menu|id=admin|label=Verwaltung' style="visibility:hidden">
+                    [modul=dbxMenu]dbx_run1=load&tpl=modul|dbx-top-admin[/modul]
+                </nav>
+            </div>
+            [/inc]
+            <header class="dbxdocs-topbar">
+                <button class="dbxdocs-sidebar-toggle" type="button" data-dbxdocs-sidebar-toggle title="Navigation ein- oder ausklappen" aria-label="Navigation ein- oder ausklappen" aria-expanded="true"><i class="bi bi-list"></i></button>
+                <div class="dbxdocs-page-title">
+                    <span class="dbxdocs-kicker"><i class="bi bi-book" aria-hidden="true"></i> dbxapp Wissen</span>
+                    <strong>{dbx:title}</strong>
+                </div>
+                <div class="dbxdocs-audience" aria-label="Schnellzugriff">
+                    <a href="?dbx_modul=dbxDocs&amp;dbx_run1=search" title="Dokumentation durchsuchen"><i class="bi bi-search" aria-hidden="true"></i><span>Suche</span></a>
+                    <a href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=overview" title="Technische Referenz"><i class="bi bi-code-slash" aria-hidden="true"></i><span>Referenz</span></a>
+                </div>
+            </header>
+        </div>

@@ -1,5 +1,5 @@
 /**
-@page dbxcontent_tutorial_tutorial_frontpage_direkt_cms Tutorial: Frontpage direkt bearbeiten
+@page dbxcontent_tutorial_tutorial_frontpage_direkt_cms Frontpage bearbeiten
 
 <!-- Automatisch aus content_de#83 erzeugt. Nicht direkt bearbeiten. -->
 
@@ -11,6 +11,7 @@
 
 @htmlonly
 <div class="dbx-tutorial-source">
+<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_frontpage_direkt_cms.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
 <p>Content direkt aus der sichtbaren Frontpage im CMS öffnen.</p><p>Nutzen Sie die Slideshow, um die einzelnen Schritte in Ruhe durchzugehen.</p>
 </div>
 @endhtmlonly

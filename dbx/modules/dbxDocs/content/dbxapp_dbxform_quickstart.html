@@ -1,0 +1,44 @@
+<article class="dbxdocs-cms-article" data-dbx-doc-revision="2026-08-01-dbxform-quickstart-1">
+    <span class="dbx-doc-kicker">Entwickler · Schnellstart</span>
+    <h1>dbxForm in einem Arbeitsgang</h1>
+    <p class="lead">Dieser Einstieg führt vom DD/FD-Vertrag bis zum geprüften Speichern. Für Spezialfälle bleibt das ausführliche Gesamtdokument erhalten.</p>
+
+    <h2>Wann dbxForm passt</h2>
+    <ul>
+        <li>Datensätze anlegen oder bearbeiten</li>
+        <li>validierte Filter- und Konfigurationsmasken</li>
+        <li>mehrstufige oder per AJAX aktualisierte Formulare</li>
+    </ul>
+
+    <h2>Der verbindliche Ablauf</h2>
+    <ol>
+        <li>DD und sprachabhängige FD definieren.</li>
+        <li><code>dbxForm</code> initialisieren und Daten, RID sowie Action setzen.</li>
+        <li>Felder vor der Submit-Prüfung hinzufügen.</li>
+        <li><code>submit()</code> und <code>errors()</code> auswerten.</li>
+        <li>über <code>save_post()</code> speichern und immer mit <code>run()</code> rendern.</li>
+    </ol>
+
+    <pre class="fragment"><code>$form = dbx()-&gt;get_system_obj('dbxForm');
+$form-&gt;init('customer-edit', 'customer-edit');
+$form-&gt;_dd = 'crm|customer';
+$form-&gt;_fd = 'crm|customer-form';
+$form-&gt;_data = $data;
+$form-&gt;_rid = $rid;
+$form-&gt;add_flds();
+
+if ($form-&gt;submit() &amp;&amp; !$form-&gt;errors()) {
+    $form-&gt;save_post($form-&gt;_dd, $rid ?: 'new');
+}
+
+return $form-&gt;run();</code></pre>
+
+    <h2>Abnahme</h2>
+    <p>Prüfen Sie Pflichtfelder, ungültige Eingaben, doppelten Submit, Neuanlage, Änderung, Rechte und den AJAX-Teilreload.</p>
+
+    <div class="dbxdocs-area-next">
+        <i class="bi bi-book" aria-hidden="true"></i>
+        <span><strong>Alle Varianten und Verträge</strong><span>Callbacks, Feldtypen, State, Uploads und erweiterte Muster.</span></span>
+        <a href="dokumentation-dbxform">Gesamtdokument öffnen</a>
+    </div>
+</article>

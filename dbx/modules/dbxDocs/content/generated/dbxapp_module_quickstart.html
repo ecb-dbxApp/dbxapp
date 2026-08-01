@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"></head><body><div class="contents"><div class="dbxdocs-cms-article dbxdocs-module-quickstart" data-dbx-doc-revision="2026-07-29-module-quickstart-v1">
+    <header class="dbxdocs-area-hero">
+        <span class="dbxdocs-area-icon"><i class="bi bi-stopwatch" aria-hidden="true"></i></span>
+        <div>
+            <span class="dbx-doc-kicker">Kompakter Golden Path</span>
+            <h1>Ein dbxapp-Modul in 30 Minuten</h1>
+            <p>
+                Diese Seite erklärt die Reihenfolge und die Zuständigkeiten.
+                Vollständige DD-, FD- und Quelldateien stehen im Referenzmodul
+                <code>myInvoices</code>.
+            </p>
+        </div>
+    </header>
+
+    <div class="dbxdocs-quickstart-contract">
+        <strong>Der Schichtenvertrag</strong>
+        <span>Router → Service → dbxDB/DD · dbxForm/FD · dbxReport · dbxTPL</span>
+        <small>JavaScript bestätigt oder transportiert nur; Rechte, Validierung und Mutation bleiben auf dem Server.</small>
+    </div>
+
+    <ol class="dbxdocs-quickstart-steps">
+        <li><div><strong>Modulordner und Konfiguration anlegen</strong><span>Router, <code>cfg/config.php</code>, Service, DD, FD und Templates klar trennen.</span></div></li>
+        <li><div><strong>Routen klassifizieren</strong><span>Lesende und mutierende Aktionen unterscheiden; Gruppen- und DD-Rechte festlegen.</span></div></li>
+        <li><div><strong>Datenvertrag als DD modellieren</strong><span>Tabellen, Felder, Indizes und Rechte explizit beschreiben; keine parallelen SQL-Wege.</span></div></li>
+        <li><div><strong>Formularsicht als FD definieren</strong><span>Felder, Labels und Validierung über die bestehende Form-Pipeline führen.</span></div></li>
+        <li><div><strong>Router klein halten</strong><span>Der Router wählt nur die Servicemethode; Datenzugriff und Markup gehören nicht in den Switch.</span></div></li>
+        <li><div><strong>Service über Systemfassaden bauen</strong><span><code>dbxDB</code>, <code>dbxForm</code>, <code>dbxReport</code> und <code>dbxTPL</code> direkt verwenden.</span></div></li>
+        <li><div><strong>Templates und Modul-Inclusion nutzen</strong><span>HTML in Templates halten; Unteransichten serverseitig mit <code>[modul=...]</code> einbetten.</span></div></li>
+        <li><div><strong>Sicherheit und beide Ausgabepfade testen</strong><span>Rechte, Action-Token, normaler Request, Ajax, Mehrfachinstanzen und Fehlerfälle prüfen.</span></div></li>
+    </ol>
+
+    <div class="dbxdocs-quickstart-links">
+        <a href="dokumentation-modulhandbuch"><strong>Vollständiges Referenzmodul</strong><span>myInvoices mit ausführbaren Dateien und Tests</span></a>
+        <a href="dokumentation-module-entwickeln"><strong>Vertiefende Patterns</strong><span>Varianten und größere Fachmodule</span></a>
+        <a href="dokumentation-ki-regeln"><strong>Verbindliche KI-Regeln</strong><span>Grenzen für Agenten und automatisierte Änderungen</span></a>
+    </div>
+</div></div></body></html>

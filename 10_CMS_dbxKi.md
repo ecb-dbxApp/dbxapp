@@ -1,9 +1,9 @@
 # CMS und dbxKi {#dbxapp_cms_dbxki}
 
-[Offizielle dbXapp Website](https://dbxapp.de)
+[Offizielle dbxapp Website](https://dbxapp.de)
 
-Das Frontend von dbXapp ist normalerweise CMS-getrieben. Seiten werden ueber
-Permalinks gefunden, aus Content-Datensaetzen gerendert und koennen Module
+Das Frontend von dbxapp ist normalerweise CMS-getrieben. Seiten werden über
+Permalinks gefunden, aus Content-Datensaetzen gerendert und können Module
 einbetten.
 
 ## CMS-Funktionalitaet
@@ -422,7 +422,7 @@ Mit Parametern:
 [modul=dbxContent]dbx_run1=show&cid=17[/modul]
 ```
 
-Der Interpreter fuehrt diese Inseln aus. Im Template-Editor bleiben sie Rohtext.
+Der Interpreter führt diese Inseln aus. Im Template-Editor bleiben sie Rohtext.
 
 ## Content-Bereiche und Spalten
 
@@ -445,7 +445,7 @@ entscheidet, welche Slots existieren:
 <footer class="footer">{cms:footer}</footer>
 ```
 
-Im Editor trennt der Inhalt Bereiche ueber einfache Marker, z.B.:
+Im Editor trennt der Inhalt Bereiche über einfache Marker, z.B.:
 
 ```html
 <hr class="dbx-cms-marker dbx-cms-marker-header"
@@ -456,20 +456,20 @@ Im Editor trennt der Inhalt Bereiche ueber einfache Marker, z.B.:
 ```
 
 Text vor, zwischen und nach diesen Markern wird vom CMS-Renderer in die
-passenden Slots gelegt. Spalten entstehen ueber Templates mit `{cms:col1}`,
+passenden Slots gelegt. Spalten entstehen über Templates mit `{cms:col1}`,
 `{cms:col2}` und `{cms:col3}`. Dadurch braucht der Content keine eigene
 PHP-Logik, um mehrspaltig oder mit Header/Footer dargestellt zu werden.
 
 ## Mehrsprachigkeit
 
-Content kann pro Sprache gefuehrt werden. Je nach Modulstruktur werden
-Sprachfelder, eigene Tabellen oder Verknuepfungen ueber `lng_uid` verwendet.
+Content kann pro Sprache geführt werden. Je nach Modulstruktur werden
+Sprachfelder, eigene Tabellen oder Verknüpfungen über `lng_uid` verwendet.
 
 Wichtige Punkte:
 
-- Sprache wird ueber `dbx_lng` und Remember-State gefuehrt.
-- Permalinks muessen sprachbezogen eindeutig sein.
-- Cache muss bei Content-Aenderungen invalidiert werden.
+- Sprache wird über `dbx_lng` und Remember-State geführt.
+- Permalinks müssen sprachbezogen eindeutig sein.
+- Cache muss bei Content-Änderungen invalidiert werden.
 
 ## Content-Cache
 
@@ -521,61 +521,61 @@ stabil.
 
 ## dbxKi
 
-`dbxKi` ist die KI-Schnittstelle fuer CMS- und Modulaufgaben. Sie soll
-strukturierte Vorschlaege liefern, aber nicht eigenmaechtig die dbXapp-Regeln
+`dbxKi` ist die KI-Schnittstelle für CMS- und Modulaufgaben. Sie soll
+strukturierte Vorschläge liefern, aber nicht eigenmaechtig die dbxapp-Regeln
 umgehen.
 
-Moegliche Aufgaben:
+Mögliche Aufgaben:
 
 - Content-Entwurf
 - SEO-Texte
-- Uebersetzung
+- Übersetzung
 - Modul-Briefings
-- Strukturvorschlaege fuer Seiten
-- Erklaerung vorhandener Templates
+- Strukturvorschläge für Seiten
+- Erklärung vorhandener Templates
 
 ## Visuelle CMS-Nutzung mit dbxKi
 
-dbxKi ist nicht nur eine technische Schnittstelle. Es ist auch fuer die
-menschenfreundliche Arbeit im CMS gedacht. Der Benutzer soll im CMS gefuehrt
+dbxKi ist nicht nur eine technische Schnittstelle. Es ist auch für die
+menschenfreundliche Arbeit im CMS gedacht. Der Benutzer soll im CMS geführt
 werden: Seite auswaehlen, Aufgabe beschreiben, Kontext bereitstellen,
-Vorschlag pruefen und erst danach speichern.
+Vorschlag prüfen und erst danach speichern.
 
-Ein typischer Ablauf fuer einen Redakteur:
+Ein typischer Ablauf für einen Redakteur:
 
 ```text
 CMS oeffnen
   -> Seite, Sprache und Template sehen
-  -> Aufgabe fuer dbxKi formulieren
+  -> Aufgabe für dbxKi formulieren
   -> Vorschlag/Preview anzeigen
-  -> Aenderungen visuell pruefen
+  -> Änderungen visuell prüfen
   -> ausfuehren und Content speichern
   -> Cache/Permalink-Index aktualisieren
 ```
 
 Der Vorteil ist, dass der Benutzer nicht mit Datenbanktabellen, IDs oder
-internen Speicherformaten arbeiten muss. Die Oberflaeche zeigt die Seite und
+internen Speicherformaten arbeiten muss. Die Oberfläche zeigt die Seite und
 die relevanten CMS-Informationen. dbxKi liefert dazu einen strukturierten
-Vorschlag, der ueber die vorhandenen dbXapp-Wege ausgefuehrt wird.
+Vorschlag, der über die vorhandenen dbxapp-Wege ausgeführt wird.
 
 Wichtig ist die Trennung:
 
 - Der Mensch entscheidet, welche Seite, Sprache und Aufgabe gemeint ist.
-- dbxKi erzeugt Vorschlaege, Jobs oder API-Aktionen.
-- dbXapp speichert nur ueber die vorhandenen CMS-, Form- und DB-Pipelines.
+- dbxKi erzeugt Vorschläge, Jobs oder API-Aktionen.
+- dbxapp speichert nur über die vorhandenen CMS-, Form- und DB-Pipelines.
 
-Dadurch bleibt die Arbeit gefuehrt und nachvollziehbar. Auch umfangreiche
-Aufgaben wie neue Seite anlegen, Seite uebersetzen, SEO-Texte verbessern oder
+Dadurch bleibt die Arbeit geführt und nachvollziehbar. Auch umfangreiche
+Aufgaben wie neue Seite anlegen, Seite übersetzen, SEO-Texte verbessern oder
 Hero-Bild zuordnen bestehen aus wenigen Schritten.
 
-## Direkter KI-Zugriff fuer Codex und Cursor
+## Direkter KI-Zugriff für Codex und Cursor
 
-KI-Werkzeuge wie Codex oder Cursor koennen direkt auf eine lokale dbXapp-
+KI-Werkzeuge wie Codex oder Cursor können direkt auf eine lokale dbxapp-
 Installation zugreifen, wenn sie Zugriff auf den Projektordner und/oder den
 lokalen HTTP-Endpunkt haben. Dann ist kein manuelles Hochladen und Herunterladen
 einer ZIP-Datei noetig.
 
-Der direkte Weg laeuft ueber das Modul:
+Der direkte Weg läuft über das Modul:
 
 ```text
 ?dbx_modul=dbxKi&dbx_run1=api
@@ -583,21 +583,21 @@ Der direkte Weg laeuft ueber das Modul:
 
 Die KI ruft zuerst `system.describe` auf. Danach kennt sie die erlaubten
 Aktionen, Pflichtparameter, Sprachen, Tokens und Beispiel-Requests. Sie darf
-CMS-Daten dann nicht direkt per SQL aendern, sondern nutzt die von dbxKi
+CMS-Daten dann nicht direkt per SQL ändern, sondern nutzt die von dbxKi
 bereitgestellten Aktionen.
 
-Empfohlener Ablauf fuer Codex/Cursor:
+Empfohlener Ablauf für Codex/Cursor:
 
 ```text
 system.describe
   -> cms.snapshot, folder.list, page.list oder page.get
-  -> Aenderung als preview planen
+  -> Änderung als preview planen
   -> Preview-Ergebnis auswerten
   -> execute_request aus Preview senden
   -> Ergebnis pruefen
 ```
 
-Beispiel fuer den ersten API-Aufruf:
+Beispiel für den ersten API-Aufruf:
 
 ```json
 {
@@ -605,7 +605,7 @@ Beispiel fuer den ersten API-Aufruf:
 }
 ```
 
-Beispiel fuer eine kontrollierte Aktualisierung:
+Beispiel für eine kontrollierte Aktualisierung:
 
 ```json
 {
@@ -622,15 +622,15 @@ Beispiel fuer eine kontrollierte Aktualisierung:
 ```
 
 Die Preview liefert einen ausfuehrbaren Request. Dadurch muss die KI nicht
-raten, welche Parameter beim Speichern notwendig sind. Der Ablauf ist gefuehrt:
-erst lesen, dann planen, dann ausfuehren.
+raten, welche Parameter beim Speichern notwendig sind. Der Ablauf ist geführt:
+erst lesen, dann planen, dann ausführen.
 
-## ZIP-Bundle fuer KI ohne direkten Zugriff
+## ZIP-Bundle für KI ohne direkten Zugriff
 
-Der ZIP-Weg ist fuer Situationen gedacht, in denen die KI keinen direkten
+Der ZIP-Weg ist für Situationen gedacht, in denen die KI keinen direkten
 Zugriff auf die Installation hat, zum Beispiel bei einem externen Chat-System.
 Dann exportiert der Mensch ein Briefing, die KI erzeugt daraus ein Antwort-
-Bundle und der Mensch importiert dieses Bundle wieder in dbXapp.
+Bundle und der Mensch importiert dieses Bundle wieder in dbxapp.
 
 ```text
 Briefing-ZIP exportieren
@@ -642,7 +642,7 @@ Briefing-ZIP exportieren
 
 Bei Codex oder Cursor auf demselben Rechner ist dieser ZIP-Umweg normalerweise
 nicht notwendig. Dort kann der direkte API- oder Projektzugriff benutzt werden.
-Der ZIP-Weg bleibt trotzdem wichtig, weil er einen sicheren Austauschweg fuer
+Der ZIP-Weg bleibt trotzdem wichtig, weil er einen sicheren Austauschweg für
 Installationen ohne gemeinsamen Dateisystem- oder HTTP-Zugriff bietet.
 
 ## dbxKi-Ablauf
@@ -661,17 +661,17 @@ Benutzerkontrolle sind zu vermeiden.
 
 ## Content mit dbxKi bearbeiten: menschliche Sicht
 
-Der Mensch arbeitet immer aus der dbXapp-Oberflaeche heraus. Er muss keine
+Der Mensch arbeitet immer aus der dbxapp-Oberfläche heraus. Er muss keine
 Datenbanktabellen, Dateipfade oder internen Speicherformate kennen.
 
 Typische Einstiege:
 
 - Neue CMS-Seite: `?dbx_modul=dbxKi&dbx_run1=briefing_page_create`
-- Bestehende CMS-Seite aendern: `?dbx_modul=dbxKi&dbx_run1=briefing_page_update`
-- CMS-Seite uebersetzen: `?dbx_modul=dbxKi&dbx_run1=briefing_page_translate`
+- Bestehende CMS-Seite ändern: `?dbx_modul=dbxKi&dbx_run1=briefing_page_update`
+- CMS-Seite übersetzen: `?dbx_modul=dbxKi&dbx_run1=briefing_page_translate`
 - Import fertiger KI-Antwort: `?dbx_modul=dbxKi&dbx_run1=bundle`
 
-Der menschliche Ablauf fuer eine Content-Aenderung:
+Der menschliche Ablauf für eine Content-Änderung:
 
 ```text
 dbxKi-Briefing oeffnen
@@ -689,24 +689,24 @@ dbxKi-Briefing oeffnen
   -> CMS-Seite im Editor und Frontend kontrollieren
 ```
 
-Wichtig fuer den Redakteur:
+Wichtig für den Redakteur:
 
 - Der Mensch entscheidet, welche Seite, Sprache und Aufgabe gemeint ist.
 - Die Auswahl der Bootstrap-Komponenten ist Teil des Auftrags. Nur die im
-  Briefing ausgewaehlten Komponenten duerfen in den Content eingebaut werden.
-- Medien werden ueber die Medienverwaltung erzeugt oder zugeordnet, nicht ueber
+  Briefing ausgewählten Komponenten dürfen in den Content eingebaut werden.
+- Medien werden über die Medienverwaltung erzeugt oder zugeordnet, nicht über
   manuelle `files/media/...`-Pfade im HTML.
-- Hero-Bilder sind kein normaler HTML-Inhalt. Sie werden ueber die Hero- oder
+- Hero-Bilder sind kein normaler HTML-Inhalt. Sie werden über die Hero- oder
   Medien-Aktionen von dbxKi ersetzt oder neu angelegt.
-- Der Import fuehrt nicht blind Fremdcode aus. dbxKi validiert den Job und
+- Der Import führt nicht blind Fremdcode aus. dbxKi validiert den Job und
   benutzt die vorhandenen CMS-Pipelines.
-- Nach dem Ausfuehren werden Cache, Permalink-Index und Medienzuordnungen ueber
-  die dbXapp-Wege aktualisiert.
+- Nach dem Ausfuehren werden Cache, Permalink-Index und Medienzuordnungen über
+  die dbxapp-Wege aktualisiert.
 
 ## Content mit dbxKi bearbeiten: KI-Sicht
 
-Die KI denkt nicht ueber die komplette dbXapp-Implementierung nach. Sie liest
-den Auftrag und fuellt das feste Antwortschema. Die Ausfuehrung macht dbxKi.
+Die KI denkt nicht über die komplette dbxapp-Implementierung nach. Sie liest
+den Auftrag und fuellt das feste Antwortschema. Die Ausführung macht dbxKi.
 
 Die KI liest im Auftrags-Bundle mindestens:
 
@@ -717,7 +717,7 @@ Die KI liest im Auftrags-Bundle mindestens:
 - `manifest.json`
 - optionale Medien- oder Beispiel-Dateien unter `assets/`
 
-Verbindlicher KI-Ablauf fuer CMS-Content:
+Verbindlicher KI-Ablauf für CMS-Content:
 
 ```text
 Auftrag lesen
@@ -743,30 +743,30 @@ Erlaubte Content-Aktionen werden von dbxKi vorgegeben, zum Beispiel:
 - `media.create_image_variant`
 - `media.assign`
 
-Regeln fuer die KI:
+Regeln für die KI:
 
-- Kein SQL, kein PHP, keine direkten Datei- oder Datenbank-Aenderungen.
-- Keine eigenen Tools oder Nebenprozesse fuer die Ausfuehrung erfinden.
-- `job.json` ist die einzige fachliche Antwortstruktur fuer dbxKi.
+- Kein SQL, kein PHP, keine direkten Datei- oder Datenbank-Änderungen.
+- Keine eigenen Tools oder Nebenprozesse für die Ausführung erfinden.
+- `job.json` ist die einzige fachliche Antwortstruktur für dbxKi.
 - IDs, Sprache, Template, Ordner und bestehende Content-Felder aus dem Kontext
   nicht frei raten.
-- Felder, die nicht im Auftrag stehen, unveraendert lassen.
+- Felder, die nicht im Auftrag stehen, unverändert lassen.
 - Content ist HTML, nicht Markdown.
 - Modul-Inclusions wie `[modul=...]...[/modul]` exakt erhalten, ausser der
-  Auftrag fordert die Aenderung ausdruecklich.
+  Auftrag fordert die Änderung ausdrücklich.
 - Bootstrap-Komponenten nur verwenden, wenn sie im Briefing erlaubt wurden und
-  fuer Jodit/CMS sinnvoll nutzbar sind.
-- Inline-Medien nach `media.create_*` ueber die von dbxKi gelieferten
+  für Jodit/CMS sinnvoll nutzbar sind.
+- Inline-Medien nach `media.create_*` über die von dbxKi gelieferten
   `inline_src`- oder `inline_img`-Werte einbauen.
 - Neue Medien immer anschliessend mit `media.assign` zuordnen, wenn sie im CMS
   als Hero, Gallery oder Inline-Medium erscheinen sollen.
 - Bei direktem API-Weg zuerst `system.describe` lesen, dann Guide/Preview
-  nutzen und den gelieferten `execute_request` unveraendert ausfuehren.
+  nutzen und den gelieferten `execute_request` unverändert ausführen.
 
 ## Module mit dbxKi bearbeiten: menschliche Sicht
 
-Neue Module werden zuerst ueber den Modul-Wizard angelegt. dbxKi fuer Module
-ist fuer die kontrollierte Bearbeitung bestehender Module gedacht.
+Neue Module werden zuerst über den Modul-Wizard angelegt. dbxKi für Module
+ist für die kontrollierte Bearbeitung bestehender Module gedacht.
 
 Typische Einstiege:
 
@@ -774,7 +774,7 @@ Typische Einstiege:
 - Modul-Antwort importieren: `?dbx_modul=dbxKi&dbx_run1=module_bundle`
 - Modul-API beschreiben: `?dbx_modul=dbxKi&dbx_run1=module_api&action=system.describe`
 
-Der menschliche Ablauf fuer Modul-Aenderungen:
+Der menschliche Ablauf für Modul-Änderungen:
 
 ```text
 Modul-Wizard nutzen, falls ein neues Modul benoetigt wird
@@ -782,7 +782,7 @@ Modul-Wizard nutzen, falls ein neues Modul benoetigt wird
   -> bestehendes Modul auswaehlen
   -> optional DD auswaehlen
   -> Aufgabe und Kontextumfang festlegen
-  -> Auftrag fuer die KI schreiben
+  -> Auftrag für die KI schreiben
   -> KI-Auftrags-ZIP exportieren
   -> Antwort-ZIP importieren
   -> dbxKi validiert Modulname, Pfade, Actions und Schema
@@ -792,16 +792,16 @@ Modul-Wizard nutzen, falls ein neues Modul benoetigt wird
   -> bei schwerem Fehler Modul-Backup wiederherstellen
 ```
 
-Wichtig fuer den Admin:
+Wichtig für den Admin:
 
 - dbxKi darf nur das ausgewaehlte Modul bearbeiten.
-- Aenderungen ausserhalb von `dbx/modules/{modul}/` sind nicht Bestandteil eines
+- Änderungen ausserhalb von `dbx/modules/{modul}/` sind nicht Bestandteil eines
   Modul-Jobs.
-- DD-Dateien sind vollstaendig. Sie duerfen nicht von `inc`-Dateien abhaengen.
-- Jede DD gehoert zu ihrer eigenen DB-Tabelle.
-- DD-zu-DB-Sync laeuft ueber dbxKi und die dbXapp-Pipeline, nicht ueber
+- DD-Dateien sind vollständig. Sie dürfen nicht von `inc`-Dateien abhaengen.
+- Jede DD gehört zu ihrer eigenen DB-Tabelle.
+- DD-zu-DB-Sync läuft über dbxKi und die dbxapp-Pipeline, nicht über
   manuelle SQL-Migrationen.
-- Templates werden über die dbXapp-Templatewege gelesen und geschrieben. Zum
+- Templates werden über die dbxapp-Templatewege gelesen und geschrieben. Zum
   Lesen verwendet Modulcode `dbx()->get_system_obj('dbxTPL')->get_tpl(...)`;
   Schreibvorgänge laufen über die dafür vorgesehene Editor-/dbxKi-Pipeline.
 - Formulare sollen dbxForm-Konventionen nutzen.
@@ -812,7 +812,7 @@ Wichtig fuer den Admin:
 ## Module mit dbxKi bearbeiten: KI-Sicht
 
 Die KI bearbeitet kein Projekt frei. Sie liefert einen Modul-Job im festen
-Schema. dbxKi prueft und schreibt danach ueber eigene Funktionen.
+Schema. dbxKi prüft und schreibt danach über eigene Funktionen.
 
 Die KI liest im Modul-Auftrag mindestens:
 
@@ -824,13 +824,13 @@ Die KI liest im Modul-Auftrag mindestens:
 - `manifest.json`
 - optionalen Modulkontext unter `module_context/`
 
-Verbindlicher KI-Ablauf fuer Modul-Aenderungen:
+Verbindlicher KI-Ablauf für Modul-Änderungen:
 
 ```text
 Modul-Auftrag lesen
   -> ausgewaehltes Modul und optionales DD feststellen
   -> module.describe.json als API-Vertrag nutzen
-  -> module.snapshot.json fuer Bestand und Grenzen nutzen
+  -> module.snapshot.json für Bestand und Grenzen nutzen
   -> nur erlaubte module.* actions planen
   -> job.vorlage.json nach job.json kopieren
   -> alle ___KI_FUELLEN___ ersetzen
@@ -848,33 +848,33 @@ Erlaubte Modul-Aktionen werden von dbxKi vorgegeben, zum Beispiel:
 - `module.template.set`
 - `module.asset.write`
 
-Regeln fuer die KI:
+Regeln für die KI:
 
-- Niemals ausserhalb des ausgewaehlten Moduls schreiben.
-- Niemals Dateien durch direkte Shell-, SQL- oder Fremdtool-Anweisungen aendern.
+- Niemals ausserhalb des ausgewählten Moduls schreiben.
+- Niemals Dateien durch direkte Shell-, SQL- oder Fremdtool-Anweisungen ändern.
 - Keine Migrationen oder Altlasten erzeugen, wenn die aktuelle Struktur der
   Auftrag ist.
-- DD-Dateien immer vollstaendig liefern.
+- DD-Dateien immer vollständig liefern.
 - DD-zu-DB-Sync nur mit `module.dd.sync` anfordern.
-- Templates ueber `module.template.set` liefern, nicht durch frei erfundene
+- Templates über `module.template.set` liefern, nicht durch frei erfundene
   Speicherorte.
 - PHP-Code an den bestehenden Modulstil anpassen und vorhandene dbx()-,
   dbxForm-, dbxReport-, openWin-, Ajax-, Confirm- und Remember-Konventionen
   verwenden.
 - UI-State, Auswahlzustaende und schnelle Ajax-Aktionen nicht an Report-HTML-
   Reloads koppeln, wenn der Auftrag JSON-only oder no-response verlangt.
-- Kein globales Refactoring und keine Aenderungen an Core, anderen Modulen,
+- Kein globales Refactoring und keine Änderungen an Core, anderen Modulen,
   globalen Templates, Konfiguration oder Datenbanken, ausser dbxKi erlaubt die
   konkrete Aktion im Job.
-- Die Antwort ist kein Patch-Text fuer einen Menschen, sondern ein ausfuehrbares
+- Die Antwort ist kein Patch-Text für einen Menschen, sondern ein ausfuehrbares
   dbxKi-Antwort-Bundle.
 
 ## Ziel der festen dbxKi-Pipeline
 
 Die feste Pipeline nimmt der KI die falschen Freiheitsgrade. Die KI muss nicht
-erraten, wie dbXapp intern speichert. Sie muss nur ein valides, kleines Schema
-fuellen. dbxKi uebernimmt Validierung, Backup, Preview, Ausfuehrung,
-Cache-Aktualisierung und die Einhaltung der dbXapp-Regeln.
+erraten, wie dbxapp intern speichert. Sie muss nur ein valides, kleines Schema
+fuellen. dbxKi übernimmt Validierung, Backup, Preview, Ausführung,
+Cache-Aktualisierung und die Einhaltung der dbxapp-Regeln.
 
 ## Designs mit dbxKi bearbeiten
 
@@ -911,7 +911,7 @@ content_de (Ordner 15)
   -> dbxMedia
   -> docs/generated/tutorials/
   -> Doxygen
-  -> C:/xampp/htdocs/dbxapp-docs/
+  -> <dbxapp-dokumentationsverzeichnis>/
 ```
 
 Es werden keine einzelnen Tutorials von Hand ausgewählt: Alle aktiven Seiten
@@ -946,6 +946,6 @@ weder Projektdateien noch PHP-Strings oder ausführbaren Code.
 ## Regeln
 
 - KI darf Content vorschlagen, aber Systemwege nicht umgehen.
-- Modul-Inclusions muessen exakt erhalten bleiben, wenn Content uebersetzt wird.
-- HTML-Struktur darf nicht unkontrolliert zerstoert werden.
-- Speichern laeuft ueber vorhandene Module, Forms und DB-Pipelines.
+- Modul-Inclusions müssen exakt erhalten bleiben, wenn Content übersetzt wird.
+- HTML-Struktur darf nicht unkontrolliert zerstört werden.
+- Speichern läuft über vorhandene Module, Forms und DB-Pipelines.

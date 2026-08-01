@@ -10,7 +10,7 @@ konkreten Browseraktion.
 
 ## Architekturentscheidung
 
-Die Änderungen bleiben in der vorhandenen dbXapp-Architektur:
+Die Änderungen bleiben in der vorhandenen dbxapp-Architektur:
 
 - Datenzugriff erfolgt auch in Wartungs- und Migrationswerkzeugen ausschließlich
   über `dbxDB` und DD.
@@ -455,7 +455,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 X-Frame-Options: SAMEORIGIN
 ```
 
-`SAMEORIGIN` erhält die dbXapp-eigenen Fenster-/Frame-Abläufe. Eine strikte CSP
+`SAMEORIGIN` erhält die dbxapp-eigenen Fenster-/Frame-Abläufe. Eine strikte CSP
 wurde wegen bestehender älterer Inline-Skriptblöcke bewusst noch nicht
 aktiviert. Inline-Eventattribute sind dagegen nicht mehr zulässig und werden
 automatisiert geprüft.
@@ -490,7 +490,7 @@ JavaScript: 2 von 2 Testdateien; 32 von 32 Dateien per node --check
 Browser: Startseite, Shop-Katalog und Workflow-Übersicht
 Browser: Warenkorb Einzel-Löschen und Leeren per AJAX/Confirm, Badge korrekt
 Shop-GET: 10 Katalogaufrufe HTTP 200, DB-Hash und Änderungszeit unverändert
-Shop: Mengen-/Einzeldekoration fuer 30 Produkte vollstaendig identisch
+Shop: Mengen-/Einzeldekoration für 30 Produkte vollständig identisch
 Performance: dbxShop 179,0 -> 77,8 ms; DB 73,8 -> 23,0 ms
 Performance: selektives Kartenrendering 579,5 -> 94,0 ms
 Performance: Admin-Bildliste 21,1 -> 2,9 ms pro Aufruf

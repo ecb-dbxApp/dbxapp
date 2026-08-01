@@ -630,6 +630,32 @@ Class dbxMenu {
       $content=str_replace('{dbx:page}'     ,$page     ,$content);
       $content=str_replace('{dbx:lng}'      ,$lng      ,$content);
 
+      $docsAreaUrls = array(
+         'de' => array(
+            'start' => 'dokumentation-einstieg',
+            'apply' => 'dokumentation-anwenden',
+            'develop' => 'dokumentation-entwickeln',
+            'operate' => 'dokumentation-betrieb',
+         ),
+         'en' => array(
+            'start' => 'documentation-getting-started',
+            'apply' => 'documentation-use',
+            'develop' => 'documentation-develop',
+            'operate' => 'documentation-operate',
+         ),
+         'es' => array(
+            'start' => 'documentacion-primeros-pasos',
+            'apply' => 'documentacion-usar',
+            'develop' => 'documentacion-desarrollar',
+            'operate' => 'documentacion-operar',
+         ),
+      );
+      $docsLanguage = strtolower(trim((string)$lng));
+      $docsUrls = $docsAreaUrls[$docsLanguage] ?? $docsAreaUrls['de'];
+      foreach ($docsUrls as $area => $url) {
+         $content = str_replace('{docs_' . $area . '_url}', dbx()->get_base_url() . $url, $content);
+      }
+
 
       return $content;
    }

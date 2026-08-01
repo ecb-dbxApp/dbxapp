@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"></head><body><div class="contents"><div class="dbxdocs-cms-article"><div class="textblock"><p><a class="anchor" id="autotoc_md512"></a></p>
+<p>Kurzreferenz für deklaratives Laden von JS-Libs ohne lange <span class="tt">data-dbx</span>-Ketten.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md513"></a>
+Grundregel</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Was  </th><th class="markdownTableHeadNone">Wie  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><b>Verhalten</b>  </td><td class="markdownTableBodyNone">CSS-Klasse auf dem Element  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><b>Optionen</b>  </td><td class="markdownTableBodyNone">Kurze <span class="tt">data-*</span> Attribute (nur Abweichungen vom Default)  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><b>Komplex</b>  </td><td class="markdownTableBodyNone"><span class="tt">data-dbx="lib=…\|…"</span> nur noch für Grid, CMS, Report, Process, Mapping  </td></tr>
+</table>
+<p><span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=core_8js.html">core.js</a></span> scannt beim Laden die Seite (<span class="tt">dbx.scan</span>), lädt Libs lazy und wendet <b>Defaults</b> an, wenn Attribute fehlen.</p>
+<hr>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md515"></a>
+Standard-Formular (häufigster Fall)</h1>
+<div class="fragment"><div class="line">&lt;div id="dbx_target_<span class="dbxdocs-code-punctuation">{</span>i}" class="dbx-panel"&gt;</div>
+<div class="line">  &lt;form action="<span class="dbxdocs-code-punctuation">{</span>action}" method="post" id="dbx_form_<span class="dbxdocs-code-punctuation">{</span>i}" class="dbxAjax"&gt;</div>
+<div class="line">    … Felder …</div>
+<div class="line">    &lt;a href="<span class="dbxdocs-code-punctuation">{</span>delete_url}" class="dbxConfirm"</div>
+<div class="line">       data-title="Löschen"</div>
+<div class="line">       data-confirm="Wirklich löschen?"&gt;</div>
+<div class="line">      &lt;i class="bi bi-trash"&gt;&lt;/i&gt;</div>
+<div class="line">    &lt;/a&gt;</div>
+<div class="line">  &lt;/form&gt;</div>
+<div class="line">&lt;/div&gt;</div>
+</div><!-- fragment --><p><b>Automatisch geladen:</b> <span class="tt">form</span> + <span class="tt">ajax</span> + <span class="tt">confirm</span> (wenn <span class="tt">.dbxConfirm</span> oder <span class="tt">data-confirm</span> im Formular).</p>
+<p><b>Defaults ajax:</b> <span class="tt">mode=<a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=dbx_api_8php.html#a6bb1870d57f33ca360ca4892b1200ac4" title="Bereitet HTML fuer die Ausgabe auf.">html</a></span>, <span class="tt">url=form</span>, <span class="tt">target</span> aus <span class="tt">dbx_form_<span class="dbxdocs-code-punctuation">{</span>i}</span> → <span class="tt">dbx_target_<span class="dbxdocs-code-punctuation">{</span>i}</span>, <span class="tt">replace=target</span>.</p>
+<hr>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md517"></a>
+Klassen-Übersicht</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Klasse  </th><th class="markdownTableHeadNone">Lib(s)  </th><th class="markdownTableHeadNone">Zweck  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">dbxAjax</span>  </td><td class="markdownTableBodyNone">form, ajax  </td><td class="markdownTableBodyNone">Admin-Formulare, AJAX-Submit  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">dbxConfirm</span>  </td><td class="markdownTableBodyNone">confirm  </td><td class="markdownTableBodyNone">Rückfrage vor Aktion  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">dbx-win</span>  </td><td class="markdownTableBodyNone">openWin  </td><td class="markdownTableBodyNone">Fenster statt Bootstrap-Modal  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">dbx-ajax-root</span>  </td><td class="markdownTableBodyNone">ajax  </td><td class="markdownTableBodyNone">AJAX-Panel ohne Formular (z. B. Report-Target)  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">dbx-win-preload</span>  </td><td class="markdownTableBodyNone">openWin  </td><td class="markdownTableBodyNone">Lib vorladen (unsichtbar)  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">dbx-grid</span> + <span class="tt">data-dbx</span>  </td><td class="markdownTableBodyNone">grid  </td><td class="markdownTableBodyNone">Tabellen-Grid (viele Optionen)  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">dbx-cms</span> + <span class="tt">data-dbx</span>  </td><td class="markdownTableBodyNone">cms  </td><td class="markdownTableBodyNone">Content-Editor  </td></tr>
+</table>
+<hr>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md519"></a>
+ajax – Attribute</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Attribut  </th><th class="markdownTableHeadNone">Default  </th><th class="markdownTableHeadNone">Aliase  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-target</span>  </td><td class="markdownTableBodyNone">aus Form-ID inferiert  </td><td class="markdownTableBodyNone"><span class="tt">data-ajax-target</span>, <span class="tt">data-dbx_target</span>  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">data-url</span>  </td><td class="markdownTableBodyNone"><span class="tt">form</span>  </td><td class="markdownTableBodyNone"><span class="tt">data-ajax-url</span>  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-replace</span>  </td><td class="markdownTableBodyNone"><span class="tt">target</span>  </td><td class="markdownTableBodyNone"><span class="tt">data-ajax-replace</span>  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">data-mode</span>  </td><td class="markdownTableBodyNone"><span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=dbx_api_8php.html#a6bb1870d57f33ca360ca4892b1200ac4" title="Bereitet HTML fuer die Ausgabe auf.">html</a></span>  </td><td class="markdownTableBodyNone"><span class="tt">data-ajax-mode</span>  </td></tr>
+</table>
+<p>Abweichendes Target nur setzen, wenn nicht <span class="tt">dbx_form_N</span> / <span class="tt">dbx_target_N</span>:</p>
+<div class="fragment"><div class="line">&lt;form class="dbxAjax" id="form_group_<span class="dbxdocs-code-punctuation">{</span>i}" data-target="dbxForm_div-<span class="dbxdocs-code-punctuation">{</span>i}"&gt;</div>
+</div><!-- fragment --><hr>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md521"></a>
+confirm – Attribute</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Attribut  </th><th class="markdownTableHeadNone">Default  </th><th class="markdownTableHeadNone">Aliase  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-confirm</span>  </td><td class="markdownTableBodyNone">—  </td><td class="markdownTableBodyNone"><span class="tt">data-confirm-question</span>  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">data-title</span>  </td><td class="markdownTableBodyNone"><span class="tt">""</span>  </td><td class="markdownTableBodyNone"><span class="tt">data-confirm-title</span>  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-hint</span>  </td><td class="markdownTableBodyNone"><span class="tt">""</span>  </td><td class="markdownTableBodyNone"><span class="tt">data-confirm-hint</span>  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">data-buttons</span>  </td><td class="markdownTableBodyNone"><span class="tt">yesno</span>  </td><td class="markdownTableBodyNone"><span class="tt">data-confirm-buttons</span>  </td></tr>
+</table>
+<div class="fragment"><div class="line">&lt;a class="dbxConfirm" href="…"</div>
+<div class="line">   data-title="Eintrag löschen"</div>
+<div class="line">   data-confirm="Wirklich löschen?"&gt;</div>
+</div><!-- fragment --><hr>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md523"></a>
+openWin – Attribute</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Attribut  </th><th class="markdownTableHeadNone">Default  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-url</span>  </td><td class="markdownTableBodyNone"><span class="tt">href</span>  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">data-title</span>  </td><td class="markdownTableBodyNone"><span class="tt">title</span> oder „Fenster“  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-width</span>  </td><td class="markdownTableBodyNone"><span class="tt">1280</span>  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">data-height</span>  </td><td class="markdownTableBodyNone"><span class="tt">760</span>  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-modal</span>  </td><td class="markdownTableBodyNone"><span class="tt">1</span>  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">data-scroll</span>  </td><td class="markdownTableBodyNone"><span class="tt">1</span>  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-position</span>  </td><td class="markdownTableBodyNone"><span class="tt">center</span>  </td></tr>
+</table>
+<div class="fragment"><div class="line">&lt;a class="btn-inline dbx-win" href="<span class="dbxdocs-code-punctuation">{</span>action}"</div>
+<div class="line">   data-url="<span class="dbxdocs-code-punctuation">{</span>action}" data-title="Bearbeiten"&gt;</div>
+<div class="line">  &lt;i class="bi bi-pencil"&gt;&lt;/i&gt;</div>
+<div class="line">&lt;/a&gt;</div>
+</div><!-- fragment --><p>Größe nur bei Abweichung: <span class="tt">data-height="500" data-width="600"</span>.</p>
+<hr>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md525"></a>
+Wann noch <span class="tt">data-dbx</span>?</h1>
+<p>Für Libs mit vielen URLs/Optionen – <b>nicht</b> auf Standard-Formulare legen:</p>
+<ul>
+<li><span class="tt">lib=report|form=0</span> – Report-Panel</li>
+<li><span class="tt">lib=grid|…</span> – Grid-Konfiguration</li>
+<li><span class="tt">lib=cms|tree=…|save=…</span> – CMS</li>
+<li><span class="tt">lib=menu|id=…</span> – Menü</li>
+<li><span class="tt">lib=process|…</span> – Polling</li>
+</ul>
+<hr>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md527"></a>
+Fehler &amp; Diagnose</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Kanal  </th><th class="markdownTableHeadNone">Inhalt  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Browser <span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=core_8js.html">core.js</a>?log=on</span>  </td><td class="markdownTableBodyNone">Defaults, Scan, Lib-Init (<span class="tt"><span class="dbxdocs-code-punctuation">[</span><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=namespacedbx.html" title="DBX schema administration.">dbx</a>]<span class="dbxdocs-code-punctuation">[</span>ajax]<span class="dbxdocs-code-punctuation">[</span>TARGET_DEFAULT]</span>)  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">dbx.error</span> / <span class="tt">dbx.warn</span>  </td><td class="markdownTableBodyNone">Konsole + roter Indikator  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">dbx.diag</span> warn/error  </td><td class="markdownTableBodyNone">optional → <span class="tt">dbxSysMsg</span> (Admin → SysMsg)  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=namespacedbx.html" title="DBX schema administration.">dbx()</a>-&gt;<a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=dbx_api_8php.html#adffe5c69a1ad45071076a13629d71cc3" title="Schreibt Debug-Ausgaben in files/dbxDebug.txt, wenn Debug aktiv ist.">debug()</a></span>  </td><td class="markdownTableBodyNone">PHP-Log bei <span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=dbx_api_8php.html#aecfe3118be092ce553bc7df570ea44af" title="Schreibt eine strukturierte Systemmeldung.">sys_msg</a></span>  </td></tr>
+</table>
+<p><b>Defaults werden nicht in SysMsg geschrieben</b> – das ist normales Verhalten.</p>
+<p>Client-Diag-Endpoint: <span class="tt">?dbx_modul=dbxAdmin&amp;dbx_run1=sysmsg&amp;dbx_run2=client_diag</span></p>
+<hr>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md529"></a>
+Migration (alt → neu)</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Alt  </th><th class="markdownTableHeadNone">Neu  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-dbx="lib=form\|\|lib=ajax\|…\|lib=confirm\|…"</span>  </td><td class="markdownTableBodyNone"><span class="tt">class="dbxAjax"</span>  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">data-dbx="lib=openWin\|url=…\|title=…\|height=760\|…"</span>  </td><td class="markdownTableBodyNone"><span class="tt">class="dbx-win" data-url="…" data-title="…"</span>  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">data-confirm-question="…"</span>  </td><td class="markdownTableBodyNone"><span class="tt">data-confirm="…"</span>  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">data-confirm-title="…"</span>  </td><td class="markdownTableBodyNone"><span class="tt">data-title="…"</span> (optional)  </td></tr>
+</table>
+<p>Alte Aliase (<span class="tt">data-ajax-target</span>, <span class="tt">data-dbx</span>) funktionieren parallel.</p>
+<hr>
+<p>Technische Details: <span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=_d_e_c_l_a_r_e_8md.html">dbx/js/lib/DECLARE.md</a></span> </p>
+</div></div></div></body></html>

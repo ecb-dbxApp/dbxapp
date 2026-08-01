@@ -30,11 +30,9 @@ bewusste Freigabe –, bearbeiten aber unterschiedliche Gegenstände.
 </div>
 @endhtmlonly
 
-@subpage dbxapp_user_ki_content "Content-KI"
-
-@subpage dbxapp_user_ki_design "Design-KI"
-
-@subpage dbxapp_user_ki_modules "Modul-KI"
+- [Content-KI](dokumentation-ki-content)
+- [Design-KI](dokumentation-ki-design)
+- [Modul-KI](dokumentation-ki-module)
 
 ## Was alle drei Bereiche gemeinsam haben
 

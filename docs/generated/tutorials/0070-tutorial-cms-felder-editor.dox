@@ -1,5 +1,5 @@
 /**
-@page dbxcontent_tutorial_tutorial_cms_felder_editor Tutorial: CMS Felder, Kopfleiste und Einstellungen
+@page dbxcontent_tutorial_tutorial_cms_felder_editor CMS Felder & Einstellungen
 
 <!-- Automatisch aus content_de#85 erzeugt. Nicht direkt bearbeiten. -->
 
@@ -11,6 +11,7 @@
 
 @htmlonly
 <div class="dbx-tutorial-source">
+<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_cms_felder_editor.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
 <p class="lead">Diese Anleitung erklärt die Arbeitsoberfläche des Content CMS vollständig: die Kopfleiste mit allen Aktionen, die Seitenfelder in der Mitte und die Medien- und Darstellungseinstellungen rechts. Der Content Tree wird nur für die Seitenauswahl geöffnet. Sobald Sie im mittleren oder rechten Bereich arbeiten, schließen Sie ihn wieder – dadurch bleiben alle Felder lesbar und Sie vermeiden Fehlklicks auf andere Seiten.</p>
 
 <div class="alert alert-info"><strong>Aufteilung:</strong> Das eigenständige Tutorial <a href="dbxcontent_tutorial_tutorial_cms_editor.html">CMS Editor</a> erklärt zusätzlich jeden einzelnen Menüpunkt der Editorleiste, einschließlich Untermenüs, Medien, Modulen, Bootstrap-Komponenten und Bereichsmarkern.</div>

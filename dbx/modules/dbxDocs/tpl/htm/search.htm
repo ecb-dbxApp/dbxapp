@@ -1,0 +1,20 @@
+<section class="dbxdocs-search" aria-labelledby="dbxdocs-search-title">
+    <header class="dbxdocs-search-header">
+        <span class="dbx-doc-kicker">Dokumentationssuche</span>
+        <h1 id="dbxdocs-search-title">{search_title}</h1>
+        <p>{search_subtitle}</p>
+    </header>
+    <form class="dbxdocs-home-search" action="index.php" method="get" role="search">
+        <input type="hidden" name="dbx_modul" value="dbxDocs">
+        <input type="hidden" name="dbx_run1" value="search">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="visually-hidden" for="dbxdocs-search-q">{search_title}</label>
+        <input id="dbxdocs-search-q" name="q" type="search" value="{search_query}" placeholder="{search_placeholder}" minlength="2" maxlength="120" autofocus>
+        <button class="btn btn-primary" type="submit">{search_button}</button>
+    </form>
+    <div class="dbxdocs-search-summary">
+        <strong>{search_result_count}</strong> {search_result_label}
+        <a href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=overview">{search_reference_label} <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+    </div>
+    <div class="dbxdocs-search-results">{search_results}</div>
+</section>

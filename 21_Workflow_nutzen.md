@@ -1,6 +1,6 @@
 # Workflow nutzen {#dbxapp_workflow_use}
 
-Diese Seite erklärt die Bedienung eines dbXapp-Workflows vom Start bis zum
+Diese Seite erklärt die Bedienung eines dbxapp-Workflows vom Start bis zum
 kontrollierten Abschluss. Sie richtet sich an Benutzer, Administratoren und
 Tester. Das Erstellen einer Definition beschreibt @ref dbxapp_workflow_create.
 
@@ -87,7 +87,7 @@ ausdrücklich als erledigten Schritt, damit der Ablauf nachvollziehbar bleibt.
 ### Fachmodul öffnen
 
 Ein Modulschritt zeigt Links wie **Artikel bearbeiten**, **eBay-Mapping** oder
-**Kontaktanfrage öffnen**. Das Fachformular wird im vorgesehenen dbXapp-Fenster
+**Kontaktanfrage öffnen**. Das Fachformular wird im vorgesehenen dbxapp-Fenster
 geöffnet. Danach gilt:
 
 1. Daten im Fachmodul bearbeiten und dort speichern.

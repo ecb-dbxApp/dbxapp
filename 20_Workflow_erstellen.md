@@ -1,6 +1,6 @@
 # Workflow erstellen {#dbxapp_workflow_create}
 
-Diese Seite beschreibt, wie ein neuer dbXapp-Workflow geplant, im visuellen
+Diese Seite beschreibt, wie ein neuer dbxapp-Workflow geplant, im visuellen
 Prozess-Designer aufgebaut, geprüft und mit einem Fachmodul verbunden wird.
 Die technische Gesamtarchitektur und das vollständige JSON-Schema stehen im
 @ref dbxapp_workflow_guide.

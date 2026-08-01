@@ -2,15 +2,15 @@
 
 Stand: 2026-07-24
 
-Diese Referenz ist der verbindliche Kurzkontext fuer KI-Agenten, die den Shop
-analysieren oder erweitern. Die fachliche Erklaerung fuer Menschen steht unter
+Diese Referenz ist der verbindliche Kurzkontext für KI-Agenten, die den Shop
+analysieren oder erweitern. Die fachliche Erklärung für Menschen steht unter
 @ref dbxapp_shop_guide.
 
 ## Systemprofil
 
 ```yaml
 domain: dbxShop
-runtime: PHP/dbXapp
+runtime: PHP/dbxapp
 frontend_module: dbxShop
 admin_module: dbxShop_admin
 database_server: dbxShop|dbxShop.db3
@@ -140,8 +140,8 @@ admin:
 ```
 
 Neue Routen werden im Modulrouter registriert und an eine benannte
-Service-Methode delegiert. Keine versteckten Aktionen nur ueber ungepruefte
-`$_GET`-/`$_POST`-Verzweigungen einfuehren.
+Service-Methode delegiert. Keine versteckten Aktionen nur über ungeprüfte
+`$_GET`-/`$_POST`-Verzweigungen einführen.
 
 ## Datenmodellvertrag
 
@@ -201,16 +201,16 @@ orders:
   withdrawals: shop_withdrawal
 ```
 
-Eine DD-Aenderung erfordert:
+Eine DD-Änderung erfordert:
 
 1. DD-Datei anpassen.
-2. Datenbankabhaengige Defaults und Indizes pruefen.
-3. `schema_sync_version` in Repository und Konfiguration konsistent erhoehen,
+2. Datenbankabhaengige Defaults und Indizes prüfen.
+3. `schema_sync_version` in Repository und Konfiguration konsistent erhöhen,
    wenn der automatische Sync erneut laufen muss.
 4. Sync auf einer leeren und einer bereits initialisierten Testdatenbank
-   pruefen.
-5. Fuer jede neue Tabelle `id`/Autoincrement auf allen unterstuetzten
-   DB-Treibern pruefen.
+   prüfen.
+5. Für jede neue Tabelle `id`/Autoincrement auf allen unterstützten
+   DB-Treibern prüfen.
 
 ## Kritische Fachinvarianten
 
@@ -239,8 +239,8 @@ foreign_order_access: forbidden
 duplicate_provider_return: must-not-create-duplicate-order
 ```
 
-Artikelpreise oder Titel duerfen bestehende `shop_order_item`-Snapshots nicht
-nachtraeglich veraendern.
+Artikelpreise oder Titel dürfen bestehende `shop_order_item`-Snapshots nicht
+nachtraeglich verändern.
 
 ### Warenkorb
 
@@ -253,7 +253,7 @@ trusted_stock: false
 ```
 
 Der Warenkorb speichert Auswahl und Menge. Vor Checkout sind Produkt,
-Verfuegbarkeit und Preise erneut serverseitig aus dem Repository zu lesen.
+Verfügbarkeit und Preise erneut serverseitig aus dem Repository zu lesen.
 
 ## Konfigurationsvertrag
 
@@ -294,7 +294,7 @@ media:
   - media_usage_slot
 ```
 
-Keine gleichbedeutenden Werte in einer zweiten Konfigurationsdatei einfuehren.
+Keine gleichbedeutenden Werte in einer zweiten Konfigurationsdatei einführen.
 `cfg/payment.php` ist aktuell nur ein PayPal-Fallback; die Admin-Konfiguration
 liegt in `dbxShop`-Config.
 
@@ -343,10 +343,10 @@ required_controls:
   - failure_logging_without_secrets
 ```
 
-Ein vorbereiteter Connector ist keine Garantie fuer produktive API-Abdeckung.
-Bei Aenderungen offizielle Provideranforderungen, vorhandene Credentials und
-den konkreten Code pruefen. Keine Live-Calls als Teil eines normalen lokalen
-Tests ohne ausdruecklichen Auftrag.
+Ein vorbereiteter Connector ist keine Garantie für produktive API-Abdeckung.
+Bei Änderungen offizielle Provideranforderungen, vorhandene Credentials und
+den konkreten Code prüfen. Keine Live-Calls als Teil eines normalen lokalen
+Tests ohne ausdrücklichen Auftrag.
 
 ## Rechte und Eingabevertrauen
 
@@ -361,19 +361,19 @@ webhook_json_trusted: false
 ```
 
 Eine ID aus `$_SESSION` hilft beim Wiederfinden, ersetzt aber keine
-Eigentums-/Rechtepruefung. Fuer Order, Invoice, Withdrawal und Media ist immer
+Eigentums-/Rechteprüfung. Für Order, Invoice, Withdrawal und Media ist immer
 Datensatzbezug plus Berechtigung zu validieren.
 
 ## Template- und Designvertrag
 
 - Shop-Ausgabe verwendet `dbxShop|...`-Templates.
-- Produktkarten und Details duerfen ueber Artikelgruppen ausgewaehlt werden.
+- Produktkarten und Details dürfen über Artikelgruppen ausgewählt werden.
 - Template-Namen werden als erlaubte Modul-Templates validiert.
 - Globale Seitenschale kommt aus dem aktiven Frontend-Design.
 - Shop-CSS bleibt unter `dbxShop/design`, nicht als Kopie in jedem globalen
   Design.
 - Shop-Admin-CSS bleibt unter `dbxShop_admin/design`.
-- Gemeinsame Aenderungen muessen in `dbxapp` und `flowers` getestet werden.
+- Gemeinsame Änderungen müssen in `dbxapp` und `flowers` getestet werden.
 
 ## Aufgabe-zu-Datei-Matrix
 
@@ -393,8 +393,8 @@ Datensatzbezug plus Berechtigung zu validieren.
 ## Verbotene Abkuerzungen
 
 - Keine Tabelle direkt nur mit `CREATE TABLE` anlegen.
-- Keine manuelle ID-Vergabe als Ersatz fuer Autoincrement.
-- Keine Preise oder Berechtigungen aus dem Browser uebernehmen.
+- Keine manuelle ID-Vergabe als Ersatz für Autoincrement.
+- Keine Preise oder Berechtigungen aus dem Browser übernehmen.
 - Keine externen Secrets in Quelltext/Testdaten hinterlassen.
 - Keine Bestellungen allein anhand einer frei geratenen ID ausgeben.
 - Keine Produktivzahlung durch simulierten Return als erfolgreich markieren.
@@ -404,23 +404,23 @@ Datensatzbezug plus Berechtigung zu validieren.
 - Kein Browser-Return, `order_no`-Parameter oder Cancel-Link als
   Zahlungsnachweis behandeln.
 - Keine grosse HTML-Ausgabe neu als PHP-String bauen, wenn ein Template passt.
-- Keine Kernel-Aenderung, solange das Problem innerhalb des Shop-Moduls loesbar
+- Keine Kernel-Änderung, solange das Problem innerhalb des Shop-Moduls loesbar
   ist.
 
-## Arbeitsablauf fuer KI-Agenten
+## Arbeitsablauf für KI-Agenten
 
 1. Ist-Zustand in Router, Service, Repository, DD, FD und Template lesen.
 2. Betroffene Invarianten und Rechte nennen.
 3. Datenmodellaenderung zuerst in DD entwerfen.
 4. Fachlogik in Repository/Service implementieren.
-5. Ausgabe und Eingabe ueber Template, `dbxForm` oder `dbxReport` anbinden.
+5. Ausgabe und Eingabe über Template, `dbxForm` oder `dbxReport` anbinden.
 6. Fehlerwege, Wiederholung und Transaktionsgrenzen beruecksichtigen.
-7. Tests mit vorhandenen Testdaten ausfuehren; Testdaten duerfen bleiben.
-8. Leere Datenbank, vorhandene Datenbank und Autoincrement pruefen, wenn das
+7. Tests mit vorhandenen Testdaten ausführen; Testdaten dürfen bleiben.
+8. Leere Datenbank, vorhandene Datenbank und Autoincrement prüfen, wenn das
    Schema betroffen ist.
-9. Gast, Benutzer und Admin pruefen, wenn Zugriff betroffen ist.
+9. Gast, Benutzer und Admin prüfen, wenn Zugriff betroffen ist.
 10. Menschen- und KI-Dokumentation aktualisieren, wenn sich ein Vertrag
-    aendert.
+    ändert.
 
 ## Mindesttests nach Bereich
 

@@ -2,8 +2,8 @@
 
 Stand: 2026-07-14
 
-Diese Datei ist der verbindliche Arbeitskontext fuer KI-Agenten bei Aufgaben
-an Designs, Themes, Skins, Menues und Design-Fenstern. Die erklaerende
+Diese Datei ist der verbindliche Arbeitskontext für KI-Agenten bei Aufgaben
+an Designs, Themes, Skins, Menüs und Design-Fenstern. Die erklaerende
 Menschen-Dokumentation steht unter @ref dbxapp_design_themes_skins.
 
 ## Geltungsbereich
@@ -24,19 +24,19 @@ admin_default_design: dbxapp
 
 ## Unveraenderliche Architekturregeln
 
-1. Ein Design ist ein eigenstaendiges Paket unter `dbx/design/{name}`.
+1. Ein Design ist ein eigenständiges Paket unter `dbx/design/{name}`.
 2. Designpakete erben keine privaten CSS-, JS- oder Bilddateien voneinander.
 3. Fachlogik bleibt in Modulen; Designs enthalten Layout und Darstellung.
 4. Globale Infrastruktur wird weiterverwendet: Bootstrap, Bootstrap Icons,
    jQuery, `core.js`, `dbxTPL`, `openWin`, Ajax und UI-State.
-5. Ein oeffentlich waehlbares Design braucht `htm/default.htm`.
-6. `[dbx:content]` ist der verbindliche Marker fuer den Modul-/Seiteninhalt.
-7. Skins werden ueber `dbx_color`, Designs ueber `dbx_design` gefuehrt.
-8. Admin-Module mit `_admin` im Modulnamen werden fuer Administratoren gegen
-   `default_design_admin` aufgeloest.
-9. Das horizontale Admin-Menue bleibt auch im Flowers-Frontend horizontal.
+5. Ein öffentlich wählbares Design braucht `htm/default.htm`.
+6. `[dbx:content]` ist der verbindliche Marker für den Modul-/Seiteninhalt.
+7. Skins werden über `dbx_color`, Designs über `dbx_design` geführt.
+8. Admin-Module mit `_admin` im Modulnamen werden für Administratoren gegen
+   `default_design_admin` aufgelöst.
+9. Das horizontale Admin-Menü bleibt auch im Flowers-Frontend horizontal.
 10. Keine neue iframe-, Ajax-, Fenster- oder Persistenzarchitektur ohne einen
-    ausdruecklichen Auftrag und eine Aktualisierung dieser Dokumentation.
+    ausdrücklichen Auftrag und eine Aktualisierung dieser Dokumentation.
 11. Geführte Design-Erstellung und Design-KI laufen über `dbxDesign_admin`
     beziehungsweise `dbxKiDesignService`; freie Dateischreibwege sind kein
     Ersatz.
@@ -51,10 +51,10 @@ admin_default_design: dbxapp
 | `dbx_color` | kanonische Skin-ID | Request und Remember-State |
 | `dbx_activ_design` | optional bereits aufgeloestes Design | Systemvariable |
 | `dbx_activ_page` | optional bereits aufgeloeste Page | Systemvariable |
-| `dbx_window` | Fenstermodus; waehlt aktuell `_window` | Request/Systemvariable |
+| `dbx_window` | Fenstermodus; wählt aktuell `_window` | Request/Systemvariable |
 | `dbx_ajax` | nur Modulinhalt, keine Designschale | Request/Systemvariable |
 
-Die Aliaswerte werden in `dbxWebApp::check_design()` aufgeloest:
+Die Aliaswerte werden in `dbxWebApp::check_design()` aufgelöst:
 
 ```text
 user  -> config.default_design_user
@@ -71,7 +71,7 @@ default_color: blau
 
 ## Vor jeder Designaenderung lesen
 
-Mindestens diese Dateien pruefen:
+Mindestens diese Dateien prüfen:
 
 ```text
 15_Design_Themes_Skins.md
@@ -89,7 +89,7 @@ dbx/design/{betroffenes-design}/css/theme.css
 dbx/design/{betroffenes-design}/css/glass-3d.css (nur wenn vorhanden)
 ```
 
-Bei Flowers zusaetzlich:
+Bei Flowers zusätzlich:
 
 ```text
 dbx/design/flowers/js/flowers.js
@@ -120,7 +120,7 @@ default_skin: blau
 
 ```yaml
 id: flowers
-purpose: organisches Frontend fuer Blumen- und Pflanzenhandel
+purpose: organisches Frontend für Blumen- und Pflanzenhandel
 navigation:
   frontend: links-vertikal
   admin: oben-horizontal
@@ -137,7 +137,7 @@ design_script: dbx/design/flowers/js/flowers.js
 ```
 
 Andere vorhandene Flowers-Dateien mit Namen wie `skin-blau.css` sind keine
-Freigabe, diese Varianten im Menue anzuzeigen. Die sichtbaren Optionen werden
+Freigabe, diese Varianten im Menü anzuzeigen. Die sichtbaren Optionen werden
 in `dbxMenu::skin_options()` festgelegt.
 
 ## Design-Erkennung und Auswahl
@@ -150,9 +150,9 @@ include, wenn: dbx/design/{name}/htm/default.htm existiert
 exclude, wenn: {name} mit _ oder - beginnt
 ```
 
-Eine KI darf fuer ein neues Design keine zweite statische Designliste
-einfuehren. Beschriftungen werden derzeit aus dem Verzeichnisnamen abgeleitet;
-`dbxapp` erhaelt die Sonderbeschriftung `dbXapp`.
+Eine KI darf für ein neues Design keine zweite statische Designliste
+einführen. Beschriftungen werden derzeit aus dem Verzeichnisnamen abgeleitet;
+`dbxapp` erhält die Sonderbeschriftung `dbxapp`.
 
 ## Template-Vertrag
 
@@ -183,7 +183,7 @@ optional_slots:
 ```
 
 Beim Kopieren eines Design-Templates sind harte Pfade auf das Ursprungsdesign
-vollstaendig zu ersetzen. Nur Vendor- und zentrale dbXapp-Ressourcen bleiben
+vollständig zu ersetzen. Nur Vendor- und zentrale dbxapp-Ressourcen bleiben
 gemeinsam.
 
 ## CSS-Vertrag
@@ -208,9 +208,9 @@ Fachkomponente?       -> dbx/modules/{modul}/design/
 Verhalten?            -> vorhandene Core-Lib oder Design-JS
 ```
 
-Keine unnoetigen `!important`-Ketten erzeugen. Vor einem `z-index`-Fix zuerst
+Keine unnötigen `!important`-Ketten erzeugen. Vor einem `z-index`-Fix zuerst
 Stacking Contexts (`position`, `transform`, `filter`, `overflow`, `isolation`)
-der beteiligten Eltern pruefen.
+der beteiligten Eltern prüfen.
 
 ## Fenster und Admin-Inhalte
 
@@ -225,46 +225,46 @@ open_window_shell_owner: calling_frontend
 admin_component_style_owner: admin_module
 ```
 
-Die Bezeichnung `_adminWin` ist eine moegliche spaetere Zielrichtung, aber
+Die Bezeichnung `_adminWin` ist eine moegliche spätere Zielrichtung, aber
 keine aktuelle Datei oder Runtime-Regel. Eine KI darf sie nicht dokumentieren
 oder verwenden, bevor Implementierung, Fallback und Tests existieren.
 
-## Erlaubte Aenderungen
+## Erlaubte Änderungen
 
 - Ein bestehendes Design visuell verbessern.
-- Eigene Design-Assets ergaenzen.
-- Einen weiteren Skin ergaenzen, wenn auch Menue und Client-Normalisierung
+- Eigene Design-Assets ergänzen.
+- Einen weiteren Skin ergänzen, wenn auch Menü und Client-Normalisierung
   angepasst werden.
-- Ein neues vollstaendiges Designpaket anlegen.
+- Ein neues vollständiges Designpaket anlegen.
 - Design-spezifische responsive oder Accessibility-Fixes vornehmen.
-- Das Flowers-Menue scroll- und dropdownfaehig halten.
+- Das Flowers-Menü scroll- und dropdownfaehig halten.
 
-## Nicht ohne ausdruecklichen Auftrag
+## Nicht ohne ausdrücklichen Auftrag
 
 - `default_design_admin` von `dbxapp` wegschalten.
 - Admin- und Frontend-Rechte anhand des Designs entscheiden.
 - Fachlogik in Design-JavaScript verschieben.
-- `dbxWebApp`, `dbxTPL` oder `core.js` nur fuer eine optische Einzelkorrektur
+- `dbxWebApp`, `dbxTPL` oder `core.js` nur für eine optische Einzelkorrektur
   umbauen.
-- ein Design von einem anderen privaten Designpaket abhaengig machen.
-- neue Skin-IDs ohne server- und clientseitige Normalisierung einfuehren.
+- ein Design von einem anderen privaten Designpaket abhängig machen.
+- neue Skin-IDs ohne server- und clientseitige Normalisierung einführen.
 - eine `_adminWin`- oder iframe-Architektur nur teilweise implementieren.
 
-## Arbeitsablauf fuer KI-Agenten
+## Arbeitsablauf für KI-Agenten
 
 1. Auftrag einer Ebene zuordnen: globales Design, Skin, Systemkomponente oder
    Modulkomponente.
 2. Aktive Designstruktur und alle Selektoren der betroffenen Komponente lesen.
-3. Pruefen, ob der Fehler im Layout, Stacking Context, Overflow, UI-State oder
+3. Prüfen, ob der Fehler im Layout, Stacking Context, Overflow, UI-State oder
    Modul-CSS entsteht.
-4. Kleinste passende Ebene aendern.
-5. Cache-Buster in `default.htm` nur erhoehen, wenn Browsercache die geaenderte
+4. Kleinste passende Ebene ändern.
+5. Cache-Buster in `default.htm` nur erhöhen, wenn Browsercache die geänderte
    Design-Datei sonst verdeckt.
-6. Beide Designs auf Regression pruefen, wenn gemeinsame Menue- oder Core-Dateien
-   geaendert wurden.
+6. Beide Designs auf Regression prüfen, wenn gemeinsame Menü- oder Core-Dateien
+   geändert wurden.
 7. Gast-, Benutzer- und Adminzustand testen.
 8. Light/Dark sowie responsive Breiten testen.
-9. Diese Referenz aktualisieren, wenn sich ein Architekturvertrag aendert.
+9. Diese Referenz aktualisieren, wenn sich ein Architekturvertrag ändert.
 
 Für ein vom Benutzer gestartetes KI-Design gilt stattdessen der kontrollierte
 Paketweg:
@@ -315,10 +315,10 @@ assertions:
 
 Der Bericht nennt:
 
-1. geaenderte Design-, Modul- und Core-Dateien getrennt,
-2. sichtbare Auswirkung fuer `dbxapp` und `flowers`,
+1. geänderte Design-, Modul- und Core-Dateien getrennt,
+2. sichtbare Auswirkung für `dbxapp` und `flowers`,
 3. gepruefte Rollen, Skins und Viewports,
 4. verbleibende Grenzen, insbesondere Fenster-/iframe-Isolation,
-5. ob ein Cache-Buster geaendert wurde.
+5. ob ein Cache-Buster geändert wurde.
 
 Details zum Benutzer-Wizard und ZIP-Vertrag: @ref dbxapp_design_studio_ki.

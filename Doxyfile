@@ -1,5 +1,5 @@
 PROJECT_NAME           = "dbxapp"
-PROJECT_NUMBER         = "4.1.3"
+PROJECT_NUMBER         = "4.1.4"
 PROJECT_BRIEF          = "CMS, Shop, Workflows und modulare Geschäftsanwendungen"
 PROJECT_LOGO           = dbXapp-Logo.jpeg
 OUTPUT_DIRECTORY       = C:/xampp/htdocs/dbxapp-docs/reference
@@ -30,6 +30,7 @@ FULL_PATH_NAMES        = NO
 STRIP_FROM_PATH        = .
 STRIP_FROM_INC_PATH    = .
 MARKDOWN_SUPPORT       = YES
+AUTOLINK_SUPPORT       = NO
 USE_MDFILE_AS_MAINPAGE =
 IMAGE_PATH             = docs/assets
 EXAMPLE_PATH           = .

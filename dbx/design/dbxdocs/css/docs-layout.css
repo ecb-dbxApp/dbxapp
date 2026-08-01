@@ -1,5 +1,5 @@
 :root {
-    --dbxdocs-sidebar-width: 18.5rem;
+    --dbxdocs-sidebar-width: 16.25rem;
     --dbxdocs-sidebar-collapsed: 4.4rem;
     --dbxdocs-navy: #061d3d;
     --dbxdocs-blue-950: #06152d;
@@ -332,7 +332,7 @@ body.dbx-docs .dbxdocs-sidebar .dbx-menu .dbx-menu-item.is-open > .dbx-menu-list
     display: grid;
     min-width: 0;
     min-height: 100vh;
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
 }
 
 .dbxdocs-stage-header {
@@ -341,6 +341,138 @@ body.dbx-docs .dbxdocs-sidebar .dbx-menu .dbx-menu-item.is-open > .dbx-menu-list
     max-width: 100%;
     min-width: 0;
     box-shadow: 0 8px 24px rgba(7, 46, 89, .1);
+}
+
+.dbxdocs-sectionbar {
+    position: relative;
+    z-index: 1005;
+    min-width: 0;
+    padding: .48rem .8rem;
+    color: #123d6b;
+    border-bottom: 1px solid rgba(92, 155, 216, .42);
+    background: rgba(244, 250, 255, .96);
+    box-shadow: 0 8px 20px rgba(8, 51, 96, .08);
+    backdrop-filter: blur(12px);
+    transition: padding-bottom .16s ease;
+}
+
+.dbxdocs-sectionbar--empty {
+    height: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+}
+
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section > .dbx-menu-list,
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section.dbx-menu-list {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    gap: .38rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0;
+    padding: .12rem .08rem .32rem;
+    list-style: none;
+    scrollbar-color: rgba(37, 112, 188, .45) transparent;
+    scrollbar-width: thin;
+}
+
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section > .dbx-menu-list > .dbx-menu-item {
+    position: static;
+    display: block;
+    width: auto;
+    min-width: max-content;
+    flex: 0 0 auto;
+}
+
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section .dbx-menu-link {
+    display: inline-flex;
+    width: auto;
+    min-width: max-content;
+    min-height: 2.28rem;
+    align-items: center;
+    gap: .42rem;
+    padding: .45rem .72rem;
+    color: #174b7c;
+    border: 1px solid #b7d4ed;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(15, 68, 119, .07);
+    font-size: .79rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section .dbx-menu-link:hover,
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section .dbx-menu-link:focus-visible,
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section .dbx-menu-item.is-active > .dbx-menu-link,
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section .dbx-menu-item.is-active-path > .dbx-menu-link {
+    color: #fff;
+    border-color: #0864c5;
+    outline: 0;
+    background: linear-gradient(135deg, #147ddd, #0752aa);
+    box-shadow: 0 5px 13px rgba(8, 83, 164, .22);
+}
+
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section > .dbx-menu-list > .dbx-menu-item > .dbx-menu-list {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    display: none;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    gap: .34rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: .52rem 0 0;
+    padding: .46rem .15rem .34rem;
+    list-style: none;
+    border: 0;
+    border-top: 1px solid rgba(113, 168, 220, .32);
+    background: rgba(238, 247, 255, .98);
+    box-shadow: none;
+    transform: none;
+    scrollbar-width: thin;
+}
+
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section > .dbx-menu-list > .dbx-menu-item.is-open > .dbx-menu-list,
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section > .dbx-menu-list > .dbx-menu-item.is-active-path > .dbx-menu-list {
+    display: flex;
+}
+
+body.dbx-docs .dbxdocs-sectionbar:has(.dbx-menu-section > .dbx-menu-list > .dbx-menu-item.is-open > .dbx-menu-list),
+body.dbx-docs .dbxdocs-sectionbar:has(.dbx-menu-section > .dbx-menu-list > .dbx-menu-item.is-active-path > .dbx-menu-list) {
+    padding-bottom: 3.58rem;
+}
+
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section .dbx-menu-list .dbx-menu-list .dbx-menu-item {
+    position: static;
+    width: auto;
+    min-width: max-content;
+    flex: 0 0 auto;
+}
+
+body.dbx-docs .dbxdocs-sectionbar .dbx-menu-section .dbx-menu-list .dbx-menu-list .dbx-menu-link {
+    min-height: 2rem;
+    padding: .36rem .62rem;
+    font-size: .74rem;
 }
 
 .dbxdocs-admin-strip {
@@ -581,6 +713,14 @@ body.dbx-docs #dbxApp.dbxdocs-app-shell.is-sidebar-collapsed {
     text-transform: uppercase;
 }
 
+.dbxdocs-reference-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .55rem;
+}
+
 .dbxdocs-reference-frame {
     display: block;
     width: 100%;
@@ -590,10 +730,24 @@ body.dbx-docs #dbxApp.dbxdocs-app-shell.is-sidebar-collapsed {
     background: #fff;
 }
 
+.dbxdocs-reference--window {
+    min-height: calc(100vh - 8.5rem);
+}
+
+.dbxdocs-reference--window .dbxdocs-reference-frame {
+    height: calc(100vh - 13.5rem);
+    min-height: 36rem;
+}
+
 @media (max-width: 767px) {
     .dbxdocs-reference-header {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .dbxdocs-reference-actions {
+        justify-content: flex-start;
+        width: 100%;
     }
 
     .dbxdocs-reference-frame {
@@ -650,6 +804,14 @@ body.dbx-docs #dbxApp.dbxdocs-app-shell.is-sidebar-collapsed {
 
     .dbxdocs-stage {
         min-height: auto;
+        grid-template-rows: auto auto auto auto;
+    }
+
+    .dbxdocs-sectionbar {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+        padding-inline: .55rem;
     }
 
     .dbxdocs-topbar {

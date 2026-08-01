@@ -42,6 +42,17 @@ DirectoryIndex index.php index.html index.htm
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
+    # Historische Doxygen-Adressen dauerhaft in die aktuelle Portalansicht
+    # überführen. Das Modul validiert den Dateinamen gegen reference/current.
+    RewriteCond %{REQUEST_URI} ^(.*/)(?:docs/html|reference/html)/((?:class|struct|interface|namespace|file|md_|dir_|group__)[A-Za-z0-9_.-]*\.html)$ [NC]
+    RewriteRule ^(?:docs/html|reference/html)/ %1index.php?dbx_modul=dbxDocs&dbx_run1=reference&dbx_run2=page&doc=%2 [R=301,L,NE]
+    RewriteCond %{REQUEST_URI} ^(.*/)((?:class|struct|interface|namespace|file|md_|dir_|group__)[A-Za-z0-9_.-]*\.html)$ [NC]
+    RewriteRule ^(?:class|struct|interface|namespace|file|md_|dir_|group__)[A-Za-z0-9_.-]*\.html$ %1index.php?dbx_modul=dbxDocs&dbx_run1=reference&dbx_run2=page&doc=%2 [R=301,L,NE]
+
+    # Veraltete HTML-Links erhalten eine hilfreiche 404-Seite mit Suche statt
+    # einer leeren Servermeldung.
+    RewriteRule ^(.+\.html)$ index.php?dbx_modul=dbxDocs&dbx_run1=not_found&resource=$1 [L,QSA,NE]
+
     # ONLINE / IONOS: alles an /index.php
     RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:[0-9]+)?$ [NC]
     RewriteCond %{HTTP_HOST} !^\[?::1\]?(:[0-9]+)?$ [NC]

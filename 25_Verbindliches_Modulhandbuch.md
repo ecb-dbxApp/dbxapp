@@ -4,7 +4,7 @@
 **Beispielmodul:** `myInvoices`
 
 Dieses Kapitel ist der verbindliche Golden Path für ein datenbasiertes
-dbXapp-Modul. Das vollständige Beispiel verwaltet Rechnungen und deren
+dbxapp-Modul. Das vollständige Beispiel verwaltet Rechnungen und deren
 Artikelpositionen. Es verbindet `dbxTPL`, `dbxDB`, DD, FD, `dbxForm`,
 `dbxReport`, Modul-Inclusion, `ajax.js` und `confirm.js` in einem
 zusammenhängenden Ablauf.
@@ -16,7 +16,7 @@ sind die maßgebliche, gemeinsam gepflegte Fassung.
 
 Die Wörter **MUSS**, **DARF NICHT**, **SOLL** und **DARF** sind normativ:
 
-- **MUSS** und **DARF NICHT** beschreiben den dbXapp-Vertrag.
+- **MUSS** und **DARF NICHT** beschreiben den dbxapp-Vertrag.
 - **SOLL** ist die Standardentscheidung; eine Abweichung braucht einen
   dokumentierten fachlichen Grund.
 - **DARF** bezeichnet eine unterstützte Variante.

@@ -283,8 +283,33 @@ body.dbx-docs .dbxContent_wrapper.dbx-content-page {
 .dbxdocs-home-grid,
 .dbxdocs-path-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
     gap: .9rem;
+}
+
+.dbxdocs-home-entrances,
+.dbxdocs-home-recommended {
+    display: grid;
+    gap: .75rem;
+}
+
+.dbxdocs-section-heading {
+    display: grid;
+    gap: .12rem;
+}
+
+.dbxdocs-section-heading > span {
+    color: #0870c9;
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+
+.dbxdocs-section-heading h2 {
+    margin: 0;
+    color: #0a376d;
+    font-size: clamp(1.2rem, 2vw, 1.55rem);
 }
 
 .dbxdocs-home-card,
@@ -401,21 +426,188 @@ body.dbx-docs .dbxContent_wrapper.dbx-content-page {
 }
 
 .dbxdocs-home-quicklinks {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: .55rem;
-    align-items: center;
     padding: .8rem 1rem;
     border-radius: 12px;
     background: #f1f5f9;
 }
 
 .dbxdocs-home-quicklinks a {
-    padding: .32rem .58rem;
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    min-height: 2.8rem;
+    padding: .55rem .7rem;
     border-radius: 8px;
     background: #fff;
     color: #0867c9;
     text-decoration: none;
+}
+
+.dbx-doc-meta {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: .45rem;
+    margin: 0 0 1.1rem;
+    padding: .65rem;
+    border: 1px solid #bfd6e8;
+    border-radius: 12px;
+    background: #f3f9fe;
+}
+
+.dbx-doc-meta > :where(span, a) {
+    display: grid;
+    gap: .06rem;
+    min-width: 0;
+    padding: .4rem .5rem;
+    border-radius: 8px;
+    color: #24445f;
+    text-decoration: none;
+}
+
+.dbx-doc-meta > a:hover,
+.dbx-doc-meta > a:focus-visible {
+    background: #fff0a8;
+}
+
+.dbx-doc-meta small {
+    color: #61788d;
+    font-size: .69rem;
+    font-weight: 750;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+}
+
+.dbx-doc-meta strong {
+    overflow: hidden;
+    font-size: .84rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dbxdocs-page-toc {
+    margin: 0 0 1.15rem;
+    border: 1px solid #c4d9ea;
+    border-radius: 12px;
+    background: #f8fbfe;
+}
+
+.dbxdocs-page-toc > summary {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    padding: .7rem .85rem;
+    color: #0a4f91;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.dbxdocs-page-toc > ol {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: .25rem .85rem;
+    margin: 0;
+    padding: .15rem .85rem .85rem 2.2rem;
+}
+
+.dbxdocs-page-toc li::marker {
+    color: #6c8ba6;
+}
+
+.dbxdocs-page-toc li.is-subsection {
+    margin-left: .65rem;
+    font-size: .91rem;
+}
+
+.dbxdocs-page-toc a {
+    color: #176bb6;
+    text-decoration: none;
+}
+
+.dbxdocs-page-toc a:hover,
+.dbxdocs-page-toc a:focus-visible {
+    color: #083f75;
+    text-decoration: underline;
+}
+
+.dbxdocs-search,
+.dbxdocs-not-found {
+    display: grid;
+    gap: 1rem;
+    width: min(100%, 72rem);
+    margin-inline: auto;
+    padding: clamp(.5rem, 2vw, 1.5rem);
+}
+
+.dbxdocs-search-header h1,
+.dbxdocs-not-found h1 {
+    margin: .25rem 0 .4rem;
+    color: #0a376d;
+}
+
+.dbxdocs-search-header p {
+    margin: 0;
+    color: #5c7084;
+}
+
+.dbxdocs-search-summary {
+    display: flex;
+    gap: .45rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: .7rem .85rem;
+    border-radius: 10px;
+    background: #edf6fd;
+}
+
+.dbxdocs-search-summary > a {
+    margin-left: auto;
+}
+
+.dbxdocs-search-results {
+    display: grid;
+    gap: .7rem;
+}
+
+.dbxdocs-search-result {
+    padding: .9rem 1rem;
+    border: 1px solid #c7dbea;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 6px 16px rgba(18, 66, 115, .06);
+}
+
+.dbxdocs-search-result > span {
+    color: #0870c9;
+    font-size: .72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.dbxdocs-search-result h2 {
+    margin: .2rem 0 .3rem;
+    font-size: 1.08rem;
+}
+
+.dbxdocs-search-result p,
+.dbxdocs-search-empty {
+    margin: 0;
+    color: #5b6f83;
+}
+
+.dbxdocs-search-empty {
+    padding: 1rem;
+    border: 1px dashed #b7cde1;
+    border-radius: 10px;
+    background: #f8fbfe;
+}
+
+.dbxdocs-not-found-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .65rem;
 }
 
 .dbxdocs-home-story {
@@ -443,6 +635,29 @@ body.dbx-docs .dbxContent_wrapper.dbx-content-page {
 
 .dbxdocs-area-hero h1 {
     margin: .25rem 0 .35rem;
+}
+
+.dbxdocs-area-hero h2 {
+    margin: 0;
+    color: #0a376d;
+    font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+}
+
+.dbxdocs-path-grid > a > span strong,
+.dbxdocs-path-grid > a > span small {
+    display: block;
+}
+
+.dbxdocs-path-grid > a > span strong {
+    margin-bottom: .18rem;
+    color: #0a376d;
+    font-size: 1rem;
+}
+
+.dbxdocs-path-grid > a > span small {
+    color: #607286;
+    font-size: .82rem;
+    line-height: 1.4;
 }
 
 .dbxdocs-area-hero p {
@@ -865,6 +1080,29 @@ body.dbx-app.skin-dunkel .dbxdocs-home-quicklinks a {
     background: #061008;
 }
 
+body.dbx-app.skin-dunkel :where(.dbx-doc-meta, .dbxdocs-search-result, .dbxdocs-search-empty, .dbxdocs-search-summary) {
+    border-color: #1c4a2e;
+    background: #020703;
+    color: #7cff7c;
+}
+
+body.dbx-app.skin-dunkel .dbxdocs-page-toc {
+    border-color: #1c4a2e;
+    background: #020703;
+}
+
+body.dbx-app.skin-dunkel .dbxdocs-page-toc :where(summary, a) {
+    color: #8cff8c;
+}
+
+body.dbx-app.skin-dunkel :where(.dbx-doc-meta, .dbxdocs-search, .dbxdocs-not-found) :where(h1, h2, strong, a) {
+    color: #8cff8c;
+}
+
+body.dbx-app.skin-dunkel :where(.dbx-doc-meta, .dbxdocs-search, .dbxdocs-not-found) :where(p, span, small) {
+    color: #52d966;
+}
+
 @media (max-width: 767px) {
     .dbxdocs-home {
         padding: 0;
@@ -873,6 +1111,8 @@ body.dbx-app.skin-dunkel .dbxdocs-home-quicklinks a {
     .dbxdocs-home-hero,
     .dbxdocs-home-grid,
     .dbxdocs-path-grid,
+    .dbxdocs-home-quicklinks,
+    .dbx-doc-meta,
     .dbxdocs-area-hero,
     .dbxdocs-area-next {
         grid-template-columns: 1fr;
@@ -890,6 +1130,15 @@ body.dbx-app.skin-dunkel .dbxdocs-home-quicklinks a {
     .dbxdocs-home-reference {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .dbxdocs-search-summary {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .dbxdocs-search-summary > a {
+        margin-left: 0;
     }
 
     .dbxdocs-area-icon {

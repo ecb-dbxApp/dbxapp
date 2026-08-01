@@ -1,30 +1,30 @@
-# Verbindliche Regeln fuer KI-Agenten {#dbxapp_ai_rules}
+# Verbindliche Regeln für KI-Agenten {#dbxapp_ai_rules}
 
 Stand: 2026-07-24
 
-Dieser Bereich ist verbindlich. Eine KI, die in dbXapp arbeitet, muss diese
+Dieser Bereich ist verbindlich. Eine KI, die in dbxapp arbeitet, muss diese
 Regeln einhalten.
 
 Vor einer datenbasierten Modulentwicklung ist
 @ref dbxapp_module_reference vollständig zu lesen und als Golden Path zu
 verwenden.
 
-Fuer einzelne Fachbereiche gelten zusaetzliche, strengere Referenzen:
+Für einzelne Fachbereiche gelten zusaetzliche, strengere Referenzen:
 
 - Design: @ref dbxapp_design_ai_reference
 - Design-Wizard und Antwort-ZIP: @ref dbxapp_design_studio_ki
 - Shop: @ref dbxapp_shop_ai_reference
 
-Vor einer Aenderung in einem dieser Bereiche muss die passende Referenz
-vollstaendig gelesen werden. Eine Bereichsreferenz ergaenzt diese Regeln; sie
+Vor einer Änderung in einem dieser Bereiche muss die passende Referenz
+vollständig gelesen werden. Eine Bereichsreferenz ergänzt diese Regeln; sie
 hebt keine projektweite Sicherheits- oder Architekturregel auf.
 
 ## Nicht anfassen
 
 Kernel-Klassen und JavaScript-Libs sind tabu, ausser der Benutzer fordert genau
-diese Aenderung ausdruecklich an.
+diese Änderung ausdrücklich an.
 
-Tabu ohne ausdrueckliche Anforderung:
+Tabu ohne ausdrückliche Anforderung:
 
 - `dbx/include/dbxApi.php`
 - `dbx/include/dbxWebApp.class.php`
@@ -76,12 +76,12 @@ Verboten:
 | Confirm | `confirm.js` |
 | UI-State | `core.js` |
 | Modul einbetten | `[modul=...]...[/modul]` |
-| CMS/KI-Aenderung | `dbxKi` |
+| CMS/KI-Änderung | `dbxKi` |
 
 ## dbxKi-Regel
 
-CMS-Inhalte, Seiten, Medien, Uebersetzungen und SEO-Daten werden von einer KI
-nicht direkt in der Datenbank geaendert. Eine KI nutzt dafuer `dbxKi`.
+CMS-Inhalte, Seiten, Medien, Übersetzungen und SEO-Daten werden von einer KI
+nicht direkt in der Datenbank geändert. Eine KI nutzt dafür `dbxKi`.
 
 Wenn Codex, Cursor oder ein vergleichbarer Agent Zugriff auf die lokale
 Installation haben, ist der direkte Weg zu verwenden:
@@ -92,7 +92,7 @@ Installation haben, ist der direkte Weg zu verwenden:
 
 Der erste Aufruf ist `system.describe`. Danach werden erlaubte Aktionen,
 Parameter, Tokens und Beispiel-Requests aus der Antwort verwendet. Der
-ZIP-Bundle-Weg ist nur fuer KI-Systeme ohne direkten Datei- oder HTTP-Zugriff
+ZIP-Bundle-Weg ist nur für KI-Systeme ohne direkten Datei- oder HTTP-Zugriff
 gedacht.
 
 ## Vorgehen bei neuen Funktionen
@@ -100,11 +100,11 @@ gedacht.
 1. @ref dbxapp_module_reference lesen.
 2. Vorhandene Module und Templates suchen.
 3. Routen in lesend und mutierend klassifizieren.
-4. DD/FD pruefen oder modellieren.
+4. DD/FD prüfen oder modellieren.
 5. Template und eindeutige `{i}`-Targets anlegen.
 6. `dbxForm` oder `dbxReport` verwenden.
 7. Aktionen als Templates bauen.
-8. JavaScript nur ueber vorhandene Libs anbinden.
+8. JavaScript nur über vorhandene Libs anbinden.
 9. Mutierende GETs mit vorhandenem Action-Token schützen.
 10. Rechte, normalen Fallback, Ajax und Mehrfachinstanzen testen.
 11. `dbx()` und Systemobjekte direkt verwenden; keine Aliasmethoden ohne
@@ -136,15 +136,15 @@ Schlecht:
 
 - Dashboard baut eigene SysMsg-Liste.
 - Dashboard kopiert Reportlogik.
-- Dashboard hat Sonderlogik fuer Collapse, obwohl Report/Utility das kann.
+- Dashboard hat Sonderlogik für Collapse, obwohl Report/Utility das kann.
 
 ## dbx_edit-Regel
 
-Der Interpreter laeuft fuer die Webseitenausgabe auch bei `dbx_edit > 0`.
-Nur im Template-Editor wird Rohtext geschuetzt.
+Der Interpreter läuft für die Webseitenausgabe auch bei `dbx_edit > 0`.
+Nur im Template-Editor wird Rohtext geschützt.
 
 ## Ziel
 
-KI soll dbXapp-Code so erweitern, als waere sie ein vorsichtiger Entwickler im
-Projekt: vorhandene Wege verstehen, kleine Aenderungen machen, Systemkonzepte
+KI soll dbxapp-Code so erweitern, als wäre sie ein vorsichtiger Entwickler im
+Projekt: vorhandene Wege verstehen, kleine Änderungen machen, Systemkonzepte
 respektieren.

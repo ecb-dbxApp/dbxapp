@@ -53,6 +53,7 @@ Architekturverträge stehen getrennt in der @ref dbxapp_developer_docs.
 Die ersten Schritte erklären Anmeldung, Profil, Hauptmenü und den Aufbau der
 Tutorialsammlung.
 
+- @subpage dbxcontent_tutorial_tutorial_installation
 - @subpage dbxcontent_tutorial_tutorials_dbxapp
 - @subpage dbxcontent_tutorial_tutorial_login_profil_passwort
 - @subpage dbxcontent_tutorial_tutorial_menue_benutzen

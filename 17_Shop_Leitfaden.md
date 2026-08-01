@@ -2,16 +2,16 @@
 
 Stand: 2026-08-01
 
-`dbxShop` ist die Shop-Fachanwendung von dbXapp. Sie umfasst inzwischen den
-oeffentlichen Katalog, Produktsuche und Filter, Warenkorb, Checkout,
+`dbxShop` ist die Shop-Fachanwendung von dbxapp. Sie umfasst inzwischen den
+öffentlichen Katalog, Produktsuche und Filter, Warenkorb, Checkout,
 Zahlungsarten, Bestellungen, Rechnungen, Widerruf, Medien, Artikelgruppen,
-Attribute, Versandgruppen und Verkaufskanaele. Die Administration liegt in
+Attribute, Versandgruppen und Verkaufskanäle. Die Administration liegt in
 einem getrennten Modul `dbxShop_admin`.
 
-Der Shop nutzt die normalen dbXapp-Bausteine: Routing ueber `dbx_run1`,
-Templates ueber `dbxTPL`, Datenzugriff ueber `dbxDB`, Struktur ueber DD,
-Formulare ueber `dbxForm`, Listen ueber `dbxReport`, CMS-Seiten fuer
-Rechtstexte und `openWin` fuer Admin-Dialoge.
+Der Shop nutzt die normalen dbxapp-Bausteine: Routing über `dbx_run1`,
+Templates über `dbxTPL`, Datenzugriff über `dbxDB`, Struktur über DD,
+Formulare über `dbxForm`, Listen über `dbxReport`, CMS-Seiten für
+Rechtstexte und `openWin` für Admin-Dialoge.
 
 ## Fachliches Gesamtbild
 
@@ -32,7 +32,7 @@ Produktstamm
 
 Der Shop ist dabei kein isoliertes Fremdsystem. CMS, Benutzer, Medien,
 Workflow, Mail, PDF, Konfiguration und Designs werden über die vorhandenen
-dbXapp-Bausteine verbunden.
+dbxapp-Bausteine verbunden.
 
 ## Rollen und typische Aufgaben
 
@@ -192,8 +192,8 @@ dbx/modules/dbxShop_admin/
 ```
 
 `dbxShop` ist bewusst Frontend und verwendet das aktive Frontend-Design.
-`dbxShop_admin` besitzt das Suffix `_admin` und wird fuer Administratoren vom
-Design-Router auf `default_design_admin` aufgeloest. Aktuell ist das
+`dbxShop_admin` besitzt das Suffix `_admin` und wird für Administratoren vom
+Design-Router auf `default_design_admin` aufgelöst. Aktuell ist das
 Admin-Design `dbxapp`.
 
 ## Frontend-Routen
@@ -211,17 +211,17 @@ Aufrufmuster:
 | `cart` | Warenkorb anzeigen und Mengen bearbeiten |
 | `checkout` | Kundendaten, Zahlungsart und Zustimmung erfassen |
 | `paypal_start` | PayPal-Ablauf aus dem Checkout starten |
-| `paypal_return` | PayPal-Rueckkehr erfassen und Zahlung verbuchen |
+| `paypal_return` | PayPal-Rückkehr erfassen und Zahlung verbuchen |
 | `paypal_cancel` | abgebrochene PayPal-Zahlung behandeln |
-| `amazon_pay_return` | Amazon-Pay-Rueckkehr verarbeiten |
+| `amazon_pay_return` | Amazon-Pay-Rückkehr verarbeiten |
 | `amazon_pay_cancel` | abgebrochene Amazon-Pay-Zahlung behandeln |
 | `order`, `orders` | eigene bzw. zuletzt erzeugte Bestellungen anzeigen |
 | `invoice_pdf` | zugreifbare Rechnung als PDF ausgeben |
-| `channel_webhook` | externe Bestell-/Channel-Rueckmeldung annehmen |
+| `channel_webhook` | externe Bestell-/Channel-Rückmeldung annehmen |
 | `legal`, `terms` | CMS-Rechtstexte des Shops ausgeben |
 | `return`, `returns`, `withdrawal` | Widerrufsseite und Formular ausgeben |
 
-Beispiel fuer eine CMS- oder Template-Inclusion:
+Beispiel für eine CMS- oder Template-Inclusion:
 
 ```html
 [modul=dbxShop]dbx_run1=catalog[/modul]
@@ -249,7 +249,7 @@ Aufrufmuster:
 | `product_attributes` | Attributwerte eines Artikels pflegen |
 | `shipping_groups` | Versandarten und Kosten verwalten |
 | `channel_groups` | Vertriebsszenarien aus Channels bilden |
-| `channels` | interne und externe Verkaufskanaele konfigurieren |
+| `channels` | interne und externe Verkaufskanäle konfigurieren |
 | `media` | Shop-Medien anzeigen und hochladen |
 | `assign_media` | Medien Artikeln oder Gruppen zuordnen |
 | `orders` | Bestellreport mit Filtern und Aktionen |
@@ -259,10 +259,10 @@ Aufrufmuster:
 | `legal` | Rechtstexte im CMS pflegen |
 | `returns` | Widerrufe administrieren |
 | `settings` | Shop-, Steuer-, Zahlungs-, Mail- und Versandeinstellungen |
-| `payment_test` | konfigurierte Zahlungsanbieter pruefen |
+| `payment_test` | konfigurierte Zahlungsanbieter prüfen |
 
-Der Modulzugriff ist ueber `dbxShop_admin/cfg/config.php` auf die Gruppe
-`admin` beschraenkt. Fachaktionen duerfen diese Modulberechtigung nicht durch
+Der Modulzugriff ist über `dbxShop_admin/cfg/config.php` auf die Gruppe
+`admin` beschraenkt. Fachaktionen dürfen diese Modulberechtigung nicht durch
 direkte, ungeschuetzte Hilfsrouten umgehen.
 
 ## Datenmodell
@@ -279,7 +279,7 @@ gepflegt werden.
 | `shopProduct` | `shop_product` | SKU, Slug, Titel, Typ, Preis, Steuer, Versand, Bestand, Aktivstatus |
 | `shopProductGroup` | `shop_product_group` | hierarchische Gruppen, Steuer-/Versanddefaults, Karten-, Detail- und Gallery-Templates |
 | `shopProductGroupMap` | `shop_product_group_map` | Artikel-zu-Gruppe, einschliesslich Primaergruppe |
-| `shopProductImage` | `shop_product_image` | CMS-Medium oder Bildpfad fuer Artikel/Gruppe |
+| `shopProductImage` | `shop_product_image` | CMS-Medium oder Bildpfad für Artikel/Gruppe |
 | `shopAttributeDefinition` | `shop_attribute_definition` | gruppenbezogene Text-, Auswahl- oder Zahlenattribute |
 | `shopProductAttributeValue` | `shop_product_attribute_value` | konkrete Attributwerte eines Artikels |
 
@@ -296,32 +296,32 @@ Gruppe stellt Defaults und Kategorisierung bereit.
 | `shopProductShippingGroupMap` | `shop_product_shipping_group_map` | Artikel-zu-Versandgruppe |
 | `shopChannel` | `shop_channel` | Plattform, Verbindung, Zugang, Export/Import und Teststatus |
 | `shopProductChannel` | `shop_product_channel` | Aktivierung, Channel-SKU, Preis-/Versandoverride und Exportstatus |
-| `shopChannelGroup` | `shop_channel_group` | wiederverwendbare Gruppe von Verkaufskanaelen |
+| `shopChannelGroup` | `shop_channel_group` | wiederverwendbare Gruppe von Verkaufskanälen |
 | `shopChannelGroupChannel` | `shop_channel_group_channel` | Channels innerhalb einer Channel-Gruppe |
 | `shopProductChannelGroupMap` | `shop_product_channel_group_map` | Artikel-zu-Channel-Gruppe |
 
-Direkte Channel-Zuordnungen und geerbte Zuordnungen ueber Channel-Gruppen
-werden gemeinsam aufgeloest. Ein Channel-spezifischer Preis von `-1` bedeutet
-sinngemaess, dass der Artikel- bzw. Gruppenwert verwendet wird.
+Direkte Channel-Zuordnungen und geerbte Zuordnungen über Channel-Gruppen
+werden gemeinsam aufgelöst. Ein Channel-spezifischer Preis von `-1` bedeutet
+sinngemäß, dass der Artikel- bzw. Gruppenwert verwendet wird.
 
 ### Bestellung und Widerruf
 
 | DD | Tabelle | Zweck |
 | --- | --- | --- |
 | `shopOrder` | `shop_order` | Kunde, Summe, Channel, Zahlung, Rechnung, Bestand, Versand und Rechtstext-Snapshots |
-| `shopOrderItem` | `shop_order_item` | unveraenderlicher Bestellpositions-Snapshot |
+| `shopOrderItem` | `shop_order_item` | unveränderlicher Bestellpositions-Snapshot |
 | `shopOrderHistory` | `shop_order_history` | Status- und Fachereignisse einer Bestellung |
 | `shopWithdrawal` | `shop_withdrawal` | Widerruf mit Bezug zu Bestellung/Kunde und Adminstatus |
 
 Bestellpositionen speichern SKU, Titel, Menge, Preis, Steuer und Versand zum
-Bestellzeitpunkt. Nachtraegliche Artikelaenderungen duerfen eine vorhandene
-Bestellung deshalb nicht rueckwirkend umschreiben.
+Bestellzeitpunkt. Nachtraegliche Artikelaenderungen dürfen eine vorhandene
+Bestellung deshalb nicht rückwirkend umschreiben.
 
 ## Installation, DD-Sync und Testdaten
 
 `dbxShopRepository::install()` synchronisiert die 17 Shop-DDs, legt
 Standard-Channels an und bereinigt bestimmte Zuordnungen. Die Synchronisation
-wird mit `schema_sync_version` begrenzt. Eine Aenderung an einem DD erfordert
+wird mit `schema_sync_version` begrenzt. Eine Änderung an einem DD erfordert
 deshalb auch eine neue Schema-Versionskennung, wenn die automatische
 Synchronisation erneut laufen soll.
 
@@ -330,7 +330,7 @@ aktuelle Shop `seedDemoProducts()` auf. Das Entwicklungsprojekt darf
 Testdaten enthalten. Die mitgelieferten Testdaten umfassen unter anderem
 Software- und Servicegruppen, Versandgruppen, Channel-Gruppen und Demoartikel.
 
-Werkzeuge fuer gezielte Testdaten und Mockups liegen unter:
+Werkzeuge für gezielte Testdaten und Mockups liegen unter:
 
 ```text
 dbx/modules/dbxShop/tools/seed_dbxapp_merch.php
@@ -340,7 +340,7 @@ dbx/modules/dbxShop/tools/generate_dbxapp_merch_mockups.php
 ## Katalog und Produktdarstellung
 
 Der Katalog zeigt nur aktive Artikel, die dem internen Channel `shop`
-zugeordnet sind. Er unterstuetzt:
+zugeordnet sind. Er unterstützt:
 
 - Volltextsuche mit gewichteten Artikel-, Gruppen- und Attributwerten,
 - hierarchische Artikelgruppen und Breadcrumbs,
@@ -360,8 +360,8 @@ shop-catalog-report.htm
 shop-catalog-filter-form.htm
 ```
 
-Neue Varianten werden als Shop-Templates ergaenzt und ueber die Gruppe
-ausgewaehlt. Der Service validiert den Template-Namen; ungepruefte Dateipfade
+Neue Varianten werden als Shop-Templates ergänzt und über die Gruppe
+ausgewählt. Der Service validiert den Template-Namen; ungeprüfte Dateipfade
 aus Datenbankwerten sind nicht erlaubt.
 
 ### Einheitliches Laden von Produktlisten
@@ -369,18 +369,18 @@ aus Datenbankwerten sind nicht erlaubt.
 Produktlisten verwenden im Repository immer denselben einfachen Ablauf:
 
 1. Produktzeilen bzw. leichte Filterkandidaten laden.
-2. Beziehungen fuer die benoetigte Produktmenge gebuendelt ueber `dbxDB` und
+2. Beziehungen für die benoetigte Produktmenge gebuendelt über `dbxDB` und
    die vorhandenen DDs laden.
 3. Gruppen, Versand, Channels, Bilder und Attribute im Speicher per ID
    zuordnen.
-4. Nur die sichtbare Katalogseite vollstaendig darstellen.
+4. Nur die sichtbare Katalogseite vollständig darstellen.
 
-`products()` fuer die Administration und `productsByIds()` fuer den
-oeffentlichen Report verwenden beide `decorateProducts()`. Die Methode bildet
-eine kurzlebige Datensicht nur fuer den aktuellen Aufruf. Sie ist kein
-prozess- oder requestuebergreifender Cache und benoetigt deshalb keine
+`products()` für die Administration und `productsByIds()` für den
+öffentlichen Report verwenden beide `decorateProducts()`. Die Methode bildet
+eine kurzlebige Datensicht nur für den aktuellen Aufruf. Sie ist kein
+prozess- oder requestuebergreifender Cache und benötigt deshalb keine
 Invalidierung. Einzelabrufe wie `productById()` und `productBySku()` bleiben
-unveraendert kompatibel.
+unverändert kompatibel.
 
 Ein allgemeiner Ergebnis-Cache wurde nicht in `dbxDB` eingebaut. Identische
 SQL-Texte koennten dort zwar wiederverwendet werden, produktbezogene Abfragen
@@ -405,9 +405,9 @@ ID zu. Neue Adminlisten dürfen nicht innerhalb einer Ergebnis-Schleife
 
 ## Warenkorb und Checkout
 
-Der Warenkorb wird in der PHP-Session unter `dbxShop_cart` gefuehrt. Der
+Der Warenkorb wird in der PHP-Session unter `dbxShop_cart` geführt. Der
 Checkout erfasst Name, E-Mail, Telefon, Lieferadresse, Notiz und Zahlungsart.
-Rechtstexte und Widerrufsbelehrung muessen bestaetigt werden.
+Rechtstexte und Widerrufsbelehrung müssen bestaetigt werden.
 
 Ändernde Warenkorbaktionen bleiben POST-Aktionen im vorhandenen
 `dbxReport`-/`dbxForm`-Vertrag. `remove` und `clear` sind benannte
@@ -426,58 +426,58 @@ sicher, dass Browser die korrigierten Kernel-Bibliotheken neu laden.
 
 Der Ablauf ist:
 
-1. Warenkorbpositionen gegen aktuelle Produkte pruefen.
-2. Bestand pruefen, wenn `stock_enabled` aktiv ist.
+1. Warenkorbpositionen gegen aktuelle Produkte prüfen.
+2. Bestand prüfen, wenn `stock_enabled` aktiv ist.
 3. Kundendaten und Zahlungsart validieren.
 4. Rechtstexte und Widerruf als Snapshot speichern, wenn aktiviert.
 5. Bestellung und Positionen erzeugen.
 6. Bestand gegebenenfalls reservieren.
 7. Bei Offline-Zahlung Bestaetigungsseite und Mail ausgeben.
-8. Bei PayPal/Amazon Pay zum Provider wechseln und Rueckkehr verarbeiten.
+8. Bei PayPal/Amazon Pay zum Provider wechseln und Rückkehr verarbeiten.
 9. Bestell- und Zahlungsereignisse in der History protokollieren.
 
 Gastbestellungen werden mit `checkout_guest_allowed` gesteuert. Die
-oeffentliche Anzeige einer Bestellung oder Rechnung muss weiterhin die im
-Service implementierte Zugriffspruefung benutzen; eine frei uebergebene ID
+öffentliche Anzeige einer Bestellung oder Rechnung muss weiterhin die im
+Service implementierte Zugriffsprüfung benutzen; eine frei uebergebene ID
 allein ist keine Berechtigung.
 
 ## Zahlungsarten
 
-Aktuell unterstuetzt die Konfiguration:
+Aktuell unterstützt die Konfiguration:
 
 | Zahlungsart | Aktivierung |
 | --- | --- |
-| Vorkasse/Ueberweisung | Schalter plus optionale Bankdaten und Anweisung |
+| Vorkasse/Überweisung | Schalter plus optionale Bankdaten und Anweisung |
 | Rechnung | Schalter plus Rechnungshinweis |
 | PayPal | Schalter, Modus, Client-ID und Client-Secret |
 | Amazon Pay | Schalter, Modus, Region, Merchant-/Store-/Key-Daten und Private Key |
 
-PayPal und Amazon Pay werden im Checkout erst angeboten, wenn die benoetigten
-Zugangsdaten vorhanden sind. Neue Provider gehoeren in eine eigene
-Adapterklasse; Secrets duerfen nicht in Templates, Logs oder Testausgaben
+PayPal und Amazon Pay werden im Checkout erst angeboten, wenn die benötigten
+Zugangsdaten vorhanden sind. Neue Provider gehören in eine eigene
+Adapterklasse; Secrets dürfen nicht in Templates, Logs oder Testausgaben
 geschrieben werden.
 
 ## Rechtstexte, CMS und Widerruf
 
-Der Shop stellt die benoetigten CMS-Seiten unter einem Shop-Ordner sicher.
+Der Shop stellt die benötigten CMS-Seiten unter einem Shop-Ordner sicher.
 Rechtstexte und Widerrufsinhalt werden im CMS gepflegt, nicht dauerhaft als
-HTML im Shop-Template dupliziert. Beim Checkout koennen Snapshots in der
+HTML im Shop-Template dupliziert. Beim Checkout können Snapshots in der
 Bestellung gespeichert werden, damit die zum Kaufzeitpunkt akzeptierte Fassung
 nachvollziehbar bleibt.
 
-Widerrufe werden ueber das Frontendformular in `shop_withdrawal` gespeichert
-und im Admin-Modul bearbeitet. Kunden- und Admin-Mail koennen separat
+Widerrufe werden über das Frontendformular in `shop_withdrawal` gespeichert
+und im Admin-Modul bearbeitet. Kunden- und Admin-Mail können separat
 aktiviert werden.
 
 ## Medien
 
-Produktbilder referenzieren vorzugsweise zentrale CMS-Medien ueber `media_id`.
-Ein `image_path` bleibt als Fallback fuer vorhandene oder erzeugte Dateien
-moeglich. Ein Bild kann einem Artikel oder einer Artikelgruppe zugeordnet sein.
+Produktbilder referenzieren vorzugsweise zentrale CMS-Medien über `media_id`.
+Ein `image_path` bleibt als Fallback für vorhandene oder erzeugte Dateien
+möglich. Ein Bild kann einem Artikel oder einer Artikelgruppe zugeordnet sein.
 Gruppenbilder dienen als Fallback und als visuelle Navigation im Katalog.
 
-Der konfigurierbare CMS-Slot lautet standardmaessig `shop`. Medien duerfen
-nicht allein durch Dateinamen als vertrauenswuerdig behandelt werden;
+Der konfigurierbare CMS-Slot lautet standardmäßig `shop`. Medien dürfen
+nicht allein durch Dateinamen als vertrauenswürdig behandelt werden;
 Uploadziel, Dateiname und Dateityp werden serverseitig begrenzt.
 
 ## Channels und externe Plattformen
@@ -489,14 +489,14 @@ shop, amazon, ebay, kleinanzeigen, mobile
 ```
 
 `dbxShopChannelConnector` kapselt Verbindungstest, Payload-Normalisierung und
-Artikelexport. Plattformbezogene Implementierungen existieren fuer eBay,
-Amazon, mobile.de und Kleinanzeigen; zusaetzlich gibt es einen generischen
-Middleware-Weg. Der interne Channel `shop` benoetigt keinen externen Export.
+Artikelexport. Plattformbezogene Implementierungen existieren für eBay,
+Amazon, mobile.de und Kleinanzeigen; zusätzlich gibt es einen generischen
+Middleware-Weg. Der interne Channel `shop` benötigt keinen externen Export.
 
 Eine sichtbare Channel-Konfiguration bedeutet nicht automatisch, dass ein
 Produktivvertrag oder alle API-Berechtigungen vorhanden sind. Vor Livebetrieb
-muessen Zugangsdaten, API-Scopes, Marketplace-/Seller-Kontext, Policies,
-Webhook-Authentifizierung und Fehlerwiederholung geprueft werden.
+müssen Zugangsdaten, API-Scopes, Marketplace-/Seller-Kontext, Policies,
+Webhook-Authentifizierung und Fehlerwiederholung geprüft werden.
 
 Der Webhook-Endpunkt ist:
 
@@ -505,13 +505,13 @@ Der Webhook-Endpunkt ist:
 ```
 
 Webhook-Secrets und Provider-Signaturen sind Sicherheitsgrenzen. Ein neuer
-Importweg darf Bestellungen nicht ungeprueft aus beliebigem JSON erzeugen.
+Importweg darf Bestellungen nicht ungeprüft aus beliebigem JSON erzeugen.
 
 ## Einstellungen
 
 Die Admin-Seite `settings` verwaltet unter anderem:
 
-- Aktivstatus, Standard-Channel und Waehrung,
+- Aktivstatus, Standard-Channel und Währung,
 - Brutto-/Nettoanzeige und drei Steuerklassen,
 - B2B-, Lager- und Channel-Schalter,
 - Gastbestellung und Rechtstext-Snapshots,
@@ -520,9 +520,9 @@ Die Admin-Seite `settings` verwaltet unter anderem:
 - digitale Lieferung und pauschalen Versand,
 - den CMS-Medienslot.
 
-Die Konfiguration wird mit `dbx()->get_config('dbxShop')` gelesen und ueber
+Die Konfiguration wird mit `dbx()->get_config('dbxShop')` gelesen und über
 die zentrale Konfigurationsschnittstelle gespeichert. Keine zweite JSON- oder
-ENV-Konfiguration fuer dieselben Werte einfuehren.
+ENV-Konfiguration für dieselben Werte einführen.
 
 ## Reale Codewege
 
@@ -653,33 +653,33 @@ Produktdaten, Preise und Rechte bleiben unverändert im Service/Repository.
 ## Erweiterungsregeln
 
 - Neue Tabellen zuerst als DD in `dbxShop/dd` modellieren.
-- Jede Shop-Tabelle benoetigt `id` als Primaerschluessel mit Autoincrement-
+- Jede Shop-Tabelle benötigt `id` als Primaerschluessel mit Autoincrement-
   Semantik der jeweiligen Datenbank.
-- Datenzugriff gehoert in `dbxShopRepository`, nicht in Templates.
-- Frontendablauf gehoert in `dbxShopService`.
-- Adminablauf gehoert in `dbxShopAdmin` und bleibt admin-geschuetzt.
+- Datenzugriff gehört in `dbxShopRepository`, nicht in Templates.
+- Frontendablauf gehört in `dbxShopService`.
+- Adminablauf gehört in `dbxShopAdmin` und bleibt admin-geschützt.
 - Neue Eingaben verwenden `dbxForm` und FD, neue Listen `dbxReport`.
 - Preis-, Steuer-, Versand- und Bestellwerte werden serverseitig berechnet.
 - IDs aus Request oder Session werden immer gegen Rechte und Datensatzbezug
-  geprueft.
+  geprüft.
 - Secrets werden nicht ausgegeben oder in Systemmeldungen protokolliert.
 - Externe Calls erhalten Timeout, Fehlerbehandlung und nachvollziehbaren
-  Status; sie duerfen lokale Bestellungen nicht inkonsistent hinterlassen.
+  Status; sie dürfen lokale Bestellungen nicht inkonsistent hinterlassen.
 
-## Pruefliste
+## Prüfliste
 
-- DD-Sync laeuft auf einer leeren Entwicklungsdatenbank durch.
+- DD-Sync läuft auf einer leeren Entwicklungsdatenbank durch.
 - Jede Tabelle besitzt `id` und eine funktionierende Autoincrement-ID.
 - Demoartikel erscheinen im Katalog und lassen sich filtern.
-- Warenkorb addiert, aendert und entfernt Positionen korrekt.
+- Warenkorb addiert, ändert und entfernt Positionen korrekt.
 - Bestätigtes Einzel-Löschen und Leeren funktionieren per AJAX; der Menü-Badge
   zeigt danach unmittelbar die aktuelle Gesamtmenge.
-- Checkout weist unvollstaendige Daten und fehlende Zustimmung ab.
+- Checkout weist unvollständige Daten und fehlende Zustimmung ab.
 - Offline-Zahlung erzeugt Bestellung und Positionen genau einmal.
-- Provider-Rueckkehr ist wiederholbar bzw. erzeugt keine Doppelbestellung.
+- Provider-Rückkehr ist wiederholbar bzw. erzeugt keine Doppelbestellung.
 - Eigene Bestellungen und Rechnungen sind zugreifbar, fremde nicht.
 - Adminreports, Formulare und Massenaktionen funktionieren.
-- Rechtstexte, Widerruf, Medien und Mail-Schalter sind geprueft.
+- Rechtstexte, Widerruf, Medien und Mail-Schalter sind geprüft.
 - Channel-Tests und Exporte zeigen Fehler, ohne Secrets auszugeben.
 - `dbxapp` und `flowers` stellen den Shop lesbar und responsive dar.
 
