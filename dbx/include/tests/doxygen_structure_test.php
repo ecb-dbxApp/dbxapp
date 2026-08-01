@@ -293,6 +293,17 @@ foreach (array(
     }
 }
 
+$releaseBuilder = $root . '/tools/build-release.php';
+if (is_file($releaseBuilder)) {
+    $releaseBuilderContent = (string)file_get_contents($releaseBuilder);
+    if (
+        !str_contains($releaseBuilderContent, "#^(?:\\.git|\\.github|dist|tools|files|output|tmp)/#")
+        || str_contains($releaseBuilderContent, "'Doxyfile'), true")
+    ) {
+        $fail('Das Kunden-Release muss Doxyfile und die sicheren docs-Quellen enthalten.', 31);
+    }
+}
+
 $headerContent = (string)file_get_contents($brandingHeader);
 $cssContent = (string)file_get_contents($brandingCss);
 foreach (array(
