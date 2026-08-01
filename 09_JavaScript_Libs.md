@@ -1,6 +1,6 @@
 # JavaScript-Systemlibs {#dbxapp_javascript_libs}
 
-dbXapp-JavaScript ist eine deklarative Erweiterung der serverseitigen
+dbxapp-JavaScript ist eine deklarative Erweiterung der serverseitigen
 Pipelines. `core.js` erkennt benötigte Features, lädt sie und initialisiert sie
 auch nach einem HTML-Ajax-Replace erneut.
 

@@ -2,24 +2,24 @@
 
 Stand: 2026-07-26
 
-dbXapp trennt Fachlogik, Content und Darstellung. Ein **Design** ist eine
-vollstaendige Anwendungsschale mit eigenem HTML, CSS, JavaScript und Bildern.
+dbxapp trennt Fachlogik, Content und Darstellung. Ein **Design** ist eine
+vollständige Anwendungsschale mit eigenem HTML, CSS, JavaScript und Bildern.
 Ein **Skin** ist eine Farb- und Kontrastvariante innerhalb eines Designs. Diese
 Trennung erlaubt technisch identische Seiten mit sehr unterschiedlichen
 Auftritten.
 
-Aktuell sind drei eigenstaendige Frontend-Designs vorhanden:
+Aktuell sind drei eigenständige Frontend-Designs vorhanden:
 
 | Design | Charakter | Navigation | angebotene Skins |
 | --- | --- | --- | --- |
-| `dbxapp` | technisch, kompakt, anwendungsorientiert | horizontal | Blau, Gruen, Gelb, Rot, Hell, Dunkel |
-| `flowers` | verspielt, organisch, Holz, Pflanzen und Kupfer | links vertikal | Blau, Gruen, Gelb, Rot, Hell, Dunkel |
-| `steal` | Edelstahl, Chrom, Gold und Riffelblech | horizontal | Blau, Gruen, Gelb, Rot, Hell, Dunkel |
+| `dbxapp` | technisch, kompakt, anwendungsorientiert | horizontal | Blau, Grün, Gelb, Rot, Hell, Dunkel |
+| `flowers` | verspielt, organisch, Holz, Pflanzen und Kupfer | links vertikal | Blau, Grün, Gelb, Rot, Hell, Dunkel |
+| `steal` | Edelstahl, Chrom, Gold und Riffelblech | horizontal | Blau, Grün, Gelb, Rot, Hell, Dunkel |
 
 Das konfigurierte Admin-Design ist `dbxapp`. Ein Frontend-Benutzer darf das
-Frontend-Design wechseln. Wird im Frontend fuer Administratoren das
-horizontale Admin-Menue eingeblendet, bleibt dieses bewusst horizontal und
-uebernimmt nicht die vertikale Flowers-Navigation.
+Frontend-Design wechseln. Wird im Frontend für Administratoren das
+horizontale Admin-Menü eingeblendet, bleibt dieses bewusst horizontal und
+übernimmt nicht die vertikale Flowers-Navigation.
 
 ## Begriffe und Verantwortung
 
@@ -31,28 +31,28 @@ Ein Design verantwortet:
 - Haupt- und Admin-Navigation,
 - Header, Contentflaeche, Footer und Fenster-Dock,
 - responsive Verhalten,
-- Typografie, Abstaende, Oberflaechen und Bildsprache,
+- Typografie, Abstaende, Oberflächen und Bildsprache,
 - designbezogene JavaScript-Ergaenzungen,
 - die Einbindung der angebotenen Skins.
 
 Ein Design verantwortet **nicht**:
 
 - Shop-, CMS- oder Benutzerlogik,
-- Datenzugriff und Rechtepruefung,
+- Datenzugriff und Rechteprüfung,
 - das Speichern von Formularen,
 - Report-Pagination oder Ajax-Transport,
 - die fachliche Bedeutung eines Moduls.
 
 ### Skin
 
-Ein Skin veraendert innerhalb eines Designs vor allem Farben, Kontraste,
+Ein Skin verändert innerhalb eines Designs vor allem Farben, Kontraste,
 Schatten, Rahmen und Hell-/Dunkelverhalten. Der Skin darf die Grundstruktur
 eines Designs nicht neu bauen. Wenn Navigation, Spalten oder Seitenschale
 anders werden sollen, ist ein eigenes Design die richtige Ebene.
 
 ### Modul-Design
 
-Module duerfen eigenes Komponenten-CSS und eigene Templates mitbringen, zum
+Module dürfen eigenes Komponenten-CSS und eigene Templates mitbringen, zum
 Beispiel:
 
 ```text
@@ -83,8 +83,8 @@ dbx/design/{design}/
   img/
 ```
 
-`htm/default.htm` ist die Voraussetzung dafuer, dass ein Verzeichnis als
-oeffentlich waehlbares Frontend-Design erkannt wird. Verzeichnisse mit einem
+`htm/default.htm` ist die Voraussetzung dafür, dass ein Verzeichnis als
+öffentlich wählbares Frontend-Design erkannt wird. Verzeichnisse mit einem
 Namen, der mit `_` oder `-` beginnt, werden in der Designauswahl nicht
 angeboten.
 
@@ -113,13 +113,13 @@ htm/_editor.htm     Editor-Spezialseite, wenn vorhanden
 htm/_install.htm    Installationsseite, wenn vorhanden
 ```
 
-Ist eine angeforderte Seitenvariante im aktiven Design nicht vorhanden, faellt
-die Template-Aufloesung auf `default.htm` zurueck. Der derzeitige
+Ist eine angeforderte Seitenvariante im aktiven Design nicht vorhanden, fällt
+die Template-Aufloesung auf `default.htm` zurück. Der derzeitige
 Fenstermechanismus setzt bei `dbx_window=1` die Seite auf `_window`. Eine
 separate `_adminWin`-Variante ist im aktuellen Stand nicht implementiert und
 darf deshalb nicht vorausgesetzt werden.
 
-Ein minimales `default.htm` enthaelt mindestens:
+Ein minimales `default.htm` enthält mindestens:
 
 ```html
 <!doctype html>
@@ -167,15 +167,15 @@ Der Ablauf liegt zentral in `dbxWebApp`:
 
 1. `check_remember()` liest `dbx_design`, `dbx_color`, `dbx_lng` und
    `dbx_edit` aus Remember-State und Request.
-2. Requestwerte duerfen die gemerkten Werte ueberschreiben.
+2. Requestwerte dürfen die gemerkten Werte überschreiben.
 3. `check_design()` validiert das Design und loest die Aliaswerte `user` und
    `admin` gegen die Konfiguration auf.
-4. Ein Admin-Modul mit `_admin` im Modulnamen schaltet fuer Administratoren
+4. Ein Admin-Modul mit `_admin` im Modulnamen schaltet für Administratoren
    auf `default_design_admin`.
-5. `design_load()` waehlt Design und Page, setzt den Modulinhalt in
+5. `design_load()` wählt Design und Page, setzt den Modulinhalt in
    `[dbx:content]` ein und liefert die fertige Seite aus.
 6. Bei `dbx_ajax=1` wird keine neue Seitenschale geladen; nur der Modulinhalt
-   wird zurueckgegeben.
+   wird zurückgegeben.
 
 Die Standardwerte stehen in `dbx/modules/dbx/cfg/config.php`:
 
@@ -185,9 +185,9 @@ $config['default_design_user'] = 'dbxapp';
 $config['default_design_admin'] = 'dbxapp';
 ```
 
-Ein Modul oder Admin-Werkzeug kann fuer seinen Aufruf `dbx_page`,
-`dbx_design`, `dbx_lng` und `dbx_color` setzen. Solche Umschaltungen muessen
-vor dem Laden der Designschale erfolgen und duerfen die zentrale Validierung
+Ein Modul oder Admin-Werkzeug kann für seinen Aufruf `dbx_page`,
+`dbx_design`, `dbx_lng` und `dbx_color` setzen. Solche Umschaltungen müssen
+vor dem Laden der Designschale erfolgen und dürfen die zentrale Validierung
 nicht umgehen.
 
 ## Frontend und Administration
@@ -195,23 +195,23 @@ nicht umgehen.
 Die aktuelle Trennung lautet:
 
 - Normale Frontend-Seiten verwenden das vom Benutzer gewaehlte Design.
-- `dbxShop` ist ein Frontend-Modul und laeuft deshalb in der aktiven
+- `dbxShop` ist ein Frontend-Modul und läuft deshalb in der aktiven
   Frontend-Schale.
 - Module mit dem Suffix `_admin`, beispielsweise `dbxShop_admin`, wechseln
-  fuer Administratoren zum konfigurierten Admin-Design.
-- Das Admin-Menue kann fuer angemeldete Administratoren auch im Frontend
+  für Administratoren zum konfigurierten Admin-Design.
+- Das Admin-Menü kann für angemeldete Administratoren auch im Frontend
   erscheinen. Im Flowers-Design wird es als eigener horizontaler Streifen
-  ueber dem eigentlichen Frontend-Header ausgegeben.
-- Ein per Ajax oder `openWin` geladener Inhalt erhaelt nicht automatisch ein
+  über dem eigentlichen Frontend-Header ausgegeben.
+- Ein per Ajax oder `openWin` geladener Inhalt erhält nicht automatisch ein
   zweites komplettes Design. Die Fensterschale kommt vom aufrufenden Kontext;
   Komponenten des Admin-Inhalts werden durch ihre Modul-Styles gestaltet.
 
 Damit bleiben Frontend und Backend visuell trennbar, ohne dass Modulcode
-dupliziert oder ein iframe vorausgesetzt werden muss. Falls spaeter echte
-Design-Isolation in Fenstern benoetigt wird, muss sie als eigener, dokumentierter
+dupliziert oder ein iframe vorausgesetzt werden muss. Falls später echte
+Design-Isolation in Fenstern benötigt wird, muss sie als eigener, dokumentierter
 Fenstermodus umgesetzt werden.
 
-## Design- und Skin-Auswahl im Menue
+## Design- und Skin-Auswahl im Menü
 
 Die Auswahl befindet sich im Hauptmenue-Template:
 
@@ -220,9 +220,9 @@ dbx/modules/dbxMenu/tpl/htm/dbx-top-main.htm
 ```
 
 `dbxMenu::frontend_design_options()` durchsucht zur Laufzeit
-`dbx/design/*/htm/default.htm`. Dadurch erscheint ein neues vollstaendiges
-Design ohne fest verdrahtete Liste im Menue. Innerhalb der Auswahl bildet
-`dbxMenu::render_design_skin_menu()` fuer jedes Design eine eigene Gruppe.
+`dbx/design/*/htm/default.htm`. Dadurch erscheint ein neues vollständiges
+Design ohne fest verdrahtete Liste im Menü. Innerhalb der Auswahl bildet
+`dbxMenu::render_design_skin_menu()` für jedes Design eine eigene Gruppe.
 Darunter stehen ausschliesslich dessen eigene Farbvarianten.
 
 Die verbindliche Skin-Erkennung liegt zentral in
@@ -234,16 +234,16 @@ dbx/design/{design}/css/skin-*.css
 
 Damit gibt es keine zweite Skin-Liste in `dbxMenu` oder `utilities.js`. Eine
 neue Datei wie `skin-petrol.css` wird automatisch nur in der Gruppe des
-betreffenden Designs angeboten. `dbxApi::normalize_skin()` prueft
+betreffenden Designs angeboten. `dbxApi::normalize_skin()` prüft
 `dbx_color` gegen genau diesen Katalog, damit kein nicht vorhandenes
-Stylesheet ausgewaehlt wird.
+Stylesheet ausgewählt wird.
 
 Jede Auswahl ist ein normaler, kopierbarer GET-Aufruf mit `dbx_design`
 **und** `dbx_color`. Damit fuehren Designwechsel und reine Farbwechsel
-denselben serverseitig validierten Ablauf aus; JavaScript ist fuer die
-Auswahl nicht erforderlich. `utilities.js` behaelt `applySkin()` fuer
-programmatische Oberflaechen und speichert solche lokale Auswahlen pro
-Design. Die Farbe eines Designs ueberschreibt damit nicht mehr versehentlich
+denselben serverseitig validierten Ablauf aus; JavaScript ist für die
+Auswahl nicht erforderlich. `utilities.js` behaelt `applySkin()` für
+programmatische Oberflächen und speichert solche lokale Auswahlen pro
+Design. Die Farbe eines Designs überschreibt damit nicht mehr versehentlich
 die Auswahl eines anderen Designs.
 
 ## CSS-Schichten
@@ -253,21 +253,21 @@ Eine robuste Aufteilung ist:
 | Datei | Verantwortung |
 | --- | --- |
 | `colors.css` | gemeinsame Design-Tokens und semantische Farbvariablen |
-| `skin-*.css` | Werte fuer eine konkrete Farb-/Kontrastvariante |
+| `skin-*.css` | Werte für eine konkrete Farb-/Kontrastvariante |
 | `base.css` | App-Shell, Header, Main, Footer, Navigation, responsive Grundstruktur |
-| `theme.css` | visuelle Sprache fuer Panels, Formulare, Reports und Fenster |
-| `glass-3d.css` | dbxapp-Effektschicht fuer Glas, Licht, metallische Kanten und gestaffelte Tiefe |
+| `theme.css` | visuelle Sprache für Panels, Formulare, Reports und Fenster |
+| `glass-3d.css` | dbxapp-Effektschicht für Glas, Licht, metallische Kanten und gestaffelte Tiefe |
 | `c-*.css` | Komponenten wie CMS, Form, Grid, Report, OpenWin und Process |
-| `m-menu.css` | Menue- und responsive Sonderregeln |
+| `m-menu.css` | Menü- und responsive Sonderregeln |
 
-Skins sollten vorzugsweise CSS-Variablen ueberschreiben. Komponenten greifen
+Skins sollten vorzugsweise CSS-Variablen überschreiben. Komponenten greifen
 auf diese Variablen zu. Dadurch muss eine Dark-Variante nicht die komplette
 Komponentenbibliothek kopieren.
 
 Im Design `dbxapp` wird `glass-3d.css` nach `base.css` und `theme.css`
-eingebunden. Die Datei gestaltet die vorhandenen Komponenten ueber die
+eingebunden. Die Datei gestaltet die vorhandenen Komponenten über die
 Skin-Tokens und darf deshalb keine eigene, vom Skin getrennte Farbwelt
-einfuehren.
+einführen.
 
 ## Das Flowers-Design
 
@@ -276,14 +276,14 @@ einfuehren.
 - feste bzw. einblendbare linke Hauptnavigation,
 - Holz-, Pflanzen- und Kupferanmutung,
 - organische Ornamente und florale Icons,
-- eine eigenstaendige Topbar und ein eigener Footer,
-- ein horizontaler Admin-Streifen fuer Administratoren,
-- eigenstaendiges Login-Styling,
+- eine eigenständige Topbar und ein eigener Footer,
+- ein horizontaler Admin-Streifen für Administratoren,
+- eigenständiges Login-Styling,
 - Light- und Dark-Skin,
 - designbezogenes Verhalten in `dbx/design/flowers/js/flowers.js`.
 
-Die linke Navigation muss bei langen oder aufgeklappten Untermenues scrollbar
-bleiben. Dropdowns des horizontalen Admin-Menues muessen ueber dem Seiteninhalt
+Die linke Navigation muss bei langen oder aufgeklappten Untermenüs scrollbar
+bleiben. Dropdowns des horizontalen Admin-Menüs müssen über dem Seiteninhalt
 liegen; deshalb sind Stacking Context und `z-index` Teil der Designpruefung.
 
 ## Neues Design anlegen
@@ -298,29 +298,29 @@ Der Wizard erzeugt eine unabhängige Kopie, fragt Aufteilung, Menüform, Footer,
 Branding, Logo, Farben und Typografie ab und validiert den Vertrag vor der
 Aktivierung. Der manuelle Weg bleibt für Entwickler möglich:
 
-1. Einen eindeutigen, URL-tauglichen Namen waehlen.
+1. Einen eindeutigen, URL-tauglichen Namen wählen.
 2. Unter `dbx/design/{name}` mindestens `htm`, `css`, `js` und `img` anlegen.
-3. Eine vollstaendige `htm/default.htm` mit `[dbx:content]`, Menues, Footer,
+3. Eine vollständige `htm/default.htm` mit `[dbx:content]`, Menüs, Footer,
    Vendor-Abhaengigkeiten und `core.js` erstellen.
 4. Eigene `colors.css`, `base.css`, `theme.css` und Skin-Dateien anlegen.
-5. Benoetigte `c-*.css` und Menue-Regeln im Design selbst pflegen.
+5. Benötigte `c-*.css` und Menü-Regeln im Design selbst pflegen.
 6. Das Design mit Gast, Benutzer und Administrator testen.
-7. Lange Haupt- und Untermenues, kleine Displays und Tastaturbedienung testen.
-8. Formulare, Reports, CMS, Login, Shop und OpenWin/Ajax pruefen.
-9. Erst danach das Design ueber `dbx_design={name}` produktiv anbieten.
+7. Lange Haupt- und Untermenüs, kleine Displays und Tastaturbedienung testen.
+8. Formulare, Reports, CMS, Login, Shop und OpenWin/Ajax prüfen.
+9. Erst danach das Design über `dbx_design={name}` produktiv anbieten.
 
-## Pruefliste
+## Prüfliste
 
-- `htm/default.htm` existiert und enthaelt `[dbx:content]`.
+- `htm/default.htm` existiert und enthält `[dbx:content]`.
 - `{dbx:skin_css}` und `{dbx:skin_class}` sind eingebunden.
-- `body` traegt `data-dbx-design` und `data-dbx-skin`.
+- `body` trägt `data-dbx-design` und `data-dbx-skin`.
 - `core.js?design={dbx:design}` wird geladen.
 - Das Design importiert keine privaten Dateien eines anderen Designs.
-- Haupt- und Admin-Menue sind erreichbar und ueberdecken den Content korrekt.
-- Untermenues bleiben bei geringer Hoehe erreichbar.
+- Haupt- und Admin-Menü sind erreichbar und überdecken den Content korrekt.
+- Untermenüs bleiben bei geringer Hoehe erreichbar.
 - Light/Dark bzw. alle angebotenen Skins funktionieren ohne unlesbare
   Kontraste.
-- Login, CMS, Shop, Formulare, Reports, Fenster und Ajax wurden geprueft.
+- Login, CMS, Shop, Formulare, Reports, Fenster und Ajax wurden geprüft.
 - Admin-Module laufen im Admin-Design; Frontend-Seiten bleiben umschaltbar.
 
 ## Verwandte Dokumentation

@@ -1,5 +1,5 @@
 /**
-@page dbxcontent_tutorial_tutorial_login_profil_passwort Tutorial: Login, Profil und Passwort
+@page dbxcontent_tutorial_tutorial_login_profil_passwort Login, Profil & Passwort
 
 <!-- Automatisch aus content_de#80 erzeugt. Nicht direkt bearbeiten. -->
 
@@ -11,6 +11,7 @@
 
 @htmlonly
 <div class="dbx-tutorial-source">
+<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_login_profil_passwort.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
 <p>Anmeldung, Avatar-Menü, Profilbild und eigenes Passwort.</p><p>Nutzen Sie die Slideshow, um die einzelnen Schritte in Ruhe durchzugehen.</p>
 </div>
 @endhtmlonly

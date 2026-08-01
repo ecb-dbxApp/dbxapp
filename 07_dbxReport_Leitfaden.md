@@ -1,6 +1,6 @@
 # dbxReport {#dbxapp_dbxreport}
 
-`dbxReport` ist die Listenpipeline von dbXapp. Sobald eine Ansicht Suche,
+`dbxReport` ist die Listenpipeline von dbxapp. Sobald eine Ansicht Suche,
 Sortierung, Pagination, Zeilenaktionen oder Mehrfachauswahl benötigt, sollte sie
 nicht als eigene Schleife mit eigener UI-Logik entstehen.
 

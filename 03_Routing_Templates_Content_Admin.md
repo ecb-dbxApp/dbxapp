@@ -1,15 +1,15 @@
 # Routing, Templates und Modul-Inclusion {#dbxapp_routing_templates}
 
-dbXapp kennt zwei Hauptwege, eine Funktion aufzurufen:
+dbxapp kennt zwei Hauptwege, eine Funktion aufzurufen:
 
-- Content-getrieben ueber Permalinks und CMS-Seiten.
-- Parameter-getrieben ueber `dbx_modul`, `dbx_run1`, `dbx_run2`, `dbx_run3`.
+- Content-getrieben über Permalinks und CMS-Seiten.
+- Parameter-getrieben über `dbx_modul`, `dbx_run1`, `dbx_run2`, `dbx_run3`.
 
-Beide Wege koennen gemischt werden.
+Beide Wege können gemischt werden.
 
 ## Frontend: Content-getrieben
 
-Im Frontend ist dbXapp normalerweise CMS- und Permalink-getrieben.
+Im Frontend ist dbxapp normalerweise CMS- und Permalink-getrieben.
 
 Beispiel:
 
@@ -19,7 +19,7 @@ Beispiel:
 /lkw/angebot
 ```
 
-Der Request wird auf eine CMS-Seite aufgeloest. Diese Seite kann normalen
+Der Request wird auf eine CMS-Seite aufgelöst. Diese Seite kann normalen
 Content, Templates und Modul-Inclusions enthalten.
 
 Beispiel im Content:
@@ -194,8 +194,8 @@ Ein Admin-Dashboard kann wiederum nur Layout definieren:
 </div>
 ```
 
-Das Eltern-Template entscheidet nur ueber Position. Das eingebundene Modul
-bleibt fuer Inhalt, Report, Filter und Aktionen verantwortlich.
+Das Eltern-Template entscheidet nur über Position. Das eingebundene Modul
+bleibt für Inhalt, Report, Filter und Aktionen verantwortlich.
 
 ## Modulvariablen
 
@@ -208,7 +208,7 @@ $id   = (int) dbx()->get_modul_var('id', 0, 'int');
 ```
 
 `get_request_var()` liest direkte Request-Parameter ohne Modulschutz. Es wird
-genutzt, wenn ein Wert wirklich global fuer den Request gemeint ist.
+genutzt, wenn ein Wert wirklich global für den Request gemeint ist.
 
 ```php
 $ajax = (int) dbx()->get_request_var('dbx_ajax', 0, 'int');
@@ -216,7 +216,7 @@ $ajax = (int) dbx()->get_request_var('dbx_ajax', 0, 'int');
 
 ## Remember-Variablen
 
-Remember-Variablen speichern UI- oder Systemzustand ueber Requests hinweg.
+Remember-Variablen speichern UI- oder Systemzustand über Requests hinweg.
 
 ```php
 dbx()->set_remember_var('dbx_lng', 'de', 'dbx');
@@ -233,7 +233,7 @@ Typische Werte:
 
 ## Session-Variablen
 
-Session-Variablen gehoeren zu kurzfristigem Benutzerzustand.
+Session-Variablen gehören zu kurzfristigem Benutzerzustand.
 
 ```php
 dbx()->set_session_var('selected_ids', array(4, 7), 'report', 'dbxAdmin');
@@ -242,8 +242,8 @@ $ids = dbx()->get_session_var('selected_ids', array(), 'report', 'dbxAdmin');
 
 ## Geschuetzte Modulvariablen
 
-dbXapp muss erlauben, dass dasselbe Modul mehrfach auf einer Seite vorkommt.
-Deshalb duerfen Modulzustand, Reportzustand und Targets nicht global kollidieren.
+dbxapp muss erlauben, dass dasselbe Modul mehrfach auf einer Seite vorkommt.
+Deshalb dürfen Modulzustand, Reportzustand und Targets nicht global kollidieren.
 
 Beispiel:
 
@@ -279,6 +279,6 @@ Gerenderte Ausgabe:
 Warum das wichtig ist:
 
 - AJAX ersetzt genau den richtigen Bereich.
-- Mehrere gleiche Reports koennen auf einer Seite existieren.
+- Mehrere gleiche Reports können auf einer Seite existieren.
 - Fenster, Confirm und Reloads haben ein klares Ziel.
 - Keine ID-Kollisionen im DOM.

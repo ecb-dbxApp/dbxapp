@@ -50,6 +50,11 @@ DoxygenAwesomeInteractiveToc.init();
 /* Doxygen 1.17 no longer ships jQuery. Initialize the Awesome extensions
    with native DOM APIs so the theme remains fully functional. */
 document.addEventListener("DOMContentLoaded", function () {
+  var embedded = document.documentElement.classList.contains("dbx-doc-embedded");
+  if (embedded) {
+    document.body.classList.add("dbx-doc-embedded-body");
+  }
+
   var searchBox = document.getElementById("MSearchBox");
   if (searchBox && !document.querySelector("doxygen-awesome-dark-mode-toggle")) {
     var darkModeToggle = document.createElement("doxygen-awesome-dark-mode-toggle");
@@ -107,6 +112,9 @@ document.addEventListener("DOMContentLoaded", function () {
   var searchField = document.getElementById("MSearchField");
   var themeToggle = document.querySelector("doxygen-awesome-dark-mode-toggle");
   if (audienceNav) {
+    if (embedded) {
+      audienceNav.setAttribute("aria-label", "Doxygen-Navigation innerhalb des dbxDocs-Portals");
+    }
     var tools = document.createElement("div");
     tools.className = "dbx-doc-tools";
     tools.setAttribute("aria-label", "Dokumentation durchsuchen und Darstellung wählen");

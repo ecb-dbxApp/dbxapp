@@ -40,7 +40,7 @@ $expected = array(
     'mode' => 'check',
     'language' => 'de',
     'source_dd' => 'content_de',
-    'tutorial_pages' => 18,
+    'tutorial_pages' => 19,
 );
 foreach ($expected as $key => $value) {
     if (($result[$key] ?? null) !== $value) {

@@ -92,9 +92,9 @@ foreach (array(
     }
 }
 foreach (array(
-    '2026-08-01-installation-2',
-    '2026-08-01-tutorial-installation-2',
-    '2026-08-01-selftest-2',
+    '2026-08-01-installation-3',
+    '2026-08-01-tutorial-installation-3',
+    '2026-08-01-selftest-3',
     "'permalink' => 'dokumentation-installation'",
     "'permalink' => 'tutorial-installation'",
     "'permalink' => 'dokumentation-selbsttest'",

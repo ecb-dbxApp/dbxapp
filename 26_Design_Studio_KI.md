@@ -3,7 +3,7 @@
 Stand: 2026-07-25
 
 `dbxDesign_admin` ist die verbindliche Oberfläche zum Personalisieren und
-Erstellen vollständiger dbXapp-Designs. Das Modul verbindet einen einfachen
+Erstellen vollständiger dbxapp-Designs. Das Modul verbindet einen einfachen
 Wizard mit der kontrollierten Design-Pipeline von `dbxKi`.
 
 ## Benutzerwege

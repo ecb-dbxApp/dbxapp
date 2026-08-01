@@ -1,0 +1,23 @@
+<section class="dbxdocs-reference dbxdocs-reference--window" aria-labelledby="dbxdocs-reference-window-title">
+    <header class="dbxdocs-reference-header">
+        <div>
+            <span class="dbxdocs-reference-kicker"><i class="bi bi-code-square" aria-hidden="true"></i> Doxygen</span>
+            <h1 id="dbxdocs-reference-window-title">{reference_title}</h1>
+            <p>{reference_subtitle}</p>
+        </div>
+        <a class="btn btn-outline-primary" href="{reference_portal_url}">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            <span>{reference_back_label}</span>
+        </a>
+    </header>
+    <iframe
+        class="dbxdocs-reference-frame"
+        src="{reference_url}"
+        title="{reference_title}"
+        loading="eager"
+        referrerpolicy="same-origin"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+    >
+        <p>{reference_fallback} <a href="{reference_portal_url}">{reference_back_label}</a></p>
+    </iframe>
+</section>

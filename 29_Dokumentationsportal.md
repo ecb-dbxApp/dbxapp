@@ -23,8 +23,8 @@ Quellreferenzen von Doxygen erhalten. Die Referenz wird über das Modul
 ## Verzeichnisstruktur
 
 ```text
-C:\xampp\htdocs\dbxapp\                 lokale Entwicklungsquelle
-C:\xampp\htdocs\dbxapp-docs\            eigenständige Dokumentationsinstallation
+<dbxapp-quellverzeichnis>\                 lokale Entwicklungsquelle
+<dbxapp-dokumentationsverzeichnis>\        eigenständige Dokumentationsinstallation
 ├── index.php                            dbxapp-/dbxContent-Portal
 ├── dbx\design\dbxdocs\                  blaues Dokumentationsdesign
 ├── files\media\                         Tutorialmedien
@@ -33,7 +33,7 @@ C:\xampp\htdocs\dbxapp-docs\            eigenständige Dokumentationsinstallatio
 
 Die vorherige statische Ausgabe wurde bei der Umstellung nicht gelöscht,
 sondern als datierter Ordner
-`C:\xampp\htdocs\dbxapp-docs-doxygen-backup-<Zeitstempel>` gesichert.
+`<dbxapp-dokumentationsverzeichnis>-doxygen-backup-<Zeitstempel>` gesichert.
 
 ## Design- und Navigationsvertrag
 
@@ -95,17 +95,17 @@ Prozess. Jede DD kann weiterhin einen eigenen DB3- oder MySQL-Server verwenden.
 
 ## Doxygen erzeugen
 
-Aus der lokalen Wahrheit `C:\xampp\htdocs\dbxapp`:
+Aus dem maßgeblichen `<dbxapp-quellverzeichnis>`:
 
 ```powershell
-Set-Location C:\xampp\htdocs\dbxapp
+Set-Location <dbxapp-quellverzeichnis>
 doxygen Doxyfile
 ```
 
 `Doxyfile` schreibt nach:
 
 ```text
-C:\xampp\htdocs\dbxapp-docs\reference\current\
+<dbxapp-dokumentationsverzeichnis>\reference\current\
 ```
 
 Vor einer vollständigen Neuerzeugung wird die bisherige Ausgabe als datierter

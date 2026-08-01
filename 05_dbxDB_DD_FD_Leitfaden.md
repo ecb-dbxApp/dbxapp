@@ -1,6 +1,6 @@
 # dbxDB, dbxDD und FD {#dbxapp_dbxdb_dd_fd}
 
-`dbxDB`, DD und FD bilden die Datenbasis von dbXapp. Fachcode arbeitet nicht
+`dbxDB`, DD und FD bilden die Datenbasis von dbxapp. Fachcode arbeitet nicht
 direkt mit PDO und kennt im Normalfall auch keinen physischen Tabellennamen.
 Er verwendet eine DD-Referenz wie `dbxWorkflow|workflowDefinition`.
 
@@ -31,7 +31,7 @@ Eine explizite Referenz besteht aus Modul und DD-Name:
 $dd = 'dbxWorkflow|workflowDefinition';
 ```
 
-Ohne Modulpräfix sucht dbXapp zuerst im aktiven Modul und anschließend im
+Ohne Modulpräfix sucht dbxapp zuerst im aktiven Modul und anschließend im
 Kernmodul `dbx`. In wiederverwendbarem Fachcode ist die explizite Referenz
 meist verständlicher und verhindert Namenskollisionen.
 

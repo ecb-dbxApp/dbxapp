@@ -1,8 +1,8 @@
 # dbxForm {#dbxapp_dbxform}
 
-[Offizielle dbXapp Website](https://dbxapp.de)
+[Offizielle dbxapp Website](https://dbxapp.de)
 
-`dbxForm` ist die zentrale Eingabe- und Formularpipeline von dbXapp. Sie
+`dbxForm` ist die zentrale Eingabe- und Formularpipeline von dbxapp. Sie
 verbindet Template, DD/FD, Request-Auswertung, Validierung, Meldungen,
 Formularzustand, AJAX und Speichern.
 
@@ -92,7 +92,7 @@ public function edit($rid = null) {
 
 Wichtige Punkte:
 
-- `get_system_obj('dbxForm')` liefert eine von dbXapp verwaltete Instanz.
+- `get_system_obj('dbxForm')` liefert eine von dbxapp verwaltete Instanz.
 - `init()` setzt den Formularzustand zurück und erzeugt den Submit-Schutz.
 - `_data` enthält den Ausgangsdatensatz; Request-Werte erhalten beim Submit
   Vorrang.

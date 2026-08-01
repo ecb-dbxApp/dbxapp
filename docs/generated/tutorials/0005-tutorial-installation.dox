@@ -1,0 +1,128 @@
+/**
+@page dbxcontent_tutorial_tutorial_installation Tutorial: dbxapp installieren
+
+<!-- Automatisch aus content_de#195 erzeugt. Nicht direkt bearbeiten. -->
+
+@htmlonly
+<div class="dbx-doc-meta"><span>Anwender-Tutorial</span><span>dbxContent #195</span><span>Permalink: <code>tutorial-installation</code></span></div>
+@endhtmlonly
+
+> **Kurzbeschreibung:** Geführte dbxapp-Installation mit Voraussetzungen, sieben Assistentenschritten, Kontrollpunkten, SelfTest und Fehlersuche.
+
+@htmlonly
+<div class="dbx-tutorial-source">
+<article class="dbxdocs-cms-article dbxdocs-tutorial" data-dbx-doc-revision="2026-08-01-tutorial-installation-3">
+<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_installation.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
+<p class="dbx-doc-kicker">Tutorial · Installation</p>
+    <h2>dbxapp Schritt für Schritt installieren</h2>
+    <p class="lead">
+        In diesem Tutorial richten Sie eine neue dbxapp-Installation kontrolliert ein.
+        Nach jedem Abschnitt prüfen Sie ein sichtbares Ergebnis, bevor Sie fortfahren.
+    </p>
+
+    <div class="dbx-callout is-success">
+        <strong>Ergebnis</strong>
+        <span>Am Ende können Sie sich mit einem persönlichen Administrator-Passwort anmelden und erhalten einen bestandenen Schnelltest.</span>
+    </div>
+
+    <h3>1. Vorbereitung</h3>
+    <h4>Systemvoraussetzungen prüfen</h4>
+    <p>Stellen Sie vor dem Kopieren der Dateien sicher, dass der Zielserver die Pflichtvoraussetzungen erfüllt.</p>
+    <table class="markdownTable">
+        <thead>
+            <tr><th>Prüfung</th><th>Erforderlicher Zustand</th><th>Kontrolle</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>PHP</td><td>Version 8.2 oder neuer</td><td><code>php -v</code> oder Serverübersicht</td></tr>
+            <tr><td>Erweiterungen</td><td>Session, PDO, JSON, Filter, Hash und OpenSSL</td><td><code>php -m</code></td></tr>
+            <tr><td>Autoload</td><td><code>dbx/vendor/autoload.php</code> vorhanden</td><td>Datei im Paket kontrollieren</td></tr>
+            <tr><td>Schreibrechte</td><td><code>files</code>, <code>tmp</code> und lokale Konfiguration beschreibbar</td><td>Systemprüfung im Assistenten</td></tr>
+            <tr><td>HTTPS</td><td>Für Produktion aktiv</td><td>Adresse beginnt mit <code>https://</code></td></tr>
+        </tbody>
+    </table>
+
+    <h4>Sicherung und Zielverzeichnis vorbereiten</h4>
+    <ol>
+        <li>Bei einer bestehenden Umgebung zuerst Dateien, lokale Konfiguration und alle Datenbanken sichern.</li>
+        <li>Für eine Neuinstallation ein leeres, eigenes Webverzeichnis verwenden.</li>
+        <li>Ein persönliches Admin-Passwort mit mindestens zwölf Zeichen vorbereiten.</li>
+    </ol>
+
+    <h3>2. Dateien bereitstellen</h3>
+    <h4>Release entpacken</h4>
+    <ol class="dbx-update-steps">
+        <li><div><strong>Paket kopieren</strong><span>Das vollständige Release in das Zielverzeichnis entpacken. Keine Dateien einer älteren Version darüberkopieren.</span></div></li>
+        <li><div><strong>Document Root setzen</strong><span>Der Webserver zeigt auf das Verzeichnis, in dem sich <code>index.php</code> befindet.</span></div></li>
+        <li><div><strong>Rechte begrenzen</strong><span>Nur Laufzeitverzeichnisse und lokale Konfiguration beschreibbar machen; Quellcode bleibt im Betrieb lesbar.</span></div></li>
+        <li><div><strong>Startseite öffnen</strong><span>Die neue Installation leitet automatisch zum Installationsassistenten weiter.</span></div></li>
+    </ol>
+
+    <h4>Kontrollpunkt</h4>
+    <p class="dbx-note">Der Assistent zeigt Schritt 1 „Systemprüfung“. Eine normale Website oder eine leere Seite wäre an dieser Stelle nicht korrekt.</p>
+
+    <h3>3. Assistent ausfüllen</h3>
+    <h4>Schritt 1 bis 3: System, Website und Datenspeicher</h4>
+    <ol>
+        <li>Alle roten Pflichtfehler in der Systemprüfung beheben.</li>
+        <li>Website-Titel, Markenname, Standardsprache, Zeitzone und Designs festlegen.</li>
+        <li>DB3 für den direkten Einstieg oder ein geprüftes PDO-Ziel für einen zentralen Datenbankserver auswählen.</li>
+    </ol>
+
+    <h4>Schritt 4 bis 6: Daten, Administration und E-Mail</h4>
+    <ol>
+        <li>Strukturen erst nach erfolgreicher Datenbankverbindung anlegen. Eine Datenübertragung nur nach zusätzlicher Bestätigung starten.</li>
+        <li>Für <code>admin</code> das vorbereitete persönliche Passwort zweimal identisch eingeben.</li>
+        <li>Für den ersten Test den Mailmodus <code>internal</code> verwenden oder eine vollständig geprüfte SMTP-Konfiguration hinterlegen.</li>
+    </ol>
+
+    <h4>Schritt 7: Zusammenfassung und Abschluss</h4>
+    <p>
+        Prüfen Sie Website, Sprache, Zeitzone, Datenbankmodus, Administrator und Mailmodus.
+        Geheimnisse dürfen in der Zusammenfassung nicht im Klartext erscheinen. Schließen Sie die Installation erst danach ab.
+    </p>
+
+    <h3>4. Installation abnehmen</h3>
+    <h4>Anmelden und Schnelltest starten</h4>
+    <ol class="dbx-update-steps">
+        <li><div><strong>Anmelden</strong><span>Mit <code>admin</code> und dem in Schritt 5 vergebenen Passwort anmelden.</span></div></li>
+        <li><div><strong>SelfTest öffnen</strong><span>Im Adminmenü <strong>System → System-Selbsttest</strong> wählen.</span></div></li>
+        <li><div><strong>Schnelltest ausführen</strong><span>Der Lauf muss ohne Fehler enden. Details zu übersprungenen optionalen Werkzeugen bewusst bewerten.</span></div></li>
+        <li><div><strong>Kompletttest planen</strong><span>Vor der produktiven Freigabe zusätzlich den vollständigen Testkatalog ausführen.</span></div></li>
+    </ol>
+
+    <h4>Abnahmeprotokoll</h4>
+    <table class="markdownTable">
+        <thead>
+            <tr><th>Kontrolle</th><th>Bestanden, wenn …</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Anmeldung</td><td>Das persönliche Admin-Passwort funktioniert und kein Standardpasswort ist aktiv.</td></tr>
+            <tr><td>Konfiguration</td><td>Design, Sprache, Zeitzone, Mailmodus und Datenbankbindungen stimmen.</td></tr>
+            <tr><td>Schnelltest</td><td>Alle Pflichtprüfungen sind grün und der Lauf ist abgeschlossen.</td></tr>
+            <tr><td>Backup</td><td>Konfiguration, Dateien und gebundene Datenbanken sind extern gesichert.</td></tr>
+        </tbody>
+    </table>
+
+    <h3>5. Typische Fehler beheben</h3>
+    <h4>Der Assistent startet immer wieder</h4>
+    <p>Schreibrechte und Inhalt von <code>dbx/modules/dbx/cfg/config.local.php</code> prüfen. Der erfolgreiche Abschluss speichert dort lokal <code>install = 0</code>.</p>
+
+    <h4>Die Datenbankverbindung schlägt fehl</h4>
+    <p>PDO-Treiber, Host, Port, Datenbankname und Benutzerrechte kontrollieren. Ohne erfolgreiche Verbindung keine Schema- oder Datenübertragung starten.</p>
+
+    <h4>Es erscheint eine leere Seite</h4>
+    <p>PHP-Version, Pflichtmodule, <code>vendor/autoload.php</code>, Webserver-Protokoll und <code>files/dbxError.log</code> prüfen.</p>
+
+    <h3>Nächster Schritt</h3>
+    <ul>
+        <li><a href="dokumentation-installation">Installationshandbuch und technische Hintergründe</a></li>
+        <li><a href="dokumentation-selbsttest">dbxSelfTest vollständig erklärt</a></li>
+        <li><a href="dokumentation-system-update">System-Updates sicher durchführen</a></li>
+    </ul>
+</article>
+</div>
+@endhtmlonly
+
+@note Quelle: deutsche dbxContent-Seite `content_de#195`. Generiert am 28. Juli 2026 über DD, dbxDB und Medienzuordnungen.
+
+*/

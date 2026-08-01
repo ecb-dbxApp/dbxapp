@@ -1,9 +1,9 @@
 # Core-Klassen {#dbxapp_core_classes}
 
-[Offizielle dbXapp Website](https://dbxapp.de)
+[Offizielle dbxapp Website](https://dbxapp.de)
 
 Dieses Kapitel erklaert Sinn und typische Verwendung der wichtigsten
-Systemklassen. Es ist keine vollstaendige API-Referenz; die Detailreferenz
+Systemklassen. Es ist keine vollständige API-Referenz; die Detailreferenz
 erzeugt Doxygen direkt aus dem Source.
 
 ## Architekturentscheidung für große Kernklassen
@@ -52,10 +52,10 @@ $db   = dbx()->get_system_obj('dbxDB');
 
 ## dbxWebApp
 
-`dbxWebApp` fuehrt den Request durch:
+`dbxWebApp` führt den Request durch:
 
 - Basis-URL bestimmen.
-- Permalink oder Modulroute aufloesen.
+- Permalink oder Modulroute auflösen.
 - automatisch erkannte und dbxReport-eigene Action-Policies vor dem
   Modulstart prüfen.
 - schreibende dbxReport-Grid-Routen anhand ihrer Route erkennen, nicht anhand
@@ -73,14 +73,14 @@ Der Interpreter verarbeitet Marker wie:
 [modul=dbxAdmin]dbx_run1=session&dbx_run2=list_session[/modul]
 ```
 
-Er laeuft fuer die Webseitenausgabe. Im Template-Editor darf er den
-bearbeiteten Rohtext nicht ausfuehren.
+Er läuft für die Webseitenausgabe. Im Template-Editor darf er den
+bearbeiteten Rohtext nicht ausführen.
 
 Siehe auch: @ref dbxapp_dbxinterpreter.
 
 ## dbxTPL
 
-Template-Engine fuer HTML-Templates, Marker und Template-Slots.
+Template-Engine für HTML-Templates, Marker und Template-Slots.
 
 ## dbxDB
 
@@ -115,14 +115,14 @@ Methodennamen nötig.
 ## dbxSession
 
 Session-Verwaltung und optionale Session-DB. Normale HTTP-Requests und
-HTML-AJAX-Requests koennen Sessionzustand am Request-Ende schreiben. Reine
-JSON-AJAX-Aktionen muessen nicht zwingend Session/Performance schreiben.
+HTML-AJAX-Requests können Sessionzustand am Request-Ende schreiben. Reine
+JSON-AJAX-Aktionen müssen nicht zwingend Session/Performance schreiben.
 Login und Logout verwerfen das Action-Token-Secret des vorherigen
 Sicherheitskontexts.
 
 ## dbxMail
 
-Mail-Versand ueber die konfigurierte Mail-Infrastruktur.
+Mail-Versand über die konfigurierte Mail-Infrastruktur.
 
 ## dbxValidator
 
@@ -137,7 +137,7 @@ Upload-/Download-Funktionen, Dateipruefung und Bildbearbeitung.
 
 ## dbxProcess
 
-Status- und Prozessverwaltung fuer laengere Operationen wie Sync, Import,
+Status- und Prozessverwaltung für laengere Operationen wie Sync, Import,
 Transfer oder Batch-Aktionen.
 
 ## dbxUpdateService
@@ -190,12 +190,12 @@ Installation, Stop und Rollback bleiben damit an einer Stelle definiert.
 
 ## dbxView
 
-Hilfen fuer Zielbereiche, View-State und AJAX-Targets.
+Hilfen für Zielbereiche, View-State und AJAX-Targets.
 
 ## Grundregel
 
 Kernel-Klassen sind Infrastruktur. Fachmodule sollen sie nutzen, nicht kopieren.
-Kernel-Aenderungen nur auf ausdrueckliche Anforderung.
+Kernel-Änderungen nur auf ausdrückliche Anforderung.
 
 Weiterlesen: @ref dbxapp_module_reference, @ref dbxapp_dbxdb_dd_fd,
 @ref dbxapp_dbxform und @ref dbxapp_dbxreport.

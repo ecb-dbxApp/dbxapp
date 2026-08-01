@@ -24,7 +24,7 @@ Zero-Date-Werte und Fehler unter strikten MySQL-SQL-Modi.
 
 ## Verbindliche Architektur
 
-Der gesamte fachliche Datenzugriff blieb innerhalb der dbXapp-Schichten:
+Der gesamte fachliche Datenzugriff blieb innerhalb der dbxapp-Schichten:
 
 - Verbindung, Abfragen und Transaktionen über `dbxDB`
 - Schema, Backup, Restore und Transfer über `dbxDD`

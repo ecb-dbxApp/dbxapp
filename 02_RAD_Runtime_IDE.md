@@ -1,19 +1,19 @@
 # RAD und Runtime-IDE {#dbxapp_rad_runtime_ide}
 
-dbXapp ist auch ein RAD-System. RAD bedeutet hier: Funktionen werden schnell aus
-DD/FD, Templates, Modulen, Formularen und Reports zusammengesetzt, ohne fuer
+dbxapp ist auch ein RAD-System. RAD bedeutet hier: Funktionen werden schnell aus
+DD/FD, Templates, Modulen, Formularen und Reports zusammengesetzt, ohne für
 jede Liste oder jedes Formular die komplette Infrastruktur neu zu schreiben.
 
-## Warum dbXapp eine Runtime-IDE ist
+## Warum dbxapp eine Runtime-IDE ist
 
-dbXapp kann viele Entwicklungs- und Pflegeaufgaben in der laufenden Anwendung
-ausfuehren:
+dbxapp kann viele Entwicklungs- und Pflegeaufgaben in der laufenden Anwendung
+ausführen:
 
 - Templates im Browser bearbeiten.
 - Content-Seiten im CMS pflegen.
 - DD- und FD-Strukturen bearbeiten.
 - Tabellen synchronisieren.
-- Reports und Formulare direkt im Zielkontext pruefen.
+- Reports und Formulare direkt im Zielkontext prüfen.
 - Modul-Inclusions im Content setzen.
 - Admin-Panels und Dashboard-Bereiche aus Modulaufrufen zusammensetzen.
 
@@ -30,14 +30,14 @@ Formularen, Reports und Strukturmetadaten.
 | --- | --- |
 | `dbx_edit=0` | normale Ausgabe |
 | `dbx_edit=1` | Webseite wird normal gerendert, editierbare Bereiche werden markiert |
-| `dbx_edit=2` | erweiterter Bearbeitungsmodus fuer strukturierte Bearbeitung |
-| `dbx_edit=9` | Runtime-IDE/Entwicklermodus fuer tiefe Bearbeitung und Diagnose |
+| `dbx_edit=2` | erweiterter Bearbeitungsmodus für strukturierte Bearbeitung |
+| `dbx_edit=9` | Runtime-IDE/Entwicklermodus für tiefe Bearbeitung und Diagnose |
 
 Wichtig:
 
 - Bei der normalen Webseitenausgabe muss der Interpreter auch mit
   `dbx_edit > 0` laufen.
-- Nur im Template-Editor selbst duerfen `[modul=...]` und Marker nicht
+- Nur im Template-Editor selbst dürfen `[modul=...]` und Marker nicht
   ausgewertet werden.
 - Der Template-Editor bearbeitet die Datei aus `/tpl`, nicht das gerenderte DOM.
 
@@ -48,13 +48,13 @@ die direkt an Struktur und Ausgabe arbeiten.
 
 Typische Aufgaben:
 
-- Templatequelle pruefen.
+- Templatequelle prüfen.
 - Modulbereiche lokalisieren.
 - DD/FD-Strukturen kontrollieren.
-- Layoutprobleme auf die richtige Template-Datei zurueckfuehren.
+- Layoutprobleme auf die richtige Template-Datei zurückführen.
 - Runtime-Zusammenspiel von Content, Modulen und Reports verstehen.
 
-`dbx_edit=9` ist nicht fuer normale Endanwender gedacht.
+`dbx_edit=9` ist nicht für normale Endanwender gedacht.
 
 ## RAD-Workflow
 
@@ -62,7 +62,7 @@ Ein typischer RAD-Ablauf:
 
 ```text
 DD definieren
-  -> FD fuer Formularsicht ergaenzen
+  -> FD für Formularsicht ergänzen
   -> dbxForm oder dbxReport verwenden
   -> Template erstellen
   -> Modulroute einbauen
@@ -75,12 +75,12 @@ DD definieren
 Der Entwickler baut nicht jedes Mal eine neue Mini-Anwendung. Er kombiniert
 vorhandene Bausteine:
 
-- DD/FD fuer Struktur.
-- `dbxDB` fuer Daten.
-- `dbxForm` fuer Bearbeitung.
-- `dbxReport` fuer Listen.
-- `dbxTPL` fuer Ausgabe.
-- `ajax.js`, `confirm.js`, `openWin.js` fuer Browserverhalten.
+- DD/FD für Struktur.
+- `dbxDB` für Daten.
+- `dbxForm` für Bearbeitung.
+- `dbxReport` für Listen.
+- `dbxTPL` für Ausgabe.
+- `ajax.js`, `confirm.js`, `openWin.js` für Browserverhalten.
 
 Dadurch bleibt Fachlogik klein und die Anwendung einheitlich.
 

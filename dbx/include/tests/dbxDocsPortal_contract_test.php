@@ -21,32 +21,49 @@ function docs_portal_read(string $path): string
 }
 
 $designRoot = $root . '/dbx/design/dbxdocs';
-$template = docs_portal_read($designRoot . '/htm/default.htm');
+$pageTemplate = docs_portal_read($designRoot . '/htm/default.htm');
+$pageShellHead = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/page-shell-head.htm');
+$pageShellStage = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/page-shell-stage-head.htm');
+$pageShellContent = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/page-shell-content.htm');
+$template = $pageShellHead . $pageShellStage . $pageShellContent;
 $layout = docs_portal_read($designRoot . '/css/docs-layout.css');
 $docsContent = docs_portal_read($designRoot . '/css/docs-content.css');
 $contentCss = docs_portal_read($designRoot . '/css/c-content.css');
 $darkSkin = docs_portal_read($designRoot . '/css/skin-dunkel.css');
 $javascript = docs_portal_read($designRoot . '/js/dbxdocs.js');
-$cinematicJavascript = docs_portal_read($designRoot . '/js/dbxdocs-cinematic.js');
-$cinematicCss = docs_portal_read($designRoot . '/css/docs-cinematic.css');
-$cinematicContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_home_cinematic.html');
+$homeContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_home.html');
 $installationContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_user_installation.html');
 $installationTutorial = docs_portal_read($root . '/dbx/modules/dbxDocs/content/tutorial_installation.html');
 $selfTestContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_user_selftest.html');
 $menuJavascript = docs_portal_read($root . '/dbx/js/lib/menu.js');
 $menuModule = docs_portal_read($root . '/dbx/modules/dbxMenu/dbxMenu.class.php');
-$menuDe = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main.htm');
-$menuEn = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main_en.htm');
-$menuEs = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main_es.htm');
-$doxyfile = docs_portal_read($root . '/Doxyfile');
+$menuDe = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main-primary.htm');
+$menuEn = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main-primary_en.htm');
+$menuEs = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main-primary_es.htm');
+$sectionMenus = array(
+    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-start.htm'),
+    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-apply.htm'),
+    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-develop.htm'),
+    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-operate.htm'),
+);
+$referenceMenus = array(
+    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-reference.htm'),
+    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-reference_en.htm'),
+    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-reference_es.htm'),
+);
+$pageResolver = docs_portal_read($root . '/dbx/modules/dbxDocs/include/dbxDocsPageResolver.class.php');
+$doxyfile = is_file($root . '/Doxyfile') ? docs_portal_read($root . '/Doxyfile') : '';
 $index = docs_portal_read($root . '/index.php');
 $contentDd = docs_portal_read($root . '/dbx/modules/dbx/dd/dbxContent.dd.inc.php');
 $docsModule = docs_portal_read($root . '/dbx/modules/dbxDocs/dbxDocs.class.php');
 $docsTemplate = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/reference.htm');
+$docsWindowTemplate = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/reference-window.htm');
+$docsSearchTemplate = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/search.htm');
+$docsNotFoundTemplate = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/not-found.htm');
 $docsProvision = docs_portal_read($root . '/dbx/modules/dbxDocs/include/dbxDocsContentProvision.class.php');
 $docsMediaProvision = docs_portal_read($root . '/dbx/modules/dbxDocs/tools/update_docs_portal_media_20260728.php');
-$docsHomeCinematic = docs_portal_read($root . '/dbx/modules/dbxDocs/tools/update_docs_home_cinematic_20260728.php');
 $docsAccess = docs_portal_read($root . '/dbx/modules/dbxDocs/tools/configure_docs_access_20260728.php');
+$htaccess = docs_portal_read($root . '/.htaccess');
 $contentMenu = docs_portal_read($root . '/dbx/modules/dbxMenu/include/dbxContent_menu.class.php');
 docs_portal_assert(
     is_file($root . '/dbx/modules/dbxContent/tpl/htm/c-content.htm'),
@@ -62,7 +79,6 @@ foreach (array(
     'theme.css',
     'docs-layout.css',
     'docs-content.css',
-    'docs-cinematic.css',
 ) as $css) {
     docs_portal_assert(
         is_file($designRoot . '/css/' . $css),
@@ -77,7 +93,7 @@ docs_portal_assert(
     'Die Dokumentationsnavigation muss links vor dem Hauptinhalt stehen.'
 );
 docs_portal_assert(
-    str_contains($template, 'tpl=modul|dbx-docs-main'),
+    str_contains($pageTemplate, 'tpl=modul|dbx-docs-main-primary'),
     'Das sprachabhängige Dokumentationsmenü ist nicht eingebunden.'
 );
 docs_portal_assert(
@@ -92,8 +108,8 @@ docs_portal_assert(
 );
 docs_portal_assert(
     str_contains($template, 'data-dbx-menu-active-open="1"')
-        && str_contains($template, 'docs-layout.css?v=9')
-        && str_contains($template, 'dbxdocs.js?v=3')
+        && str_contains($template, 'docs-layout.css?v=11')
+        && str_contains($template, 'dbxdocs.js?v=6')
         && preg_match('/core\.js\?design=\{dbx:design\}&log=off&v=\d+/', $template) === 1
         && str_contains($menuJavascript, "data-dbx-menu-active-open")
         && str_contains($menuJavascript, 'restoreActivePath($el)')
@@ -102,17 +118,15 @@ docs_portal_assert(
         && str_contains($menuJavascript, "\$parent.addClass('is-active-path')")
         && !str_contains($menuJavascript, "\$parent.addClass('is-active is-active-path')")
         && str_contains($layout, '.is-active-path:not(.is-active)')
-        && str_contains($menuJavascript, '.dbxLngOpt, .dbx-design-opt, .dbx-design-skin-opt, .dbx-skin-opt')
-        && !str_contains(
-            $layout,
-            '.dbx-menu-item.is-active-path > .dbx-menu-list'
-        ),
+        && str_contains($menuJavascript, '.dbxLngOpt, .dbx-design-opt, .dbx-design-skin-opt, .dbx-skin-opt'),
     'Aktive Dokumentationsordner lassen sich nicht zuverlässig schließen.'
 );
 docs_portal_assert(
     str_contains($layout, '.dbxdocs-admin-strip .dbx-menu > .dbx-menu-list')
         && str_contains($layout, 'flex-wrap: wrap;')
         && str_contains($layout, '.dbxdocs-stage #dbxMain')
+        && str_contains($layout, '.dbxdocs-sectionbar')
+        && str_contains($layout, '.dbx-menu-section')
         && substr_count($layout, 'min-width: 0;') >= 8,
     'Das Dokumentationsportal darf mit eingeblendeter Admin-Navigation nicht horizontal überlaufen.'
 );
@@ -131,7 +145,7 @@ docs_portal_assert(
     'Die grüne Dark-Skin-Schrift muss ohne unscharfen Leuchteffekt bleiben.'
 );
 docs_portal_assert(
-    str_contains($template, 'docs-content.css?v=7')
+    str_contains($template, 'docs-content.css?v=8')
         && str_contains($docsContent, '.dbx-user-nav-icon svg')
         && str_contains($docsContent, '.dbx-ki-area-grid')
         && str_contains($docsContent, '.dbx-update-state-grid')
@@ -163,43 +177,31 @@ docs_portal_assert(
 docs_portal_assert(
     str_contains($javascript, 'sidebarCollapsed')
         && str_contains($javascript, 'is-mobile-nav-open')
+        && str_contains($javascript, 'initSectionNavigation')
         && str_contains($javascript, 'resetInitialContentScroll')
         && str_contains($javascript, 'scrollRestoration'),
     'Persistente Desktop- und mobile Navigation fehlen.'
 );
 docs_portal_assert(
-    str_contains($template, 'docs-cinematic.css?v=9')
-        && str_contains($template, 'dbxdocs-cinematic.js?v=4')
-        && str_contains($cinematicContent, 'data-duration="84"')
-        && str_contains($cinematicContent, 'Aus Anforderungen werden Anwendungen.')
-        && str_contains($cinematicContent, 'dbx-cinema-infrastructure')
-        && str_contains($cinematicContent, 'dbx-cinema-glints')
-        && str_contains($cinematicContent, 'dbx-cinema-shooting-star')
-        && !str_contains($cinematicContent, 'dbx-cinema-crawl')
-        && !str_contains($cinematicContent, 'dbx-cinema-intro')
-        && !str_contains($cinematicContent, 'Wenn starre Einzellösungen')
-        && str_contains($cinematicContent, 'Vom Gerät bis ins Rechenzentrum')
-        && str_contains($cinematicContent, 'Ton starten')
-        && str_contains($cinematicCss, '@keyframes dbxCinemaGlint')
-        && str_contains($cinematicCss, '@keyframes dbxCinemaShootingStar')
-        && str_contains($cinematicCss, '@keyframes dbxCinemaContentRise')
-        && str_contains($cinematicCss, '@keyframes dbxCinemaDeviceIn')
-        && str_contains($cinematicCss, '@keyframes dbxCinemaLogoImpact')
-        && str_contains($cinematicCss, 'aspect-ratio: 16 / 7.3')
-        && str_contains($cinematicCss, 'prefers-reduced-motion')
-        && str_contains($cinematicJavascript, 'IntersectionObserver')
-        && str_contains($cinematicJavascript, 'createSoundscape')
-        && str_contains($cinematicJavascript, 'createDynamicsCompressor')
-        && str_contains($cinematicJavascript, 'root.dataset.soundState')
-        && str_contains($cinematicJavascript, 'data-cinema-toggle'),
-    'Die kompakte, zugängliche 84-Sekunden-Startseitenanimation mit Infrastruktur-Szene, Schlusslogo und Ton ist nicht vollständig eingebunden.'
+    str_contains($javascript, 'function buildPageToc()')
+        && str_contains($javascript, 'h2, h3')
+        && str_contains($javascript, 'scrollIntoView')
+        && str_contains($docsContent, '.dbxdocs-page-toc'),
+    'Das automatisch erzeugte Inhaltsverzeichnis für lange Seiten fehlt.'
 );
 docs_portal_assert(
-    str_contains($docsHomeCinematic, "\$contentDd = 'dbx|content_de';")
-        && str_contains($docsHomeCinematic, "\$usageDd = 'dbx|dbxMediaUsage';")
-        && str_contains($docsHomeCinematic, "array('active' => 0)")
-        && str_contains($docsHomeCinematic, 'dbxContentPageCache::invalidateAll()'),
-    'Die Animation muss reproduzierbar über dbxDB installiert und die alte Galerie reversibel deaktiviert werden.'
+    str_contains($homeContent, 'data-dbx-doc-revision="2026-08-01-portal-v4"')
+        && str_contains($homeContent, '<h1>Was möchten Sie erreichen?</h1>')
+        && substr_count($homeContent, 'dbxdocs-home-card') >= 10
+        && str_contains($homeContent, 'dokumentation-selbsttest')
+        && str_contains($homeContent, 'dbx_run1=" value="search') === false
+        && str_contains($homeContent, 'name="dbx_run1" value="search"')
+        && !str_contains($pageTemplate . $template, 'docs-cinematic')
+        && !str_contains($pageTemplate . $template, 'dbxdocs-cinematic')
+        && !is_file($designRoot . '/css/docs-cinematic.css')
+        && !is_file($designRoot . '/js/dbxdocs-cinematic.js')
+        && !is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_home_cinematic.html'),
+    'Die kurze Startseite oder die vollständige Entfernung der Animation ist nicht abgesichert.'
 );
 docs_portal_assert(
     str_contains($docsAccess, "array('dbxUser', 'dbxUser_groups')")
@@ -210,19 +212,40 @@ docs_portal_assert(
     'Benutzer-DD, Admin-Seed und ausgeschaltete Registrierung sind nicht reproduzierbar konfiguriert.'
 );
 
-docs_portal_assert(str_contains($menuDe, '[cms:root=Dokumentation&flat=1]'), 'Deutscher Dokumentationsbaum fehlt.');
-docs_portal_assert(str_contains($menuEn, '[cms:root=Documentation&flat=1]'), 'Englischer Dokumentationsbaum fehlt.');
-docs_portal_assert(str_contains($menuEs, '[cms:root=Documentación&flat=1]'), 'Spanischer Dokumentationsbaum fehlt.');
+docs_portal_assert(str_contains($sectionMenus[0], 'Dokumentation/Einstieg'), 'Deutscher Einstiegsbereich fehlt.');
+docs_portal_assert(str_contains($sectionMenus[1], 'Dokumentation/Anwenden'), 'Deutscher Anwendungsbereich fehlt.');
+docs_portal_assert(str_contains($sectionMenus[2], 'Dokumentation/Entwickeln'), 'Deutscher Entwicklungsbereich fehlt.');
+docs_portal_assert(str_contains($sectionMenus[3], 'Dokumentation/Betrieb'), 'Deutscher Betriebsbereich fehlt.');
 foreach (array($menuDe, $menuEn, $menuEs) as $menu) {
     docs_portal_assert(
         str_contains($menu, 'dbx_modul=dbxDocs')
-            && str_contains($menu, 'dbx_run2=classes')
+            && str_contains($menu, 'dbx_run1=search')
+            && !str_contains($menu, '{dbx:profile_link}')
+            && !str_contains($menu, 'dbx_modul=dbxLogin')
+            && !str_contains($menu, 'dbx_modul=dbxShop'),
+        'Das fokussierte Sprachmenü enthält nicht nur Dokumentationsfunktionen.'
+    );
+}
+foreach ($referenceMenus as $menu) {
+    docs_portal_assert(
+        str_contains($menu, 'dbx_run2=classes')
             && str_contains($menu, 'dbx_run2=namespaces')
             && str_contains($menu, 'dbx_run2=files')
             && str_contains($menu, 'dbx_run2=examples'),
-        'Generierte Doxygen-Bereiche fehlen in einem Sprachmenü.'
+        'Das horizontale Referenzmenü ist unvollständig.'
     );
 }
+docs_portal_assert(
+    str_contains($pageResolver, "'anwenden' => 'docs-apply'")
+        && str_contains($pageResolver, "'entwickeln' => 'docs-develop'")
+        && str_contains($pageResolver, "'betrieb' => 'docs-operate'")
+        && is_file($designRoot . '/htm/docs-start.htm')
+        && is_file($designRoot . '/htm/docs-apply.htm')
+        && is_file($designRoot . '/htm/docs-develop.htm')
+        && is_file($designRoot . '/htm/docs-operate.htm')
+        && is_file($designRoot . '/htm/docs-reference.htm'),
+    'Eigene dbx_page-Templates oder die serverseitige Bereichsauflösung fehlen.'
+);
 docs_portal_assert(
     str_contains($contentMenu, 'resolve_folder_reference')
         && str_contains($contentMenu, 'menu_title')
@@ -232,27 +255,53 @@ docs_portal_assert(
 docs_portal_assert(
     str_contains($docsModule, 'REFERENCE_PAGES')
         && str_contains($docsModule, 'realpath')
+        && str_contains($docsModule, 'dbx_run2=window')
+        && str_contains($docsModule, '&dbx_window=1')
         && str_contains($docsTemplate, '<iframe')
-        && str_contains($docsTemplate, 'sandbox='),
-    'Die sichere, eingebettete Doxygen-Referenz ist unvollständig.'
+        && str_contains($docsTemplate, 'class="btn btn-outline-primary dbx-win"')
+        && str_contains($docsTemplate, 'href="{reference_tab_url}"')
+        && str_contains($docsWindowTemplate, '<iframe')
+        && str_contains($docsWindowTemplate, 'href="{reference_portal_url}"')
+        && str_contains($docsTemplate, 'sandbox=')
+        && str_contains($docsWindowTemplate, 'sandbox='),
+    'Die sichere Doxygen-Einbettung im Portal, dbx-Fenster und neuen Tab ist unvollständig.'
+);
+docs_portal_assert(
+    str_contains($docsModule, 'private function search(): string')
+        && str_contains($docsModule, 'private function searchPages(string $query): array')
+        && str_contains($docsModule, 'private function notFound(): string')
+        && str_contains($docsSearchTemplate, 'class="dbxdocs-home-search"')
+        && str_contains($docsSearchTemplate, '{search_results}')
+        && str_contains($docsNotFoundTemplate, 'Fehler 404')
+        && str_contains($htaccess, 'dbx_run1=not_found')
+        && str_contains($htaccess, '[R=301,L,NE]'),
+    'Volltextsuche, hilfreiche 404-Seite oder Weiterleitung alter Doxygen-URLs fehlen.'
 );
 foreach (array(
     "'name' => 'Einstieg'",
-    "'name' => 'Content & KI'",
-    "'name' => 'Entwicklung'",
-    "'name' => 'Betrieb & Sicherheit'",
+    "'name' => 'CMS & KI'",
+    "'name' => 'Entwickeln'",
+    "'name' => 'Betrieb'",
     "'name' => 'Service'",
     'dbxContact]dbx_run1=form',
     'repairDocumentationLinks()',
     'referenceDocumentPermalink',
     'dbxcontent_tutorial_(.+)',
-    '2026-08-01-installation-2',
-    '2026-08-01-tutorial-installation-2',
-    '2026-08-01-selftest-2',
+    '2026-08-01-installation-3',
+    '2026-08-01-tutorial-installation-3',
+    '2026-08-01-selftest-3',
     "'permalink' => 'dokumentation-installation'",
     "'permalink' => 'tutorial-installation'",
     "'permalink' => 'dokumentation-selbsttest'",
-    '2026-07-28-ki-design-2',
+    '2026-08-01-ki-design-4',
+    '2026-08-01-portal-v4',
+    '2026-08-01-dbxform-quickstart-1',
+    '2026-08-01-dbxreport-quickstart-1',
+    '2026-08-01-area-pages-v1',
+    'synchronizeDocumentationMetadata()',
+    'Kanonische Seite',
+    'dbxForm · Gesamtdokument',
+    'dbxReport · Gesamtdokument',
 ) as $needle) {
     docs_portal_assert(
         str_contains($docsProvision, $needle),
@@ -261,6 +310,9 @@ foreach (array(
 }
 docs_portal_assert(
     is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_user_ki_design.html')
+        && is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_home.html')
+        && is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_dbxform_quickstart.html')
+        && is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_dbxreport_quickstart.html')
         && is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_user_installation.html')
         && is_file($root . '/dbx/modules/dbxDocs/content/tutorial_installation.html')
         && is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_user_selftest.html')
@@ -291,11 +343,14 @@ docs_portal_assert(
 );
 
 docs_portal_assert(
-    str_contains($doxyfile, 'OUTPUT_DIRECTORY       = C:/xampp/htdocs/dbxapp-docs/reference')
+    $doxyfile === '' || (
+        str_contains($doxyfile, 'OUTPUT_DIRECTORY       = C:/xampp/htdocs/dbxapp-docs/reference')
         && str_contains($doxyfile, 'HTML_OUTPUT            = current')
         && str_contains($doxyfile, 'docs/doxygen-generated-main.dox')
         && !str_contains($doxyfile, 'docs/doxygen-navigation.dox')
-        && !str_contains($doxyfile, 'docs/generated/tutorials'),
+        && !str_contains($doxyfile, 'docs/generated/tutorials')
+        && str_contains($doxyfile, 'AUTOLINK_SUPPORT       = NO')
+    ),
     'Doxygen muss ausschließlich die generierte Referenz veröffentlichen.'
 );
 docs_portal_assert(
@@ -312,4 +367,4 @@ docs_portal_assert(
     'Das sprachneutrale DD-Feld für kurze Menütitel fehlt.'
 );
 
-echo "OK dbxdocs CMS navigation, installation, self-test, access, cinematic homepage and embedded reference\n";
+echo "OK dbxdocs focused navigation, concise homepage, search, metadata, redirects and embedded reference\n";

@@ -1,6 +1,6 @@
 # dbxapp Dokumentation {#mainpage}
 
-- **Version:** 4.1.3
+- **Version:** 4.1.4
 - **Dokumentationsstand:** 1. August 2026
 - **Website:** [dbxapp.de](https://dbxapp.de)
 
@@ -42,9 +42,8 @@
 </div>
 @endhtmlonly
 
-@subpage dbxapp_user_docs "Anwenderdokumentation"
-
-@subpage dbxapp_developer_docs "Entwicklerdokumentation"
+- [Anwenderdokumentation](dokumentation-anwender)
+- [Entwicklerdokumentation](dokumentation-entwickler)
 
 ## Die drei KI-Bereiche
 
@@ -63,13 +62,13 @@ Gegenstand klar getrennt:
 
 ## Schnelleinstieg für Anwender
 
-- @ref dbxcontent_tutorial_tutorial_login_profil_passwort "Anmelden, Profil und Passwort"
-- @ref dbxcontent_tutorial_tutorial_menue_benutzen "Hauptmenü und Untermenüs"
-- @ref dbxcontent_tutorial_tutorial_admin_dashboard "Admin-Dashboard"
-- @ref dbxapp_user_system_update "System-Update sicher durchführen"
-- @ref dbxcontent_tutorial_tutorial_cms_editor "CMS-Editor"
-- @ref dbxcontent_tutorial_tutorial_shop_frontend "Shop im Frontend"
-- @ref dbxcontent_tutorial_tutorial_workflow_nutzen "Workflow benutzen"
+- [Anmelden, Profil und Passwort](tutorial-login-profil-passwort)
+- [Hauptmenü und Untermenüs](tutorial-menue-benutzen)
+- [Admin-Dashboard](tutorial-admin-dashboard)
+- [System-Update sicher durchführen](dokumentation-system-update)
+- [CMS-Editor](tutorial-cms-editor)
+- [Shop im Frontend](tutorial-shop-frontend)
+- [Workflow benutzen](tutorial-workflow-nutzen)
 
 ## Schnelleinstieg für Entwickler
 

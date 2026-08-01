@@ -1,8 +1,8 @@
 # Module entwickeln {#dbxapp_module_patterns}
 
-[Offizielle dbXapp Website](https://dbxapp.de)
+[Offizielle dbxapp Website](https://dbxapp.de)
 
-Ein dbXapp-Modul kapselt eine fachliche Aufgabe. Es erhält Requests über den
+Ein dbxapp-Modul kapselt eine fachliche Aufgabe. Es erhält Requests über den
 Modulrouter, liest Daten über DD/dbxDB, verwendet dbxForm und dbxReport und
 rendert über dbxTPL. Kernel, globale JavaScript-Libs und zentrale UI-Pipelines
 werden dabei wiederverwendet.

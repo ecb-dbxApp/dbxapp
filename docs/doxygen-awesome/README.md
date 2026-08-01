@@ -23,12 +23,13 @@ Der globale Header enthält auf jeder erzeugten Seite den offiziellen Link
 Neu erzeugen:
 
 ```powershell
-Set-Location C:\xampp\htdocs\dbxapp
+Set-Location <dbxapp-quellverzeichnis>
 doxygen Doxyfile
 ```
 
-Die Ausgabe wird gemäß `Doxyfile` direkt nach
-`C:\xampp\htdocs\dbxapp-docs` geschrieben.
+Das Ausgabeverzeichnis wird ausschließlich in `Doxyfile` festgelegt. Für eine
+Kundeninstallation empfiehlt sich ein separates Ziel außerhalb des
+Quellverzeichnisses.
 
 Bei einer vollständigen Veröffentlichung wird der bisherige erzeugte Inhalt
 des Ausgabeordners zuerst entfernt. Dadurch bleiben keine Seiten früherer

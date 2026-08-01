@@ -1,6 +1,6 @@
 # dbxTPL Leitfaden {#dbxapp_dbxtpl}
 
-`dbxTPL` ist die Template-Schicht von dbXapp. Sie trennt Ausgabe von Fachlogik.
+`dbxTPL` ist die Template-Schicht von dbxapp. Sie trennt Ausgabe von Fachlogik.
 PHP bereitet Daten vor, Templates bestimmen Struktur, Positionierung und
 Einbindung.
 
@@ -30,16 +30,16 @@ dbx/modules/{modul}/tpl/css/{modul}.css
 dbx/modules/{modul}/tpl/js/{modul}.js
 ```
 
-Templates koennen sprachabhaengig sein. Wenn die aktive Sprache z.B. `de` ist,
-versucht dbxTPL zuerst die Sprachdatei und faellt dann auf die neutrale Datei
-zurueck:
+Templates können sprachabhängig sein. Wenn die aktive Sprache z.B. `de` ist,
+versucht dbxTPL zuerst die Sprachdatei und fällt dann auf die neutrale Datei
+zurück:
 
 ```text
 dbx/modules/{modul}/tpl/htm/{template}_de.htm
 dbx/modules/{modul}/tpl/htm/{template}.htm
 ```
 
-Damit koennen Labels, feste Ueberschriften und kleine Hilfetexte im Template
+Damit können Labels, feste Überschriften und kleine Hilfetexte im Template
 sprachspezifisch gepflegt werden, ohne den Modulcode zu verzweigen.
 
 System-Templates liegen meist im Modul `dbx`:
@@ -95,7 +95,7 @@ Ergebnis:
 
 ## Objekte einsetzen
 
-`dbxForm` und `dbxReport` koennen Objekte in Templates einsetzen:
+`dbxForm` und `dbxReport` können Objekte in Templates einsetzen:
 
 ```html
 <div class="dbx-panel">
@@ -118,8 +118,8 @@ return $form->run();
 
 ## Template-Aufteilung mit dbx_split
 
-Einige dbXapp-Komponenten lesen nicht nur ein Template als Ganzes, sondern
-teilen es in Bereiche auf. `dbxReport` verwendet dafuer den Marker:
+Einige dbxapp-Komponenten lesen nicht nur ein Template als Ganzes, sondern
+teilen es in Bereiche auf. `dbxReport` verwendet dafür den Marker:
 
 ```html
 <hr class="dbx_split">
@@ -152,19 +152,19 @@ Die Bereiche bedeuten:
   Datensatz wiederholt.
 - Nach dem zweiten `dbx_split`: Footer oder nachgelagerte Reportstruktur.
 
-Bei Templates mit mehr Split-Markern kann dbxReport zusaetzlich Header/Footer
-fuer Folgeseiten unterscheiden. Wichtig ist: Die Aufteilung gehoert ins
+Bei Templates mit mehr Split-Markern kann dbxReport zusätzlich Header/Footer
+für Folgeseiten unterscheiden. Wichtig ist: Die Aufteilung gehört ins
 Template. Der Report wertet sie aus.
 
 ## Modul-Inclusion
 
-Templates duerfen Module einbinden:
+Templates dürfen Module einbinden:
 
 ```html
 [modul=dbxAdmin]dbx_run1=sysmsg&dbx_run2=list_sysmsg[/modul]
 ```
 
-Der `dbxInterpreter` fuehrt diesen Modulaufruf bei der Seitenausgabe aus.
+Der `dbxInterpreter` führt diesen Modulaufruf bei der Seitenausgabe aus.
 
 ## DesignPage, Page und Content-Templates
 
@@ -189,7 +189,7 @@ Footer.
 
 Modul-Templates definieren Fachbereiche: Report, Formular, Toolbar, Panel.
 
-CMS-Templates koennen Content ueber einfache Marker in Bereiche und Spalten
+CMS-Templates können Content über einfache Marker in Bereiche und Spalten
 aufteilen:
 
 ```html
@@ -208,7 +208,7 @@ dreispaltig, mit Header, Hero, Galerie und Footer ausgegeben werden.
 
 ## Positionierung
 
-Positionierung gehoert in Templates und CSS, nicht in Controllerlogik.
+Positionierung gehört in Templates und CSS, nicht in Controllerlogik.
 
 Gut:
 
@@ -232,7 +232,7 @@ aktiv.
 
 Wichtig:
 
-- In der Webseite werden `[modul=...]` ausgefuehrt.
+- In der Webseite werden `[modul=...]` ausgeführt.
 - Im Template-Editor selbst wird Rohtext angezeigt.
 - Marker wie `{title}` bleiben im Template-Editor sichtbar.
 - Der Editor darf nicht die gerenderte Ausgabe speichern.

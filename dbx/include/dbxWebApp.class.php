@@ -1677,7 +1677,41 @@ function get_self_url($permalink,$unwanted) {
         dbx()->set_system_var('dbx_run1', 'show');
      }
 
+     $this->apply_docs_page_layout($cid, 'dbxContent', 'show', $source);
+
      dbx()->debug("#PERMALINK set dbxContent mode=($mode) root=($root) cid=($cid) source=($source)");
+  }
+
+  /** Wählt im dbxdocs-Design das serverseitige dbx_page des Bereichs. */
+  private function apply_docs_page_layout(
+     int $cid = 0,
+     string $module = '',
+     string $action = '',
+     string $source = ''
+  ): void {
+     $design = strtolower(trim((string)dbx()->get_system_var('dbx_design', '')));
+     if ($design === '' || $design === 'user') {
+        $design = strtolower(trim((string)dbx()->get_config('dbx', 'default_design_user', 'dbxapp')));
+     }
+     if ($design !== 'dbxdocs') {
+        return;
+     }
+
+     try {
+        $resolver = dbx()->get_include_obj('dbxDocsPageResolver', 'dbxDocs');
+        if (!is_object($resolver)) {
+           return;
+        }
+        $page = $cid > 0 && method_exists($resolver, 'forContent')
+           ? $resolver->forContent($cid, (string)dbx()->get_system_var('dbx_lng', 'de'), $source)
+           : (method_exists($resolver, 'forModule') ? $resolver->forModule($module, $action) : '');
+        $page = strtolower(trim((string)$page));
+        if (preg_match('/^[a-z0-9_-]+$/', $page) === 1) {
+           dbx()->set_system_var('dbx_page', $page);
+        }
+     } catch (\Throwable $exception) {
+        dbx()->debug('#dbxdocs page resolver failed', $exception->getMessage());
+     }
   }
 
   /**
@@ -1743,6 +1777,7 @@ function get_self_url($permalink,$unwanted) {
       if ($hasExplicitRoute) {
         dbx()->set_system_var('dbx_cid', $requestCid);
         dbx()->set_system_var('cid', $requestCid);
+        $this->apply_docs_page_layout($requestCid, (string)$modul, (string)$action, 'explicit-route');
         return;
       }
 

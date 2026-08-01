@@ -1,0 +1,36 @@
+<article class="dbxdocs-cms-article" data-dbx-doc-revision="2026-08-01-dbxreport-quickstart-1">
+    <span class="dbx-doc-kicker">Entwickler · Schnellstart</span>
+    <h1>dbxReport klar und sicher aufbauen</h1>
+    <p class="lead">Dieser Einstieg zeigt den Standardweg für Suche, Sortierung, Pagination und Aktionen. Das ausführliche Gesamtdokument beschreibt anschließend alle Ausgabearten und Callbacks.</p>
+
+    <h2>Der verbindliche Ablauf</h2>
+    <ol>
+        <li>Report initialisieren, DD, FD und Action setzen.</li>
+        <li>Filterwerte ausschließlich über die Formularpipeline lesen.</li>
+        <li>Sortierspalten gegen eine Positivliste prüfen.</li>
+        <li>Gesamtzahl, Trefferzahl und paginierte Daten getrennt bestimmen.</li>
+        <li>Aktionen, Rechte und Confirm-Texte vor dem Rendern anbinden.</li>
+    </ol>
+
+    <pre class="fragment"><code>$report = dbx()-&gt;get_system_obj('dbxReport');
+$report-&gt;init('customer-report');
+$report-&gt;_dd = 'crm|customer';
+$report-&gt;_fd = 'crm|customer-selection';
+$report-&gt;_action = '?dbx_modul=crm&amp;dbx_run1=customers';
+$report-&gt;create_selection_fields($report-&gt;_fd);
+
+$report-&gt;_count_all = $db-&gt;count($report-&gt;_dd);
+$report-&gt;_rcount = $db-&gt;count($report-&gt;_dd, $where);
+$report-&gt;_rdata = $db-&gt;select($report-&gt;_dd, $where, '*', $sort, $direction, '', $limit, $offset);
+
+return $report-&gt;run();</code></pre>
+
+    <h2>Abnahme</h2>
+    <p>Prüfen Sie leere und große Datenmengen, jede Sortierung, Filter-Reset, Seitenwechsel, Rechte, Mehrfachauswahl und alle destruktiven Aktionen.</p>
+
+    <div class="dbxdocs-area-next">
+        <i class="bi bi-book" aria-hidden="true"></i>
+        <span><strong>Alle Ausgabearten und Callbacks</strong><span>Table, TPL, Grid, Summen, Auswahl und Aktionsspalten.</span></span>
+        <a href="dokumentation-dbxreport">Gesamtdokument öffnen</a>
+    </div>
+</article>

@@ -14,7 +14,7 @@ html {
   --fragment-foreground: #172033;
   --separator-color: #d8e0eb;
   --content-maxwidth: 1320px;
-  --side-nav-fixed-width: 340px;
+  --side-nav-fixed-width: 300px;
   --border-radius-large: 12px;
   --border-radius-medium: 8px;
   --border-radius-small: 5px;
@@ -1058,42 +1058,196 @@ body {
   }
 }
 
+/* Ruhige, lesbare technische Arbeitsfläche statt roher Generatoransicht. */
+#side-nav {
+  border-right: 1px solid color-mix(in srgb, var(--primary-color) 16%, var(--separator-color));
+  background: var(--side-nav-background);
+  box-shadow: 10px 0 28px rgba(17, 54, 92, .08);
+}
+
+#doc-content {
+  background:
+    linear-gradient(rgba(21, 101, 192, .025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21, 101, 192, .025) 1px, transparent 1px),
+    var(--page-background-color);
+  background-size: 28px 28px;
+}
+
+.header {
+  border-bottom: 1px solid var(--separator-color);
+  background: color-mix(in srgb, var(--page-background-color) 94%, var(--primary-color));
+}
+
+.headertitle {
+  padding: 1rem clamp(1rem, 2.3vw, 2rem) .85rem;
+}
+
+.title {
+  color: var(--page-foreground-color);
+  font-size: clamp(1.25rem, 2.4vw, 1.85rem);
+  font-weight: 780;
+  letter-spacing: -.025em;
+}
+
+.contents {
+  max-width: 1180px;
+  padding: 1.25rem clamp(1rem, 2.5vw, 2.2rem) 3rem;
+  color: var(--page-foreground-color);
+  font-size: .96rem;
+  line-height: 1.62;
+}
+
+.contents > table,
+.contents .directory,
+.contents .memberdecls {
+  overflow: hidden;
+  border: 1px solid var(--separator-color);
+  border-radius: 10px;
+  background: var(--page-background-color);
+  box-shadow: 0 7px 20px rgba(17, 54, 92, .06);
+}
+
+.contents table tr:hover > td,
+.directory tr:hover > td,
+.memberdecls tr:hover > td {
+  background: #fff0a8;
+  color: #172033;
+}
+
+.memitem,
+.memdoc,
+.fragment,
+div.directory {
+  border-radius: 10px;
+}
+
+.memitem {
+  overflow: hidden;
+  border: 1px solid var(--separator-color);
+  box-shadow: 0 7px 20px rgba(17, 54, 92, .06);
+}
+
+#nav-tree .item {
+  margin-inline: .35rem;
+}
+
+#dbx-doc-audience {
+  backdrop-filter: blur(14px);
+}
+
+@media screen and (min-width: 768px) {
+  #titlearea {
+    position: fixed;
+    z-index: 120;
+    top: 4px;
+    left: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: var(--side-nav-fixed-width);
+    height: 68px;
+  }
+
+  #projectrow {
+    min-height: 68px;
+  }
+
+  #projectlogo {
+    padding: .45rem .35rem .45rem .8rem;
+  }
+
+  #projectlogo img {
+    width: 46px !important;
+    height: 46px !important;
+    border-radius: 12px;
+  }
+
+  #projectalign {
+    padding: .45rem .75rem;
+  }
+
+  #projectname {
+    font-size: 1.08rem;
+  }
+
+  #projectbrief,
+  #projectwebsite {
+    display: none;
+  }
+
+  #side-nav {
+    top: 68px !important;
+    height: calc(100vh - 68px) !important;
+  }
+
+  #nav-tree {
+    top: 0 !important;
+    height: 100% !important;
+  }
+}
+
+@media screen and (max-width: 1450px) {
+  #dbx-doc-audience #MSearchBox {
+    display: flex;
+  }
+
+  #dbx-doc-audience > a > span:last-child {
+    display: none;
+  }
+
+  #dbx-doc-audience > a {
+    padding-right: .38rem;
+  }
+}
+
 /*
- * Eingebettete Referenzansicht im dbxContent-Portal.
+ * Eingebettete Referenzansicht im dbxDocs-Portal.
  *
- * Navigation und Branding stellt in diesem Modus das Portal bereit. Doxygen
- * behält ausschließlich seine generierten Inhalte, Querverweise und Suche.
+ * Doxygen bleibt eine vollständige Arbeitsoberfläche: Baum, Suche,
+ * Querverweise und Theme-Schalter bleiben erreichbar. Das Portal stellt nur
+ * den äußeren Rahmen und die Öffnen-Aktionen bereit.
  */
 html.dbx-doc-embedded {
   --content-maxwidth: none;
+  --side-nav-fixed-width: 280px;
 }
 
-html.dbx-doc-embedded #side-nav,
-html.dbx-doc-embedded #titlearea,
-html.dbx-doc-embedded #dbx-doc-audience,
 html.dbx-doc-embedded #nav-path,
 html.dbx-doc-embedded #nav-sync {
   display: none !important;
 }
 
 html.dbx-doc-embedded #doc-content {
-  width: 100% !important;
-  height: auto !important;
   min-height: 100vh;
-  margin-left: 0 !important;
-  padding: 0 0 2rem !important;
+  padding-bottom: 2rem !important;
 }
 
 html.dbx-doc-embedded .header,
 html.dbx-doc-embedded .contents {
   max-width: none;
-  margin-inline: 0;
-}
-
-html.dbx-doc-embedded .header {
-  padding: 1rem 1.25rem .75rem;
 }
 
 html.dbx-doc-embedded .contents {
-  padding: 1rem 1.25rem 2rem;
+  padding-bottom: 2rem;
+}
+
+@media screen and (min-width: 768px) {
+  html.dbx-doc-embedded #side-nav,
+  html.dbx-doc-embedded #titlearea,
+  html.dbx-doc-embedded #dbx-doc-audience {
+    display: block;
+  }
+
+  html.dbx-doc-embedded #dbx-doc-audience {
+    display: flex;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  html.dbx-doc-embedded #dbx-doc-audience {
+    min-height: 48px;
+  }
+
+  html.dbx-doc-embedded .contents {
+    padding-inline: .85rem;
+  }
 }

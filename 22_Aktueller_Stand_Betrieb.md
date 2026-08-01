@@ -1,8 +1,8 @@
 # Aktueller Stand, Betrieb und Qualität {#dbxapp_current_operations}
 
-[Offizielle dbXapp Website](https://dbxapp.de)
+[Offizielle dbxapp Website](https://dbxapp.de)
 
-Dieses Kapitel bündelt die Laufzeit- und Qualitätsverträge von dbXapp 5.0 mit
+Dieses Kapitel bündelt die Laufzeit- und Qualitätsverträge von dbxapp 5.0 mit
 Stand 24. Juli 2026. Es ergänzt die Fachleitfäden um die Punkte, die beim
 Betrieb, bei Fehlersuche und bei der Modernisierung älterer Module besonders
 wichtig sind.
@@ -11,7 +11,7 @@ wichtig sind.
 
 | Bereich | Aktueller Vertrag |
 | --- | --- |
-| Produkt | dbXapp 5.0 |
+| Produkt | dbxapp 5.0 |
 | Website | [https://dbxapp.de](https://dbxapp.de) |
 | PHP | 8.x |
 | Doxygen | Projektversion 5.0, Generator 1.17.0 |

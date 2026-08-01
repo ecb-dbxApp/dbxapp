@@ -200,9 +200,12 @@ foreach (array(
     '<h2>Design</h2>',
     '<span class="dbx-area-number">3</span>',
     '<h2>Module</h2>',
-    '@subpage dbxapp_user_ki_content',
-    '@subpage dbxapp_user_ki_design',
-    '@subpage dbxapp_user_ki_modules',
+    'href="dbxapp_user_ki_content.html"',
+    'href="dbxapp_user_ki_design.html"',
+    'href="dbxapp_user_ki_modules.html"',
+    '[Content-KI](dokumentation-ki-content)',
+    '[Design-KI](dokumentation-ki-design)',
+    '[Modul-KI](dokumentation-ki-module)',
 ) as $needle) {
     if (strpos($kiAreasContent, $needle) === false) {
         $fail('Trennung der drei KI-Bereiche fehlt: ' . $needle, 20);
@@ -210,8 +213,8 @@ foreach (array(
 }
 
 $tutorialFiles = glob($tutorialDir . '/*.dox');
-if (!is_array($tutorialFiles) || count($tutorialFiles) !== 18) {
-    $fail('Der generierte dbxContent-Tutorialbestand muss 18 Seiten enthalten.', 21);
+if (!is_array($tutorialFiles) || count($tutorialFiles) !== 19) {
+    $fail('Der generierte dbxContent-Tutorialbestand muss 19 Seiten enthalten.', 21);
 }
 
 $tutorialLabels = array();
@@ -227,7 +230,7 @@ foreach ($tutorialFiles as $tutorialFile) {
     }
     $tutorialLabels[$match[1]] = true;
 }
-if (count($tutorialLabels) !== 18) {
+if (count($tutorialLabels) !== 19) {
     $fail('Generierte Tutorial-Anker sind nicht eindeutig.', 24);
 }
 
@@ -317,6 +320,8 @@ foreach (array(
     '.dbx-update-steps',
     '.dbx-update-state-grid',
     'html.dbx-doc-embedded #doc-content',
+    'html.dbx-doc-embedded #side-nav',
+    '#fff0a8',
 ) as $needle) {
     if (strpos($cssContent, $needle) === false) {
         $fail('dbxapp-Branding-CSS ist unvollständig: ' . $needle, 30);

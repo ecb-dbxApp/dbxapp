@@ -335,9 +335,9 @@ betroffenen existierenden Tabelle gesichert. Beim Rollback werden:
 
 ## Release-Verantwortung
 
-Die Entwicklung findet in `C:\xampp\htdocs\dbxapp` statt. Erst ein bewusster
+Die Entwicklung findet im `<dbxapp-quellverzeichnis>` statt. Erst ein bewusster
 Release-Schritt synchronisiert den geprüften Quellstand nach
-`C:\xampp\htdocs\dbxapp-github`, erstellt Inventar, ZIP, Prüfsummen und
+`<dbxapp-release-verzeichnis>`, erstellt Inventar, ZIP, Prüfsummen und
 Manifest und veröffentlicht anschließend GitHub.
 
 Installationsdaten und lokale Konfiguration werden nie von GitHub in eine
