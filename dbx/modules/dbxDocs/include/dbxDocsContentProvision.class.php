@@ -554,7 +554,7 @@ class dbxDocsContentProvision
     {
         $file = dirname(__DIR__) . '/content/dbxapp_home.html';
         $content = is_file($file) ? trim((string)file_get_contents($file)) : '';
-        $revision = '2026-08-01-portal-v4';
+        $revision = '2026-08-01-portal-v5';
         if ($content === '' || !str_contains($content, 'data-dbx-doc-revision="' . $revision . '"')) {
             $this->result['errors'][] = 'dbxapp_home.html: Gebündelte Startseite fehlt oder ist ungültig.';
             return;
@@ -937,7 +937,7 @@ class dbxDocsContentProvision
         } elseif (preg_match('/(?:ki-agenten|ki-regeln|codex|prompt)/', $permalink) === 1) {
             $type = 'Arbeitsanweisung';
             $audience = 'KI-Agenten';
-        } elseif (preg_match('/(?:entwickler|architektur|runtime|routing|dbxtpl|dbxdb|dbxform|dbxreport|modul|javascript|core|interpreter|rad|lifecycle|stecknorm)/', $permalink) === 1) {
+        } elseif (preg_match('/(?:entwickler|entwickeln|architektur|runtime|routing|dbxtpl|dbxdb|dbxform|dbxreport|modul|javascript|core|interpreter|rad|lifecycle|stecknorm)/', $permalink) === 1) {
             $type = str_contains($permalink, 'schnellstart') ? 'Schnellstart' : 'Entwicklerhandbuch';
             $audience = 'Entwickler';
         }

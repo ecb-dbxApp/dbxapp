@@ -624,8 +624,8 @@ body.dbx-docs .dbxContent_wrapper.dbx-content-page {
 
 .dbxdocs-area-hero {
     display: grid;
-    grid-template-columns: 4rem minmax(0, 1fr);
-    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .45rem;
     align-items: center;
     padding: clamp(1rem, 2vw, 1.45rem);
     border: 1px solid #c6dbed;
