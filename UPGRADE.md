@@ -12,6 +12,14 @@ dbxApp 4.0.2 ist die erste updaterfähige Referenzversion. Von dieser Basis aus
 steht unter **dbxAdmin → Status & Health → System-Update** für spätere stabile
 dbxApp-4-Releases der verbindliche Standardablauf bereit:
 
+### Besonderheiten in 4.0.6
+
+Version 4.0.6 erhält beim Update den Installationsstatus älterer dbxApp-4-
+Installationen. Existiert bereits eine lokale Kernkonfiguration aus einer
+Version, die `install = 0` noch als öffentlichen Standard verwendete, wird die
+Instanz nicht erneut in den Installer geleitet. Eine manuelle Ergänzung des
+Schalters ist nach Installation dieses Releases nicht erforderlich.
+
 ### Besonderheiten in 4.0.5
 
 Version 4.0.5 qualifiziert die SQLite-Ziele der Benutzer- und Gruppen-DDs
