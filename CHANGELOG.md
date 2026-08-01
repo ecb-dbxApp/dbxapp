@@ -4,6 +4,46 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.1.0] - 2026-08-01
+
+### Added
+
+- Sprachsichere Medienverwendung über `dbxMediaUsage.content_lng` und die
+  Migration `core-4.1.0-media-usage-language`.
+- Installations- und Selbsttest-Tutorials im aktualisierten
+  Dokumentationsportal.
+- Systemweiter Regressionstest für Sprache, Seitenkopie, Shop-Snapshot und
+  rekursive Thumbnail-Wartung.
+
+### Changed
+
+- Medienbrowser und Content-Baum laden bedarfsgerecht; der Medienbrowser
+  priorisiert die zuerst sichtbaren Datensätze.
+- Seiten- und Sprachkopien verwenden eine ausdrückliche Slot-Freigabeliste.
+  Shop-Medien werden niemals als normaler Seiteninhalt kopiert.
+- Die Shop-Mediensynchronisierung ersetzt ihren Snapshot idempotent.
+- Die Medienwartung analysiert Dubletten in allen Slots, rekonstruiert Hero-,
+  Inline- und Shop-Nutzungen, durchsucht `_thumbs` rekursiv und optimiert die
+  Datenbank.
+- `dbxSelfTest` prüft jetzt 104 PHP-, JavaScript-, Modul-, Sicherheits- und
+  Laufzeitverträge im vollständigen Referenzlauf.
+
+### Fixed
+
+- Gleichlautende Seiten- und Ordner-IDs in Deutsch, Englisch und Spanisch
+  können Medien nicht mehr gegenseitig zuordnen oder entfernen.
+- Die rechte Medienanzeige des CMS entspricht der aktiven Sprache und dem
+  tatsächlich gespeicherten Content.
+- Fehlende Vorschaubilder werden erstellt und verwaiste Vorschaubilder im
+  tatsächlichen Medienverzeichnis entfernt.
+
+### Migration
+
+- `core-4.1.0-media-usage-language` synchronisiert das Media-Usage-DD, weist
+  Altzeilen einer Content-Sprache zu und entfernt inaktive sowie exakt
+  doppelte Datensätze. Anschließend gleicht die CMS-Medienwartung die
+  verbleibenden Daten mit Content und Shop ab.
+
 ## [4.0.6] - 2026-07-31
 
 ### Fixed

@@ -91,8 +91,8 @@ Online-Prüfung beginnt erst, wenn Sie die Update-Seite ausdrücklich starten.
   <li>
     <div><strong>Erfolg kontrollieren</strong>
     <span>Nach erfolgreicher Installation muss die neue Versionsnummer unter
-    „Installiert“ erscheinen. Anschließend die wichtigsten Funktionen der
-    eigenen Installation kurz prüfen.</span></div>
+    „Installiert“ erscheinen. Anschließend unter „System → System-Selbsttest“
+    zuerst den Schnelltest und danach den Kompletttest ausführen.</span></div>
   </li>
 </ol>
 @endhtmlonly
@@ -210,6 +210,8 @@ Fehlerbehebung, kein normaler „Zurück“-Schalter.
 - Ab **Jetzt sicher installieren** Browser, PHP und Webserver nicht absichtlich
   unterbrechen.
 - Nach Erfolg Anmeldung, Startseite und die wichtigsten eigenen Module testen.
+- Unter **System → System-Selbsttest** Schnell- und Kompletttest vollständig
+  ausführen; übersprungene Prüfungen bewusst bewerten.
 - Bei einem Fehler zuerst Meldung und Fehlerprotokoll sichern; Rollback nur
   nach Prüfung neuer Daten verwenden.
 
@@ -219,7 +221,9 @@ Fehlerbehebung, kein normaler „Zurück“-Schalter.
   <span>Release-Vertrag, DD-Serverbindungen, Migrations-Ledger und
   Abnahmematrix stehen getrennt unter
   <a href="dbxapp_install_update_dd_bindings.html">Installation, Updates und
-  DD-Serverbindungen</a>.</span>
+  DD-Serverbindungen</a>. Die redaktionellen Anleitungen im Portal erklären
+  zusätzlich die <a href="dokumentation-installation">Erstinstallation</a>
+  und den <a href="dokumentation-selbsttest">System-Selbsttest</a>.</span>
 </div>
 @endhtmlonly
 */

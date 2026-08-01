@@ -1,6 +1,12 @@
 <?php
 namespace dbx\dbxShop_admin;
 
+use dbx\dbxContent\dbxContentLng;
+use dbx\dbxContent\dbxContentLngSync;
+use dbx\dbxContent\dbxContentMediaUsageScope;
+
+require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
+
 class dbxShopAdmin {
 
    private const ACTION_TOKEN_SCOPE = 'dbxShop_admin.actions';
@@ -155,7 +161,7 @@ class dbxShopAdmin {
 
    private function shopMediaUsageContentId(): int {
       $configured = (int)dbx()->get_config('dbxShop', 'media_usage_content_id');
-      if ($configured > 0 && $this->contentPageExists($configured)) {
+      if ($configured > 0 && $this->contentPageExists($configured, $this->shopMediaUsageContentDd())) {
          return $configured;
       }
 
@@ -166,16 +172,28 @@ class dbxShopAdmin {
       return function_exists('dbx_lng_name') ? dbx_lng_name('content') : 'content_de';
    }
 
+   private function shopMediaUsageLng(): string {
+      return dbxContentMediaUsageScope::language(dbxContentLngSync::masterLng());
+   }
+
+   private function shopMediaUsageContentDd(): string {
+      return dbxContentLng::ddContent($this->shopMediaUsageLng());
+   }
+
+   private function shopMediaUsageFolderDd(): string {
+      return dbxContentLng::ddFolder($this->shopMediaUsageLng());
+   }
+
    private function folderDd(): string {
       return function_exists('dbx_lng_name') ? dbx_lng_name('content_folder') : 'content_folder_de';
    }
 
-   private function contentPageExists(int $contentId): bool {
+   private function contentPageExists(int $contentId, string $dd = ''): bool {
       if ($contentId <= 0) {
          return false;
       }
       try {
-         $row = $this->db()->select1($this->contentDd(), $contentId, 'id', 0);
+         $row = $this->db()->select1($dd !== '' ? $dd : $this->contentDd(), $contentId, 'id', 0);
          return is_array($row) && (int)($row['id'] ?? 0) === $contentId;
       } catch (\Throwable $e) {
          return false;
@@ -973,7 +991,7 @@ class dbxShopAdmin {
 
    private function ensureShopMediaUsagePage(): int {
       $db = $this->db();
-      $contentDd = $this->contentDd();
+      $contentDd = $this->shopMediaUsageContentDd();
       try {
          $row = $db->select1($contentDd, array('permalink' => 'shop-medienverwendung'), 'id', 0);
          if (!is_array($row)) {
@@ -991,7 +1009,7 @@ class dbxShopAdmin {
          }
 
          $folderId = 0;
-         $folder = $db->select1($this->folderDd(), array('name' => 'outside'), 'id', 0);
+         $folder = $db->select1($this->shopMediaUsageFolderDd(), array('name' => 'outside'), 'id', 0);
          if (is_array($folder)) {
             $folderId = (int)($folder['id'] ?? 0);
          }
@@ -1031,7 +1049,10 @@ class dbxShopAdmin {
    }
 
    private function shopMediaUsageSorter($db, int $contentId, string $slot): string {
-      $where = 'content_id = ' . $contentId . " AND slot = '" . str_replace("'", "''", $slot) . "' AND active = 1";
+      $where = dbxContentMediaUsageScope::withLanguage(
+         'content_id = ' . $contentId . " AND slot = '" . str_replace("'", "''", $slot) . "' AND active = 1",
+         $this->shopMediaUsageLng()
+      );
       $rows = $db->select('dbxMediaUsage', $where, 'sorter,id', 'sorter,id', 'DESC', '', 1, 0, 0);
       $max = 0;
       if (is_array($rows) && isset($rows[0]) && is_array($rows[0])) {
@@ -1195,12 +1216,12 @@ class dbxShopAdmin {
       try {
          $this->migrateExistingShopImagesToMedia();
 
-         $db->update(
+         // Die Shop-Tabelle ist die einzige Quelle. Alte Snapshots werden
+         // physisch entfernt, damit jeder Lauf exakt dieselbe Nutzung erzeugt
+         // und die Datenbank nicht durch inaktive Historie waechst.
+         $db->delete(
             'dbxMediaUsage',
-            array('active' => 0),
-            "content_id = " . $contentId . " AND settings LIKE '" . str_replace("'", "''", $sourceNeedle) . "' AND active = 1",
-            0,
-            1,
+            "slot = 'shop' OR settings LIKE '" . str_replace("'", "''", $sourceNeedle) . "'",
             1,
             0
          );
@@ -1243,6 +1264,7 @@ class dbxShopAdmin {
                'media_id' => (int)$mediaId,
                'content_id' => $contentId,
                'folder_id' => 0,
+               'content_lng' => $this->shopMediaUsageLng(),
                'slot' => $slot,
                'sorter' => $this->shopMediaUsageSorter($db, $contentId, $slot),
                'template' => 'image-gallery',

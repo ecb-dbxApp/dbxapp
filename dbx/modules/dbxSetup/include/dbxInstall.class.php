@@ -24,7 +24,7 @@ class dbxInstall
     private const SESSION_MODULE = 'dbxSetup';
     private const SQL_SERVER = 'dbxApp';
 
-    /** @var array<int,array{title:string,short:string,icon:string}> */
+    /** Geordnete Metadaten der sieben Installationsschritte. */
     private array $steps = array(
         1 => array('title' => 'Systemprüfung', 'short' => 'System', 'icon' => 'bi-cpu'),
         2 => array('title' => 'Website & Design', 'short' => 'Basis', 'icon' => 'bi-palette'),
@@ -35,17 +35,17 @@ class dbxInstall
         7 => array('title' => 'Prüfen & starten', 'short' => 'Abschluss', 'icon' => 'bi-rocket-takeoff'),
     );
 
-    /** @var string[] */
+    /** Blockierende Validierungsfehler des aktuellen Schritts. */
     private array $errors = array();
 
-    /** @var string[] */
+    /** Nicht blockierende Statushinweise des aktuellen Schritts. */
     private array $notices = array();
 
     private bool $finished = false;
 
     private bool $stayOnStep = false;
 
-    /** @var array<string,mixed> */
+    /** Ergebnisdaten des erfolgreich abgeschlossenen Assistenten. */
     private array $finishResult = array();
 
     public function __construct()

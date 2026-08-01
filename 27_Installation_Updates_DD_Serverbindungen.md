@@ -130,25 +130,25 @@ Der Installer arbeitet in sieben nachvollziehbaren Schritten:
    synchronisiert. Eine optionale, ausdrücklich bestätigte Übertragung kann
    vorhandene lokale DD-Tabellen erst danach auf das erreichbare SQL-Ziel
    kopieren.
-5. Den verbindlichen Standardzugang `admin` / `admin` herstellen. Fehlt der
-   Benutzer `admin`, wird er angelegt. Ist er bereits vorhanden, setzt der
-   Installer sein Passwort bewusst auf `admin`, aktiviert und bestätigt das
-   Konto und stellt die Admin-Rolle sicher. Andere Profildaten und nicht
-   installationsbezogene Einstellungen bleiben erhalten. Der Login erzwingt
-   vor Freigabe einer Sitzung ein persönliches, starkes Passwort.
+5. Den Administrator `admin` mit einem persönlichen Passwort einrichten.
+   Passwort und Wiederholung werden bereits im Assistenten geprüft; Groß- und
+   Kleinbuchstaben, eine Zahl und ein Sonderzeichen sind verbindlich, zwölf
+   oder mehr Zeichen werden empfohlen. Fehlt der Benutzer, wird er angelegt.
+   Ist er bereits vorhanden, aktualisiert der Installer das ausdrücklich
+   eingegebene Passwort, aktiviert und bestätigt das Konto und stellt die
+   Admin-Rolle sicher. Andere Profildaten und nicht installationsbezogene
+   Einstellungen bleiben erhalten.
 6. Globalen E-Mail-Betrieb, Transport, SMTP-Zugang, sichtbaren Absender,
    Envelope-Absender und erlaubte Absenderdomains konfigurieren.
 7. Eine geheimnisfreie Zusammenfassung bestätigen und die Installation
    lokal aktivieren.
 
-Der Installer verändert keine vorhandenen Gruppen. Der Benutzer `admin` ist
-eine bewusste Ausnahme: Jede bestätigte Installation stellt für dieses Konto
-erneut `admin` / `admin` her und setzt `password_reset_required`. Das Passwort
-wird mit `password_hash()` gespeichert. Die Erkennung des Standardpassworts
-und das Kennzeichen führen in den geschützten Passwortänderungsdialog. Solange
-der Hash noch zu `admin` passt, zeigt auch das Admin-Dashboard eine Warnung mit
-direktem Link zur Passwortänderung. Wiederholtes Ausführen erzeugt keine
-doppelten Seed-Datensätze.
+Der Installer verändert keine vorhandenen Gruppen. Das persönliche
+Admin-Passwort wird ausschließlich mit `password_hash()` gespeichert und nie
+in Zusammenfassungen, Protokollen oder der lokalen Konfiguration ausgegeben.
+Eine bestätigte erneute Installation darf das Konto nur mit dem erneut
+eingegebenen persönlichen Passwort aktualisieren. Wiederholtes Ausführen
+erzeugt keine doppelten Seed-Datensätze.
 
 ### PDO-Migration
 
@@ -169,9 +169,9 @@ jeder Schema- oder Datenmigration.
 Schritt 3 bietet zwei direkt erreichbare `openWin`-Hilfen:
 
 - **Mitgelieferte DB3 genau erklärt** beschreibt den unveränderten Lieferzustand
-  von Tabellenstruktur und Fachdaten, die ausschließlich lesende
-  Vollständigkeitsprüfung sowie das separate Zurücksetzen des Zugangs auf
-  `admin` / `admin`.
+  von Tabellenstruktur und Fachdaten sowie die ausschließlich lesende
+  Vollständigkeitsprüfung. Das persönliche Admin-Passwort wird davon getrennt
+  erst in Schritt 5 eingerichtet.
 - **PDO-Migration Schritt für Schritt** trennt Serverdaten, Verbindung,
   optionale Datenbankanlage, erneute Verbindungsprüfung, DD-Strukturaufbau und
   die ausdrücklich zu bestätigende Datenübertragung.
@@ -357,10 +357,10 @@ Vor Veröffentlichung eines Releases müssen mindestens bestanden sein:
 5. notwendige Systemprüfungen blockieren den nächsten Schritt, optionale
    Prüfungen bleiben klar als Empfehlungen erkennbar;
 6. Neuinstallation, erneuter Seitenaufruf und wiederholte Seeds erzeugen keine
-   doppelten Datensätze; der Benutzer `admin` wird bei Bestätigung von Schritt 5
-   reproduzierbar auf `admin` / `admin`, Admin-Rolle, aktiv, bestätigt und
-   erzwungenen Passwortwechsel gesetzt; leere Passwortfelder für bestehende
-   Server- und Mailzugänge bleiben unangetastet;
+   doppelten Datensätze; der Benutzer `admin` erhält bei Bestätigung von
+   Schritt 5 reproduzierbar das dort geprüfte persönliche Passwort, die
+   Admin-Rolle und den Status aktiv und bestätigt; leere Passwortfelder für
+   bestehende Server- und Mailzugänge bleiben unangetastet;
 7. unveränderte, rein lesend geprüfte DB3-Tabellenstruktur und Fachdaten sowie
    PDO-Installation:
    ohne erreichbare und vorhandene beziehungsweise erfolgreich angelegte
@@ -371,9 +371,12 @@ Vor Veröffentlichung eines Releases müssen mindestens bestanden sein:
 9. deutsche Installationsoberfläche auf Desktop und Mobilgerät ohne
    horizontalen Seitenüberlauf; Englisch und Spanisch folgen erst nach
    fachlicher und gestalterischer Freigabe der deutschen Fassung;
-10. Anmeldung mit `admin` / `admin` führt zwingend in den Passwortwechsel,
-    falsche, schwache oder wiederverwendete Passwörter werden abgelehnt;
+10. Anmeldung mit dem in Schritt 5 gesetzten Admin-Passwort gelingt; falsche,
+    schwache oder nicht übereinstimmende Passwörter werden bereits im
+    Assistenten abgelehnt;
 11. Migrationserkennung, Checksum-Ledger und bereits ausgeführte Migration;
 12. Backup und Rollback über mindestens zwei verschieden gebundene Server;
 13. gemeinsamer Datei-/DB-Rollback bei simuliertem Fehler;
-14. bestehende `dbxDB`-, `dbxForm`-, `dbxReport`- und Update-Regressionstests.
+14. bestehende `dbxDB`-, `dbxForm`-, `dbxReport`- und Update-Regressionstests;
+15. ein vollständiger Lauf des Moduls `dbxSelfTest` einschließlich der in der
+    jeweiligen Installation verfügbaren PHP- und JavaScript-Tests.

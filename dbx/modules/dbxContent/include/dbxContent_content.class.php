@@ -193,7 +193,17 @@ class dbxContent_content {
       if ($cid <= 0) return $merge;
 
       $db = dbx()->get_system_obj('dbxDB');
-      $usage_rows = $db->select('dbxMediaUsage', 'content_id = ' . $cid . ' AND active = 1', '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
+      $usage_rows = $db->select(
+         'dbxMediaUsage',
+         dbxContentMediaUsageScope::withLanguage('content_id = ' . $cid . ' AND active = 1'),
+         '*',
+         'slot,sorter,id',
+         'ASC',
+         '',
+         0,
+         0,
+         0
+      );
       $rows = array();
       if (is_array($usage_rows) && !empty($usage_rows)) {
         foreach ($usage_rows as $usage) {

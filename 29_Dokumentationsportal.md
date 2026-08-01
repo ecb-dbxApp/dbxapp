@@ -108,6 +108,11 @@ doxygen Doxyfile
 C:\xampp\htdocs\dbxapp-docs\reference\current\
 ```
 
+Vor einer vollständigen Neuerzeugung wird die bisherige Ausgabe als datierter
+Ordner unter `reference\archive\` gesichert. Dadurch bleiben alte Referenzen
+wiederherstellbar, während `reference\current\` garantiert keine verwaisten
+HTML-Dateien aus früheren Doxygen-Konfigurationen enthält.
+
 Die Doxygen-Kopfleiste besitzt für den direkten Aufruf den Link **Portal**
 zurück zur dbxContent-Startseite. Innerhalb des Portals blendet `dbxDocs`
 doppelte Navigation und Branding aus. Interne Doxygen-Querverweise bleiben im
@@ -117,7 +122,9 @@ eingebetteten Referenzfenster.
 
 Vor einer Veröffentlichung:
 
-1. Quelltests und Doxygen-Tests ausführen.
+1. Quelltests und Doxygen-Tests ausführen. Anschließend im Modul
+   `dbxSelfTest` mindestens den Schnelltest, vor einer Veröffentlichung den
+   Kompletttest starten.
 2. `doxygen Doxyfile` ohne Fehler beenden.
 3. Portal, mindestens ein Tutorialbild und `reference/current/` per HTTP
    auf Status 200 prüfen.
@@ -132,6 +139,17 @@ Die Doxygen-Ausgabe ist reproduzierbar und wird nicht manuell bearbeitet.
 Redaktionelle Änderungen erfolgen ausschließlich in dbxContent.
 Quellcode-Kommentare werden lokal geändert und beim nächsten Doxygen-Lauf
 automatisch in die Referenz übernommen.
+
+Gezielt versionierte redaktionelle Seiten werden aus
+`dbx/modules/dbxDocs/content/` provisioniert. Der wiederholbare Abgleich lautet:
+
+```powershell
+php dbx/modules/dbxDocs/tools/provision_docs_content.php
+```
+
+Der Lauf aktualisiert nur ausdrücklich revisionierte Seiten, ergänzt fehlende
+Seiten und invalidiert danach den Content-Cache. Bestehende, nicht markierte
+CMS-Redaktion wird ohne `--force` nicht überschrieben.
 
 ## Sitzungsisolation
 
@@ -149,6 +167,8 @@ Sonderkonfiguration.
 - deutsche, englische und spanische CMS-Navigation lädt;
 - alle Tutorialmedien werden über dbxContent ausgeliefert;
 - Doxygen unter `reference/current/` erreichbar und im Portal eingebettet;
+- Installations- und SelfTest-Anleitung im Bereich Betrieb & Sicherheit
+  erreichbar;
 - Portal-Rücklink in Doxygen funktioniert;
 - keine unbearbeiteten Template-Platzhalter;
 - keine PHP-Syntaxfehler und kein neuer Eintrag in `dbxError.log`.

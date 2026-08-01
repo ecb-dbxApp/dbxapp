@@ -2,6 +2,7 @@
 namespace dbx\dbxContent;
 
 require_once __DIR__ . '/dbxContentLng.class.php';
+require_once __DIR__ . '/dbxContentMediaUsageScope.class.php';
 
 class dbxContentRenderer {
 
@@ -1620,7 +1621,17 @@ class dbxContentRenderer {
          'media_footer' => '',
       );
 
-      $usage_rows = $db->select($this->dd_media_usage, 'content_id = ' . (int)$cid . ' AND active = 1', '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
+      $usage_rows = $db->select(
+         $this->dd_media_usage,
+         dbxContentMediaUsageScope::withLanguage('content_id = ' . (int)$cid . ' AND active = 1'),
+         '*',
+         'slot,sorter,id',
+         'ASC',
+         '',
+         0,
+         0,
+         0
+      );
       $rows = array();
       if (is_array($usage_rows) && !empty($usage_rows)) {
          $mediaIds = array_values(array_filter(array_unique(array_map(
@@ -2012,7 +2023,17 @@ class dbxContentRenderer {
       if ($hero_id <= 0) {
          $cid = (int)($rec['id'] ?? 0);
          if ($cid > 0) {
-            $usage_rows = $db->select($this->dd_media_usage, 'content_id = ' . $cid . ' AND active = 1 AND slot = \'hero\'', 'media_id', 'sorter,id', 'ASC', '', 1, 0, 0);
+            $usage_rows = $db->select(
+               $this->dd_media_usage,
+               dbxContentMediaUsageScope::withLanguage('content_id = ' . $cid . ' AND active = 1 AND slot = \'hero\''),
+               'media_id',
+               'sorter,id',
+               'ASC',
+               '',
+               1,
+               0,
+               0
+            );
             if (is_array($usage_rows) && !empty($usage_rows[0]['media_id'])) {
                $hero_id = (int)$usage_rows[0]['media_id'];
             }

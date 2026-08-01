@@ -4,6 +4,7 @@ namespace dbx\dbxContent_admin;
 use dbx\dbxContent\dbxContentHome;
 use dbx\dbxContent\dbxContentLng;
 use dbx\dbxContent\dbxContentLngSync;
+use dbx\dbxContent\dbxContentMediaUsageScope;
 use dbx\dbxContent\dbxContentPageCache;
 use dbx\dbxContent\dbxContentPermalinkIndex;
 use dbx\dbxContent\dbxContentRenderer;
@@ -397,10 +398,20 @@ class dbxContent_cms extends \dbxObj {
       dbxContentPermalinkIndex::removeByCid($cid, $lng);
    }
 
-   private function copy_page_media_usage($db, int $sourceCid, int $targetCid, int $targetFolderId, bool $replace = true): int {
+   private function copy_page_media_usage(
+      $db,
+      int $sourceCid,
+      int $targetCid,
+      int $targetFolderId,
+      bool $replace = true,
+      string $sourceLng = '',
+      string $targetLng = ''
+   ): int {
       $sourceCid = (int) $sourceCid;
       $targetCid = (int) $targetCid;
       $targetFolderId = (int) $targetFolderId;
+      $sourceLng = dbxContentMediaUsageScope::language($sourceLng);
+      $targetLng = dbxContentMediaUsageScope::language($targetLng);
       if ($sourceCid <= 0 || $targetCid <= 0 || !is_object($db)) {
          return 0;
       }
@@ -411,7 +422,10 @@ class dbxContent_cms extends \dbxObj {
             $db->update(
                $this->dd_media_usage,
                array('active' => 0),
-               "content_id = " . $targetCid . " AND slot = '" . str_replace("'", "''", $slot) . "' AND active = 1",
+               dbxContentMediaUsageScope::withLanguage(
+                  "content_id = " . $targetCid . " AND slot = '" . str_replace("'", "''", $slot) . "' AND active = 1",
+                  $targetLng
+               ),
                0,
                1,
                1,
@@ -422,7 +436,10 @@ class dbxContent_cms extends \dbxObj {
 
       $rows = $db->select(
          $this->dd_media_usage,
-         "content_id = " . $sourceCid . " AND active = 1 AND slot <> 'inline'",
+         dbxContentMediaUsageScope::withLanguage(
+            "content_id = " . $sourceCid . " AND active = 1 AND slot IN ('hero','gallery','header','teaser','footer')",
+            $sourceLng
+         ),
          '*',
          'slot,sorter,id',
          'ASC',
@@ -462,7 +479,8 @@ class dbxContent_cms extends \dbxObj {
             $slot,
             (string) ($usage['template'] ?? ''),
             (string) ($usage['caption'] ?? ''),
-            (string) ($usage['settings'] ?? '')
+            (string) ($usage['settings'] ?? ''),
+            $targetLng
          );
          if ($usageId > 0) {
             $copied++;
@@ -486,8 +504,16 @@ class dbxContent_cms extends \dbxObj {
       }
 
       $slaveFolder = (int) ($slaveRow['folder'] ?? 0);
-      $copied = $this->copy_page_media_usage($db, $masterCid, $slaveCid, $slaveFolder, true);
-      $this->sync_inline_media_usage($db, $slaveCid, (string) ($slaveRow['content'] ?? ''), $slaveFolder);
+      $copied = $this->copy_page_media_usage(
+         $db,
+         $masterCid,
+         $slaveCid,
+         $slaveFolder,
+         true,
+         dbxContentLngSync::masterLng(),
+         $lng
+      );
+      $this->sync_inline_media_usage($db, $slaveCid, (string) ($slaveRow['content'] ?? ''), $slaveFolder, null, false, $lng);
       return $copied;
    }
 
@@ -1702,19 +1728,19 @@ class dbxContent_cms extends \dbxObj {
 
    private function collect_media_thumb_files() {
       $files = array();
-      foreach ($this->media_slots() as $slot) {
-         $dir = rtrim(dbx()->get_file_dir(), '/\\') . '/media/_thumbs/' . $slot . '/';
-         $dir = dbx()->os_path($dir);
-         if (!is_dir($dir) || !is_readable($dir)) continue;
-         $it = new \DirectoryIterator($dir);
-         foreach ($it as $file) {
-            if (!$file->isFile() || !$file->isReadable()) continue;
-            $rel = $this->media_thumb_rel_dir($slot) . $file->getFilename();
-            $files[$rel] = array(
-               'rel' => $rel,
-               'file' => $file->getPathname(),
-            );
-         }
+      $root = dbx()->os_path(rtrim(dbx()->get_file_dir(), '/\\') . '/media/_thumbs/');
+      if (!is_dir($root) || !is_readable($root)) return $files;
+      $rootNormalized = str_replace('\\', '/', rtrim($root, '/\\')) . '/';
+      $it = new \RecursiveIteratorIterator(
+         new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS),
+         \RecursiveIteratorIterator::LEAVES_ONLY
+      );
+      foreach ($it as $file) {
+         if (!$file->isFile() || !$file->isReadable()) continue;
+         $path = str_replace('\\', '/', $file->getPathname());
+         if (strpos($path, $rootNormalized) !== 0) continue;
+         $rel = 'media/_thumbs/' . ltrim(substr($path, strlen($rootNormalized)), '/');
+         $files[$rel] = array('rel' => $rel, 'file' => $file->getPathname());
       }
       return $files;
    }
@@ -1722,7 +1748,7 @@ class dbxContent_cms extends \dbxObj {
    private function active_media_usage_map($db) {
       $map = array();
       if (!is_object($db)) return $map;
-      $rows = $db->select($this->dd_media_usage, 'active = 1', 'media_id,content_id,folder_id,slot', 'id', 'ASC', '', 0, 0, 0);
+      $rows = $db->select($this->dd_media_usage, 'active = 1', 'media_id,content_id,folder_id,content_lng,slot', 'id', 'ASC', '', 0, 0, 0);
       if (is_array($rows)) {
          foreach ($rows as $row) {
             if (!is_array($row)) continue;
@@ -1746,13 +1772,13 @@ class dbxContent_cms extends \dbxObj {
             foreach ($direct as $slot => $media_id) {
                if ($media_id <= 0) continue;
                if (!isset($map[$media_id])) $map[$media_id] = array();
-               $map[$media_id][] = array('media_id' => $media_id, 'content_id' => $content_id, 'folder_id' => $folder_id, 'slot' => $slot);
+               $map[$media_id][] = array('media_id' => $media_id, 'content_id' => $content_id, 'folder_id' => $folder_id, 'content_lng' => $lng, 'slot' => $slot);
             }
             foreach ($this->inline_media_ids($row['content'] ?? '') as $media_id) {
                $media_id = (int)$media_id;
                if ($media_id <= 0) continue;
                if (!isset($map[$media_id])) $map[$media_id] = array();
-               $map[$media_id][] = array('media_id' => $media_id, 'content_id' => $content_id, 'folder_id' => $folder_id, 'slot' => 'inline');
+               $map[$media_id][] = array('media_id' => $media_id, 'content_id' => $content_id, 'folder_id' => $folder_id, 'content_lng' => $lng, 'slot' => 'inline');
             }
          }
          $folder_rows = $db->select(dbxContentLng::ddFolder($lng), '', 'id,hero_image_id', 'id');
@@ -1761,7 +1787,7 @@ class dbxContent_cms extends \dbxObj {
             $folder_id = is_array($row) ? (int)($row['id'] ?? 0) : 0;
             if ($media_id <= 0 || $folder_id <= 0) continue;
             if (!isset($map[$media_id])) $map[$media_id] = array();
-            $map[$media_id][] = array('media_id' => $media_id, 'content_id' => 0, 'folder_id' => $folder_id, 'slot' => 'hero');
+            $map[$media_id][] = array('media_id' => $media_id, 'content_id' => 0, 'folder_id' => $folder_id, 'content_lng' => $lng, 'slot' => 'hero');
          }
       }
       return $map;
@@ -1794,7 +1820,7 @@ class dbxContent_cms extends \dbxObj {
             if (is_array($content_rows)) {
                foreach ($content_rows as $row) {
                   $id = is_array($row) ? (int)($row['id'] ?? 0) : 0;
-                  if ($id > 0) $content_ids[$id] = 1;
+                  if ($id > 0) $content_ids[$lng . ':' . $id] = 1;
                }
             }
 
@@ -1802,7 +1828,7 @@ class dbxContent_cms extends \dbxObj {
             if (is_array($folder_rows)) {
                foreach ($folder_rows as $row) {
                   $id = is_array($row) ? (int)($row['id'] ?? 0) : 0;
-                  if ($id > 0) $folder_ids[$id] = 1;
+                  if ($id > 0) $folder_ids[$lng . ':' . $id] = 1;
                }
             }
          } catch (\Throwable $e) {
@@ -1822,14 +1848,15 @@ class dbxContent_cms extends \dbxObj {
          $media_id = (int)($row['media_id'] ?? 0);
          $content_id = (int)($row['content_id'] ?? 0);
          $folder_id = (int)($row['folder_id'] ?? 0);
+         $content_lng = dbxContentMediaUsageScope::language((string)($row['content_lng'] ?? ''));
          $reason = '';
 
          if ($media_id <= 0 || !isset($media_ids[$media_id])) {
             $reason = 'media_missing';
          } elseif ($content_id > 0) {
-            if (!isset($content_ids[$content_id])) $reason = 'content_missing';
+            if (!isset($content_ids[$content_lng . ':' . $content_id])) $reason = 'content_missing';
          } elseif ($folder_id > 0) {
-            if (!isset($folder_ids[$folder_id])) $reason = 'folder_missing';
+            if (!isset($folder_ids[$content_lng . ':' . $folder_id])) $reason = 'folder_missing';
          } else {
             $reason = 'target_missing';
          }
@@ -1886,16 +1913,20 @@ class dbxContent_cms extends \dbxObj {
       return $ordered;
    }
 
-   private function add_expected_media_usage(array &$expected, int $media_id, int $content_id, int $folder_id, string $slot, string $template = ''): void {
+   private function add_expected_media_usage(array &$expected, int $media_id, int $content_id, int $folder_id, string $slot, string $template = '', string $content_lng = '', string $caption = '', string $settings = ''): void {
       if ($media_id <= 0 || ($content_id <= 0 && $folder_id <= 0)) return;
-      $key = dbxContentMediaUsageMaintenance::usageKey($media_id, $content_id, $folder_id, $slot);
+      $content_lng = dbxContentMediaUsageScope::language($content_lng);
+      $key = dbxContentMediaUsageMaintenance::usageKey($media_id, $content_id, $folder_id, $slot, $content_lng);
       if (!isset($expected[$key])) {
          $expected[$key] = array(
             'media_id' => $media_id,
             'content_id' => $content_id,
             'folder_id' => $folder_id,
             'slot' => $slot,
+            'content_lng' => $content_lng,
             'template' => $template,
+            'caption' => $caption,
+            'settings' => $settings,
             'valid_folders' => array(),
          );
       }
@@ -1906,8 +1937,8 @@ class dbxContent_cms extends \dbxObj {
 
    /**
     * Baut die Soll-Nutzung aus den tatsaechlichen Seiten- und Ordnerfeldern
-    * aller verfuegbaren Sprachen. Galerie-/Shop-Zuordnungen bleiben bewusst
-    * eigenstaendige Datensaetze und werden nur auf Gueltigkeit geprueft.
+    * aller verfuegbaren Sprachen. Shop-Zuordnungen werden aus der
+    * autoritativen Artikelbild-Tabelle rekonstruiert.
     */
    private function media_usage_snapshot($db): array {
       $media_rows = $db->select($this->dd_media, '', '*', 'id', 'ASC', '', 0, 0, 0);
@@ -1944,12 +1975,13 @@ class dbxContent_cms extends \dbxObj {
                $content_id = (int)($page['id'] ?? 0);
                $folder_id = (int)($page['folder'] ?? 0);
                if ($content_id <= 0) continue;
-               if (!isset($content_folders[$content_id])) $content_folders[$content_id] = array();
-               if ($folder_id > 0) $content_folders[$content_id][$folder_id] = 1;
+               $content_key = $lng . ':' . $content_id;
+               if (!isset($content_folders[$content_key])) $content_folders[$content_key] = array();
+               if ($folder_id > 0) $content_folders[$content_key][$folder_id] = 1;
 
                $hero_id = (int)($page['hero_image_id'] ?? 0);
                if (isset($valid_media_ids[$hero_id])) {
-                  $this->add_expected_media_usage($expected, $hero_id, $content_id, $folder_id, 'hero', 'image-hero');
+                  $this->add_expected_media_usage($expected, $hero_id, $content_id, $folder_id, 'hero', 'image-hero', $lng);
                }
                $seo_id = (int)($page['seo_image_id'] ?? 0);
                if (isset($valid_media_ids[$seo_id])) {
@@ -1959,7 +1991,7 @@ class dbxContent_cms extends \dbxObj {
                foreach ($this->inline_media_ids((string)($page['content'] ?? '')) as $media_id) {
                   $media_id = (int)$media_id;
                   if (isset($valid_media_ids[$media_id])) {
-                     $this->add_expected_media_usage($expected, $media_id, $content_id, $folder_id, 'inline', 'image-inline');
+                     $this->add_expected_media_usage($expected, $media_id, $content_id, $folder_id, 'inline', 'image-inline', $lng);
                   }
                }
             }
@@ -1979,15 +2011,90 @@ class dbxContent_cms extends \dbxObj {
                if (!is_array($folder)) continue;
                $folder_id = (int)($folder['id'] ?? 0);
                if ($folder_id <= 0) continue;
-               $folder_ids[$folder_id] = 1;
+               $folder_ids[$lng . ':' . $folder_id] = 1;
                $hero_id = (int)($folder['hero_image_id'] ?? 0);
                if (isset($valid_media_ids[$hero_id])) {
-                  $this->add_expected_media_usage($expected, $hero_id, 0, $folder_id, 'hero', 'image-hero');
+                  $this->add_expected_media_usage($expected, $hero_id, 0, $folder_id, 'hero', 'image-hero', $lng);
                }
             }
          } catch (\Throwable $e) {
             dbx()->debug('dbxContent media usage snapshot skipped lng=' . $lng, $e->getMessage());
          }
+      }
+
+      $controlled_slots = array('hero', 'inline');
+      try {
+         $master_lng = dbxContentMediaUsageScope::language(dbxContentLngSync::masterLng());
+         $shop_page = $db->select1(
+            dbxContentLng::ddContent($master_lng),
+            array('permalink' => 'shop-medienverwendung'),
+            'id,folder',
+            0
+         );
+         if (!is_array($shop_page)) {
+            $shop_page = $db->select1(
+               dbxContentLng::ddContent($master_lng),
+               array('permalink' => 'outside/shop-media-usage'),
+               'id,folder',
+               0
+            );
+         }
+         $shop_content_id = is_array($shop_page) ? (int)($shop_page['id'] ?? 0) : 0;
+         $shop_folder_id = is_array($shop_page) ? (int)($shop_page['folder'] ?? 0) : 0;
+         $shop_rows = $db->select(
+            'dbxShop|shopProductImage',
+            'active = 1 AND trash = 0 AND media_id > 0',
+            'media_id,title,product_id,group_id',
+            'media_id,id',
+            'ASC',
+            '',
+            0,
+            0,
+            0
+         );
+         if ($shop_content_id > 0 && is_array($shop_rows)) {
+            $content_key = $master_lng . ':' . $shop_content_id;
+            if (!isset($content_folders[$content_key])) $content_folders[$content_key] = array();
+            if ($shop_folder_id > 0) $content_folders[$content_key][$shop_folder_id] = 1;
+            $shop_by_media = array();
+            foreach ($shop_rows as $shop_row) {
+               if (!is_array($shop_row)) continue;
+               $media_id = (int)($shop_row['media_id'] ?? 0);
+               if (!isset($valid_media_ids[$media_id])) continue;
+               if (!isset($shop_by_media[$media_id])) {
+                  $shop_by_media[$media_id] = array(
+                     'title' => (string)($shop_row['title'] ?? ''),
+                     'product_ids' => array(),
+                     'group_ids' => array(),
+                  );
+               }
+               $product_id = (int)($shop_row['product_id'] ?? 0);
+               $group_id = (int)($shop_row['group_id'] ?? 0);
+               if ($product_id > 0) $shop_by_media[$media_id]['product_ids'][$product_id] = $product_id;
+               if ($group_id > 0) $shop_by_media[$media_id]['group_ids'][$group_id] = $group_id;
+            }
+            foreach ($shop_by_media as $media_id => $shop_info) {
+               $settings = json_encode(array(
+                  'source' => 'dbxShop',
+                  'product_ids' => array_values($shop_info['product_ids']),
+                  'group_ids' => array_values($shop_info['group_ids']),
+               ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+               $this->add_expected_media_usage(
+                  $expected,
+                  (int)$media_id,
+                  $shop_content_id,
+                  $shop_folder_id,
+                  'shop',
+                  'image-gallery',
+                  $master_lng,
+                  (string)$shop_info['title'],
+                  $settings ?: '{"source":"dbxShop"}'
+               );
+            }
+            $controlled_slots[] = 'shop';
+         }
+      } catch (\Throwable $e) {
+         dbx()->debug('dbxContent shop media usage snapshot skipped', $e->getMessage());
       }
 
       return array(
@@ -1998,6 +2105,7 @@ class dbxContent_cms extends \dbxObj {
          'folder_ids' => $folder_ids,
          'seo_media_ids' => $seo_media_ids,
          'seo_references' => $seo_references,
+         'controlled_slots' => $controlled_slots,
       );
    }
 
@@ -2025,7 +2133,8 @@ class dbxContent_cms extends \dbxObj {
          $snapshot['expected'],
          $snapshot['content_folders'],
          $snapshot['folder_ids'],
-         array('hero', 'gallery', 'inline', 'header', 'teaser', 'footer', 'shop')
+         array('hero', 'gallery', 'inline', 'header', 'teaser', 'footer', 'shop'),
+         $snapshot['controlled_slots']
       );
 
       // SQLite ist bei vielen einzelnen Schreibvorgaengen ohne Transaktion
@@ -2038,6 +2147,7 @@ class dbxContent_cms extends \dbxObj {
          if (!is_array($row) || (int)($row['active'] ?? 0) !== 1) continue;
          $sorter_key = (int)($row['content_id'] ?? 0) . ':'
             . (int)($row['folder_id'] ?? 0) . ':'
+            . dbxContentMediaUsageScope::language((string)($row['content_lng'] ?? '')) . ':'
             . $this->valid_media_slot($row['slot'] ?? 'gallery');
          $sorter_max[$sorter_key] = max(
             (int)($sorter_max[$sorter_key] ?? 0),
@@ -2068,18 +2178,20 @@ class dbxContent_cms extends \dbxObj {
             $content_id = (int)($reference['content_id'] ?? 0);
             $folder_id = (int)($reference['folder_id'] ?? 0);
             $slot = $this->valid_media_slot($reference['slot'] ?? 'gallery');
-            $sorter_key = $content_id . ':' . $folder_id . ':' . $slot;
+            $content_lng = dbxContentMediaUsageScope::language((string)($reference['content_lng'] ?? ''));
+            $sorter_key = $content_id . ':' . $folder_id . ':' . $content_lng . ':' . $slot;
             $sorter_max[$sorter_key] = (int)($sorter_max[$sorter_key] ?? 0) + 10;
             $insert = array(
                'active' => 1,
                'media_id' => (int)($reference['media_id'] ?? 0),
                'content_id' => $content_id,
                'folder_id' => $folder_id,
+               'content_lng' => $content_lng,
                'slot' => $slot,
                'sorter' => sprintf('%04d', $sorter_max[$sorter_key]),
                'template' => (string)($reference['template'] ?? ''),
-               'caption' => '',
-               'settings' => '',
+               'caption' => (string)($reference['caption'] ?? ''),
+               'settings' => (string)($reference['settings'] ?? ''),
             );
             if ($db->insert($this->dd_media_usage, $insert, 0, 1, 1, 0) === 1) {
                $added++;
@@ -2348,44 +2460,69 @@ class dbxContent_cms extends \dbxObj {
       $row['media_id'] = (int)($row['media_id'] ?? 0);
       $row['content_id'] = (int)($row['content_id'] ?? 0);
       $row['folder_id'] = (int)($row['folder_id'] ?? 0);
+      $row['content_lng'] = dbxContentMediaUsageScope::language((string)($row['content_lng'] ?? ''));
       $row['slot'] = $this->valid_media_slot($row['slot'] ?? 'gallery');
       return $row;
    }
 
-   private function usage_where($media_id = 0, $content_id = 0, $folder_id = 0, $slot = '') {
+   private function usage_where($media_id = 0, $content_id = 0, $folder_id = 0, $slot = '', $content_lng = '') {
       $where = 'active = 1';
       if ((int)$media_id > 0) $where .= ' AND media_id = ' . (int)$media_id;
       if ((int)$content_id > 0) $where .= ' AND content_id = ' . (int)$content_id;
       if ((int)$folder_id > 0) $where .= ' AND folder_id = ' . (int)$folder_id;
       if ((string)$slot !== '') $where .= " AND slot = '" . str_replace("'", "''", $this->valid_media_slot($slot)) . "'";
+      if ((int)$content_id > 0 || (int)$folder_id > 0) {
+         $where = dbxContentMediaUsageScope::withLanguage($where, $content_lng);
+      }
       return $where;
    }
 
-   private function next_media_usage_sorter($db, $content_id, $folder_id, $slot) {
-      $where = $this->usage_where(0, $content_id, $folder_id, $slot);
+   private function next_media_usage_sorter($db, $content_id, $folder_id, $slot, $content_lng = '') {
+      $where = $this->usage_where(0, $content_id, $folder_id, $slot, $content_lng);
       $rows = $db->select($this->dd_media_usage, $where, '*', 'sorter,id', 'DESC', '', 1, 0, 0);
       $max = 0;
       if (is_array($rows) && isset($rows[0]) && is_array($rows[0])) $max = (int)($rows[0]['sorter'] ?? 0);
       return sprintf('%04d', $max + 10);
    }
 
-   private function create_media_usage($db, $media_id, $content_id, $folder_id, $slot, $template = '', $caption = '', $settings = '') {
+   private function create_media_usage($db, $media_id, $content_id, $folder_id, $slot, $template = '', $caption = '', $settings = '', $content_lng = '') {
       $media_id = (int)$media_id;
       $content_id = (int)$content_id;
       $folder_id = (int)$folder_id;
       $slot = $this->valid_media_slot($slot);
+      $content_lng = dbxContentMediaUsageScope::language($content_lng);
       if ($media_id <= 0 || ($content_id <= 0 && $folder_id <= 0)) return 0;
+      $existingWhere = 'media_id = ' . $media_id
+         . ' AND content_id = ' . $content_id
+         . ' AND folder_id = ' . $folder_id
+         . " AND slot = '" . str_replace("'", "''", $slot) . "'";
+      $existingWhere = dbxContentMediaUsageScope::withLanguage($existingWhere, $content_lng);
+      $existing = $db->select($this->dd_media_usage, $existingWhere, '*', 'active DESC,id DESC', 'ASC', '', 1, 0, 0);
+      if (is_array($existing) && isset($existing[0]['id']) && (int)($existing[0]['active'] ?? 0) === 1) {
+         return (int)$existing[0]['id'];
+      }
       if ($slot === 'hero') {
-         if ($content_id > 0) $db->update($this->dd_media_usage, array('active' => 0), "content_id = " . $content_id . " AND slot = 'hero' AND active = 1", 0, 1, 1, 0);
-         elseif ($folder_id > 0) $db->update($this->dd_media_usage, array('active' => 0), "folder_id = " . $folder_id . " AND slot = 'hero' AND active = 1", 0, 1, 1, 0);
+         if ($content_id > 0) $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::withLanguage("content_id = " . $content_id . " AND slot = 'hero' AND active = 1", $content_lng), 0, 1, 1, 0);
+         elseif ($folder_id > 0) $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::withLanguage("folder_id = " . $folder_id . " AND slot = 'hero' AND active = 1", $content_lng), 0, 1, 1, 0);
+      }
+      if (is_array($existing) && isset($existing[0]['id'])) {
+         $existingId = (int)$existing[0]['id'];
+         $db->update($this->dd_media_usage, array(
+            'active' => 1,
+            'template' => $this->clean_text($template, 80),
+            'caption' => $this->clean_text($caption, 0),
+            'settings' => $this->clean_text($settings, 0),
+         ), $existingId, 0, 1, 1, 0);
+         return $existingId;
       }
       return ($db->insert($this->dd_media_usage, array(
          'active' => 1,
          'media_id' => $media_id,
          'content_id' => $content_id,
          'folder_id' => $folder_id,
+         'content_lng' => $content_lng,
          'slot' => $slot,
-         'sorter' => $this->next_media_usage_sorter($db, $content_id, $folder_id, $slot),
+         'sorter' => $this->next_media_usage_sorter($db, $content_id, $folder_id, $slot, $content_lng),
          'template' => $this->clean_text($template, 80),
          'caption' => $this->clean_text($caption, 0),
          'settings' => $this->clean_text($settings, 0),
@@ -3840,7 +3977,15 @@ class dbxContent_cms extends \dbxObj {
          $ok = $db->delete($targetDd, 'id = ' . $targetId, 1, 0);
          if ($ok >= 0) {
             $db->update($this->dd_media, array('active' => 1, 'content_id' => 0, 'folder_id' => 0), 'content_id = ' . $targetId, 0, 1, 1, 0);
-            $db->update($this->dd_media_usage, array('active' => 0), 'content_id = ' . $targetId . ' AND active = 1', 0, 1, 1, 0);
+            $db->update(
+               $this->dd_media_usage,
+               array('active' => 0),
+               dbxContentMediaUsageScope::withLanguage('content_id = ' . $targetId . ' AND active = 1', $lng),
+               0,
+               1,
+               1,
+               0
+            );
             $this->flush_deleted_page_cache($targetId, $lng);
             $deleted[] = array('lng' => $lng, 'id' => $targetId);
          } else {
@@ -3976,6 +4121,15 @@ class dbxContent_cms extends \dbxObj {
          $targetDd = dbxContentLng::ddFolder($lng);
          $ok = $db->delete($targetDd, 'id = ' . $targetId, 1, 0);
          if ($ok >= 0) {
+            $db->update(
+               $this->dd_media_usage,
+               array('active' => 0),
+               dbxContentMediaUsageScope::withLanguage('folder_id = ' . $targetId . ' AND content_id = 0 AND active = 1', $lng),
+               0,
+               1,
+               1,
+               0
+            );
             $this->flush_deleted_folder_cache($db, $targetId, $lng);
             $deleted[] = array('lng' => $lng, 'id' => $targetId);
          } else {
@@ -4294,7 +4448,15 @@ class dbxContent_cms extends \dbxObj {
          $this->cms_json_response(array('ok' => 0, 'success' => false, 'msg' => $texts->get_fd_message('page_duplicate_commit_error')));
       }
 
-      $mediaCopied = $this->copy_page_media_usage($db, $sourceId, $newId, $folderId, true);
+      $mediaCopied = $this->copy_page_media_usage(
+         $db,
+         $sourceId,
+         $newId,
+         $folderId,
+         true,
+         dbxContentLng::current(),
+         dbxContentLng::current()
+      );
       $inlineSync = $this->sync_inline_media_usage(
          $db,
          $newId,
@@ -4701,24 +4863,28 @@ class dbxContent_cms extends \dbxObj {
          if (!is_array($usage)) continue;
          $media_id = (int)($usage['media_id'] ?? 0);
          $content_id = (int)($usage['content_id'] ?? 0);
+         $content_lng = dbxContentMediaUsageScope::language((string)($usage['content_lng'] ?? ''));
          if ($media_id <= 0 || $content_id <= 0) continue;
 
-         if (!array_key_exists($content_id, $page_cache)) {
-            $page_cache[$content_id] = $db->select1(dbxContentLng::ddContent(), $content_id, 'id,folder,title', 0);
+         $page_key = $content_lng . ':' . $content_id;
+         if (!array_key_exists($page_key, $page_cache)) {
+            $page_cache[$page_key] = $db->select1(dbxContentLng::ddContent($content_lng), $content_id, 'id,folder,title', 0);
          }
-         $page = is_array($page_cache[$content_id]) ? $page_cache[$content_id] : array();
+         $page = is_array($page_cache[$page_key]) ? $page_cache[$page_key] : array();
          $folder_id = (int)($page['folder'] ?? ($usage['folder_id'] ?? 0));
 
-         if ($folder_id > 0 && !array_key_exists($folder_id, $folder_cache)) {
-            $folder_cache[$folder_id] = $db->select1(dbxContentLng::ddFolder(), $folder_id, '*', 0);
+         $folder_key = $content_lng . ':' . $folder_id;
+         if ($folder_id > 0 && !array_key_exists($folder_key, $folder_cache)) {
+            $folder_cache[$folder_key] = $db->select1(dbxContentLng::ddFolder($content_lng), $folder_id, '*', 0);
          }
-         $folder = ($folder_id > 0 && is_array($folder_cache[$folder_id] ?? null)) ? $folder_cache[$folder_id] : array();
+         $folder = ($folder_id > 0 && is_array($folder_cache[$folder_key] ?? null)) ? $folder_cache[$folder_key] : array();
 
          if (!isset($map[$media_id])) $map[$media_id] = array();
-         if (!isset($map[$media_id][$content_id])) {
-            $map[$media_id][$content_id] = array(
+         if (!isset($map[$media_id][$page_key])) {
+            $map[$media_id][$page_key] = array(
                'id' => $content_id,
                'content_id' => $content_id,
+               'content_lng' => $content_lng,
                'title' => (string)($page['title'] ?? ''),
                'folder_id' => $folder_id,
                'folder_title' => (string)($folder['name'] ?? $folder['title'] ?? ''),
@@ -4727,8 +4893,8 @@ class dbxContent_cms extends \dbxObj {
          }
 
          $slot = trim((string)($usage['slot'] ?? ''));
-         if ($slot !== '' && !in_array($slot, $map[$media_id][$content_id]['slots'], true)) {
-            $map[$media_id][$content_id]['slots'][] = $slot;
+         if ($slot !== '' && !in_array($slot, $map[$media_id][$page_key]['slots'], true)) {
+            $map[$media_id][$page_key]['slots'][] = $slot;
          }
       }
 
@@ -4802,6 +4968,7 @@ class dbxContent_cms extends \dbxObj {
             if ($mid <= 0) continue;
             $usage_count[$mid] = ($usage_count[$mid] ?? 0) + 1;
             if ($has_usage_context
+                && dbxContentMediaUsageScope::language((string)($usage['content_lng'] ?? '')) === dbxContentLng::current()
                 && ($content_id <= 0 || (int)($usage['content_id'] ?? 0) === $content_id)
                 && ($folder_id <= 0 || (int)($usage['folder_id'] ?? 0) === $folder_id)
                 && ($slot === '' || (string)($usage['slot'] ?? '') === $slot)) {
@@ -4839,10 +5006,10 @@ class dbxContent_cms extends \dbxObj {
       ));
    }
 
-   private function media_usage_rows_for_context($db, $content_id = 0, $folder_id = 0, $slot = '') {
+   private function media_usage_rows_for_context($db, $content_id = 0, $folder_id = 0, $slot = '', $content_lng = '') {
       $content_id = (int)$content_id;
       $folder_id = (int)$folder_id;
-      $where = 'active = 1';
+      $where = dbxContentMediaUsageScope::withLanguage('active = 1', $content_lng);
       if ($content_id > 0) $where .= ' AND content_id = ' . $content_id;
       if ($folder_id > 0) $where .= ' AND folder_id = ' . $folder_id;
       if ($slot !== '') $where .= " AND slot = '" . str_replace("'", "''", (string)$slot) . "'";
@@ -4944,9 +5111,10 @@ class dbxContent_cms extends \dbxObj {
       return array_values($html_ids);
    }
 
-   private function sync_inline_media_usage($db, $content_id, $html, $folder_id = 0, $client_ids = null, $client_ids_provided = false) {
+   private function sync_inline_media_usage($db, $content_id, $html, $folder_id = 0, $client_ids = null, $client_ids_provided = false, $content_lng = '') {
       $content_id = (int)$content_id;
       $folder_id = (int)$folder_id;
+      $content_lng = dbxContentMediaUsageScope::language((string)$content_lng);
       $result = array('added' => 0, 'removed' => 0, 'kept' => 0);
       if ($content_id <= 0) return $result;
 
@@ -4956,7 +5124,12 @@ class dbxContent_cms extends \dbxObj {
          if ($id > 0) $wanted[$id] = $id;
       }
 
-      $rows = $db->select($this->dd_media_usage, 'content_id = ' . $content_id . " AND active = 1 AND slot = 'inline'", '*', 'id');
+      $rows = $db->select(
+         $this->dd_media_usage,
+         dbxContentMediaUsageScope::withLanguage('content_id = ' . $content_id . " AND active = 1 AND slot = 'inline'", $content_lng),
+         '*',
+         'id'
+      );
       if (is_array($rows)) {
          foreach ($rows as $row) {
             if (!is_array($row)) continue;
@@ -4975,7 +5148,7 @@ class dbxContent_cms extends \dbxObj {
 
          $usages = $db->select(
             $this->dd_media_usage,
-            'media_id = ' . $id . ' AND content_id = ' . $content_id . " AND slot = 'inline'",
+            dbxContentMediaUsageScope::withLanguage('media_id = ' . $id . ' AND content_id = ' . $content_id . " AND slot = 'inline'", $content_lng),
             '*', 'active DESC, id DESC', '', 0, 0, 0
          );
 
@@ -5018,7 +5191,7 @@ class dbxContent_cms extends \dbxObj {
             continue;
          }
 
-         if ($this->create_media_usage($db, $id, $content_id, $folder_id, 'inline', 'image-inline', '', '') > 0) {
+         if ($this->create_media_usage($db, $id, $content_id, $folder_id, 'inline', 'image-inline', '', '', $content_lng) > 0) {
             $result['added']++;
          }
       }
@@ -5037,15 +5210,16 @@ class dbxContent_cms extends \dbxObj {
       return sprintf('%04d', $max + 10);
    }
 
-   private function deactivate_existing_hero_media($db, $content_id, $folder_id, $except_id = 0) {
+   private function deactivate_existing_hero_media($db, $content_id, $folder_id, $except_id = 0, $content_lng = '') {
       $content_id = (int)$content_id;
       $folder_id = (int)$folder_id;
       $except_id = (int)$except_id;
+      $content_lng = dbxContentMediaUsageScope::language((string)$content_lng);
       $except = $except_id > 0 ? ' AND media_id <> ' . $except_id : '';
       if ($content_id > 0) {
-         $db->update($this->dd_media_usage, array('active' => 0), "content_id = " . $content_id . " AND slot = 'hero' AND active = 1" . $except, 0, 1, 1, 0);
+         $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::withLanguage("content_id = " . $content_id . " AND slot = 'hero' AND active = 1" . $except, $content_lng), 0, 1, 1, 0);
       } elseif ($folder_id > 0) {
-         $db->update($this->dd_media_usage, array('active' => 0), "folder_id = " . $folder_id . " AND slot = 'hero' AND active = 1" . $except, 0, 1, 1, 0);
+         $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::withLanguage("folder_id = " . $folder_id . " AND slot = 'hero' AND active = 1" . $except, $content_lng), 0, 1, 1, 0);
       }
    }
 
@@ -5216,7 +5390,10 @@ class dbxContent_cms extends \dbxObj {
       foreach ($ids as $id) {
          $id = (int)$id;
          if ($id <= 0) continue;
-         $where = "active = 1 AND slot = '" . str_replace("'", "''", $slot) . "'";
+         $where = dbxContentMediaUsageScope::withLanguage(
+            "active = 1 AND slot = '" . str_replace("'", "''", $slot) . "'",
+            dbxContentLng::current()
+         );
          if ($content_id > 0) $where .= ' AND content_id = ' . $content_id;
          if ($folder_id > 0) $where .= ' AND folder_id = ' . $folder_id;
          $where .= ' AND (id = ' . $id . ' OR media_id = ' . $id . ')';
@@ -5455,6 +5632,7 @@ class dbxContent_cms extends \dbxObj {
          if ($content_id > 0) $where .= ' AND content_id = ' . $content_id;
          if ($folder_id > 0) $where .= ' AND folder_id = ' . $folder_id;
          if ($slot !== '') $where .= " AND slot = '" . str_replace("'", "''", $slot) . "'";
+         $where = dbxContentMediaUsageScope::withLanguage($where, dbxContentLng::current());
          $ok = $db->update($this->dd_media_usage, array('active' => 0), $where, 0, 1, 1, 0);
       }
       $media = ($content_id > 0 || $folder_id > 0) ? $this->media_usage_rows_for_context($db, $content_id, $content_id > 0 ? 0 : $folder_id) : array();
