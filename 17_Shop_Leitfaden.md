@@ -1,6 +1,6 @@
 # Shop-Leitfaden {#dbxapp_shop_guide}
 
-Stand: 2026-07-24
+Stand: 2026-08-01
 
 `dbxShop` ist die Shop-Fachanwendung von dbXapp. Sie umfasst inzwischen den
 oeffentlichen Katalog, Produktsuche und Filter, Warenkorb, Checkout,
@@ -421,7 +421,7 @@ Die vorhandene dbxForm-CSRF-Prüfung bleibt unverändert; ein separater
 
 Der aktuelle Gesamtzähler steht am zurückgegebenen Warenkorb-Root in
 `data-dbx-shop-cart-count`. Das modulbezogene `design/js/shop.js` synchronisiert
-damit nach `ajax:after` alle Menü-Badges. Die dbxapp-Asset-Version 69 stellt
+damit nach `ajax:after` alle Menü-Badges. Die dbxapp-Asset-Version 90 stellt
 sicher, dass Browser die korrigierten Kernel-Bibliotheken neu laden.
 
 Der Ablauf ist:

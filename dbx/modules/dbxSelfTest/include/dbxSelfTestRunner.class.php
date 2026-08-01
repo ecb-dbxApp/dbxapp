@@ -307,7 +307,7 @@ class dbxSelfTestRunner
             $this->builtin('conflict_markers', 'Ungelöste Konfliktmarker', 'Sucht nach nicht aufgeloesten Git-Konflikten in Quell- und Konfigurationsdateien.', 'quick', 30),
             $this->builtin('page_cache', 'Gastseiten-Cache Integrität', 'Prueft Generationen, veraltete HTML-Dateien und liegengebliebene Schreibdateien.', 'quick', 30),
             $this->builtin('php_syntax', 'PHP-Syntax Gesamtsystem', 'Fuehrt php -l fuer alle eigenen PHP-Dateien aus.', 'full', 300),
-            $this->builtin('js_syntax', 'JavaScript-Syntax Gesamtsystem', 'Prueft alle eigenen JavaScript-Dateien mit Node.js.', 'full', 300),
+            $this->builtin('js_syntax', 'JavaScript-Syntax Gesamtsystem', 'Prueft alle eigenen JavaScript-Dateien mit Node.js; ohne Node.js laufen Browser-Tests weiterhin im Web-Dashboard.', 'full', 300),
             $this->builtin('composer_validate', 'Composer-Konfiguration', 'Validiert dbx/composer.json im Strict-Modus.', 'full', 60),
             $this->builtin('composer_audit', 'Composer-Sicherheitsaudit', 'Prueft produktive Composer-Abhaengigkeiten auf bekannte Schwachstellen.', 'full', 120),
         );
@@ -465,8 +465,8 @@ class dbxSelfTestRunner
     private function checkEnvironment(): array
     {
         $errors = array();
-        if (version_compare(PHP_VERSION, '8.0.0', '<')) {
-            $errors[] = 'PHP 8.0 oder neuer ist erforderlich; aktiv: ' . PHP_VERSION;
+        if (version_compare(PHP_VERSION, '8.2.0', '<')) {
+            $errors[] = 'PHP 8.2 oder neuer ist erforderlich; aktiv: ' . PHP_VERSION;
         }
         foreach (array('json', 'session', 'pdo', 'pdo_sqlite', 'openssl', 'fileinfo') as $extension) {
             if (!extension_loaded($extension)) {

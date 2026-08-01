@@ -12,6 +12,23 @@ dbxApp 4.0.2 ist die erste updaterfähige Referenzversion. Von dieser Basis aus
 steht unter **dbxAdmin → Status & Health → System-Update** für spätere stabile
 dbxApp-4-Releases der verbindliche Standardablauf bereit:
 
+### Besonderheiten in 4.1.0
+
+Version 4.1.0 führt die Migration
+`core-4.1.0-media-usage-language` aus. Sie ergänzt die Content-Sprache in
+`dbx|dbxMediaUsage`, ordnet bestehende Nutzungen anhand der realen Seiten-
+und Ordnerdaten zu und entfernt inaktive sowie exakt doppelte Altzeilen.
+Die Media-Datenbank wird vor der DD-Synchronisierung gesichert und zusammen
+mit den Programmdateien zurückgerollt, falls der Installationsschritt
+fehlschlägt.
+
+Nach erfolgreichem Update einmal im CMS den Medienbrowser öffnen und unter
+**Wartung → Medien und Nutzung prüfen** die Analyse und Reparatur vollständig
+ausführen. Der Lauf rekonstruiert Hero-, Inline- und Shop-Nutzungen, entfernt
+ungültige Datensätze und verwaiste Vorschaubilder, erstellt fehlende
+Vorschaubilder und optimiert die Datenbank. Ein zweiter Lauf muss ohne neu
+hinzugekommene Korrekturen enden.
+
 ### Besonderheiten in 4.0.6
 
 Version 4.0.6 erhält beim Update den Installationsstatus älterer dbxApp-4-

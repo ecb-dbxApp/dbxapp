@@ -3,6 +3,7 @@ namespace dbx\dbxKi;
 
 use dbx\dbxContent\dbxContentLng;
 use dbx\dbxContent\dbxContentLngSync;
+use dbx\dbxContent\dbxContentMediaUsageScope;
 use dbx\dbxContent\dbxContentHome;
 use dbx\dbxContent\dbxContentPageCache;
 use dbx\dbxContent\dbxContentPermalinkIndex;
@@ -982,7 +983,7 @@ class dbxKiCmsService {
       $id = $this->id($params);
       $row = $this->db->select1(dbxContentLng::ddContent($lng), $id);
       if (!is_array($row)) throw new \RuntimeException('Seite nicht gefunden.');
-      $usage = $this->db->select('dbxMediaUsage', 'content_id = ' . $id . ' AND active = 1', '*', 'slot,sorter,id', 'ASC');
+      $usage = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $id . ' AND active = 1', $lng), '*', 'slot,sorter,id', 'ASC');
       $hint = $this->package_page_hint($row);
       return array(
          'lng' => $lng,
@@ -1332,7 +1333,7 @@ class dbxKiCmsService {
       $id = $this->id($params);
       $row = $this->db->select1(dbxContentLng::ddContent($lng), $id);
       if (!is_array($row)) throw new \RuntimeException('Seite nicht gefunden.');
-      $usage = $this->db->count('dbxMediaUsage', 'content_id = ' . $id . ' AND active = 1');
+      $usage = $this->db->count('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $id . ' AND active = 1', $lng));
       return array('operation' => 'delete', 'entity' => 'page', 'lng' => $lng, 'id' => $id, 'before' => $row, 'media_usage_to_deactivate' => $usage);
    }
 
@@ -1610,7 +1611,7 @@ class dbxKiCmsService {
       if ($this->db->update($dd, $data, $plan['id']) !== 1) throw new \RuntimeException('Seite konnte nicht aktualisiert werden.');
       $mediaId = (int)($plan['package_media_id_applied'] ?? 0);
       if ($mediaId > 0) {
-         $this->ensure_inline_media_usage((int)$plan['id'], $mediaId);
+         $this->ensure_inline_media_usage((int)$plan['id'], $mediaId, (string)$plan['lng']);
       }
       $row = $this->db->select1($dd, $plan['id']);
       $this->invalidate_page($plan['id'], $plan['lng'], $row);
@@ -1655,14 +1656,15 @@ class dbxKiCmsService {
          'media_id' => $mediaId,
          'content_id' => (int)$plan['id'],
          'folder_id' => 0,
+         'content_lng' => dbxContentMediaUsageScope::language((string)$plan['lng']),
          'slot' => 'hero',
          'template' => '',
          'caption' => '',
          'settings' => '',
       );
-      $where = 'content_id = ' . (int)$plan['id'];
-      $this->db->update('dbxMediaUsage', array('active' => 0), $where . " AND slot = 'hero' AND active = 1", 0, 1, 1, 1);
-      $data['sorter'] = $this->next_usage_sorter((int)$plan['id'], 0, 'hero');
+      $where = dbxContentMediaUsageScope::withLanguage('content_id = ' . (int)$plan['id'] . " AND slot = 'hero' AND active = 1", (string)$plan['lng']);
+      $this->db->update('dbxMediaUsage', array('active' => 0), $where, 0, 1, 1, 1);
+      $data['sorter'] = $this->next_usage_sorter((int)$plan['id'], 0, 'hero', (string)$plan['lng']);
       if ($this->db->insert('dbxMediaUsage', $data) !== 1) {
          throw new \RuntimeException('Hero-Medienzuordnung konnte nicht erstellt werden.');
       }
@@ -1682,7 +1684,7 @@ class dbxKiCmsService {
    private function execute_page_delete(array $plan): array {
       $dd = dbxContentLng::ddContent($plan['lng']);
       if ($this->db->delete($dd, $plan['id']) !== 1) throw new \RuntimeException('Seite konnte nicht gelöscht werden.');
-      $this->db->update('dbxMediaUsage', array('active' => 0), 'content_id = ' . (int)$plan['id'] . ' AND active = 1', 0, 1, 1, 1);
+      $this->db->update('dbxMediaUsage', array('active' => 0), dbxContentMediaUsageScope::withLanguage('content_id = ' . (int)$plan['id'] . ' AND active = 1', (string)$plan['lng']), 0, 1, 1, 1);
       dbxContentPageCache::invalidateContent($plan['id']);
       dbxContentPageCache::invalidateAllMenus();
       dbxContentPermalinkIndex::removeByCid($plan['id'], $plan['lng']);
@@ -1822,13 +1824,14 @@ class dbxKiCmsService {
 
    private function execute_media_assign(array $plan): array {
       $data = $plan['data'];
+      $data['content_lng'] = dbxContentMediaUsageScope::language((string)($plan['lng'] ?? ''));
       if ($data['slot'] === 'hero') {
          $where = $data['content_id'] > 0
             ? 'content_id = ' . (int)$data['content_id']
             : 'folder_id = ' . (int)$data['folder_id'];
-         $this->db->update('dbxMediaUsage', array('active' => 0), $where . " AND slot = 'hero' AND active = 1", 0, 1, 1, 1);
+         $this->db->update('dbxMediaUsage', array('active' => 0), dbxContentMediaUsageScope::withLanguage($where . " AND slot = 'hero' AND active = 1", $data['content_lng']), 0, 1, 1, 1);
       }
-      $data['sorter'] = $this->next_usage_sorter($data['content_id'], $data['folder_id'], $data['slot']);
+      $data['sorter'] = $this->next_usage_sorter($data['content_id'], $data['folder_id'], $data['slot'], $data['content_lng']);
       if ($this->db->insert('dbxMediaUsage', $data) !== 1) throw new \RuntimeException('Medienzuordnung konnte nicht erstellt werden.');
       $id = $this->db->get_insert_id();
       if ($data['slot'] === 'hero') {
@@ -1939,13 +1942,13 @@ class dbxKiCmsService {
          $this->db->update(
             'dbxMediaUsage',
             array('active' => 0),
-            'content_id = ' . $targetId . ' AND active = 1',
+            dbxContentMediaUsageScope::withLanguage('content_id = ' . $targetId . ' AND active = 1', $targetLng),
             0,
             1,
             1,
             1
          );
-         $mediaCopied = $this->copy_media_usage((int)$source['id'], $targetId, $targetFolder);
+         $mediaCopied = $this->copy_media_usage((int)$source['id'], $targetId, $targetFolder, (string)$plan['source_lng'], $targetLng);
       }
       $row = $this->db->select1($targetDd, $targetId);
       $this->invalidate_page($targetId, $targetLng, $row);
@@ -2128,10 +2131,10 @@ class dbxKiCmsService {
       $mediaCopied = 0;
       if ($copyMedia) {
          if ($replaceMediaUsage) {
-            $this->db->update('dbxMediaUsage', array('active' => 0), 'content_id = ' . $targetId . ' AND active = 1', 0, 1, 1, 1);
-            $mediaCopied = $this->copy_media_usage($sourceId, $targetId, $targetFolder);
+            $this->db->update('dbxMediaUsage', array('active' => 0), dbxContentMediaUsageScope::withLanguage('content_id = ' . $targetId . ' AND active = 1', $targetLng), 0, 1, 1, 1);
+            $mediaCopied = $this->copy_media_usage($sourceId, $targetId, $targetFolder, $sourceLng, $targetLng);
          } else {
-            $mediaCopied = $this->copy_missing_media_usage($sourceId, $targetId, $targetFolder);
+            $mediaCopied = $this->copy_missing_media_usage($sourceId, $targetId, $targetFolder, $sourceLng, $targetLng);
          }
       }
 
@@ -2267,8 +2270,8 @@ class dbxKiCmsService {
       return $data;
    }
 
-   private function copy_missing_media_usage(int $sourceId, int $targetId, int $targetFolder): int {
-      $rows = $this->db->select('dbxMediaUsage', 'content_id = ' . $sourceId . ' AND active = 1', '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
+   private function copy_missing_media_usage(int $sourceId, int $targetId, int $targetFolder, string $sourceLng, string $targetLng): int {
+      $rows = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage("content_id = " . $sourceId . " AND active = 1 AND slot IN ('hero','gallery','inline','header','teaser','footer')", $sourceLng), '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
       $count = 0;
       foreach (is_array($rows) ? $rows : array() as $row) {
          if (!is_array($row)) {
@@ -2279,10 +2282,10 @@ class dbxKiCmsService {
          if ($mediaId <= 0 || $slot === '') {
             continue;
          }
-         if ($slot === 'hero' && (int)$this->db->count('dbxMediaUsage', 'content_id = ' . $targetId . " AND slot = 'hero' AND active = 1") > 0) {
+         if ($slot === 'hero' && (int)$this->db->count('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $targetId . " AND slot = 'hero' AND active = 1", $targetLng)) > 0) {
             continue;
          }
-         $exists = (int)$this->db->count('dbxMediaUsage', 'content_id = ' . $targetId . ' AND media_id = ' . $mediaId . " AND slot = '" . $slot . "' AND active = 1");
+         $exists = (int)$this->db->count('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $targetId . ' AND media_id = ' . $mediaId . " AND slot = '" . $slot . "' AND active = 1", $targetLng));
          if ($exists > 0) {
             continue;
          }
@@ -2290,6 +2293,7 @@ class dbxKiCmsService {
          $data['active'] = 1;
          $data['content_id'] = $targetId;
          $data['folder_id'] = $targetFolder;
+         $data['content_lng'] = dbxContentMediaUsageScope::language($targetLng);
          if ($this->db->insert('dbxMediaUsage', $data) === 1) {
             $count++;
          }
@@ -2474,10 +2478,11 @@ class dbxKiCmsService {
       return sprintf('%04d', $max + 10);
    }
 
-   private function next_usage_sorter(int $content, int $folder, string $slot): string {
+   private function next_usage_sorter(int $content, int $folder, string $slot, string $lng = ''): string {
       $where = "active = 1 AND slot = '" . str_replace("'", "''", $slot) . "'";
       if ($content > 0) $where .= ' AND content_id = ' . $content;
       if ($folder > 0) $where .= ' AND folder_id = ' . $folder;
+      $where = dbxContentMediaUsageScope::withLanguage($where, $lng);
       $rows = $this->db->select('dbxMediaUsage', $where, 'sorter,id', 'sorter DESC,id DESC', 'ASC', '', 1, 0, 0);
       $max = is_array($rows) && isset($rows[0]) ? (int)($rows[0]['sorter'] ?? 0) : 0;
       return sprintf('%04d', $max + 10);
@@ -2552,7 +2557,7 @@ class dbxKiCmsService {
       $usage = array();
       $mediaId = (int)($page['hero_image_id'] ?? 0);
       if ($mediaId <= 0) {
-         $rows = $this->db->select('dbxMediaUsage', 'content_id = ' . $id . " AND slot = 'hero' AND active = 1", '*', 'sorter,id', 'DESC', '', 1, 0, 0);
+         $rows = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $id . " AND slot = 'hero' AND active = 1", $lng), '*', 'sorter,id', 'DESC', '', 1, 0, 0);
          if (is_array($rows) && is_array($rows[0] ?? null)) {
             $usage = $rows[0];
             $mediaId = (int)($usage['media_id'] ?? 0);
@@ -2563,7 +2568,7 @@ class dbxKiCmsService {
       $media = $this->db->select1('dbxMedia', $mediaId);
       if (!is_array($media) || (int)($media['active'] ?? 0) !== 1) throw new \RuntimeException('Hero-Medium nicht gefunden.');
       if (!$usage) {
-         $rows = $this->db->select('dbxMediaUsage', 'content_id = ' . $id . ' AND media_id = ' . $mediaId . " AND slot = 'hero' AND active = 1", '*', 'sorter,id', 'DESC', '', 1, 0, 0);
+         $rows = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $id . ' AND media_id = ' . $mediaId . " AND slot = 'hero' AND active = 1", $lng), '*', 'sorter,id', 'DESC', '', 1, 0, 0);
          if (is_array($rows) && is_array($rows[0] ?? null)) $usage = $rows[0];
       }
       return array('page' => $page, 'media' => $media, 'usage' => $usage);
@@ -2801,14 +2806,15 @@ class dbxKiCmsService {
       }
    }
 
-   private function copy_media_usage(int $sourceId, int $targetId, int $targetFolder): int {
-      $rows = $this->db->select('dbxMediaUsage', 'content_id = ' . $sourceId . ' AND active = 1', '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
+   private function copy_media_usage(int $sourceId, int $targetId, int $targetFolder, string $sourceLng, string $targetLng): int {
+      $rows = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage("content_id = " . $sourceId . " AND active = 1 AND slot IN ('hero','gallery','inline','header','teaser','footer')", $sourceLng), '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
       $count = 0;
       foreach (is_array($rows) ? $rows : array() as $row) {
          $data = $this->whitelist($row, array('media_id', 'slot', 'sorter', 'template', 'caption', 'settings'));
          $data['active'] = 1;
          $data['content_id'] = $targetId;
          $data['folder_id'] = $targetFolder;
+         $data['content_lng'] = dbxContentMediaUsageScope::language($targetLng);
          if ($this->db->insert('dbxMediaUsage', $data) === 1) $count++;
       }
       return $count;
@@ -2886,13 +2892,14 @@ class dbxKiCmsService {
       return is_string($updated) && $updated !== '' ? $updated : $content;
    }
 
-   private function ensure_inline_media_usage(int $contentId, int $mediaId): void {
+   private function ensure_inline_media_usage(int $contentId, int $mediaId, string $lng = ''): void {
       $contentId = (int)$contentId;
       $mediaId = (int)$mediaId;
       if ($contentId <= 0 || $mediaId <= 0) {
          return;
       }
-      $where = 'content_id = ' . $contentId . ' AND media_id = ' . $mediaId . " AND slot = 'inline' AND active = 1";
+      $lng = dbxContentMediaUsageScope::language($lng);
+      $where = dbxContentMediaUsageScope::withLanguage('content_id = ' . $contentId . ' AND media_id = ' . $mediaId . " AND slot = 'inline' AND active = 1", $lng);
       if (is_array($this->db->select1('dbxMediaUsage', $where))) {
          return;
       }
@@ -2901,11 +2908,12 @@ class dbxKiCmsService {
          'media_id' => $mediaId,
          'content_id' => $contentId,
          'folder_id' => 0,
+         'content_lng' => $lng,
          'slot' => 'inline',
          'template' => '',
          'caption' => '',
          'settings' => '',
-         'sorter' => $this->next_usage_sorter($contentId, 0, 'inline'),
+         'sorter' => $this->next_usage_sorter($contentId, 0, 'inline', $lng),
       );
       $this->db->insert('dbxMediaUsage', $data);
    }

@@ -627,7 +627,7 @@ class dbxContent_sections {
 
    private function load_media_usages($db): array {
       $map = array();
-      $usageRows = $db->select('dbxMediaUsage', 'active = 1', 'media_id,content_id,folder_id', 'media_id,id', 'ASC', '', 0, 0, 0);
+      $usageRows = $db->select('dbxMediaUsage', 'active = 1', 'media_id,content_id,folder_id,content_lng', 'media_id,id', 'ASC', '', 0, 0, 0);
       $usageRows = is_array($usageRows) ? $usageRows : array();
 
       foreach (dbxContentLngSync::accessibleLngs() as $lng) {
@@ -704,6 +704,7 @@ class dbxContent_sections {
          }
 
          foreach ($usageRows as $usage) {
+            if (strtolower(trim((string)($usage['content_lng'] ?? 'de'))) !== $lng) continue;
             $mediaId = (int)($usage['media_id'] ?? 0);
             $contentId = (int)($usage['content_id'] ?? 0);
             $folderId = (int)($usage['folder_id'] ?? 0);

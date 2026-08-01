@@ -1,0 +1,97 @@
+<div class="dbxdocs-cms-article" data-dbx-doc-revision="2026-08-01-installation-2">
+    <p class="dbx-doc-kicker">Betrieb &amp; Sicherheit · Erstinstallation</p>
+    <h1>dbxapp sicher installieren</h1>
+    <p class="lead">
+        Der dbxapp-Installationsassistent führt in sieben kontrollierten Schritten von der
+        Systemprüfung bis zur betriebsbereiten Anmeldung. Er trennt ausgelieferten Code von
+        lokalen Zugangsdaten und verändert Datenbankstrukturen erst nach einer erfolgreichen Prüfung.
+    </p>
+
+    <div class="dbx-callout">
+        <strong>Vor dem Start</strong>
+        <span>Legen Sie ein Backup an, verwenden Sie ein leeres Zielverzeichnis und halten Sie ein persönliches Admin-Passwort bereit. Zugangsdaten gehören niemals in ein öffentliches Release oder Repository.</span>
+    </div>
+
+    <h2>Voraussetzungen</h2>
+    <h3>Pflichtvoraussetzungen</h3>
+    <ul>
+        <li>Webserver mit PHP 8.2 oder neuer.</li>
+        <li>Die PHP-Erweiterungen Session, PDO, JSON, Filter, Hash und OpenSSL.</li>
+        <li>Schreibrechte des Webservers für die lokale Konfiguration sowie die Verzeichnisse <code>files</code> und <code>tmp</code>.</li>
+        <li>Installierte Composer-Abhängigkeiten beziehungsweise die mit dem Paket gelieferte Datei <code>vendor/autoload.php</code>.</li>
+        <li>Für das gewählte Datenbankziel den passenden PDO-Treiber.</li>
+    </ul>
+    <h3>Empfohlene Erweiterungen</h3>
+    <p>
+        Für Bildbearbeitung und Medienanalyse werden GD und Fileinfo empfohlen. Der Assistent
+        zeigt Pflichtprüfungen und Empfehlungen getrennt. Eine fehlende
+        Pflichtvoraussetzung blockiert den nächsten Schritt; eine optionale Empfehlung kann bewusst
+        später erfüllt werden.
+    </p>
+
+    <h2>Dateien bereitstellen und Assistent öffnen</h2>
+    <ol class="dbx-update-steps">
+        <li><div><strong>Release entpacken</strong><span>Entpacken Sie das vollständige Paket in ein eigenes Webverzeichnis. Vermischen Sie es nicht mit einer älteren Installation.</span></div></li>
+        <li><div><strong>Document Root prüfen</strong><span>Der Webserver muss auf das Verzeichnis mit <code>index.php</code> zeigen. HTTPS wird für produktive Installationen dringend empfohlen.</span></div></li>
+        <li><div><strong>Schreibrechte setzen</strong><span>Der Webserver benötigt Schreibzugriff auf <code>dbx/modules/dbx/cfg/config.local.php</code>, <code>files</code> und <code>tmp</code>; der übrige Quellcode soll nur lesbar sein.</span></div></li>
+        <li><div><strong>Startseite aufrufen</strong><span>Eine neue Auslieferung besitzt den Installationsschalter <code>install = 1</code> und leitet automatisch in den Assistenten um.</span></div></li>
+    </ol>
+
+    <h2>Die sieben Installationsschritte</h2>
+    <ol class="dbx-update-steps">
+        <li><div><strong>1 · Systemprüfung</strong><span>PHP-Version, Pflicht- und optionale Erweiterungen, Composer-Autoload sowie Schreibrechte werden geprüft. Rote Pflichtfehler müssen zuerst behoben werden.</span></div></li>
+        <li><div><strong>2 · Website &amp; Design</strong><span>Seitentitel, Markenname, Claim, Standardsprache, Zeitzone sowie Benutzer- und Admin-Design festlegen.</span></div></li>
+        <li><div><strong>3 · Datenspeicher</strong><span>Mitgelieferte DB3-Datenbanken verwenden, alle DDs an ein geprüftes PDO-Ziel binden oder bereits konfigurierte Einzelbindungen übernehmen.</span></div></li>
+        <li><div><strong>4 · Strukturen &amp; Daten</strong><span>DB3 wird nur auf Vollständigkeit geprüft. Bei einem PDO-Ziel werden Schemata erst nach erfolgreicher Verbindung synchronisiert; eine Datenübertragung erfordert eine zusätzliche ausdrückliche Bestätigung.</span></div></li>
+        <li><div><strong>5 · Administration</strong><span>Das Konto <code>admin</code> erhält ein persönliches Passwort. Beide Eingaben müssen übereinstimmen und Groß- und Kleinbuchstaben, Zahl und Sonderzeichen enthalten; zwölf oder mehr Zeichen werden empfohlen.</span></div></li>
+        <li><div><strong>6 · E-Mail</strong><span>Globalen Mailmodus, Transport, SMTP-Daten, sichtbaren Absender, Envelope-Absender und erlaubte Absenderdomains festlegen. <code>internal</code> ist der sichere Lieferzustand ohne Netzwerkversand.</span></div></li>
+        <li><div><strong>7 · Prüfen &amp; starten</strong><span>Die geheimnisfreie Zusammenfassung kontrollieren und die Installation abschließen. Erst dann schreibt dbxapp lokal <code>install = 0</code>.</span></div></li>
+    </ol>
+
+    <h2>DB3 oder PDO?</h2>
+    <div class="dbx-update-state-grid">
+        <article>
+            <h3>DB3 · schnellster Einstieg</h3>
+            <span>Die mitgelieferten Datenbanken bleiben an ihren vorgesehenen Stellen. Der Assistent liest und prüft sie, ohne Fachdaten neu zu importieren.</span>
+        </article>
+        <article>
+            <h3>PDO · zentraler Datenbankserver</h3>
+            <span>MySQL/MariaDB, PostgreSQL und Microsoft SQL Server werden unterstützt. Verbindung, Datenbankanlage, Schemaaufbau und optionale Datenübertragung bleiben getrennte Bestätigungsschritte.</span>
+        </article>
+        <article>
+            <h3>Gemischt · pro DD entscheiden</h3>
+            <span>Einzelne Data Definitions können auf unterschiedlichen DB3- oder SQL-Zielen liegen. Das Ändern einer Bindung verschiebt niemals automatisch Daten.</span>
+        </article>
+    </div>
+
+    <div class="dbx-callout">
+        <strong>Sicherheitsgrenze</strong>
+        <span>Server-, SMTP- und andere Geheimnisse werden ausschließlich in nicht versionierten <code>config.local.php</code>-Dateien gespeichert. Zusammenfassung, Protokolle und CMS-Dokumentation dürfen sie nicht enthalten.</span>
+    </div>
+
+    <h2>Direkt nach der Installation</h2>
+    <ol>
+        <li>Mit dem Benutzer <code>admin</code> und dem in Schritt 5 vergebenen persönlichen Passwort anmelden.</li>
+        <li>Unter <strong>System → System-Selbsttest</strong> zuerst den Schnelltest und anschließend den Kompletttest ausführen.</li>
+        <li>Design, Standardsprache, Zeitzone, Mailmodus und Datenbankbindungen im Adminbereich kontrollieren.</li>
+        <li>Ein vollständiges Backup der lokalen Konfiguration, Dateien und aller gebundenen Datenbanken erstellen.</li>
+        <li>Für einen produktiven Betrieb HTTPS, restriktive Dateirechte und einen externen Backup-Speicher einrichten.</li>
+    </ol>
+
+    <h2>Wenn die Installation nicht weitergeht</h2>
+    <ul>
+        <li><strong>Assistent erscheint immer wieder:</strong> Schreibrecht und Inhalt von <code>dbx/modules/dbx/cfg/config.local.php</code> prüfen. Der Abschluss muss dort lokal <code>install = 0</code> speichern können.</li>
+        <li><strong>Datenbankverbindung schlägt fehl:</strong> Host, Port, Datenbankname, PDO-Treiber und Benutzerrechte prüfen. Ohne erfolgreiche Zielverbindung startet keine Schema- oder Datenmigration.</li>
+        <li><strong>Leere Seite oder Serverfehler:</strong> PHP-Version, Erweiterungen, <code>vendor/autoload.php</code>, Webserver-Protokoll und <code>files/dbxError.log</code> prüfen.</li>
+        <li><strong>Admin-Anmeldung schlägt fehl:</strong> Den Assistenten nicht durch direkte Datenbankänderungen umgehen. Schritt 5 erneut mit einem neuen persönlichen Passwort bestätigen.</li>
+    </ul>
+
+    <h2>Weiterführende Anleitungen</h2>
+    <ul>
+        <li><a href="tutorial-installation">Geführtes Tutorial: dbxapp Schritt für Schritt installieren</a></li>
+        <li><a href="dokumentation-selbsttest">System-Selbsttest ausführen und Ergebnisse verstehen</a></li>
+        <li><a href="dokumentation-system-update">System-Updates sicher durchführen</a></li>
+        <li><a href="dokumentation-installation-updates">Technische Details zu Installation, Migrationen und DD-Serverbindungen</a></li>
+        <li><a href="dokumentation-administration">Administration und Systemstatus</a></li>
+    </ul>
+</div>

@@ -461,6 +461,57 @@ class dbxDocsContentProvision
     private function provisionCuratedDocumentationUpdates(): void
     {
         $updates = array(
+            'dokumentation-installation' => array(
+                'revision' => '2026-08-01-installation-2',
+                'file' => dirname(__DIR__) . '/content/dbxapp_user_installation.html',
+                'page' => array(
+                    'activ' => 1,
+                    'folder_key' => 'operations',
+                    'title' => 'dbxapp installieren',
+                    'menu_title' => 'Installation',
+                    'seo_title' => 'dbxapp installieren – Voraussetzungen und sieben Schritte',
+                    'permalink' => 'dokumentation-installation',
+                    'description' => 'dbxapp sicher installieren: Voraussetzungen, DB3 oder PDO, persönlicher Administrator und Abnahme.',
+                    'keywords' => 'dbxapp, Installation, Setup, DB3, PDO, Administrator, dbxdocs-curated',
+                    'group_read' => '*',
+                    'sorter' => '0005',
+                    'template' => 'parent',
+                ),
+            ),
+            'tutorial-installation' => array(
+                'revision' => '2026-08-01-tutorial-installation-2',
+                'file' => dirname(__DIR__) . '/content/tutorial_installation.html',
+                'page' => array(
+                    'activ' => 1,
+                    'folder_key' => 'tutorials',
+                    'title' => 'Tutorial: dbxapp installieren',
+                    'menu_title' => 'Installation',
+                    'seo_title' => 'Tutorial: dbxapp Schritt für Schritt installieren',
+                    'permalink' => 'tutorial-installation',
+                    'description' => 'Geführte dbxapp-Installation mit Voraussetzungen, sieben Assistentenschritten, Kontrollpunkten, SelfTest und Fehlersuche.',
+                    'keywords' => 'dbxapp, Tutorial, Installation, Setup, Administrator, SelfTest, dbxdocs-curated',
+                    'group_read' => '*',
+                    'sorter' => '0005',
+                    'template' => 'parent',
+                ),
+            ),
+            'dokumentation-selbsttest' => array(
+                'revision' => '2026-08-01-selftest-2',
+                'file' => dirname(__DIR__) . '/content/dbxapp_user_selftest.html',
+                'page' => array(
+                    'activ' => 1,
+                    'folder_key' => 'operations',
+                    'title' => 'System-Selbsttest',
+                    'menu_title' => 'System-Selbsttest',
+                    'seo_title' => 'dbxSelfTest – vollständige Systemtests und JavaScript-Prüfungen',
+                    'permalink' => 'dokumentation-selbsttest',
+                    'description' => 'dbxSelfTest vollständig erklärt: Schnell-, Komplett-, Auswahl- und Einzeltests, Browser-JavaScript, Protokolle und CLI.',
+                    'keywords' => 'dbxapp, dbxSelfTest, Selbsttest, JavaScript, PHP, Qualitätssicherung, dbxdocs-curated',
+                    'group_read' => '*',
+                    'sorter' => '0015',
+                    'template' => 'parent',
+                ),
+            ),
             'dokumentation-ki-design' => array(
                 'revision' => '2026-07-28-ki-design-2',
                 'file' => dirname(__DIR__) . '/content/dbxapp_user_ki_design.html',
@@ -469,6 +520,13 @@ class dbxDocsContentProvision
 
         $dd = dbxContentLng::ddContent('de');
         foreach ($updates as $permalink => $update) {
+            $file = (string)$update['file'];
+            $content = is_file($file) ? file_get_contents($file) : false;
+            if (!is_string($content) || trim($content) === '') {
+                $this->result['errors'][] = basename($file) . ': Kuratierter CMS-Inhalt fehlt.';
+                continue;
+            }
+            $content = trim($content);
             $row = $this->db->select1(
                 $dd,
                 array('permalink' => $permalink),
@@ -478,18 +536,44 @@ class dbxDocsContentProvision
             $id = (int)($row['id'] ?? 0);
             $revision = (string)$update['revision'];
             $current = (string)($row['content'] ?? '');
-            if ($id <= 0 || str_contains($current, 'data-dbx-doc-revision="' . $revision . '"')) {
+            if ($id > 0 && str_contains($current, 'data-dbx-doc-revision="' . $revision . '"')) {
                 continue;
             }
 
-            $file = (string)$update['file'];
-            $content = is_file($file) ? file_get_contents($file) : false;
-            if (!is_string($content) || trim($content) === '') {
-                $this->result['errors'][] = basename($file) . ': Kuratierter CMS-Inhalt fehlt.';
+            $page = is_array($update['page'] ?? null) ? $update['page'] : array();
+            if ($id <= 0) {
+                if ($page === array()) {
+                    $this->result['errors'][] = $permalink . ': Metadaten für die neue CMS-Seite fehlen.';
+                    continue;
+                }
+                $folderKey = (string)($page['folder_key'] ?? '');
+                unset($page['folder_key']);
+                $page['folder'] = (int)($this->folderIds['de'][$folderKey] ?? 0);
+                $page['content'] = $content;
+                try {
+                    $this->upsertPage('de', $page);
+                } catch (\Throwable $exception) {
+                    $this->result['errors'][] = $permalink . ': ' . $exception->getMessage();
+                }
                 continue;
             }
-            if ($this->db->update($dd, array('content' => trim($content)), $id, 0, 1, 0, 1) === 1) {
+
+            $changes = array('content' => $content);
+            if ($page !== array()) {
+                $folderKey = (string)($page['folder_key'] ?? '');
+                unset($page['folder_key']);
+                $page['folder'] = (int)($this->folderIds['de'][$folderKey] ?? 0);
+                $changes = array_merge($page, $changes);
+            }
+            if ($this->db->update($dd, $changes, $id, 0, 1, 0, 1) === 1) {
                 $this->result['pages_updated']++;
+                dbxContentPermalinkIndex::upsertPage(
+                    $id,
+                    $permalink,
+                    (string)($changes['group_read'] ?? '*'),
+                    (int)($changes['activ'] ?? 1),
+                    'de'
+                );
             }
         }
     }

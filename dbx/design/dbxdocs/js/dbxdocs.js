@@ -51,7 +51,24 @@
         }
     }
 
+    function resetInitialContentScroll() {
+        if (!content || window.location.hash) return;
+        content.scrollTop = 0;
+    }
+
+    if ("scrollRestoration" in window.history) {
+        window.history.scrollRestoration = "manual";
+    }
+
     applyResponsiveState();
+    resetInitialContentScroll();
+    window.addEventListener("pageshow", function () {
+        resetInitialContentScroll();
+        window.requestAnimationFrame(resetInitialContentScroll);
+    });
+    window.addEventListener("load", function () {
+        window.requestAnimationFrame(resetInitialContentScroll);
+    });
 
     if (toggle) {
         toggle.addEventListener("click", function () {

@@ -9843,7 +9843,9 @@
                 usage: "inline",
                 url: src,
                 thumb_url: image?.getAttribute("src") || src,
-                mime: node?.tagName === "VIDEO" ? "video/*" : "image/*",
+                // Getrennte Fragmente verhindern, dass Dokumentationsparser die
+                // MIME-Wildcards als Beginn verschachtelter Kommentare lesen.
+                mime: node?.tagName === "VIDEO" ? "video/" + "*" : "image/" + "*",
                 media_type: node?.tagName === "VIDEO" || closestElement(node, ".dbx-cms-inline-video-block") ? "video" : "image",
                 title: image?.getAttribute("title") || image?.getAttribute("alt") || node?.getAttribute("title") || ("Medium #" + id),
                 alt: image?.getAttribute("alt") || "",

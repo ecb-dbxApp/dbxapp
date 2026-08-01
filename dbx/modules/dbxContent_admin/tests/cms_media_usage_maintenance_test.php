@@ -98,3 +98,31 @@ if ($failures) {
 }
 
 echo "OK media usage reconciliation removes stale history and rebuilds real references.\n";
+
+$multiExpected = array();
+$deKey = dbxContentMediaUsageMaintenance::usageKey(21, 5, 2, 'inline', 'de');
+$enKey = dbxContentMediaUsageMaintenance::usageKey(22, 5, 2, 'inline', 'en');
+$multiExpected[$deKey] = array('media_id' => 21, 'content_id' => 5, 'folder_id' => 2, 'content_lng' => 'de', 'slot' => 'inline', 'valid_folders' => array(2 => 1));
+$multiExpected[$enKey] = array('media_id' => 22, 'content_id' => 5, 'folder_id' => 2, 'content_lng' => 'en', 'slot' => 'inline', 'valid_folders' => array(2 => 1));
+$multiPlan = dbxContentMediaUsageMaintenance::plan(
+   array(
+      array('id' => 101, 'active' => 1, 'media_id' => 21, 'content_id' => 5, 'folder_id' => 2, 'content_lng' => 'de', 'slot' => 'inline'),
+      array('id' => 102, 'active' => 1, 'media_id' => 22, 'content_id' => 5, 'folder_id' => 2, 'content_lng' => 'en', 'slot' => 'inline'),
+      array('id' => 103, 'active' => 1, 'media_id' => 23, 'content_id' => 5, 'folder_id' => 2, 'content_lng' => 'de', 'slot' => 'gallery'),
+      array('id' => 104, 'active' => 1, 'media_id' => 23, 'content_id' => 5, 'folder_id' => 2, 'content_lng' => 'de', 'slot' => 'gallery'),
+   ),
+   array(21 => 1, 22 => 1, 23 => 1),
+   $multiExpected,
+   array('de:5' => array(2 => 1), 'en:5' => array(2 => 1)),
+   array('de:2' => 1, 'en:2' => 1),
+   array('hero', 'gallery', 'inline', 'header', 'teaser', 'footer', 'shop')
+);
+$multiFailures = array();
+if (isset($multiPlan['delete'][101]) || isset($multiPlan['delete'][102])) $multiFailures[] = 'Same numeric page IDs in different languages must stay independent.';
+if (($multiPlan['delete'][104] ?? '') !== 'duplicate') $multiFailures[] = 'Exact duplicates must be removed for manually managed slots too.';
+if (isset($multiPlan['insert'][$deKey]) || isset($multiPlan['insert'][$enKey])) $multiFailures[] = 'Existing language-specific usages must not be inserted again.';
+if ($multiFailures) {
+   fwrite(STDERR, "FAIL\n- " . implode("\n- ", $multiFailures) . "\n");
+   exit(1);
+}
+echo "OK multilingual media usage targets and all-slot duplicate cleanup.\n";

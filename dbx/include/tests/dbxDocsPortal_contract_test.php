@@ -30,6 +30,9 @@ $javascript = docs_portal_read($designRoot . '/js/dbxdocs.js');
 $cinematicJavascript = docs_portal_read($designRoot . '/js/dbxdocs-cinematic.js');
 $cinematicCss = docs_portal_read($designRoot . '/css/docs-cinematic.css');
 $cinematicContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_home_cinematic.html');
+$installationContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_user_installation.html');
+$installationTutorial = docs_portal_read($root . '/dbx/modules/dbxDocs/content/tutorial_installation.html');
+$selfTestContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_user_selftest.html');
 $menuJavascript = docs_portal_read($root . '/dbx/js/lib/menu.js');
 $menuModule = docs_portal_read($root . '/dbx/modules/dbxMenu/dbxMenu.class.php');
 $menuDe = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main.htm');
@@ -89,7 +92,8 @@ docs_portal_assert(
 );
 docs_portal_assert(
     str_contains($template, 'data-dbx-menu-active-open="1"')
-        && str_contains($template, 'docs-layout.css?v=8')
+        && str_contains($template, 'docs-layout.css?v=9')
+        && str_contains($template, 'dbxdocs.js?v=3')
         && preg_match('/core\.js\?design=\{dbx:design\}&log=off&v=\d+/', $template) === 1
         && str_contains($menuJavascript, "data-dbx-menu-active-open")
         && str_contains($menuJavascript, 'restoreActivePath($el)')
@@ -106,6 +110,13 @@ docs_portal_assert(
     'Aktive Dokumentationsordner lassen sich nicht zuverlässig schließen.'
 );
 docs_portal_assert(
+    str_contains($layout, '.dbxdocs-admin-strip .dbx-menu > .dbx-menu-list')
+        && str_contains($layout, 'flex-wrap: wrap;')
+        && str_contains($layout, '.dbxdocs-stage #dbxMain')
+        && substr_count($layout, 'min-width: 0;') >= 8,
+    'Das Dokumentationsportal darf mit eingeblendeter Admin-Navigation nicht horizontal überlaufen.'
+);
+docs_portal_assert(
     str_contains($menuModule, "\$docsDisplay = stripos((string)\$menu, 'dbx-docs-main') !== false")
         && str_contains($menuModule, "array('dbxdocs' => 'dbxapp (Blau)')")
         && str_contains($menuModule, "array('blau' => true, 'dunkel' => true)")
@@ -120,13 +131,19 @@ docs_portal_assert(
     'Die grüne Dark-Skin-Schrift muss ohne unscharfen Leuchteffekt bleiben.'
 );
 docs_portal_assert(
-    str_contains($template, 'docs-content.css?v=4')
+    str_contains($template, 'docs-content.css?v=7')
         && str_contains($docsContent, '.dbx-user-nav-icon svg')
         && str_contains($docsContent, '.dbx-ki-area-grid')
         && str_contains($docsContent, '.dbx-update-state-grid')
         && str_contains($docsContent, 'body.dbx-docs .dbx-content-body')
+        && str_contains($docsContent, 'body.dbx-docs .dbxContent_wrapper.dbx-content-page')
         && str_contains($docsContent, 'padding: clamp(.85rem, 1.4vw, 1.2rem)')
         && str_contains($docsContent, '.dbx-doc-figure')
+        && str_contains($docsContent, '.dbxdocs-home-search')
+        && str_contains($docsContent, 'grid-template-columns: auto minmax(0, 1fr) auto')
+        && str_contains($docsContent, '.dbxdocs-path-grid')
+        && str_contains($docsContent, '--dbx-doc-table-hover: #fff0a8')
+        && str_contains($docsContent, 'table tbody tr:hover')
         && str_contains($docsContent, 'body.dbx-app.skin-dunkel .dbxdocs-cms-article')
         && str_contains($docsContent, '--dbx-doc-text: #7cff7c')
         && str_contains($docsContent, 'text-shadow: 0 0 1px rgba(95, 255, 95, .18)'),
@@ -145,7 +162,9 @@ docs_portal_assert(
 );
 docs_portal_assert(
     str_contains($javascript, 'sidebarCollapsed')
-        && str_contains($javascript, 'is-mobile-nav-open'),
+        && str_contains($javascript, 'is-mobile-nav-open')
+        && str_contains($javascript, 'resetInitialContentScroll')
+        && str_contains($javascript, 'scrollRestoration'),
     'Persistente Desktop- und mobile Navigation fehlen.'
 );
 docs_portal_assert(
@@ -227,6 +246,12 @@ foreach (array(
     'repairDocumentationLinks()',
     'referenceDocumentPermalink',
     'dbxcontent_tutorial_(.+)',
+    '2026-08-01-installation-2',
+    '2026-08-01-tutorial-installation-2',
+    '2026-08-01-selftest-2',
+    "'permalink' => 'dokumentation-installation'",
+    "'permalink' => 'tutorial-installation'",
+    "'permalink' => 'dokumentation-selbsttest'",
     '2026-07-28-ki-design-2',
 ) as $needle) {
     docs_portal_assert(
@@ -236,8 +261,33 @@ foreach (array(
 }
 docs_portal_assert(
     is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_user_ki_design.html')
+        && is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_user_installation.html')
+        && is_file($root . '/dbx/modules/dbxDocs/content/tutorial_installation.html')
+        && is_file($root . '/dbx/modules/dbxDocs/content/dbxapp_user_selftest.html')
         && is_file($root . '/dbx/modules/dbxDocs/assets/cms-content-tree-open.png'),
-    'Die ausführliche Design-KI-Seite oder ihr CMS-Screenshot fehlt.'
+    'Eine kuratierte Dokumentationsseite oder ihr CMS-Screenshot fehlt.'
+);
+docs_portal_assert(
+    str_contains($installationContent, 'Die sieben Installationsschritte')
+        && str_contains($installationContent, 'PHP 8.2 oder neuer')
+        && str_contains($installationContent, 'persönliches Passwort')
+        && str_contains($installationContent, 'dokumentation-selbsttest'),
+    'Die kuratierte Installationsanleitung ist unvollständig.'
+);
+docs_portal_assert(
+    str_contains($installationTutorial, '<h1>dbxapp Schritt für Schritt installieren</h1>')
+        && substr_count($installationTutorial, '<h2>') >= 5
+        && substr_count($installationTutorial, '<h3>') >= 5
+        && str_contains($installationTutorial, 'class="markdownTable"'),
+    'Das Installations-Tutorial besitzt keine belastbare H1/H2/H3-Struktur oder Kontrolltabelle.'
+);
+docs_portal_assert(
+    str_contains($selfTestContent, 'Schnelltest')
+        && str_contains($selfTestContent, 'Kompletttest')
+        && str_contains($selfTestContent, 'JavaScript ohne Node.js')
+        && str_contains($selfTestContent, 'files/sys/selftest')
+        && str_contains($selfTestContent, '--profile=full'),
+    'Die kuratierte dbxSelfTest-Anleitung ist unvollständig.'
 );
 
 docs_portal_assert(
@@ -262,4 +312,4 @@ docs_portal_assert(
     'Das sprachneutrale DD-Feld für kurze Menütitel fehlt.'
 );
 
-echo "OK dbxdocs CMS navigation, access, cinematic homepage and embedded reference\n";
+echo "OK dbxdocs CMS navigation, installation, self-test, access, cinematic homepage and embedded reference\n";

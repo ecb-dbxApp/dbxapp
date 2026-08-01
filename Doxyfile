@@ -1,5 +1,5 @@
 PROJECT_NAME           = "dbxapp"
-PROJECT_NUMBER         = "4.0.6"
+PROJECT_NUMBER         = "4.1.0"
 PROJECT_BRIEF          = "CMS, Shop, Workflows und modulare Geschäftsanwendungen"
 PROJECT_LOGO           = dbXapp-Logo.jpeg
 OUTPUT_DIRECTORY       = C:/xampp/htdocs/dbxapp-docs/reference
@@ -45,8 +45,8 @@ FILE_PATTERNS          = *.php \
                          *.js \
                          *.dox
 
-FILTER_PATTERNS        = *dbxApi.php="php docs/tools/doxygen_php_utf8_filter.php" \
-                         *dbxUpload.class.php="php docs/tools/doxygen_php_utf8_filter.php"
+FILTER_PATTERNS        = *dbxApi.php="php -n docs/tools/doxygen_php_utf8_filter.php" \
+                         *dbxUpload.class.php="php -n docs/tools/doxygen_php_utf8_filter.php"
 FILTER_SOURCE_FILES    = YES
 
 EXCLUDE                = dbx/vendor \

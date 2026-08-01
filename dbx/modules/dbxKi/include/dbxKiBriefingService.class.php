@@ -3,6 +3,7 @@ namespace dbx\dbxKi;
 
 use dbx\dbxContent\dbxContentLng;
 use dbx\dbxContent\dbxContentLngSync;
+use dbx\dbxContent\dbxContentMediaUsageScope;
 
 require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
 require_once __DIR__ . '/dbxKiWritingStyles.class.php';
@@ -1552,7 +1553,7 @@ class dbxKiBriefingService {
    private function mediaContextForPage(int $pageId, string $content): array {
       $db = dbx()->get_system_obj('dbxDB');
       $mediaIds = $this->inlineMediaIdsFromContent($content);
-      $usageRows = $db->select('dbxMediaUsage', 'content_id = ' . (int) $pageId . ' AND active = 1', '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
+      $usageRows = $db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . (int) $pageId . ' AND active = 1'), '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
       if (!is_array($usageRows)) {
          $usageRows = array();
       }

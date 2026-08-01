@@ -182,6 +182,8 @@ foreach (array(
     'Jetzt sicher installieren',
     'Letztes Update zurückrollen',
     'DB3, MySQL und gemischte Installationen',
+    'System → System-Selbsttest',
+    'dokumentation-selbsttest',
     'files/dbxError.log',
     'dbxapp_install_update_dd_bindings.html',
 ) as $needle) {
@@ -276,7 +278,8 @@ foreach (array(
     'FULL_PATH_NAMES        = NO',
     'PAGE_OUTLINE_PANEL     = NO',
     'STRIP_FROM_PATH        = .',
-    'FILTER_PATTERNS        = *dbxApi.php="php docs/tools/doxygen_php_utf8_filter.php"',
+    'FILTER_PATTERNS        = *dbxApi.php="php -n docs/tools/doxygen_php_utf8_filter.php"',
+    '*dbxUpload.class.php="php -n docs/tools/doxygen_php_utf8_filter.php"',
     'FILTER_SOURCE_FILES    = YES',
     'docs/doxygen-generated-main.dox',
     'docs/doxygen-awesome/header.html',

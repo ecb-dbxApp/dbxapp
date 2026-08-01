@@ -7,11 +7,12 @@ namespace dbx\dbxContent_admin;
  */
 final class dbxContentMediaUsageMaintenance {
 
-   public static function usageKey(int $mediaId, int $contentId, int $folderId, string $slot): string {
+   public static function usageKey(int $mediaId, int $contentId, int $folderId, string $slot, string $contentLng = 'de'): string {
+      $contentLng = strtolower(trim($contentLng)) ?: 'de';
       if ($contentId > 0) {
-         return 'content:' . $contentId . ':' . $slot . ':' . $mediaId;
+         return 'content:' . $contentLng . ':' . $contentId . ':' . $slot . ':' . $mediaId;
       }
-      return 'folder:' . $folderId . ':' . $slot . ':' . $mediaId;
+      return 'folder:' . $contentLng . ':' . $folderId . ':' . $slot . ':' . $mediaId;
    }
 
    /**
@@ -23,7 +24,8 @@ final class dbxContentMediaUsageMaintenance {
       array $expected,
       array $contentFolders,
       array $folderIds,
-      array $allowedSlots
+      array $allowedSlots,
+      array $controlledSlots = array('hero', 'inline', 'shop')
    ): array {
       $delete = array();
       $update = array();
@@ -31,7 +33,7 @@ final class dbxContentMediaUsageMaintenance {
       $reasons = array();
       $kept = 0;
       $analyzed = 0;
-      $controlledSlots = array('hero' => 1, 'inline' => 1);
+      $controlledSlots = array_fill_keys(array_map('strval', $controlledSlots), 1);
       $allowed = array_fill_keys(array_map('strval', $allowedSlots), 1);
 
       usort($usageRows, static function($a, $b): int {
@@ -46,6 +48,7 @@ final class dbxContentMediaUsageMaintenance {
          $mediaId = (int)($row['media_id'] ?? 0);
          $contentId = (int)($row['content_id'] ?? 0);
          $folderId = (int)($row['folder_id'] ?? 0);
+         $contentLng = strtolower(trim((string)($row['content_lng'] ?? ''))) ?: 'de';
          $slot = strtolower(trim((string)($row['slot'] ?? '')));
          $reason = '';
 
@@ -55,20 +58,20 @@ final class dbxContentMediaUsageMaintenance {
             $reason = 'slot_invalid';
          } elseif ($mediaId <= 0 || !isset($validMediaIds[$mediaId])) {
             $reason = 'media_invalid';
-         } elseif ($contentId > 0 && !array_key_exists($contentId, $contentFolders)) {
+         } elseif ($contentId > 0 && !array_key_exists($contentLng . ':' . $contentId, $contentFolders)
+             && !array_key_exists($contentId, $contentFolders)) {
             $reason = 'content_missing';
-         } elseif ($contentId <= 0 && ($folderId <= 0 || !isset($folderIds[$folderId]))) {
+         } elseif ($contentId <= 0 && ($folderId <= 0 || (!isset($folderIds[$contentLng . ':' . $folderId]) && !isset($folderIds[$folderId])))) {
             $reason = $folderId > 0 ? 'folder_missing' : 'target_missing';
          }
 
-         $key = self::usageKey($mediaId, $contentId, $folderId, $slot);
+         $key = self::usageKey($mediaId, $contentId, $folderId, $slot, $contentLng);
          if ($reason === '' && isset($controlledSlots[$slot])) {
             if (($slot === 'inline' && $contentId <= 0) || !isset($expected[$key])) {
                $reason = 'not_in_content';
-            } elseif (isset($seen[$key])) {
-               $reason = 'duplicate';
             }
          }
+         if ($reason === '' && isset($seen[$key])) $reason = 'duplicate';
 
          if ($reason !== '') {
             $delete[$id] = $reason;
@@ -76,8 +79,8 @@ final class dbxContentMediaUsageMaintenance {
             continue;
          }
 
+         $seen[$key] = $id;
          if (isset($controlledSlots[$slot])) {
-            $seen[$key] = $id;
             $reference = $expected[$key];
             $validFolders = is_array($reference['valid_folders'] ?? null)
                ? $reference['valid_folders']
