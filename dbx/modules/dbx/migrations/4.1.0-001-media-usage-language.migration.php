@@ -14,6 +14,10 @@ return array(
     ),
     'up' => static function($db, $dd): void {
         require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
+        // Migrations run before the staged program files become active. Load
+        // this new dependency from the migration's own release tree instead
+        // of relying on the previous installation's bootstrap/autoloader.
+        require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContentMediaUsageScope.class.php';
 
         $languages = array_values(array_unique(array_map(
             static fn($lng): string => dbxContentMediaUsageScope::language((string)$lng),

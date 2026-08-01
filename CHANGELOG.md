@@ -4,6 +4,17 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.1.1] - 2026-08-01
+
+### Fixed
+
+- Die Mediennutzungs-Migration lädt ihre neue Sprachkontext-Klasse aus dem
+  bereitgestellten Releasebaum. Dadurch funktioniert das atomare Update von
+  4.0.x, obwohl die bisherigen Programmdateien bis zum Abschluss aktiv
+  bleiben.
+- Ein Regressionstest schützt diesen Migrations-Bootstrap künftig vor
+  erneuten Abhängigkeiten auf noch nicht aktivierte Dateien.
+
 ## [4.1.0] - 2026-08-01
 
 ### Added

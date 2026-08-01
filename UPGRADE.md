@@ -12,6 +12,14 @@ dbxApp 4.0.2 ist die erste updaterfähige Referenzversion. Von dieser Basis aus
 steht unter **dbxAdmin → Status & Health → System-Update** für spätere stabile
 dbxApp-4-Releases der verbindliche Standardablauf bereit:
 
+### Besonderheiten in 4.1.1
+
+Version 4.1.1 enthält den vollständigen Stand von 4.1.0 und korrigiert den
+atomaren Upgradepfad von 4.0.x. Die Migration
+`core-4.1.0-media-usage-language` lädt ihre neue Abhängigkeit direkt aus dem
+geprüften Stagingbaum. Ein auf 4.0.x aktives System muss daher keine neue
+Klasse vorab besitzen. Installationen sollten direkt auf 4.1.1 aktualisieren.
+
 ### Besonderheiten in 4.1.0
 
 Version 4.1.0 führt die Migration
