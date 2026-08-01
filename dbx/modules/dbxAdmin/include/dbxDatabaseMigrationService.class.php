@@ -408,65 +408,206 @@ class dbxDatabaseMigrationService
         return array('applied' => $applied);
     }
 
-    private function executeMigration(array $migration): void
+    /**
+     * Activates DD definitions from the verified release tree for the whole
+     * migration. Updates execute before staged program files become active;
+     * without this overlay sync_dd would silently read the previous release's
+     * DD and could mark a missing schema change as finished.
+     *
+     * @return array<int,array{module:string,dd:string,existed:bool,value:mixed}>
+     */
+    private function activateReleaseDdDefinitions(array $migration): array
     {
-        foreach ($migration['operations'] as $operation) {
-            if (!is_array($operation)) {
-                throw new RuntimeException('Ungueltige Migrationsoperation.');
-            }
-            $type = (string)($operation['type'] ?? '');
-            if ($type === 'sync_dd') {
-                $ddRef = trim((string)($operation['dd'] ?? ''));
-                $syncMode = strtolower(trim((string)(
-                    $operation['mode'] ?? 'apply'
-                )));
-                $parts = explode('|', $ddRef, 2);
-                if (count($parts) !== 2) {
-                    throw new RuntimeException('sync_dd benoetigt modul|dd.');
-                }
-                if (!in_array($syncMode, array('apply', 'rebuild'), true)) {
-                    throw new RuntimeException(
-                        'sync_dd erlaubt nur apply oder rebuild: ' . $ddRef
-                    );
-                }
-                $this->dd->sync_dd_to_db($parts[0], $parts[1], 'reset');
-                $sync = array();
-                for ($step = 0; $step < 1000; $step++) {
-                    $sync = $this->dd->sync_dd_to_db(
-                        $parts[0],
-                        $parts[1],
-                        $syncMode
-                    );
-                    if (in_array(
-                        (string)($sync['status'] ?? ''),
-                        array('finished', 'error', 'cancelled'),
-                        true
-                    )) {
-                        break;
-                    }
-                }
-                if (($sync['status'] ?? '') !== 'finished') {
-                    throw new RuntimeException(
-                        $ddRef . ': ' . (string)($sync['message'] ?? 'DD-Sync fehlgeschlagen')
-                    );
-                }
-                continue;
-            }
-            if ($type === 'seed_core') {
-                dbx()->get_include_obj('dbxInstallationService', 'dbxSetup');
-                $installerClass = '\\dbx\\dbxSetup\\dbxInstallationService';
-                $installer = new $installerClass($this->db, $this->dd);
-                $installer->seedCoreGroups();
-                continue;
-            }
-            throw new RuntimeException('Nicht erlaubter Migrationstyp: ' . $type);
+        $migrationFile = (string)($migration['file'] ?? '');
+        $releaseRoot = $migrationFile !== '' ? dirname($migrationFile, 5) : '';
+        if ($releaseRoot === '' || !is_dir($releaseRoot)) {
+            throw new RuntimeException('Releasewurzel fuer staged DDs fehlt.');
         }
 
-        if (isset($migration['up'])) {
-            if (!is_callable($migration['up'])) {
-                throw new RuntimeException('Migration-up ist nicht aufrufbar.');
+        if (!isset($_SESSION) || !is_array($_SESSION)) {
+            $_SESSION = array();
+        }
+        if (!isset($_SESSION['dbx']['cache']['dd'])
+            || !is_array($_SESSION['dbx']['cache']['dd'])
+        ) {
+            $_SESSION['dbx']['cache']['dd'] = array();
+        }
+
+        $saved = array();
+        $activated = array();
+        foreach ((array)($migration['operations'] ?? array()) as $operation) {
+            if (!is_array($operation) || ($operation['type'] ?? '') !== 'sync_dd') {
+                continue;
             }
-            ($migration['up'])($this->db, $this->dd);
+            $parts = explode('|', trim((string)($operation['dd'] ?? '')), 2);
+            if (count($parts) !== 2) {
+                continue;
+            }
+            [$module, $ddName] = $parts;
+            $cacheKey = $module . '|' . $ddName;
+            if (isset($activated[$cacheKey])) {
+                continue;
+            }
+
+            $ddFile = $releaseRoot . '/dbx/modules/' . $module . '/dd/' . $ddName . '.dd.php';
+            if (!is_file($ddFile)) {
+                $module = 'dbx';
+                $ddFile = $releaseRoot . '/dbx/modules/dbx/dd/' . $ddName . '.dd.php';
+            }
+            if (!is_file($ddFile)) {
+                throw new RuntimeException('Staged DD fehlt: ' . $cacheKey);
+            }
+
+            $definition = (static function (string $file): array {
+                $table = array();
+                $fields = array();
+                $indexes = array();
+                include $file;
+                return array(
+                    'table' => is_array($table) ? $table : array(),
+                    'fields' => is_array($fields) ? $fields : array(),
+                    'indexes' => is_array($indexes) ? $indexes : array(),
+                );
+            })($ddFile);
+            if ($definition['table'] === array()) {
+                throw new RuntimeException('Staged DD ist ungueltig: ' . $cacheKey);
+            }
+
+            $languageDynamic = (($definition['table']['language'] ?? '') === '*');
+            if ($languageDynamic) {
+                $language = function_exists('dbx_lng_current')
+                    ? strtolower(trim((string)dbx_lng_current()))
+                    : strtolower(trim((string)dbx()->get_system_var('dbx_lng', 'de')));
+                if ($language === '' || preg_match('/^[a-z]{2,3}$/', $language) !== 1) {
+                    $language = 'de';
+                }
+                $tableBase = trim((string)($definition['table']['table'] ?? ''));
+                $languageFile = $tableBase !== ''
+                    ? dirname($ddFile) . '/' . $tableBase . '_' . $language . '.dd.php'
+                    : '';
+                if ($languageFile !== '' && is_file($languageFile)) {
+                    $definition = (static function (string $file): array {
+                        $table = array();
+                        $fields = array();
+                        $indexes = array();
+                        include $file;
+                        return array(
+                            'table' => is_array($table) ? $table : array(),
+                            'fields' => is_array($fields) ? $fields : array(),
+                            'indexes' => is_array($indexes) ? $indexes : array(),
+                        );
+                    })($languageFile);
+                    $ddFile = $languageFile;
+                } elseif ($tableBase !== '') {
+                    $definition['table']['table'] = $tableBase . '_' . $language;
+                    $definition['table']['datadic'] = $tableBase . '_' . $language;
+                    $definition['table']['language'] = $language;
+                }
+            }
+
+            $existed = isset($_SESSION['dbx']['cache']['dd'][$module])
+                && array_key_exists($ddName, $_SESSION['dbx']['cache']['dd'][$module]);
+            $saved[] = array(
+                'module' => $module,
+                'dd' => $ddName,
+                'existed' => $existed,
+                'value' => $existed
+                    ? $_SESSION['dbx']['cache']['dd'][$module][$ddName]
+                    : null,
+            );
+            $_SESSION['dbx']['cache']['dd'][$module][$ddName] = array(
+                'table' => $definition['table'],
+                'fields' => $definition['fields'],
+                'indexes' => $definition['indexes'],
+                'file' => $ddFile,
+                'language_dynamic' => $languageDynamic,
+                'declared_server' => (string)($definition['table']['server'] ?? 'default'),
+            );
+            $activated[$cacheKey] = true;
+        }
+        return $saved;
+    }
+
+    private function restoreDdDefinitions(array $saved): void
+    {
+        foreach (array_reverse($saved) as $entry) {
+            $module = (string)($entry['module'] ?? '');
+            $ddName = (string)($entry['dd'] ?? '');
+            if ($module === '' || $ddName === '') {
+                continue;
+            }
+            if (!empty($entry['existed'])) {
+                $_SESSION['dbx']['cache']['dd'][$module][$ddName] = $entry['value'];
+            } else {
+                unset($_SESSION['dbx']['cache']['dd'][$module][$ddName]);
+            }
+        }
+    }
+
+    private function executeMigration(array $migration): void
+    {
+        $savedDdDefinitions = $this->activateReleaseDdDefinitions($migration);
+        try {
+            foreach ($migration['operations'] as $operation) {
+                if (!is_array($operation)) {
+                    throw new RuntimeException('Ungueltige Migrationsoperation.');
+                }
+                $type = (string)($operation['type'] ?? '');
+                if ($type === 'sync_dd') {
+                    $ddRef = trim((string)($operation['dd'] ?? ''));
+                    $syncMode = strtolower(trim((string)(
+                        $operation['mode'] ?? 'apply'
+                    )));
+                    $parts = explode('|', $ddRef, 2);
+                    if (count($parts) !== 2) {
+                        throw new RuntimeException('sync_dd benoetigt modul|dd.');
+                    }
+                    if (!in_array($syncMode, array('apply', 'rebuild'), true)) {
+                        throw new RuntimeException(
+                            'sync_dd erlaubt nur apply oder rebuild: ' . $ddRef
+                        );
+                    }
+                    $this->dd->sync_dd_to_db($parts[0], $parts[1], 'reset');
+                    $sync = array();
+                    for ($step = 0; $step < 1000; $step++) {
+                        $sync = $this->dd->sync_dd_to_db(
+                            $parts[0],
+                            $parts[1],
+                            $syncMode
+                        );
+                        if (in_array(
+                            (string)($sync['status'] ?? ''),
+                            array('finished', 'error', 'cancelled'),
+                            true
+                        )) {
+                            break;
+                        }
+                    }
+                    if (($sync['status'] ?? '') !== 'finished') {
+                        throw new RuntimeException(
+                            $ddRef . ': ' . (string)($sync['message'] ?? 'DD-Sync fehlgeschlagen')
+                        );
+                    }
+                    continue;
+                }
+                if ($type === 'seed_core') {
+                    dbx()->get_include_obj('dbxInstallationService', 'dbxSetup');
+                    $installerClass = '\\dbx\\dbxSetup\\dbxInstallationService';
+                    $installer = new $installerClass($this->db, $this->dd);
+                    $installer->seedCoreGroups();
+                    continue;
+                }
+                throw new RuntimeException('Nicht erlaubter Migrationstyp: ' . $type);
+            }
+
+            if (isset($migration['up'])) {
+                if (!is_callable($migration['up'])) {
+                    throw new RuntimeException('Migration-up ist nicht aufrufbar.');
+                }
+                ($migration['up'])($this->db, $this->dd);
+            }
+        } finally {
+            $this->restoreDdDefinitions($savedDdDefinitions);
         }
     }
 

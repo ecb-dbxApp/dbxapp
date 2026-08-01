@@ -4,6 +4,18 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.1.2] - 2026-08-01
+
+### Fixed
+
+- `sync_dd` lädt während atomarer Updates die DD-Definition aus dem
+  verifizierten Release-Staging statt aus der noch aktiven Vorgängerversion.
+- Die Reparaturmigration `core-4.1.2-media-usage-schema-repair` legt
+  `content_lng` physisch an, verifiziert das Ergebnis und wiederholt
+  Sprachzuordnung sowie Dublettenbereinigung.
+- Der vorherige DD-Cache und lokale Serverbindungen bleiben nach der
+  Migration unverändert erhalten.
+
 ## [4.1.1] - 2026-08-01
 
 ### Fixed
