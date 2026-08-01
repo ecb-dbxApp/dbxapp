@@ -145,7 +145,7 @@ docs_portal_assert(
     'Die grüne Dark-Skin-Schrift muss ohne unscharfen Leuchteffekt bleiben.'
 );
 docs_portal_assert(
-    str_contains($template, 'docs-content.css?v=8')
+    str_contains($template, 'docs-content.css?v=9')
         && str_contains($docsContent, '.dbx-user-nav-icon svg')
         && str_contains($docsContent, '.dbx-ki-area-grid')
         && str_contains($docsContent, '.dbx-update-state-grid')
@@ -190,7 +190,9 @@ docs_portal_assert(
     'Das automatisch erzeugte Inhaltsverzeichnis für lange Seiten fehlt.'
 );
 docs_portal_assert(
-    str_contains($homeContent, 'data-dbx-doc-revision="2026-08-01-portal-v4"')
+    str_contains($homeContent, 'data-dbx-doc-revision="2026-08-01-portal-v5"')
+        && str_contains($homeContent, 'Wissen aus einer Quelle')
+        && !str_contains($homeContent, 'Version 4.')
         && str_contains($homeContent, '<h1>Was möchten Sie erreichen?</h1>')
         && substr_count($homeContent, 'dbxdocs-home-card') >= 10
         && str_contains($homeContent, 'dokumentation-selbsttest')
@@ -294,7 +296,8 @@ foreach (array(
     "'permalink' => 'tutorial-installation'",
     "'permalink' => 'dokumentation-selbsttest'",
     '2026-08-01-ki-design-4',
-    '2026-08-01-portal-v4',
+    '2026-08-01-portal-v5',
+    'entwickler|entwickeln|architektur',
     '2026-08-01-dbxform-quickstart-1',
     '2026-08-01-dbxreport-quickstart-1',
     '2026-08-01-area-pages-v1',
