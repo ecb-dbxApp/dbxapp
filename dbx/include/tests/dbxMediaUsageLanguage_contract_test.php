@@ -13,10 +13,15 @@ $renderer = (string)file_get_contents($root . '/dbx/modules/dbxContent/include/d
 $shop = (string)file_get_contents($root . '/dbx/modules/dbxShop_admin/include/dbxShopAdmin.class.php');
 $ki = (string)file_get_contents($root . '/dbx/modules/dbxKi/include/dbxKiCmsService.class.php');
 $migrationPath = $root . '/dbx/modules/dbx/migrations/4.1.0-001-media-usage-language.migration.php';
+$migration = is_file($migrationPath) ? (string)file_get_contents($migrationPath) : '';
 
 $check(str_contains($dd, "\$field['name']='content_lng'"), 'dbxMediaUsage must persist the language of its content target.');
 $check(str_contains($dd, 'idx_media_usage_lng_context'), 'The language/context lookup must be indexed.');
 $check(is_file($migrationPath), 'The 4.1.0 media-usage migration is missing.');
+$check(
+    str_contains($migration, "require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContentMediaUsageScope.class.php'"),
+    'The media-usage migration must load new release dependencies from its own staged tree.'
+);
 $check(str_contains($cms, "slot IN ('hero','gallery','header','teaser','footer')"), 'Page copying must use an explicit copy-slot allowlist.');
 $check(!str_contains($cms, "active = 1 AND slot <> 'inline'"), 'Page copying must never select every non-inline slot (that copied shop data).');
 $check(str_contains($cms, 'dbxContentMediaUsageScope::withLanguage'), 'CMS usage reads and writes must be language scoped.');
