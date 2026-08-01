@@ -635,6 +635,7 @@ class dbxApi {
       if (!isset($_SESSION['dbx']['config'][$modul]) || $cachedSignature !== $signature) {
          $config = $this->read_config_file($moduleConfigFile);
          $localConfig = $this->read_config_file($moduleLocalConfigFile);
+         $localConfig = $this->normalize_legacy_install_config($modul, $moduleLocalConfigFile, $localConfig);
          if ($localConfig) {
             $config = array_replace_recursive($config, $localConfig);
          }
@@ -720,6 +721,23 @@ class dbxApi {
       }
 
       return is_array($config) ? $config : array();
+   }
+
+   /**
+    * Erhaelt den Installationsstatus bestehender Installationen beim Update.
+    *
+    * Releases bis 4.0.2 lieferten `install = 0` als oeffentlichen Standard aus.
+    * Deren lokale Konfiguration enthaelt deshalb noch keinen eigenen Schalter.
+    * Seit Neuinstallationen mit `install = 1` starten, muss eine bereits
+    * vorhandene lokale Kernkonfiguration diesen Altbestand eindeutig als
+    * installiert kennzeichnen. Explizite lokale Werte bleiben unveraendert.
+    */
+   private function normalize_legacy_install_config(string $modul, string $localFile, array $localConfig): array {
+      if ($modul === 'dbx' && is_file($localFile) && !array_key_exists('install', $localConfig)) {
+         $localConfig['install'] = 0;
+      }
+
+      return $localConfig;
    }
 
    /** Liefert eine kompakte Signatur fuer die Cache-Invalidierung. */

@@ -4,6 +4,18 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.0.6] - 2026-07-31
+
+### Fixed
+
+- Bestehende Installationen aus dbxApp 4.0.2, deren lokale Kernkonfiguration
+  noch keinen eigenen `install`-Schalter enthält, bleiben nach einem Update
+  zuverlässig im normalen Anwendungsmodus. Neuinstallationen ohne lokale
+  Konfiguration starten weiterhin im Installer; explizite lokale Werte haben
+  unverändert Vorrang.
+- Der Legacy-Installationsstatus ist mit isolierten Regressionstests für
+  bestehende, neue, explizit konfigurierte und fremde Module abgesichert.
+
 ## [4.0.5] - 2026-07-31
 
 ### Fixed
