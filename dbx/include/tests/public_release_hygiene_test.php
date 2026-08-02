@@ -6,11 +6,12 @@ $root = dirname(__DIR__, 3);
 $failures = array();
 $paths = array();
 
-// Die Entwicklungsinstanz enthält bewusst lokale Daten und Arbeitsstände.
-// Der kontrollierte GitHub-/Release-Spiegel ist an seinem verbindlichen
-// Release-Prozess erkennbar und wird vollständig geprüft.
-if (!is_file($root . '/RELEASE_PROCESS.md')) {
-    echo "OK public release hygiene: authoritative development instance is not the public mirror.\n";
+// Die Entwicklungsinstanz und installierte Kundenpakete enthalten bewusst
+// lokale Daten oder erzeugte Referenzen. Nur ein echter Git-Arbeitsbaum mit
+// Release-Prozess ist der kontrollierte öffentliche Quellspiegel. Installierte
+// Pakete wurden bereits per SHA-256 und .dbx-release-files.json verifiziert.
+if (!is_dir($root . '/.git') || !is_file($root . '/RELEASE_PROCESS.md')) {
+    echo "OK public release hygiene: no public source worktree detected.\n";
     exit(0);
 }
 
