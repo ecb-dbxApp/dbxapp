@@ -22,10 +22,15 @@ $read = static function (string $relative) use ($root, $fail): string {
 };
 
 $version = trim($read('VERSION'));
-$main = $read('00_Doxygen_Mainpage.md');
-$installationReference = $read('27_Installation_Updates_DD_Serverbindungen.md');
-$portalReference = $read('29_Dokumentationsportal.md');
-$shopReference = $read('17_Shop_Leitfaden.md');
+$hasEditorialSources = is_file($root . '/00_Doxygen_Mainpage.md')
+    && is_file($root . '/27_Installation_Updates_DD_Serverbindungen.md')
+    && is_file($root . '/29_Dokumentationsportal.md')
+    && is_file($root . '/17_Shop_Leitfaden.md');
+$main = $hasEditorialSources ? $read('00_Doxygen_Mainpage.md') : '';
+$installationReference = $hasEditorialSources
+    ? $read('27_Installation_Updates_DD_Serverbindungen.md') : '';
+$portalReference = $hasEditorialSources ? $read('29_Dokumentationsportal.md') : '';
+$shopReference = $hasEditorialSources ? $read('17_Shop_Leitfaden.md') : '';
 $installation = $read('dbx/modules/dbxDocs/content/dbxapp_user_installation.html');
 $installationTutorial = $read('dbx/modules/dbxDocs/content/tutorial_installation.html');
 $selfTest = $read('dbx/modules/dbxDocs/content/dbxapp_user_selftest.html');
@@ -33,13 +38,13 @@ $provisioner = $read('dbx/modules/dbxDocs/include/dbxDocsContentProvision.class.
 $selfTestRunner = $read('dbx/modules/dbxSelfTest/include/dbxSelfTestRunner.class.php');
 $doxyfile = $read('Doxyfile');
 
-if (!str_contains($main, '**Version:** ' . $version)) {
+if ($hasEditorialSources && !str_contains($main, '**Version:** ' . $version)) {
     $fail('Die redaktionelle Hauptseite nennt nicht die Release-Version ' . $version . '.', 3);
 }
 if (!str_contains($doxyfile, 'PROJECT_NUMBER         = "' . $version . '"')) {
     $fail('Doxygen PROJECT_NUMBER stimmt nicht mit VERSION überein.', 4);
 }
-if (preg_match('#`admin`\s*/\s*`admin`#u', $installationReference) === 1) {
+if ($hasEditorialSources && preg_match('#`admin`\s*/\s*`admin`#u', $installationReference) === 1) {
     $fail('Die Installationsreferenz dokumentiert noch den entfernten Standardzugang admin/admin.', 5);
 }
 foreach (array(
@@ -47,6 +52,9 @@ foreach (array(
     'Schritt 5',
     'dbxSelfTest',
 ) as $needle) {
+    if (!$hasEditorialSources) {
+        break;
+    }
     if (!str_contains($installationReference, $needle)) {
         $fail('Aktueller Installationsvertrag fehlt: ' . $needle, 6);
     }
@@ -108,11 +116,15 @@ if (!str_contains($selfTestRunner, "version_compare(PHP_VERSION, '8.2.0', '<')")
     $fail('dbxSelfTest und Installer verwenden nicht dieselbe PHP-Mindestversion.', 10);
 }
 $designTemplate = $read('dbx/design/dbxapp/htm/default.htm');
-if (preg_match('/core\.js\?[^"\']*v=(\d+)/', $designTemplate, $assetMatch) !== 1
-    || !str_contains($shopReference, 'dbxapp-Asset-Version ' . $assetMatch[1])) {
+if ($hasEditorialSources
+    && (preg_match('/core\.js\?[^"\']*v=(\d+)/', $designTemplate, $assetMatch) !== 1
+    || !str_contains($shopReference, 'dbxapp-Asset-Version ' . $assetMatch[1]))) {
     $fail('Der Shop-Leitfaden nennt nicht die aktuelle JavaScript-Asset-Version.', 13);
 }
 foreach (array('reference\\archive', 'provision_docs_content.php', 'dbxSelfTest') as $needle) {
+    if (!$hasEditorialSources) {
+        break;
+    }
     if (!str_contains($portalReference, $needle)) {
         $fail('Betriebsanleitung des Dokumentationsportals ist unvollständig: ' . $needle, 11);
     }

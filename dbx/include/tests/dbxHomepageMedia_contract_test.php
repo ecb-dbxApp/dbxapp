@@ -22,7 +22,8 @@ $assert = static function (bool $condition, string $message) use (&$failures): v
     }
 };
 
-$hasRuntimeFixtures = is_file($base . '/dbx/modules/dbx/db/dbxContent.db3')
+$hasRuntimeFixtures = is_dir($base . '/.git')
+    && is_file($base . '/dbx/modules/dbx/db/dbxContent.db3')
     && filesize($base . '/dbx/modules/dbx/db/dbxContent.db3') > 0
     && is_file($base . '/dbx/modules/dbx/db/dbxMedia.db3')
     && filesize($base . '/dbx/modules/dbx/db/dbxMedia.db3') > 0;

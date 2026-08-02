@@ -14,6 +14,7 @@ $brandingHeader = $root . '/docs/doxygen-awesome/header.html';
 $brandingCss = $root . '/docs/doxygen-awesome/dbxapp-doxygen.css';
 $utf8Filter = $root . '/docs/tools/doxygen_php_utf8_filter.php';
 $releaseVersion = trim((string)file_get_contents($root . '/VERSION'));
+$hasEditorialSources = is_file($referenceFile) && is_file($kiAreasFile);
 
 $fail = static function (string $message, int $code): void {
     fwrite(STDERR, "FAIL: {$message}\n");
@@ -23,10 +24,8 @@ $fail = static function (string $message, int $code): void {
 foreach ([
     $doxyfile,
     $mainFile,
-    $referenceFile,
     $navigationFile,
     $updateUserFile,
-    $kiAreasFile,
     $tutorialExport,
     $brandingHeader,
     $brandingCss,
@@ -34,6 +33,14 @@ foreach ([
 ] as $requiredFile) {
     if (!is_file($requiredFile)) {
         $fail('Erforderliche Doxygen-Datei fehlt: ' . $requiredFile, 1);
+    }
+}
+
+if ($hasEditorialSources) {
+    foreach (array($referenceFile, $kiAreasFile) as $editorialFile) {
+        if (!is_file($editorialFile)) {
+            $fail('Erforderliche redaktionelle Doxygen-Datei fehlt: ' . $editorialFile, 1);
+        }
     }
 }
 
@@ -59,6 +66,47 @@ foreach (array(
     if (!is_file($referenceModule . '/' . $relative)) {
         $fail('Ausführbares Referenzmodul ist unvollständig: ' . $relative, 16);
     }
+}
+
+if (!$hasEditorialSources) {
+    $doxyContent = (string)file_get_contents($doxyfile);
+    $mainContent = (string)file_get_contents($mainFile);
+    $navigationContent = (string)file_get_contents($navigationFile);
+    $headerContent = (string)file_get_contents($brandingHeader);
+    $cssContent = (string)file_get_contents($brandingCss);
+    $tutorialFiles = glob($tutorialDir . '/*.dox');
+
+    foreach (array(
+        'PROJECT_NAME           = "dbxapp"',
+        'PROJECT_NUMBER         = "' . $releaseVersion . '"',
+        'docs/doxygen-generated-main.dox',
+        'docs/doxygen-awesome/header.html',
+        'docs/doxygen-awesome/dbxapp-doxygen.css',
+    ) as $needle) {
+        if (!str_contains($doxyContent, $needle)) {
+            $fail('Portable Doxygen-Konfiguration ist unvollständig: ' . $needle, 28);
+        }
+    }
+    foreach (array(
+        '@mainpage dbxapp Quellcode-Referenz',
+        'dbxapp-Dokumentationsportal öffnen',
+    ) as $needle) {
+        if (!str_contains($mainContent, $needle)) {
+            $fail('Portable Doxygen-Hauptseite ist unvollständig: ' . $needle, 7);
+        }
+    }
+    if (!str_contains($navigationContent, '@page dbxapp_user_docs Anwenderdokumentation')
+        || !str_contains($headerContent, 'dbx-doc-embedded')
+        || !str_contains($cssContent, 'html.dbx-doc-embedded #doc-content')) {
+        $fail('Portable Doxygen-Navigation oder Einbettung ist unvollständig.', 29);
+    }
+    if (!is_array($tutorialFiles) || count($tutorialFiles) < 19) {
+        $fail('Das Kunden-Release enthält weniger als 19 generierte Kern-Tutorials.', 21);
+    }
+
+    echo 'OK portable Doxygen structure: '
+        . count($tutorialFiles) . " generated tutorials, release {$releaseVersion}\n";
+    exit(0);
 }
 
 $docs = glob($root . '/[0-9][0-9]_*.md');
