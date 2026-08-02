@@ -1,6 +1,6 @@
 # dbxapp Dokumentation {#mainpage}
 
-- **Version:** 4.1.8
+- **Version:** 4.1.9
 - **Dokumentationsstand:** 1. August 2026
 - **Website:** [dbxapp.de](https://dbxapp.de)
 

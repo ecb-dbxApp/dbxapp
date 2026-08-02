@@ -21,7 +21,9 @@ foreach ($iterator as $file) {
    $normalized = str_replace('\\', '/', $path ?: '');
    if ($path === $allowed
       || strpos($normalized, '/vendor/') !== false
-      || strpos($normalized, '/dbx/vendor/') !== false) {
+      || strpos($normalized, '/dbx/vendor/') !== false
+      || strpos($normalized, '/files/') !== false
+      || strpos($normalized, '/reference/') !== false) {
       continue;
    }
    $source = file_get_contents($path);

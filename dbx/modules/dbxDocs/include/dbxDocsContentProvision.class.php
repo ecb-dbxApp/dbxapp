@@ -34,6 +34,7 @@ class dbxDocsContentProvision
         'pages_updated' => 0,
         'pages_preserved' => 0,
         'links_updated' => 0,
+        'legacy_files_removed' => 0,
         'errors' => array(),
     );
 
@@ -47,6 +48,7 @@ class dbxDocsContentProvision
 
     public function run(): array
     {
+        $this->removeLegacyMenuTemplates();
         $this->prepareHtmlMap();
         $this->prepareFolderTree();
         $this->moveTutorialFolders();
@@ -62,6 +64,33 @@ class dbxDocsContentProvision
         $this->repairDocumentationLinks();
         dbxContentPageCache::invalidateAll();
         return $this->result + array('ok' => $this->result['errors'] === array());
+    }
+
+    /**
+     * Entfernt frühere, installationsspezifische Menüs. Die aktuelle
+     * Navigation wird vollständig über dbx_page und die dbx-docs-main- sowie
+     * dbx-docs-section-Templates erzeugt.
+     */
+    private function removeLegacyMenuTemplates(): void
+    {
+        $templateDir = $this->baseDir . '/dbx/modules/dbxMenu/tpl/htm';
+        foreach (array(
+            'dbx-docs-admin.htm',
+            'dbx-docs-ai.htm',
+            'dbx-docs-developer.htm',
+            'dbx-docs-reference.htm',
+            'dbx-docs-user.htm',
+        ) as $filename) {
+            $path = $templateDir . '/' . $filename;
+            if (!is_file($path)) {
+                continue;
+            }
+            if (@unlink($path)) {
+                $this->result['legacy_files_removed']++;
+                continue;
+            }
+            $this->result['errors'][] = $filename . ': Veraltetes Menütemplate konnte nicht entfernt werden.';
+        }
     }
 
     private function folderPlan(): array

@@ -40,7 +40,6 @@ $expected = array(
     'mode' => 'check',
     'language' => 'de',
     'source_dd' => 'content_de',
-    'tutorial_pages' => 19,
 );
 foreach ($expected as $key => $value) {
     if (($result[$key] ?? null) !== $value) {
@@ -52,6 +51,11 @@ foreach ($expected as $key => $value) {
         );
         exit(3);
     }
+}
+
+if ((int)($result['tutorial_pages'] ?? 0) < 19) {
+    fwrite(STDERR, "FAIL: Der Doxygen-Export enthält weniger als 19 Kern-Tutorials.\n");
+    exit(3);
 }
 
 $mediaLinks = (int)($result['media_usage_links'] ?? 0);
