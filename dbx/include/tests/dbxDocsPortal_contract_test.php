@@ -222,10 +222,13 @@ foreach (array($menuDe, $menuEn, $menuEs) as $menu) {
     docs_portal_assert(
         str_contains($menu, 'dbx_modul=dbxDocs')
             && str_contains($menu, 'dbx_run1=search')
-            && !str_contains($menu, '{dbx:profile_link}')
-            && !str_contains($menu, 'dbx_modul=dbxLogin')
+            && str_contains($menu, '{dbx:profile_link}')
+            && str_contains($menu, 'dbx_modul=dbxLogin')
+            && str_contains($menu, 'dbx_run1={dbx:login_out}')
+            && str_contains($menu, '{dbx:login_icon}')
+            && str_contains($menu, '{dbx:LogInOut}')
             && !str_contains($menu, 'dbx_modul=dbxShop'),
-        'Das fokussierte Sprachmenü enthält nicht nur Dokumentationsfunktionen.'
+        'Das fokussierte Sprachmenü enthält nicht die vorhandene dbxapp-Benutzeraktion.'
     );
 }
 foreach ($referenceMenus as $menu) {
