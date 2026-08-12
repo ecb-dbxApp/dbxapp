@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="textblock"><p><a class="anchor" id="md_10___c_m_s__dbx_ki"></a></p>
 <p><a href="https://dbxapp.de">Offizielle dbxapp Website</a></p>
 <p>Das Frontend von dbxapp ist normalerweise CMS-getrieben. Seiten werden über Permalinks gefunden, aus Content-Datensaetzen gerendert und können Module einbetten.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md147"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md150"></a>
 CMS-Funktionalitaet</h1>
 <p>Das CMS bietet:</p>
 <ul>
@@ -60,7 +60,7 @@ CMS-Funktionalitaet</h1>
 <li>Template-Auswahl je Inhalt</li>
 <li>Admin-Bearbeitung im Laufzeitkontext</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md148"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md151"></a>
 Für wen das CMS gedacht ist</h1>
 <p>Redakteure bearbeiten Seiten, Texte, Medien, SEO und Übersetzungen in einer gemeinsamen Oberfläche. Designer stellen wiederverwendbare Content-, Hero- und Medientemplates bereit. Entwickler ergänzen dynamische Funktionen als Module, ohne redaktionelle Inhalte in PHP-Dateien zu verlagern.</p>
 <p>Damit bleiben drei Ebenen getrennt:</p>
@@ -75,7 +75,7 @@ Für wen das CMS gedacht ist</h1>
 <td class="markdownTableBodyNone">Anwendung  </td><td class="markdownTableBodyNone">eingebettete Module wie Kontakt, Shop, Report oder Workflow  </td></tr>
 </table>
 <p>Eine CMS-Seite kann deshalb eine einfache Informationsseite, eine Landingpage mit Hero und Galerie oder die redaktionelle Hülle um eine komplette Anwendung sein.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md149"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md152"></a>
 Module und Verantwortlichkeiten</h1>
 <div class="fragment"><div class="line">dbxContent</div>
 <div class="line">  Frontend-Routing, Permalink-Ausgabe und Medienauslieferung</div>
@@ -100,7 +100,7 @@ Module und Verantwortlichkeiten</h1>
 </div><!-- fragment --><p>Die zentrale Arbeitsoberfläche ist:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxContent_admin&amp;dbx_run1=content&amp;dbx_run2=edit</div>
 </div><!-- fragment --><p>Sie gliedert sich in Seitenbaum, Editor und Medien-/Einstellungspanel. Die älteren Listen- und Einzelmasken bleiben für spezielle Verwaltungsaufgaben vorhanden; neue redaktionelle Abläufe sollen die zusammenhängende CMS- Oberfläche verwenden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md150"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md153"></a>
 Datenmodell einer Seite</h1>
 <p>Content wird sprachbezogen in Tabellen wie <span class="tt">content_de</span>, <span class="tt">content_en</span> usw. gespeichert. Die Resolverklasse <span class="tt">dbxContentLng</span> liefert die richtige DD; Code soll keine Sprachtabelle aus einem unvalidierten String zusammensetzen.</p>
 <p>Wichtige Seitendaten:</p>
@@ -143,7 +143,7 @@ Datenmodell einer Seite</h1>
 <td class="markdownTableBodyNone"><span class="tt">lng_synced_rev</span>  </td><td class="markdownTableBodyNone">zuletzt übernommene Masterrevision  </td></tr>
 </table>
 <p>Ordner besitzen unter anderem <span class="tt">parent_id</span>, Rechte sowie geerbte Defaults für Contenttemplate, Hero, Galerie und Darstellung. Der Wert <span class="tt">parent</span> bedeutet, dass die Einstellung aus dem übergeordneten Ordner übernommen wird. Dadurch müssen Redakteure gemeinsame Layoutvorgaben nicht auf jeder Seite wiederholen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md151"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md154"></a>
 Redaktionsablauf</h1>
 <ol type="1">
 <li>Zielordner im Seitenbaum wählen.</li>
@@ -157,7 +157,7 @@ Redaktionsablauf</h1>
 <li>Responsive Darstellung in Desktop-, Tablet- und Mobile-Viewport prüfen.</li>
 </ol>
 <p>Das Speichern führt außerdem die CMS-Nacharbeiten aus: Content wird normalisiert, Mediennutzung aktualisiert, Sprachrevision fortgeschrieben und betroffene Indizes/Caches werden invalidiert. Direkte DB-Updates umgehen diese Schritte und sind deshalb kein redaktioneller Speicherweg.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md152"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md155"></a>
 Seitenbaum, Ordner und Vererbung</h1>
 <p>Der Seitenbaum verbindet Navigation und redaktionelle Ordnung. Ordner können Unterordner und Seiten enthalten. Ein Verschieben ändert die Hierarchie, darf aber nicht die sprachübergreifende Identität oder Medienzuordnungen verlieren.</p>
 <p>Typische Vererbung:</p>
@@ -168,7 +168,7 @@ Seitenbaum, Ordner und Vererbung</h1>
 <li>Galerie-Template, sichtbare Anzahl, Bildgröße, Overflow und Klickverhalten.</li>
 </ul>
 <p>Seiten dürfen einzelne Werte überschreiben. Ein konkreter Seitenwert gewinnt, <span class="tt">parent</span> nutzt den nächsthöheren definierten Wert, und am Ende greift ein sicherer Systemfallback.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md153"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md156"></a>
 Contenttemplates und Slots</h1>
 <p>Contenttemplates liegen unter:</p>
 <div class="fragment"><div class="line">dbx/modules/dbxContent/tpl/htm/c-*.htm</div>
@@ -178,7 +178,7 @@ Contenttemplates und Slots</h1>
 <div class="line">c-title-hero_header-gallery-body1-footer.htm</div>
 <div class="line">c-title-hero_header-gallery-body3-footer.htm</div>
 </div><!-- fragment --><p>Der Name beschreibt die vorhandenen Bereiche. Ein Template kann Seitentitel, Hero, Header, Galerie, ein- bis dreispaltigen Body und Footer kombinieren. Der Renderer füllt Marker wie <span class="tt">{cms:hero}</span>, <span class="tt">{cms:header}</span>, <span class="tt">{cms:col1}</span> und <span class="tt">{cms:footer}</span>.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md154"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md157"></a>
 Verbindlicher Sprachvertrag für <span class="tt">c-*</span></h2>
 <p><span class="tt">c-*</span>-Dateien beschreiben ausschließlich die Seitenaufteilung. Sie sind deshalb sprachneutral und werden genau einmal im oben genannten Basisverzeichnis geführt. Es gibt keine Dateien wie <span class="tt">c-body1-footer_en.htm</span> oder <span class="tt">c-body1-footer_es.htm</span>.</p>
 <p>Die aktive Sprache bestimmt den redaktionellen Datensatz, die FD-Texte und die CMS-Bedienoberfläche. Sie darf die Liste der verfügbaren <span class="tt">c-*</span>-Layouts nicht filtern oder verändern. Seiten- und Ordnerformular lesen daher in Deutsch, Englisch und Spanisch dieselbe physische <span class="tt">c-*</span>-Liste. Die Liste wird pro Request einmal ermittelt und anschließend wiederverwendet; nur die Beschriftung des Feldes und der Eintrag <span class="tt">parent</span> werden übersetzt.</p>
@@ -187,7 +187,7 @@ Verbindlicher Sprachvertrag für <span class="tt">c-*</span></h2>
 <div class="line">  -&gt; gemeinsame Auswahl dbx/modules/dbxContent/tpl/htm/c-*.htm</div>
 <div class="line">  -&gt; ausgewähltes Layout wird sprachneutral gerendert</div>
 </div><!-- fragment --><p>Neue Layouts werden als wiederverwendbares Template ergänzt. Redaktionelle Seiten sollten keine eigene, seitenexklusive CSS-Anwendung nachbauen, wenn ein Contenttemplate dieselbe Struktur abbilden kann.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md155"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md158"></a>
 Editor und Inhaltsstruktur</h1>
 <p>Der Editor speichert HTML, aber die CMS-Marker markieren semantische Grenzen. Beispiele sind Hero-Text, Header, Footer, Spaltentrenner und Druckseitenumbruch. Die Marker werden im Editor sichtbar dargestellt und vom Renderer in Slots übersetzt.</p>
 <p>Beim Speichern gilt:</p>
@@ -198,10 +198,10 @@ Editor und Inhaltsstruktur</h1>
 <li>Modulmarker müssen syntaktisch vollständig bleiben.</li>
 <li>Kopierte Office-Formatierungen werden bereinigt, statt die Seite mit herstellerspezifischem Markup zu belasten.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md156"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md159"></a>
 Medienverwaltung</h1>
 <p>Medien sind zentrale Datensätze in <span class="tt">dbxMedia</span>; ihre Verwendung wird über <span class="tt">dbxMediaUsage</span> einer Seite, einem Ordner und einem Slot zugeordnet.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md157"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md160"></a>
 Hero und Inline-Medien verbindlich trennen</h2>
 <p>Ein Bild am Seitenanfang mit darüber positioniertem Titel, Text oder Schaltflächen ist kein frei gebauter Inhaltsblock, sondern ein CMS-Hero:</p>
 <div class="fragment"><div class="line">Seitenfelder</div>
@@ -230,7 +230,7 @@ Hero und Inline-Medien verbindlich trennen</h2>
 <li>SEO-/Open-Graph-Bild.</li>
 </ul>
 <p>Dateipfade werden serverseitig normalisiert. Medien werden über die Content-Medienroute ausgeliefert, die MIME-Typ, Range-Requests, ETag, Last-Modified und sichere Pfadgrenzen behandelt. Redakteure sollen keine freien <span class="tt">files/...</span>-Pfade in HTML raten.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md158"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md161"></a>
 Schnelle und responsive Bilder</h2>
 <p>Der Renderer erzeugt für Contentbilder die passenden Bildattribute. Für Galerien und Bilder unterhalb des sichtbaren Starts wird Lazy Loading genutzt; Hero bzw. wichtigstes Above-the-fold-Bild darf priorisiert werden. Breite und Höhe bzw. ein stabiles Seitenverhältnis verhindern Layoutsprünge.</p>
 <p>Grundregeln:</p>
@@ -242,7 +242,7 @@ Schnelle und responsive Bilder</h2>
 <li>externe Videos erst bei Bedarf aktiv laden.</li>
 </ul>
 <p>Unbenutzte Medien werden nicht nur anhand einer einzelnen Tabelle beurteilt. Die Medienwartung gleicht Usage, Content-Referenzen und Dateien ab und entfernt nur wirklich verwaiste Einträge.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md159"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md162"></a>
 SEO und Metadaten</h1>
 <p>Eine veröffentlichte Seite liefert mindestens:</p>
 <ul>
@@ -255,7 +255,7 @@ SEO und Metadaten</h1>
 <li>sprachbezogene Alternate-/Language-Informationen, soweit vorhanden.</li>
 </ul>
 <p>Metadaten gehören zur fertigen Seite und damit auch zur vollständigen Gast-Cachedatei. Eine Cacheausgabe darf nicht nur den Body speichern und bei einem Hit nachträglich versuchen, Titel oder Social-Metadaten aus der DB zu ergänzen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md160"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md163"></a>
 Mehrsprachige Seitenfamilien</h1>
 <p><span class="tt">lng_uid</span> verbindet Seiten über Sprachen hinweg. Die Masterrevision steigt, wenn relevante Inhalte geändert werden. Sprachgeschwister können automatisch synchronisiert, bewusst manuell getrennt oder als verwaist markiert sein.</p>
 <div class="fragment"><div class="line">Master speichern</div>
@@ -266,7 +266,7 @@ Mehrsprachige Seitenfamilien</h1>
 <div class="line">  -&gt; manuelle Ziele als offen kennzeichnen</div>
 <div class="line">  -&gt; sprachbezogene Cachedateien invalidieren</div>
 </div><!-- fragment --><p>Eine Übersetzung erhält einen eigenen Permalink, Inhalt und Metadaten, behält aber dieselbe <span class="tt">lng_uid</span>. Modul-Inclusions und CMS-Marker werden bei einer Übersetzung exakt erhalten, sofern die Aufgabe nicht ausdrücklich ihre Änderung fordert.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md161"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md164"></a>
 Öffentliche Ausgabe und vollständiger Gast-Cache</h1>
 <p>Der Cache arbeitet für reine <span class="tt">GET</span>-/<span class="tt">HEAD</span>-Permalinkaufrufe von Gästen. Nur eine positive Integer-ID kennzeichnet einen angemeldeten Benutzer. Edit-, AJAX-, Fenster- und Sync-Sonderrequests werden nicht als öffentliche Seite gecacht.</p>
 <div class="fragment"><div class="line">URL/Permalink und Sprache erkennen</div>
@@ -283,7 +283,7 @@ Mehrsprachige Seitenfamilien</h1>
 <p>Vor jedem Lesen und Schreiben muss das Dokument vollständig sein und ein <span class="tt">&lt;base href="..."&gt;</span> besitzen, das exakt zur aktuellen Basis-URL passt. Eine abweichende oder beschädigte Datei wird beim Lesen gelöscht und als Cache-Miss neu gerendert. Cachebytes werden mit <span class="tt">file_get_contents()</span> unverändert zurückgegeben: kein Escaping, kein HTML-Parsing, keine Interpreter-Runde und keine Session-Nachbearbeitung.</p>
 <p>Der Konfigurationsschalter <span class="tt">cache_content</span> steuert ausschließlich das Schreiben neuer Dateien. Vorhandene Cache-Treffer bleiben auch bei ausgeschaltetem Schreiben lesbar. Inhalte werden beim normalen Speichern über eine neue Cache-Generation invalidiert; alte Requests können danach weder alte Dateien ausliefern noch in die neue Generation zurückschreiben.</p>
 <p>Nicht gespeichert werden fehlerhafte Antworten, unvollständiges HTML, Antworten mit unpassendem <span class="tt">base href</span>, geschützte Eingabeformulare oder nicht eindeutig bestimmte Requests. <span class="tt">HEAD</span> verwendet dieselben Header wie <span class="tt">GET</span>, sendet bei Hit und Miss aber keinen Body. Ein <span class="tt">HEAD</span>-Miss darf vollständig rendern und den Cache für einen folgenden <span class="tt">GET</span> vorbereiten.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md162"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md165"></a>
 Rechte und Veröffentlichung</h1>
 <ul>
 <li><span class="tt">activ</span> steuert die Freigabe einer Seite.</li>
@@ -293,7 +293,7 @@ Rechte und Veröffentlichung</h1>
 <li>Eine bekannte CID oder Medien-ID allein ist keine Berechtigung.</li>
 <li>Cache wird nur für tatsächlich öffentliche Gastantworten geschrieben.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md163"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md166"></a>
 Redaktions-Prüfliste</h1>
 <ul>
 <li>Titel, Permalink, Beschreibung, Keywords und Robots sind sinnvoll.</li>
@@ -306,7 +306,7 @@ Redaktions-Prüfliste</h1>
 <li>Nach dem Speichern wird eine alte Gast-Cachedatei nicht weiter ausgeliefert.</li>
 <li>Social-/SEO-Metadaten stimmen auch bei einem Cache-Hit.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md164"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md167"></a>
 Content-Ablauf</h1>
 <div class="fragment"><div class="line">URL-Kontext (Root wird home)</div>
 <div class="line">  -&gt; Sprache und Skin bestimmen</div>
@@ -322,14 +322,14 @@ Content-Ablauf</h1>
 <object type="image/svg+xml" data="dbxapp-cms-ki-flow.svg" style="pointer-events: none;"></object>
 <div class="caption">
 CMS- und dbxKi-Ablauf</div></div>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md165"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md168"></a>
 Modul-Inclusion im CMS</h1>
 <p>Content kann Module enthalten:</p>
 <div class="fragment"><div class="line">[modul=dbxContact]dbx_run1=tickets[/modul]</div>
 </div><!-- fragment --><p>Mit Parametern:</p>
 <div class="fragment"><div class="line">[modul=dbxContent]dbx_run1=show&amp;cid=17[/modul]</div>
 </div><!-- fragment --><p>Der Interpreter führt diese Inseln aus. Im Template-Editor bleiben sie Rohtext.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md166"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md169"></a>
 Content-Bereiche und Spalten</h1>
 <p>Das CMS kann Content mit einfachen Markern in Bereiche aufteilen. Ein Template entscheidet, welche Slots existieren:</p>
 <div class="fragment"><div class="line">&lt;section class=&quot;cms-hero {cms:hero_class}&quot; style=&quot;{hero:style}&quot;&gt;</div>
@@ -352,7 +352,7 @@ Content-Bereiche und Spalten</h1>
 <div class="line">&lt;hr class=&quot;dbx-cms-marker dbx-cms-marker-footer&quot;</div>
 <div class="line">    data-dbx-marker=&quot;dbx:footer&quot; data-label=&quot;Footer&quot;&gt;</div>
 </div><!-- fragment --><p>Text vor, zwischen und nach diesen Markern wird vom CMS-Renderer in die passenden Slots gelegt. Spalten entstehen über Templates mit <span class="tt">{cms:col1}</span>, <span class="tt">{cms:col2}</span> und <span class="tt">{cms:col3}</span>. Dadurch braucht der Content keine eigene PHP-Logik, um mehrspaltig oder mit Header/Footer dargestellt zu werden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md167"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md170"></a>
 Mehrsprachigkeit</h1>
 <p>Content kann pro Sprache geführt werden. Je nach Modulstruktur werden Sprachfelder, eigene Tabellen oder Verknüpfungen über <span class="tt">lng_uid</span> verwendet.</p>
 <p>Wichtige Punkte:</p>
@@ -361,11 +361,11 @@ Mehrsprachigkeit</h1>
 <li>Permalinks müssen sprachbezogen eindeutig sein.</li>
 <li>Cache muss bei Content-Änderungen invalidiert werden.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md168"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md171"></a>
 Content-Cache</h1>
 <p>Der Seiten-Cache beschleunigt öffentliche Permalink-Seiten einschließlich des parameterlosen Root-Aufrufs. Er speichert nicht einzelne Content-Fragmente, sondern die vollständige, bereits interpretierte HTML-Antwort des Gasts. Dazu gehören auch Menüs, Skin, Titel, SEO-/Social-Metadaten und aufgelöste Module. Permalink- und Home-Indizes sind davon getrennte Auflösungsstrukturen.</p>
 <p>Die verbindliche Reihenfolge, Cachegrenzen und Invalidierungsregeln stehen im Abschnitt „Öffentliche Ausgabe und vollständiger Gast-Cache“ weiter oben.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md169"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md172"></a>
 Content-Template direkt bearbeiten</h1>
 <p>Neben dem Feld <b>Content-Template</b> zeigt das CMS für ein ausgewähltes <span class="tt">c-*</span>-Template ein Stift-Symbol. Der Ablauf ist bewusst fest:</p>
 <div class="fragment"><div class="line">Stift anklicken</div>
@@ -374,7 +374,7 @@ Content-Template direkt bearbeiten</h1>
 <div class="line">  -&gt; Ja: ajax.js/openWin lädt dbxEditor</div>
 <div class="line">  -&gt; ACE bearbeitet dbx/modules/dbxContent/tpl/htm/{template}.htm</div>
 </div><!-- fragment --><p>Das Editorfenster darf niemals vor der Bestätigung geöffnet werden. Der Dialog weist darauf hin, dass jede Seite betroffen ist, die dasselbe Content-Template verwendet. <span class="tt">data-dbx</span>, <span class="tt">dbxConfirm</span> und <span class="tt">dbx-win</span> werden an diesem kombinierten Ablauf nicht parallel auf demselben Link eingesetzt; der CMS-Handler sequenziert Confirm und Editor eindeutig.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md170"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md173"></a>
 Permalink-Vertrag</h1>
 <p>Neue CMS-Permalinks sind flach und ordnerunabhängig. Erlaubt sind nur Kleinbuchstaben, Zahlen und einzelne Bindestriche:</p>
 <div class="fragment"><div class="line">help-dashboard-admin     gueltig</div>
@@ -382,7 +382,7 @@ Permalink-Vertrag</h1>
 <div class="line">ordner/seite             ungueltig</div>
 <div class="line">Seite mit Leerzeichen    ungueltig</div>
 </div><!-- fragment --><p>Automatisch erzeugte Permalinks verwenden <span class="tt">-</span> und niemals <span class="tt">/</span>. Die <span class="tt">dbxValidator</span>-Regel <span class="tt">permalink</span> sowie <span class="tt">dbxContent_permalink::isValid()</span> werden beim Erkennen und Speichern verwendet. Weil der Ordner kein Bestandteil des Permalinks ist, bleibt der Link beim Verschieben einer Hilfe- oder Inhaltsseite stabil.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md171"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md174"></a>
 dbxKi</h1>
 <p><span class="tt">dbxKi</span> ist die KI-Schnittstelle für CMS- und Modulaufgaben. Sie soll strukturierte Vorschläge liefern, aber nicht eigenmaechtig die dbxapp-Regeln umgehen.</p>
 <p>Mögliche Aufgaben:</p>
@@ -394,7 +394,7 @@ dbxKi</h1>
 <li>Strukturvorschläge für Seiten</li>
 <li>Erklärung vorhandener Templates</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md172"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md175"></a>
 Visuelle CMS-Nutzung mit dbxKi</h1>
 <p>dbxKi ist nicht nur eine technische Schnittstelle. Es ist auch für die menschenfreundliche Arbeit im CMS gedacht. Der Benutzer soll im CMS geführt werden: Seite auswaehlen, Aufgabe beschreiben, Kontext bereitstellen, Vorschlag prüfen und erst danach speichern.</p>
 <p>Ein typischer Ablauf für einen Redakteur:</p>
@@ -413,7 +413,7 @@ Visuelle CMS-Nutzung mit dbxKi</h1>
 <li>dbxapp speichert nur über die vorhandenen CMS-, Form- und DB-Pipelines.</li>
 </ul>
 <p>Dadurch bleibt die Arbeit geführt und nachvollziehbar. Auch umfangreiche Aufgaben wie neue Seite anlegen, Seite übersetzen, SEO-Texte verbessern oder Hero-Bild zuordnen bestehen aus wenigen Schritten.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md173"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md176"></a>
 Direkter KI-Zugriff für Codex und Cursor</h1>
 <p>KI-Werkzeuge wie Codex oder Cursor können direkt auf eine lokale dbxapp- Installation zugreifen, wenn sie Zugriff auf den Projektordner und/oder den lokalen HTTP-Endpunkt haben. Dann ist kein manuelles Hochladen und Herunterladen einer ZIP-Datei noetig.</p>
 <p>Der direkte Weg läuft über das Modul:</p>
@@ -443,7 +443,7 @@ Direkter KI-Zugriff für Codex und Cursor</h1>
 <div class="line">  }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>Die Preview liefert einen ausfuehrbaren Request. Dadurch muss die KI nicht raten, welche Parameter beim Speichern notwendig sind. Der Ablauf ist geführt: erst lesen, dann planen, dann ausführen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md174"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md177"></a>
 ZIP-Bundle für KI ohne direkten Zugriff</h1>
 <p>Der ZIP-Weg ist für Situationen gedacht, in denen die KI keinen direkten Zugriff auf die Installation hat, zum Beispiel bei einem externen Chat-System. Dann exportiert der Mensch ein Briefing, die KI erzeugt daraus ein Antwort- Bundle und der Mensch importiert dieses Bundle wieder in dbxapp.</p>
 <div class="fragment"><div class="line">Briefing-ZIP exportieren</div>
@@ -452,7 +452,7 @@ ZIP-Bundle für KI ohne direkten Zugriff</h1>
 <div class="line">  -&gt; dbxKi prueft Job und zeigt Preview</div>
 <div class="line">  -&gt; Mensch fuehrt aus</div>
 </div><!-- fragment --><p>Bei Codex oder Cursor auf demselben Rechner ist dieser ZIP-Umweg normalerweise nicht notwendig. Dort kann der direkte API- oder Projektzugriff benutzt werden. Der ZIP-Weg bleibt trotzdem wichtig, weil er einen sicheren Austauschweg für Installationen ohne gemeinsamen Dateisystem- oder HTTP-Zugriff bietet.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md175"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md178"></a>
 dbxKi-Ablauf</h1>
 <div class="fragment"><div class="line">Briefing</div>
 <div class="line">  -&gt; Kontext sammeln</div>
@@ -461,7 +461,7 @@ dbxKi-Ablauf</h1>
 <div class="line">  -&gt; Execute/Speichern</div>
 <div class="line">  -&gt; Cache/Index aktualisieren</div>
 </div><!-- fragment --><p>KI-Aktionen sollen preview-faehig sein. Direkte irreversible Aktionen ohne Benutzerkontrolle sind zu vermeiden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md176"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md179"></a>
 Content mit dbxKi bearbeiten: menschliche Sicht</h1>
 <p>Der Mensch arbeitet immer aus der dbxapp-Oberfläche heraus. Er muss keine Datenbanktabellen, Dateipfade oder internen Speicherformate kennen.</p>
 <p>Typische Einstiege:</p>
@@ -494,7 +494,7 @@ Content mit dbxKi bearbeiten: menschliche Sicht</h1>
 <li>Der Import führt nicht blind Fremdcode aus. dbxKi validiert den Job und benutzt die vorhandenen CMS-Pipelines.</li>
 <li>Nach dem Ausfuehren werden Cache, Permalink-Index und Medienzuordnungen über die dbxapp-Wege aktualisiert.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md177"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md180"></a>
 Content mit dbxKi bearbeiten: KI-Sicht</h1>
 <p>Die KI denkt nicht über die komplette dbxapp-Implementierung nach. Sie liest den Auftrag und fuellt das feste Antwortschema. Die Ausführung macht dbxKi.</p>
 <p>Die KI liest im Auftrags-Bundle mindestens:</p>
@@ -542,7 +542,7 @@ Content mit dbxKi bearbeiten: KI-Sicht</h1>
 <li>Neue Medien immer anschliessend mit <span class="tt">media.assign</span> zuordnen, wenn sie im CMS als Hero, Gallery oder Inline-Medium erscheinen sollen.</li>
 <li>Bei direktem API-Weg zuerst <span class="tt">system.describe</span> lesen, dann Guide/Preview nutzen und den gelieferten <span class="tt">execute_request</span> unverändert ausführen.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md178"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md181"></a>
 Module mit dbxKi bearbeiten: menschliche Sicht</h1>
 <p>Neue Module werden zuerst über den Modul-Wizard angelegt. dbxKi für Module ist für die kontrollierte Bearbeitung bestehender Module gedacht.</p>
 <p>Typische Einstiege:</p>
@@ -576,7 +576,7 @@ Module mit dbxKi bearbeiten: menschliche Sicht</h1>
 <li>Formulare sollen dbxForm-Konventionen nutzen.</li>
 <li>Reports sollen dbxReport-Konventionen nutzen, inklusive Multi-Select, Multi-Delete, Edit, Detail, Callback-Funktionen und Remember-State, wenn der Auftrag das verlangt.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md179"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md182"></a>
 Module mit dbxKi bearbeiten: KI-Sicht</h1>
 <p>Die KI bearbeitet kein Projekt frei. Sie liefert einen Modul-Job im festen Schema. dbxKi prüft und schreibt danach über eigene Funktionen.</p>
 <p>Die KI liest im Modul-Auftrag mindestens:</p>
@@ -622,10 +622,10 @@ Module mit dbxKi bearbeiten: KI-Sicht</h1>
 <li>Kein globales Refactoring und keine Änderungen an Core, anderen Modulen, globalen Templates, Konfiguration oder Datenbanken, ausser dbxKi erlaubt die konkrete Aktion im Job.</li>
 <li>Die Antwort ist kein Patch-Text für einen Menschen, sondern ein ausfuehrbares dbxKi-Antwort-Bundle.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md180"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md183"></a>
 Ziel der festen dbxKi-Pipeline</h1>
 <p>Die feste Pipeline nimmt der KI die falschen Freiheitsgrade. Die KI muss nicht erraten, wie dbxapp intern speichert. Sie muss nur ein valides, kleines Schema fuellen. dbxKi übernimmt Validierung, Backup, Preview, Ausführung, Cache-Aktualisierung und die Einhaltung der dbxapp-Regeln.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md181"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md184"></a>
 Designs mit dbxKi bearbeiten</h1>
 <p>Designaufträge verwenden eine eigene, dateibasierte Pipeline. Sie werden nicht als CMS-Job und nicht als Modul-Job ausgeführt:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxKi&amp;dbx_run1=briefing_design</div>
@@ -637,7 +637,7 @@ Designs mit dbxKi bearbeiten</h1>
 <div class="line">  -&gt; Backup, Staging, Designvertragsprüfung, Aktivierung</div>
 </div><!-- fragment --><p><span class="tt">dbxKiDesignService</span> führt keinen gelieferten PHP-Code und keine freien Aktionen aus. Bestehende Designs werden vor dem Austausch als ZIP gesichert. Neue Designs basieren auf einer vollständigen Kopie des Ausgangsdesigns und bleiben zur Laufzeit eigenständig.</p>
 <p>Der vollständige Vertrag steht unter <a class="el" href="dbxapp_design_studio_ki.html" title="Design Studio und KI-Wizard">Design Studio und KI-Wizard</a>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md182"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md185"></a>
 dbxContent-Tutorials in Doxygen veröffentlichen</h1>
 <p>Die deutschen, aktiven Seiten im dbxContent-Ordner <span class="tt">Dokumentation und Tutorials</span> sind die maßgebliche Quelle der Anwenderdokumentation. Der Export liest Inhalte, Zuordnungen und Medien ausschließlich über DD und <span class="tt">dbxDB</span>:</p>
 <div class="fragment"><div class="line">content_de (Ordner 15)</div>
@@ -656,7 +656,7 @@ dbxContent-Tutorials in Doxygen veröffentlichen</h1>
 </div><!-- fragment --><p><span class="tt">--write</span> erzeugt die Doxygen-Seiten und kopiert die zugeordneten Medien in den generierten Dokumentationsbestand. <span class="tt">--check</span> verändert nichts und meldet fehlende Medien oder einen nicht aktuellen Export mit einem Fehlercode.</p>
 <p>Dateien unter <span class="tt">docs/generated/tutorials/</span> werden nicht von Hand geändert. Eine fachliche Korrektur erfolgt immer an der deutschen dbxContent-Seite und wird anschließend erneut exportiert. Die Hierarchie und Zuordnung zu Anwender-, Entwickler- und KI-Bereichen steht in <span class="tt">docs/doxygen-navigation.dox</span>.</p>
 <p>Alte, doppelt UTF-8-codierte Zeichen in PHP-Kommentaren werden ausschließlich für die Dokumentationsausgabe durch <span class="tt">docs/tools/doxygen_php_utf8_filter.php</span> korrigiert. Der Filter verändert weder Projektdateien noch PHP-Strings oder ausführbaren Code.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md183"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md186"></a>
 Regeln</h1>
 <ul>
 <li>KI darf Content vorschlagen, aber Systemwege nicht umgehen.</li>

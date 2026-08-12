@@ -1954,7 +1954,64 @@ class dbxReport extends dbxForm {
             $this->_table_render_tpl_cache[$file] = $this->get_tpl($file, array());
         }
 
+        foreach (array('title', 'tooltip') as $attribute) {
+            if (isset($data[$attribute]) && !is_array($data[$attribute])) {
+                $data[$attribute] = htmlspecialchars(
+                    (string)$data[$attribute],
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                    'UTF-8'
+                );
+            }
+        }
+
         return $this->oTPL->replaces($this->_table_render_tpl_cache[$file], $data);
+    }
+
+    /**
+     * Liefert getrennte Fenstertitel und HTML-faehige Bedienhinweise fuer
+     * automatisch erzeugte Report-Aktionen.
+     */
+    protected function get_table_action_ui($type): array {
+        $language = in_array($this->_dbx_lng, array('de', 'en', 'es'), true)
+            ? $this->_dbx_lng
+            : 'de';
+        $texts = array(
+            'de' => array(
+                'edit' => array('Datensatz bearbeiten', '<strong>Bearbeiten</strong><br><small>Datensatz im Formular oeffnen</small>'),
+                'copy' => array('Datensatz kopieren', '<strong>Kopieren</strong><br><small>Neuen Datensatz als Kopie anlegen</small>'),
+                'show' => array('Datensatz anzeigen', '<strong>Anzeigen</strong><br><small>Datensatz schreibgeschuetzt oeffnen</small>'),
+                'export' => array('CSV Export', '<strong>Exportieren</strong><br><small>Datensatz als CSV ausgeben</small>'),
+                'import' => array('CSV Import', '<strong>Importieren</strong><br><small>Daten aus einer CSV-Datei einlesen</small>'),
+                'download' => array('Datei herunterladen', '<strong>Herunterladen</strong><br><small>Datei lokal speichern</small>'),
+                'delete' => array('Datensatz loeschen', '<strong>Loeschen</strong><br><small>Datensatz nach Bestaetigung entfernen</small>'),
+                'print' => array('Drucken', '<strong>Drucken</strong><br><small>Druckansicht oeffnen</small>'),
+                'expander' => array('Details', '<strong>Details</strong><br><small>Zusaetzliche Zeilendaten einblenden</small>'),
+            ),
+            'en' => array(
+                'edit' => array('Edit record', '<strong>Edit</strong><br><small>Open the record in the form</small>'),
+                'copy' => array('Copy record', '<strong>Copy</strong><br><small>Create a new record as a copy</small>'),
+                'show' => array('View record', '<strong>View</strong><br><small>Open the record read-only</small>'),
+                'export' => array('CSV export', '<strong>Export</strong><br><small>Write the record to CSV</small>'),
+                'import' => array('CSV import', '<strong>Import</strong><br><small>Read data from a CSV file</small>'),
+                'download' => array('Download file', '<strong>Download</strong><br><small>Save the file locally</small>'),
+                'delete' => array('Delete record', '<strong>Delete</strong><br><small>Remove the record after confirmation</small>'),
+                'print' => array('Print', '<strong>Print</strong><br><small>Open the print view</small>'),
+                'expander' => array('Details', '<strong>Details</strong><br><small>Show additional row data</small>'),
+            ),
+            'es' => array(
+                'edit' => array('Editar registro', '<strong>Editar</strong><br><small>Abrir el registro en el formulario</small>'),
+                'copy' => array('Copiar registro', '<strong>Copiar</strong><br><small>Crear un registro nuevo como copia</small>'),
+                'show' => array('Mostrar registro', '<strong>Mostrar</strong><br><small>Abrir el registro en modo de solo lectura</small>'),
+                'export' => array('Exportar CSV', '<strong>Exportar</strong><br><small>Guardar el registro como CSV</small>'),
+                'import' => array('Importar CSV', '<strong>Importar</strong><br><small>Leer datos desde un archivo CSV</small>'),
+                'download' => array('Descargar archivo', '<strong>Descargar</strong><br><small>Guardar el archivo localmente</small>'),
+                'delete' => array('Eliminar registro', '<strong>Eliminar</strong><br><small>Quitar el registro tras confirmarlo</small>'),
+                'print' => array('Imprimir', '<strong>Imprimir</strong><br><small>Abrir la vista de impresion</small>'),
+                'expander' => array('Detalles', '<strong>Detalles</strong><br><small>Mostrar datos adicionales de la fila</small>'),
+            ),
+        );
+
+        return $texts[$language][(string)$type] ?? array('', '');
     }
 
     /**
@@ -1997,12 +2054,14 @@ class dbxReport extends dbxForm {
      */
     protected function get_table_row_action_data($type, array $record) {
         $rid = $this->get_record_rid($record, -1);
+        $actionUi = $this->get_table_action_ui($type);
         $dat = array(
             'rid'     => $rid,
             'value'   => $rid,
             'action'  => $this->get_report_action_url(),
             'class'   => 'no-sort',
-            'tooltip' => '',
+            'title'   => $actionUi[0],
+            'tooltip' => $actionUi[1],
         );
 
         if ($type === 'download') {
@@ -2681,6 +2740,13 @@ class dbxReport extends dbxForm {
         $oReport->_rflds           = array();
         $oReport->_body_inline     = false;
         $oReport->_create_sel_flds = 0;
+        // Die Pagination rendert ueber eine eigene, isolierte dbxReport-Instanz
+        // mit synthetischem Modul/Fid ('dbx'/'pagination'). Ohne diese
+        // Uebernahme wuerden {pagination:count_all} und
+        // {pagination:count_checked} den (leeren) Auswahl-/Zaehlkontext dieser
+        // Hilfsinstanz statt des tatsaechlichen Reports lesen.
+        $oReport->_count_all       = ($this->_count_all >= 0) ? $this->_count_all : $rcount;
+        $oReport->_count_selects   = $this->get_count_selects();
 
         $content = $oReport->run();
 
@@ -2698,17 +2764,12 @@ class dbxReport extends dbxForm {
     }
 
     public function data_rows($data, $rpos, $rrows) {
-        $rdata = array();
-
-        for ($i = $rpos; $i < ($rpos + $rrows); $i++) {
-            if (isset($data[$i])) {
-                $rdata[] = $data[$i];
-            } else {
-                break;
-            }
-        }
-
-        return $rdata;
+        require_once __DIR__ . '/dbxReportDataWindow.class.php';
+        return (new dbxReportDataWindow())->slice(
+            is_array($data) ? $data : array(),
+            (int)$rpos,
+            (int)$rrows
+        );
     }
 
     public function add_where($mode, $select, $where = '') {

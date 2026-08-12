@@ -7,7 +7,7 @@
    {obj:job_token}
    <div class="form_msg {msg_class}">{obj:form_msg}</div>
    <div class="d-flex flex-wrap gap-2 justify-content-end">
-    <a class="btn btn-outline-secondary" href="{back_url}"><i class="bi bi-x-lg"></i> Cancel</a>
+    <button type="button" class="btn btn-outline-danger" data-dbx-ki-discard="{discard_url}" data-confirm="Discard this response? The changes will not be applied."><i class="bi bi-x-lg"></i> Discard</button>
     <button class="btn btn-primary" type="submit" data-confirm="Apply the reviewed design changes now?"><i class="bi bi-check2-circle"></i> Apply reviewed result</button>
    </div>
    [dbx:form]

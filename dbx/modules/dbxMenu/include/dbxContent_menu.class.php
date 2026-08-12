@@ -3,6 +3,7 @@ namespace dbx\dbxMenu;
 
 use dbx\dbxContent\dbxContentLng;
 use dbx\dbxContent\dbxContentPageCache;
+use dbx\dbxContent\dbxContent_permalink;
 
 require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap.php';
 
@@ -67,7 +68,7 @@ class dbxContent_menu {
      $permalink = trim((string)($page['permalink'] ?? ''));
      if ($permalink !== '') {
         if (preg_match('/^(https?:\/\/|\/|\?)/i', $permalink)) return $permalink;
-        return dbx()->get_base_url() . ltrim($permalink, '/');
+        return dbx()->get_base_url() . dbxContent_permalink::publicPath($permalink);
      }
      return '?dbx_modul=dbxContent&dbx_run1=show&dbx_cid=' . (int)($page['id'] ?? 0);
   }
@@ -270,7 +271,7 @@ class dbxContent_menu {
           $title=$record['title'];
           $tpl=$this->oTPL->get_tpl('modul','menu-content-file');
           if ($record['permalink']) {
-             $href=$record['permalink'];
+             $href=dbxContent_permalink::publicPath($record['permalink']);
           } else {
              $href='?dbx_Modul=dbxContent&dbx_run1=show&cid='.$id;
           }

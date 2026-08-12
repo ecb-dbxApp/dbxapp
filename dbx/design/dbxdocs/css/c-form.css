@@ -3,16 +3,12 @@
    ========================================================= */
 
 .dbxForm_wrapper {
-    --dbx-form-bg: var(--dbx-panel-bg-base);
-    --dbx-form-panel: var(--dbx-panel-inner-bg-top);
     --dbx-form-border: var(--dbx-panel-border-light);
     --dbx-form-border-strong: var(--dbx-panel-border-strong);
     --dbx-form-text: var(--dbx-text-main);
     --dbx-form-muted: var(--dbx-text-muted);
     --dbx-form-primary: #2563eb;
     --dbx-form-primary-dark: #1d4ed8;
-    --dbx-form-success: #138a50;
-    --dbx-form-warning: #a56505;
     --dbx-form-danger: #c43333;
     background:
         linear-gradient(180deg, var(--dbx-panel-bg-top), var(--dbx-panel-bg-bottom)),
@@ -65,19 +61,15 @@
     padding: 18px;
 }
 
-.dbxForm_wrapper > form:has(> .dbx-module-bar:first-child),
-.dbxForm_wrapper > form:has(> .dbx-bar.dbx-module-bar:first-child),
-.dbxForm_wrapper .dbx_form:has(> .dbx-module-bar:first-child),
-.dbxForm_wrapper .dbx_form:has(> .dbx-bar.dbx-module-bar:first-child) {
+.dbxForm_wrapper > form:has(> .dbx-bar--module:first-child),
+.dbxForm_wrapper .dbx_form:has(> .dbx-bar--module:first-child) {
     padding-left: 0;
     padding-right: 0;
     padding-top: 0;
 }
 
-.dbxForm_wrapper .dbx_form > .dbx-module-bar:first-child,
-.dbxForm_wrapper .dbx_form > .dbx-bar.dbx-module-bar:first-child,
-.dbxForm_wrapper > form > .dbx-module-bar:first-child,
-.dbxForm_wrapper > form > .dbx-bar.dbx-module-bar:first-child {
+.dbxForm_wrapper .dbx_form > .dbx-bar--module:first-child,
+.dbxForm_wrapper > form > .dbx-bar--module:first-child {
     border-radius: calc(var(--dbx-window-radius, 0.5rem) - 1px) calc(var(--dbx-window-radius, 0.5rem) - 1px) 0 0;
     border-top: 0;
     margin-top: 0;
@@ -1536,4 +1528,80 @@ body.dbx-app .container-fluid#dbxContent > .dbx-panel.dbxForm_wrapper.dbx-user-a
     .dbx-auth-title h2 {
         font-size: 1.32rem;
     }
+}
+
+/* Verbindlicher dbxForm-Strukturvertrag. Feldnamen bleiben in data-Attributen. */
+.dbx-form-grid {
+    display: grid;
+    gap: .75rem;
+    min-width: 0;
+}
+
+.dbx-form-grid--12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.dbx-form-grid--6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.dbx-form-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dbx-form-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.dbx-form-grid__item,
+.dbx-form-field { min-width: 0; }
+.dbx-form-grid__item--span-2 { grid-column: span 2; }
+.dbx-form-grid__item--span-4 { grid-column: span 4; }
+.dbx-form-grid__item--span-6 { grid-column: span 6; }
+.dbx-form-grid__item--full { grid-column: 1 / -1; }
+
+.dbx-form-field {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    white-space: normal;
+    width: 100%;
+}
+
+.dbx-form-field__label,
+.dbx-form-field__labelbar > label {
+    color: var(--dbx-muted, #667085);
+    font-size: .8125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.dbx-form-field__labelbar {
+    align-items: center;
+    display: flex;
+    gap: .35rem;
+    min-height: 1.25rem;
+}
+
+.dbx-form-field__control {
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+}
+
+select.dbx-form-field__control {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 1200px) {
+    .dbx-form-grid--12 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .dbx-form-grid--6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .dbx-form-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+    .dbx-form-grid--12 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .dbx-form-grid--6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dbx-form-grid--12 > .dbx-form-grid__item--span-4,
+    .dbx-form-grid--12 > .dbx-form-grid__item--span-6 { grid-column: 1 / -1; }
+}
+
+@media (max-width: 700px) {
+    .dbx-form-grid--12,
+    .dbx-form-grid--6,
+    .dbx-form-grid--4,
+    .dbx-form-grid--2 { grid-template-columns: minmax(0, 1fr); }
+    .dbx-form-grid > .dbx-form-grid__item { grid-column: 1 / -1; }
 }

@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* =========================================================
    Skin: dunkel
    ---------------------------------------------------------
@@ -104,7 +105,6 @@ body.skin-dunkel {
     --dbx-menu-text:                  #72f779;
     --dbx-menu-main-text:             #7cff7c;
     --dbx-menu-admin-text:            #63e96b;
-    --dbx-menu-text-active:           #b8ffb8;
     --dbx-menu-top-hover-bg:          rgba(99, 245, 141, 0.12);
     --dbx-menu-top-active-bg:         rgba(99, 245, 141, 0.19);
     --dbx-menu-sub-hover-bg:          rgba(99, 245, 141, 0.13);
@@ -123,7 +123,6 @@ body.skin-dunkel {
     --dbx-submenu-admin-bg-bottom:    rgba(0, 6, 3, 0.995);
     --dbx-submenu-line-light:         rgba(124, 255, 161, 0.20);
     --dbx-submenu-line-dark:          rgba(0, 0, 0, 0.62);
-    --dbx-submenu-line-shadow:        rgba(0, 0, 0, 0.48);
     --dbx-submenu-panel-border-light: rgba(116, 255, 155, 0.24);
     --dbx-submenu-panel-border-dark:  rgba(0, 0, 0, 0.82);
     --dbx-submenu-panel-shadow:
@@ -135,8 +134,6 @@ body.skin-dunkel {
 
     --dbx-menu-mobile-panel-main-top:    rgba(8, 26, 14, 0.995);
     --dbx-menu-mobile-panel-main-bottom: rgba(2, 10, 5, 0.995);
-    --dbx-menu-mobile-panel-admin-top:   rgba(3, 14, 7, 0.995);
-    --dbx-menu-mobile-panel-admin-bottom:rgba(0, 5, 2, 0.995);
 
     /* Login-Bildseite */
     --dbx-auth-visual-overlay-top:    rgba(3, 18, 9, 0.18);
@@ -148,13 +145,6 @@ body.skin-dunkel {
     --dbx-auth-visual-item-border:    rgba(126, 255, 163, 0.24);
 
     /* Overlays und Editor */
-    --dbx-overlay-bg:                 rgba(0, 5, 2, 0.76);
-    --dbx-editor-bg:                  rgba(3, 18, 9, 0.96);
-    --dbx-editor-bg-hover:            rgba(12, 55, 27, 0.98);
-    --dbx-editor-border:              rgba(116, 255, 155, 0.52);
-    --dbx-editor-border-hover:        rgba(146, 255, 176, 0.82);
-    --dbx-editor-color:               #82ff82;
-    --dbx-editor-shadow:              rgba(0, 0, 0, 0.96);
     --dbx-editor-icon-filter:
         brightness(0) saturate(100%) invert(85%) sepia(34%) saturate(922%)
         hue-rotate(78deg) brightness(108%) contrast(104%)
@@ -168,7 +158,6 @@ body.skin-dunkel {
 
     /* openWin */
     --dbx-window-bg:                  #040b07;
-    --dbx-window-border:              #28623d;
     --dbx-window-header:              #071c0e;
     --dbx-window-header-top:          #10331c;
     --dbx-window-header-bottom:       #020905;
@@ -186,26 +175,9 @@ body.skin-dunkel {
     --dbx-window-footer-border:       #173722;
     --dbx-window-control-color:       #72e978;
     --dbx-window-control-hover:       #b8ffb8;
-    --dbx-window-overlay-bg:          rgba(0, 4, 2, 0.74);
 
     /* Grid */
-    --dbx-grid-header-top:            rgba(13, 38, 21, 0.98);
-    --dbx-grid-header-bottom:         rgba(3, 13, 7, 0.99);
-    --dbx-grid-header-border:         rgba(104, 245, 144, 0.26);
-    --dbx-grid-col-top:               #12341e;
-    --dbx-grid-col-bottom:            #071a0e;
-    --dbx-grid-col-hover-top:         #1a4829;
-    --dbx-grid-col-hover-bottom:      #0c2816;
     --dbx-grid-col-text:              #7cff7c;
-    --dbx-grid-line-row:              rgba(118, 247, 154, 0.18);
-    --dbx-grid-line-col:              rgba(118, 247, 154, 0.10);
-    --dbx-grid-line-header:           rgba(118, 247, 154, 0.18);
-    --dbx-grid-scroll-thumb:          #2c6e44;
-    --dbx-grid-scroll-thumb-hover:    #3e945b;
-    --dbx-grid-scroll-thumb-active:   #52bd71;
-    --dbx-grid-scroll-track:          #041008;
-    --dbx-grid-sep-header:            #24583a;
-    --dbx-grid-sep-body:              #173a25;
 }
 
 /* =========================================================
@@ -305,7 +277,6 @@ body.dbx-app.skin-dunkel :where(.card, .dbx-admin-dashboard-card, .dbx-stat-card
 
 body.dbx-app.skin-dunkel :where(
     .dbx-bar,
-    .dbx-module-bar,
     .dbx-grid-bar,
     .dbx-report-bar,
     .dbx-report-footer,
@@ -469,7 +440,7 @@ body.dbx-app.skin-dunkel .dbx-user-login .dbx-auth-register-link a:hover {
 /* Phosphor-Eindruck alter Gruenmonitore: Fliesstext bleibt scharf,
    Navigation, Ueberschriften, Links und Icons leuchten klarer. */
 body.dbx-app.skin-dunkel :where(.dbx-content-page, .dbxForm_wrapper, .dbxReport, .dbx-window-body) {
-    text-shadow: 0 0 3px rgba(73, 255, 73, 0.24);
+    text-shadow: 0 0 1px rgba(73, 255, 73, 0.14);
 }
 
 body.dbx-app.skin-dunkel :where(
@@ -484,11 +455,9 @@ body.dbx-app.skin-dunkel :where(
     .dbx-menu-toggle,
     .dbx-window-title,
     .dbx-bar-title,
-    .dbx-module-bar-heading
+    .dbx-bar-heading
 ) {
-    text-shadow:
-        0 0 3px rgba(95, 255, 95, 0.72),
-        0 0 9px rgba(63, 255, 63, 0.30);
+    text-shadow: 0 0 1.5px rgba(95, 255, 95, 0.55);
 }
 
 /* Icons folgen der helleren Akzentstufe und bleiben auch auf fast
@@ -496,7 +465,6 @@ body.dbx-app.skin-dunkel :where(
    ihre jeweils eigene Textfarbe. */
 body.dbx-app.skin-dunkel :where(
     .dbx-bar,
-    .dbx-module-bar,
     .dbx-window-header,
     .dbx-window-controls,
     .dbx-grid-head,
@@ -565,8 +533,8 @@ body.dbx-app.skin-dunkel .dbx-window-header :where(.dbx-window-title, .bi, butto
     color: var(--dbx-window-header-color) !important;
 }
 
-body.dbx-app.skin-dunkel .dbx-window .dbx-window-body :where(.dbx-bar, .dbx-module-bar),
-body.dbx-app.skin-dunkel .dbx-window .dbx-window-body :where(.dbx-bar-title, .dbx-module-bar-heading, .dbx-bar-meta, .bi) {
+body.dbx-app.skin-dunkel .dbx-window .dbx-window-body :where(.dbx-bar),
+body.dbx-app.skin-dunkel .dbx-window .dbx-window-body :where(.dbx-bar-title, .dbx-bar-heading, .dbx-bar-meta, .bi) {
     color: var(--dbx-window-subbar-text) !important;
 }
 

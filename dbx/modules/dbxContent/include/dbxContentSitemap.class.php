@@ -128,7 +128,7 @@ class dbxContentSitemap {
             continue;
          }
          foreach (self::collectPublicPages($db, $renderer, $lng) as $page) {
-            $permalink = trim((string) ($page['permalink'] ?? ''), '/');
+            $permalink = dbxContent_permalink::publicPath((string)($page['permalink'] ?? ''));
             if ($permalink === '') {
                continue;
             }

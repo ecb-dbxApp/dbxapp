@@ -42,17 +42,45 @@ class dbxKiHelp {
             'icon' => 'bi-translate',
             'subtitle' => 'Auftrag fuer Seiten-Uebersetzung',
          ),
+         'briefing_content' => array(
+            'title' => 'Content-KI',
+            'help_title' => dbxKiCmsHelpProvision::TITLE,
+            'icon' => 'bi-file-earmark-richtext',
+            'subtitle' => 'Neue Seite, Änderung oder Übersetzung auswählen',
+         ),
          'translation_sync_all' => array(
-            'title' => 'Sprache komplett uebersetzen',
+            'title' => 'Sprache komplett übersetzen',
             'help_title' => dbxKiCmsHelpProvision::TITLE,
             'icon' => 'bi-translate',
-            'subtitle' => 'CMS-Struktur in Zielsprachen uebertragen',
+            'subtitle' => 'CMS-Struktur in Zielsprachen übertragen',
          ),
          'briefing_module' => array(
             'title' => 'Modul-KI',
-            'help_title' => dbxKiCmsHelpProvision::TITLE,
+            'help_title' => dbxKiCmsHelpProvision::title('module'),
+            'help_topic' => 'module',
+            'icon' => 'bi-stars',
+            'subtitle' => 'Neues oder bestehendes Modul auswählen',
+         ),
+         'briefing_module_edit' => array(
+            'title' => 'Modul-KI',
+            'help_title' => dbxKiCmsHelpProvision::title('module'),
+            'help_topic' => 'module',
             'icon' => 'bi-stars',
             'subtitle' => 'Auftrag fuer bestehendes Modul',
+         ),
+         'briefing_design' => array(
+            'title' => 'Design-KI',
+            'help_title' => dbxKiCmsHelpProvision::title('design'),
+            'help_topic' => 'design',
+            'icon' => 'bi-palette',
+            'subtitle' => 'Neues oder bestehendes Design auswählen',
+         ),
+         'briefing_design_edit' => array(
+            'title' => 'Design-KI',
+            'help_title' => dbxKiCmsHelpProvision::title('design'),
+            'help_topic' => 'design',
+            'icon' => 'bi-palette',
+            'subtitle' => 'Briefing, vollständiger Designkontext und sichere Antwort-ZIP',
          ),
          'briefing_styles' => array(
             'title' => 'Schreibstile',
@@ -62,15 +90,31 @@ class dbxKiHelp {
          ),
          'module_bundle' => array(
             'title' => 'Modul-Antwort importieren',
-            'help_title' => dbxKiCmsHelpProvision::TITLE,
+            'help_title' => dbxKiCmsHelpProvision::title('module'),
+            'help_topic' => 'module',
             'icon' => 'bi-upload',
             'subtitle' => 'Antwort-ZIP fuer Modul-KI',
          ),
          'module_bundle_preview' => array(
             'title' => 'Modul-Import',
-            'help_title' => dbxKiCmsHelpProvision::TITLE,
+            'help_title' => dbxKiCmsHelpProvision::title('module'),
+            'help_topic' => 'module',
             'icon' => 'bi-check2-square',
             'subtitle' => 'Modul-Antwort ausfuehren',
+         ),
+         'design_bundle_import' => array(
+            'title' => 'Design-Antwort importieren',
+            'help_title' => dbxKiCmsHelpProvision::title('design'),
+            'help_topic' => 'design',
+            'icon' => 'bi-upload',
+            'subtitle' => 'Antwort-ZIP fuer Design-KI',
+         ),
+         'design_bundle_apply' => array(
+            'title' => 'Design-Import',
+            'help_title' => dbxKiCmsHelpProvision::title('design'),
+            'help_topic' => 'design',
+            'icon' => 'bi-check2-square',
+            'subtitle' => 'Design-Antwort pruefen und anwenden',
          ),
          'bundle' => array(
             'title' => 'Bundle importieren',
@@ -98,9 +142,13 @@ class dbxKiHelp {
          $run1 = (string) dbx()->get_modul_var('dbx_run1', 'bundle', 'parameter');
       }
       $run1 = strtolower(trim($run1));
-      if ($run1 === 'briefing' || $run1 === 'briefing_page_create' || $run1 === 'briefing_page_update'
-         || $run1 === 'briefing_page_translate' || $run1 === 'briefing_styles' || $run1 === 'briefing_module'
-         || $run1 === 'translation_sync_all') {
+      $directScreens = array(
+         'briefing', 'briefing_content', 'briefing_page_create', 'briefing_page_update',
+         'briefing_page_translate', 'briefing_styles', 'briefing_module', 'briefing_module_edit',
+         'briefing_design', 'briefing_design_edit', 'translation_sync_all',
+         'design_bundle_import', 'design_bundle_apply',
+      );
+      if (in_array($run1, $directScreens, true)) {
          return $run1;
       }
       if ($run1 === 'module_bundle') {
@@ -166,9 +214,9 @@ class dbxKiHelp {
       }
 
       return array(
-         'bar_class' => 'dbx-module-bar',
-         'bar_title_class' => 'dbx-module-bar-titleblock',
-         'bar_actions_class' => 'dbx-module-bar-actions',
+         'bar_class' => 'dbx-bar--module',
+         'bar_title_class' => 'dbx-bar-title',
+         'bar_actions_class' => 'dbx-bar-actions',
          'bar_title' => $title,
          'bar_icon' => $icon,
          'bar_subtitle' => $subtitle,
@@ -180,39 +228,17 @@ class dbxKiHelp {
       );
    }
 
-   public function helpWindowBarTemplateData(string $screen = ''): array {
-      if ($screen === '') {
-         $screen = $this->resolveScreen();
+   public function renderCmsHelpContent(string $topic = ''): string {
+      if ($topic === '') {
+         $topic = dbxKiCmsHelpProvision::DEFAULT_TOPIC;
       }
-      $screens = $this->screens();
-      if (!isset($screens[$screen])) {
-         $screen = 'bundle';
-      }
-      $meta = $screens[$screen];
-
-      return array(
-         'bar_class' => 'dbx-module-bar dbx-help-context-bar',
-         'bar_title_class' => 'dbx-module-bar-titleblock',
-         'bar_actions_class' => 'dbx-module-bar-actions',
-         'bar_title' => (string) ($meta['help_title'] ?? $meta['title'] ?? $screen),
-         'bar_icon' => 'bi-question-circle',
-         'bar_subtitle' => 'Kontext-Hilfe',
-         'bar_title_pre' => '',
-         'bar_title_heading_attrs' => '',
-         'bar_actions' => '',
-         'bar_extra' => '',
-         'bar_middle' => '',
-      );
-   }
-
-   public function renderCmsHelpContent(): string {
       dbxKiCmsHelpProvision::run();
 
-      $permalink = dbxKiCmsHelpProvision::PERMALINK;
+      $permalink = dbxKiCmsHelpProvision::permalink($topic);
       $cid = $this->resolveHelpCid($permalink);
 
       if ($cid <= 0) {
-         $result = dbxKiCmsHelpProvision::provision();
+         $result = dbxKiCmsHelpProvision::provision($topic);
          if (empty($result['errors'])) {
             dbxKiCmsHelpProvision::run();
             $cid = (int) ($result['page_id'] ?? 0);
@@ -279,27 +305,32 @@ class dbxKiHelp {
          $screen = $this->resolveScreen();
       }
 
-      $content = $this->renderCmsHelpContent();
+      $screens = $this->screens();
+      $topic = (string) ($screens[$screen]['help_topic'] ?? dbxKiCmsHelpProvision::DEFAULT_TOPIC);
+
+      $content = $this->renderCmsHelpContent($topic);
       if (trim(strip_tags((string) $content)) === '') {
          $content = $this->tpl()->get_tpl('dbx|alert-info', array(
             'msg' => 'Fuer diesen Bereich ist noch keine Hilfe hinterlegt.',
          ));
       }
 
-      return $this->tpl()->get_tpl('dbxAdmin|admin-help-shell', array_merge(
-         $this->helpWindowBarTemplateData($screen),
-         array(
-            'frame_id' => 'dbx_ki_help_' . preg_replace('/[^a-z0-9_-]+/i', '_', $screen),
-            'frame_panel_class' => 'dbx-admin-help py-3 dbx-context-help-preview',
-            'frame_form_open' => '',
-            'frame_form_close' => '',
-            'frame_subbar' => '',
-            'frame_body_class' => 'dbx-admin-help-body dbx-context-help-body',
-            'frame_body_head' => '',
-            'frame_body_tail' => '',
-            'frame_panel_attrs' => '',
-            'content' => $content,
-         )
+      // Eigene Shell statt dbxAdmin|admin-help-shell: das Popup-Fenster
+      // (openWin) traegt bereits den Hilfetitel in seiner eigenen
+      // Titelleiste (siehe button()/help_title) - die zusaetzliche
+      // dbx|module-bar-help-Leiste innerhalb des Inhalts zeigte denselben
+      // Titel ein zweites Mal an.
+      return $this->tpl()->get_tpl('dbxKi|ki-help-shell', array(
+         'frame_id' => 'dbx_ki_help_' . preg_replace('/[^a-z0-9_-]+/i', '_', $screen),
+         'frame_panel_class' => 'dbx-admin-help py-3 dbx-context-help-preview',
+         'frame_form_open' => '',
+         'frame_form_close' => '',
+         'frame_subbar' => '',
+         'frame_body_class' => 'dbx-admin-help-body dbx-context-help-body',
+         'frame_body_head' => '',
+         'frame_body_tail' => '',
+         'frame_panel_attrs' => '',
+         'content' => $content,
       ));
    }
 }

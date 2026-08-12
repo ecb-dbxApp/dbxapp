@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -328,7 +328,8 @@ Einen Datensatz lesen</h2>
 <div class="line">        array(<span class="stringliteral">&#39;msg&#39;</span> =&gt; <span class="stringliteral">&#39;Nicht gefunden.&#39;</span>)</div>
 <div class="line">    );</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md48"></a>
+</div><!-- fragment --><p><span class="tt">select1()</span> merkt erfolgreiche Einzel- und Leerdatensätze requestlokal. Der Cache-Schlüssel enthält den kanonischen DD-Namen, WHERE, Spaltenauswahl, Rechteprüfung und Benutzer. <span class="tt">insert()</span>, <span class="tt">update()</span>, <span class="tt">save()</span> und <span class="tt">delete()</span> verwerfen nach erfolgreichem Schreiben alle <span class="tt">select1()</span>-Einträge genau dieser DD. Innerhalb einer Transaktion wird der Cache umgangen; Commit und Rollback verwerfen die DD-Caches des betroffenen Servers. Der Cache endet mit dem Request und ist auf 1.000 Einträge begrenzt.</p>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md48"></a>
 Listen, Sortierung und Pagination</h2>
 <div class="fragment"><div class="line">$rows = $db-&gt;select(</div>
 <div class="line">    $dd,</div>
@@ -465,6 +466,12 @@ DD und Datenbank synchronisieren</h1>
 Datenbanksysteme</h1>
 <p>dbxDB kapselt den Zugriff über PDO. Unterstützt werden – abhängig von Konfiguration und PHP-Treibern – unter anderem SQLite, MySQL/MariaDB, PostgreSQL, SQL Server, Oracle, Firebird sowie weitere PDO-Treiber. Eine DD darf daher keine SQLite-spezifische Fachlogik erzwingen. Unterschiede bei Schema und Limits werden in dbxDB/dbxDD behandelt.</p>
 <h1 class="doxsection"><a class="anchor" id="autotoc_md62"></a>
+Zentrale Query-Performance</h1>
+<p>Wenn <span class="tt">performance_timer_level</span> auf <span class="tt">main</span> oder <span class="tt">detail</span> steht, misst <span class="tt">dbxDB</span> alle zentralen Query-, Exec-, Insert- und Update-Pfade. Pro Request werden Anzahl, eindeutige Strukturen, Wiederholungen, Laufzeit, langsame und fehlgeschlagene Queries zusammengefasst. Ab <span class="tt">detail</span> werden zusätzlich die teuersten normalisierten SQL-Strukturen als Fingerprints gespeichert.</p>
+<p>SQL-Kommentare und Literalwerte werden vor der Speicherung entfernt; gebundene Parameter werden nie protokolliert. Die Schwelle für eine langsame Query wird über <span class="tt">performance_timer_slow_query_ms</span> festgelegt. Die Auswertung liegt im Admin-Dashboard. Dadurch werden Optimierungen anhand tatsächlicher Request-Kosten und Query-Duplikate vorgenommen, statt einzelne SQL-Stellen auf Verdacht mit einer parallelen Messlogik zu versehen.</p>
+<p>Die Persistierung ist von der Messung ausgenommen, damit die Performance-Tabellen keine rekursiven Eigenmessungen erzeugen. Fachmodule verwenden weiterhin ausschließlich <span class="tt">dbxDB</span>; eigene Query-Logger sind nicht zulässig.</p>
+<p>Beim ersten Lauf nach einer Erweiterung gleicht der Performance-Dienst seine Tabellen additiv mit den DD-Feldern und Indizes ab. Vorhandene Messwerte bleiben dabei erhalten. Query-Mittelwerte beziehen historische Datensätze ohne Query-Profil auf diese Weise nicht fälschlich als Nullmessungen ein.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md63"></a>
 Verbindliche Regeln</h1>
 <ol type="1">
 <li>Fachmodule verwenden <span class="tt">dbxDB</span>, nicht direkt PDO.</li>
@@ -477,7 +484,7 @@ Verbindliche Regeln</h1>
 <li>Jede neue Tabelle erhält eine eigene DD und einen eindeutigen DD-Namen.</li>
 <li>Automatische Owner-, Benutzer- und Zeitfelder werden nicht im Modul dupliziert.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md63"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md64"></a>
 Reale Referenzen</h1>
 <ul>
 <li><span class="tt">dbx/modules/dbxWorkflow/dd/workflowDefinition.dd.php</span>: vollständige DD.</li>

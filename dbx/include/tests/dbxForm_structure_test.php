@@ -10,6 +10,7 @@
  */
 
 $root = dirname(__DIR__, 2);
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
 $moduleRoot = $root . DIRECTORY_SEPARATOR . 'modules';
 $errors = array();
 $checked = 0;
@@ -116,7 +117,7 @@ foreach (array(
 
 $shopServicePath = $moduleRoot . DIRECTORY_SEPARATOR . 'dbxShop' . DIRECTORY_SEPARATOR . 'include'
     . DIRECTORY_SEPARATOR . 'dbxShopService.class.php';
-$shopService = (string)file_get_contents($shopServicePath);
+$shopService = dbx_test_module_source_bundle($shopServicePath);
 foreach (array(
     '$cartReport->submit()' => 'Warenkorb-Report',
     '$buyForm->submit()' => 'Add-to-cart-Formular',
@@ -130,7 +131,7 @@ foreach (array(
 
 $shopAdminPath = $moduleRoot . DIRECTORY_SEPARATOR . 'dbxShop_admin' . DIRECTORY_SEPARATOR . 'include'
     . DIRECTORY_SEPARATOR . 'dbxShopAdmin.class.php';
-$shopAdmin = (string)file_get_contents($shopAdminPath);
+$shopAdmin = dbx_test_module_source_bundle($shopAdminPath);
 foreach (array(
     '$form->submit()' => 'zentraler Karten-Token-Guard',
     '$this->postedFormError' => 'sichtbare Karten-Fehlermeldung',

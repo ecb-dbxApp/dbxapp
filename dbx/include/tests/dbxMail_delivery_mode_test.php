@@ -7,7 +7,7 @@ final class dbxMailDeliveryTestKernel
     public string $mode = 'internal';
     public array $messages = array();
 
-    public function get_config(string $module, string $key, $default = 'undef')
+    public function get_cfg(string $module, string $key, $default = 'undef')
     {
         if ($module === 'dbx' && $key === 'mail_delivery_mode') {
             return $this->mode;

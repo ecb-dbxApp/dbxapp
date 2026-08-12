@@ -20,7 +20,7 @@ class dbxRequest {
       }
 
       if ($dangerValue !== '' && $dangerValue !== null
-          && dbx_validate_var($dangerValue, $rules, $varname)) {
+          && dbx()->validate_var($dangerValue, $rules, $varname)) {
          $value = $dangerValue;
       }
 
@@ -36,7 +36,7 @@ class dbxRequest {
       }
 
       $dangerValue = $_GET[$varname];
-      return dbx_validate_var($dangerValue, $rules, $varname)
+      return dbx()->validate_var($dangerValue, $rules, $varname)
          ? $dangerValue
          : $default;
    }
@@ -50,7 +50,7 @@ class dbxRequest {
       }
 
       $dangerValue = $_POST[$varname];
-      return dbx_validate_var($dangerValue, $rules, $varname)
+      return dbx()->validate_var($dangerValue, $rules, $varname)
          ? $dangerValue
          : $default;
    }

@@ -207,13 +207,120 @@
             .addClass('bi-list');
     }
 
+    /**
+     * Linke/vertikale Menues sind dauerhafte Seitennavigationen. Neben den
+     * semantischen aside-/Sidebar-Markierungen dient die tatsaechliche
+     * Geometrie als Fallback fuer Designs mit einem normalen header-Element.
+     */
+    function isPersistentSideMenu($menu) {
+
+        if (!$menu || !$menu.length) return false;
+
+        const configured = $menu.attr('data-dbx-menu-active-open');
+        if (configured === '1') return true;
+        if (configured === '0') return false;
+
+        const element = $menu[0];
+        if (element.closest('aside, [data-dbx-menu-position="left"], .dbx-sidebar, .fleurop-sidebar, .dbxdocs-sidebar')) {
+            return true;
+        }
+
+        const container = element.closest('#dbxHeader');
+        if (!container || !window.innerWidth || !window.innerHeight) return false;
+
+        const rect = container.getBoundingClientRect();
+        const leftAligned = rect.left <= Math.max(8, window.innerWidth * 0.02);
+        const narrow = rect.width > 0 && rect.width <= Math.min(440, window.innerWidth * 0.45);
+        const tall = rect.height >= Math.min(480, window.innerHeight * 0.6)
+            && rect.height > rect.width;
+
+        return leftAligned && narrow && tall;
+    }
+
+    function sideMenuStateId($menu) {
+        const menuId = String($menu.attr('id') || 'menu').replace(/[^a-z0-9_-]/gi, '');
+        const design = String(document.body && document.body.getAttribute('data-dbx-design') || 'default')
+            .replace(/[^a-z0-9_-]/gi, '');
+        const language = String(document.documentElement.getAttribute('lang') || 'default')
+            .replace(/[^a-z0-9_-]/gi, '');
+
+        return ['side-open', menuId || 'menu', design || 'default', language || 'default'].join(':');
+    }
+
+    function branchPath($item, $menu) {
+        const parts = [];
+        let item = $item && $item[0];
+        const root = $menu && $menu[0];
+
+        while (item && root && item !== root) {
+            const list = item.parentElement;
+            if (!list) break;
+            const siblings = Array.from(list.children).filter(child => child.classList.contains('dbx-menu-item'));
+            const index = siblings.indexOf(item);
+            if (index < 0) break;
+            parts.unshift(index);
+            item = list.closest('.dbx-menu-item');
+        }
+
+        return parts.join('.');
+    }
+
+    function branchByPath($menu, path) {
+        const indices = String(path || '').split('.').map(value => parseInt(value, 10));
+        if (!indices.length || indices.some(index => !Number.isInteger(index) || index < 0)) {
+            return $();
+        }
+
+        let list = $menu[0];
+        if (list && !list.classList.contains('dbx-menu-list')) {
+            list = Array.from(list.children).find(child => child.classList.contains('dbx-menu-list')) || null;
+        }
+        if (!list) return $();
+        let item = null;
+        for (let depth = 0; depth < indices.length; depth += 1) {
+            const items = Array.from(list.children).filter(child => child.classList.contains('dbx-menu-item'));
+            item = items[indices[depth]] || null;
+            if (!item) return $();
+            if (depth < indices.length - 1) {
+                list = Array.from(item.children).find(child => child.classList.contains('dbx-menu-list')) || null;
+                if (!list) return $();
+            }
+        }
+
+        return item ? $(item) : $();
+    }
+
+    function storeOpenBranches($menu) {
+        if (!isPersistentSideMenu($menu) || !window.dbx || typeof dbx.uiSet !== 'function') return;
+
+        const paths = [];
+        $menu.find('.dbx-menu-item.has-children.is-open').each(function () {
+            const path = branchPath($(this), $menu);
+            if (path !== '' && paths.indexOf(path) === -1) paths.push(path);
+        });
+
+        dbx.uiSet(LIB, sideMenuStateId($menu), 'branches', paths);
+    }
+
+    function restoreStoredOpenBranches($menu) {
+        if (!isPersistentSideMenu($menu) || !window.dbx || typeof dbx.uiGet !== 'function') return;
+
+        const paths = dbx.uiGet(LIB, sideMenuStateId($menu), 'branches', []);
+        if (!Array.isArray(paths)) return;
+
+        paths.forEach(function (path) {
+            const $item = branchByPath($menu, path);
+            if (!$item.length || !$item.hasClass('has-children')) return;
+            $item.addClass('is-open');
+            $item.children('.dbx-menu-link[aria-expanded]').attr('aria-expanded', 'true');
+        });
+    }
+
     function closeAllMenus(preservePersistent) {
         $('.dbx-menu-root').each(function () {
             const $menu = $(this);
 
-            if (preservePersistent === true
-                && $menu.attr('data-dbx-menu-active-open') === '1'
-            ) {
+            if (preservePersistent === true && isPersistentSideMenu($menu)) {
                 return;
             }
 
@@ -236,6 +343,22 @@
         $branchItems
             .children('.dbx-menu-link[aria-expanded]')
             .attr('aria-expanded', 'false');
+    }
+
+    /**
+     * Linke Navigationen arbeiten als Akkordeon: Beim Oeffnen eines Ordners
+     * bleiben nur dieser Ordner und seine erforderlichen Eltern geoeffnet.
+     */
+    function closeOtherSideBranches($menu, $item) {
+
+        const keep = new Set([$item[0]]);
+        $item.parents('.dbx-menu-item.has-children').each(function () {
+            if ($menu[0].contains(this)) keep.add(this);
+        });
+
+        $menu.find('.dbx-menu-item.has-children.is-open').each(function () {
+            if (!keep.has(this)) closeBranch($(this));
+        });
     }
 
     /**
@@ -273,8 +396,11 @@
 
         closeAllMenus();
 
-        $('.dbx-menu-root[data-dbx-menu-active-open="1"]').each(function () {
-            restoreActivePath($(this));
+        $('.dbx-menu-root').each(function () {
+            const $menu = $(this);
+            if (!isPersistentSideMenu($menu)) return;
+            restoreActivePath($menu);
+            restoreStoredOpenBranches($menu);
         });
 
         log("responsive sync", mobile ? "mobile" : "desktop");
@@ -459,13 +585,17 @@
                 const $link       = $(el);
                 const $item       = $link.parent();
                 const $parentList = $item.parent();
+                const $menu       = $link.closest('.dbx-menu-root');
                 const willOpen    = !$item.hasClass('is-open');
 
-                $parentList.children('.dbx-menu-item.is-open').not($item).each(function () {
-                    closeBranch($(this));
-                });
-
                 if (willOpen) {
+                    if (isPersistentSideMenu($menu)) {
+                        closeOtherSideBranches($menu, $item);
+                    } else {
+                        $parentList.children('.dbx-menu-item.is-open').not($item).each(function () {
+                            closeBranch($(this));
+                        });
+                    }
                     $item.addClass('is-open');
                     $link.attr('aria-expanded', 'true');
                     restoreActivePath($item);
@@ -473,7 +603,17 @@
                     closeBranch($item);
                 }
 
+                storeOpenBranches($menu);
+
                 log("toggle item", willOpen ? "open" : "close");
+            }
+        );
+
+        dbx.on(
+            'click',
+            '.dbx-menu-item:not(.has-children) > .dbx-menu-link[href]',
+            function (e, el) {
+                storeOpenBranches($(el).closest('.dbx-menu-root'));
             }
         );
 
@@ -583,8 +723,10 @@
 
             bindEvents();
             syncResponsiveState(true);
-            if ($el.attr('data-dbx-menu-active-open') === '1') {
+            if (isPersistentSideMenu($el)) {
+                $el.attr('data-dbx-menu-persist-open', '1');
                 restoreActivePath($el);
+                restoreStoredOpenBranches($el);
             }
 
             el.style.visibility = 'visible';

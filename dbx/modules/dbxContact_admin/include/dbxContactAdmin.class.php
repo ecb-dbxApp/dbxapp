@@ -34,20 +34,13 @@ class dbxContactAdmin {
          return false;
       }
 
-      $tables = $db->select_query($server, "SELECT name FROM sqlite_master WHERE type='table' AND name='contact_message' LIMIT 1");
-      if (!is_array($tables) || empty($tables)) {
+      if (!$db->get_table_exist($server, 'contact_message', false)) {
          return false;
       }
 
-      $columns = $db->select_query($server, 'PRAGMA table_info(contact_request)');
-      $names = array();
-      foreach ((array) $columns as $column) {
-         $names[] = (string) ($column['name'] ?? '');
-      }
-
-      return in_array('priority', $names, true)
-         && in_array('last_activity_date', $names, true)
-         && in_array('user_hidden', $names, true);
+      return $db->has_table_column($server, 'contact_request', 'priority')
+         && $db->has_table_column($server, 'contact_request', 'last_activity_date')
+         && $db->has_table_column($server, 'contact_request', 'user_hidden');
    }
 
    private function statusClass(string $status): string {
@@ -425,7 +418,7 @@ class dbxContactAdmin {
    }
 
    private function mailProfileOptions(array $extra = array()): array {
-      $profile = trim((string) dbx()->get_config('dbxContact', 'mail_profile'));
+      $profile = trim((string) dbx()->get_cfg('dbxContact', 'mail_profile'));
       if ($profile !== '') {
          $extra['mail_profile'] = $profile;
       }
@@ -438,8 +431,8 @@ class dbxContactAdmin {
          return false;
       }
 
-      $from = trim((string) dbx()->get_config('dbxContact', 'mail_from'));
-      $fromName = trim((string) dbx()->get_config('dbxContact', 'mail_from_name'));
+      $from = trim((string) dbx()->get_cfg('dbxContact', 'mail_from'));
+      $fromName = trim((string) dbx()->get_cfg('dbxContact', 'mail_from_name'));
       if (filter_var($from, FILTER_VALIDATE_EMAIL) === false) {
          return false;
       }

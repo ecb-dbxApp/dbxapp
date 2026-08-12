@@ -724,6 +724,24 @@ figure.dbx-content-inline-video[style*="height"] .dbx-content-video-player {
     width: 100%;
 }
 
+@media (max-width: 575.98px) {
+    .dbx-content-inline-video[style*="height"] {
+        aspect-ratio: 16 / 9;
+        height: auto !important;
+        width: 100% !important;
+    }
+
+    #dbxContent .dbx-content-inline-video[style*="height"] .dbx-content-video-player,
+    .dbx-content-inline-video[style*="height"] .dbx-content-video-player {
+        aspect-ratio: 16 / 9;
+        height: auto;
+        inset: auto;
+        object-fit: contain;
+        position: relative;
+        width: 100%;
+    }
+}
+
 figure.dbx-content-inline-video .dbx-youtube-consent-placeholder,
 .dbx-media-external-video .dbx-youtube-consent-placeholder {
     min-height: 12rem;
@@ -843,3 +861,8 @@ figure.dbx-content-inline-video .dbx-youtube-consent-placeholder,
    END
    ========================================================= */
 
+body[data-dbx-demo-mode="read-only"] [data-dbx-demo-readonly="1"] {
+  cursor: not-allowed !important;
+  filter: grayscale(.45);
+  opacity: .58;
+}

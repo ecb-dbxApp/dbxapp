@@ -102,7 +102,7 @@
         function rowHtml(node, type, active, collapsed, hasChildren) {
             const id = Number(node._id || 0);
             const toggle = type === "folder" && hasChildren
-                ? `<span class="dbx-cms-tree-toggle" data-ki-tree-toggle data-id="${id}" title="Ordner ein- oder ausklappen"><i class="bi ${collapsed ? "bi-chevron-right" : "bi-chevron-down"}"></i></span>`
+                ? `<span class="dbx-cms-tree-toggle" data-ki-tree-toggle data-id="${id}" data-dbx-tooltip="Ordner ein- oder ausklappen"><i class="bi ${collapsed ? "bi-chevron-right" : "bi-chevron-down"}"></i></span>`
                 : '<span class="dbx-cms-tree-toggle-spacer"></span>';
             let html = String(node._row_html || "");
             if (!html) {
@@ -137,7 +137,9 @@
             const collapsed = type === "folder" && !search && s.collapsed.has(id);
             const active = mode(root, {}) === "create"
                 ? ((type === "page" && Number(s.selectedPage || 0) === id) || (type === "folder" && Number(s.selectedFolder || 0) === id && !Number(s.selectedPage || 0)))
-                : (type === "page" && Number(s.selectedPage || 0) === id);
+                : mode(root, {}) === "folder"
+                    ? (type === "folder" && Number(s.selectedFolder || 0) === id)
+                    : (type === "page" && Number(s.selectedPage || 0) === id);
             let html = rowHtml(node, type, active, collapsed, children.length > 0);
             if (children.length) {
                 html += `<div class="dbx-cms-tree-children"${collapsed ? " hidden" : ""}>`;
@@ -215,6 +217,19 @@
         setStatus(root, s.selectedFolder > 0 ? "Zielposition gewaehlt." : "Bitte Zielordner waehlen.", s.selectedFolder > 0 ? "success" : "error");
     }
 
+    function selectRootFolder(root, folderId, folderLabel) {
+        const s = state(root);
+        s.selectedFolder = Number(folderId || 0);
+        const hidden = qs(root, "[data-ki-root-folder-id]");
+        if (hidden) hidden.value = s.selectedFolder > 0 ? String(s.selectedFolder) : "0";
+        const label = s.selectedFolder > 0
+            ? (folderLabel || nodeTitle(root, "folder", s.selectedFolder) || ("Ordner #" + s.selectedFolder))
+            : "Komplette Sprache (kein Ordner gewählt)";
+        qsa(root, "[data-ki-root-folder-label]").forEach(el => { el.textContent = label; });
+        renderTree(root);
+        setStatus(root, s.selectedFolder > 0 ? "Root-Ordner gewählt." : "Kompletter Sprachbaum ausgewählt.", "success");
+    }
+
     function selectPage(root, cfg, pageId) {
         pageId = Number(pageId || 0);
         if (!pageId) return Promise.resolve();
@@ -253,6 +268,7 @@
     function bind(root, cfg) {
         if (cfg && cfg.mode) root.setAttribute("data-ki-mode", cfg.mode);
         const isCreate = mode(root, cfg) === "create";
+        const isFolderMode = mode(root, cfg) === "folder";
         const initial = Number(cfg.pageid || 0);
         if (initial > 0) state(root).selectedPage = initial;
         const initialFolder = Number(cfg.folderid || 0);
@@ -285,6 +301,13 @@
                 return;
             }
 
+            const resetBtn = closest(e.target, "[data-ki-root-folder-reset]");
+            if (resetBtn && root.contains(resetBtn)) {
+                e.preventDefault();
+                selectRootFolder(root, 0, "");
+                return;
+            }
+
             const row = closest(e.target, ".dbx-cms-tree-row");
             if (!row || !root.contains(row)) return;
             const type = row.getAttribute("data-type");
@@ -292,6 +315,10 @@
             if (type === "folder") {
                 if (isCreate) {
                     selectCreatePlacement(root, id, rowLabel(row), 0, "");
+                    return;
+                }
+                if (isFolderMode) {
+                    selectRootFolder(root, id, rowLabel(row));
                     return;
                 }
                 const s = state(root);
@@ -306,6 +333,7 @@
                     selectCreatePlacement(root, folderId, nodeTitle(root, "folder", folderId) || ("Ordner #" + folderId), id, rowLabel(row));
                     return;
                 }
+                if (isFolderMode) return;
                 selectPage(root, cfg, id);
             }
         });
@@ -351,6 +379,34 @@
             if (isCreate && initialFolder > 0) {
                 updateCreateContext(root, initialFolder, "Ordner #" + initialFolder, initial, initial > 0 ? ("Seite #" + initial) : "");
             }
+            if (isFolderMode) {
+                selectRootFolder(root, initialFolder, initialFolder > 0 ? nodeTitle(root, "folder", initialFolder) : "");
+            }
+        });
+
+        bindOrderPanelExpand(root);
+    }
+
+    // Die Auftragsspalte ist auf der 3-Spalten-Update-Ansicht recht schmal.
+    // Ein Klick (oder Fokus per Tab) hinein vergroessert sie zulasten der
+    // Vorschau-Spalte, ein Klick ausserhalb stellt die normale Breite
+    // wieder her (siehe .is-order-expanded in c-cms.css).
+    function bindOrderPanelExpand(root) {
+        const workspace = qs(root, ".dbx-ki-update-workspace");
+        const orderPanel = qs(root, ".dbx-ki-order-panel");
+        if (!workspace || !orderPanel) return;
+
+        const expand = () => workspace.classList.add("is-order-expanded");
+        const collapse = () => workspace.classList.remove("is-order-expanded");
+
+        orderPanel.addEventListener("click", expand);
+        orderPanel.addEventListener("focusin", expand);
+
+        document.addEventListener("click", e => {
+            if (!orderPanel.contains(e.target)) collapse();
+        });
+        document.addEventListener("focusin", e => {
+            if (!orderPanel.contains(e.target)) collapse();
         });
     }
 

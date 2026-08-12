@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /*
  * c-content-frame.css
  * Public frame + c-cms component for content.js;
@@ -69,8 +70,8 @@
     z-index: 12;
 }
 
-.dbx-content-frame .dbx-cms-head .dbx-module-bar-title,
-.dbx-content-frame-frontend .dbx-cms-head .dbx-module-bar-title {
+.dbx-content-frame .dbx-cms-head .dbx-bar-heading,
+.dbx-content-frame-frontend .dbx-cms-head .dbx-bar-heading {
     font-size: 0.95rem;
     font-weight: 700;
     line-height: 1.2;

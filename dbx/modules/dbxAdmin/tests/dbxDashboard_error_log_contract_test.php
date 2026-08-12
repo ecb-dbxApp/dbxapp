@@ -4,7 +4,8 @@
  */
 
 $moduleDir = dirname(__DIR__);
-$dashboard = (string)file_get_contents(
+require_once dirname(__DIR__, 3) . '/include/tests/dbxModuleSourceBundle.php';
+$dashboard = dbx_test_module_source_bundle(
     $moduleDir . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxDashboard.class.php'
 );
 $sysMsg = (string)file_get_contents(

@@ -59,7 +59,7 @@ class dbxDesignAdmin {
    public function renderList(): string {
       $texts = $this->texts();
       $cards = '';
-      $config = dbx()->get_config('dbx');
+      $config = dbx()->get_cfg('dbx');
       $defaultUser = is_array($config) ? (string)($config['default_design_user'] ?? '') : '';
       $defaultAdmin = is_array($config) ? (string)($config['default_design_admin'] ?? '') : '';
       foreach ($this->designService->listDesigns() as $name => $design) {
@@ -84,7 +84,7 @@ class dbxDesignAdmin {
             'badges' => $badges,
             'preview_url' => $this->h('?dbx_design=' . rawurlencode($name)),
             'wizard_url' => $this->h($this->url('wizard', array('source_design' => $name))),
-            'ki_url' => $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design&design=' . rawurlencode($name)),
+            'ki_url' => $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design_edit&design=' . rawurlencode($name)),
             'download_url' => $this->h($this->url('download', array('design' => $name))),
             'action_personalize' => $this->h($texts->get_fd_message('action_personalize')),
             'action_ai' => $this->h($texts->get_fd_message('action_ai')),
@@ -96,19 +96,19 @@ class dbxDesignAdmin {
       return dbx()->get_system_obj('dbxTPL')->get_tpl('dbxDesign_admin|design-list', array(
          'cards' => $cards,
          'wizard_url' => $this->h($this->url('wizard')),
-         'ki_url' => $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design'),
+         'ki_url' => $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design_edit'),
          'bar_title' => $texts->get_fd_message('list_title'),
          'bar_subtitle' => $texts->get_fd_message('list_subtitle'),
          'bar_icon' => 'bi-palette',
-         'bar_actions' => '<a class="btn btn-outline-primary btn-sm" href="' . $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design') . '"><i class="bi bi-stars"></i> ' . $this->h($texts->get_fd_message('action_ai_design')) . '</a> '
+         'bar_actions' => '<a class="btn btn-outline-primary btn-sm" href="' . $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design_edit') . '"><i class="bi bi-stars"></i> ' . $this->h($texts->get_fd_message('action_ai_design')) . '</a> '
             . '<a class="btn btn-primary btn-sm" href="' . $this->h($this->url('wizard')) . '"><i class="bi bi-magic"></i> ' . $this->h($texts->get_fd_message('action_wizard')) . '</a>',
-         'bar_class' => 'dbx-module-bar',
-         'bar_title_class' => 'dbx-module-bar-titleblock',
+         'bar_class' => 'dbx-bar--module',
+         'bar_title_class' => 'dbx-bar-title',
          'bar_title_pre' => '',
          'bar_title_heading_attrs' => '',
          'bar_middle' => '',
          'bar_extra' => '',
-         'bar_actions_class' => 'dbx-module-bar-actions',
+         'bar_actions_class' => 'dbx-bar-actions',
       ));
    }
 
@@ -132,20 +132,20 @@ class dbxDesignAdmin {
       $form->_data = array_merge($form->_data, $defaults);
 
       $form->add_rep('list_url', $this->h($this->url('list')));
-      $form->add_rep('ki_url', $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design&design=' . rawurlencode($source)));
+      $form->add_rep('ki_url', $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design_edit&design=' . rawurlencode($source)));
       $form->add_rep('bar_title', $texts->get_fd_message('wizard_title'));
       $form->add_rep('bar_subtitle', $texts->get_fd_message('wizard_subtitle'));
       $form->add_rep('bar_icon', 'bi-magic');
-      $form->add_rep('bar_actions', '<a class="btn btn-outline-primary btn-sm" href="' . $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design&design=' . rawurlencode($source)) . '"><i class="bi bi-stars"></i> ' . $this->h($texts->get_fd_message('action_with_ai')) . '</a> '
+      $form->add_rep('bar_actions', '<a class="btn btn-outline-primary btn-sm" href="' . $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design_edit&design=' . rawurlencode($source)) . '"><i class="bi bi-stars"></i> ' . $this->h($texts->get_fd_message('action_with_ai')) . '</a> '
          . '<a class="btn btn-outline-secondary btn-sm" href="' . $this->h($this->url('list')) . '"><i class="bi bi-arrow-left"></i> ' . $this->h($texts->get_fd_message('action_designs')) . '</a>');
       foreach (array(
-         'bar_class' => 'dbx-module-bar',
-         'bar_title_class' => 'dbx-module-bar-titleblock',
+         'bar_class' => 'dbx-bar--module',
+         'bar_title_class' => 'dbx-bar-title',
          'bar_title_pre' => '',
          'bar_title_heading_attrs' => '',
          'bar_middle' => '',
          'bar_extra' => '',
-         'bar_actions_class' => 'dbx-module-bar-actions',
+         'bar_actions_class' => 'dbx-bar-actions',
       ) as $key => $value) {
          $form->add_rep($key, $value);
       }
@@ -213,7 +213,7 @@ class dbxDesignAdmin {
                'name' => $this->h($result['name']),
                'preview_url' => $this->h('?dbx_design=' . rawurlencode($result['name'])),
                'list_url' => $this->h($this->url('list')),
-               'ki_url' => $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design&design=' . rawurlencode($result['name']) . '&mode=update'),
+               'ki_url' => $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design_edit&design=' . rawurlencode($result['name']) . '&mode=update'),
                'default_note' => !empty($result['default_changed']) ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('wizard_default_set')) . '</span>' : '',
             ));
          } catch (\Throwable $e) {

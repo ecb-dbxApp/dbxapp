@@ -14,9 +14,10 @@
 ## Datenbanken
 
 - [ ] Saubere DB3-Installation erfolgreich.
-- [ ] Upgrade der vorherigen DB3-Version erfolgreich.
+- [ ] Bei 4.2.0: Neuinstallation geprüft und Vorversionen ausdrücklich abgelehnt.
+- [ ] Bei Folgereleases: DB3-Update ab der Manifest-Mindestbasis erfolgreich.
 - [ ] Saubere MySQL-Installation erfolgreich.
-- [ ] Upgrade der vorherigen MySQL-Version erfolgreich.
+- [ ] Bei Folgereleases: MySQL-Update ab der Manifest-Mindestbasis erfolgreich.
 - [ ] Tabellen, Datensatzanzahlen und Prüfdaten stimmen.
 - [ ] Migrationen verwenden dbxDB/DD und sind wiederholbar abgesichert.
 
@@ -33,14 +34,15 @@
 - [ ] dbxContent-Templateauswahl ist in allen Sprachen verfügbar.
 - [ ] Full-Page-Cache und Invalidierung funktionieren.
 - [ ] `files/dbxError.log` ist nach den Tests nicht vorhanden.
-- [ ] Updateprüfung, Download, SHA-256, Staging, Installation und Rollback
-      funktionieren von der vorherigen stabilen Version.
+- [ ] Updateprüfung, Mindestbasis, Download, SHA-256, Staging, Installation
+      und Rollback funktionieren ab der im Manifest verlangten Version.
 
 ## Veröffentlichung
 
 - [ ] `CHANGELOG.md`, `UPGRADE.md` und `SECURITY.md` sind aktuell.
 - [ ] Release-ZIP stammt aus dem geschützten Tag.
 - [ ] SHA-256-Prüfsumme wurde kontrolliert.
-- [ ] `update.json` und `.dbx-release-files.json` sind konsistent.
+- [ ] `UPDATE_BASELINE`, `update.json` und `.dbx-release-files.json` sind
+      konsistent und verwenden Schema 2.
 - [ ] GitHub-Release-Entwurf wurde visuell geprüft.
 - [ ] Release und gegebenenfalls Security Advisory gleichzeitig publiziert.

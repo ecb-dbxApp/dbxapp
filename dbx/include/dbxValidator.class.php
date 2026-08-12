@@ -448,11 +448,9 @@ class dbxValidator {
             return $this->language;
         }
 
-        if (function_exists('dbx_lng_current')) {
-            try {
-                return $this->normalizeLanguage((string)dbx_lng_current());
-            } catch (\Throwable $e) {
-            }
+        try {
+            return $this->normalizeLanguage((string)dbx()->lng_current());
+        } catch (\Throwable $e) {
         }
 
         return 'de';

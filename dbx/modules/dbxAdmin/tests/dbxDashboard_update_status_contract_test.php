@@ -14,7 +14,8 @@ function dashboard_update_assert(bool $condition, string $message): void
 }
 
 $module = dirname(__DIR__);
-$dashboard = (string)file_get_contents(
+require_once dirname(__DIR__, 3) . '/include/tests/dbxModuleSourceBundle.php';
+$dashboard = dbx_test_module_source_bundle(
    $module . '/include/dbxDashboard.class.php'
 );
 $controller = (string)file_get_contents(

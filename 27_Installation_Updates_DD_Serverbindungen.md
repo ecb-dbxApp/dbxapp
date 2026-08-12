@@ -211,6 +211,18 @@ Mailregeln können Kontakt- und Shop-Prozesse zuverlässig unterscheiden. Ist
 `force_from` im globalen Mailprofil aktiviert, ersetzt der Maildienst bewusst
 beide Modulabsender durch den globalen From-Wert.
 
+## Unterstützte Update-Basis
+
+dbxApp 4.2.0 ist die erste unterstützte Version. `UPDATE_BASELINE` und jedes
+Update-Manifest schreiben diese Grenze maschinenlesbar fest. Es gibt keine
+Installation und keine Datenmigration aus einer Version vor 4.2.0.
+
+Der Updater selbst bleibt vollständig vorwärtsfähig: Neue Releases dürfen
+Produktdateien ersetzen und entfernen, DD-/dbxDB-Migrationen ausführen,
+Sicherungen erzeugen und Dateien sowie Datenbanken gemeinsam zurückrollen.
+Diese Migrationen beginnen immer bei 4.2.0 oder bei einer später im Manifest
+ausdrücklich verlangten Mindestversion.
+
 ## Datenbankmigration eines Moduls
 
 Eine Release-Migration liegt unter:
@@ -225,8 +237,8 @@ Minimales Beispiel:
 <?php
 
 return array(
-    'id' => 'my-module-4.1.0-order-index',
-    'version' => '4.1.0',
+    'id' => 'my-module-4.2.1-order-index',
+    'version' => '4.2.1',
     'description' => 'Bestellstruktur auf den neuen DD-Stand bringen.',
     'affected_dd' => array(
         'dbxShop|shopOrder',
@@ -284,7 +296,7 @@ verwenden. Migrationen dürfen keine lokalen Servernamen voraussetzen.
 
 ```text
 Release prüfen
-  -> Manifest, Version, PHP, SHA-256 und ZIP-Pfade prüfen
+  -> Manifest, Update-Basis, Version, PHP, SHA-256 und ZIP-Pfade prüfen
   -> Paket in einen abgeschotteten Stagingbereich entpacken
   -> Benutzer kann das vorbereitete Update stoppen
   -> betroffene Dateien und jede betroffene DD-Tabelle sichern
@@ -344,6 +356,14 @@ Installationsdaten und lokale Konfiguration werden nie von GitHub in eine
 bestehende Installation kopiert. Updates liefern Code, DDs und versionierte
 Migrationen. Die lokale DD-Serverbindung bleibt die Wahrheit der jeweiligen
 Installation.
+
+Dasselbe Eigentumsprinzip gilt für Menüinhalte: installationsbezogene
+Menü-Templates sind Kundendateien. Eine lokale Menüanpassung wird direkt in der
+betroffenen Installation gepflegt, nicht als Produktänderung veröffentlicht und
+darf von einem Update nicht überschrieben werden. Die Implementierung des
+Menümoduls und ihre System-Sourcen bleiben dagegen Produktdateien; Änderungen an
+PHP, DD, FD, JavaScript oder CSS werden ausschließlich über den geprüften
+Release- und Updateprozess ausgeliefert.
 
 ## Abnahmematrix
 

@@ -136,9 +136,9 @@ class dbxWorkflowEngine {
       }
 
       return array(
-         'bar_class' => 'dbx-module-bar',
-         'bar_title_class' => 'dbx-module-bar-titleblock',
-         'bar_actions_class' => 'dbx-module-bar-actions',
+         'bar_class' => 'dbx-bar--module',
+         'bar_title_class' => 'dbx-bar-title',
+         'bar_actions_class' => 'dbx-bar-actions',
          'bar_title' => $title,
          'bar_icon' => 'bi-diagram-3',
          'bar_subtitle' => $subtitle,
@@ -823,7 +823,7 @@ class dbxWorkflowEngine {
    }
 
    public function load_definition($workflowKey, bool $activeOnly = true) {
-      $workflowKey = $workflowKey ?: (string)dbx()->get_config('dbxWorkflow', 'default_workflow');
+      $workflowKey = $workflowKey ?: (string)dbx()->get_cfg('dbxWorkflow', 'default_workflow');
       if (!$workflowKey) $workflowKey = 'invoice_demo';
 
       $where = array('workflow_key' => $workflowKey);
@@ -1839,7 +1839,7 @@ class dbxWorkflowEngine {
       $instanceActionUrl = $this->instance_action_url($nextUrl, $iid);
       $restartUrl = $instanceActionUrl . '&proc_cmd=restart';
       $autostart = 0;
-      $interval = (int)dbx()->get_config('dbxWorkflow', 'step_interval');
+      $interval = (int)dbx()->get_cfg('dbxWorkflow', 'step_interval');
       $stepPercent = ($status === 'finished') ? 100 : 0;
       $statusBadge = '<span class="badge ' . $this->h($this->status_class($status)) . '"><i class="' . $this->h($this->status_icon($status)) . '"></i> ' . $this->h($this->status_label($status)) . '</span>';
       $processAttrs = 'data-dbx="lib=process|id=' . $this->h($targetId)
@@ -1964,7 +1964,7 @@ class dbxWorkflowEngine {
             $url = '?dbx_modul=dbxWorkflow&dbx_run1=run&iid=' . (int)$iid . '&need=' . rawurlencode($key);
             $html .= '<a class="dbx-workflow-step-nav-item is-' . $state . '" href="' . $this->h($url) . '" title="' . $this->h($title) . '">' . $inner . '</a>';
          } else {
-            $html .= '<span class="dbx-workflow-step-nav-item is-' . $state . '" title="' . $this->h($title) . '">' . $inner . '</span>';
+            $html .= '<span class="dbx-workflow-step-nav-item is-' . $state . '" data-dbx-tooltip="' . $this->h($title) . '">' . $inner . '</span>';
          }
       }
 
@@ -1977,7 +1977,7 @@ class dbxWorkflowEngine {
          $url = '?dbx_modul=dbxWorkflow&dbx_run1=run&iid=' . (int)$iid . '&need=review';
          $html .= '<a class="dbx-workflow-step-nav-item is-' . $reviewState . '" href="' . $this->h($url) . '" title="Workflow pruefen und abschliessen">' . $reviewInner . '</a>';
       } else {
-         $html .= '<span class="dbx-workflow-step-nav-item is-' . $reviewState . '" title="Workflow pruefen und abschliessen">' . $reviewInner . '</span>';
+         $html .= '<span class="dbx-workflow-step-nav-item is-' . $reviewState . '" data-dbx-tooltip="Workflow pruefen und abschliessen">' . $reviewInner . '</span>';
       }
 
       return $html . '</div>';

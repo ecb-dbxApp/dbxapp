@@ -408,7 +408,7 @@
         container.querySelectorAll("[data-shop-tree-toggle]").forEach(function (button) {
             button.setAttribute("aria-expanded", open ? "true" : "false");
             button.setAttribute("aria-label", open ? "Artikelgruppen-Baum ausblenden" : "Artikelgruppen-Baum anzeigen");
-            button.setAttribute("title", open ? "Artikelgruppen-Baum ausblenden" : "Artikelgruppen-Baum anzeigen");
+            button.setAttribute("data-dbx-tooltip", open ? "Artikelgruppen-Baum ausblenden" : "Artikelgruppen-Baum anzeigen");
             const icon = button.querySelector("i");
             if (icon) {
                 icon.classList.toggle("bi-diagram-3", !open);

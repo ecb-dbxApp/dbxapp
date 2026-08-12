@@ -26,13 +26,17 @@ $invoke = static function (
     return $reflection->invokeArgs($service, $arguments);
 };
 
-if ($class->getConstant('MODULE_BRIEFING_VERSION') !== '0.6') {
-    $fail('Modul-Briefing-Version ist nicht 0.6.', 1);
+if ($class->getConstant('MODULE_BRIEFING_VERSION') !== '2.0') {
+    $fail('Modul-Briefing-Version ist nicht 2.0.', 1);
 }
 
 $rules = $invoke($class, $service, 'hardRules', array('demoModule'));
 $rulesText = implode("\n", $rules);
 foreach (array(
+    'Kundendatei und Systemquelle unterscheiden',
+    'Menueinhalte und installationsbezogene Menue-Templates',
+    'nicht durch Updates ueberschreiben',
+    'PHP, DD, FD, JavaScript, CSS und andere Modul-Sourcen',
     'ausschliesslich ueber dbxDB und DD-Namen',
     'create_date, create_uid, update_date, update_uid und owner',
     'dbxapp-Exportformat',
@@ -144,13 +148,13 @@ if (
 
 $instructions = (string)file_get_contents(dirname(__DIR__) . '/KI-INSTRUCTIONS.md');
 foreach (array(
-    '## Module bearbeiten und aktualisieren',
+    'verbindlicher Auftrag-/Antwortweg',
+    'auftrag.contract.json',
+    'answer.json',
     'reference/25_Verbindliches_Modulhandbuch.md',
     'reference/myInvoices/',
-    '`delete` und `save`',
-    'zusammen mit `rid` automatisch erkannt',
-    'dbx()->action_url($url)',
-    'keinen zusätzlichen',
+    'Staging',
+    'Ausführungstoken',
 ) as $requiredDocumentation) {
     if (strpos($instructions, $requiredDocumentation) === false) {
         $fail('KI-Dokumentation fehlt: ' . $requiredDocumentation, 10);

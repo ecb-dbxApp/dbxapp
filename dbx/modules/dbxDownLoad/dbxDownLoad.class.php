@@ -12,7 +12,7 @@ class dbxDownLoad {
    }
 
    private function config(string $key, $default = '') {
-      return dbx()->get_config('dbxDownLoad', $key, $default);
+      return dbx()->get_cfg('dbxDownLoad', $key, $default);
    }
 
    private function mail_from_param() {
@@ -41,10 +41,10 @@ class dbxDownLoad {
          return $secret;
       }
 
-      $config = dbx()->get_config('dbxDownLoad');
+      $config = dbx()->get_cfg('dbxDownLoad');
       $secret = bin2hex(random_bytes(32));
       $config['token_secret'] = $secret;
-      dbx()->set_config('dbxDownLoad', $config);
+      dbx()->set_cfg('dbxDownLoad', $config);
       return $secret;
    }
 

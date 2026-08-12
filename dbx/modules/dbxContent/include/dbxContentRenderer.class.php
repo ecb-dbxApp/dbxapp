@@ -1,6 +1,8 @@
 <?php
 namespace dbx\dbxContent;
 
+require_once __DIR__ . '/dbxContent_permalink.class.php';
+
 require_once __DIR__ . '/dbxContentLng.class.php';
 require_once __DIR__ . '/dbxContentMediaUsageScope.class.php';
 
@@ -113,6 +115,7 @@ class dbxContentRenderer {
       $parsed = $this->parse_content($content_html, $slots);
       $parsed = $this->render_inline_media_placeholders($db, $parsed);
       $cms_cols = max(1, min(3, (int)($slots['cols'] ?? 1)));
+      $documentationMetadata = $this->documentationTemplateMetadata((string)($rec['permalink'] ?? ''));
 
       $settings = $this->content_settings($db, $rec);
       $hero_classes = array(
@@ -147,6 +150,9 @@ class dbxContentRenderer {
          'keywords'    => (string)($rec['keywords'] ?? ''),
          'permalink' => (string)($rec['permalink'] ?? ''),
          'template' => $template,
+         'doc:type' => $documentationMetadata['type'],
+         'doc:audience' => $documentationMetadata['audience'],
+         'doc:date' => $documentationMetadata['date'],
          'content' => $parsed['content'],
          'body' => $parsed['body'],
          'h1' => $parsed['h1'],
@@ -225,6 +231,71 @@ class dbxContentRenderer {
       return $content_html;
    }
 
+   /**
+    * Liefert ausschließlich die variablen Werte des Dokumentations-Templates.
+    * Die sichtbare Struktur bleibt dadurch im Content-Template und wird nicht
+    * mehr in jeden redaktionellen Seiteninhalt kopiert.
+    */
+   private function documentationTemplateMetadata(string $permalink): array {
+      $type = 'Handbuch';
+      $audience = 'Anwender';
+
+      if (str_starts_with($permalink, 'tutorial-')) {
+         $type = 'Tutorial';
+      } elseif (preg_match('/(?:installation|selbsttest|betrieb|sicherheit|db3-mysql|system-update)/', $permalink) === 1) {
+         $type = 'Betriebshandbuch';
+         $audience = 'Administration';
+      } elseif (preg_match('/(?:(?:^|-)ki(?:-|$)|codex|prompt|dbxki)/', $permalink) === 1) {
+         $type = 'Arbeitsanweisung';
+         $audience = 'KI-Agenten';
+      } elseif (preg_match('/(?:entwickler|entwickeln|architektur|runtime|routing|dbxtpl|dbxdb|dbxform|dbxreport|modul|javascript|core|interpreter|rad|lifecycle|stecknorm)/', $permalink) === 1) {
+         $type = str_contains($permalink, 'schnellstart') ? 'Schnellstart' : 'Entwicklerhandbuch';
+         $audience = 'Entwickler';
+      }
+
+      $language = dbxContentLng::current();
+      $translations = array(
+         'en' => array(
+            'Handbuch' => 'Manual',
+            'Tutorial' => 'Tutorial',
+            'Betriebshandbuch' => 'Operations manual',
+            'Arbeitsanweisung' => 'Work instruction',
+            'Entwicklerhandbuch' => 'Developer manual',
+            'Schnellstart' => 'Quickstart',
+            'Anwender' => 'Users',
+            'Administration' => 'Administrators',
+            'KI-Agenten' => 'AI agents',
+            'Entwickler' => 'Developers',
+         ),
+         'es' => array(
+            'Handbuch' => 'Manual',
+            'Tutorial' => 'Tutorial',
+            'Betriebshandbuch' => 'Manual de operaciones',
+            'Arbeitsanweisung' => 'Instrucción de trabajo',
+            'Entwicklerhandbuch' => 'Manual para desarrolladores',
+            'Schnellstart' => 'Inicio rápido',
+            'Anwender' => 'Usuarios',
+            'Administration' => 'Administradores',
+            'KI-Agenten' => 'Agentes de IA',
+            'Entwickler' => 'Desarrolladores',
+         ),
+      );
+      if (isset($translations[$language])) {
+         $type = $translations[$language][$type] ?? $type;
+         $audience = $translations[$language][$audience] ?? $audience;
+      }
+
+      return array(
+         'type' => $type,
+         'audience' => $audience,
+         'date' => match ($language) {
+            'en' => 'August 1, 2026',
+            'es' => '1 de agosto de 2026',
+            default => '1. August 2026',
+         },
+      );
+   }
+
    private function decorate_brand_text(string $html): string {
       if ($html === '' || strpos($html, 'dbXapp') === false) {
          return $html;
@@ -268,7 +339,11 @@ class dbxContentRenderer {
       $pageTitle = trim((string)($rec['title'] ?? ''));
       $seoTitle = trim((string)($rec['seo_title'] ?? ''));
       $displayTitle = $seoTitle !== '' ? $seoTitle : $pageTitle;
-      dbx()->set_system_var('dbx_title', $displayTitle);
+      // Der redaktionelle Seitentitel bleibt die sichtbare Überschrift. Der
+      // optionale SEO-Titel ist ausschließlich für <title>, OpenGraph und
+      // strukturierte Metadaten bestimmt.
+      dbx()->set_system_var('dbx_title', $pageTitle);
+      dbx()->set_system_var('dbx_seo_title', $displayTitle);
 
       $description = trim((string)($rec['description'] ?? ''));
       if ($description === '') {
@@ -321,6 +396,7 @@ class dbxContentRenderer {
    public static function resetSeoMeta() {
       foreach (array(
          'dbx_meta_description',
+         'dbx_seo_title',
          'dbx_meta_keywords',
          'dbx_canonical',
          'dbx_robots',
@@ -2008,7 +2084,7 @@ class dbxContentRenderer {
       if ($permalink !== '' && preg_match('/^https?:\/\//i', $permalink)) {
          return $permalink;
       }
-      return $this->seoAbsoluteUrl($permalink);
+      return $this->seoAbsoluteUrl(dbxContent_permalink::publicPath($permalink));
    }
 
    private function seoOgImageUrl($db, array $rec) {
@@ -2075,11 +2151,11 @@ class dbxContentRenderer {
 
    private function seoHreflangBlock($db, array $rec, string $currentLng): string {
       $lngUid = trim((string)($rec['lng_uid'] ?? ''));
-      if ($lngUid === '' || !function_exists('dbx_accessible_lngs')) {
+      if ($lngUid === '') {
          return '';
       }
 
-      $lngs = dbx_accessible_lngs();
+      $lngs = dbx()->accessible_lngs();
       if (!is_array($lngs) || count($lngs) < 2) {
          return '';
       }
@@ -2110,7 +2186,7 @@ class dbxContentRenderer {
       }
 
       $lines = array();
-      $defaultLng = strtolower(trim((string)dbx()->get_config('dbx', 'default_lng', 'de')));
+      $defaultLng = strtolower(trim((string)dbx()->get_cfg('dbx', 'default_lng', 'de')));
       if ($defaultLng === '' || $defaultLng === 'undef') $defaultLng = 'de';
 
       foreach ($alternates as $alt) {

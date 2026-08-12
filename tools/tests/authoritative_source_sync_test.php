@@ -14,7 +14,9 @@ function sync_test_assert(bool $condition, string $message): void
 
 $allowed = array(
    'index.php',
+   'AGENTS.md',
    'VERSION',
+   'UPDATE_BASELINE',
    '07_DBXAPP_ARCHITEKTUR.md',
    'dbx/include/dbxApi.php',
    'dbx/modules/dbxContent_admin/files/og/dbxapp-og.png',
@@ -42,6 +44,9 @@ $blocked = array(
    'dbx/modules/dbx/db/.gitkeep',
    'dbx/modules/dbxKi/work/job.php',
    'dbx/modules/myLKW/myLKW.class.php',
+   'dbx/modules/myX/myX.class.php',
+   'dbx/modules/dbxMenu/tpl/htm/dbx-top-main.htm',
+   'RELEASE_NOTES_v4.2.0.md',
    'dbx/modules/dbxContent/tpl/pdf/internal.pdf',
    'dbx/modules/dbxUser/img/avatar/user-18.png',
    'dbx/modules/demo/cache/a.php',

@@ -25,7 +25,7 @@
  * ```
  */
 
-(function (window, document, $) {
+(function (window, document) {
     "use strict";
 
 
@@ -141,6 +141,111 @@
 
     };
 
+    /* =====================================================
+     * UI LAYER SYSTEM
+     * ===================================================== */
+    const DBX_UI_LAYER_SELECTOR = [
+        "[data-dbx-layer]",
+        ".dbx-window",
+        ".dbx-window-overlay",
+        ".dbx-confirm-overlay",
+        ".dbx-confirm-dialog",
+        ".jodit-container.jodit_fullsize"
+    ].join(",");
+
+    function uiLayerElement(value) {
+        if (!value) return null;
+        if (value.jquery && value[0]) return value[0];
+        return value.nodeType === 1 ? value : null;
+    }
+
+    function uiLayerElements(value) {
+        if (!value) return [];
+        if (typeof value === "string") return Array.from(document.querySelectorAll(value));
+        if (value.jquery) return value.toArray();
+        if (value.nodeType === 1) return [value];
+        if (typeof value[Symbol.iterator] === "function") return Array.from(value);
+        return [];
+    }
+
+    function uiLayerZIndex(value) {
+        const el = uiLayerElement(value);
+        if (!el) return 0;
+        const zIndex = parseInt(window.getComputedStyle(el).zIndex, 10);
+        return Number.isFinite(zIndex) ? zIndex : 0;
+    }
+
+    function uiLayerAncestorZIndex(value) {
+        let el = uiLayerElement(value);
+        let max = 0;
+        while (el && el !== document.documentElement) {
+            max = Math.max(max, uiLayerZIndex(el));
+            el = el.parentElement;
+        }
+        return max;
+    }
+
+    function uiLayerIsRendered(value) {
+        const el = uiLayerElement(value);
+        if (!el || !el.isConnected) return false;
+        const style = window.getComputedStyle(el);
+        if (style.display === "none" || style.visibility === "hidden" || style.visibility === "collapse") {
+            return false;
+        }
+        return el.getClientRects().length > 0;
+    }
+
+    function uiLayerCandidates(options) {
+        options = options || {};
+        const selector = options.selector === undefined ? DBX_UI_LAYER_SELECTOR : options.selector;
+        const candidates = new Set(selector ? uiLayerElements(selector) : []);
+        uiLayerElements(options.elements).forEach(el => candidates.add(el));
+        uiLayerElements(options.include).forEach(el => candidates.add(el));
+        const excluded = new Set(uiLayerElements(options.exclude).map(uiLayerElement).filter(Boolean));
+        const renderedOnly = options.renderedOnly !== false;
+
+        return Array.from(candidates)
+            .map(uiLayerElement)
+            .filter(el => el && !excluded.has(el) && (!renderedOnly || uiLayerIsRendered(el)));
+    }
+
+    dbx.uiLayer = {
+        selector: DBX_UI_LAYER_SELECTOR,
+        element: uiLayerElement,
+        isRendered: uiLayerIsRendered,
+        zIndex: uiLayerZIndex,
+        ancestorZIndex: uiLayerAncestorZIndex,
+
+        max(options) {
+            options = options || {};
+            let max = Number(options.floor) || 0;
+            uiLayerCandidates(options).forEach(el => {
+                max = Math.max(max, uiLayerAncestorZIndex(el));
+            });
+            return max;
+        },
+
+        next(options) {
+            options = options || {};
+            const step = Math.max(1, Number(options.step) || 20);
+            const ceiling = Math.max(1, Number(options.ceiling) || 2147483647);
+            return Math.min(ceiling, this.max(options) + step);
+        },
+
+        top(options) {
+            let top = null;
+            let topZ = -1;
+            uiLayerCandidates(options || {}).forEach(el => {
+                const zIndex = uiLayerAncestorZIndex(el);
+                if (zIndex >= topZ) {
+                    top = el;
+                    topZ = zIndex;
+                }
+            });
+            return top;
+        }
+    };
+
 
 
     /* =====================================================
@@ -235,7 +340,7 @@
             el.style.borderRadius = "50%";
             el.style.zIndex = "99999";
             el.style.boxShadow = "0 0 6px rgba(0,0,0,0.3)";
-            el.title = dbx.translate({
+            el.dataset.dbxTooltip = dbx.translate({
                 de: "DBX-Fehler aufgetreten",
                 en: "A DBX error occurred",
                 es: "Se ha producido un error de DBX"
@@ -779,8 +884,13 @@
         function responseRuntimeSeconds() {
             const perf = window.performance;
             const nav = perf && perf.getEntriesByType && perf.getEntriesByType("navigation")[0];
-            if (nav && nav.duration) {
-                return nav.duration / 1000;
+            const domReadyEnd = nav ? Number(nav.domContentLoadedEventEnd) : NaN;
+
+            // navigation.duration endet erst nach dem load-Event. Langsame Bilder,
+            // Fonts oder andere Subressourcen ließen die Anzeige deshalb noch
+            // weiterlaufen, obwohl DOM und JavaScript bereits einsatzbereit waren.
+            if (Number.isFinite(domReadyEnd) && domReadyEnd > 0) {
+                return domReadyEnd / 1000;
             }
 
             return perf && perf.now ? perf.now() / 1000 : 0;
@@ -829,7 +939,7 @@
                 ? label + ": " + responseLabel + " / " + formatPhpSeconds(phpValue) + " sec"
                 : label + ": " + responseLabel + " sec";
 
-            el.setAttribute("title", title);
+            el.setAttribute("data-dbx-tooltip", title);
             el.setAttribute("data-dbx-page-runtime-title", title);
         }
 
@@ -842,18 +952,20 @@
                     responseRuntimeSeconds(),
                     phpRuntimeSeconds(el),
                     dbx.translate({
-                        de: "Komplette Antwortlaufzeit / PHP-Laufzeit",
-                        en: "Complete response time / PHP runtime",
-                        es: "Tiempo total de respuesta / tiempo de ejecución de PHP"
+                        de: "DOM- und JavaScript-Bereitschaft / PHP-Laufzeit",
+                        en: "DOM and JavaScript readiness / PHP runtime",
+                        es: "Disponibilidad de DOM y JavaScript / tiempo de ejecución de PHP"
                     })
                 );
             };
 
-            if (document.readyState === "complete") {
+            if (document.readyState !== "loading") {
                 update();
             } else {
-                window.addEventListener("load", update, { once: true });
-                setTimeout(update, 0);
+                // Genau an derselben Grenze messen, die auch angezeigt wird.
+                // Ein früher setTimeout-Wert und ein später load-Wert ließen die
+                // Zahl sichtbar springen und rechneten langsame Bilder hinein.
+                document.addEventListener("DOMContentLoaded", update, { once: true });
             }
         }
 
@@ -2794,11 +2906,16 @@
     /* =====================================================
      * DOM READY
      * ===================================================== */
-    $(function () {
+    function domReady() {
         dbx.log("DOM ready → scan");
         dbx.scan(document);
         dbx.footerStatus.init();
-    });
+    }
+    if (document.readyState !== "loading") {
+        domReady();
+    } else {
+        document.addEventListener("DOMContentLoaded", domReady, { once: true });
+    }
 
     /* =====================================================
      * API
@@ -2824,4 +2941,4 @@
         dbx.resolveFeature(name, cb || function () {});
     };
 
-})(window, document, jQuery);
+})(window, document);

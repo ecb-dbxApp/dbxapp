@@ -15,7 +15,7 @@ Class dbxLogin {
    }
 
    private function mail_enabled($key) {
-      $value = dbx()->get_config('dbxLogin', $key);
+      $value = dbx()->get_cfg('dbxLogin', $key);
       $value = strtolower(trim((string)$value));
       return !in_array($value, array('', '0', 'false', 'off', 'no'), true);
    }
@@ -138,13 +138,18 @@ Class dbxLogin {
 
           case 'register':
               $run2 = dbx()->get_modul_var('dbx_run2', '', 'parameter');
-              if ((string)dbx()->get_config('dbxLogin', 'register') === '1' || in_array($run2, array('confirm', 'resend_confirm'), true)) {
+              if ((string)dbx()->get_cfg('dbxLogin', 'register') === '1' || in_array($run2, array('confirm', 'resend_confirm'), true)) {
                  $obj=dbx()->get_include_obj('register');
                  $content=$obj->run();
               } else {
                  $obj=dbx()->get_include_obj('login');
                  $content = $this->alert('warning', 'Registrierung ist deaktiviert.') . $obj->run();
               }
+          break;
+
+          case 'password_reset':
+              $obj = dbx()->get_include_obj('password_reset');
+              $content = $obj->run();
           break;
 
           case 'verify':

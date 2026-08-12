@@ -51,7 +51,6 @@ class dbxDocsContentProvision
         $this->removeLegacyMenuTemplates();
         $this->prepareHtmlMap();
         $this->prepareFolderTree();
-        $this->moveTutorialFolders();
         $this->provisionAreaLandingPages();
         $this->shortenTutorialTitles();
         $this->provisionDocumentationHome();
@@ -98,54 +97,54 @@ class dbxDocsContentProvision
         return array(
             'de' => array(
                 array('key' => 'root', 'name' => 'Dokumentation', 'parent' => '', 'sorter' => '0010'),
-                array('key' => 'start', 'name' => 'Einstieg', 'parent' => 'root', 'sorter' => '0010'),
-                array('key' => 'tutorials', 'name' => 'Anwenden', 'legacy_names' => array('Tutorials'), 'parent' => 'root', 'sorter' => '0020'),
+                array('key' => 'start', 'name' => 'Anwender', 'legacy_names' => array('Einstieg'), 'parent' => 'root', 'sorter' => '0010'),
+                array('key' => 'tutorials', 'name' => 'Praxis', 'legacy_names' => array('Tutorials', 'Anwenden'), 'parent' => 'start', 'sorter' => '0010'),
                 array('key' => 'content', 'name' => 'CMS & KI', 'legacy_names' => array('Content & KI'), 'parent' => 'tutorials', 'sorter' => '0010'),
                 array('key' => 'design', 'name' => 'Design', 'parent' => 'tutorials', 'sorter' => '0020'),
                 array('key' => 'shop', 'name' => 'Shop', 'parent' => 'tutorials', 'sorter' => '0030'),
                 array('key' => 'workflow', 'name' => 'Workflows', 'parent' => 'tutorials', 'sorter' => '0040'),
-                array('key' => 'development', 'name' => 'Entwickeln', 'legacy_names' => array('Entwicklung'), 'parent' => 'root', 'sorter' => '0030'),
+                array('key' => 'development', 'name' => 'Entwickler', 'legacy_names' => array('Entwicklung', 'Entwickeln'), 'parent' => 'root', 'sorter' => '0030'),
                 array('key' => 'architecture', 'name' => 'Architektur', 'parent' => 'development', 'sorter' => '0010'),
                 array('key' => 'libraries', 'name' => 'Kernbibliotheken', 'parent' => 'development', 'sorter' => '0020'),
                 array('key' => 'modules', 'name' => 'Module & JavaScript', 'parent' => 'development', 'sorter' => '0030'),
                 array('key' => 'deep', 'name' => 'Analysen & Konzepte', 'parent' => 'development', 'sorter' => '0040'),
-                array('key' => 'ai-instructions', 'name' => 'KI-Arbeitsanweisungen', 'parent' => 'development', 'sorter' => '0050'),
-                array('key' => 'operations', 'name' => 'Betrieb', 'legacy_names' => array('Betrieb & Sicherheit'), 'parent' => 'root', 'sorter' => '0040'),
-                array('key' => 'service', 'name' => 'Service', 'parent' => 'operations', 'sorter' => '0090'),
+                array('key' => 'ai-instructions', 'name' => 'KI', 'legacy_names' => array('KI-Arbeitsanweisungen'), 'parent' => 'root', 'sorter' => '0040'),
+                array('key' => 'operations', 'name' => 'Administratoren', 'legacy_names' => array('Betrieb & Sicherheit', 'Betrieb'), 'parent' => 'root', 'sorter' => '0020'),
+                array('key' => 'service', 'name' => 'Service', 'parent' => 'operations', 'sorter' => '0010'),
             ),
             'en' => array(
                 array('key' => 'root', 'name' => 'Documentation', 'parent' => '', 'sorter' => '0010'),
-                array('key' => 'start', 'name' => 'Getting started', 'parent' => 'root', 'sorter' => '0010'),
-                array('key' => 'tutorials', 'name' => 'Use', 'legacy_names' => array('Tutorials'), 'parent' => 'root', 'sorter' => '0020'),
+                array('key' => 'start', 'name' => 'Users', 'legacy_names' => array('Getting started'), 'parent' => 'root', 'sorter' => '0010'),
+                array('key' => 'tutorials', 'name' => 'Practice', 'legacy_names' => array('Tutorials', 'Use'), 'parent' => 'start', 'sorter' => '0010'),
                 array('key' => 'content', 'name' => 'CMS & AI', 'parent' => 'tutorials', 'sorter' => '0010'),
                 array('key' => 'design', 'name' => 'Design', 'parent' => 'tutorials', 'sorter' => '0020'),
                 array('key' => 'shop', 'name' => 'Shop', 'parent' => 'tutorials', 'sorter' => '0030'),
                 array('key' => 'workflow', 'name' => 'Workflows', 'parent' => 'tutorials', 'sorter' => '0040'),
-                array('key' => 'development', 'name' => 'Develop', 'parent' => 'root', 'sorter' => '0030'),
+                array('key' => 'development', 'name' => 'Developers', 'legacy_names' => array('Develop'), 'parent' => 'root', 'sorter' => '0030'),
                 array('key' => 'architecture', 'name' => 'Architecture', 'parent' => 'development', 'sorter' => '0010'),
                 array('key' => 'libraries', 'name' => 'Core libraries', 'parent' => 'development', 'sorter' => '0020'),
                 array('key' => 'modules', 'name' => 'Modules & JavaScript', 'parent' => 'development', 'sorter' => '0030'),
                 array('key' => 'deep', 'name' => 'Analyses & concepts', 'parent' => 'development', 'sorter' => '0040'),
-                array('key' => 'ai-instructions', 'name' => 'AI instructions', 'parent' => 'development', 'sorter' => '0050'),
-                array('key' => 'operations', 'name' => 'Operate', 'parent' => 'root', 'sorter' => '0040'),
-                array('key' => 'service', 'name' => 'Service', 'parent' => 'operations', 'sorter' => '0090'),
+                array('key' => 'ai-instructions', 'name' => 'AI', 'legacy_names' => array('AI instructions'), 'parent' => 'root', 'sorter' => '0040'),
+                array('key' => 'operations', 'name' => 'Administrators', 'legacy_names' => array('Operate'), 'parent' => 'root', 'sorter' => '0020'),
+                array('key' => 'service', 'name' => 'Service', 'parent' => 'operations', 'sorter' => '0010'),
             ),
             'es' => array(
                 array('key' => 'root', 'name' => 'Documentación', 'parent' => '', 'sorter' => '0010'),
-                array('key' => 'start', 'name' => 'Primeros pasos', 'parent' => 'root', 'sorter' => '0010'),
-                array('key' => 'tutorials', 'name' => 'Usar', 'legacy_names' => array('Tutoriales'), 'parent' => 'root', 'sorter' => '0020'),
+                array('key' => 'start', 'name' => 'Usuarios', 'legacy_names' => array('Primeros pasos'), 'parent' => 'root', 'sorter' => '0010'),
+                array('key' => 'tutorials', 'name' => 'Práctica', 'legacy_names' => array('Tutoriales', 'Usar'), 'parent' => 'start', 'sorter' => '0010'),
                 array('key' => 'content', 'name' => 'CMS e IA', 'parent' => 'tutorials', 'sorter' => '0010'),
                 array('key' => 'design', 'name' => 'Diseño', 'parent' => 'tutorials', 'sorter' => '0020'),
                 array('key' => 'shop', 'name' => 'Tienda', 'parent' => 'tutorials', 'sorter' => '0030'),
                 array('key' => 'workflow', 'name' => 'Flujos de trabajo', 'parent' => 'tutorials', 'sorter' => '0040'),
-                array('key' => 'development', 'name' => 'Desarrollar', 'parent' => 'root', 'sorter' => '0030'),
+                array('key' => 'development', 'name' => 'Desarrolladores', 'legacy_names' => array('Desarrollar'), 'parent' => 'root', 'sorter' => '0030'),
                 array('key' => 'architecture', 'name' => 'Arquitectura', 'parent' => 'development', 'sorter' => '0010'),
                 array('key' => 'libraries', 'name' => 'Bibliotecas base', 'parent' => 'development', 'sorter' => '0020'),
                 array('key' => 'modules', 'name' => 'Módulos y JavaScript', 'parent' => 'development', 'sorter' => '0030'),
                 array('key' => 'deep', 'name' => 'Análisis y conceptos', 'parent' => 'development', 'sorter' => '0040'),
-                array('key' => 'ai-instructions', 'name' => 'Instrucciones de IA', 'parent' => 'development', 'sorter' => '0050'),
-                array('key' => 'operations', 'name' => 'Operar', 'parent' => 'root', 'sorter' => '0040'),
-                array('key' => 'service', 'name' => 'Servicio', 'parent' => 'operations', 'sorter' => '0090'),
+                array('key' => 'ai-instructions', 'name' => 'IA', 'legacy_names' => array('Instrucciones de IA'), 'parent' => 'root', 'sorter' => '0040'),
+                array('key' => 'operations', 'name' => 'Administradores', 'legacy_names' => array('Operar'), 'parent' => 'root', 'sorter' => '0020'),
+                array('key' => 'service', 'name' => 'Servicio', 'parent' => 'operations', 'sorter' => '0010'),
             ),
         );
     }
@@ -160,9 +159,9 @@ class dbxDocsContentProvision
             array('html' => 'dbxapp_user_shop.html', 'folder' => 'shop', 'title' => 'Shop bedienen und administrieren', 'menu' => 'Shop bedienen', 'permalink' => 'dokumentation-shop-bedienung'),
             array('html' => 'dbxapp_user_workflows.html', 'folder' => 'workflow', 'title' => 'Workflows erstellen und benutzen', 'menu' => 'Workflows bedienen', 'permalink' => 'dokumentation-workflow-bedienung'),
             array('html' => 'dbxapp_user_design.html', 'folder' => 'design', 'title' => 'Designs manuell und mit KI erstellen', 'menu' => 'Design-Tutorial', 'permalink' => 'dokumentation-design-tutorial'),
-            array('html' => 'dbxapp_user_ki_content.html', 'folder' => 'content', 'title' => 'KI-Bereich Content', 'menu' => 'KI: Content', 'permalink' => 'dokumentation-ki-content'),
-            array('html' => 'dbxapp_user_ki_design.html', 'folder' => 'design', 'title' => 'KI-Bereich Design', 'menu' => 'KI: Design', 'permalink' => 'dokumentation-ki-design'),
-            array('html' => 'dbxapp_user_ki_modules.html', 'folder' => 'modules', 'title' => 'KI-Bereich Module', 'menu' => 'KI: Module', 'permalink' => 'dokumentation-ki-module'),
+            array('html' => 'dbxapp_user_ki_content.html', 'folder' => 'ai-instructions', 'title' => 'KI-Bereich Content', 'menu' => 'KI: Content', 'permalink' => 'dokumentation-ki-content'),
+            array('html' => 'dbxapp_user_ki_design.html', 'folder' => 'ai-instructions', 'title' => 'KI-Bereich Design', 'menu' => 'KI: Design', 'permalink' => 'dokumentation-ki-design'),
+            array('html' => 'dbxapp_user_ki_modules.html', 'folder' => 'ai-instructions', 'title' => 'KI-Bereich Module', 'menu' => 'KI: Module', 'permalink' => 'dokumentation-ki-module'),
             array('html' => 'dbxapp_developer_docs.html', 'folder' => 'architecture', 'title' => 'Entwicklerdokumentation', 'menu' => 'Entwicklerhandbuch', 'permalink' => 'dokumentation-entwickler'),
             array('html' => 'dbxapp_dev_orientation.html', 'folder' => 'architecture', 'title' => 'Architektur und Laufzeit', 'menu' => 'Architektur & Laufzeit', 'permalink' => 'dokumentation-architektur-laufzeit'),
             array('html' => 'dbxapp_dev_modules.html', 'folder' => 'modules', 'title' => 'Verbindliche Modulentwicklung', 'menu' => 'Modulentwicklung', 'permalink' => 'dokumentation-modulentwicklung'),
@@ -180,7 +179,7 @@ class dbxDocsContentProvision
             array('html' => 'dbxapp_javascript_libs.html', 'folder' => 'modules', 'title' => 'JavaScript-Systembibliotheken', 'menu' => 'JavaScript', 'permalink' => 'dokumentation-javascript'),
             array('html' => 'dbxapp_cms_dbxki.html', 'folder' => 'content', 'title' => 'CMS und dbxKi', 'menu' => 'CMS & dbxKi', 'permalink' => 'dokumentation-cms-dbxki'),
             array('html' => 'dbxapp_core_classes.html', 'folder' => 'libraries', 'title' => 'Core-Klassen', 'menu' => 'Core-Klassen', 'permalink' => 'dokumentation-core-klassen'),
-            array('html' => 'dbxapp_ai_rules.html', 'folder' => 'modules', 'title' => 'Verbindliche Regeln für KI-Agenten', 'menu' => 'KI-Regeln', 'permalink' => 'dokumentation-ki-regeln'),
+            array('html' => 'dbxapp_ai_rules.html', 'folder' => 'ai-instructions', 'title' => 'Verbindliche Regeln für KI-Agenten', 'menu' => 'KI-Regeln', 'permalink' => 'dokumentation-ki-regeln'),
             array('html' => 'dbxapp_credits.html', 'folder' => 'service', 'title' => 'Bibliotheken, Credits und Lizenzen', 'menu' => 'Lizenzen', 'permalink' => 'dokumentation-lizenzen'),
             array('html' => 'dbxapp_dbxinterpreter.html', 'folder' => 'libraries', 'title' => 'dbxInterpreter-Leitfaden', 'menu' => 'dbxInterpreter', 'permalink' => 'dokumentation-dbxinterpreter'),
             array('html' => 'dbxapp_design_themes_skins.html', 'folder' => 'design', 'title' => 'Designs, Themes und Skins', 'menu' => 'Design-Grundlagen', 'permalink' => 'dokumentation-designs-skins'),
@@ -196,7 +195,7 @@ class dbxDocsContentProvision
             array('html' => 'dbxapp_module_reference.html', 'folder' => 'modules', 'title' => 'Verbindliches Modulhandbuch', 'menu' => 'Modulhandbuch', 'permalink' => 'dokumentation-modulhandbuch'),
             array('html' => 'dbxapp_design_studio_ki.html', 'folder' => 'design', 'title' => 'Design Studio und KI-Wizard', 'menu' => 'Design Studio', 'permalink' => 'dokumentation-design-studio'),
             array('html' => 'dbxapp_install_update_dd_bindings.html', 'folder' => 'operations', 'title' => 'Installation, Updates und DD-Serverbindungen', 'menu' => 'Installation & Updates', 'permalink' => 'dokumentation-installation-updates'),
-            array('html' => 'dbxapp_ki_areas.html', 'folder' => 'content', 'title' => 'Die drei KI-Bereiche in dbxapp', 'menu' => 'KI-Bereiche', 'permalink' => 'dokumentation-ki-bereiche'),
+            array('html' => 'dbxapp_ki_areas.html', 'folder' => 'ai-instructions', 'title' => 'Die drei KI-Bereiche in dbxapp', 'menu' => 'KI-Bereiche', 'permalink' => 'dokumentation-ki-bereiche'),
             array('html' => 'dbxapp_documentation_portal.html', 'folder' => 'operations', 'title' => 'Dokumentationsportal betreiben und veröffentlichen', 'menu' => 'Dokumentationsportal', 'permalink' => 'dokumentation-portal-betrieb'),
             array('html' => 'dbxapp_user_system_update.html', 'folder' => 'operations', 'title' => 'System-Updates sicher durchführen', 'menu' => 'System-Update', 'permalink' => 'dokumentation-system-update'),
         );
@@ -265,7 +264,11 @@ class dbxDocsContentProvision
             return $id;
         }
 
-        foreach (array_values(array_unique(array_merge(array($name), $legacyNames))) as $candidateName) {
+        // Der aktuelle Name darf nicht installationsweit gesucht werden: Ein
+        // gleichnamiger Kundenordner außerhalb /Dokumentation (z. B.
+        // „Entwickler“) ist kein Migrationskandidat. Nur ausdrücklich bekannte
+        // frühere Namen dürfen verschoben werden.
+        foreach (array_values(array_unique($legacyNames)) as $candidateName) {
             $candidateName = trim((string)$candidateName);
             if ($candidateName === '') {
                 continue;
@@ -299,51 +302,6 @@ class dbxDocsContentProvision
         return (int)$this->db->get_insert_id();
     }
 
-    private function moveTutorialFolders(): void
-    {
-        foreach (array('de', 'en', 'es') as $language) {
-            $dd = dbxContentLng::ddFolder($language);
-            $rows = $this->db->select($dd, '', 'id,name,parent_id,sorter', 'id', 'ASC', '', 0, 0, 0);
-            $targetId = (int)($this->folderIds[$language]['tutorials'] ?? 0);
-            $rootId = (int)($this->folderIds[$language]['root'] ?? 0);
-
-            foreach (is_array($rows) ? $rows : array() as $row) {
-                $id = (int)($row['id'] ?? 0);
-                $name = trim((string)($row['name'] ?? ''));
-                if ($id <= 0 || $id === $targetId || stripos($name, 'tutor') === false) {
-                    continue;
-                }
-
-                $pages = $this->db->select(
-                    dbxContentLng::ddContent($language),
-                    array('folder' => $id),
-                    'id',
-                    'id',
-                    'ASC',
-                    '',
-                    1,
-                    0,
-                    0
-                );
-                if (!is_array($pages) || $pages === array()) {
-                    continue;
-                }
-
-                if ($this->folderIsEmpty($language, $targetId)) {
-                    $this->db->delete($dd, $targetId, 0, 1);
-                    $this->db->update($dd, array(
-                        'name' => array('de' => 'Anwenden', 'en' => 'Use', 'es' => 'Usar')[$language],
-                        'parent_id' => $rootId,
-                        'sorter' => '0020',
-                    ), $id, 0, 1, 0, 1);
-                    $this->folderIds[$language]['tutorials'] = $id;
-                    $this->result['folders_updated']++;
-                }
-                break;
-            }
-        }
-    }
-
     /**
      * Legt für jeden Hauptbereich eine echte CMS-Einstiegsseite an.
      *
@@ -356,7 +314,7 @@ class dbxDocsContentProvision
         $areas = array(
             'de' => array(
                 'start' => array(
-                    'title' => 'Einstieg', 'permalink' => 'dokumentation-einstieg',
+                    'title' => 'Anwender', 'permalink' => 'dokumentation-einstieg',
                     'lead' => 'Orientierung, erste Schritte und der schnellste Weg zur passenden Anleitung.',
                     'links' => array(
                         array('dokumentation-erste-schritte', 'Erste Schritte', 'Anmelden, navigieren und sicher beginnen.'),
@@ -364,18 +322,8 @@ class dbxDocsContentProvision
                         array('tutorial-installation', 'Installation als Tutorial', 'Eine neue Installation kontrolliert einrichten.'),
                     ),
                 ),
-                'tutorials' => array(
-                    'title' => 'Anwenden', 'permalink' => 'dokumentation-anwenden',
-                    'lead' => 'Aufgaben im CMS, Design, Shop und Workflow Schritt für Schritt erledigen.',
-                    'links' => array(
-                        array('dokumentation-cms-medien', 'CMS & Medien', 'Inhalte, Bilder und Videos zuverlässig pflegen.'),
-                        array('dokumentation-design-tutorial', 'Design', 'Oberflächen manuell oder mit KI gestalten.'),
-                        array('dokumentation-shop-bedienung', 'Shop', 'Produkte, Kanäle und Bestellungen bearbeiten.'),
-                        array('dokumentation-workflow-bedienung', 'Workflows', 'Abläufe erstellen, starten und kontrollieren.'),
-                    ),
-                ),
                 'development' => array(
-                    'title' => 'Entwickeln', 'permalink' => 'dokumentation-entwickeln',
+                    'title' => 'Entwickler', 'permalink' => 'dokumentation-entwickeln',
                     'lead' => 'Architektur, Templates, Kernbibliotheken, Module und JavaScript nach dem dbxapp-Weg.',
                     'links' => array(
                         array('dokumentation-architektur-laufzeit', 'Architektur', 'Request, Runtime und Modulgrenzen verstehen.'),
@@ -385,7 +333,7 @@ class dbxDocsContentProvision
                     ),
                 ),
                 'operations' => array(
-                    'title' => 'Betrieb', 'permalink' => 'dokumentation-betrieb',
+                    'title' => 'Administratoren', 'permalink' => 'dokumentation-betrieb',
                     'lead' => 'Installation, Updates, Selbsttests, Sicherheit und laufenden Betrieb beherrschen.',
                     'links' => array(
                         array('dokumentation-installation', 'Installation', 'Voraussetzungen und produktionsreife Einrichtung.'),
@@ -394,18 +342,27 @@ class dbxDocsContentProvision
                         array('dokumentation-sicherheit-performance', 'Sicherheit & Performance', 'Integrität prüfen und Laufzeit gezielt optimieren.'),
                     ),
                 ),
+                'ai-instructions' => array(
+                    'title' => 'KI', 'permalink' => 'dokumentation-ki-agenten',
+                    'lead' => 'Verbindliche Regeln, geprüfte Arbeitsabläufe und Systemgrenzen für KI-Agenten.',
+                    'links' => array(
+                        array('dokumentation-ki-regeln', 'Verbindliche KI-Regeln', 'Regeln und Abnahmebedingungen für Änderungen.'),
+                        array('dokumentation-codex-anweisung', 'Codex-Arbeitsanweisung', 'Sicher und nachvollziehbar am System arbeiten.'),
+                        array('dokumentation-prompt-analyse', 'Analyse', 'Quellen und Abläufe systematisch untersuchen.'),
+                    ),
+                ),
             ),
             'en' => array(
-                'start' => array('title' => 'Getting started', 'permalink' => 'documentation-getting-started', 'lead' => 'Orientation and the shortest route to the right dbxapp guide.'),
-                'tutorials' => array('title' => 'Use', 'permalink' => 'documentation-use', 'lead' => 'Complete day-to-day tasks in CMS, design, shop and workflows.'),
-                'development' => array('title' => 'Develop', 'permalink' => 'documentation-develop', 'lead' => 'Build modules, templates and JavaScript using dbxapp conventions.'),
-                'operations' => array('title' => 'Operate', 'permalink' => 'documentation-operate', 'lead' => 'Install, update, test and operate dbxapp reliably.'),
+                'start' => array('title' => 'Users', 'permalink' => 'documentation-getting-started', 'lead' => 'Orientation and the shortest route to the right dbxapp guide.'),
+                'operations' => array('title' => 'Administrators', 'permalink' => 'documentation-operate', 'lead' => 'Install, update, test and operate dbxapp reliably.'),
+                'development' => array('title' => 'Developers', 'permalink' => 'documentation-develop', 'lead' => 'Build modules, templates and JavaScript using dbxapp conventions.'),
+                'ai-instructions' => array('title' => 'AI', 'permalink' => 'documentation-ai', 'lead' => 'Binding rules and verified workflows for AI agents.'),
             ),
             'es' => array(
-                'start' => array('title' => 'Primeros pasos', 'permalink' => 'documentacion-primeros-pasos', 'lead' => 'Orientación y el camino más corto hacia la guía adecuada de dbxapp.'),
-                'tutorials' => array('title' => 'Usar', 'permalink' => 'documentacion-usar', 'lead' => 'Realice tareas en CMS, diseño, tienda y flujos de trabajo.'),
-                'development' => array('title' => 'Desarrollar', 'permalink' => 'documentacion-desarrollar', 'lead' => 'Cree módulos, plantillas y JavaScript según las convenciones de dbxapp.'),
-                'operations' => array('title' => 'Operar', 'permalink' => 'documentacion-operar', 'lead' => 'Instale, actualice, pruebe y opere dbxapp de forma fiable.'),
+                'start' => array('title' => 'Usuarios', 'permalink' => 'documentacion-primeros-pasos', 'lead' => 'Orientación y el camino más corto hacia la guía adecuada de dbxapp.'),
+                'operations' => array('title' => 'Administradores', 'permalink' => 'documentacion-operar', 'lead' => 'Instale, actualice, pruebe y opere dbxapp de forma fiable.'),
+                'development' => array('title' => 'Desarrolladores', 'permalink' => 'documentacion-desarrollar', 'lead' => 'Cree módulos, plantillas y JavaScript según las convenciones de dbxapp.'),
+                'ai-instructions' => array('title' => 'IA', 'permalink' => 'documentacion-ia', 'lead' => 'Reglas vinculantes y procesos verificados para agentes de IA.'),
             ),
         );
 
@@ -454,16 +411,6 @@ class dbxDocsContentProvision
                 $this->upsertPage($language, $page);
             }
         }
-    }
-
-    private function folderIsEmpty(string $language, int $folderId): bool
-    {
-        if ($folderId <= 0) {
-            return true;
-        }
-        $pages = $this->db->select(dbxContentLng::ddContent($language), array('folder' => $folderId), 'id', 'id', 'ASC', '', 1, 0, 0);
-        $folders = $this->db->select(dbxContentLng::ddFolder($language), array('parent_id' => $folderId), 'id', 'id', 'ASC', '', 1, 0, 0);
-        return (!is_array($pages) || $pages === array()) && (!is_array($folders) || $folders === array());
     }
 
     private function shortenTutorialTitles(): void
@@ -583,7 +530,7 @@ class dbxDocsContentProvision
     {
         $file = dirname(__DIR__) . '/content/dbxapp_home.html';
         $content = is_file($file) ? trim((string)file_get_contents($file)) : '';
-        $revision = '2026-08-01-portal-v5';
+        $revision = '2026-08-03-portal-v6';
         if ($content === '' || !str_contains($content, 'data-dbx-doc-revision="' . $revision . '"')) {
             $this->result['errors'][] = 'dbxapp_home.html: Gebündelte Startseite fehlt oder ist ungültig.';
             return;
@@ -593,19 +540,26 @@ class dbxDocsContentProvision
         $dd = dbxContentLng::ddContent('de');
         $row = $this->db->select1(
             $dd,
-            array('permalink' => 'tutorials-dbxapp'),
-            'id,content',
+            array('permalink' => 'dokumentation'),
+            'id,content,folder,template',
             0
         );
         $id = (int)($row['id'] ?? 0);
         if ($id <= 0) {
-            $this->result['errors'][] = 'Dokumentations-Startseite tutorials-dbxapp wurde nicht gefunden.';
+            $this->result['errors'][] = 'Dokumentations-Startseite /dokumentation/ wurde nicht gefunden.';
             return;
         }
-        if (str_contains((string)($row['content'] ?? ''), 'data-dbx-doc-revision="' . $revision . '"')) {
-            return;
-        }
-        if ($this->db->update($dd, array('content' => $content), $id, 0, 1, 0, 1) === 1) {
+        $fields = array(
+            'folder' => (int)($this->folderIds['de']['root'] ?? 0),
+            'title' => 'dbxapp Dokumentation – Anwender, Administration, Entwickler und KI',
+            'menu_title' => 'Dokumentation',
+            'seo_title' => 'dbxapp Dokumentation – Anwender, Administration, Entwickler und KI',
+            'description' => 'Zentrale dbxapp-Dokumentation für Anwender, Administratoren, Entwickler und KI-Agenten.',
+            'keywords' => 'dbxapp, Dokumentation, Anwender, Administration, Entwickler, KI, Referenz',
+            'template' => 'c-body1-footer',
+            'content' => $content,
+        );
+        if ($this->db->update($dd, $fields, $id, 0, 1, 0, 1) === 1) {
             $this->result['pages_updated']++;
         }
     }
@@ -898,8 +852,9 @@ class dbxDocsContentProvision
     }
 
     /**
-     * Ergänzt alle redaktionellen Seiten um dieselbe sichtbare Qualitätszeile.
-     * Der eigentliche CMS-Inhalt bleibt dabei unangetastet.
+     * Trennt redaktionellen Inhalt und wiederkehrende Dokumentdarstellung.
+     * Alte eingebettete Metadaten werden entfernt; ihre sichtbare Ausgabe
+     * übernimmt ausschließlich das zugeordnete Content-Template.
      */
     private function synchronizeDocumentationMetadata(): void
     {
@@ -907,7 +862,7 @@ class dbxDocsContentProvision
         $rows = $this->db->select(
             $dd,
             '',
-            'id,permalink,content',
+            'id,permalink,template,content',
             'id',
             'ASC',
             '',
@@ -928,7 +883,6 @@ class dbxDocsContentProvision
                 continue;
             }
 
-            $metadata = $this->documentationMetadataHtml($permalink);
             $normalizedContent = str_replace(array('dbXapp', 'DBXApp'), 'dbxapp', $content);
             $updated = preg_replace(
                 '#\s*<!--\s*dbxdocs-meta:start\s*-->.*?<!--\s*dbxdocs-meta:end\s*-->\s*#is',
@@ -936,53 +890,33 @@ class dbxDocsContentProvision
                 $normalizedContent
             );
             $updated = trim(is_string($updated) ? $updated : $content);
-            if (preg_match("/<(?:div|article)\\b[^>]*class=([\"'])[^\"']*\\bdbxdocs-cms-article\\b[^\"']*\\1[^>]*>/i", $updated, $match, PREG_OFFSET_CAPTURE) === 1) {
-                $tag = (string)$match[0][0];
-                $position = (int)$match[0][1] + strlen($tag);
-                $updated = substr($updated, 0, $position)
-                    . "\n" . $metadata . "\n"
-                    . ltrim(substr($updated, $position));
-            } else {
-                $updated = $metadata . "\n" . $updated;
-            }
-            if ($updated === $content) {
+            $template = $this->documentationTemplateForPermalink($permalink);
+            if ($updated === $content && (string)($row['template'] ?? '') === $template) {
                 continue;
             }
-            if ($this->db->update($dd, array('content' => $updated), $id, 0, 1, 0, 1) === 1) {
+            if ($this->db->update($dd, array('content' => $updated, 'template' => $template), $id, 0, 1, 0, 1) === 1) {
                 $this->result['pages_updated']++;
             }
         }
     }
 
-    private function documentationMetadataHtml(string $permalink): string
+    /**
+     * Ordnet jede Dokumentationsseite genau einer Zielgruppen-Darstellung zu.
+     * Die vier Templates binden dieselbe c-doku-Basis ein; dadurch bleiben
+     * Markup und CSS einheitlich, während die Zuordnung im CMS sichtbar ist.
+     */
+    private function documentationTemplateForPermalink(string $permalink): string
     {
-        $type = 'Handbuch';
-        $audience = 'Anwender';
-        if (str_starts_with($permalink, 'tutorial-')) {
-            $type = 'Tutorial';
-        } elseif (preg_match('/(?:installation|selbsttest|betrieb|sicherheit|db3-mysql|system-update)/', $permalink) === 1) {
-            $type = 'Betriebshandbuch';
-            $audience = 'Administration';
-        } elseif (preg_match('/(?:ki-agenten|ki-regeln|codex|prompt)/', $permalink) === 1) {
-            $type = 'Arbeitsanweisung';
-            $audience = 'KI-Agenten';
-        } elseif (preg_match('/(?:entwickler|entwickeln|architektur|runtime|routing|dbxtpl|dbxdb|dbxform|dbxreport|modul|javascript|core|interpreter|rad|lifecycle|stecknorm)/', $permalink) === 1) {
-            $type = str_contains($permalink, 'schnellstart') ? 'Schnellstart' : 'Entwicklerhandbuch';
-            $audience = 'Entwickler';
+        if (preg_match('/(?:(?:^|-)ki(?:-|$)|codex|prompt|dbxki)/', $permalink) === 1) {
+            return 'c-doku-ki';
         }
-
-        $versionFile = $this->baseDir . '/VERSION';
-        $version = is_file($versionFile) ? trim((string)file_get_contents($versionFile)) : '4.1.3';
-        $canonical = htmlspecialchars($permalink, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        return '<!-- dbxdocs-meta:start -->'
-            . '<aside class="dbx-doc-meta" aria-label="Dokumentstatus">'
-            . '<span><small>Seitentyp</small><strong>' . $type . '</strong></span>'
-            . '<span><small>Zielgruppe</small><strong>' . $audience . '</strong></span>'
-            . '<span><small>Gültig für</small><strong>dbxapp ' . htmlspecialchars($version, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</strong></span>'
-            . '<span><small>Stand</small><strong>1. August 2026</strong></span>'
-            . '<a href="' . $canonical . '" rel="canonical"><small>Quelle</small><strong>Kanonische Seite</strong></a>'
-            . '</aside>'
-            . '<!-- dbxdocs-meta:end -->';
+        if (preg_match('/(?:admin|installation|selbsttest|betrieb|sicherheit|db3-mysql|system-update|backup|session|trace|log)/', $permalink) === 1) {
+            return 'c-doku-administration';
+        }
+        if (preg_match('/(?:entwickler|entwickeln|architektur|runtime|routing|dbxtpl|dbxdb|dbxform|dbxreport|modul|javascript|core|interpreter|rad|lifecycle|stecknorm|api)/', $permalink) === 1) {
+            return 'c-doku-entwickler';
+        }
+        return 'c-doku-anwender';
     }
 
     /** Der CMS-Seitentitel ist H1; redaktionelle Überschriften beginnen bei H2. */

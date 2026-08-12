@@ -1,0 +1,207 @@
+<div class="dbx-panel dbx-ki-overview">
+ <style>
+  .dbx-ki-overview-hero {
+   text-align: center;
+   padding: 2.5rem 1.5rem 2rem;
+   border-radius: 0 0 1.25rem 1.25rem;
+   color: #fff;
+   background: linear-gradient(135deg, var(--dbx-primary, #2563eb), #0f172a);
+  }
+  .dbx-ki-overview-eyebrow {
+   display: inline-block;
+   padding: .25rem .75rem;
+   border-radius: 999px;
+   font-size: .72rem;
+   font-weight: 700;
+   letter-spacing: .06em;
+   text-transform: uppercase;
+   background: rgba(255,255,255,.16);
+   margin-bottom: .75rem;
+  }
+  .dbx-ki-overview-hero h1 {
+   font-size: 1.9rem;
+   font-weight: 700;
+   margin: 0 0 .6rem;
+  }
+  .dbx-ki-overview-hero p {
+   max-width: 42rem;
+   margin: 0 auto;
+   color: rgba(255,255,255,.85);
+  }
+  .dbx-ki-overview-area-card {
+   border: 1px solid rgba(100,116,139,.18);
+   border-radius: 1rem;
+   transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+   color: inherit;
+  }
+  .dbx-ki-overview-area-card:hover {
+   transform: translateY(-4px);
+   box-shadow: 0 .9rem 1.6rem rgba(15,23,42,.12);
+   border-color: rgba(37,99,235,.35);
+  }
+  .dbx-ki-overview-area-icon {
+   width: 3.25rem;
+   height: 3.25rem;
+   margin: 0 auto .85rem;
+   display: grid;
+   place-items: center;
+   border-radius: .9rem;
+   font-size: 1.5rem;
+   color: #fff;
+  }
+  .dbx-ki-overview-area-design .dbx-ki-overview-area-icon { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+  .dbx-ki-overview-area-content .dbx-ki-overview-area-icon { background: linear-gradient(135deg, #2563eb, #1e3a8a); }
+  .dbx-ki-overview-area-module .dbx-ki-overview-area-icon { background: linear-gradient(135deg, #059669, #065f46); }
+  .dbx-ki-overview-area-cta {
+   display: inline-flex;
+   align-items: center;
+   font-size: .82rem;
+   font-weight: 600;
+   color: var(--dbx-primary, #2563eb);
+  }
+  .dbx-ki-overview-steps {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+   gap: 1rem;
+  }
+  .dbx-ki-overview-step {
+   position: relative;
+   padding: 1.1rem .9rem;
+   border: 1px solid rgba(100,116,139,.16);
+   border-radius: .9rem;
+   background: var(--dbx-bg-panel, #fff);
+   text-align: center;
+   opacity: 0;
+   transform: translateY(10px);
+   animation: dbxKiStepIn .45s ease forwards;
+   animation-delay: calc(var(--dbx-step-delay, 0) * 80ms);
+   transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .dbx-ki-overview-step:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 .6rem 1.2rem rgba(15,23,42,.1);
+  }
+  .dbx-ki-overview-step-badge {
+   width: 2.6rem;
+   height: 2.6rem;
+   margin: 0 auto .65rem;
+   display: grid;
+   place-items: center;
+   border-radius: 50%;
+   background: linear-gradient(135deg, var(--dbx-primary, #2563eb), #0f172a);
+   color: #fff;
+   font-weight: 700;
+   font-size: .95rem;
+  }
+  .dbx-ki-overview-step-badge i {
+   display: none;
+  }
+  .dbx-ki-overview-step h3 {
+   font-size: .85rem;
+   margin: 0 0 .3rem;
+  }
+  .dbx-ki-overview-step p {
+   font-size: .76rem;
+   margin: 0;
+  }
+  @keyframes dbxKiStepIn {
+   to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+   .dbx-ki-overview-step { animation: none; opacity: 1; transform: none; }
+  }
+ </style>
+
+ <div class="dbx-ki-overview-hero">
+  <span class="dbx-ki-overview-eyebrow">{hero_eyebrow}</span>
+  <h1>{hero_title}</h1>
+  <p>{hero_subtitle}</p>
+ </div>
+
+ <div class="container py-4">
+
+  <section class="mb-5">
+   <h2 class="h4 text-center mb-1">{areas_title}</h2>
+   <p class="text-muted text-center mb-4">{areas_subtitle}</p>
+   <div class="row g-3">
+    <div class="col-md-4">
+     <a class="card h-100 dbx-ki-overview-area-card dbx-ki-overview-area-design text-decoration-none" href="{design_url}">
+      <div class="card-body text-center">
+       <div class="dbx-ki-overview-area-icon"><i class="bi bi-palette2" aria-hidden="true"></i></div>
+       <h3 class="h5">{area_design_title}</h3>
+       <p class="small text-muted">{area_design_text}</p>
+       <span class="dbx-ki-overview-area-cta">{area_design_cta} <i class="bi bi-arrow-right-short" aria-hidden="true"></i></span>
+      </div>
+     </a>
+    </div>
+    <div class="col-md-4">
+     <a class="card h-100 dbx-ki-overview-area-card dbx-ki-overview-area-content text-decoration-none" href="{content_url}">
+      <div class="card-body text-center">
+       <div class="dbx-ki-overview-area-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></div>
+       <h3 class="h5">{area_content_title}</h3>
+       <p class="small text-muted">{area_content_text}</p>
+       <span class="dbx-ki-overview-area-cta">{area_content_cta} <i class="bi bi-arrow-right-short" aria-hidden="true"></i></span>
+      </div>
+     </a>
+    </div>
+    <div class="col-md-4">
+     <a class="card h-100 dbx-ki-overview-area-card dbx-ki-overview-area-module text-decoration-none" href="{module_url}">
+      <div class="card-body text-center">
+       <div class="dbx-ki-overview-area-icon"><i class="bi bi-puzzle" aria-hidden="true"></i></div>
+       <h3 class="h5">{area_module_title}</h3>
+       <p class="small text-muted">{area_module_text}</p>
+       <span class="dbx-ki-overview-area-cta">{area_module_cta} <i class="bi bi-arrow-right-short" aria-hidden="true"></i></span>
+      </div>
+     </a>
+    </div>
+   </div>
+  </section>
+
+  <section class="mb-5">
+   <h2 class="h4 text-center mb-1">{flow_title}</h2>
+   <p class="text-muted text-center mb-4">{flow_subtitle}</p>
+   <div class="dbx-ki-overview-steps">
+    <div class="dbx-ki-overview-step" style="--dbx-step-delay:0">
+     <div class="dbx-ki-overview-step-badge">1</div>
+     <h3><i class="bi bi-clipboard-check" aria-hidden="true"></i> {step1_title}</h3>
+     <p>{step1_text}</p>
+    </div>
+    <div class="dbx-ki-overview-step" style="--dbx-step-delay:1">
+     <div class="dbx-ki-overview-step-badge">2</div>
+     <h3><i class="bi bi-file-earmark-zip" aria-hidden="true"></i> {step2_title}</h3>
+     <p>{step2_text}</p>
+    </div>
+    <div class="dbx-ki-overview-step" style="--dbx-step-delay:2">
+     <div class="dbx-ki-overview-step-badge">3</div>
+     <h3><i class="bi bi-robot" aria-hidden="true"></i> {step3_title}</h3>
+     <p>{step3_text}</p>
+    </div>
+    <div class="dbx-ki-overview-step" style="--dbx-step-delay:3">
+     <div class="dbx-ki-overview-step-badge">4</div>
+     <h3><i class="bi bi-file-earmark-arrow-down" aria-hidden="true"></i> {step4_title}</h3>
+     <p>{step4_text}</p>
+    </div>
+    <div class="dbx-ki-overview-step" style="--dbx-step-delay:4">
+     <div class="dbx-ki-overview-step-badge">5</div>
+     <h3><i class="bi bi-search" aria-hidden="true"></i> {step5_title}</h3>
+     <p>{step5_text}</p>
+    </div>
+    <div class="dbx-ki-overview-step" style="--dbx-step-delay:5">
+     <div class="dbx-ki-overview-step-badge">6</div>
+     <h3><i class="bi bi-check2-circle" aria-hidden="true"></i> {step6_title}</h3>
+     <p>{step6_text}</p>
+    </div>
+   </div>
+  </section>
+
+  <section class="text-center">
+   <h2 class="h6 text-muted mb-3">{quick_actions_title}</h2>
+   <div class="d-flex flex-wrap justify-content-center gap-2">
+    <a class="btn btn-outline-primary btn-sm" href="{bundle_url}"><i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i> {action_bundle}</a>
+    <a class="btn btn-outline-primary btn-sm" href="{sync_url}"><i class="bi bi-translate" aria-hidden="true"></i> {action_translate}</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{guide_url}"><i class="bi bi-question-circle" aria-hidden="true"></i> {action_guide}</a>
+   </div>
+  </section>
+
+ </div>
+</div>

@@ -14,7 +14,7 @@ class dbxShopPayPal {
       }
 
       if (function_exists('dbx')) {
-         $shopCfg = dbx()->get_config('dbxShop');
+         $shopCfg = dbx()->get_cfg('dbxShop');
          if (is_array($shopCfg)) {
             $paypal = array_merge($paypal, array(
                'enabled' => !empty($shopCfg['payment_paypal_enabled']),

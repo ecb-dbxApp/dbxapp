@@ -4,7 +4,7 @@
    <div class="dbx-module-symbol-preview" data-module-symbol-preview>
 {symbol_preview_html}
    </div>
-   <button type="button" class="btn btn-outline-primary btn-sm dbx-module-symbol-pick dbx-module-images-browser-btn" title="Select symbol image from CMS media">
+   <button type="button" class="btn btn-outline-primary btn-sm dbx-module-symbol-pick dbx-module-images-browser-btn" data-dbx-tooltip="Select symbol image from CMS media">
     <i class="bi bi-image"></i><span>Symbolic image</span>
    </button>
   </div>
@@ -13,16 +13,16 @@
     <div class="dbx-module-images-run-fields">
      <label class="dbx-module-images-run-field">
       <span>dbx_run1</span>
-      <input type="text" class="form-control form-control-sm dbx-module-images-run1" list="{run1_list_id}" value="{default_run1}" placeholder="e.g. list" title="dbx_run1 for the file name and module call" required>
+      <input type="text" class="form-control form-control-sm dbx-module-images-run1" list="{run1_list_id}" value="{default_run1}" placeholder="e.g. list" data-dbx-tooltip="dbx_run1 for the file name and module call" required>
      </label>
      <label class="dbx-module-images-run-field">
       <span>dbx_run2</span>
-      <input type="text" class="form-control form-control-sm dbx-module-images-run2" value="{default_run2}" placeholder="optional" title="dbx_run2 for the file name and module call">
+      <input type="text" class="form-control form-control-sm dbx-module-images-run2" value="{default_run2}" placeholder="optional" data-dbx-tooltip="dbx_run2 for the file name and module call">
      </label>
     </div>
     <div class="dbx-module-images-gallery-actions">
      <span class="badge text-bg-light border dbx-module-images-count">{image_count}</span>
-     <button type="button" class="btn btn-outline-primary btn-sm dbx-module-images-pick dbx-module-images-browser-btn" title="Manage the call image in the media browser">
+     <button type="button" class="btn btn-outline-primary btn-sm dbx-module-images-pick dbx-module-images-browser-btn" data-dbx-tooltip="Manage the call image in the media browser">
       <i class="bi bi-images"></i><span>Call image</span>
      </button>
     </div>

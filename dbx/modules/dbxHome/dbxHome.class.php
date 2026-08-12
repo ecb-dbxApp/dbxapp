@@ -30,7 +30,7 @@ Class dbxHome {
 
       if ($cid > 0) {
          if (\dbx\dbxContent\dbxContentLng::isCmsPermalinkMode()) {
-            $root = dbx()->get_config('dbxContent', 'root');
+            $root = dbx()->get_cfg('dbxContent', 'root');
             if ($root === 'undef' || $root === '') {
                $root = 0;
             }

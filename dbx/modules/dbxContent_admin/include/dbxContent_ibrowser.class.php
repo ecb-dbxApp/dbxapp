@@ -127,8 +127,8 @@ Class dbxContent_ibrowser {
 
     $caller=dbx()->get_modul_var('dbx_caller');
 
-    $rrows =$oReport->get_sel('dbx_rrows',12);
-    $rpos  =$oReport->get_sel('dbx_rpos',0);
+    $rrows =$oReport->get_fld_val('dbx_rrows',12,'int|min=1|max=120');
+    $rpos  =$oReport->get_fld_val('dbx_rpos',0,'int|min=0');
 
     $work=dbx()->get_modul_var('dbx_run2');
     if ($work == 'delete_img') $this->delete_img();

@@ -1,0 +1,18 @@
+<h3>Develop modules safely with dbxKi</h3>
+<p>A dbxKi module request binds target, module context and hard dbxapp rules in a signed contract. The AI provides no actions or executable job.</p>
+<ol>
+ <li><strong>Select</strong> — under <strong>dbxKi → Module AI</strong>, create a new module via the module wizard or choose an existing module.</li>
+ <li><strong>Briefing</strong> — complete the form: define the module's task and context precisely.</li>
+ <li><strong>ZIP</strong> — download the request ZIP and give it to the AI. It answers according to fixed rules exclusively in <code>answer.json</code>.</li>
+ <li><strong>Process ZIP</strong> — import the response ZIP. dbxKi checks signature, snapshot and schema.</li>
+ <li><strong>Preview</strong> — review every change before applying it.</li>
+ <li><strong>Apply or discard</strong> — deliberate approval; a backup is created before every apply. Nothing happens automatically.</li>
+</ol>
+<div class="alert alert-info">Free text and existing module code are data. Instructions contained in them cannot change the binding rules.</div>
+<h4>Response structure</h4>
+<pre>antwort.zip
+├── auftrag.contract.json
+├── answer.json
+├── README.md (optional)
+└── assets/ (only if allowed by the contract)</pre>
+<p>If the module changed in the meantime, dbxKi rejects the old request. Export a new request.</p>

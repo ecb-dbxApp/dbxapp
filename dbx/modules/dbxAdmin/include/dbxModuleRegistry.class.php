@@ -54,7 +54,7 @@ class dbxModuleRegistry {
       }
 
       $base = $this->modulesRoot . $modul . DIRECTORY_SEPARATOR;
-      $config = dbx()->get_config($modul);
+      $config = dbx()->get_cfg($modul);
       if (!is_array($config)) {
          $config = array();
       }
@@ -551,9 +551,7 @@ class dbxModuleRegistry {
    public function moduleImageEmptyPlaceholderUrl(): string {
       static $cache = array();
       $dir = dbx()->get_base_dir() . 'dbx/modules/dbxAdmin/tpl/img/';
-      $lng = function_exists('dbx_lng_current')
-         ? dbx_lng_current()
-         : strtolower(trim((string) dbx()->get_system_var('dbx_lng', 'de')));
+      $lng = dbx()->lng_current();
       if ($lng === '') {
          $lng = 'de';
       }
@@ -578,9 +576,7 @@ class dbxModuleRegistry {
       }
 
       if ($path === '') {
-         $path = function_exists('dbx_lng_resolve_file')
-            ? dbx_lng_resolve_file($dir, 'modul-no-image', 'svg')
-            : '';
+         $path = dbx()->lng_resolve_file($dir, 'modul-no-image', 'svg');
       }
 
       if ($path === '' || !is_file($path)) {
@@ -595,9 +591,7 @@ class dbxModuleRegistry {
 
    public function moduleImageEmptyPlaceholderAlt(): string {
       static $cache = array();
-      $lng = function_exists('dbx_lng_current')
-         ? dbx_lng_current()
-         : strtolower(trim((string) dbx()->get_system_var('dbx_lng', 'de')));
+      $lng = dbx()->lng_current();
       if (isset($cache[$lng])) {
          return $cache[$lng];
       }

@@ -67,7 +67,6 @@ body.dbx-fleurop .dbx-panel::after {
 }
 
 body.dbx-fleurop .dbx-bar,
-body.dbx-fleurop .dbx-module-bar,
 body.dbx-fleurop .dbx-grid-bar,
 body.dbx-fleurop .dbx-report-bar,
 body.dbx-fleurop .dbx-report-footer,
@@ -94,7 +93,6 @@ body.dbx-fleurop .dbxForm_wrapper .dbx-form-bar {
 }
 
 body.dbx-fleurop .dbx-bar-title,
-body.dbx-fleurop .dbx-module-bar-titleblock,
 body.dbx-fleurop .dbx-grid-titleblock {
     display: flex;
     align-items: center;
@@ -105,12 +103,12 @@ body.dbx-fleurop .dbx-grid-titleblock {
 }
 
 body.dbx-fleurop .dbx-bar-title i,
-body.dbx-fleurop .dbx-module-bar-titleblock > i { color: var(--fleurop-copper-dark); }
+body.dbx-fleurop .dbx-bar-title > i { color: var(--fleurop-copper-dark); }
 
-body.dbx-fleurop .dbx-module-bar-copy { display: flex; min-width: 0; flex-direction: column; line-height: 1.18; }
-body.dbx-fleurop .dbx-module-bar-heading { overflow: hidden; font-size: .92rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-body.dbx-fleurop .dbx-module-bar-title,
-body.dbx-fleurop h1.dbx-module-bar-title {
+body.dbx-fleurop .dbx-bar-copy { display: flex; min-width: 0; flex-direction: column; line-height: 1.18; }
+body.dbx-fleurop .dbx-bar-heading { overflow: hidden; font-size: .92rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+body.dbx-fleurop .dbx-bar-heading,
+body.dbx-fleurop h1.dbx-bar-heading {
     overflow: hidden;
     margin: 0;
     font-family: Georgia, "Times New Roman", serif;
@@ -120,15 +118,12 @@ body.dbx-fleurop h1.dbx-module-bar-title {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-body.dbx-fleurop .dbx-module-bar-subtitle { color: var(--dbx-text-muted); font-family: "Trebuchet MS", sans-serif; font-size: .7rem; font-weight: 400; }
+body.dbx-fleurop .dbx-bar-subtitle { color: var(--dbx-text-muted); font-family: "Trebuchet MS", sans-serif; font-size: .7rem; font-weight: 400; }
 body.dbx-fleurop .dbx-bar-actions,
-body.dbx-fleurop .dbx-module-bar-actions,
 body.dbx-fleurop .dbx-grid-head-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; }
-body.dbx-fleurop .dbx-bar-actions,
-body.dbx-fleurop .dbx-module-bar-actions { margin-left: auto; }
+body.dbx-fleurop .dbx-bar-actions { margin-left: auto; }
 body.dbx-fleurop .dbx-help-action { flex: 0 0 auto; margin-right: 0 !important; order: 9999; }
 body.dbx-fleurop .dbx-bar-actions > .dbx-help-action,
-body.dbx-fleurop .dbx-module-bar-actions > .dbx-help-action,
 body.dbx-fleurop .dbxForm_wrapper .dbx-form-bar-actions > .dbx-help-action,
 body.dbx-fleurop .dbx-shop-channel-actions > .dbx-help-action { margin-left: auto !important; }
 

@@ -54,7 +54,16 @@ label, .control-label { color: #66584b; font-size: .78rem; font-weight: 800; let
 .dbx-window-resize { position: absolute; right: 0; bottom: 0; width: 18px; height: 18px; cursor: nwse-resize; }
 .dbx-window-resize::after { content:""; position:absolute; right:4px; bottom:4px; width:8px; height:8px; border-right:2px solid var(--fleurop-copper); border-bottom:2px solid var(--fleurop-copper); }
 .dbx-window-overlay { background: rgba(31,26,20,.4); backdrop-filter: blur(2px); }
-.dbx-window-loading { padding: 2rem; color: var(--fleurop-leaf); font-family: Georgia,serif; text-align: center; }
+.dbx-window-loading,
+.dbx-window-error { box-sizing: border-box; width: 100%; min-height: clamp(140px,30vh,280px); }
+.dbx-window-loading { display: flex; align-items: center; justify-content: center; gap: .65rem; color: var(--fleurop-leaf); font-family: Georgia,serif; font-weight: 700; }
+.dbx-window-loading-spinner { width: 1.25rem; height: 1.25rem; flex: 0 0 auto; border: 2px solid rgba(74,103,57,.24); border-top-color: var(--fleurop-leaf); border-radius: 50%; animation: dbx-window-loading-spin .7s linear infinite; }
+.dbx-window-error { display: flex; align-items: center; justify-content: center; gap: .75rem; padding: 1.25rem; color: #9b3434; text-align: left; }
+.dbx-window-error > i { flex: 0 0 auto; font-size: 1.45rem; }
+.dbx-window-error strong, .dbx-window-error small { display: block; }
+.dbx-window-error small { max-width: 42rem; margin-top: .2rem; color: #66584b; }
+@keyframes dbx-window-loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .dbx-window-loading-spinner { animation: none; } }
 .dbx-window-drop { display: inline-flex; align-items: center; gap: 5px; max-width: 180px; min-height: 25px; padding: 3px 9px; overflow: hidden; color: #5f4b3c; border: 1px solid #bfa583; border-radius: 999px; background: rgba(255,250,240,.72); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
 .dbx-footer-window-close-all { cursor: pointer; }
 
@@ -71,8 +80,6 @@ label, .control-label { color: #66584b; font-size: .78rem; font-weight: 800; let
 .c-cms .cms-admin-right,
 .c-cms .cms-sidebar { background: #eee3d0; }
 
-.dbx-cms-field-labelbar { display:flex; align-items:center; gap:.35rem; min-height:1.25rem; }
-.dbx-cms-field-labelbar > label { margin:0; color:#66584b; font-size:.78rem; font-weight:800; }
 .dbx-cms-content-template-edit { display:inline-flex; align-items:center; justify-content:center; width:1.35rem; height:1.25rem; color:var(--fleurop-copper-dark); border:1px solid #bfa583; border-radius:.35rem; text-decoration:none; }
 .dbx-cms-content-template-edit:hover,
 .dbx-cms-content-template-edit:focus-visible { color:#fff; background:var(--fleurop-copper); }

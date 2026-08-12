@@ -10,7 +10,7 @@ final class dbxPasswordPolicy
     public static function minimumLength(?int $configured = null): int
     {
         if ($configured === null && function_exists('dbx')) {
-            $configured = (int)dbx()->get_config(
+            $configured = (int)dbx()->get_cfg(
                 'dbx',
                 'password_min_length',
                 6

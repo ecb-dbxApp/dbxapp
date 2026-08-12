@@ -1,43 +1,48 @@
-<div class="dbx-cms-settings" data-cms-settings>
+<div class="dbx-cms-settings" data-cms-settings data-cms-form-scope="settings">
  <details class="dbx-cms-settings-panel" data-cms-ui-state="hero" open>
-  <summary><i class="bi bi-chevron-right dbx-cms-toggle-icon"></i><span>Hero</span></summary>
- <div class="dbx-cms-settings-grid">
-   <figure class="dbx-cms-hero-preview" data-cms-hero-preview>
-    <div class="dbx-cms-hero-preview-empty">Kein Hero-Bild ausgewaehlt.</div>
-   </figure>
-   {obj:hero_template}
+  <summary><i class="bi bi-chevron-right dbx-cms-toggle-icon"></i><span>{hero_panel_title}</span></summary>
+  <div class="dbx-form-grid dbx-form-grid--2">
+   <div class="dbx-form-grid__item dbx-form-grid__item--full">
+    <figure class="dbx-cms-hero-preview" data-cms-hero-preview>
+     <div class="dbx-cms-hero-preview-empty">{hero_preview_empty}</div>
+    </figure>
+   </div>
+   <div class="dbx-form-grid__item dbx-form-grid__item--full">{obj:hero_template}</div>
    {obj:hero_image_id}
-   {obj:hero_margin_top}
-   {obj:hero_height}
-   {obj:hero_variant}
-   {obj:hero_sticky}
-   {obj:hero_scroll_layer}
-   <div class="dbx-cms-hero-actions">
-    <button type="button" class="btn btn-outline-primary btn-sm dbx-cms-hero-pick" data-cms-action="assign-hero-media" title="Hero-Bild aus dem Medienbrowser waehlen">
-     <i class="bi bi-image"></i><i class="bi bi-camera-video"></i><i class="bi bi-upload"></i><span>Auswahl</span>
+   <div class="dbx-form-grid__item">{obj:hero_margin_top}</div>
+   <div class="dbx-form-grid__item">{obj:hero_height}</div>
+   <div class="dbx-form-grid__item">{obj:hero_variant}</div>
+   <div class="dbx-form-grid__item">{obj:hero_sticky}</div>
+   <div class="dbx-form-grid__item dbx-form-grid__item--full">{obj:hero_scroll_layer}</div>
+   <div class="dbx-form-grid__item dbx-form-grid__item--full dbx-cms-hero-actions">
+    <button type="button" class="btn btn-outline-primary btn-sm dbx-cms-hero-pick" data-cms-action="assign-hero-media" data-dbx-tooltip="{hero_select_title}">
+     <i class="bi bi-image"></i><i class="bi bi-camera-video"></i><i class="bi bi-upload"></i><span>{selection_label}</span>
     </button>
-    <button type="button" class="btn btn-primary btn-sm" data-cms-action="save-settings" title="Hero-Einstellungen speichern">
-     <i class="bi bi-save"></i><span>Speichern</span>
+    <button type="button" class="btn btn-outline-danger btn-sm dbx-cms-hero-clear" data-cms-action="clear-hero-media" data-dbx-tooltip="{hero_remove_title}" disabled>
+     <i class="bi bi-trash"></i><span>{hero_remove_label}</span>
+    </button>
+    <button type="button" class="btn btn-primary btn-sm dbx-cms-hero-save" data-cms-action="save-settings" data-dbx-tooltip="{hero_save_title}">
+     <i class="bi bi-save"></i><span>{save_label}</span>
     </button>
    </div>
   </div>
  </details>
  <details class="dbx-cms-settings-panel" data-cms-ui-state="gallery">
-  <summary><i class="bi bi-chevron-right dbx-cms-toggle-icon"></i><span>Gallery</span></summary>
-  <div class="dbx-cms-settings-grid">
-   {obj:gallery_overflow}
-   {obj:gallery_click_behavior}
-   <div class="dbx-cms-settings-actions">
-    <button type="button" class="btn btn-outline-primary btn-sm" data-cms-action="assign-media" data-cms-slot="gallery" title="Bilder aus dem Medienbrowser zur Gallery hinzufuegen">
-     <i class="bi bi-images"></i><i class="bi bi-camera-video"></i><i class="bi bi-upload"></i><span>Auswahl</span>
+  <summary><i class="bi bi-chevron-right dbx-cms-toggle-icon"></i><span>{gallery_panel_title}</span></summary>
+  <div class="dbx-form-grid dbx-form-grid--2">
+   <div class="dbx-form-grid__item">{obj:gallery_overflow}</div>
+   <div class="dbx-form-grid__item">{obj:gallery_click_behavior}</div>
+   <div class="dbx-form-grid__item dbx-form-grid__item--full dbx-cms-settings-actions">
+    <button type="button" class="btn btn-outline-primary btn-sm" data-cms-action="assign-media" data-cms-slot="gallery" data-dbx-tooltip="{gallery_select_title}">
+     <i class="bi bi-images"></i><i class="bi bi-camera-video"></i><i class="bi bi-upload"></i><span>{selection_label}</span>
     </button>
-   <button type="button" class="btn btn-primary btn-sm" data-cms-action="save-settings" title="Gallery-Einstellungen speichern">
-     <i class="bi bi-save"></i><span>Speichern</span>
+    <button type="button" class="btn btn-primary btn-sm" data-cms-action="save-settings" data-dbx-tooltip="{gallery_save_title}">
+     <i class="bi bi-save"></i><span>{save_label}</span>
     </button>
    </div>
   </div>
   <div class="dbx-cms-media-list" data-cms-media="gallery">
-   <div class="dbx-cms-empty">Keine Medien in der Gallery.</div>
+   <div class="dbx-cms-empty">{media_gallery_empty}</div>
   </div>
  </details>
 </div>

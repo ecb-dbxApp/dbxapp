@@ -4,7 +4,7 @@ namespace dbx\dbxAdmin;
 Class dbxPageEdit {
 
    private function save_tpl($type,$design,$file,$lng,$content) {
-      $config=dbx()->get_config('dbx');
+      $config=dbx()->get_cfg('dbx');
       $default_lng=$config['default_lng'];
       dbx()->debug("SAVE-TPL T=($type) F=($file) D=($design) L=($lng)");
       $file_type=$file.'.'.$type;

@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 $base = dirname(__DIR__, 3);
-$cms = file_get_contents($base . '/dbx/modules/dbxContent_admin/include/dbxContent_cms.class.php');
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
+$cms = dbx_test_module_source_bundle($base . '/dbx/modules/dbxContent_admin/include/dbxContent_cms.class.php');
 $process = file_get_contents($base . '/dbx/js/lib/process.js');
 
 if (!is_string($cms) || !is_string($process)) {

@@ -21,6 +21,11 @@ $config['install'] = 0;
 $config['mail_delivery_mode'] = 'internal';
 
 /*
+ * Optionaler Nur-Lese-Demomodus: Admin-Menue und Module sind sichtbar,
+ * Konfigurations- und fachliche Datenänderungen bleiben gesperrt.
+ */
+
+/*
  * Optional: einzelne DDs installationsbezogen auf einen anderen Server
  * binden. Nicht genannte DDs verwenden weiterhin ihren Server aus der DD.
  * DB3 und SQL-Server koennen beliebig gemischt werden.

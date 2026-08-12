@@ -81,7 +81,7 @@ $config['groups'] = 'admin';
 Lesen erfolgt über die zentrale Konfiguration:
 
 ```php
-$pageSize = (int)dbx()->get_config('myTasks', 'page_size');
+$pageSize = (int)dbx()->get_cfg('myTasks', 'page_size');
 ```
 
 Keine zweite JSON-/ENV-Konfiguration für dieselben Werte anlegen.
@@ -182,6 +182,30 @@ class myTasksService {
 Die Serviceklasse darf bei großen Fachbereichen weiter aufgeteilt werden,
 beispielsweise in Repository, Service, Provideradapter oder Renderer. Der Shop
 verwendet genau diese Aufteilung.
+
+### Große Ablaufklassen ohne Laufzeit-Overhead zerlegen
+
+Wenn mehrere Verantwortlichkeiten bewusst denselben Requestzustand teilen,
+kann eine direkte Trait-Komposition sinnvoller sein als eine Kette von
+Weiterleitungsobjekten. Verbindlich bleiben dabei fachlich benannte Blöcke,
+explizite `require_once`-Einbindungen und eine kleine sichtbare Hauptklasse.
+Magic-Dispatch, dynamische Trait-Suche und gegenseitige Service-Abhängigkeiten
+sind nicht zulässig.
+
+Die Referenz sind `dbxContent_cms` und `dbxShopAdmin`: Die Hauptklassen halten
+nur Zustand, Einstieg und Aktionsvertrag. Form, Report, Page-Aktionen, Tree,
+Katalog, Bestellung und die einzelnen Medienaufgaben liegen in benannten
+`*Service.trait.php`-Dateien. PHP komponiert diese Methoden direkt in die
+Klasse; dadurch entstehen weder zusätzliche Serviceobjekte noch zusätzliche
+Datenbankabfragen. Persistente Fachgrenzen wie
+`dbxContentCmsPersistenceService` bleiben eigenständige Klassen.
+
+Der Vertrag wird mit `dbxModuleDecomposition_contract_test.php` kontrolliert:
+Die Ablaufklasse bleibt unter 250 Zeilen, ein Verantwortungsblock unter 1000
+Zeilen. Quelltextverträge lesen die explizite Komposition über
+`dbxModuleSourceBundle.php`, statt Implementierung zurück in einen Monolithen
+zu zwingen. Datenzugriff, Ausgabe und Eingaben verwenden auch innerhalb der
+Blöcke weiterhin `dbxDB`, `dbxTPL`, `dbxForm` und `dbxReport`.
 
 ## Datenmodell
 
@@ -328,6 +352,35 @@ Mögliche Templatearten:
 Templates können sprachabhängig als `name_de.htm`, `name_en.htm` usw. vorliegen.
 dbxTPL verwendet die aktive Sprachvariante und anschließend den neutralen
 Fallback.
+
+### Menüeinträge des aktiven Hauptmoduls
+
+Ein Hauptmodul kann einen Eintrag für das vorhandene Benutzer- oder Adminmenü
+registrieren, ohne ein eigenes Menüsystem aufzubauen:
+
+```php
+$menu = dbx()->get_include_obj('dbxMenuSlot', 'dbxMenu');
+$menu->register('user', 'menu-user', array('count' => $count));
+
+if (dbx()->can('admin')) {
+    $menu->register('admin', 'menu-admin');
+}
+```
+
+Die Templates `tpl/htm/menu-user.htm` und `tpl/htm/menu-admin.htm` liefern nur
+die zum vorhandenen Menü passende Struktur, normalerweise ein oder mehrere
+`<li>`-Elemente. Dynamische Werte werden als Template-Daten übergeben; das
+Modul wird nicht erneut ausgeführt. Sprachvarianten löst `dbxTPL` wie gewohnt
+auf.
+
+Die Kunden-Menütemplates entscheiden über die Position. Sie enthalten dafür
+optional `{dbx:modul_menu_user}` beziehungsweise
+`{dbx:modul_menu_admin}`. Fehlt ein Slot oder eine Registrierung, bleibt die
+Ausgabe leer. Nur das aktive Hauptmodul darf registrieren; eingebettete Module
+innerhalb eines bereits gerenderten CMS-Inhalts dürfen das Menü nicht
+nachträglich verändern. Gastabhängige Beiträge müssen für URL, Sprache und
+Design deterministisch sein, damit sie mit dem Full-Page-Cache verträglich
+bleiben.
 
 ## Aufrufmöglichkeiten
 
@@ -497,7 +550,7 @@ mit `dbx/modules/dbxAdmin/tests/dbxWizard_generation_test.php` geprüft.
 - Router klein halten; Fachlogik in Include-/Serviceklassen.
 - Datenzugriff über dbxDB und DD, Eingaben über dbxForm, Listen über dbxReport.
 - Ausgabe über dbxTPL; keine großen HTML-Strings in PHP.
-- Konfiguration über `cfg/config.php` und `dbx()->get_config()`.
+- Konfiguration über `cfg/config.php` und `dbx()->get_cfg()`.
 - Request-Werte mit `get_modul_var()` oder dbxForm validieren.
 - Bestehende AJAX-, openWin-, Confirm- und Core-Libs verwenden.
 - Keine privaten `db()`-, `tpl()`- oder Escape-Aliase anlegen, die nur

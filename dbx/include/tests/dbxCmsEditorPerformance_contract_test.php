@@ -10,13 +10,43 @@ $assert = static function(bool $condition, string $message) use (&$failures): vo
 };
 
 $assert(
-    str_contains($source, '__dbxCmsEditorHeightTimers')
-        && str_contains($source, 'root.__dbxCmsEditorHeightTimers.forEach(timer => window.clearTimeout(timer))'),
-    'Editor height reflow timers are not deduplicated.'
+    str_contains($source, '__dbxCmsEditorHeightFrame')
+        && str_contains($source, 'window.cancelAnimationFrame(root.__dbxCmsEditorHeightFrame)')
+        && str_contains($source, 'const surfaceRect = surface.getBoundingClientRect')
+        && !str_contains($source, '__dbxCmsEditorHeightTimers'),
+    'Editor height reflow is not frame-deduplicated or still schedules delayed layout changes.'
 );
 $assert(
     !str_contains($source, '[80, 250, 800].forEach(delay => window.setTimeout(() => syncEditorHeight(root), delay))'),
     'Every editor input still creates three uncancelled layout timers.'
+);
+$assert(
+    str_contains($source, 'Jodit meldet jedoch auch beim')
+        && str_contains($source, 'blossen Fokussieren nachtraeglich ein change-Event'),
+    'A focus-only Jodit change can still trigger a delayed editor-height reflow.'
+);
+$assert(
+    str_contains($source, 'function editorHtmlSnapshot(surface)')
+        && str_contains($source, 'const snapshot = surface.cloneNode(true);')
+        && !str_contains($source, 'cleanEditorRuntimeNodes(surface)')
+        && !str_contains($source, 'instance.value = repairedHtml')
+        && !str_contains($source, 'ensureLeadingEditorParagraph(surface);')
+        && str_contains($source, 'function setEditorCaretBesideElement(root, element, side)'),
+    'Loading or saving still cleans and rebuilds the live editor DOM or inserts an automatic blank paragraph.'
+);
+$assert(
+    str_contains($source, 'root.__dbxCmsApplyingEditorHtml = true;')
+        && str_contains($source, 'if (root.__dbxCmsApplyingEditorHtml) return;')
+        && str_contains($source, 'if (!root.__dbxCmsUserEditPending) return;')
+        && str_contains($source, 'root.__dbxCmsUserEditPending = true;')
+        && str_contains($source, 'root.__dbxCmsApplyingEditorHtml = false;'),
+    'Jodit runtime normalization can still mark an unchanged page dirty while loading.'
+);
+$assert(
+    str_contains($source, 'const incoming = document.createElement("div");')
+        && str_contains($source, 'cleanEditorRuntimeNodes(incoming);')
+        && !str_contains($source, 'const cleanHtml = surface ? editorHtmlSnapshot(surface) : html;'),
+    'Initial cleanup is not detached from the visible editor or the input path still clones the full DOM.'
 );
 $assert(
     str_contains($source, 'function editorInlineMediaSignature(root, html)')
@@ -60,11 +90,57 @@ $assert(
     'Ordinary component blocks such as CTA and openWin paragraphs are not movable or removable.'
 );
 $assert(
-    str_contains($template, 'rel="preload" href="dbx/js/lib/cms.js?v=90" as="script" fetchpriority="low"')
-        && str_contains($template, 'rel="preload" href="dbx/vendor/jodit/jodit.fat.min.js?v=90" as="script" fetchpriority="low"')
-        && str_contains($template, 'rel="preload" href="dbx/vendor/jodit/jodit.fat.min.css?v=90" as="style" fetchpriority="low"')
-        && str_contains($template, 'rel="preload" href="dbx/design/{dbx:design}/css/c-cms.css?v=90" as="style" fetchpriority="low"'),
-    'Large CMS/editor assets are not requested early on the CMS page.'
+    str_contains($source, 'const inWindow = !!closestElement(root, ".dbx-window-body");')
+        && str_contains($source, 'const height = inWindow')
+        && str_contains($source, 'root.__dbxCmsStickyResizeObserver = new ResizeObserver'),
+    'CMS windows still inherit the unrelated app-header sticky offset.'
+);
+$cmsCss = (string)file_get_contents($base . '/design/dbxapp/css/c-cms.css');
+$assert(
+    str_contains($cmsCss, '.dbx-window-body .dbx-panel.dbx-cms.dbxReport')
+        && str_contains($cmsCss, 'overflow-x: clip'),
+    'CMS windows can still create an unnecessary horizontal scrollbar.'
+);
+$assert(
+    str_contains($cmsCss, '.dbx-cms-media-browser-window:not(.dbx-window-mobile-fullscreen)')
+        && str_contains($cmsCss, 'position: fixed !important')
+        && str_contains($cmsCss, 'transform: translate(-50%, -50%) !important'),
+    'The media browser can still be positioned outside the viewport after editor scrolling.'
+);
+$assert(
+    str_contains($source, 'Promise.resolve(loadInitialSelection(el, cfg || {})).finally(() => {')
+        && str_contains($source, 'function settleStickyHeaderOffset(root)')
+        && str_contains($source, 'settleStickyHeaderOffset(el);'),
+    'Sticky offsets are not recalculated after the initial CMS page AJAX load.'
+);
+$assert(
+    str_contains($source, 'function waitForCmsCriticalStyles(root, done)')
+        && str_contains($source, 'root.classList.remove("dbx-cms-booting")')
+        && str_contains($template, 'dbx-cms-booting')
+        && str_contains($template, 'data-dbx-cms-critical="{i}"'),
+    'CMS markup can still become visible before its critical styles are ready.'
+);
+$assetVersion = '{dbx:asset_version}';
+$assert(
+    str_contains($template, 'rel="preload" href="dbx/js/lib/cms.js?v=' . $assetVersion . '" as="script" fetchpriority="high"')
+        && str_contains($template, 'rel="preload" href="dbx/js/lib/cms-page.js?v=' . $assetVersion . '" as="script" fetchpriority="high"')
+        && str_contains($template, 'rel="preload" href="dbx/vendor/jodit/jodit.fat.min.js?v=' . $assetVersion . '" as="script" fetchpriority="high"')
+        && str_contains($template, 'rel="stylesheet" href="dbx/vendor/jodit/jodit.fat.min.css?v=' . $assetVersion . '" fetchpriority="high" data-dbx-cms-critical="{i}"')
+        && str_contains($template, 'rel="stylesheet" href="dbx/design/{dbx:design}/css/c-cms.css?v=' . $assetVersion . '" fetchpriority="high" data-dbx-cms-critical="{i}"')
+        && str_contains($template, 'rel="stylesheet" href="dbx/design/{dbx:design}/css/c-form.css?v=' . $assetVersion . '" fetchpriority="high" data-dbx-cms-critical="{i}"')
+        && str_contains($template, 'rel="stylesheet" href="dbx/design/{dbx:design}/css/c-grid.css?v=' . $assetVersion . '" fetchpriority="high" data-dbx-cms-critical="{i}"'),
+    'CMS/editor styles are not render-blocking high-priority stylesheets.'
+);
+$assert(
+    str_contains($source, 'const editorAssetReady = isViewMode(cfg || {})')
+        && str_contains($source, ': ensureJodit();')
+        && str_contains($source, 'waitForCmsCriticalStyles(el, () => {')
+        && str_contains($source, 'editorAssetReady.then(ok => {'),
+    'Jodit wird weiterhin erst nach den kritischen CMS-Styles geladen.'
+);
+$assert(
+    str_contains($template, 'class="dbx-panel dbx-cms dbxReport is-tree-collapsed dbx-cms-booting"'),
+    'The initially closed content tree is still visible before CMS initialization.'
 );
 
 if ($failures !== array()) {

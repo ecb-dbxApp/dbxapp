@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <p>Stand: 2026-08-01</p>
 <p><span class="tt">dbxShop</span> ist die Shop-Fachanwendung von dbxapp. Sie umfasst inzwischen den öffentlichen Katalog, Produktsuche und Filter, Warenkorb, Checkout, Zahlungsarten, Bestellungen, Rechnungen, Widerruf, Medien, Artikelgruppen, Attribute, Versandgruppen und Verkaufskanäle. Die Administration liegt in einem getrennten Modul <span class="tt">dbxShop_admin</span>.</p>
 <p>Der Shop nutzt die normalen dbxapp-Bausteine: Routing über <span class="tt">dbx_run1</span>, Templates über <span class="tt">dbxTPL</span>, Datenzugriff über <span class="tt">dbxDB</span>, Struktur über DD, Formulare über <span class="tt">dbxForm</span>, Listen über <span class="tt">dbxReport</span>, CMS-Seiten für Rechtstexte und <span class="tt">openWin</span> für Admin-Dialoge.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md255"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md268"></a>
 Fachliches Gesamtbild</h1>
 <p>dbxShop deckt den Weg von einem gepflegten Produkt bis zur nachvollziehbaren Bestellung ab:</p>
 <div class="fragment"><div class="line">Produktstamm</div>
@@ -59,7 +59,7 @@ Fachliches Gesamtbild</h1>
 <div class="line">  -&gt; Zahlung, Rechnung, Versand, Tracking und Historie</div>
 <div class="line">  -&gt; optional Widerruf und Channel-Rückmeldungen</div>
 </div><!-- fragment --><p>Der Shop ist dabei kein isoliertes Fremdsystem. CMS, Benutzer, Medien, Workflow, Mail, PDF, Konfiguration und Designs werden über die vorhandenen dbxapp-Bausteine verbunden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md256"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md269"></a>
 Rollen und typische Aufgaben</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -75,7 +75,7 @@ Rollen und typische Aufgaben</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">Entwickler  </td><td class="markdownTableBodyNone">Repository/Service/Adapter erweitern, ohne Preis- oder Rechteprüfungen ins Template zu verlagern  </td></tr>
 </table>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md257"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md270"></a>
 Produktlebenszyklus</h1>
 <ol type="1">
 <li>Produkt mit eindeutiger SKU und verständlichem Slug anlegen.</li>
@@ -90,12 +90,12 @@ Produktlebenszyklus</h1>
 <li>Produkt freigeben bzw. über den passenden Workflow veröffentlichen.</li>
 </ol>
 <p>Gruppen sind mehr als Navigation. Sie können Darstellung, Attribute, Steuer- und Versanddefaults sowie Channel-Gruppen bündeln. Ein konkreter Produktwert gewinnt, ein leerer/erbender Wert verwendet den fachlich vorgesehenen Gruppendefault.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md258"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md271"></a>
 Kundenerlebnis</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md259"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md272"></a>
 Katalog</h2>
 <p>Der öffentliche Katalog kombiniert Suche, Gruppenbaum und Attributfilter. Angezeigt werden nur aktive, für den internen <span class="tt">shop</span>-Channel freigegebene Produkte. Produktkarten kommen aus einem TPL-Report; dadurch bleiben Filter, Trefferzahl und Pagination Teil der Reportpipeline, obwohl keine klassische Tabelle sichtbar ist.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md260"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md273"></a>
 Produktdetail</h2>
 <p>Die Detailansicht zeigt:</p>
 <ul>
@@ -108,13 +108,13 @@ Produktdetail</h2>
 <li>gruppenabhängiges Detail- und Gallerytemplate.</li>
 </ul>
 <p>Eine SKU oder ID aus der URL wird immer gegen aktiven Channel, Aktivstatus und Zugriffsregeln geprüft.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md261"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md274"></a>
 Warenkorb</h2>
 <p>Der Session-Warenkorb ist nur eine Benutzerabsicht. Vor Anzeige und Checkout werden Produkte, Mengen, Preis, Steuer, Bestand und Lieferbarkeit erneut aus dem Repository bestimmt. Vom Browser übergebene Summen oder Preise sind nie die Berechnungsgrundlage.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md262"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md275"></a>
 Checkout</h2>
 <p>Der Checkout verwendet dbxForm und führt den Kunden durch Kontakt-/Adressdaten, Zahlungsart, Hinweise und Zustimmungen. Nur konfigurierte Zahlungsarten werden angeboten. Rechtstexte können als Snapshot in der Bestellung gespeichert werden, damit der zum Kaufzeitpunkt akzeptierte Stand erhalten bleibt.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md263"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md276"></a>
 Sprachabhängige Oberfläche</h2>
 <p>Katalogfilter, Kauf- und Warenkorbformular, Checkout sowie die öffentliche Bestellliste besitzen eigene deutsche, englische und spanische FDs:</p>
 <div class="fragment"><div class="line">shop-catalog-filter-form[_en|_es].fd.php</div>
@@ -123,7 +123,7 @@ Sprachabhängige Oberfläche</h2>
 <div class="line">shop-orders[_en|_es].fd.php</div>
 </div><!-- fragment --><p>Die jeweilige FD liefert neben Feldlabels auch Seiten-/Bar-Titel, Reportspalten, Statusbeschriftungen, leere Zustände, Zahlungs- und Validierungshinweise sowie Confirmtexte. <span class="tt">dbxForm</span> und <span class="tt">dbxReport</span> laden diese Meldungen über ihren gemeinsamen FD-Mechanismus. Allgemeine Browserknöpfe wie Ja/Nein kommen aus der zentralen JavaScript-Übersetzung.</p>
 <p>Produktnamen, Gruppennamen, Attribute, Liefertexte oder Zahlungsanweisungen aus der Datenbank sind gespeicherte Fachdaten. In einer einsprachigen Shoptabelle werden sie nicht durch eine FD scheinübersetzt. Dafür wären echte Sprachtabellen und passende Sprach-DDs erforderlich.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md264"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md277"></a>
 Bestelllebenszyklus</h1>
 <p>Eine Bestellung besitzt zwei fachlich getrennte Zustände:</p>
 <ul>
@@ -139,7 +139,7 @@ Bestelllebenszyklus</h1>
 <div class="line">  -&gt; Versand und Tracking pflegen</div>
 <div class="line">  -&gt; Abschluss oder Widerruf</div>
 </div><!-- fragment --><p><span class="tt">shop_order_item</span> speichert den kaufzeitbezogenen Snapshot. Änderungen an SKU, Titel, Preis oder Steuer eines Produkts dürfen bestehende Bestellpositionen nicht nachträglich verändern. Statusänderungen werden in <span class="tt">shop_order_history</span> nachvollziehbar festgehalten.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md265"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md278"></a>
 Preis, Steuer, Versand und Bestand</h1>
 <ul>
 <li>Währung und Brutto-/Nettoanzeige kommen aus der Shopkonfiguration.</li>
@@ -150,7 +150,7 @@ Preis, Steuer, Versand und Bestand</h1>
 <li>Digitale Produkte können einen eigenen Liefer-/Versandweg verwenden.</li>
 </ul>
 <p>Rundung und Summenbildung gehören in die Fachlogik. Templates formatieren nur bereits berechnete Werte.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md266"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md279"></a>
 Modulaufteilung</h1>
 <div class="fragment"><div class="line">dbx/modules/dbxShop/</div>
 <div class="line">  dbxShop.class.php                  Frontend-Router</div>
@@ -176,7 +176,7 @@ Modulaufteilung</h1>
 <div class="line">  tpl/htm/*.htm                      Admin-Templates</div>
 <div class="line">  design/css/shop-admin.css          Admin-Komponentenstil</div>
 </div><!-- fragment --><p><span class="tt">dbxShop</span> ist bewusst Frontend und verwendet das aktive Frontend-Design. <span class="tt">dbxShop_admin</span> besitzt das Suffix <span class="tt">_admin</span> und wird für Administratoren vom Design-Router auf <span class="tt">default_design_admin</span> aufgelöst. Aktuell ist das Admin-Design <span class="tt">dbxapp</span>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md267"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md280"></a>
 Frontend-Routen</h1>
 <p>Aufrufmuster:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxShop&amp;dbx_run1={route}</div>
@@ -214,7 +214,7 @@ Frontend-Routen</h1>
 </table>
 <p>Beispiel für eine CMS- oder Template-Inclusion:</p>
 <div class="fragment"><div class="line">[modul=dbxShop]dbx_run1=catalog[/modul]</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md268"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md281"></a>
 Admin-Routen</h1>
 <p>Aufrufmuster:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxShop_admin&amp;dbx_run1={route}</div>
@@ -269,10 +269,10 @@ Admin-Routen</h1>
 <td class="markdownTableBodyNone"><span class="tt">payment_test</span>  </td><td class="markdownTableBodyNone">konfigurierte Zahlungsanbieter prüfen  </td></tr>
 </table>
 <p>Der Modulzugriff ist über <span class="tt">dbxShop_admin/cfg/config.php</span> auf die Gruppe <span class="tt">admin</span> beschraenkt. Fachaktionen dürfen diese Modulberechtigung nicht durch direkte, ungeschuetzte Hilfsrouten umgehen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md269"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md282"></a>
 Datenmodell</h1>
 <p>Alle Shop-DDs verwenden derzeit den Server <span class="tt">dbxShop|dbxShop.db3</span>. Jede Tabelle besitzt die Primaer-ID <span class="tt">id</span>. Die physischen Tabellen werden aus den DD-Dateien synchronisiert und sollen nicht parallel als handgeschriebenes SQL-Schema gepflegt werden.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md270"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md283"></a>
 Artikel und Darstellung</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -291,7 +291,7 @@ Artikel und Darstellung</h2>
 <td class="markdownTableBodyNone"><span class="tt">shopProductAttributeValue</span>  </td><td class="markdownTableBodyNone"><span class="tt">shop_product_attribute_value</span>  </td><td class="markdownTableBodyNone">konkrete Attributwerte eines Artikels  </td></tr>
 </table>
 <p>Die Artikelgruppe kann Darstellungsvorgaben erben lassen, zum Beispiel <span class="tt">card_template</span>, <span class="tt">detail_template</span>, <span class="tt">gallery_template</span>, Bildanzahl, Bildmodus, Overflow und Klickverhalten. Fachliche Artikelwerte bleiben im Artikel; die Gruppe stellt Defaults und Kategorisierung bereit.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md271"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md284"></a>
 Versand und Channels</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -312,7 +312,7 @@ Versand und Channels</h2>
 <td class="markdownTableBodyNone"><span class="tt">shopProductChannelGroupMap</span>  </td><td class="markdownTableBodyNone"><span class="tt">shop_product_channel_group_map</span>  </td><td class="markdownTableBodyNone">Artikel-zu-Channel-Gruppe  </td></tr>
 </table>
 <p>Direkte Channel-Zuordnungen und geerbte Zuordnungen über Channel-Gruppen werden gemeinsam aufgelöst. Ein Channel-spezifischer Preis von <span class="tt">-1</span> bedeutet sinngemäß, dass der Artikel- bzw. Gruppenwert verwendet wird.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md272"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md285"></a>
 Bestellung und Widerruf</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -327,14 +327,14 @@ Bestellung und Widerruf</h2>
 <td class="markdownTableBodyNone"><span class="tt">shopWithdrawal</span>  </td><td class="markdownTableBodyNone"><span class="tt">shop_withdrawal</span>  </td><td class="markdownTableBodyNone">Widerruf mit Bezug zu Bestellung/Kunde und Adminstatus  </td></tr>
 </table>
 <p>Bestellpositionen speichern SKU, Titel, Menge, Preis, Steuer und Versand zum Bestellzeitpunkt. Nachtraegliche Artikelaenderungen dürfen eine vorhandene Bestellung deshalb nicht rückwirkend umschreiben.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md273"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md286"></a>
 Installation, DD-Sync und Testdaten</h1>
 <p><span class="tt">dbxShopRepository::install()</span> synchronisiert die 17 Shop-DDs, legt Standard-Channels an und bereinigt bestimmte Zuordnungen. Die Synchronisation wird mit <span class="tt">schema_sync_version</span> begrenzt. Eine Änderung an einem DD erfordert deshalb auch eine neue Schema-Versionskennung, wenn die automatische Synchronisation erneut laufen soll.</p>
 <p>Wenn Artikel, Versandgruppen, Channel-Gruppen oder Bilder fehlen, ruft der aktuelle Shop <span class="tt">seedDemoProducts()</span> auf. Das Entwicklungsprojekt darf Testdaten enthalten. Die mitgelieferten Testdaten umfassen unter anderem Software- und Servicegruppen, Versandgruppen, Channel-Gruppen und Demoartikel.</p>
 <p>Werkzeuge für gezielte Testdaten und Mockups liegen unter:</p>
 <div class="fragment"><div class="line">dbx/modules/dbxShop/tools/seed_dbxapp_merch.php</div>
 <div class="line">dbx/modules/dbxShop/tools/generate_dbxapp_merch_mockups.php</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md274"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md287"></a>
 Katalog und Produktdarstellung</h1>
 <p>Der Katalog zeigt nur aktive Artikel, die dem internen Channel <span class="tt">shop</span> zugeordnet sind. Er unterstützt:</p>
 <ul>
@@ -353,7 +353,7 @@ Katalog und Produktdarstellung</h1>
 <div class="line">shop-catalog-report.htm</div>
 <div class="line">shop-catalog-filter-form.htm</div>
 </div><!-- fragment --><p>Neue Varianten werden als Shop-Templates ergänzt und über die Gruppe ausgewählt. Der Service validiert den Template-Namen; ungeprüfte Dateipfade aus Datenbankwerten sind nicht erlaubt.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md275"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md288"></a>
 Einheitliches Laden von Produktlisten</h2>
 <p>Produktlisten verwenden im Repository immer denselben einfachen Ablauf:</p>
 <ol type="1">
@@ -363,14 +363,14 @@ Einheitliches Laden von Produktlisten</h2>
 <li>Nur die sichtbare Katalogseite vollständig darstellen.</li>
 </ol>
 <p><span class="tt">products()</span> für die Administration und <span class="tt">productsByIds()</span> für den öffentlichen Report verwenden beide <span class="tt">decorateProducts()</span>. Die Methode bildet eine kurzlebige Datensicht nur für den aktuellen Aufruf. Sie ist kein prozess- oder requestuebergreifender Cache und benötigt deshalb keine Invalidierung. Einzelabrufe wie <span class="tt">productById()</span> und <span class="tt">productBySku()</span> bleiben unverändert kompatibel.</p>
-<p>Ein allgemeiner Ergebnis-Cache wurde nicht in <span class="tt">dbxDB</span> eingebaut. Identische SQL-Texte koennten dort zwar wiederverwendet werden, produktbezogene Abfragen mit verschiedenen IDs blieben aber verschieden. Gleichzeitig muessten rohe Queries, direkte PDO-Schreibpfade, DDL, Transaktionen und externe Schreiber beruecksichtigt werden. Die Repository-Mengenabfrage beseitigt das N+1-Problem ohne diese Aktualitaets- und Invalidierungskomplexitaet.</p>
+<p><span class="tt">dbxDB::select1()</span> besitzt einen universellen requestlokalen Einzelsatz-Cache. Er wiederholt identische DD-/WHERE-/Spaltenzugriffe nicht und wird bei jedem Schreibzugriff auf dieselbe DD verworfen. Transaktionen umgehen diesen Cache. Die Repository-Mengenabfragen bleiben davon unberührt: Sie sind weiterhin der richtige Weg für vollständige Produktlisten mit vielen unterschiedlichen IDs, während der zentrale Cache wiederholte Zugriffe auf denselben Einzelsatz vermeidet.</p>
 <p>Auch die Darstellung folgt dem Mengenprinzip. Der Service liest einmal pro Request die in einem Karten- oder Detailtemplate vorhandenen <span class="tt">{replacement_namen}</span> und erzeugt nur deren Werte. Eine Katalogkarte baut dadurch keine unsichtbare Detailgalerie, Attributtabelle, Versand-/Lageransicht oder dbxForm-Instanz mehr. Eigene Shop-Templates bleiben kompatibel: Sobald sie einen bekannten Platzhalter verwenden, wird dessen Wert weiterhin vollständig erzeugt. Der Cache enthält nur die Platzhalternamen der lokalen Template-Datei, keine Produkt-, Benutzer- oder Formulardaten.</p>
-<p>Die Admin-Bildliste folgt demselben Vertrag. <span class="tt">allImages()</span> lädt alle benötigten Produkt- und Gruppentitel in höchstens zwei Mengenabfragen und ordnet sie per ID zu. Neue Adminlisten dürfen nicht innerhalb einer Ergebnis-Schleife <span class="tt">select1()</span> für reine Bezeichnungen aufrufen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md276"></a>
+<p>Die Admin-Bildliste folgt demselben Vertrag. <span class="tt">allImages()</span> lädt alle benötigten Produkt- und Gruppentitel in höchstens zwei Mengenabfragen und ordnet sie per ID zu. Neue Adminlisten dürfen nicht innerhalb einer Ergebnis-Schleife <span class="tt">select1()</span> für reine Bezeichnungen aufrufen. Der zentrale Cache ist kein Ersatz für eine fachlich zusammengehörige Listendatensicht.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md289"></a>
 Warenkorb und Checkout</h1>
 <p>Der Warenkorb wird in der PHP-Session unter <span class="tt">dbxShop_cart</span> geführt. Der Checkout erfasst Name, E-Mail, Telefon, Lieferadresse, Notiz und Zahlungsart. Rechtstexte und Widerrufsbelehrung müssen bestaetigt werden.</p>
 <p>Ändernde Warenkorbaktionen bleiben POST-Aktionen im vorhandenen <span class="tt">dbxReport</span>-/<span class="tt">dbxForm</span>-Vertrag. <span class="tt">remove</span> und <span class="tt">clear</span> sind benannte Submit-Buttons; <span class="tt">ajax.js</span> übernimmt deren <span class="tt">name/value</span> zusätzlich zu den Formulardaten. Nach einem Bestätigungsdialog hält ein kurzlebiges Hidden-Feld den bestätigten <span class="tt">name/value</span>-Wert fest und der reguläre Formular-Submit entscheidet weiter zwischen AJAX und Browsernavigation. Dadurch funktionieren Entfernen und Leeren sowohl mit AJAX als auch beim nativen Formular-Fallback. Die vorhandene dbxForm-CSRF-Prüfung bleibt unverändert; ein separater <span class="tt">dbx_token</span> wurde dafür nicht eingeführt.</p>
-<p>Der aktuelle Gesamtzähler steht am zurückgegebenen Warenkorb-Root in <span class="tt">data-dbx-shop-cart-count</span>. Das modulbezogene <span class="tt">design/js/shop.js</span> synchronisiert damit nach <span class="tt">ajax:after</span> alle Menü-Badges. Die dbxapp-Asset-Version 90 stellt sicher, dass Browser die korrigierten Kernel-Bibliotheken neu laden.</p>
+<p>Der aktuelle Gesamtzähler steht am zurückgegebenen Warenkorb-Root in <span class="tt">data-dbx-shop-cart-count</span>. Das modulbezogene <span class="tt">design/js/shop.js</span> synchronisiert damit nach <span class="tt">ajax:after</span> alle Menü-Badges. Die dbxapp-Asset-Version aus <span class="tt">VERSION</span> stellt sicher, dass Browser die korrigierten Kernel-Bibliotheken neu laden.</p>
 <p>Der Ablauf ist:</p>
 <ol type="1">
 <li>Warenkorbpositionen gegen aktuelle Produkte prüfen.</li>
@@ -384,7 +384,7 @@ Warenkorb und Checkout</h1>
 <li>Bestell- und Zahlungsereignisse in der History protokollieren.</li>
 </ol>
 <p>Gastbestellungen werden mit <span class="tt">checkout_guest_allowed</span> gesteuert. Die öffentliche Anzeige einer Bestellung oder Rechnung muss weiterhin die im Service implementierte Zugriffsprüfung benutzen; eine frei uebergebene ID allein ist keine Berechtigung.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md277"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md290"></a>
 Zahlungsarten</h1>
 <p>Aktuell unterstützt die Konfiguration:</p>
 <table class="markdownTable">
@@ -400,15 +400,15 @@ Zahlungsarten</h1>
 <td class="markdownTableBodyNone">Amazon Pay  </td><td class="markdownTableBodyNone">Schalter, Modus, Region, Merchant-/Store-/Key-Daten und Private Key  </td></tr>
 </table>
 <p>PayPal und Amazon Pay werden im Checkout erst angeboten, wenn die benötigten Zugangsdaten vorhanden sind. Neue Provider gehören in eine eigene Adapterklasse; Secrets dürfen nicht in Templates, Logs oder Testausgaben geschrieben werden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md278"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md291"></a>
 Rechtstexte, CMS und Widerruf</h1>
 <p>Der Shop stellt die benötigten CMS-Seiten unter einem Shop-Ordner sicher. Rechtstexte und Widerrufsinhalt werden im CMS gepflegt, nicht dauerhaft als HTML im Shop-Template dupliziert. Beim Checkout können Snapshots in der Bestellung gespeichert werden, damit die zum Kaufzeitpunkt akzeptierte Fassung nachvollziehbar bleibt.</p>
 <p>Widerrufe werden über das Frontendformular in <span class="tt">shop_withdrawal</span> gespeichert und im Admin-Modul bearbeitet. Kunden- und Admin-Mail können separat aktiviert werden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md279"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md292"></a>
 Medien</h1>
 <p>Produktbilder referenzieren vorzugsweise zentrale CMS-Medien über <span class="tt">media_id</span>. Ein <span class="tt">image_path</span> bleibt als Fallback für vorhandene oder erzeugte Dateien möglich. Ein Bild kann einem Artikel oder einer Artikelgruppe zugeordnet sein. Gruppenbilder dienen als Fallback und als visuelle Navigation im Katalog.</p>
 <p>Der konfigurierbare CMS-Slot lautet standardmäßig <span class="tt">shop</span>. Medien dürfen nicht allein durch Dateinamen als vertrauenswürdig behandelt werden; Uploadziel, Dateiname und Dateityp werden serverseitig begrenzt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md280"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md293"></a>
 Channels und externe Plattformen</h1>
 <p>Standard-Channels sind:</p>
 <div class="fragment"><div class="line">shop, amazon, ebay, kleinanzeigen, mobile</div>
@@ -417,7 +417,7 @@ Channels und externe Plattformen</h1>
 <p>Der Webhook-Endpunkt ist:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxShop&amp;dbx_run1=channel_webhook&amp;channel={channel_key}</div>
 </div><!-- fragment --><p>Webhook-Secrets und Provider-Signaturen sind Sicherheitsgrenzen. Ein neuer Importweg darf Bestellungen nicht ungeprüft aus beliebigem JSON erzeugen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md281"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md294"></a>
 Einstellungen</h1>
 <p>Die Admin-Seite <span class="tt">settings</span> verwaltet unter anderem:</p>
 <ul>
@@ -430,10 +430,10 @@ Einstellungen</h1>
 <li>digitale Lieferung und pauschalen Versand,</li>
 <li>den CMS-Medienslot.</li>
 </ul>
-<p>Die Konfiguration wird mit <span class="tt">dbx()-&gt;get_config('dbxShop')</span> gelesen und über die zentrale Konfigurationsschnittstelle gespeichert. Keine zweite JSON- oder ENV-Konfiguration für dieselben Werte einführen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md282"></a>
+<p>Die Konfiguration wird mit <span class="tt">dbx()-&gt;get_cfg('dbxShop')</span> gelesen und über die zentrale Konfigurationsschnittstelle gespeichert. Keine zweite JSON- oder ENV-Konfiguration für dieselben Werte einführen.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md295"></a>
 Reale Codewege</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md283"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md296"></a>
 Repository statt DB-Zugriff aus dem Template</h2>
 <div class="fragment"><div class="line">$repo = dbx()-&gt;get_include_obj(<span class="stringliteral">&#39;dbxShopRepository&#39;</span>, <span class="stringliteral">&#39;dbxShop&#39;</span>);</div>
 <div class="line">$product = $repo-&gt;productBySku($sku, <span class="keyword">true</span>);</div>
@@ -450,7 +450,7 @@ Repository statt DB-Zugriff aus dem Template</h2>
 <div class="line">    $repo-&gt;groupsForProduct((<span class="keywordtype">int</span>)$product[<span class="stringliteral">&#39;id&#39;</span>])</div>
 <div class="line">);</div>
 </div><!-- fragment --><p>Der zweite Parameter von <span class="tt">productBySku()</span> verlangt hier ein aktives Produkt. Die Serviceklasse prüft zusätzlich Channel und Darstellungskontext. Ein Template erhält nur die fertigen Werte und generiert keine Shopabfrage.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md284"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md297"></a>
 Produkt an einen Channel exportieren</h2>
 <div class="fragment"><div class="line">$result = $repo-&gt;exportProductToChannel($productId, <span class="stringliteral">&#39;ebay&#39;</span>);</div>
 <div class="line"> </div>
@@ -460,7 +460,7 @@ Produkt an einen Channel exportieren</h2>
 <div class="line">    $message = (string)($result[<span class="stringliteral">&#39;message&#39;</span>] ?? <span class="stringliteral">&#39;Export ausgeführt.&#39;</span>);</div>
 <div class="line">}</div>
 </div><!-- fragment --><p><span class="tt">exportProductToChannel()</span> lädt Channel, Produkt, Mapping und Connectorstatus über das Repository. Ein Admincontroller soll nicht selbst ein Providerpayload aus Request-Feldern zusammensetzen.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md285"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md298"></a>
 Bestellreport</h2>
 <div class="fragment"><div class="line">$filters = array(</div>
 <div class="line">    <span class="stringliteral">&#39;search&#39;</span> =&gt; $search,</div>
@@ -472,7 +472,7 @@ Bestellreport</h2>
 <div class="line">$count = $repo-&gt;orderCount($filters);</div>
 <div class="line">$orders = $repo-&gt;orders($filters, $rows, $offset, <span class="stringliteral">&#39;create_date&#39;</span>, <span class="stringliteral">&#39;DESC&#39;</span>);</div>
 </div><!-- fragment --><p>Die Adminansicht übergibt diese Daten an dbxReport. Repository und Report haben unterschiedliche Aufgaben: das Repository kennt die Shopabfrage, dbxReport kennt Filterzustand, Pagination, Formatierung und Aktionen.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md286"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md299"></a>
 Zahlungsadapter</h2>
 <div class="fragment"><div class="line">$paypal = dbx()-&gt;get_include_obj(<span class="stringliteral">&#39;dbxShopPayPal&#39;</span>, <span class="stringliteral">&#39;dbxShop&#39;</span>);</div>
 <div class="line"> </div>
@@ -483,12 +483,12 @@ Zahlungsadapter</h2>
 <div class="line">$providerOrder = $paypal-&gt;createOrder($order, $returnUrl, $cancelUrl);</div>
 <div class="line">$approvalUrl = $paypal-&gt;approvalUrl($providerOrder);</div>
 </div><!-- fragment --><p>Provideradapter kapseln Authentifizierung, Request/Response und Testmodus. Der Service bleibt für lokalen Bestellzustand, Idempotenz, Rückkehr und Historie zuständig.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md287"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md300"></a>
 Erweiterungsszenarien</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md288"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md301"></a>
 Neues Produktattribut</h2>
 <p>Wenn Redakteure ein zusätzliches Merkmal wie Material oder Vertragslaufzeit benötigen, wird meist keine neue Spalte in <span class="tt">shop_product</span> gebraucht. Eine Attributdefinition kann einer Gruppe zugeordnet, als filterbar markiert und pro Produkt befüllt werden.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md289"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md302"></a>
 Neue Zahlungsart</h2>
 <ol type="1">
 <li>Konfigurationsfelder und sichere Secret-Behandlung ergänzen.</li>
@@ -498,7 +498,7 @@ Neue Zahlungsart</h2>
 <li>wiederholte Rückkehr/Webhooks idempotent verarbeiten.</li>
 <li>History und Fehlermeldung ohne Secrets schreiben.</li>
 </ol>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md290"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md303"></a>
 Neuer Verkaufskanal</h2>
 <ol type="1">
 <li>Channeltyp und Konfiguration definieren.</li>
@@ -509,10 +509,10 @@ Neuer Verkaufskanal</h2>
 <li>Webhook authentifizieren und normalisieren.</li>
 <li>Fehlerwiederholung und Teilfehler fachlich festlegen.</li>
 </ol>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md291"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md304"></a>
 Neue Darstellungsvariante</h2>
 <p>Eine neue Karten- oder Detailansicht entsteht als Shoptemplate und optionales CSS innerhalb des Shopdesigns. Die Gruppe wählt den erlaubten Template-Namen. Produktdaten, Preise und Rechte bleiben unverändert im Service/Repository.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md292"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md305"></a>
 Betrieb und Fehlersuche</h1>
 <ul>
 <li>Dashboardzahlen zuerst gegen Repositoryabfragen und aktive Filter prüfen.</li>
@@ -523,7 +523,7 @@ Betrieb und Fehlersuche</h1>
 <li>Fehlendes Bild: <span class="tt">shopProductImage</span>, <span class="tt">media_id</span>, aktive dbxMedia-Datei und Gruppenfallback prüfen.</li>
 <li>Exportfehler: Channeltest, Mapping, externe Policies/Scopes und gespeicherte Connectorantwort prüfen; niemals Secrets in die UI kopieren.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md293"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md306"></a>
 Erweiterungsregeln</h1>
 <ul>
 <li>Neue Tabellen zuerst als DD in <span class="tt">dbxShop/dd</span> modellieren.</li>
@@ -537,7 +537,7 @@ Erweiterungsregeln</h1>
 <li>Secrets werden nicht ausgegeben oder in Systemmeldungen protokolliert.</li>
 <li>Externe Calls erhalten Timeout, Fehlerbehandlung und nachvollziehbaren Status; sie dürfen lokale Bestellungen nicht inkonsistent hinterlassen.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md294"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md307"></a>
 Prüfliste</h1>
 <ul>
 <li>DD-Sync läuft auf einer leeren Entwicklungsdatenbank durch.</li>
@@ -554,7 +554,7 @@ Prüfliste</h1>
 <li>Channel-Tests und Exporte zeigen Fehler, ohne Secrets auszugeben.</li>
 <li><span class="tt">dbxapp</span> und <span class="tt">flowers</span> stellen den Shop lesbar und responsive dar.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md295"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md308"></a>
 Verwandte Dokumentation</h1>
 <ul>
 <li><a class="el" href="dbxapp_security_integrity_performance.html" title="Sicherheit, Integrität und Performance">Sicherheit, Integrität und Performance</a></li>

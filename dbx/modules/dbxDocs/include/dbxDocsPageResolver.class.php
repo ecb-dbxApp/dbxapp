@@ -16,6 +16,9 @@ class dbxDocsPageResolver
 {
     private const AREA_PAGES = array(
         'einstieg' => 'docs-start',
+        'anwender' => 'docs-start',
+        'users' => 'docs-start',
+        'usuarios' => 'docs-start',
         'getting started' => 'docs-start',
         'primeros pasos' => 'docs-start',
         'anwenden' => 'docs-apply',
@@ -23,14 +26,23 @@ class dbxDocsPageResolver
         'use' => 'docs-apply',
         'usar' => 'docs-apply',
         'tutoriales' => 'docs-apply',
+        'praxis' => 'docs-apply',
+        'practice' => 'docs-apply',
+        'práctica' => 'docs-apply',
         'entwickeln' => 'docs-develop',
         'entwicklung' => 'docs-develop',
         'develop' => 'docs-develop',
         'desarrollar' => 'docs-develop',
+        'entwickler' => 'docs-develop',
+        'developers' => 'docs-develop',
+        'desarrolladores' => 'docs-develop',
         'betrieb' => 'docs-operate',
         'betrieb & sicherheit' => 'docs-operate',
         'operate' => 'docs-operate',
         'operar' => 'docs-operate',
+        'administratoren' => 'docs-operate',
+        'administrators' => 'docs-operate',
+        'administradores' => 'docs-operate',
     );
 
     public function forContent(int $cid, string $language = 'de', string $source = ''): string
@@ -82,4 +94,3 @@ class dbxDocsPageResolver
         return 'default';
     }
 }
-

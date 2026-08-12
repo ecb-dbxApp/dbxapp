@@ -4,7 +4,7 @@
  <div class="dbx-ki-update-shell">
   <header class="dbx-ki-update-head">
    <div>
-    <span class="dbx-ki-kicker">Change the existing page</span>
+    <span class="dbx-ki-kicker">Edit existing page</span>
     <h2>{selected_page_title}</h2>
    </div>
    <div class="dbx-ki-update-head-controls">
@@ -15,24 +15,26 @@
    </div>
   </header>
 
+  {workflow_hint}
+
   <div class="dbx-ki-update-workspace">
    <aside class="dbx-ki-tree-panel">
     <div class="dbx-ki-panel-head">
-     <strong>Content Tree</strong>
-     <span>Choose the page</span>
+     <strong>Content tree</strong>
+     <span>Select page</span>
     </div>
     <div class="dbx-cms-view-tree-tools">
-     <input type="search" class="form-control form-control-sm" data-ki-tree-search placeholder="Searching for Tree">
+     <input type="search" class="form-control form-control-sm" data-ki-tree-search placeholder="Search tree">
     </div>
     <div class="dbx-cms-tree dbx-ki-tree" data-ki-tree>
-     <div class="dbx-cms-empty">Tree is loaded...</div>
+     <div class="dbx-cms-empty">Tree wird geladen...</div>
     </div>
    </aside>
 
    <main class="dbx-ki-preview-panel">
     <div class="dbx-ki-panel-head">
      <strong data-ki-selected-title>{selected_page_title}</strong>
-     <span data-ki-status>Rendered dbxContentPreview</span>
+     <span data-ki-status>Rendered dbxContent preview</span>
     </div>
     <div class="dbx-ki-preview" data-ki-preview>
      {current_rendered}
@@ -50,12 +52,12 @@
      </section>
 
      <section class="dbx-ki-card">
-      <h3>Contract</h3>
+      <h3>Request</h3>
       <label class="form-label">Writing style</label>
       <select class="form-select form-select-sm mb-2" name="writing_style">{style_options}</select>
 
       <label class="form-label">What should be changed? <span class="text-danger">*</span></label>
-      <textarea class="form-control form-control-sm" name="change_brief" rows="4" required placeholder="e.g. modernize text, get section XY, formulate kuerzer">{change_brief}</textarea>
+      <textarea class="form-control form-control-sm" name="change_brief" rows="4" required placeholder="z.B. Modernize text, add a section, shorten wording">{change_brief}</textarea>
      </section>
 
      <section class="dbx-ki-card">
@@ -66,34 +68,46 @@
        <label><input type="checkbox" name="change_description" value="1" {field_description_checked}> <span>Description</span></label>
        <label><input type="checkbox" name="change_hero" value="1" {field_hero_checked}> <span>Hero image</span></label>
       </div>
-      <textarea class="form-control form-control-sm mt-2" name="hero_brief" rows="2" placeholder="Only if Hero image is changed: subject / mood">{hero_brief}</textarea>
+      <div class="dbx-ki-radio-stack mt-2">
+       <label><input type="radio" name="hero_mode" value="replace" {hero_mode_replace_checked}> <span>Replace existing hero file</span></label>
+       <label><input type="radio" name="hero_mode" value="create" {hero_mode_create_checked}> <span>Create and assign a new hero medium</span></label>
+      </div>
+      <textarea class="form-control form-control-sm mt-2" name="hero_brief" rows="2" placeholder="Nur wenn Hero image geaendert wird: Motiv / Stimmung">{hero_brief}</textarea>
      </section>
 
      <section class="dbx-ki-card">
-      <h3>BootstrapComponents</h3>
-      <p class="dbx-ki-help dbx-ki-help-top">Only select if the AI is allowed to use these building blocks in the content update.</p>
+      <h3>Bootstrap components</h3>
+      <p class="dbx-ki-help dbx-ki-help-top">Select only components the AI may use in the content update.</p>
       <div class="dbx-ki-checkgrid dbx-ki-component-grid">
-       {bootstrap_component_choices}
+       {obj:comp_alert}
+       {obj:comp_card}
+       {obj:comp_list_group}
+       {obj:comp_badges}
+       {obj:comp_buttons}
+       {obj:comp_table}
+       {obj:comp_accordion}
+       {obj:comp_tabs}
       </div>
      </section>
 
      <section class="dbx-ki-card">
-      <h3>Media &amp; Modules</h3>
+      <h3>Media &amp; modules</h3>
       <div class="dbx-ki-radio-stack">
-       <label><input type="radio" name="embedded_policy" value="preserve" {embedded_policy_preserve_checked}> <span>Not changed</span></label>
-       <label><input type="radio" name="embedded_policy" value="reorder" {embedded_policy_reorder_checked}> <span>Rearrange</span></label>
-       <label><input type="radio" name="embedded_policy" value="remove" {embedded_policy_remove_checked}> <span>Removal</span></label>
+       <label><input type="radio" name="embedded_policy" value="modify" {embedded_policy_modify_checked}> <span>Change/Add</span></label>
+       <label><input type="radio" name="embedded_policy" value="preserve" {embedded_policy_preserve_checked}> <span>Do not change</span></label>
+       <label><input type="radio" name="embedded_policy" value="reorder" {embedded_policy_reorder_checked}> <span>Reorder</span></label>
+       <label><input type="radio" name="embedded_policy" value="remove" {embedded_policy_remove_checked}> <span>Remove</span></label>
       </div>
-      <textarea class="form-control form-control-sm mt-2" name="embedded_change_notes" rows="2" placeholder="What exactly to rearrange or remove?">{embedded_change_notes}</textarea>
+      <textarea class="form-control form-control-sm mt-2" name="embedded_change_notes" rows="2" placeholder="What exactly should be changed, added, reordered or removed?">{embedded_change_notes}</textarea>
      </section>
 
      <section class="dbx-ki-card">
       <h3>Notes</h3>
-      <textarea class="form-control form-control-sm" name="custom_notes" rows="2" placeholder="Further requirements for AI">{custom_notes}</textarea>
+      <textarea class="form-control form-control-sm" name="custom_notes" rows="2" placeholder="Additional requirements for the AI">{custom_notes}</textarea>
      </section>
 
      <div class="dbx-ki-actions">
-     <button type="submit" class="btn btn-primary"><i class="bi bi-download"></i> Order ZIP</button>
+     <button type="submit" class="btn btn-primary"><i class="bi bi-download"></i> Requests-ZIP</button>
      </div>
      [dbx:form]
     </form>
@@ -103,3 +117,4 @@
   </div>
  </div>
 </div>
+

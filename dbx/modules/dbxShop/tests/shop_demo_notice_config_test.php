@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 $shopRoot = dirname(__DIR__);
 $projectModules = dirname(__DIR__, 2);
-$service = (string)file_get_contents($shopRoot . '/include/dbxShopService.class.php');
+require_once dirname(__DIR__, 3) . '/include/tests/dbxModuleSourceBundle.php';
+$service = dbx_test_module_source_bundle($shopRoot . '/include/dbxShopService.class.php');
 $config = (string)file_get_contents($shopRoot . '/cfg/config.php');
-$admin = (string)file_get_contents($projectModules . '/dbxShop_admin/include/dbxShopAdmin.class.php');
+$admin = dbx_test_module_source_bundle($projectModules . '/dbxShop_admin/include/dbxShopAdmin.class.php');
 
 $fail = static function(string $message, int $code): void {
    fwrite(STDERR, "FAIL: $message\n");

@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -94,14 +94,6 @@ Deutsche Marketingstruktur und <span class="tt">/trash</span></h1>
 </ul>
 <p>Der Ordner <span class="tt">/trash</span> selbst ist nur für die Gruppe <span class="tt">admin</span> lesbar. Hilfe- und Tutorialseiten, die intern weiter benötigt werden, bleiben aktiv, erscheinen aber nicht im Menü und verwenden <span class="tt">noindex,follow</span>.</p>
 <p>Alte deutsche Marketing-Permalinks bleiben als sprachabhängige HTTP-301- Weiterleitungen in <span class="tt">dbx/modules/dbxContent/cfg/config.php</span> erhalten. Die Erkennung erfolgt zentral in <span class="tt">dbxWebApp</span>; Modul- und Aktionsrouten werden davon nicht verändert. Da die flachen öffentlichen URLs derzeit kein Sprachsegment besitzen, enthält die Sitemap nur die maßgebliche deutsche Sprachfassung. Weitere Sprachen dürfen erst mit jeweils eindeutigen kanonischen URLs in die Sitemap aufgenommen werden.</p>
-<p>Die reproduzierbare Migration liegt unter <span class="tt">dbx/modules/dbxContent/tools/restructure_marketing_de.php</span>:</p>
-<div class="fragment"><div class="line"># Nur Planung, keine Änderung</div>
-<div class="line">php dbx\modules\dbxContent\tools\restructure_marketing_de.php</div>
-<div class="line"> </div>
-<div class="line"># Vollständiges DB3-Backup, dbxDB-Transaktion und Anwendung</div>
-<div class="line">php dbx\modules\dbxContent\tools\restructure_marketing_de.php --apply</div>
-</div><!-- fragment --><p>Alle Datenbankzugriffe laufen über die sprachabhängigen DDs und <span class="tt">dbxDB</span>. Vor dem schreibenden Lauf wird die vollständige <span class="tt">dbxContent.db3</span> im Unterordner <span class="tt">dbx/modules/dbx/db/backup/</span> gesichert. Ein Fehler führt zum Rollback der Transaktion. Der Lauf verändert ausschließlich deutsche Content- und Ordnerdatensätze; Englisch und Spanisch werden weder synchronisiert noch geschrieben. Anschließend werden Content-, Menü- und Sitemap-Caches invalidiert.</p>
-<p>Der Test <span class="tt">dbx/modules/dbxContent/tests/dbxContentMarketingDeMigration_test.php</span> prüft Zielseiten, Schreibweise, Umlaute, den admin-geschützten <span class="tt">/trash</span>-Ordner und den vollständigen Archivstatus jedes verschobenen Datensatzes.</p>
 <h1 class="doxsection"><a class="anchor" id="autotoc_md18"></a>
 Administration: Parameter-getrieben</h1>
 <p>In der Administration sind URL-Parameter der Standard.</p>

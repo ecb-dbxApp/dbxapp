@@ -79,4 +79,9 @@ if (($core['mail_delivery_mode'] ?? '') !== 'internal') {
    exit(1);
 }
 
+if (array_key_exists('demo_mode', $core)) {
+   fwrite(STDERR, 'core: der Demo-Modus darf nicht installationsweit konfiguriert sein.' . PHP_EOL);
+   exit(1);
+}
+
 echo "Public config defaults: OK\n";

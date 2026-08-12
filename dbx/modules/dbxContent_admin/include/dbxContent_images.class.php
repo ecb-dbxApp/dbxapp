@@ -77,7 +77,7 @@ Class dbxContent_images {
 
       $target= dbx()->get_system_obj('dbxRequest')->get('dbx_target');
 
-      $tab_content = dbx_lng_name('content', $lng);
+      $tab_content = dbx()->lng_name('content', $lng);
       $img_key     = 'upload'.$iid;
       $obs_key     = 'obs_'.$img_key;
 

@@ -224,7 +224,6 @@ body.dbx-steal-riffel .c-cms {
 /* Glatte Chromprofile für Bars, Kopfbereiche und Akkordeons. */
 body.dbx-steal-riffel :is(
     .dbx-bar,
-    .dbx-module-bar,
     .card-header,
     .card-footer,
     .modal-header,
@@ -248,7 +247,7 @@ body.dbx-steal-riffel :is(
         0 3px 8px rgba(15, 20, 23, .3) !important;
 }
 
-body.dbx-steal-riffel :is(.dbx-module-bar, .card-header, .modal-header) :is(h1, h2, h3, h4, h5, h6, .dbx-module-bar-heading) {
+body.dbx-steal-riffel :is(.dbx-bar--module, .card-header, .modal-header) :is(h1, h2, h3, h4, h5, h6, .dbx-bar-heading) {
     color: #111619 !important;
     text-shadow: 0 1px 0 #fff !important;
 }

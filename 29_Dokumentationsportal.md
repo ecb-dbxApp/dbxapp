@@ -4,8 +4,8 @@
 
 ## Ziel
 
-Das Dokumentationssystem unter `doku.dbxapp.de` verbindet zwei Arten von
-Dokumentation, ohne sie technisch zu vermischen:
+Das Dokumentationssystem der aktuellen dbxapp-Installation verbindet zwei
+Arten von Dokumentation, ohne sie technisch zu vermischen:
 
 1. **Redaktionelle Dokumentation in dbxContent**
    Handbücher, Tutorials, Architekturtexte, Betriebsanweisungen, Screenshots
@@ -20,20 +20,23 @@ unter `reference/current/` eingebunden. Dadurch bleiben Suche, Klassenlinks und
 Quellreferenzen von Doxygen erhalten. Die Referenz wird über das Modul
 `dbxDocs` im Portal eingebettet und kann zusätzlich direkt geöffnet werden.
 
+Alle öffentlichen Dokumentationsseiten liegen kanonisch auf der Hauptdomain
+unter `https://dbxapp.de/dokumentation/`. Eine eigene Dokumentations-Subdomain
+ist nicht Bestandteil der Zielarchitektur.
+
 ## Verzeichnisstruktur
 
 ```text
-<dbxapp-quellverzeichnis>\                 lokale Entwicklungsquelle
-<dbxapp-dokumentationsverzeichnis>\        eigenständige Dokumentationsinstallation
+<dbxapp-quellverzeichnis>\               Entwicklungs- und Laufzeitinstallation
 ├── index.php                            dbxapp-/dbxContent-Portal
 ├── dbx\design\dbxdocs\                  blaues Dokumentationsdesign
 ├── files\media\                         Tutorialmedien
 └── reference\current\                   erzeugte Doxygen-Ausgabe
 ```
 
-Die vorherige statische Ausgabe wurde bei der Umstellung nicht gelöscht,
-sondern als datierter Ordner
-`<dbxapp-dokumentationsverzeichnis>-doxygen-backup-<Zeitstempel>` gesichert.
+Die Referenz gehört damit zur selben Installation wie die redaktionellen
+Seiten. Eine zweite dbxapp-Kopie und eine Synchronisierung zwischen zwei
+Installationen sind nicht erforderlich.
 
 ## Design- und Navigationsvertrag
 
@@ -43,8 +46,7 @@ Das Design `dbxdocs` verwendet:
 - Farben, Komponenten, Formulare, Reports und Fensterdarstellung des blauen
   dbxapp-Designs;
 - eine eigene, sprachabhängige Dokumentationsnavigation;
-- getrennte Einstiege für Anwender, Entwickler und die drei KI-Bereiche
-  Content, Design und Module.
+- vier getrennte Einstiege für Anwender, Administratoren, Entwickler und KI.
 
 Die linke Navigation wird durch diese Modul-Templates bereitgestellt:
 
@@ -61,57 +63,41 @@ Doxygen ist statisch und sprachneutral versioniert. Im Menü erscheinen nur
 die generierten Bereiche Übersicht, Klassen, Namespaces, Dateien und
 Beispiele.
 
-## Lokale Konfiguration
+## Designaufruf
 
-Die Dokumentationsinstallation verwendet ausschließlich eigene lokale
-Konfigurationen und eigene Datenbanken. Produktive Geheimnisse,
-`config.local.php`-Dateien und Benutzer-Datenbanken der Entwicklungsinstanz
-werden nicht kopiert.
+Der Menüpunkt **Dokumentation** öffnet die Portal-Startseite mit
+`/dokumentation/?dbx_design=dbxdocs`. Das Design gilt für Portal, Suche und
+eingebettete Referenz. Vor dem Wechsel merkt dbxapp das aktive Website-Design
+und dessen Skin separat. **Zurück zu dbXapp** in der linken Navigation sowie
+**dbXapp** im Footer stellen genau dieses Paar wieder her. Die Anwendung bleibt
+dieselbe Installation; Benutzer, Rechte, Sitzung und Content werden nicht
+dupliziert.
 
-Verbindliche Werte der Dokumentationsinstallation:
-
-```php
-$config['default_design_user']  = 'dbxdocs';
-$config['default_design_admin'] = 'dbxdocs';
-$config['default_color']        = 'blau';
-```
-
-`dbxHome` startet mit der deutschen Tutorialübersicht `cid=79`.
-dbxContent löst die zugehörigen Sprachseiten über `lng_uid` auf.
-
-## Datenbereitstellung
-
-Die Installation wird aus DDs aufgebaut:
-
-1. Anwendungscode ohne lokale Geheimnisse und ohne produktive DB3 kopieren.
-2. Nur die freigegebenen Content- und Medienbestände übernehmen.
-3. Alle übrigen Tabellen über `dbxInstallationService::provisionSchema()`
-   und damit über `dbxDD`/`dbxDB` erzeugen.
-4. Systemgruppen idempotent mit `seedCoreGroups()` anlegen.
-5. Den lokalen Administrator einmalig mit `createAdmin()` erzeugen.
-
-Direkte SQL-Dumps oder direkter PDO-/SQLite-Zugriff gehören nicht zu diesem
-Prozess. Jede DD kann weiterhin einen eigenen DB3- oder MySQL-Server verwenden.
+Frühere URLs von `doku.dbxapp.de` werden mit HTTP 301 seitenweise auf denselben
+Pfad unter `dbxapp.de/dokumentation/` geführt. Ebenso zeigen alte flache
+Dokumentations- und Tutorial-Permalinks dauerhaft auf ihren exakten neuen
+Bereichspfad; eine pauschale Weiterleitung nur auf die Startseite ist nicht
+zulässig.
 
 ## Doxygen erzeugen
 
-Aus dem maßgeblichen `<dbxapp-quellverzeichnis>`:
+Im dbxapp-Wurzelverzeichnis:
 
 ```powershell
-Set-Location <dbxapp-quellverzeichnis>
+Set-Location <dbxapp-wurzelverzeichnis>
 doxygen Doxyfile
+php dbx/modules/dbxDocs/tools/build_docs_search_index.php
 ```
 
 `Doxyfile` schreibt nach:
 
 ```text
-<dbxapp-dokumentationsverzeichnis>\reference\current\
+<dbxapp-wurzelverzeichnis>\reference\current\
 ```
 
-Vor einer vollständigen Neuerzeugung wird die bisherige Ausgabe als datierter
-Ordner unter `reference\archive\` gesichert. Dadurch bleiben alte Referenzen
-wiederherstellbar, während `reference\current\` garantiert keine verwaisten
-HTML-Dateien aus früheren Doxygen-Konfigurationen enthält.
+Die Ausgabe wird vollständig aus dem aktuellen Quellbestand reproduziert.
+Der anschließende Indexlauf integriert Klassen, Methoden, Dateien und
+Namespaces zusätzlich in die Suche des Moduls `dbxDocs`.
 
 Die Doxygen-Kopfleiste besitzt für den direkten Aufruf den Link **Portal**
 zurück zur dbxContent-Startseite. Innerhalb des Portals blendet `dbxDocs`
@@ -132,8 +118,7 @@ Vor einer Veröffentlichung:
    Dateien und Beispiele prüfen.
 5. `files/dbxError.log` prüfen; eine vorhandene, nicht leere Datei bedeutet
    Systemstatus **Fehler**.
-6. Erst danach die Dokumentationsinstallation nach `doku.dbxapp.de`
-   übertragen.
+6. Erst danach die geprüfte dbxapp-Installation veröffentlichen.
 
 Die Doxygen-Ausgabe ist reproduzierbar und wird nicht manuell bearbeitet.
 Redaktionelle Änderungen erfolgen ausschließlich in dbxContent.
@@ -151,14 +136,6 @@ Der Lauf aktualisiert nur ausdrücklich revisionierte Seiten, ergänzt fehlende
 Seiten und invalidiert danach den Content-Cache. Bestehende, nicht markierte
 CMS-Redaktion wird ohne `--force` nicht überschrieben.
 
-## Sitzungsisolation
-
-dbxapp leitet Cookie-Pfad und Sessionname automatisch aus Host und
-Installationspfad ab. Dadurch teilen sich parallele Installationen wie
-`/dbxapp/` und `/dbxapp-docs/` keine Sitzung, keine Anmeldung und kein
-gewähltes Design. Auf Subdomains funktioniert dieselbe Regel ohne
-Sonderkonfiguration.
-
 ## Abnahmekriterien
 
 - linke Navigation sichtbar und per Tastatur bedienbar;
@@ -167,6 +144,8 @@ Sonderkonfiguration.
 - deutsche, englische und spanische CMS-Navigation lädt;
 - alle Tutorialmedien werden über dbxContent ausgeliefert;
 - Doxygen unter `reference/current/` erreichbar und im Portal eingebettet;
+- kanonische Portal-URL und Unterseiten liegen unter `/dokumentation/`;
+- alte Subdomain- und flache Dokumentations-URLs liefern exakte 301-Ziele;
 - Installations- und SelfTest-Anleitung im Bereich Betrieb & Sicherheit
   erreichbar;
 - Portal-Rücklink in Doxygen funktioniert;

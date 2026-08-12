@@ -115,7 +115,7 @@ class dbxEdit_fd
             'fd_frame_title',
             array('fd' => dbx()->esc($modul . '|' . $fd))
         );
-        $barData['bar_class'] = 'dbx-module-bar dbx-ddedit-head';
+        $barData['bar_class'] = 'dbx-bar--module dbx-ddedit-head';
         $data = array_merge($data, $barData);
 
         return $oTPL->get_tpl($this->_admin_modul . '|fdedit-frame', $data);

@@ -48,4 +48,25 @@ if (dbx()->error_type(E_WARNING) !== 'E_WARNING' || dbx()->error_type(-123) !== 
    exit(6);
 }
 
+foreach (array(1, 0, -2) as $notDenied) {
+   if (dbx()->is_access_denied($notDenied)) {
+      fwrite(STDERR, "FAIL: is_access_denied() meldet faelschlich Zugriff verweigert fuer $notDenied.\n");
+      exit(7);
+   }
+}
+if (!dbx()->is_access_denied(-1)) {
+   fwrite(STDERR, "FAIL: is_access_denied() erkennt -1 nicht als Zugriff verweigert.\n");
+   exit(8);
+}
+foreach (array(1, 0, -1) as $notDbError) {
+   if (dbx()->is_db_error($notDbError)) {
+      fwrite(STDERR, "FAIL: is_db_error() meldet faelschlich einen Datenbankfehler fuer $notDbError.\n");
+      exit(9);
+   }
+}
+if (!dbx()->is_db_error(-2)) {
+   fwrite(STDERR, "FAIL: is_db_error() erkennt -2 nicht als Datenbankfehler.\n");
+   exit(10);
+}
+
 echo "OK dbxApi paths\n";

@@ -2,7 +2,8 @@
 
 $shopRoot = dirname(__DIR__);
 $adminFile = dirname(__DIR__, 2) . '/dbxShop_admin/include/dbxShopAdmin.class.php';
-$admin = file_get_contents($adminFile);
+require_once dirname(__DIR__, 3) . '/include/tests/dbxModuleSourceBundle.php';
+$admin = dbx_test_module_source_bundle($adminFile);
 
 $fail = static function (string $message, int $code): void {
    fwrite(STDERR, "FAIL: $message\n");

@@ -25,6 +25,14 @@ class dbxWizard {
       return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
    }
 
+   private function tpl() {
+      return dbx()->get_system_obj('dbxTPL');
+   }
+
+   private function kiModuleUrl(string $modul, string $ddName): string {
+      return '?dbx_modul=dbxKi&dbx_run1=briefing_module_edit&xmodul=' . rawurlencode($modul) . '&dd_name=' . rawurlencode($ddName);
+   }
+
    private function modules_root() {
       return dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/');
    }
@@ -745,9 +753,9 @@ class __CLASS__ {
       $report->add_rep('bar_title', 'Datensaetze');
       $report->add_rep('bar_subtitle', $this->dd);
       $report->add_rep('bar_icon', 'bi-table');
-      $report->add_rep('bar_class', 'dbx-module-bar');
-      $report->add_rep('bar_title_class', 'dbx-module-bar-titleblock');
-      $report->add_rep('bar_actions_class', 'dbx-module-bar-actions');
+      $report->add_rep('bar_class', 'dbx-bar--module');
+      $report->add_rep('bar_title_class', 'dbx-bar-title');
+      $report->add_rep('bar_actions_class', 'dbx-bar-actions');
       $report->add_rep('bar_title_pre', '');
       $report->add_rep('bar_title_heading_attrs', '');
       $report->add_rep('bar_middle', '');
@@ -1060,9 +1068,7 @@ MD;
       }
 
       if ((int)$in['ki_package'] === 1) {
-         $kiUrl = '?dbx_modul=dbxKi&dbx_run1=briefing_module&xmodul=' . rawurlencode($modul) . '&dd_name=' . rawurlencode($in['dd_name']);
          $apiUrl = '?dbx_modul=dbxKi&dbx_run1=module_api&action=module.describe&xmodul=' . rawurlencode($modul);
-         $log[] = array('type' => 'link', 'text' => 'KI-Modulauftrag in dbxKi: ' . $kiUrl);
          $log[] = array('type' => 'link', 'text' => 'dbxKi Modul-API: ' . $apiUrl);
       }
       return $ok;
@@ -1286,12 +1292,20 @@ MD;
 JS
       );
 
+      $kiCta = '';
       if ($oForm->submit()) {
          $in = $this->collect_input($oForm);
          $errors = array();
          if ($this->validate_input($in, $errors) && !$oForm->errors()) {
             if ($this->generate_module($in, $log)) {
                $oForm->_msg_success = $oForm->get_fd_message('wizard_success');
+               if ((int)$in['ki_package'] === 1) {
+                  $kiCta = $this->tpl()->get_tpl('dbxAdmin|wizard-ki-cta', array(
+                     'cta_title' => $this->esc($oForm->get_fd_message('ki_cta_title')),
+                     'cta_action' => $this->esc($oForm->get_fd_message('ki_cta_action')),
+                     'ki_url' => $this->esc($this->kiModuleUrl($in['xmodul'], $in['dd_name'])),
+                  ));
+               }
             } else {
                $oForm->_msg_error = $oForm->get_fd_message('wizard_error');
             }
@@ -1303,7 +1317,7 @@ JS
          }
       }
 
-      return $oForm->run() . $this->log_html($log);
+      return $oForm->run() . $kiCta . $this->log_html($log);
    }
 
    public function run($run = '') {

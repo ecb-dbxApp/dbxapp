@@ -4,21 +4,21 @@ namespace dbx\dbxContent;
 class dbxContentLng {
 
    public static function current(): string {
-      return function_exists('dbx_lng_current') ? dbx_lng_current() : 'de';
+      return dbx()->lng_current();
    }
 
    public static function ddContent(string $lng = ''): string {
-      return function_exists('dbx_lng_name') ? dbx_lng_name('content', $lng) : 'content_de';
+      return dbx()->lng_name('content', $lng);
    }
 
    public static function ddFolder(string $lng = ''): string {
-      return function_exists('dbx_lng_name') ? dbx_lng_name('content_folder', $lng) : 'content_folder_de';
+      return dbx()->lng_name('content_folder', $lng);
    }
 
    public static function permalinkMode(): string {
-      $mode = strtolower(trim((string) dbx()->get_config('dbxContent', 'permalink_mode')));
+      $mode = strtolower(trim((string) dbx()->get_cfg('dbxContent', 'permalink_mode')));
       if ($mode === 'undef' || $mode === '') {
-         $mode = strtolower(trim((string) dbx()->get_config('dbxContent', 'mode')));
+         $mode = strtolower(trim((string) dbx()->get_cfg('dbxContent', 'mode')));
       }
 
       return $mode === 'cms' ? 'cms' : 'content';

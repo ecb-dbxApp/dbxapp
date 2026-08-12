@@ -292,6 +292,32 @@ class dbxSelfTestRunner
         return $items;
     }
 
+    /**
+     * Loescht alle protokollierten Testlaeufe. Ein gerade aktiv laufender
+     * Lauf (Status "running", noch innerhalb der Aktiv-Karenzzeit) bleibt
+     * erhalten, damit eine parallel offene Live-Ansicht nicht verwaist.
+     *
+     * @return int Anzahl der tatsaechlich geloeschten Protokolldateien.
+     */
+    public function clearHistory(): int
+    {
+        $files = glob($this->logDir . '/*.json') ?: array();
+        $deleted = 0;
+        foreach ($files as $file) {
+            $run = $this->loadRun(pathinfo($file, PATHINFO_FILENAME));
+            $status = (string)($run['status'] ?? '');
+            $modified = (int)(filemtime($file) ?: 0);
+            $active = $status === 'running' && $modified >= time() - self::ACTIVE_RUN_GRACE_SECONDS;
+            if ($active) {
+                continue;
+            }
+            if (@unlink($file)) {
+                $deleted++;
+            }
+        }
+        return $deleted;
+    }
+
     public function runLogPath(string $runId): ?string
     {
         $path = $this->validRunId($runId) ? $this->runPath($runId) : '';
@@ -306,7 +332,7 @@ class dbxSelfTestRunner
             $this->builtin('modules', 'Modul-Einstiegspunkte', 'Prueft Hauptklassen, Namespaces und Konfiguration aller Module.', 'quick', 30),
             $this->builtin('conflict_markers', 'Ungelöste Konfliktmarker', 'Sucht nach nicht aufgeloesten Git-Konflikten in Quell- und Konfigurationsdateien.', 'quick', 30),
             $this->builtin('page_cache', 'Gastseiten-Cache Integrität', 'Prueft Generationen, veraltete HTML-Dateien und liegengebliebene Schreibdateien.', 'quick', 30),
-            $this->builtin('php_syntax', 'PHP-Syntax Gesamtsystem', 'Fuehrt php -l fuer alle eigenen PHP-Dateien aus.', 'full', 300),
+            $this->builtin('php_syntax', 'PHP-Syntax Gesamtsystem', 'Parst alle eigenen PHP-Dateien ohne sie auszufuehren.', 'full', 300),
             $this->builtin('js_syntax', 'JavaScript-Syntax Gesamtsystem', 'Prueft alle eigenen JavaScript-Dateien mit Node.js; ohne Node.js laufen Browser-Tests weiterhin im Web-Dashboard.', 'full', 300),
             $this->builtin('composer_validate', 'Composer-Konfiguration', 'Validiert dbx/composer.json im Strict-Modus.', 'full', 60),
             $this->builtin('composer_audit', 'Composer-Sicherheitsaudit', 'Prueft produktive Composer-Abhaengigkeiten auf bekannte Schwachstellen.', 'full', 120),
@@ -353,23 +379,116 @@ class dbxSelfTestRunner
             }
             $relative = ltrim(substr($path, strlen($this->baseDir)), '/');
             $module = $this->moduleFromPath($relative);
-            $tier = preg_match('/(?:integration|roundtrip|performance|migration|install|update|doxygen|maintenance)/i', $name)
-                ? 'full'
-                : 'quick';
+            $metadata = $this->testMetadata($relative, $type);
+            $tier = (string)$metadata['tier'];
+            $testName = (string)preg_replace('/_test\.(?:php|js)$/i', '', $name);
             $tests[] = array(
                 'id' => $type . '.' . substr(hash('sha256', $relative), 0, 20),
-                'name' => preg_replace('/_test\.(?:php|js)$/i', '', $name),
-                'description' => $relative,
+                'name' => $testName,
+                'description' => trim((string)($metadata['description'] ?? '')) !== ''
+                    ? trim((string)$metadata['description'])
+                    : $this->fileTestDescription($testName, $path),
                 'type' => $type,
                 'execution' => $type === 'js' ? 'browser' : 'server',
                 'category' => $module,
                 'tier' => $tier,
-                'timeout' => $tier === 'full' ? 180 : 90,
+                'timeout' => (int)$metadata['timeout'],
+                'isolation' => (string)$metadata['isolation'],
+                'resources' => (array)$metadata['resources'],
                 'relative_path' => $relative,
                 'handler' => '',
             );
         }
         return $tests;
+    }
+
+    /**
+     * Erzeugt fuer automatisch entdeckte Tests eine verständliche
+     * Mindestbeschreibung. Spezifische Tests können diese zentral über
+     * test-metadata.php überschreiben, aber kein UI-Eintrag bleibt ohne
+     * Aussage darüber, welche Art von Verhalten geprüft wird.
+     */
+    private function fileTestDescription(string $testName, string $path = ''): string
+    {
+        // Ein einleitender Test-Kommentar ist die präziseste Dokumentation und
+        // wird deshalb direkt im Dashboard als Tooltip verwendet. Annotationen
+        // und lange Implementierungsdetails bleiben außen vor.
+        if ($path !== '' && is_file($path)) {
+            $source = (string)file_get_contents($path);
+            if (preg_match('~/\*\*(.*?)\*/~s', $source, $match)) {
+                $lines = preg_split('/\R/', (string)$match[1]) ?: array();
+                $summary = array();
+                foreach ($lines as $line) {
+                    $line = trim((string)preg_replace('/^\s*\*\s?/', '', (string)$line));
+                    if ($line === '' && $summary !== array()) break;
+                    if ($line === '' || str_starts_with($line, '@')) continue;
+                    $summary[] = $line;
+                }
+                $description = trim(implode(' ', $summary));
+                if (mb_strlen($description) >= 12 && mb_strlen($description) <= 320) {
+                    return $description;
+                }
+            }
+
+            // Viele kompakte Vertragstests dokumentieren ihr kontrolliertes
+            // Endergebnis in der abschließenden OK/PASS-Meldung. Diese Aussage
+            // ist konkreter als ein aus dem Dateinamen erzeugter Standardsatz.
+            if (preg_match('~(?:echo\s+|\.pass\(\s*)[\'\"](?:OK|PASS)(?::|\s)+([^\'\"\r\n]+)~iu', $source, $match)) {
+                $outcome = preg_replace('/\\\\[rnt]+$/', '', (string)$match[1]);
+                $outcome = trim((string)$outcome, " \t.:;-");
+                if (mb_strlen($outcome) >= 8 && mb_strlen($outcome) <= 240) {
+                    return 'Prüft als kontrolliertes Ergebnis: ' . $outcome . '.';
+                }
+            }
+        }
+
+        $label = preg_replace('/(?<=[a-z0-9])(?=[A-Z])/', ' ', $testName);
+        $label = str_replace(array('_', '-'), ' ', (string)$label);
+        $label = trim((string)preg_replace('/\s+/', ' ', (string)$label));
+        $label = preg_replace('/\bcontract\b/i', '', $label);
+        $label = trim((string)preg_replace('/\s+/', ' ', (string)$label));
+
+        if (preg_match('/security|sicherheit/i', $testName)) {
+            return 'Prüft die Sicherheitsregeln und unzulässigen Zugriffe für ' . $label . '.';
+        }
+        if (preg_match('/performance/i', $testName)) {
+            return 'Prüft die Performance-Grenzen und vermeidet Regressionen bei ' . $label . '.';
+        }
+        if (preg_match('/integration|roundtrip/i', $testName)) {
+            return 'Prüft das Zusammenspiel der beteiligten Komponenten für ' . $label . '.';
+        }
+        if (preg_match('/contract/i', $testName)) {
+            return 'Prüft den verbindlichen technischen Vertrag für ' . $label . '.';
+        }
+        return 'Prüft die vorgesehene Funktionalität von ' . $label . '.';
+    }
+
+    /** @return array{tier:string,timeout:int,isolation:string,resources:array} */
+    private function testMetadata(string $relative, string $type): array
+    {
+        static $config = null;
+        if ($config === null) {
+            $file = dirname(__DIR__) . '/cfg/test-metadata.php';
+            $config = is_file($file) ? require $file : array();
+            if (!is_array($config)) $config = array();
+        }
+        $metadata = array_replace(array(
+            'tier' => 'quick', 'timeout' => 90,
+            'isolation' => $type === 'js' ? 'browser' : 'process',
+            'resources' => array(), 'description' => '',
+        ), is_array($config['defaults'] ?? null) ? $config['defaults'] : array());
+        foreach ((array)($config['rules'] ?? array()) as $rule) {
+            if (!is_array($rule) || @preg_match((string)($rule['pattern'] ?? ''), $relative) !== 1) {
+                continue;
+            }
+            $metadata = array_replace($metadata, $rule);
+            break;
+        }
+        if ($type === 'js') $metadata['isolation'] = 'browser';
+        $metadata['tier'] = in_array($metadata['tier'], array('quick', 'full'), true) ? $metadata['tier'] : 'quick';
+        $metadata['timeout'] = max(5, (int)$metadata['timeout']);
+        $metadata['resources'] = array_values(array_unique(array_map('strval', (array)$metadata['resources'])));
+        return $metadata;
     }
 
     private function moduleFromPath(string $relative): string
@@ -604,14 +723,6 @@ class dbxSelfTestRunner
 
     private function checkPhpSyntax(int $timeout): array
     {
-        $php = $this->resolvePhpCliBinary();
-        if ($php === null) {
-            return array(
-                'status' => 'failed',
-                'exit_code' => 127,
-                'output' => 'PHP-CLI wurde nicht gefunden; die Syntaxpruefung kann nicht ausgefuehrt werden.',
-            );
-        }
         $errors = array();
         $checked = 0;
         $deadline = microtime(true) + max(30, $timeout);
@@ -630,11 +741,18 @@ class dbxSelfTestRunner
                 );
             }
             $checked++;
-            // Syntaxpruefung benoetigt keine php.ini. -n spart unter XAMPP pro
-            // Datei den teuren Modul- und Konfigurationsstart.
-            $result = $this->runProcess(array($php, '-n', '-l', $file), $this->baseDir, 20);
-            if ((int)($result['exit_code'] ?? 1) !== 0) {
-                $errors[] = $this->relativePath($file) . "\n" . trim((string)($result['output'] ?? ''));
+            $source = @file_get_contents($file);
+            if ($source === false) {
+                $errors[] = $this->relativePath($file) . "\nDatei konnte nicht gelesen werden.";
+                continue;
+            }
+            try {
+                // TOKEN_PARSE verwendet den Parser der laufenden Installation,
+                // fuehrt den Quellcode jedoch nicht aus. Damit entfallen unter
+                // Windows hunderte kostspielige PHP-CLI-Prozessstarts.
+                token_get_all($source, TOKEN_PARSE);
+            } catch (\ParseError $exception) {
+                $errors[] = $this->relativePath($file) . "\n" . $exception->getMessage();
                 if (count($errors) >= 25) {
                     break;
                 }
@@ -843,7 +961,7 @@ class dbxSelfTestRunner
                         return true;
                     }
                     $path = str_replace('\\', '/', $current->getPathname());
-                    foreach (array('/.git', '/dbx/vendor', '/files/', '/output/', '/reference/', '/.playwright-cli') as $excluded) {
+                    foreach (array('/.git', '/dbx/vendor', '/node_modules/', '/files/', '/tmp/', '/output/', '/reference/', '/.playwright-cli') as $excluded) {
                         if (str_contains($path, $excluded)) {
                             return false;
                         }

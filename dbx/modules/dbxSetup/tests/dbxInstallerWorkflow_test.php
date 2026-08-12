@@ -102,9 +102,9 @@ installer_workflow_assert(
         && str_contains($template, 'install.css')
         && str_contains($template, 'dbx/design/dbxapp/css/colors.css')
         && str_contains($template, 'install.js')
-        && str_contains($template, 'install.css?v=5')
-        && str_contains($template, 'install.js?v=3')
-        && str_contains($template, 'v=90'),
+        && str_contains($template, 'install.css?v={dbx:asset_version}')
+        && str_contains($template, 'install.js?v={dbx:asset_version}')
+        && str_contains($template, 'colors.css?v={dbx:asset_version}'),
     'Eigenständiges Installationsdesign ist unvollständig.'
 );
 installer_workflow_assert(
@@ -179,7 +179,7 @@ foreach (array(
 installer_workflow_assert(
     str_contains($workflow, "patch_local_config('dbx', \$patch)")
         && str_contains($workflow, "'install' => 0")
-        && !str_contains($workflow, "set_config('dbx', \$config)"),
+        && !str_contains($workflow, "set_cfg('dbx', \$config)"),
     'Installationsabschluss ist nicht ausschließlich lokal/updatefest.'
 );
 installer_workflow_assert(

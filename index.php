@@ -1,11 +1,11 @@
 <?php
 /**
- * dbXapp 5.0
+ * dbXapp
  *
  * @package           dbXapp
  * @author            Armin Leonard Braun
  * @copyright         2021-2026 dbXapp
- * @version           5.0
+ * @version           see VERSION
  * @par License
  * GPL-2.0-or-later
  * @par Systemvoraussetzung
@@ -51,7 +51,7 @@ if (!defined('dbxSystem')) {
    define('dbxSystem', 'dbxWebApp');
 }
 if (!defined('dbxRunAsAdmin')) {
-   define('dbxRunAsAdmin', 0);
+   define('dbxRunAsAdmin', 1);
 }
 
 /**

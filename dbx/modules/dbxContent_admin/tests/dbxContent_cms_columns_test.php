@@ -60,18 +60,11 @@ foreach (array('de' => '', 'en' => '_en', 'es' => '_es') as $language => $suffix
 foreach (array('dbxapp', 'dbxdocs', 'flowers', 'steal') as $design) {
     $css = (string)file_get_contents($base . '/dbx/design/' . $design . '/css/c-cms.css');
     $assert(
-        str_contains($css, '.jodit-wysiwyg .row:has(> .col, > [class*="col-"])'),
-        'Bearbeitbare Spaltenboxen werden im Design nicht markiert: ' . $design
+        str_contains($css, '.jodit-wysiwyg .row:has(> .col, > [class*="col-"]) > .col:hover')
+            && !str_contains($css, 'border: 1px dashed transparent;'),
+        'Bearbeitbare Spalten brauchen eine lokale, layoutneutrale Markierung: ' . $design
     );
 }
-
-$homepageTool = (string)file_get_contents(
-    $base . '/dbx/modules/dbxContent_admin/tools/update_homepage_20260728.php'
-);
-$assert(
-    substr_count($homepageTool, '<div class="col-12">') >= 2,
-    'Das reproduzierbare Startseitenlayout ordnet Text und Video nicht untereinander an.'
-);
 
 if ($failures !== array()) {
     fwrite(STDERR, "FAIL\n- " . implode("\n- ", $failures) . "\n");

@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -43,31 +43,31 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p>n</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md481"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md497"></a>
 Ziel</h1>
-<p>Das Dokumentationssystem unter <span class="tt">doku.dbxapp.de</span> verbindet zwei Arten von Dokumentation, ohne sie technisch zu vermischen:</p>
+<p>Das Dokumentationssystem der aktuellen dbxapp-Installation verbindet zwei Arten von Dokumentation, ohne sie technisch zu vermischen:</p>
 <ol type="1">
 <li><b>Redaktionelle Dokumentation in dbxContent</b> Handbücher, Tutorials, Architekturtexte, Betriebsanweisungen, Screenshots und Medien werden mit den normalen dbxapp-Werkzeugen gepflegt. Die maßgebliche deutsche Fassung bleibt die Quelle für Übersetzungen.</li>
 <li><b>Generierte Quellcode-Referenz in Doxygen</b> Klassen, Namespaces, Dateien, Methoden und Codebeispiele werden ohne redaktionelle Doppelpflege aus dem versionierten Quellbestand erzeugt.</li>
 </ol>
 <p>Das CMS ist das Portal. Doxygen wird als statischer, versionierter Bereich unter <span class="tt">reference/current/</span> eingebunden. Dadurch bleiben Suche, Klassenlinks und Quellreferenzen von Doxygen erhalten. Die Referenz wird über das Modul <span class="tt">dbxDocs</span> im Portal eingebettet und kann zusätzlich direkt geöffnet werden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md482"></a>
+<p>Alle öffentlichen Dokumentationsseiten liegen kanonisch auf der Hauptdomain unter <span class="tt"><a href="https://dbxapp.de/dokumentation/">https://dbxapp.de/dokumentation/</a></span>. Eine eigene Dokumentations-Subdomain ist nicht Bestandteil der Zielarchitektur.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md498"></a>
 Verzeichnisstruktur</h1>
-<div class="fragment"><div class="line">&lt;dbxapp-quellverzeichnis&gt;\                 lokale Entwicklungsquelle</div>
-<div class="line">&lt;dbxapp-dokumentationsverzeichnis&gt;\        eigenständige Dokumentationsinstallation</div>
+<div class="fragment"><div class="line">&lt;dbxapp-quellverzeichnis&gt;\               Entwicklungs- und Laufzeitinstallation</div>
 <div class="line">├── index.php                            dbxapp-/dbxContent-Portal</div>
 <div class="line">├── dbx\design\dbxdocs\                  blaues Dokumentationsdesign</div>
 <div class="line">├── files\media\                         Tutorialmedien</div>
 <div class="line">└── reference\current\                   erzeugte Doxygen-Ausgabe</div>
-</div><!-- fragment --><p>Die vorherige statische Ausgabe wurde bei der Umstellung nicht gelöscht, sondern als datierter Ordner <span class="tt">&lt;dbxapp-dokumentationsverzeichnis&gt;-doxygen-backup-&lt;Zeitstempel&gt;</span> gesichert.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md483"></a>
+</div><!-- fragment --><p>Die Referenz gehört damit zur selben Installation wie die redaktionellen Seiten. Eine zweite dbxapp-Kopie und eine Synchronisierung zwischen zwei Installationen sind nicht erforderlich.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md499"></a>
 Design- und Navigationsvertrag</h1>
 <p>Das Design <span class="tt">dbxdocs</span> verwendet:</p>
 <ul>
 <li>das linke, einklappbare Grundlayout des Designs <span class="tt">flowers</span>;</li>
 <li>Farben, Komponenten, Formulare, Reports und Fensterdarstellung des blauen dbxapp-Designs;</li>
 <li>eine eigene, sprachabhängige Dokumentationsnavigation;</li>
-<li>getrennte Einstiege für Anwender, Entwickler und die drei KI-Bereiche Content, Design und Module.</li>
+<li>vier getrennte Einstiege für Anwender, Administratoren, Entwickler und KI.</li>
 </ul>
 <p>Die linke Navigation wird durch diese Modul-Templates bereitgestellt:</p>
 <ul>
@@ -77,35 +77,21 @@ Design- und Navigationsvertrag</h1>
 </ul>
 <p>Die CMS-Ordner sind sprachabhängig und bilden echte Untermenüs. Deutsch verwendet die Bereiche Einstieg, Tutorials, Content &amp; KI, Design, Shop, Workflows, Entwicklung, Betrieb &amp; Sicherheit und Service. Seiten besitzen neben dem vollständigen Titel einen kurzen <span class="tt">menu_title</span>.</p>
 <p>Doxygen ist statisch und sprachneutral versioniert. Im Menü erscheinen nur die generierten Bereiche Übersicht, Klassen, Namespaces, Dateien und Beispiele.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md484"></a>
-Lokale Konfiguration</h1>
-<p>Die Dokumentationsinstallation verwendet ausschließlich eigene lokale Konfigurationen und eigene Datenbanken. Produktive Geheimnisse, <span class="tt">config.local.php</span>-Dateien und Benutzer-Datenbanken der Entwicklungsinstanz werden nicht kopiert.</p>
-<p>Verbindliche Werte der Dokumentationsinstallation:</p>
-<div class="fragment"><div class="line">$config[<span class="stringliteral">&#39;default_design_user&#39;</span>]  = <span class="stringliteral">&#39;dbxdocs&#39;</span>;</div>
-<div class="line">$config[<span class="stringliteral">&#39;default_design_admin&#39;</span>] = <span class="stringliteral">&#39;dbxdocs&#39;</span>;</div>
-<div class="line">$config[<span class="stringliteral">&#39;default_color&#39;</span>]        = <span class="stringliteral">&#39;blau&#39;</span>;</div>
-</div><!-- fragment --><p><span class="tt">dbxHome</span> startet mit der deutschen Tutorialübersicht <span class="tt">cid=79</span>. dbxContent löst die zugehörigen Sprachseiten über <span class="tt">lng_uid</span> auf.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md485"></a>
-Datenbereitstellung</h1>
-<p>Die Installation wird aus DDs aufgebaut:</p>
-<ol type="1">
-<li>Anwendungscode ohne lokale Geheimnisse und ohne produktive DB3 kopieren.</li>
-<li>Nur die freigegebenen Content- und Medienbestände übernehmen.</li>
-<li>Alle übrigen Tabellen über <span class="tt">dbxInstallationService::provisionSchema()</span> und damit über <span class="tt">dbxDD</span>/<span class="tt">dbxDB</span> erzeugen.</li>
-<li>Systemgruppen idempotent mit <span class="tt">seedCoreGroups()</span> anlegen.</li>
-<li>Den lokalen Administrator einmalig mit <span class="tt">createAdmin()</span> erzeugen.</li>
-</ol>
-<p>Direkte SQL-Dumps oder direkter PDO-/SQLite-Zugriff gehören nicht zu diesem Prozess. Jede DD kann weiterhin einen eigenen DB3- oder MySQL-Server verwenden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md486"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md500"></a>
+Designaufruf</h1>
+<p>Der Menüpunkt <b>Dokumentation</b> öffnet die Portal-Startseite mit <span class="tt">/dokumentation/?dbx_design=dbxdocs</span>. Das Design gilt für Portal, Suche und eingebettete Referenz. Vor dem Wechsel merkt dbxapp das aktive Website-Design und dessen Skin separat. <b>Zurück zu dbXapp</b> in der linken Navigation sowie <b>dbXapp</b> im Footer stellen genau dieses Paar wieder her. Die Anwendung bleibt dieselbe Installation; Benutzer, Rechte, Sitzung und Content werden nicht dupliziert.</p>
+<p>Frühere URLs von <span class="tt">doku.dbxapp.de</span> werden mit HTTP 301 seitenweise auf denselben Pfad unter <span class="tt">dbxapp.de/dokumentation/</span> geführt. Ebenso zeigen alte flache Dokumentations- und Tutorial-Permalinks dauerhaft auf ihren exakten neuen Bereichspfad; eine pauschale Weiterleitung nur auf die Startseite ist nicht zulässig.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md501"></a>
 Doxygen erzeugen</h1>
-<p>Aus dem maßgeblichen <span class="tt">&lt;dbxapp-quellverzeichnis&gt;</span>:</p>
-<div class="fragment"><div class="line">Set-Location &lt;dbxapp-quellverzeichnis&gt;</div>
+<p>Im dbxapp-Wurzelverzeichnis:</p>
+<div class="fragment"><div class="line">Set-Location &lt;dbxapp-wurzelverzeichnis&gt;</div>
 <div class="line">doxygen Doxyfile</div>
+<div class="line">php dbx/modules/dbxDocs/tools/build_docs_search_index.php</div>
 </div><!-- fragment --><p><span class="tt">Doxyfile</span> schreibt nach:</p>
-<div class="fragment"><div class="line">&lt;dbxapp-dokumentationsverzeichnis&gt;\reference\current\</div>
-</div><!-- fragment --><p>Vor einer vollständigen Neuerzeugung wird die bisherige Ausgabe als datierter Ordner unter <span class="tt">reference\archive\</span> gesichert. Dadurch bleiben alte Referenzen wiederherstellbar, während <span class="tt">reference\current\</span> garantiert keine verwaisten HTML-Dateien aus früheren Doxygen-Konfigurationen enthält.</p>
+<div class="fragment"><div class="line">&lt;dbxapp-wurzelverzeichnis&gt;\reference\current\</div>
+</div><!-- fragment --><p>Die Ausgabe wird vollständig aus dem aktuellen Quellbestand reproduziert. Der anschließende Indexlauf integriert Klassen, Methoden, Dateien und Namespaces zusätzlich in die Suche des Moduls <span class="tt">dbxDocs</span>.</p>
 <p>Die Doxygen-Kopfleiste besitzt für den direkten Aufruf den Link <b>Portal</b> zurück zur dbxContent-Startseite. Innerhalb des Portals blendet <span class="tt">dbxDocs</span> doppelte Navigation und Branding aus. Interne Doxygen-Querverweise bleiben im eingebetteten Referenzfenster.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md487"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md502"></a>
 Veröffentlichung</h1>
 <p>Vor einer Veröffentlichung:</p>
 <ol type="1">
@@ -114,16 +100,13 @@ Veröffentlichung</h1>
 <li>Portal, mindestens ein Tutorialbild und <span class="tt">reference/current/</span> per HTTP auf Status 200 prüfen.</li>
 <li>CMS-Untermenüs und die eingebetteten Bereiche Klassen, Namespaces, Dateien und Beispiele prüfen.</li>
 <li><span class="tt">files/dbxError.log</span> prüfen; eine vorhandene, nicht leere Datei bedeutet Systemstatus <b>Fehler</b>.</li>
-<li>Erst danach die Dokumentationsinstallation nach <span class="tt">doku.dbxapp.de</span> übertragen.</li>
+<li>Erst danach die geprüfte dbxapp-Installation veröffentlichen.</li>
 </ol>
 <p>Die Doxygen-Ausgabe ist reproduzierbar und wird nicht manuell bearbeitet. Redaktionelle Änderungen erfolgen ausschließlich in dbxContent. Quellcode-Kommentare werden lokal geändert und beim nächsten Doxygen-Lauf automatisch in die Referenz übernommen.</p>
 <p>Gezielt versionierte redaktionelle Seiten werden aus <span class="tt">dbx/modules/dbxDocs/content/</span> provisioniert. Der wiederholbare Abgleich lautet:</p>
 <div class="fragment"><div class="line">php dbx/modules/dbxDocs/tools/provision_docs_content.php</div>
 </div><!-- fragment --><p>Der Lauf aktualisiert nur ausdrücklich revisionierte Seiten, ergänzt fehlende Seiten und invalidiert danach den Content-Cache. Bestehende, nicht markierte CMS-Redaktion wird ohne <span class="tt">--force</span> nicht überschrieben.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md488"></a>
-Sitzungsisolation</h1>
-<p>dbxapp leitet Cookie-Pfad und Sessionname automatisch aus Host und Installationspfad ab. Dadurch teilen sich parallele Installationen wie <span class="tt">/dbxapp/</span> und <span class="tt">/dbxapp-docs/</span> keine Sitzung, keine Anmeldung und kein gewähltes Design. Auf Subdomains funktioniert dieselbe Regel ohne Sonderkonfiguration.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md489"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md503"></a>
 Abnahmekriterien</h1>
 <ul>
 <li>linke Navigation sichtbar und per Tastatur bedienbar;</li>
@@ -132,6 +115,8 @@ Abnahmekriterien</h1>
 <li>deutsche, englische und spanische CMS-Navigation lädt;</li>
 <li>alle Tutorialmedien werden über dbxContent ausgeliefert;</li>
 <li>Doxygen unter <span class="tt">reference/current/</span> erreichbar und im Portal eingebettet;</li>
+<li>kanonische Portal-URL und Unterseiten liegen unter <span class="tt">/dokumentation/</span>;</li>
+<li>alte Subdomain- und flache Dokumentations-URLs liefern exakte 301-Ziele;</li>
 <li>Installations- und SelfTest-Anleitung im Bereich Betrieb &amp; Sicherheit erreichbar;</li>
 <li>Portal-Rücklink in Doxygen funktioniert;</li>
 <li>keine unbearbeiteten Template-Platzhalter;</li>

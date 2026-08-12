@@ -45,10 +45,11 @@
  * $rows = $db->select('kunden', "status='aktiv'");
  * $rec  = $db->select1('crm|adresse', 15);
  *
- * $id = $db->insert('kunden', [
+ * $ok = $db->insert('kunden', [
  *     'name'  => 'Muster GmbH',
  *     'city'  => 'Darmstadt'
  * ]);
+ * $id = $ok > 0 ? $db->get_insert_id() : 0;
  *
  * $ok = $db->update('kunden', [
  *     'city' => 'Frankfurt'
@@ -112,6 +113,36 @@ class dbxDB {
 
     private int $_db_timer_depth = 0;
 
+    /** Requestlokaler Cache fuer erfolgreiche select1()-Ergebnisse, getrennt nach DD. */
+    private array $_select1_cache = array();
+
+    /** Serverzuordnung dient nur dem sicheren Abschluss DD-uebergreifender Transaktionen. */
+    private array $_select1_cache_servers = array();
+
+    private int $_select1_cache_entries = 0;
+
+    private array $_select1_cache_stats = array(
+        'hits' => 0,
+        'misses' => 0,
+        'stores' => 0,
+        'invalidations' => 0,
+        'transaction_bypass' => 0,
+        'capacity_bypass' => 0,
+    );
+
+    private const SELECT1_CACHE_MAX_ENTRIES = 1000;
+
+    /** Requestlokale, parameterfreie Query-Statistik fuer den Performance-Timer. */
+    private array $_performance_queries = array();
+
+    private int $_performance_query_count = 0;
+    private int $_performance_query_slow_count = 0;
+    private int $_performance_query_failed_count = 0;
+    private int $_performance_query_affected_rows = 0;
+    private float $_performance_query_time_ms = 0.0;
+    private ?bool $_performance_query_capture = null;
+    private ?int $_performance_slow_query_ms = null;
+
     /**
      * Initialisiert das DBX-Datenbankobjekt mit Standardwerten
      * und lädt den zentralen Validator.
@@ -133,6 +164,213 @@ class dbxDB {
         $this->_validation_error_flds = array();
         $this->_validation_warning_flds = array();
         $this->_fld_id = 'id';
+    }
+
+    /**
+     * Aktiviert die Query-Messung nur, wenn die zentrale Performance-Erfassung
+     * aktiv ist. Die Entscheidung wird pro Request einmal gecacht; das
+     * Speichern der Messwerte selbst wird immer ausgeschlossen.
+     */
+    private function performance_query_capture_enabled(): bool {
+        if ((int) dbx()->get_system_var('dbx_performance_timer_store', 0, 'int') === 1) {
+            return false;
+        }
+
+        if ($this->_performance_query_capture !== null) {
+            return $this->_performance_query_capture;
+        }
+
+        $level = strtolower(trim((string) dbx()->get_cfg('dbx', 'performance_timer_level')));
+        if (in_array($level, array('main', 'detail', 'details'), true)) {
+            return $this->_performance_query_capture = true;
+        }
+
+        $legacy = dbx()->get_cfg('dbx', 'performance_timer');
+        return $this->_performance_query_capture = ((int) $legacy === 1);
+    }
+
+    /**
+     * Normalisiert SQL zu einer stabilen, datenschutzfreundlichen Struktur.
+     * Literale und Kommentare werden entfernt; Tabellen- und Feldnamen bleiben
+     * fuer die Diagnose erhalten. Parameterwerte werden nie gespeichert.
+     */
+    private function normalize_performance_sql(string $sql): string {
+        $sql = preg_replace('~/\\*.*?\\*/~s', ' ', $sql);
+        $sql = preg_replace('/--[^\\r\\n]*/', ' ', (string) $sql);
+        $sql = preg_replace("/'(?:''|\\\\.|[^'])*'/s", '?', (string) $sql);
+        $sql = preg_replace('/\\b(?:0x[0-9a-f]+|\\d+(?:\\.\\d+)?)\\b/i', '?', (string) $sql);
+        $sql = preg_replace('/\\s+/', ' ', (string) $sql);
+        return substr(trim((string) $sql), 0, 1200);
+    }
+
+    private function performance_slow_query_ms(): int {
+        if ($this->_performance_slow_query_ms !== null) {
+            return $this->_performance_slow_query_ms;
+        }
+
+        $value = (int) dbx()->get_cfg('dbx', 'performance_timer_slow_query_ms');
+        return $this->_performance_slow_query_ms = ($value > 0 ? $value : 100);
+    }
+
+    /** Erfasst genau eine logisch ausgefuehrte DB-Anweisung. */
+    private function record_performance_query(
+        string $server,
+        string $sql,
+        float $started,
+        int $affectedRows = 0,
+        bool $success = true
+    ): void {
+        if (!$this->performance_query_capture_enabled()) {
+            return;
+        }
+
+        $elapsedMs = max(0.0, (microtime(true) - $started) * 1000);
+        $normalized = $this->normalize_performance_sql($sql);
+        if ($normalized === '') {
+            return;
+        }
+
+        $fingerprint = substr(hash('sha256', strtolower($server) . '|' . strtolower($normalized)), 0, 16);
+        $operation = strtoupper((string) strtok(ltrim($normalized), " \t\r\n"));
+        if ($operation === '') {
+            $operation = 'SQL';
+        }
+
+        $slowMs = $this->performance_slow_query_ms();
+        $slow = $elapsedMs >= $slowMs;
+
+        if (!isset($this->_performance_queries[$fingerprint])) {
+            $this->_performance_queries[$fingerprint] = array(
+                'fingerprint'   => $fingerprint,
+                'server'        => substr($server, 0, 80),
+                'operation'     => substr($operation, 0, 16),
+                'sql'           => $normalized,
+                'query_count'   => 0,
+                'time_ms'       => 0.0,
+                'max_time_ms'   => 0.0,
+                'affected_rows' => 0,
+                'slow_count'    => 0,
+                'failure_count' => 0,
+            );
+        }
+
+        $entry =& $this->_performance_queries[$fingerprint];
+        $entry['query_count']++;
+        $entry['time_ms'] += $elapsedMs;
+        $entry['max_time_ms'] = max((float) $entry['max_time_ms'], $elapsedMs);
+        $entry['affected_rows'] += max(0, $affectedRows);
+        if ($slow) $entry['slow_count']++;
+        if (!$success) $entry['failure_count']++;
+        unset($entry);
+
+        $this->_performance_query_count++;
+        $this->_performance_query_time_ms += $elapsedMs;
+        $this->_performance_query_affected_rows += max(0, $affectedRows);
+        if ($slow) $this->_performance_query_slow_count++;
+        if (!$success) $this->_performance_query_failed_count++;
+    }
+
+    /**
+     * Liefert die Request-Zusammenfassung fuer dbxPerformanceTimer.
+     * Detailzeilen sind nach Gesamtkosten und danach nach Wiederholungen
+     * sortiert, damit die relevantesten Optimierungskandidaten zuerst kommen.
+     */
+    public function performance_query_snapshot(): array {
+        $queries = array_values($this->_performance_queries);
+        usort($queries, static function (array $a, array $b): int {
+            $time = ((float) ($b['time_ms'] ?? 0)) <=> ((float) ($a['time_ms'] ?? 0));
+            if ($time !== 0) return $time;
+            return ((int) ($b['query_count'] ?? 0)) <=> ((int) ($a['query_count'] ?? 0));
+        });
+
+        $duplicates = 0;
+        foreach ($queries as $query) {
+            $duplicates += max(0, (int) ($query['query_count'] ?? 0) - 1);
+        }
+
+        return array(
+            'query_count'          => $this->_performance_query_count,
+            'unique_query_count'   => count($queries),
+            'duplicate_query_count'=> $duplicates,
+            'slow_query_count'     => $this->_performance_query_slow_count,
+            'failed_query_count'   => $this->_performance_query_failed_count,
+            'affected_rows'        => $this->_performance_query_affected_rows,
+            'query_time_ms'        => (int) round($this->_performance_query_time_ms),
+            'queries'              => $queries,
+        );
+    }
+
+    /**
+     * Liefert den kanonischen DD-Schluessel fuer Cache und Invalidierung.
+     * Verschiedene gueltige Schreibweisen derselben DD werden dadurch nicht
+     * als getrennte Datenquellen behandelt.
+     */
+    private function select1_cache_dd_key(string $dd): string {
+        $definition = $this->load_dd($dd);
+        if ((int)($definition['dd_status'] ?? 0) === 1) {
+            return strtolower(
+                trim((string)($definition['dd_modul'] ?? '')) . '|'
+                . trim((string)($definition['dd_name'] ?? ''))
+            );
+        }
+
+        return strtolower(trim($dd));
+    }
+
+    /** Erstellt einen stabilen Schluessel fuer exakt einen select1()-Aufruf. */
+    private function select1_cache_key(string $ddKey, $where, $columns, int $verifyAccess): string {
+        return hash('sha256', serialize(array(
+            $ddKey,
+            $where,
+            $columns,
+            $verifyAccess,
+            (int)dbx()->user(),
+        )));
+    }
+
+    /** Transaktionale Reads umgehen den Cache und sehen immer den PDO-Zustand. */
+    private function select1_cache_allowed(string $dd): bool {
+        $server = $this->get_dd_server($dd);
+        return $server !== '' && empty($this->_tx[$server]);
+    }
+
+    /** Verwirft alle select1()-Ergebnisse genau einer DD. */
+    protected function invalidate_select1_cache(string $dd): void {
+        $ddKey = $this->select1_cache_dd_key($dd);
+        if (!isset($this->_select1_cache[$ddKey])) {
+            return;
+        }
+
+        $this->_select1_cache_entries -= count($this->_select1_cache[$ddKey]);
+        $this->_select1_cache_entries = max(0, $this->_select1_cache_entries);
+        unset($this->_select1_cache[$ddKey]);
+        unset($this->_select1_cache_servers[$ddKey]);
+        $this->_select1_cache_stats['invalidations']++;
+    }
+
+    /**
+     * Nach Commit/Rollback werden alle DD-Caches des Transaktionsservers
+     * verworfen. Das deckt auch absichtliche atomare update_query()-Pfade ab.
+     */
+    private function invalidate_select1_cache_server(string $server): void {
+        foreach ($this->_select1_cache_servers as $ddKey => $cacheServer) {
+            if ($cacheServer !== $server || !isset($this->_select1_cache[$ddKey])) {
+                continue;
+            }
+            $this->_select1_cache_entries -= count($this->_select1_cache[$ddKey]);
+            unset($this->_select1_cache[$ddKey], $this->_select1_cache_servers[$ddKey]);
+            $this->_select1_cache_stats['invalidations']++;
+        }
+        $this->_select1_cache_entries = max(0, $this->_select1_cache_entries);
+    }
+
+    /** Diagnosewerte fuer Tests und Performanceanzeige, ohne Cacheinhalte. */
+    public function select1_cache_snapshot(): array {
+        return $this->_select1_cache_stats + array(
+            'entries' => $this->_select1_cache_entries,
+            'dds' => count($this->_select1_cache),
+            'capacity' => self::SELECT1_CACHE_MAX_ENTRIES,
+        );
     }
 
     /**
@@ -725,7 +963,7 @@ class dbxDB {
 
         if (!isset($config['db'][$server])) {
             //dbx()->debug("read cfg dbx for db");
-            $config = dbx()->get_config('dbx');
+            $config = dbx()->get_cfg('dbx');
         }
 
         if (!isset($config['db'][$server])) {
@@ -839,7 +1077,7 @@ class dbxDB {
      */
     public function get_db_type($server) {
         $dbType = 'sqlite';
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
 
         if (isset($config['db'][$server]['type'])) {
             $dbType = $config['db'][$server]['type'];
@@ -860,7 +1098,7 @@ class dbxDB {
      * @return array<string,string>
      */
     protected function get_dd_server_bindings(): array {
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
         $bindings = $config['dd_server_bindings'] ?? array();
 
         return is_array($bindings) ? $bindings : array();
@@ -928,7 +1166,7 @@ class dbxDB {
                 && preg_match('/^[A-Za-z0-9_.-]+\.(db3|sqlite|sqlite3)$/i', $file) === 1;
         }
 
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
         $dbConfig = $config['db'][$server] ?? null;
 
         return is_array($dbConfig)
@@ -1269,9 +1507,7 @@ class dbxDB {
 
         $activ_modul      = dbx()->get_system_var('dbx_activ_modul', 'dbx');
         $is_explicit_modul = false;
-        $active_language   = function_exists('dbx_lng_current')
-            ? strtolower(trim((string) dbx_lng_current()))
-            : strtolower(trim((string) dbx()->get_system_var('dbx_lng', 'de')));
+        $active_language   = strtolower(trim((string) dbx()->lng_current()));
 
         if ($active_language === '' || !preg_match('/^[a-z]{2,3}$/', $active_language)) {
             $active_language = 'de';
@@ -1475,10 +1711,11 @@ class dbxDB {
      *
      * @param string $server Datenbankserver
      * @param string $sql SQL-Abfrage
+     * @param array<int|string,mixed> $params Gebundene Parameter fuer Platzhalter
      *
      * @return PDOStatement|int PDO-Statement bei Erfolg, `0` bei Fehler
      */
-    public function query(string $server, string $sql): PDOStatement|int {
+    public function query(string $server, string $sql, array $params = array()): PDOStatement|int {
         if (!$sql) {
             return 0;
         }
@@ -1488,11 +1725,20 @@ class dbxDB {
         }
 
         $maxRetry = 5;
+        $profileStarted = microtime(true);
 
         for ($try = 0; $try < $maxRetry; $try++) {
             try {
                 $stmt = $this->db[$server]->prepare($sql);
-                $stmt->execute();
+                $stmt->execute($params);
+
+                $this->record_performance_query(
+                    $server,
+                    $sql,
+                    $profileStarted,
+                    max(0, (int) $stmt->rowCount()),
+                    true
+                );
 
                 return $stmt;
             } catch (PDOException $e) {
@@ -1508,6 +1754,8 @@ class dbxDB {
                     $e->getMessage(),
                     'sql|' . $server . '|' . md5($sql)
                 );
+
+                $this->record_performance_query($server, $sql, $profileStarted, 0, false);
 
                 return 0;
             }
@@ -1747,11 +1995,13 @@ class dbxDB {
             }
 
             unset($this->_tx[$server]);
+            $this->invalidate_select1_cache_server($server);
             return 1;
         } catch (PDOException $e) {
             $this->report_db_error('sql', $server, 'SQL-Fehler', $e->getMessage(), 'sql-tx-rollback|' . $server);
 
             unset($this->_tx[$server]);
+            $this->invalidate_select1_cache_server($server);
             return 0;
         }
     }
@@ -1790,11 +2040,13 @@ class dbxDB {
             }
 
             unset($this->_tx[$server]);
+            $this->invalidate_select1_cache_server($server);
             return 1;
         } catch (PDOException $e) {
             $this->report_db_error('sql', $server, 'SQL-Fehler', $e->getMessage(), 'sql-tx-commit|' . $server);
 
             unset($this->_tx[$server]);
+            $this->invalidate_select1_cache_server($server);
             return 0;
         }
     }
@@ -1832,10 +2084,18 @@ class dbxDB {
         }
 
         $maxRetry = 5;
+        $profileStarted = microtime(true);
 
         for ($try = 0; $try < $maxRetry; $try++) {
             try {
-                $this->db[$server]->exec($sql);
+                $affectedRows = $this->db[$server]->exec($sql);
+                $this->record_performance_query(
+                    $server,
+                    $sql,
+                    $profileStarted,
+                    max(0, (int) $affectedRows),
+                    true
+                );
                 return 1;
             } catch (PDOException $e) {
                 if (empty($this->_tx[$server]) && $this->isRetryable($e) && $try < $maxRetry - 1) {
@@ -1844,6 +2104,7 @@ class dbxDB {
                 }
 
                 $this->report_db_error('sql', $server, 'SQL-Fehler', $e->getMessage(), 'sql-exec|' . $server);
+                $this->record_performance_query($server, $sql, $profileStarted, 0, false);
                 return 0;
             }
         }
@@ -1882,7 +2143,7 @@ class dbxDB {
      * @param string $sql Vollstaendige SELECT-Anweisung.
      * @param string $dd Optionaler DD-Kontext fuer Timer, Logging und Diagnose.
      *
-     * @return array|int Liste assoziativer Zeilen oder `0` bei Fehler.
+     * @return array|int Liste assoziativer Zeilen oder `-2` bei Fehler.
      */
     public function select_query(string $server, string $sql, string $dd = ''): array|int {
         $timers = $this->db_timers_start('select', $dd);
@@ -1894,13 +2155,13 @@ class dbxDB {
                 if ($this->get_error_status() === '') {
                     $this->report_db_error('sql', $server, 'SQL-Fehler', 'SELECT fehlgeschlagen', 'sql-select|' . $server);
                 }
-                return 0;
+                return -2;
             }
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException | Exception $e) {
             $this->report_db_error('sql', $server, 'SQL-Fehler', $e->getMessage(), 'sql-select|' . $server);
-            return 0;
+            return -2;
         } finally {
             $this->db_timers_stop($timers);
         }
@@ -2134,11 +2395,17 @@ class dbxDB {
      * Beispiel:
      * ```php
      * $rows = $db->select('dbxUser', "active=1", ['id', 'name'], 'name');
+     * if (!$rows && $db->get_error_status() !== '') {
+     *     // Zugriff verweigert oder DB-Fehler statt "keine Treffer" -
+     *     // Grund steht in get_error_status()/get_error_text().
+     * }
      * ```
      *
-     * @return array|int Ergebnisdatensaetze oder -1 bei fehlendem Zugriff
+     * @return array Immer ein Array - leer bei "keine Treffer" ebenso wie bei
+     *     Zugriffsfehler oder DB-Fehler. Der Grund fuer ein leeres Ergebnis
+     *     steht danach in get_error_status() ('access'|'sql'|'db'|'').
      */
-    public function select(string $dd = '', $where = '', $columns = '*', $orderby = '', $asc_desc = 'ASC', $groupby = '', $max = 0, $offset = 0, $verify_access = 1) {
+    public function select(string $dd = '', $where = '', $columns = '*', $orderby = '', $asc_desc = 'ASC', $groupby = '', $max = 0, $offset = 0, $verify_access = 1): array {
         $this->clear_db_error();
 
         $owner      = 0;
@@ -2154,7 +2421,7 @@ class dbxDB {
 
             if ($access == 0) {
                 $this->report_db_error('access', (string)$dd, 'Zugriff verweigert', 'select', 'access-select|' . $dd);
-                return 0;
+                return array();
             }
 
             if ($access == 2) {
@@ -2213,7 +2480,9 @@ class dbxDB {
             }
         }
 
-        return $this->select_query($server, $query, $dd);
+        $result = $this->select_query($server, $query, $dd);
+
+        return is_array($result) ? $result : array();
     }
 
     /**
@@ -2230,17 +2499,48 @@ class dbxDB {
      * @return array Einzelner Datensatz oder Leerstruktur
      */
     public function select1(string $dd, $where = '', $columns = '*', $verify_access = 1) {
+        $verifyAccess = (int)$verify_access;
+        $cacheAllowed = $this->select1_cache_allowed($dd);
+        $ddKey = '';
+        $cacheKey = '';
+
+        if ($cacheAllowed) {
+            $ddKey = $this->select1_cache_dd_key($dd);
+            $cacheKey = $this->select1_cache_key($ddKey, $where, $columns, $verifyAccess);
+            if (array_key_exists($cacheKey, $this->_select1_cache[$ddKey] ?? array())) {
+                $this->_select1_cache_stats['hits']++;
+                return $this->_select1_cache[$ddKey][$cacheKey];
+            }
+            $this->_select1_cache_stats['misses']++;
+        } else {
+            $this->_select1_cache_stats['transaction_bypass']++;
+        }
+
         $db_records = $this->select($dd, $where, $columns, '', 'ASC', '', 1, 0, $verify_access);
 
         if (!is_array($db_records)) {
-            return 0;
-        }
-
-        if (!isset($db_records[0]) || !is_array($db_records[0])) {
             return $this->empty_record($dd)[0];
         }
 
-        return $db_records[0];
+        $record = null;
+        if (!isset($db_records[0]) || !is_array($db_records[0])) {
+            $record = $this->empty_record($dd)[0];
+        } else {
+            $record = $db_records[0];
+        }
+
+        if ($cacheAllowed) {
+            if ($this->_select1_cache_entries < self::SELECT1_CACHE_MAX_ENTRIES) {
+                $this->_select1_cache[$ddKey][$cacheKey] = $record;
+                $this->_select1_cache_servers[$ddKey] = $this->get_dd_server($dd);
+                $this->_select1_cache_entries++;
+                $this->_select1_cache_stats['stores']++;
+            } else {
+                $this->_select1_cache_stats['capacity_bypass']++;
+            }
+        }
+
+        return $record;
     }
 
     /**
@@ -2463,13 +2763,14 @@ class dbxDB {
      *
      * Beispiel:
      * ```php
-     * $rid = $db->insert('dbxUser', [
+     * $ok = $db->insert('dbxUser', [
      *    'name' => 'Admin',
      *    'email' => 'admin@example.test'
      * ]);
+     * $rid = $ok > 0 ? $db->get_insert_id() : 0;
      * ```
      *
-     * @return int >0 = Insert-ID, 0 = Validierungsfehler, -1 = Zugriffsfehler, -2 = DB-Fehler
+     * @return int 1 = Erfolg (Insert-ID separat ueber get_insert_id()), 0 = Validierungsfehler, -1 = Zugriffsfehler, -2 = DB-Fehler
      */
     function insert($dd, $field_values, $verify_access = 1, $verify_fields = 1, $verify_values = 1, $trace = 1) {
         $this->clear_db_error();
@@ -2500,7 +2801,7 @@ class dbxDB {
 
         if ($verify_access && ($this->check_access('insert', $dd) !== 1)) {
             $this->report_db_error('access', (string)$dd, 'Zugriff verweigert', 'insert', 'access-insert|' . $dd);
-            return 0;
+            return -1;
         }
 
         if ($verify_fields) {
@@ -2523,7 +2824,7 @@ class dbxDB {
             if ($this->get_error_status() === '') {
                 $this->report_db_error('db', (string)$server, 'Datenbank nicht vorhanden', (string)$server, 'db-insert|' . $server);
             }
-            return 0;
+            return -2;
         }
 
         $fields       = array_keys($field_values);
@@ -2536,6 +2837,7 @@ class dbxDB {
             ")";
 
         $maxRetry = 5;
+        $profileStarted = microtime(true);
 
         for ($try = 0; $try < $maxRetry; $try++) {
             try {
@@ -2546,6 +2848,7 @@ class dbxDB {
                     $stmt->execute(array_values($field_values));
 
                     $id = $this->db[$server]->lastInsertId();
+                    $this->record_performance_query($server, $sql, $profileStarted, 1, true);
                 } finally {
                     $this->db_timers_stop($timers);
                 }
@@ -2559,6 +2862,7 @@ class dbxDB {
                 }
 
                 $this->_insert_id = $id;
+                $this->invalidate_select1_cache((string)$dd);
 
                 if ($id > 0 && $dd !== 'dbxTrace') {
                     $this->_insert_count++;
@@ -2628,12 +2932,13 @@ class dbxDB {
                 }
 
                 $this->report_db_error('sql', (string)$server, 'SQL-Fehler', $e->getMessage(), 'sql-insert|' . $server);
+                $this->record_performance_query($server, $sql, $profileStarted, 0, false);
 
-                return 0;
+                return -2;
             }
         }
 
-        return 0;
+        return -2;
     }
 
     /**
@@ -2692,7 +2997,7 @@ class dbxDB {
 
         if (!$access) {
             $this->report_db_error('access', (string)$dd, 'Zugriff verweigert', 'update', 'access-update|' . $dd);
-            return 0;
+            return -1;
         }
 
         $where = $this->normalize_where($dd, $where, $owner);
@@ -2734,7 +3039,7 @@ class dbxDB {
             if ($this->get_error_status() === '') {
                 $this->report_db_error('db', (string)$server, 'Datenbank nicht vorhanden', (string)$server, 'db-update|' . $server);
             }
-            return 0;
+            return -2;
         }
 
         $set  = [];
@@ -2752,6 +3057,7 @@ class dbxDB {
         $sql = "UPDATE $tab SET " . implode(',', $set) . " WHERE $where";
 
         $maxRetry = 5;
+        $profileStarted = microtime(true);
 
         for ($try = 0; $try < $maxRetry; $try++) {
             try {
@@ -2762,11 +3068,13 @@ class dbxDB {
                     $stmt->execute($vals);
 
                     $count = $stmt->rowCount();
+                    $this->record_performance_query($server, $sql, $profileStarted, max(0, (int) $count), true);
                 } finally {
                     $this->db_timers_stop($timers);
                 }
 
                 $this->_update_count = $count;
+                $this->invalidate_select1_cache((string)$dd);
 
                 if ($trace && $write_trace && is_array($beforeRows)) {
                     foreach ($beforeRows as $row) {
@@ -2823,12 +3131,13 @@ class dbxDB {
                 }
 
                 $this->report_db_error('sql', (string)$server, 'SQL-Fehler', $e->getMessage(), 'sql-update|' . $server);
+                $this->record_performance_query($server, $sql, $profileStarted, 0, false);
 
-                return 0;
+                return -2;
             }
         }
 
-        return 0;
+        return -2;
     }
 
     /**
@@ -2891,7 +3200,7 @@ class dbxDB {
      * $ok = $db->save('dbxConfig', ['value' => 'blue'], "name='default_color'");
      * ```
      *
-     * @return int Ergebnis von UPDATE oder INSERT
+     * @return int 1 = Erfolg (bei Insert-Fallback: Insert-ID separat ueber get_insert_id()), 0 = Validierungsfehler/nichts geaendert, -1 = Zugriffsfehler, -2 = DB-Fehler
      */
     function save($dd, $field_values, $where, $verify_access = 1, $verify_fields = 1, $verify_values = 1, $trace = 1) {
         $this->clear_db_error();
@@ -2925,7 +3234,7 @@ class dbxDB {
                     return 1;
                 }
             } else {
-                return 0;
+                return $ok;
             }
         }
 
@@ -3024,6 +3333,7 @@ class dbxDB {
                 return -2;
             }
 
+            $this->invalidate_select1_cache((string)$dd);
             $ok = ($count > 0) ? 1 : 0;
 
             if ($trace && $write_trace && is_array($beforeRows)) {
@@ -3082,7 +3392,7 @@ class dbxDB {
      * @return int Anzahl, -1 oder -2
      */
     public function count($dd, $where = '', $server = '') {
-        $count = -1;
+        $count = -2;
         $explicitServer = $server !== '';
 
         if ($where == 'new') {
@@ -3109,7 +3419,7 @@ class dbxDB {
             $access = $this->check_access('select', (string)$dd);
             if ($access == 0) {
                 $this->report_db_error('access', (string)$dd, 'Zugriff verweigert', 'count', 'access-count|' . $dd);
-                return 0;
+                return -1;
             }
 
             $where = $this->normalize_where($dd, $where, $access == 2 ? 1 : 0);
@@ -3132,7 +3442,7 @@ class dbxDB {
                 if ($this->get_error_status() === '') {
                     $this->report_db_error('sql', (string)$server, 'SQL-Fehler', 'COUNT fehlgeschlagen', 'sql-count|' . $server);
                 }
-                return -1;
+                return -2;
             }
 
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -3144,7 +3454,7 @@ class dbxDB {
             }
         } catch (PDOException | Exception $e) {
             $this->report_db_error('sql', (string)$server, 'SQL-Fehler', $e->getMessage(), 'sql-count|' . $server);
-            $count = -1;
+            $count = -2;
         } finally {
             $this->db_timers_stop($timers);
         }
@@ -3159,7 +3469,7 @@ class dbxDB {
      * eine Tabelle mit `AUTOINCREMENT` angelegt wurde. Ihr Fehlen ist deshalb
      * kein Datenbankfehler.
      */
-    protected function sqlite_sequence_exists(string $server): bool {
+    public function sqlite_sequence_exists(string $server): bool {
         if (strtolower((string)$this->get_db_type($server)) !== 'sqlite') {
             return false;
         }
@@ -3377,10 +3687,11 @@ class dbxDB {
      *
      * @param string $dd DD-Name oder Servername
      * @param string $dbtab Optional expliziter Tabellenname
+     * @param bool $reportMissing Fehlende DB oder Tabelle als Systemmeldung protokollieren
      *
      * @return int 1 wenn Tabelle existiert, sonst 0
      */
-    function get_table_exist($dd, $dbtab = '') {
+    function get_table_exist($dd, $dbtab = '', bool $reportMissing = true) {
         $rid = (string)$dd;
 
         if (!$dbtab) {
@@ -3405,6 +3716,7 @@ class dbxDB {
         if ($dbType === 'sqlite') {
             $dbFile = $this->resolve_sqlite_db_path($server);
             if ($dbFile !== '' && !is_file($dbFile)) {
+                if (!$reportMissing) return 0;
                 $this->log_db_schema_issue(
                     'db-missing|' . $server,
                     $rid,
@@ -3416,6 +3728,7 @@ class dbxDB {
         }
 
         if (!$this->connect_db_server($server)) {
+            if (!$reportMissing) return 0;
             $this->log_db_schema_issue(
                 'db-connect|' . $server,
                 $rid,
@@ -3426,6 +3739,7 @@ class dbxDB {
         }
 
         if (!isset($this->db[$server]) || !is_object($this->db[$server])) {
+            if (!$reportMissing) return 0;
             $this->log_db_schema_issue(
                 'db-handle|' . $server,
                 $rid,
@@ -3484,7 +3798,7 @@ class dbxDB {
                     break;
             }
 
-            if (!$exists) {
+            if (!$exists && $reportMissing) {
                 $why  = 'Tabelle nicht vorhanden';
                 $what = $dbtab . ' (' . $server . ')';
 
@@ -3509,6 +3823,7 @@ class dbxDB {
 
             return $exists;
         } catch (PDOException $e) {
+            if (!$reportMissing) return 0;
             $this->log_db_schema_issue(
                 'db-schema|' . $server . '|' . $dbtab,
                 $rid,
@@ -3520,16 +3835,82 @@ class dbxDB {
     }
 
     /**
-     * Prüft, ob eine DD-Datei im Standardmodul `dbx` existiert.
+     * Liefert die Spaltennamen einer Tabelle.
      *
-     * @param string $dd Name der DD
+     * Ersetzt modulseitiges Roh-SQL wie `PRAGMA table_info(...)` oder
+     * `SHOW COLUMNS FROM ...`: Fachmodule sollen Schema-Introspektion nur
+     * ueber dbxDB anfordern, nicht per eigenem SQL-String je Datenbanktyp.
      *
-     * @return bool True wenn Datei existiert
+     * @param string $server Datenbankserver
+     * @param string $table Tabellenname (nur [A-Za-z0-9_])
+     *
+     * @return array Spaltennamen; leeres Array wenn Tabelle/Verbindung fehlt
      */
-    function get_dd_exist($dd) {
-        $dd_file = dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/dbx/dd/' . $dd . '.dd.php');
-        $exist   = file_exists($dd_file);
-        return $exist;
+    public function get_table_columns(string $server, string $table): array {
+        if (!$server || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $table)) {
+            return array();
+        }
+        if (!$this->connect_db_server($server) || !isset($this->db[$server]) || !is_object($this->db[$server])) {
+            return array();
+        }
+
+        $dbType = $this->get_db_type($server);
+        $columns = array();
+
+        try {
+            switch ($dbType) {
+                case 'sqlite':
+                    $stmt = $this->db[$server]->query('PRAGMA table_info(' . $table . ')');
+                    foreach ($stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : array() as $row) {
+                        $columns[] = (string)($row['name'] ?? '');
+                    }
+                    break;
+
+                case 'mysql':
+                    $stmt = $this->db[$server]->prepare('SHOW COLUMNS FROM ' . $table);
+                    $stmt->execute();
+                    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                        $columns[] = (string)($row['Field'] ?? '');
+                    }
+                    break;
+
+                default:
+                    $stmt = $this->db[$server]->prepare(
+                        'SELECT column_name FROM information_schema.columns WHERE table_name = ?'
+                    );
+                    $stmt->execute(array($table));
+                    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                        $columns[] = (string)($row['column_name'] ?? '');
+                    }
+                    break;
+            }
+        } catch (PDOException $e) {
+            return array();
+        }
+
+        return array_values(array_filter($columns, static fn($name) => $name !== ''));
+    }
+
+    /**
+     * Prueft, ob eine Tabelle die angegebene Spalte besitzt.
+     *
+     * @param string $server Datenbankserver
+     * @param string $table Tabellenname
+     * @param string $column Spaltenname
+     *
+     * @return bool
+     */
+    public function has_table_column(string $server, string $table, string $column): bool {
+        if ($column === '') {
+            return false;
+        }
+        $column = strtolower($column);
+        foreach ($this->get_table_columns($server, $table) as $name) {
+            if (strtolower($name) === $column) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -3913,7 +4294,10 @@ class dbxDB {
         }
 
         if ($convert == 'serial' && is_string($array)) {
-            $unserialized = @unserialize($array);
+            // DD-Werte dürfen Arrays, aber niemals PHP-Objekte rekonstruieren.
+            // Dadurch bleibt die historische Array-Konvertierung erhalten,
+            // ohne Deserialisierungs-Hooks fremder Klassen auszuführen.
+            $unserialized = @unserialize($array, array('allowed_classes' => false));
 
             if ($unserialized !== false && is_array($unserialized)) {
                 $array = $unserialized;
@@ -3960,6 +4344,17 @@ class dbxDB {
      */
     function check_access(string $mode, string $dd) {
         dbx()->debug("check-acces Mode=($mode) Tab=($dd)");
+
+        // Im Demo-Modus sind fachliche CRUD-Schreibvorgaenge gesperrt.
+        // Dieser Pfad wird nur aufgerufen, wenn der Aufrufer die
+        // Zugriffspruefung aktiviert hat. Technische Systemvorgaenge wie das
+        // Speichern einer Session verwenden bewusst verify_access=0 und
+        // bleiben deshalb funktionsfaehig.
+        if (dbx()->is_demo_mode()
+            && in_array($mode, array('insert', 'update', 'delete'), true)
+        ) {
+            return 0;
+        }
 
         if (dbx()->can('dbxRunAsAdmin')) {
             return 1;

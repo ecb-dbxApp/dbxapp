@@ -315,7 +315,7 @@ class myInvoicesService
             $position
         );
 
-        if (!is_array($rows)) {
+        if (!is_array($rows) || $db->get_error_status() !== '') {
             return dbx()->get_system_obj('dbxTPL')->get_tpl(
                 'myInvoices|install-required',
                 array('install_url' => $this->url('install'))

@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="textblock"><p><a class="anchor" id="md_11___core___klassen"></a></p>
 <p><a href="https://dbxapp.de">Offizielle dbxapp Website</a></p>
 <p>Dieses Kapitel erklaert Sinn und typische Verwendung der wichtigsten Systemklassen. Es ist keine vollständige API-Referenz; die Detailreferenz erzeugt Doxygen direkt aus dem Source.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md184"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md187"></a>
 Architekturentscheidung für große Kernklassen</h1>
 <p><span class="tt">dbxDB</span>, <span class="tt">dbxDD</span>, <span class="tt">dbxForm</span> und <span class="tt">dbxReport</span> besitzen viele Fähigkeiten, weil sie systemweite Fassaden und zustandsbehaftete Pipelines sind. Ihre öffentliche API hält Module einfach und einheitlich.</p>
 <table class="markdownTable">
@@ -60,7 +60,7 @@ Architekturentscheidung für große Kernklassen</h1>
 </table>
 <p>Eine Teilung ist nicht allein wegen Zeilenzahl oder Methodenzahl sinnvoll. Interne Verantwortungen dürfen erst extrahiert werden, wenn eine echte Lebenszyklusgrenze, ein messbarer Nutzen, vollständige Regressionstests und eine kompatible Fassade vorhanden sind. Fachmodule dürfen die internen Teilklassen anschließend nicht direkt verwenden.</p>
 <p>Die verbindliche Entscheidungsmatrix und das vollständige Zusammenspiel stehen unter <a class="el" href="dbxapp_module_reference.html" title="Verbindliches Modulhandbuch">Verbindliches Modulhandbuch</a>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md185"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md188"></a>
 dbxApi / dbx()</h1>
 <p><span class="tt">dbx()</span> ist der zentrale Zugriffspunkt.</p>
 <p>Typische Aufgaben:</p>
@@ -76,7 +76,9 @@ dbxApi / dbx()</h1>
 <p>Beispiel:</p>
 <div class="fragment"><div class="line">$run1 = dbx()-&gt;get_modul_var(<span class="stringliteral">&#39;dbx_run1&#39;</span>, <span class="stringliteral">&#39;list&#39;</span>);</div>
 <div class="line">$db   = dbx()-&gt;get_system_obj(<span class="stringliteral">&#39;dbxDB&#39;</span>);</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md186"></a>
+<div class="line">$cfg  = dbx()-&gt;get_cfg(<span class="stringliteral">&#39;dbx&#39;</span>);</div>
+</div><!-- fragment --><p>Für Konfiguration existiert genau eine API: <span class="tt">get_cfg()</span> liest Basis- und lokale Werte, <span class="tt">set_cfg()</span> schreibt sie. Alte Parallelbezeichnungen sind nicht Teil der Schnittstelle. Im Demo-Modus kann <span class="tt">get_cfg(..., true)</span> eine für die Anzeige maskierte Kopie liefern; <span class="tt">set_cfg()</span> ist dann immer gesperrt.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md189"></a>
 dbxWebApp</h1>
 <p><span class="tt">dbxWebApp</span> führt den Request durch:</p>
 <ul>
@@ -89,43 +91,43 @@ dbxWebApp</h1>
 <li>CSS/JS sammeln.</li>
 <li>Ausgabe finalisieren.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md187"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md190"></a>
 dbxInterpreter</h1>
 <p>Der Interpreter verarbeitet Marker wie:</p>
 <div class="fragment"><div class="line">[modul=dbxAdmin]dbx_run1=session&amp;dbx_run2=list_session[/modul]</div>
 </div><!-- fragment --><p>Er läuft für die Webseitenausgabe. Im Template-Editor darf er den bearbeiteten Rohtext nicht ausführen.</p>
 <p>Siehe auch: <a class="el" href="dbxapp_dbxinterpreter.html" title="dbxInterpreter Leitfaden">dbxInterpreter Leitfaden</a>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md188"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md191"></a>
 dbxTPL</h1>
 <p>Template-Engine für HTML-Templates, Marker und Template-Slots.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md189"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md192"></a>
 dbxDB</h1>
-<p>Datenzugriff, DD-Laden, Rechte, Trace, Performance, Backup/Restore/Transfer.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md190"></a>
+<p>Datenzugriff, DD-Laden, Rechte, Trace, Performance, Backup/Restore/Transfer. Fachliche Änderungen laufen ausschließlich über <span class="tt">insert()</span>, <span class="tt">update()</span>, <span class="tt">save()</span> und <span class="tt">delete()</span>. Im Demo-Modus verweigert die zentrale Rechteprüfung diese Methoden. Explizite Systemaufrufe mit <span class="tt">verify_access=0</span>, insbesondere der Session-Lebenszyklus, bleiben davon getrennt.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md193"></a>
 dbxDD</h1>
 <p>DD-Synchronisation, DD-Modelle, Feld-/Indexstruktur, DB-zu-DD und DD-zu-DB.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md191"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md194"></a>
 dbxForm</h1>
 <p>Formulare, Panels, Feldaufbau, Validierung, Meldungen, Save-Pipeline und eigener rotierender POST-Schutz. <span class="tt">init()</span> übernimmt den direkten Aufrufer als Callback-Owner; Methoden nach <span class="tt">{fid}_{event}</span> werden deshalb ohne Registrierung gefunden. <span class="tt">add_rep()</span> und <span class="tt">replaces()</span> bilden die gemeinsame Template-Replacement-Pipeline. Normale Formular-Actions benötigen keinen zusätzlichen <span class="tt">dbx_token</span>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md192"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md195"></a>
 dbxReport</h1>
 <p>Listen, Suche, Sortierung, Pagination, Aktionen, Multi-Select, Grid-Modus und automatische Signierung mutierender Standardaktionen. Im Grid werden Read-URLs unverändert gelassen; Save, Insert, Delete, Sort und Sync werden nach der verbindlichen Grid-Routenkonvention signiert und unbekannte Schreib-URLs fail-closed verworfen. Berechnete Felder und Summen gehören standardmäßig in <span class="tt">{fid}_next_record</span>; spät gesetzte <span class="tt">add_rep()</span>-Werte stehen dem Footer zur Verfügung. <span class="tt">{rpt:col_count}</span> liefert alle Spalten, <span class="tt">{rpt:colspan}</span> alle Spalten außer der letzten Wertespalte. Explizite Owner- oder Callback-Setter sind nur für bewusst abweichende Methodennamen nötig.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md193"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md196"></a>
 dbxSession</h1>
 <p>Session-Verwaltung und optionale Session-DB. Normale HTTP-Requests und HTML-AJAX-Requests können Sessionzustand am Request-Ende schreiben. Reine JSON-AJAX-Aktionen müssen nicht zwingend Session/Performance schreiben. Login und Logout verwerfen das Action-Token-Secret des vorherigen Sicherheitskontexts.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md194"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md197"></a>
 dbxMail</h1>
 <p>Mail-Versand über die konfigurierte Mail-Infrastruktur.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md195"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md198"></a>
 dbxValidator</h1>
 <p>Validierung von Request-, Formular- und Feldwerten. Die aktuellen Fachregeln enthalten unter anderem <span class="tt">email</span> für vollständige Internet-E-Mail-Adressen und <span class="tt">permalink</span> für flache CMS-Permalinks aus Kleinbuchstaben, Zahlen und einzelnen Bindestrichen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md196"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md199"></a>
 dbxUpload / dbxDownload</h1>
 <p>Upload-/Download-Funktionen, Dateipruefung und Bildbearbeitung.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md197"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md200"></a>
 dbxProcess</h1>
 <p>Status- und Prozessverwaltung für laengere Operationen wie Sync, Import, Transfer oder Batch-Aktionen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md198"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md201"></a>
 dbxUpdateService</h1>
 <p>Der dateibasierte System-Updater liegt zentral in <span class="tt">dbxAdmin</span>. Module bauen keine eigenen Download-, Installations- oder Updatefunktionen.</p>
 <p>Der normale Administrator-Ablauf besitzt zwei sichere Phasen:</p>
@@ -135,7 +137,7 @@ dbxUpdateService</h1>
 </ol>
 <p>Mutierende Updateoperationen werden durch eine zentrale Dateisperre serialisiert. Der kurze Dateiaustausch darf nicht manuell unterbrochen werden: Bei einem Fehler stellt <span class="tt">install()</span> automatisch die zuvor erzeugte Dateisicherung wieder her. Nach einer erfolgreichen Installation steht <span class="tt">rollback()</span> für die letzte Version zur Verfügung.</p>
 <p>Der Updater greift niemals direkt auf DB3 oder MySQL zu. Datenänderungen bleiben DD-gesteuerte <span class="tt">dbxDB</span>-Migrationen und müssen in den Release-Hinweisen ausdrücklich beschrieben werden. <span class="tt">files/</span>, lokale <span class="tt">config.local.php</span>, Uploads, Sessions, Caches und Logs werden weder ausgeliefert noch ersetzt.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md199"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md202"></a>
 Anzeige in Admin-Dashboard und Menü</h2>
 <p><span class="tt">Status &amp; Health</span>, die Dashboard-Navigation und der Schnellzugriff zeigen den Update-Zustand zentral an:</p>
 <ul>
@@ -146,10 +148,10 @@ Anzeige in Admin-Dashboard und Menü</h2>
 </ul>
 <p>Diese Anzeigen rufen ausschließlich <span class="tt">dbxUpdateService::status()</span> auf. Die Methode liest den lokalen Zustand aus <span class="tt">files/update</span> und führt ausdrücklich keinen Netzwerkaufruf aus. Nur die Update-Seite startet mit <span class="tt">prepare()</span> eine neue GitHub-Prüfung. Dadurch bleibt das Dashboard schnell und ein Ausfall von GitHub beeinflusst weder Menü noch Systemstatus.</p>
 <p>Alle Oberflächen beziehen die Service-Konfiguration über <span class="tt">dbxUpdateService::configured()</span>. URL, Cache-Zeit, Sicherheitsprüfung, Installation, Stop und Rollback bleiben damit an einer Stelle definiert.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md200"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md203"></a>
 dbxView</h1>
 <p>Hilfen für Zielbereiche, View-State und AJAX-Targets.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md201"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md204"></a>
 Grundregel</h1>
 <p>Kernel-Klassen sind Infrastruktur. Fachmodule sollen sie nutzen, nicht kopieren. Kernel-Änderungen nur auf ausdrückliche Anforderung.</p>
 <p>Weiterlesen: <a class="el" href="dbxapp_module_reference.html" title="Verbindliches Modulhandbuch">Verbindliches Modulhandbuch</a>, <a class="el" href="dbxapp_dbxdb_dd_fd.html" title="dbxDB, dbxDD und FD">dbxDB, dbxDD und FD</a>, <a class="el" href="dbxapp_dbxform.html" title="dbxForm">dbxForm</a> und <a class="el" href="dbxapp_dbxreport.html" title="dbxReport">dbxReport</a>. </p>

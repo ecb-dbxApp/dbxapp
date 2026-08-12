@@ -1,35 +1,35 @@
-<form class="dbx-cms-folder-editor" data-cms-folder-editor hidden>
- <div class="dbx-bar dbx-module-bar dbx-cms-folder-editor-bar">
-  <div class="dbx-bar-title dbx-module-bar-titleblock">
+<form class="dbx-cms-folder-editor" data-cms-folder-editor data-cms-form-scope="folder" hidden>
+ <div class="dbx-bar dbx-bar--module dbx-cms-folder-editor-bar">
+  <div class="dbx-bar-title">
    <i class="bi bi-folder2-open" aria-hidden="true"></i>
-   <span class="dbx-module-bar-copy">
-    <strong class="dbx-module-bar-heading" data-cms-folder-title>Ordner</strong>
-    <span class="dbx-module-bar-subtitle">Ordnerstruktur und Leserechte</span>
+   <span class="dbx-bar-copy">
+    <strong class="dbx-bar-heading" data-cms-folder-title>{folder_form_title}</strong>
+    <span class="dbx-bar-subtitle">{folder_form_subtitle}</span>
    </span>
   </div>
-  <div class="dbx-bar-actions dbx-module-bar-actions">
+  <div class="dbx-bar-actions">
    {bar_extra}
-   <button type="button" class="btn btn-outline-secondary btn-sm" data-cms-folder-close title="Schliessen" aria-label="Ordnerformular schliessen">
+   <button type="button" class="btn btn-outline-secondary btn-sm" data-cms-folder-close data-dbx-tooltip="{close_title}" aria-label="{folder_close_aria}">
     <i class="bi bi-x-lg"></i>
    </button>
   </div>
  </div>
  <div class="dbx-cms-folder-editor-body">
   {obj:id}
-  <div class="dbx-cms-folder-grid">
-   {obj:name}
-   {obj:parent_id}
-   {obj:template}
+  <div class="dbx-form-grid dbx-cms-folder-grid">
+   <div class="dbx-form-grid__item">{obj:name}</div>
+   <div class="dbx-form-grid__item">{obj:parent_id}</div>
+   <div class="dbx-form-grid__item">{obj:template}</div>
   </div>
   <div class="dbx-cms-folder-rights">
    {obj:group_read}
   </div>
   <div class="dbx-cms-folder-editor-actions">
-   <button type="button" class="btn btn-outline-danger btn-sm" data-cms-action="delete-folder" data-cms-folder-delete title="Ordner loeschen">
-    <i class="bi bi-trash"></i><span>Loeschen</span>
+   <button type="button" class="btn btn-outline-danger btn-sm" data-cms-action="delete-folder" data-cms-folder-delete data-dbx-tooltip="{folder_delete_title}">
+    <i class="bi bi-trash"></i><span>{delete_label}</span>
    </button>
-   <button type="button" class="btn btn-primary btn-sm" data-cms-action="save-folder" title="Ordner speichern">
-    <i class="bi bi-check-lg"></i><span>Speichern</span>
+   <button type="button" class="btn btn-primary btn-sm" data-cms-action="save-folder" data-dbx-tooltip="{folder_save_title}">
+    <i class="bi bi-check-lg"></i><span>{save_label}</span>
    </button>
   </div>
  </div>

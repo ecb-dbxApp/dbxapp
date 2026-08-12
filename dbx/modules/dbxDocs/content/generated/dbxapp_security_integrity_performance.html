@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_23___sicherheit___integritaet___performance"></a></p>
-<p>Stand: 25. Juli 2026</p>
+<p>Stand: 2. August 2026</p>
 <p>Dieses Kapitel dokumentiert die Härtung der öffentlichen Laufzeit, von <span class="tt">dbxWorkflow</span>, <span class="tt">dbxShop</span> und <span class="tt">dbxContent_admin</span>. Es ergänzt die verbindlichen Architekturregeln und die Fachleitfäden. Bestehende GET-Navigation bleibt erhalten. Nur GETs, die Zustand verändern, benötigen einen Nachweis der konkreten Browseraktion.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md399"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md412"></a>
 Architekturentscheidung</h1>
 <p>Die Änderungen bleiben in der vorhandenen dbxapp-Architektur:</p>
 <ul>
@@ -76,7 +76,7 @@ Architekturentscheidung</h1>
 <p>Seit der zentralen Action-Policy werden konkrete Tokens stateless aus genau einem Session-Secret per HMAC abgeleitet. Auch RID-spezifische Scopes erzeugen dadurch keine wachsende Token-Liste in der PHP-Session. Bereits vor der Umstellung gerenderte Scope-Tokens werden für die Dauer ihrer bestehenden Session weiterhin akzeptiert.</p>
 <p>Beim Login und Logout verwirft <span class="tt">dbxSession</span> sowohl das HMAC-Secret als auch eventuelle Legacy-Tokens. Ein vor dem Benutzerwechsel gerenderter Link ist danach ungültig. <span class="tt">delete</span> und <span class="tt">save</span> werden zusammen mit <span class="tt">rid</span> direkt aus den dbx-Aktionsparametern erkannt; dafür ist kein Konfigurationszugriff nötig. Ungewöhnliche ältere Aktionsnamen können zur Kompatibilität weiterhin eine explizite Policy verwenden.</p>
 <p>Eine Tokenprüfung erzeugt selbst keinen Sessionzustand. Ist noch kein Action-Secret vorhanden, wird auch ein formal korrekt aussehender fremder Token direkt verworfen. Erst das Rendern eines echten Aktionslinks erzeugt bei Bedarf das eine Session-Secret. Weder Action- noch Formular-Tokens oder Teile davon werden in Debugmeldungen geschrieben.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md400"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md413"></a>
 Warum Rechte allein bei mutierenden GETs nicht genügen</h1>
 <p>Modul- und DD-Rechte beantworten, <b>wer</b> eine Operation ausführen darf. Sie belegen nicht, dass dieser Benutzer genau diese Mutation auslösen wollte. Ohne Action-Token kann eine fremde Website einen eingeloggten Browser zum Aufruf eines Start-, Pause-, Resume-, Cancel- oder Finish-GETs veranlassen (Cross-Site Request Forgery).</p>
 <p>Das gilt gerade dann, wenn der Benutzer berechtigt ist: Der Browser sendet seine Sitzung mit, anschließend lassen Modul- und DD-Rechte die Mutation korrekt zu. OWASP weist ausdrücklich darauf hin, dass <span class="tt">SameSite=Lax</span> bei einer zustandsändernden Top-Level-GET-Navigation nicht genügt: <a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html">OWASP CSRF Prevention Cheat Sheet</a>.</p>
@@ -102,18 +102,37 @@ Warum Rechte allein bei mutierenden GETs nicht genügen</h1>
 <p>Fehlende, falsche oder für eine andere RID erzeugte Tokens liefern HTTP 403, erzeugen eine Security-Systemmeldung und erreichen den Modulcode nicht.</p>
 <p>Der Nachweis für die Notwendigkeit ist unabhängig von den Modulrechten: Browser senden Session-Cookies bei Same-Site-Navigation automatisch; Rechte identifizieren damit nur den eingeloggten Benutzer. Erst das sessiongebundene, nicht von einer fremden Seite bekannte Action-Token belegt die konkrete Aktion. Aus diesem Grund ist <span class="tt">dbx_token</span> für schreibende GETs notwendig, für normale GET-Navigation aber nicht.</p>
 <p>Laufzeitnachweis vom 24. Juli 2026: Ein direkter Workflow-Start ohne Token lieferte die Übersicht mit tokenisiertem Startlink. Die Zahl der <span class="tt">workflow_instance</span>-Datensätze blieb dabei bei 30.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md401"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md414"></a>
 Konfiguration und Secrets</h1>
 <p><span class="tt">dbx/modules/dbx/cfg/config.php</span> enthält keine produktiven Zugangsdaten mehr. Lokale Werte liegen in:</p>
 <div class="fragment"><div class="line">dbx/modules/dbx/cfg/config.local.php</div>
 </div><!-- fragment --><p>Die Datei ist über <span class="tt">**/cfg/config.local.php</span> ignoriert. Eine leere, versionierbare Vorlage liegt unter:</p>
 <div class="fragment"><div class="line">dbx/modules/dbx/cfg/config.local.example.php</div>
-</div><!-- fragment --><p><span class="tt">dbxApi::get_config()</span> lädt zuerst die Basis und überlagert anschließend die lokale Datei rekursiv. <span class="tt">set_config()</span> entfernt lokale Override-Pfade vor dem Schreiben der Basisdatei. Dadurch kann ein Admin-Speichervorgang lokale Secrets nicht versehentlich zurück in die versionierte Konfiguration kopieren.</p>
-<p>Wichtig: Das Entfernen aus dem aktuellen Quellstand löscht keine Werte aus bereits vorhandener Git-Historie, Backups oder Logs. Alle ehemals im Repository gespeicherten Zugangsdaten müssen nach der Umstellung rotiert werden.</p>
+</div><!-- fragment --><p><span class="tt">dbxApi::get_cfg()</span> lädt zuerst die Basis und überlagert anschließend die lokale Datei rekursiv. <span class="tt">set_cfg()</span> entfernt beim Schreiben der Basis lokale Override-Pfade. Lokale Installationswerte werden ausschließlich über <span class="tt">set_cfg($modul, $werte, 'local')</span> geschrieben. Dadurch kann ein Admin-Speichervorgang lokale Secrets nicht versehentlich zurück in die versionierte Konfiguration kopieren.</p>
+<p>Es gibt bewusst keine parallelen Methoden <span class="tt">get_config()</span>, <span class="tt">set_config()</span> oder <span class="tt">set_local_config()</span>. Jede Konfigurationslesung läuft über <span class="tt">get_cfg()</span>, jede Konfigurationsänderung über <span class="tt">set_cfg()</span>. Verwaltungsansichten fordern im Demo-Modus mit dem vierten Parameter eine maskierte Kopie an:</p>
+<div class="fragment"><div class="line">$runtime = dbx()-&gt;get_cfg(<span class="stringliteral">&#39;dbx&#39;</span>);                  <span class="comment">// echte Werte intern</span></div>
+<div class="line">$display = dbx()-&gt;get_cfg(<span class="stringliteral">&#39;dbx&#39;</span>, <span class="stringliteral">&#39;&#39;</span>, <span class="keyword">null</span>, <span class="keyword">true</span>); <span class="comment">// Secrets als ******</span></div>
+<div class="line">dbx()-&gt;set_cfg(<span class="stringliteral">&#39;dbx&#39;</span>, $config);</div>
+<div class="line">dbx()-&gt;set_cfg(<span class="stringliteral">&#39;dbx&#39;</span>, $localConfig, <span class="stringliteral">&#39;local&#39;</span>);</div>
+</div><!-- fragment --><p>Wichtig: Das Entfernen aus dem aktuellen Quellstand löscht keine Werte aus bereits vorhandener Git-Historie, Backups oder Logs. Alle ehemals im Repository gespeicherten Zugangsdaten müssen nach der Umstellung rotiert werden.</p>
 <p>Die frühere Sonderbehandlung <span class="tt">dbx_api -&gt; login(2)</span> wurde entfernt. Ein Requestparameter darf keine Identität und keine Berechtigung erzeugen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md402"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md415"></a>
+Nur-Lese-Demomodus</h1>
+<p>Der installationsweite Demomodus wird updatesicher in <span class="tt">config.local.php</span> aktiviert:</p>
+<div class="fragment"><div class="line">$config[<span class="stringliteral">&#39;demo_mode&#39;</span>] = 1;</div>
+</div><!-- fragment --><p>Alternativ hat die Umgebungsvariable <span class="tt">DBX_DEMO_MODE=1</span> Vorrang. Der Modus ist kein Admin-Login und verwendet keinen <span class="tt">dbxRunAsAdmin</span>-Bypass: Der Besucher bleibt technisch Gast, sieht aber das Admin-Menü und darf alle Module zur Demonstration öffnen.</p>
+<p>Die Nur-Lese-Grenzen sind zentral und unabhängig von der Oberfläche:</p>
+<ul>
+<li><span class="tt">set_cfg()</span> verweigert jede Basis- und lokale Konfigurationsänderung;</li>
+<li><span class="tt">dbxDB::insert()</span>, <span class="tt">update()</span>, <span class="tt">save()</span> und <span class="tt">delete()</span> werden bei aktiver Rechteprüfung vor der Admin-Sonderberechtigung abgewiesen;</li>
+<li>mutierende POST-, PUT-, PATCH-, DELETE- und tokenpflichtige GET-Aktionen erreichen den Modulcode nicht und liefern HTTP 403;</li>
+<li>Konfigurationsansichten erhalten Secrets ausschließlich maskiert als <span class="tt">******</span>;</li>
+<li>Demo-Seiten werden nie als normale Gastseiten im Full-Page-Cache abgelegt.</li>
+</ul>
+<p>Technische Session-Schreibvorgänge bleiben ausdrücklich möglich. Sie rufen <span class="tt">dbxDB</span> mit <span class="tt">verify_access=0</span> auf und durchlaufen daher die fachliche Demo-Rechteprüfung nicht. Diese Ausnahme gilt für den Session-Lebenszyklus, nicht für Module oder Konfigurationswerte.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md416"></a>
 Workflow-Vertrag</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md403"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md417"></a>
 Zugriff</h2>
 <ul>
 <li>Authentifizierte Benutzer laden Instanzen mit DD-Prüfung; Owner und Admin bleiben maßgeblich.</li>
@@ -121,7 +140,7 @@ Zugriff</h2>
 <li><span class="tt">owner = 0</span> allein ist keine öffentliche Freigabe.</li>
 <li>Pro Session werden höchstens 100 Gast-Instanz-IDs gehalten.</li>
 </ul>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md404"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md418"></a>
 Atomarität und Wiederholung</h2>
 <ul>
 <li>Schritt und Instanzfortschritt werden in einer Transaktion gespeichert.</li>
@@ -132,15 +151,15 @@ Atomarität und Wiederholung</h2>
 <li>Ein fachlicher Fehler setzt einen nachvollziehbaren Status; Erfolg setzt erst danach <span class="tt">finished</span>.</li>
 </ul>
 <p>Die neue DD-Option <span class="tt">finishing</span> ist Teil des Statusvertrags und wird in Admin- und Benutzeroberfläche angezeigt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md405"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md419"></a>
 Shop-Vertrag</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md406"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md420"></a>
 Lesen und Wartung</h2>
 <p>Öffentliche Katalog- und normale Admin-GETs führen weder Schemaänderungen noch Defaultpflege oder Datenbereinigungen aus. <span class="tt">dbxShopRepository::install()</span> ist ohne Wartungsparameter garantiert schreibfrei. DD-Synchronisation, Channel-Defaults, Primärgruppen und Gruppenbilder laufen ausschließlich über den expliziten, berechtigten und tokenisierten Adminpunkt <b>Installation / Wartung</b>. Demodaten werden nur von diesem Wartungslauf angelegt. Dasselbe gilt für die Provisionierung/Aktualisierung der Shop-Hilfeseiten, das Anlegen des CMS-Shop-Medienordners und den vollständigen Neuaufbau der Shop-Medienverwendungen. Normale Produkt-, Formular- und Medienansichten lesen diese Daten nur; konkrete Bildzuordnungen aktualisieren ihre Medienverwendung direkt nach der erfolgreichen Mutation.</p>
 <p>Der Katalog lädt Filterkandidaten gebündelt. Gruppen, Attribute und der angeforderte Channel werden für alle Kandidaten in wenigen Abfragen geladen. Nur die sichtbare Reportseite erhält anschließend die vollständige Dekoration mit Bildern, Versand- und Channelgruppen. Direkte inaktive Channel-Zuordnungen unterdrücken weiterhin eine geerbte aktive Freigabe.</p>
 <p>Vollständige Produktlisten verwenden ebenfalls eine einheitliche gebündelte Datensicht im Shop-Repository. Produktgruppen, Versandgruppen, Channelgruppen, Channels, Bilder, Attributdefinitionen und Werte werden je Operation höchstens einmal über <span class="tt">dbxDB</span> geladen und danach per ID zugeordnet. Die Datensicht endet mit dem Methodenaufruf; sie kann nach einem späteren Schreibzugriff nicht veraltet weiterleben. <span class="tt">products()</span> und <span class="tt">productsByIds()</span> nutzen denselben Pfad, die bisherigen Einzelmethoden bleiben kompatibel.</p>
-<p>Ein globaler Ergebnis-Cache in <span class="tt">dbxDB</span> wurde bewusst nicht ergänzt. dbxDB besitzt neben DD-Selects auch rohe Queries, Schreibpfade und Transaktionen; außerdem können getrennte Prozesse schreiben. Eine lückenlose, rechte- und transaktionssichere Invalidierung wäre unverhältnismäßig komplex.</p>
-<p>Stattdessen merkt das Shop-Repository innerhalb genau eines Requests kleine, häufig wiederverwendete Referenzlisten: Gruppen, Channels, Attributdefinitionen und Filterdefinitionen. Jede zugehörige Repository-Mutation leert diesen Cache sofort. Er enthält keine Benutzer-, Token- oder Warenkorbdaten und endet mit dem Request. DD-, Rechte- und Datenzugriff bleiben zentral in <span class="tt">dbxDB</span>; nur Wiederverwendung und fachliche Zuordnung liegen im Repository.</p>
+<p><span class="tt">dbxDB::select1()</span> cached identische Einzelsatzzugriffe innerhalb genau eines Requests. Der Schlüssel enthält DD, WHERE, Spaltenauswahl, Rechteprüfung und Benutzerkontext. Erfolgreiche Schreibzugriffe invalidieren die betroffene DD; Transaktionen umgehen den Cache und verwerfen beim Abschluss die DD-Caches des Servers. Es gibt weiterhin keinen prozess-, session- oder requestübergreifenden DB-Ergebnis-Cache.</p>
+<p>Ergänzend merkt das Shop-Repository innerhalb genau eines Requests kleine, häufig wiederverwendete Referenzlisten: Gruppen, Channels, Attributdefinitionen und Filterdefinitionen. Jede zugehörige Repository-Mutation leert diesen Cache sofort. Er enthält keine Benutzer-, Token- oder Warenkorbdaten und endet mit dem Request. DD-, Rechte- und Datenzugriff bleiben zentral in <span class="tt">dbxDB</span>; nur Wiederverwendung und fachliche Zuordnung liegen im Repository.</p>
 <p>Messung am 24. Juli 2026 mit jeweils fünf ungecachten HTTPS-Katalogaufrufen und 30 vorhandenen Produkten:</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -167,29 +186,29 @@ Lesen und Wartung</h2>
 </table>
 <p>Alle 30 A/B-Aufrufe lieferten HTTP 200. Die ausgegebene Referenzkarte behielt exakt 1.127 Bytes und denselben SHA-256-Hash; die Referenzdetailansicht war ebenfalls bytegenau identisch. Die HTTP-Medianwerte sind aussagekräftiger als der Mittelwert, weil die lokale Apache-/SQLite-Messung einzelne DB-Ausreißer enthielt.</p>
 <p>Die Admin-Bildliste beseitigt denselben N+1-Typ für Bezeichnungen. Bei 52 Bilddatensätzen sank ein Aufruf von <span class="tt">allImages()</span> im Mittel von 21,1 ms auf 2,9 ms (-86,3 %). Zehn Vorher-/Nachher-Aufrufe lieferten denselben serialisierten SHA-256-Ergebnishash. Produkt- und Gruppentitel werden nun in höchstens zwei DD-Mengenabfragen geladen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md407"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md421"></a>
 Schema-, DB- und Ausgabegrenzen</h1>
 <p>DD-Dateien sind die einzige Quelle für Tabellen, Spalten und Indizes. Fachrequests dürfen weder <span class="tt">PRAGMA</span>, <span class="tt">ALTER TABLE</span>, <span class="tt">CREATE TABLE</span> noch <span class="tt">CREATE INDEX</span> ausführen. Die ehemaligen CMS- und Sprach-Schemahelfer bleiben als schreibfreie Kompatibilitätsmethoden erhalten; die tatsächliche Synchronisation erfolgt über <span class="tt">dbxDD</span> im administrativen DD-Ablauf.</p>
 <p>Auch einmalige Werkzeuge halten diese Grenze ein:</p>
 <ul>
-<li><span class="tt">migrate_flat_permalinks.php</span> arbeitet über Content-DD und <span class="tt">dbxDB</span>;</li>
+<li>Permalinks werden beim Schreiben direkt über Content-DD und <span class="tt">dbxDB</span> normalisiert; ein nachträgliches Migrationswerkzeug existiert nicht;</li>
 <li><span class="tt">rebuild_tutorial_callouts.php</span> verwendet Content-, Media- und Media-Usage-DDs sowie getrennte dbxDB-Transaktionen;</li>
 <li>die beiden MySQL-Prüfwerkzeuge verwenden den konfigurierten dbxDB-Server.</li>
 </ul>
 <p>Direkte PDO- oder mysqli-Nutzung ist ausschließlich innerhalb der zentralen Klasse <span class="tt">dbxDB</span> erlaubt. Ein automatisierter Boundary-Test durchsucht alle Projekt-PHP-Dateien und verhindert einen Rückfall.</p>
 <p>Vollständige Shop-Rechnung, Payment-Test und Workflow-Designer liegen in Modultemplates und werden über <span class="tt">dbxTPL</span> befüllt. Dynamische wiederholte Workflow-Feldkomponenten dürfen serverseitig erzeugt werden; Datenzugriff und Fachmutation bleiben dabei außerhalb des Templates. Inline-Eventattribute wurden entfernt. Delegierte Handler verwenden die gemeinsamen Bibliotheken <span class="tt">ajax.js</span>, <span class="tt">confirm.js</span>, <span class="tt">openWin</span> und <span class="tt">core.js</span>; der Druckablauf verwendet die vorhandene Print-Library.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md408"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md422"></a>
 Bestellung und Bestand</h2>
 <p>Bestellung, Positionen, Bestandsreservierung und Historie bilden eine Transaktion. Physischer Bestand wird mit einer bedingten SQL-Aktualisierung reserviert:</p>
 <div class="fragment"><div class="line">stock = stock - menge</div>
 <div class="line">WHERE stock &gt;= menge</div>
 </div><!-- fragment --><p>Genau eine geänderte Zeile ist erforderlich. Damit kann paralleler Checkout keinen negativen Bestand erzeugen. Eine Rückbuchung wird ebenfalls atomar über <span class="tt">stock_reserved</span> und <span class="tt">stock_released</span> beansprucht und ist wiederholbar.</p>
 <p>Channel-Importe prüfen die externe Referenz vor und innerhalb der Schreibtransaktion. Bei SQLite serialisiert <span class="tt">BEGIN IMMEDIATE</span> parallele Schreiber.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md409"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md423"></a>
 Checkout-Idempotenz</h2>
 <p>Jedes Checkout-Formular enthält eine zufällige <span class="tt">checkout_request_id</span>. Die Session ordnet diese ID einer bereits erzeugten Bestellung zu. Wiederholte POSTs derselben Browser-Session setzen denselben Ablauf fort, statt eine zweite Bestellung anzulegen. Die Session hält höchstens 25 Zuordnungen.</p>
 <p>Provider-Create/Capture/Complete erhalten zusätzlich deterministische Idempotency-Keys.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md410"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md424"></a>
 Provider-Rückkehr</h2>
 <p>Eine Browser-Query ist kein Zahlungsnachweis. Die Zuordnung erfolgt ausschließlich über die serverseitig gespeicherte Kombination aus:</p>
 <div class="fragment"><div class="line">payment_provider + payment_reference</div>
@@ -205,7 +224,7 @@ Provider-Rückkehr</h2>
 <li>Browser-Cancel-GETs sind rein informativ und verändern keinen Zahlungs-/Bestandsstatus.</li>
 </ul>
 <p>Live-Calls gegen PayPal oder Amazon Pay waren nicht Teil der lokalen Prüfung. Vor Produktivbetrieb sind Sandbox-End-to-End-Tests mit den echten Providerkonten Pflicht.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md411"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md425"></a>
 Öffentlicher Channel-Webhook</h2>
 <p>Der Channel-Webhook ist als Provider-Endpunkt öffentlich erreichbar. Deshalb kann ihn eine Modulgruppe nicht wie eine Adminseite schützen. Der Import ist fail-closed:</p>
 <ul>
@@ -217,10 +236,10 @@ Provider-Rückkehr</h2>
 </ul>
 <p>Vor der Prüfung einer externen Channel-Referenz sperrt der Import zusätzlich die zugehörige <span class="tt">shop_channel</span>-Zeile innerhalb derselben Transaktion. Damit werden parallele Imports derselben Referenz auch zwischen getrennten Anwendungsprozessen serialisiert; der Unique-/Duplikatcheck bleibt danach die fachliche Schranke.</p>
 <p>Laufzeitnachweis: Ein nicht authentifizierter Probeimport lieferte HTTP 503; die Zahl der <span class="tt">shop_order</span>-Datensätze blieb bei 14.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md412"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md426"></a>
 Gast-Sessions, Cache und Header</h1>
 <p><span class="tt">session_db_guest=0</span> ist der neue Standard. PHP-Session, Sprache, Warenkorb und Gast-Workflow funktionieren unverändert; frische Gäste erzeugen jedoch keinen zentralen <span class="tt">dbx_session</span>-Datensatz pro Request. Authentifizierte Benutzer werden weiter gespeichert. <span class="tt">session_db_guest=1</span> stellt das frühere Betriebsverhalten wieder her.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md413"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md427"></a>
 Flüchtige PHP-Sessions ohne Cookie</h2>
 <p>Die zentrale <span class="tt">dbx_session</span>-Tabelle und die PHP-Sessiondatei sind getrennte Speicher. <span class="tt">session_db_guest=0</span> verhindert nur anonyme Datenbankzeilen. Ein unbedingtes <span class="tt">session_start()</span> kann trotzdem für jeden Request ohne <span class="tt">PHPSESSID</span> eine neue Datei im konfigurierten <span class="tt">session.save_path</span> anlegen.</p>
 <p>Eine IP-Adresse ersetzt die Session-ID ausdrücklich nicht:</p>
@@ -255,7 +274,7 @@ Flüchtige PHP-Sessions ohne Cookie</h2>
 <div class="line">X-Frame-Options: SAMEORIGIN</div>
 </div><!-- fragment --><p><span class="tt">SAMEORIGIN</span> erhält die dbxapp-eigenen Fenster-/Frame-Abläufe. Eine strikte CSP wurde wegen bestehender älterer Inline-Skriptblöcke bewusst noch nicht aktiviert. Inline-Eventattribute sind dagegen nicht mehr zulässig und werden automatisiert geprüft.</p>
 <p>Unbekannte Permalinks zeigen aus Kompatibilitätsgründen weiterhin die konfigurierte Home-Darstellung, liefern aber HTTP 404, behalten den angeforderten Pfad und werden nicht als erfolgreiche Seite gecacht.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md414"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md428"></a>
 Telemetrie und Content</h1>
 <p>Der Performance-Timer:</p>
 <ul>
@@ -269,8 +288,21 @@ Telemetrie und Content</h1>
 <li>lädt verwendete Medien gebündelt;</li>
 <li>löst Sprachgeschwister direkt über <span class="tt">lng_uid</span> statt über einen vollständigen Permalink-Index-Scan.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md415"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md429"></a>
 Verifikation</h1>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md430"></a>
+Reproduzierbare UI-Regressionsmatrix</h2>
+<p>Der Komplettlauf von <span class="tt">dbxSelfTest</span> führt <span class="tt">dbxUiRegressionMatrix_browser_test.js</span> in einem gerenderten, außerhalb des sichtbaren Bereichs liegenden Browser-Viewport aus. <span class="tt">hidden</span>-Frames sind dafür unzulässig, weil sie Fokus, Rechtecke, Überlauf und Layer nicht realistisch abbilden.</p>
+<p>Die feste Matrix lädt <span class="tt">/home</span>, Content-ID 1 und eine echte dbxReport-Seite als Desktop (1440×960), Tablet (1024×768) und Mobilgerät (390×844). Sie prüft:</p>
+<ul>
+<li>DOM-, Ressourcen- und Navigationszeit-Budgets sowie horizontalen Überlauf;</li>
+<li>Fokusierbarkeit, eindeutige DOM-IDs und sichtbare Laufzeitfehler;</li>
+<li>Einfügen direkt vor und hinter dem Bootstrap-Link „Projekt besprechen“ im Jodit-Editor, ohne die Seite zu speichern;</li>
+<li>genau einen oberhalb positionierten HTML-Tooltip ohne parallelen nativen <span class="tt">title</span>;</li>
+<li>ein per <span class="tt">openWin</span> und zentralem <span class="tt">ajax.js</span> geladenes Fenster samt Viewport- und Z-Index-Vertrag;</li>
+<li>Medienbrowser, Ordnerbaum, Medienraster, vollständiges dbxForm-Uploadformular und den darüberliegenden Wartungsdialog. Automatisch wird keine Datei hochgeladen und keine Wartung gestartet, damit ein Regressionstest niemals Kundendaten mutiert.</li>
+</ul>
+<p>Der schnelle PHP-Vertrag <span class="tt">dbxUiRegressionMatrix_contract_test.php</span> verhindert, dass Profile, Zielseiten, Interaktionen, Budgets oder der Layout-Viewport unbemerkt entfernt werden. Echte Upload-/Löschabläufe werden zusätzlich mit einer eigens erzeugten Testdatei geprüft und unmittelbar wieder bereinigt.</p>
 <p>Am 24. Juli 2026 wurden ausgeführt:</p>
 <div class="fragment"><div class="line">PHP-Syntax: 373 von 373 Laufzeitdateien erfolgreich</div>
 <div class="line">Regression: 34 von 34 PHP-Testdateien erfolgreich</div>
@@ -302,7 +334,7 @@ Verifikation</h1>
 <div class="line">php dbx/modules/dbxShop/tests/shop_admin_action_security_test.php</div>
 <div class="line">php dbx/modules/dbxShop/tests/shop_repository_request_cache_test.php</div>
 <div class="line">php dbx/modules/dbxShop/tests/payment_validation_test.php</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md416"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md431"></a>
 Einführungs- und Rückfallplan</h1>
 <ol type="1">
 <li>Lokale Zugangsdaten aus <span class="tt">config.local.example.php</span> ableiten.</li>
@@ -319,7 +351,7 @@ Einführungs- und Rückfallplan</h1>
 <li><span class="tt">full_page_browser_ttl=0</span>: Browser-TTL deaktivieren, Servercache behalten.</li>
 </ul>
 <p>Nicht zurückgenommen werden dürfen die unsicheren Verträge API-Autologin, unverifizierter Payment-Return, Webhook ohne Authentifizierung oder zustandsändernder Workflow-GET ohne Action-Token.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md417"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md432"></a>
 Verwandte Dokumentation</h1>
 <ul>
 <li><a class="el" href="dbxapp_ai_rules.html" title="Verbindliche Regeln für KI-Agenten">Verbindliche Regeln für KI-Agenten</a></li>

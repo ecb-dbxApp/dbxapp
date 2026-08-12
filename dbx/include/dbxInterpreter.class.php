@@ -47,69 +47,32 @@ class dbxInterpreter {
    * @return string Inhalt mit gerenderten Modulausgaben.
    */
   public function run($content) {
-    //return $content;
-
+    $content = (string)$content;
     if ($this->is_template_editor_context()) {
       return $content;
     }
+    if ($content === '' || stripos($content, '[modul=') === false) {
+      return $content;
+    }
 
-    //dbx_debug("#RUN-INTERPRETER#");
-
-    $f1=''; $f2=''; $modul=''; $parameter='';
-
-
-
-    for ($a=1; $a< 512; $a++) { // break  4
-      $do=false;
-
-
-
-      // preg_match_all("'[html](.*?)[/html]'si", $content, $match);
-      // preg_match_all("'<p class=\"review\">(.*?)</p>'si", $source, $match);
-      // foreach($match[1] as $norep)  {
-      //   $key=dbx()->norep($norep);
-      //   $rep="[html]".$norep."[/html]";
-      //   $content=(str_replace($rep,$key,$content));
-      // }
-      // // - - - - -
-
-      $patterns = "/\[modul=([^\[]*)\]([^\[]*)\[\/modul\]/i";
-      preg_match ($patterns, $content, $matches);
-      $count=count($matches);
-
-      if ($count) {
-        $funki = ($matches[1]);
-        $f1=$matches[1];
-        $f2=$matches[2];
-
-        if ($f1 > "" && $f2 > "") {
-          $modul    = $f1;
-          $parameter= $f2;
-
-          $replacements = "ersetzt";
-
-          $replacements  = $this->get_modul_content($modul,$parameter);
-          $inc_patterns  = "[modul=".$f1."]".$f2."[/modul]";
-
-
-          $pos1   = strpos ($content, $inc_patterns );
-          $lang1  = strlen ($inc_patterns);
-          $lang2  = strlen ($content);
-          $vor    = substr ( $content, 0 , $pos1);
-          $nach   = substr ( $content, ($pos1+$lang1) , $lang2);
-          $content = $vor.$replacements.$nach;
-
-          $do=true;
-        }
+    $pattern = '/\[modul=([A-Za-z_][A-Za-z0-9_]*)\]([^\[]*)\[\/modul\]/i';
+    for ($pass = 0; $pass < 32; $pass++) {
+      $count = 0;
+      $next = preg_replace_callback(
+        $pattern,
+        function (array $match): string {
+          return (string)$this->get_modul_content((string)$match[1], (string)$match[2]);
+        },
+        $content,
+        -1,
+        $count
+      );
+      if (!is_string($next) || $count === 0 || $next === $content) {
+        break;
       }
-      // - - - - -
-      if (!$do) break; // Kill if Dubbel Break needed
-      //echo "<br>Loops=$a";
-    } // Loop a
-
-    //dbx_debug("RETURN",$content);
+      $content = $next;
+    }
     return $content;
-
   }
 
   /**
@@ -141,34 +104,22 @@ class dbxInterpreter {
       return $content;
     }
 
-    $patterns = "/\[modul=([^\[]*)\]([^\[]*)\[\/modul\]/i";
-    for ($a = 1; $a < 512; $a++) {
-      if (!preg_match_all($patterns, $content, $matches, PREG_OFFSET_CAPTURE)) {
-        break;
-      }
-
-      $done = false;
-      foreach ($matches[0] as $idx => $match) {
-        $modul = (string)($matches[1][$idx][0] ?? '');
-        if (!isset($allowed[strtolower($modul)])) {
-          continue;
+    $pattern = '/\[modul=([A-Za-z_][A-Za-z0-9_]*)\]([^\[]*)\[\/modul\]/i';
+    $count = 0;
+    $result = preg_replace_callback(
+      $pattern,
+      function (array $match) use ($allowed): string {
+        $module = (string)$match[1];
+        if (!isset($allowed[strtolower($module)])) {
+          return (string)$match[0];
         }
-
-        $parameter = (string)($matches[2][$idx][0] ?? '');
-        $replacement = $this->run($this->get_modul_content($modul, $parameter));
-        $pos = (int)$match[1];
-        $len = strlen((string)$match[0]);
-        $content = substr($content, 0, $pos) . $replacement . substr($content, $pos + $len);
-        $done = true;
-        break;
-      }
-
-      if (!$done) {
-        break;
-      }
-    }
-
-    return $content;
+        return $this->run((string)$this->get_modul_content($module, (string)$match[2]));
+      },
+      $content,
+      -1,
+      $count
+    );
+    return is_string($result) ? $result : $content;
   }
 
  
@@ -185,6 +136,8 @@ class dbxInterpreter {
    * @return string Gerenderte Modulausgabe oder Login-/Warnhinweis.
    */
   private function get_modul_content($modul,$parameter='') {
+      $requestSnapshot = dbx()->request_context()->snapshot();
+      try {
       dbx()->timer('run-'.$modul,'P='.$parameter);  
 
       $modul_content=''; $xparameter=''; $action='undef'; $modul_id=0;
@@ -262,6 +215,9 @@ class dbxInterpreter {
       //dbx_debug("#DBX#  Modul=($modul) Param=($parameter) Access=($access) M-id=($modul_id)  redirect=($redir)");
       dbx()->timer('run-'.$modul);
       return $modul_content;
+      } finally {
+        dbx()->request_context()->restore($requestSnapshot);
+      }
     }
 
 

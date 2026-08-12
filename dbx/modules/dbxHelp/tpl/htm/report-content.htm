@@ -1,6 +1,6 @@
 [tpl=dbx|report-panel-head]
  <form action="?dbx_modul=dbxHelp&dbx_run1=report_flat" method="post" id="dbx_form_{i}" class="dbxAjax">
-  [inc=1]tpl=report-form-select&modul=dbx[/inc]
+  [tpl=dbx|report-form-select]
   [dbx:pagination]
   <table class="table table-striped table-bordered table-dark table-hover" data-toggle="table">
    <thead>

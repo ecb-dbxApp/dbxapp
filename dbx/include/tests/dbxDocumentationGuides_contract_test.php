@@ -117,11 +117,11 @@ if (!str_contains($selfTestRunner, "version_compare(PHP_VERSION, '8.2.0', '<')")
 }
 $designTemplate = $read('dbx/design/dbxapp/htm/default.htm');
 if ($hasEditorialSources
-    && (preg_match('/core\.js\?[^"\']*v=(\d+)/', $designTemplate, $assetMatch) !== 1
-    || !str_contains($shopReference, 'dbxapp-Asset-Version ' . $assetMatch[1]))) {
-    $fail('Der Shop-Leitfaden nennt nicht die aktuelle JavaScript-Asset-Version.', 13);
+    && (!str_contains($designTemplate, 'v={dbx:asset_version}')
+    || !str_contains($shopReference, 'dbxapp-Asset-Version aus `VERSION`'))) {
+    $fail('Der Shop-Leitfaden beschreibt nicht die zentrale JavaScript-Asset-Version.', 13);
 }
-foreach (array('reference\\archive', 'provision_docs_content.php', 'dbxSelfTest') as $needle) {
+foreach (array('reference\\current', 'build_docs_search_index.php', 'provision_docs_content.php', 'dbxSelfTest') as $needle) {
     if (!$hasEditorialSources) {
         break;
     }

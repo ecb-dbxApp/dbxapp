@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="textblock"><p><a class="anchor" id="md_18___shop___k_i___referenz"></a></p>
 <p>Stand: 2026-07-24</p>
 <p>Diese Referenz ist der verbindliche Kurzkontext für KI-Agenten, die den Shop analysieren oder erweitern. Die fachliche Erklärung für Menschen steht unter <a class="el" href="dbxapp_shop_guide.html" title="Shop-Leitfaden">Shop-Leitfaden</a>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md296"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md309"></a>
 Systemprofil</h1>
 <div class="fragment"><div class="line">domain: dbxShop</div>
 <div class="line">runtime: PHP/dbxapp</div>
@@ -59,7 +59,7 @@ Systemprofil</h1>
 <div class="line">admin_access_group: admin</div>
 <div class="line">schema_sync_version: shop-dd-20260713-2</div>
 <div class="line">development_data_allowed: true</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md297"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md310"></a>
 Verbindliche Schichtentrennung</h1>
 <div class="fragment"><div class="line">dbxShop.class.php</div>
 <div class="line">  -&gt; wertet dbx_run1 aus</div>
@@ -83,7 +83,7 @@ Verbindliche Schichtentrennung</h1>
 <div class="line">  -&gt; verwendet dbxForm/dbxReport/dbxTPL</div>
 <div class="line">  -&gt; ruft dasselbe Repository</div>
 </div><!-- fragment --><p>Keine SQL-Abfragen in Templates. Keine Checkout- oder Preislogik in JavaScript. Keine zweite Repository- oder ORM-Schicht neben <span class="tt">dbxDB</span>/DD.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md298"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md311"></a>
 Vor jeder Shopaenderung lesen</h1>
 <p>Abhaengig vom Auftrag mindestens:</p>
 <div class="fragment"><div class="line">17_Shop_Leitfaden.md</div>
@@ -104,7 +104,7 @@ Vor jeder Shopaenderung lesen</h1>
 <div class="fragment"><div class="line">dbxShopChannelConnector.class.php</div>
 <div class="line">dd/shopChannel.dd.php</div>
 <div class="line">dd/shopProductChannel.dd.php</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md299"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md312"></a>
 Routing-Vertrag</h1>
 <div class="fragment"><div class="line">frontend:</div>
 <div class="line">  default: catalog</div>
@@ -156,7 +156,7 @@ Routing-Vertrag</h1>
 <div class="line">    - settings</div>
 <div class="line">    - payment_test</div>
 </div><!-- fragment --><p>Neue Routen werden im Modulrouter registriert und an eine benannte Service-Methode delegiert. Keine versteckten Aktionen nur über ungeprüfte <span class="tt">$_GET</span>-/<span class="tt">$_POST</span>-Verzweigungen einführen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md300"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md313"></a>
 Datenmodellvertrag</h1>
 <p>Jede Tabelle braucht:</p>
 <div class="fragment"><div class="line">primary_field: id</div>
@@ -210,9 +210,9 @@ Datenmodellvertrag</h1>
 <li>Sync auf einer leeren und einer bereits initialisierten Testdatenbank prüfen.</li>
 <li>Für jede neue Tabelle <span class="tt">id</span>/Autoincrement auf allen unterstützten DB-Treibern prüfen.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md301"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md314"></a>
 Kritische Fachinvarianten</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md302"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md315"></a>
 Artikel</h2>
 <div class="fragment"><div class="line">sku: stable-and-unique-business-key</div>
 <div class="line">slug: url-safe</div>
@@ -221,7 +221,7 @@ Artikel</h2>
 <div class="line">tax_authority: server</div>
 <div class="line">shipping_authority: server</div>
 <div class="line">stock_authority: server</div>
-</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md303"></a>
+</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md316"></a>
 Bestellung</h2>
 <div class="fragment"><div class="line">order_no: stable-public-reference</div>
 <div class="line">items: snapshot-at-order-time</div>
@@ -232,7 +232,7 @@ Bestellung</h2>
 <div class="line">foreign_order_access: forbidden</div>
 <div class="line">duplicate_provider_return: must-not-create-duplicate-order</div>
 </div><!-- fragment --><p>Artikelpreise oder Titel dürfen bestehende <span class="tt">shop_order_item</span>-Snapshots nicht nachtraeglich verändern.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md304"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md317"></a>
 Warenkorb</h2>
 <div class="fragment"><div class="line">storage: PHP session</div>
 <div class="line">key: dbxShop_cart</div>
@@ -240,9 +240,9 @@ Warenkorb</h2>
 <div class="line">trusted_tax: false</div>
 <div class="line">trusted_stock: false</div>
 </div><!-- fragment --><p>Der Warenkorb speichert Auswahl und Menge. Vor Checkout sind Produkt, Verfügbarkeit und Preise erneut serverseitig aus dem Repository zu lesen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md305"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md318"></a>
 Konfigurationsvertrag</h1>
-<p>Quelle: <span class="tt">dbx()-&gt;get_config('dbxShop')</span>.</p>
+<p>Quelle: <span class="tt">dbx()-&gt;get_cfg('dbxShop')</span>.</p>
 <div class="fragment"><div class="line">general:</div>
 <div class="line">  - enabled</div>
 <div class="line">  - default_channel</div>
@@ -276,7 +276,7 @@ Konfigurationsvertrag</h1>
 <div class="line">  - media_usage_content_id</div>
 <div class="line">  - media_usage_slot</div>
 </div><!-- fragment --><p>Keine gleichbedeutenden Werte in einer zweiten Konfigurationsdatei einführen. <span class="tt">cfg/payment.php</span> ist aktuell nur ein PayPal-Fallback; die Admin-Konfiguration liegt in <span class="tt">dbxShop</span>-Config.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md306"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md319"></a>
 Zahlungssicherheit</h1>
 <div class="fragment"><div class="line">providers:</div>
 <div class="line">  offline:</div>
@@ -295,7 +295,7 @@ Zahlungssicherheit</h1>
 <div class="line">  persist_status: true</div>
 <div class="line">  append_history: true</div>
 </div><!-- fragment --><p>Ein Redirect oder Queryparameter ist kein Zahlungsnachweis. Der Adapter muss die Providerantwort serverseitig verarbeiten und die Bestellung anhand einer gespeicherten Referenz zuordnen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md307"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md320"></a>
 Channel-Sicherheit</h1>
 <div class="fragment"><div class="line">default_channels:</div>
 <div class="line">  - shop</div>
@@ -313,7 +313,7 @@ Channel-Sicherheit</h1>
 <div class="line">  - duplicate_protection</div>
 <div class="line">  - failure_logging_without_secrets</div>
 </div><!-- fragment --><p>Ein vorbereiteter Connector ist keine Garantie für produktive API-Abdeckung. Bei Änderungen offizielle Provideranforderungen, vorhandene Credentials und den konkreten Code prüfen. Keine Live-Calls als Teil eines normalen lokalen Tests ohne ausdrücklichen Auftrag.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md308"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md321"></a>
 Rechte und Eingabevertrauen</h1>
 <div class="fragment"><div class="line">admin_module_group: admin</div>
 <div class="line">request_ids_trusted: false</div>
@@ -323,7 +323,7 @@ Rechte und Eingabevertrauen</h1>
 <div class="line">uploaded_filenames_trusted: false</div>
 <div class="line">webhook_json_trusted: false</div>
 </div><!-- fragment --><p>Eine ID aus <span class="tt">$_SESSION</span> hilft beim Wiederfinden, ersetzt aber keine Eigentums-/Rechteprüfung. Für Order, Invoice, Withdrawal und Media ist immer Datensatzbezug plus Berechtigung zu validieren.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md309"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md322"></a>
 Template- und Designvertrag</h1>
 <ul>
 <li>Shop-Ausgabe verwendet <span class="tt">dbxShop|...</span>-Templates.</li>
@@ -334,7 +334,7 @@ Template- und Designvertrag</h1>
 <li>Shop-Admin-CSS bleibt unter <span class="tt">dbxShop_admin/design</span>.</li>
 <li>Gemeinsame Änderungen müssen in <span class="tt">dbxapp</span> und <span class="tt">flowers</span> getestet werden.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md310"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md323"></a>
 Aufgabe-zu-Datei-Matrix</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -360,7 +360,7 @@ Aufgabe-zu-Datei-Matrix</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">neue Eingabemaske  </td><td class="markdownTableBodyNone"><span class="tt">dbxForm</span>, DD/FD, Template  </td></tr>
 </table>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md311"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md324"></a>
 Verbotene Abkuerzungen</h1>
 <ul>
 <li>Keine Tabelle direkt nur mit <span class="tt">CREATE TABLE</span> anlegen.</li>
@@ -375,7 +375,7 @@ Verbotene Abkuerzungen</h1>
 <li>Keine grosse HTML-Ausgabe neu als PHP-String bauen, wenn ein Template passt.</li>
 <li>Keine Kernel-Änderung, solange das Problem innerhalb des Shop-Moduls loesbar ist.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md312"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md325"></a>
 Arbeitsablauf für KI-Agenten</h1>
 <ol type="1">
 <li>Ist-Zustand in Router, Service, Repository, DD, FD und Template lesen.</li>
@@ -389,7 +389,7 @@ Arbeitsablauf für KI-Agenten</h1>
 <li>Gast, Benutzer und Admin prüfen, wenn Zugriff betroffen ist.</li>
 <li>Menschen- und KI-Dokumentation aktualisieren, wenn sich ein Vertrag ändert.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md313"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md326"></a>
 Mindesttests nach Bereich</h1>
 <div class="fragment"><div class="line">schema:</div>
 <div class="line">  - empty_database_sync</div>
@@ -437,7 +437,7 @@ Mindesttests nach Bereich</h1>
 <div class="line">  - flowers_light</div>
 <div class="line">  - flowers_dark</div>
 <div class="line">  - responsive</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md314"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md327"></a>
 Abschlussbericht einer KI</h1>
 <p>Der Bericht trennt:</p>
 <ol type="1">

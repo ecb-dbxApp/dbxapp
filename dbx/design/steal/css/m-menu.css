@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* =========================================================
    DBX MENU – MECHANICS
    =========================================================
@@ -333,6 +334,27 @@
     display: none;
 }
 
+/* Linke Seitennavigationen zeigen dieselben Aktionsnamen wie das Mobilmenue.
+   Horizontale Desktop-Menues besitzen das Persistenzmerkmal nicht. */
+.dbx-menu-root[data-dbx-menu-persist-open="1"] .dbx-menu-mobile-label {
+    display: inline;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Auf mittleren Desktopbreiten bleibt das horizontale Admin-Menü vollständig
+   sichtbar. Unter 1200px übernimmt anschließend die mobile Menüleiste. */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+    #dbx_admin_menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
+    #dbx_admin_menu.dbx-menu-list > .dbx-menu-item > .dbx-menu-link {
+        gap: 4px;
+        padding-inline: 9px;
+        font-size: .78rem;
+    }
+}
+
 
 /* =========================================================
    MOBILE / RESPONSIVE – MECHANIK
@@ -345,7 +367,7 @@
      Inhalt höher als das Fenster ist
    ========================================================= */
 
-@media (max-width: 991.98px) {
+@media (max-width: 1199.98px) {
 
     /* ---------------------------------------------
        Opener-Leiste

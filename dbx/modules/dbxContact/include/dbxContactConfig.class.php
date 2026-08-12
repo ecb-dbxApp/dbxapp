@@ -18,12 +18,12 @@ class dbxContactConfig {
    }
 
    public static function mailAdminOnRequest(): bool {
-      $val = dbx()->get_config('dbxContact', 'mail_admin_on_request');
+      $val = dbx()->get_cfg('dbxContact', 'mail_admin_on_request');
       return self::isFlagEnabled($val, true);
    }
 
    public static function mailConfirmRequester(): bool {
-      $val = dbx()->get_config('dbxContact', 'mail_confirm_requester');
+      $val = dbx()->get_cfg('dbxContact', 'mail_confirm_requester');
       if (trim((string) $val) === '') {
          return true;
       }
@@ -31,7 +31,7 @@ class dbxContactConfig {
    }
 
    public static function mailOnReply(): bool {
-      $val = dbx()->get_config('dbxContact', 'mail_on_reply');
+      $val = dbx()->get_cfg('dbxContact', 'mail_on_reply');
       return self::isFlagEnabled($val, true);
    }
 
@@ -48,7 +48,7 @@ class dbxContactConfig {
          }
       }
 
-      $val = dbx()->get_config($modul, $key);
+      $val = dbx()->get_cfg($modul, $key);
       if (self::isFlagEnabled($val, false)) {
          return true;
       }

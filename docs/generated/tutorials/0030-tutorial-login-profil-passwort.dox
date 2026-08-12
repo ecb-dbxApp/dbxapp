@@ -7,31 +7,89 @@
 <div class="dbx-doc-meta"><span>Anwender-Tutorial</span><span>dbxContent #80</span><span>Permalink: <code>tutorial-login-profil-passwort</code></span></div>
 @endhtmlonly
 
-> **Kurzbeschreibung:** Anmeldung, Avatar-Menü, Profilbild und eigenes Passwort.
+> **Kurzbeschreibung:** Sicher anmelden, Konto aktivieren, Profil und Passwort verwalten sowie Demo-Zugang, Owner-Prinzip, Reset und Protokollierung verstehen.
 
 @htmlonly
 <div class="dbx-tutorial-source">
-<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_login_profil_passwort.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
-<p>Anmeldung, Avatar-Menü, Profilbild und eigenes Passwort.</p><p>Nutzen Sie die Slideshow, um die einzelnen Schritte in Ruhe durchzugehen.</p>
+<div class="dbxdocs-cms-article">
+  <span class="dbx-doc-kicker">Sicher anmelden und persönlich arbeiten</span>
+  <div class="dbx-guide-hero">
+    <span class="dbx-guide-hero-icon" aria-hidden="true"><em class="bi bi-person-check"></em></span>
+    <div>
+      <h2>Login, Profil und Passwort</h2>
+      <p>Mit einem eigenen Konto erhält jeder Benutzer seine persönliche Arbeitsumgebung, die für ihn freigegebenen Module und sicheren Zugriff auf seine eigenen Daten.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-info" role="note"><strong>Demo-Zugang:</strong> Unter <a href="demo">dbxapp Demo</a> können Sie sich mit <code>demo</code> und <code>Demo123!</code> anmelden. Das Konto besitzt einen eingeschränkten Admin-Zugang im Nur-Lese-Modus. Änderungen und geheime Konfigurationswerte bleiben gesperrt.</div>
+
+  <h2>1. Konto erhalten und aktivieren</h2>
+  <ol class="dbx-update-steps">
+    <li><div><strong>Konto anlegen</strong><br>Je nach Installation registrieren Sie sich selbst oder die Administration legt das Konto an.</div></li>
+    <li><div><strong>Bestätigung abschließen</strong><br>Ist eine E-Mail-Bestätigung eingerichtet, öffnen Sie den einmaligen Link aus der Nachricht.</div></li>
+    <li><div><strong>Freischaltung abwarten</strong><br>Die Administration aktiviert das Konto und weist die benötigten Gruppen und Rechte zu. Erst danach stehen die freigegebenen Bereiche zur Verfügung.</div></li>
+  </ol>
+  <p>Eine Anmeldung lohnt sich, weil dbxapp Inhalte und Funktionen nicht pauschal, sondern passend zum Benutzer bereitstellt: persönliche Einstellungen, eigene Vorgänge, zuständige Module und – nur wenn erlaubt – Verwaltungsfunktionen.</p>
+
+  <h2>2. Anmelden</h2>
+  <ol>
+    <li>Öffnen Sie im Benutzermenü <strong>Login / Anmelden</strong>.</li>
+    <li>Geben Sie Ihren Benutzernamen oder Ihre E-Mail-Adresse und Ihr Passwort ein.</li>
+    <li>Wählen Sie <strong>Login / Anmelden</strong>. Nach erfolgreicher Prüfung lädt dbxapp Ihre persönliche Oberfläche.</li>
+  </ol>
+  <div class="alert alert-warning" role="note"><strong>Fehlgeschlagene Anmeldung:</strong> dbxapp nennt absichtlich nicht, ob Benutzername oder Passwort falsch war. Das Passwortfeld wird nach dem Versuch geleert und ein eingegebenes Passwort niemals erneut ausgegeben.</div>
+
+  <h2>3. Eigenes Profil und eigene Daten</h2>
+  <div class="dbx-user-nav-grid">
+    <div class="dbx-user-nav-card"><span class="dbx-user-nav-icon"><em class="bi bi-person-vcard"></em></span><span><strong>Stammdaten</strong><br>Name, E-Mail, Kontakt und Adresse pflegen.</span></div>
+    <div class="dbx-user-nav-card"><span class="dbx-user-nav-icon"><em class="bi bi-palette"></em></span><span><strong>Oberfläche</strong><br>Sprache, Design und verfügbare Farbvariante auswählen.</span></div>
+    <div class="dbx-user-nav-card"><span class="dbx-user-nav-icon"><em class="bi bi-image"></em></span><span><strong>Profilbild</strong><br>Ein quadratisches JPG, PNG, WebP oder GIF hochladen.</span></div>
+    <div class="dbx-user-nav-card"><span class="dbx-user-nav-icon"><em class="bi bi-key"></em></span><span><strong>Passwort</strong><br>Ein neues Passwort zweimal identisch eingeben.</span></div>
+  </div>
+  <p>Öffnen Sie dazu das Benutzermenü und wählen Sie <strong>Mein Profil</strong>. Das Profil zeigt nur die Felder, die für das eigene Konto vorgesehen sind. Administrative Benutzerverwaltung und das eigene Profil bleiben getrennte Aufgaben.</p>
+
+  <h2>4. Das Owner-Prinzip</h2>
+  <p>Fachdatensätze können einen <em>Owner</em> besitzen. Dieser Eigentümerbezug verbindet einen Datensatz mit dem zuständigen Benutzer. Normale Benutzer sehen und bearbeiten dadurch vorrangig ihre eigenen Daten und Vorgänge. Zusätzlicher Zugriff entsteht nur durch ausdrücklich vergebene Gruppen, Rechte oder administrative Rollen.</p>
+  <div class="alert alert-success" role="note"><strong>Wichtig:</strong> „Eigen“ bedeutet technisch zugeordnet – nicht lediglich im Browser erstellt oder zuletzt geöffnet. Der Server prüft den Owner und die Rechte bei jedem geschützten Zugriff erneut.</div>
+
+  <h2>5. Passwort vergessen</h2>
+  <ol class="dbx-update-steps">
+    <li><div>Wählen Sie auf der Login-Seite <strong>Passwort vergessen?</strong>.</div></li>
+    <li><div>Geben Sie Benutzername oder E-Mail-Adresse ein und fordern Sie den sicheren Link an.</div></li>
+    <li><div>Öffnen Sie den einmal verwendbaren Link innerhalb von 60 Minuten und vergeben Sie ein neues Passwort.</div></li>
+    <li><div>Melden Sie sich neu an. Alte Sitzungen werden nach dem Reset beendet.</div></li>
+  </ol>
+  <p>Die Antwort ist für vorhandene und unbekannte Konten gleich. So kann niemand über das Formular feststellen, welche Benutzernamen oder E-Mail-Adressen registriert sind. Wenn keine Nachricht eintrifft, prüfen Sie den Spam-Ordner und wenden sich anschließend an die Administration.</p>
+
+  <h2>6. Nachvollziehbarkeit und Schutz</h2>
+  <p>Sicherheitsrelevante Vorgänge wie Anmeldeversuche, Abmeldungen, Sitzungen und geschützte Aktionen werden – abhängig von der Systemkonfiguration – mit Zeit, Benutzerbezug und technischem Kontext protokolliert. IP- und Trace-Informationen helfen der Administration, Missbrauch und Fehler zeitlich einzuordnen. Zugriff auf diese Protokolle ist selbst durch Rechte geschützt und unterliegt Datenschutz und Aufbewahrungsregeln.</p>
+  <p>Geheimnisse stammen aus den Modul-Konfigurationsdateien. Konfigurationsfelder, deren Name <code>pass</code>, <code>key</code> oder <code>token</code> enthält, werden in der Demo-Anzeige maskiert. Interne Programmabläufe erhalten weiterhin den echten Wert – eine Maskierung findet nur bei der ausdrücklich angeforderten Anzeige statt.</p>
+
+  <h2>Kurzcheck</h2>
+  <ul>
+    <li>Eigenes Konto verwenden und Zugangsdaten nicht weitergeben.</li>
+    <li>Ein langes, einzigartiges Passwort mit Groß-/Kleinbuchstaben, Zahl und Sonderzeichen wählen.</li>
+    <li>Nach der Arbeit abmelden, besonders an gemeinsam genutzten Geräten.</li>
+    <li>Unerwartete Anmeldehinweise oder Profiländerungen sofort der Administration melden.</li>
+  </ul>
+</div>
 </div>
 @endhtmlonly
 
-## Screenshots aus dbxContent (7)
+## Screenshots aus dbxContent (6)
 
 @htmlonly
 <div class="dbx-tutorial-gallery">
 @endhtmlonly
-@image html dbxcontent-media-264-login-starten.png "Benutzername und Passwort werden hier eingegeben. Danach wird die Anmeldung gestartet."
+@image html dbxcontent-media-264-login-anmelden.png "Benutzername und Passwort werden hier eingegeben. Danach wird die Anmeldung gestartet."
 
-@image html dbxcontent-media-265-anmeldung-pr-fen.png "Nach dem Absenden prüft dbxapp die Zugangsdaten und lädt die Arbeitsumgebung."
+@image html dbxcontent-media-265-demo-zugang.png "Nach dem Absenden prüft dbxapp die Zugangsdaten und lädt die Arbeitsumgebung."
 
-@image html dbxcontent-media-266-nach-dem-login.png "Angemeldete Benutzer sehen Admin-Menüs, Bearbeitungssymbole und persönliche Funktionen."
+@image html dbxcontent-media-266-eingeschr-nkter-admin-zugang.png "Angemeldete Benutzer sehen Admin-Menüs, Bearbeitungssymbole und persönliche Funktionen."
 
-@image html dbxcontent-media-267-avatar-men.png "Das Avatar-Menü führt zu neuen Anfragen, eigenen Anfragen und zum eigenen Profil."
+@image html dbxcontent-media-267-mein-profil.png "Das Avatar-Menü führt zu neuen Anfragen, eigenen Anfragen und zum eigenen Profil."
 
-@image html dbxcontent-media-268-eigene-daten.png "Im Profil werden Kontaktdaten, Adresse, Sprache, Design und Farbe bearbeitet."
-
-@image html dbxcontent-media-269-profilbild-und-passwort.png "Profilbild und Passwort liegen rechts im Profil. Passwortänderungen brauchen zwei gleiche Eingaben."
+@image html dbxcontent-media-268-passwort-vergessen.png "Im Profil werden Kontaktdaten, Adresse, Sprache, Design und Farbe bearbeitet."
 
 @image html dbxcontent-media-376-dbxapp-desktop.webp "dbxapp Desktop"
 

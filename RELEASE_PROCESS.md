@@ -1,8 +1,8 @@
 # Verbindlicher Release-Prozess
 
 Dieser Prozess veröffentlicht und aktualisiert ausschließlich die
-dbxApp-4-Produktlinie. dbxApp 4 ist eine vollständige Neuentwicklung;
-dbxWebApp ist keine Vorgängerversion im automatischen Updatepfad.
+dbxApp-4.2-Produktlinie. dbxApp 4.2.0 ist die erste unterstützte Version.
+Es gibt keinen automatischen Updatepfad aus einer früheren Version.
 
 ## 0. Verbindliche Verzeichnisrollen
 
@@ -42,7 +42,8 @@ Der Release Pull Request:
 1. entfernt `-dev` aus `VERSION`,
 2. verschiebt `CHANGELOG.md` von `Unreleased` in die neue Version,
 3. aktualisiert `UPGRADE.md` und `SECURITY.md`,
-4. enthält alle erforderlichen Migrationen,
+4. enthält ausschließlich erforderliche Vorwärtsmigrationen ab der in
+   `UPDATE_BASELINE` festgelegten unterstützten Version,
 5. enthält den aktuellen Source-to-GitHub-Abgleich,
 6. besteht CI und die manuelle Release-Checkliste.
 
@@ -72,10 +73,11 @@ und Release werden gleichzeitig publiziert.
 - ZIP herunterladen und Prüfsumme kontrollieren.
 - `update.json` über die feste Latest-Release-URL abrufen und prüfen.
 - Neuinstallation in einer leeren Umgebung prüfen.
-- Ab dem zweiten updaterfähigen Release: Update und Rollback von der vorherigen
-  stabilen dbxApp-4-Version prüfen.
-- Falls ein Release eine dokumentierte Datenmigration enthält: Migration der
-  vorherigen stabilen dbxApp-4-DB3- und MySQL-Version prüfen.
+- Ab dem ersten Folgerelease: Update und Rollback von dbxApp 4.2.0 oder der im
+  Manifest verlangten neueren Basis prüfen.
+- Falls ein Release eine dokumentierte Datenmigration enthält: die
+  Vorwärtsmigration ab der im Manifest verlangten 4.2-Basis mit DB3 und MySQL
+  prüfen. Migrationen aus Versionen vor 4.2.0 existieren nicht.
 - Hauptabläufe entsprechend `RELEASE_CHECKLIST.md` testen.
 - Danach `main` auf die nächste `-dev`-Version setzen.
 
@@ -89,8 +91,8 @@ und Release werden gleichzeitig publiziert.
   dessen `update.json` über
   `releases/latest/download/update.json` sichtbar.
 - `dbxAdmin` vergleicht die dort angegebene stabile Version mit der lokal
-  installierten Version. Download und Installation bleiben getrennte,
-  ausdrückliche Admin-Aktionen.
+  installierten Version und der im Manifest genannten `dbxapp`-Mindestbasis.
+  Download und Installation bleiben getrennte, ausdrückliche Admin-Aktionen.
 - Veröffentlichte Releases und ihre Assets sind auf GitHub unveränderlich.
   Eine Korrektur erfolgt deshalb immer als neue Patchversion, niemals durch
   Austausch eines bestehenden ZIPs.

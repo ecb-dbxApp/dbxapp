@@ -1,0 +1,123 @@
+<?php
+namespace dbx\dbxKi;
+
+use dbx\dbxContent\dbxContentLng;
+use dbx\dbxContent\dbxContentLngSync;
+use dbx\dbxContent\dbxContentMediaUsageScope;
+
+trait dbxKiBriefingBootstrapComponentServiceTrait {
+
+   private function allowedBootstrapComponents(): array {
+      return array(
+         'alert' => array(
+            'label' => 'Hinweis',
+            'classes' => 'alert alert-info / alert-warning / alert-success',
+            'use' => 'Kurze Hinweis-, Info- oder Erfolgsbox.',
+         ),
+         'card' => array(
+            'label' => 'Cards',
+            'classes' => 'card, card-body, row, row-cols-*, g-*',
+            'use' => 'Teaser, Leistungsboxen oder Paket-/Feature-Kacheln.',
+         ),
+         'list_group' => array(
+            'label' => 'Listenbox',
+            'classes' => 'list-group, list-group-item',
+            'use' => 'Kompakte Nutzen-, Schritt- oder Funktionslisten.',
+         ),
+         'badges' => array(
+            'label' => 'Badges',
+            'classes' => 'badge text-bg-*',
+            'use' => 'Status, Kategorien, kleine Hervorhebungen.',
+         ),
+         'buttons' => array(
+            'label' => 'Buttons',
+            'classes' => 'btn btn-primary / btn-outline-primary',
+            'use' => 'CTA-Links ohne eigenes JavaScript.',
+         ),
+         'table' => array(
+            'label' => 'Tabelle',
+            'classes' => 'table table-striped table-hover',
+            'use' => 'Vergleichs- oder Preis-/Datenuebersichten.',
+         ),
+         'accordion' => array(
+            'label' => 'Akkordeon',
+            'classes' => 'accordion, accordion-item, accordion-button',
+            'use' => 'FAQ oder aufklappbare Detailbereiche.',
+         ),
+         'tabs' => array(
+            'label' => 'Tabs',
+            'classes' => 'nav nav-tabs, tab-content, tab-pane',
+            'use' => 'Alternative Sichten auf denselben Inhalt.',
+         ),
+      );
+   }
+
+   private function selectedBootstrapComponentsFromRequest(): array {
+      $raw = dbx()->get_request_var('bootstrap_components', array(), '*');
+      if (!is_array($raw)) {
+         $raw = $raw === '' ? array() : explode(',', (string) $raw);
+      }
+      $allowed = $this->allowedBootstrapComponents();
+      $out = array();
+      foreach ($raw as $key) {
+         $key = strtolower(trim((string) $key));
+         if (isset($allowed[$key]) && !in_array($key, $out, true)) {
+            $out[] = $key;
+         }
+      }
+      return $out;
+   }
+
+   /**
+    * Seite-aendern-Formular: Bootstrap-Komponenten sind hier echte
+    * FD-Felder `comp_<key>` (siehe fd/ki-briefing-page-update.fd.php),
+    * damit dbxForm ihre Auswahl per UI-State dauerhaft merken kann.
+    */
+   private function selectedBootstrapComponentsFromUpdateFields(): array {
+      $out = array();
+      foreach ($this->allowedBootstrapComponents() as $key => $meta) {
+         if (dbx()->get_request_var('comp_' . $key, '0', '*') === '1') {
+            $out[] = $key;
+         }
+      }
+      return $out;
+   }
+
+   private function buildBootstrapComponentChoices(array $selected): string {
+      $html = '';
+      foreach ($this->allowedBootstrapComponents() as $key => $meta) {
+         $checked = in_array($key, $selected, true) ? ' checked' : '';
+         $html .= '<label><input type="checkbox" name="bootstrap_components[]" value="' . $this->esc($key) . '"' . $checked . '>'
+            . '<span><strong>' . $this->esc($meta['label'] ?? $key) . '</strong><small>' . $this->esc($meta['use'] ?? '') . '</small></span></label>';
+      }
+      return $html;
+   }
+
+   private function bootstrapComponentsMeta(array $selected): array {
+      $allowed = $this->allowedBootstrapComponents();
+      $out = array();
+      foreach ($selected as $key) {
+         if (isset($allowed[$key])) {
+            $out[$key] = $allowed[$key];
+         }
+      }
+      return $out;
+   }
+
+   private function bootstrapComponentsGuide(array $selected): string {
+      $meta = $this->bootstrapComponentsMeta($selected);
+      if (!$meta) {
+         return "Keine Bootstrap-Komponenten im Content verwenden. Erlaubt sind nur normales Jodit-HTML wie h2, h3, p, ul/ol, Links und einfache Textstruktur.";
+      }
+      $lines = array(
+         'Die KI darf im Content nur diese ausgewaehlten Bootstrap-5-Komponenten verwenden:',
+         '',
+      );
+      foreach ($meta as $key => $row) {
+         $lines[] = '- `' . $key . '` (' . ($row['label'] ?? $key) . '): ' . ($row['use'] ?? '') . ' Klassen: `' . ($row['classes'] ?? '') . '`.';
+      }
+      $lines[] = '';
+      $lines[] = 'Nicht ausgewaehlte Bootstrap-Komponenten sind verboten. Kein eigenes CSS, kein eigenes JavaScript, keine Inline-Styles. HTML muss in Jodit bearbeitbar bleiben.';
+      return implode("\n", $lines);
+   }
+}

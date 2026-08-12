@@ -8,6 +8,7 @@ class dbxContentPageCacheTestApi {
       'default_design_user' => 'dbxapp',
    );
    public int $effectiveUser = 0;
+   public bool $demoMode = false;
    private string $fileDir;
    private string $baseDir;
 
@@ -33,14 +34,14 @@ class dbxContentPageCacheTestApi {
       return str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
    }
 
-   public function get_config(string $module, ?string $key = null) {
+   public function get_cfg(string $module, ?string $key = null) {
       if ($module !== 'dbx') {
          return $key === null ? array() : 'undef';
       }
       return $key === null ? $this->config : ($this->config[$key] ?? 'undef');
    }
 
-   public function set_config(string $module, array $config): int {
+   public function set_cfg(string $module, array $config): int {
       if ($module !== 'dbx') {
          return 0;
       }
@@ -86,6 +87,10 @@ class dbxContentPageCacheTestApi {
 
    public function user(): int {
       return $this->effectiveUser;
+   }
+
+   public function is_demo_mode(): bool {
+      return $this->demoMode;
    }
 }
 
@@ -302,6 +307,11 @@ if (dbxContentPageCache::isEnabled()) {
    $fail('Gast mit Warenkorb wuerde weiterhin einen gemeinsamen Cache verwenden.');
 }
 $_SESSION['dbxShop_cart'] = array();
+
+$api->demoMode = true;
+if (dbxContentPageCache::prepareFullPageRequest()) {
+   $fail('Eine Demo-Seite wurde fuer den Gastseiten-Cache vorbereitet.');
+}
 
 $deleteTree($testRoot);
 echo "OK dbxContent full-page cache\n";

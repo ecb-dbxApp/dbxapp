@@ -3,6 +3,11 @@ namespace dbx\dbxPage_admin;
 
 class dbxPage_admin {
 
+   private function unavailable(): string {
+      return dbx()->get_system_obj('dbxTPL')->get_tpl('dbx|alert-warning', array(
+         'msg' => 'Die Seiten-Administration konnte nicht geladen werden.',
+      ));
+   }
 
   public function run() {
      $uid   =dbx()->user();
@@ -14,12 +19,12 @@ class dbxPage_admin {
      switch ($action) {
        case 'list':
            $obj=dbx()->get_include_obj('dbxPage_list');
-           $content=$obj->run();
+           $content=is_object($obj) ? $obj->run() : $this->unavailable();
            break;
 
        case 'edit':
            $obj=dbx()->get_include_obj('dbxPage_edit');
-           $content=$obj->run();
+           $content=is_object($obj) ? $obj->run() : $this->unavailable();
            break;
 
        default:

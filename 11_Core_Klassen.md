@@ -48,7 +48,13 @@ Beispiel:
 ```php
 $run1 = dbx()->get_modul_var('dbx_run1', 'list');
 $db   = dbx()->get_system_obj('dbxDB');
+$cfg  = dbx()->get_cfg('dbx');
 ```
+
+Für Konfiguration existiert genau eine API: `get_cfg()` liest Basis- und
+lokale Werte, `set_cfg()` schreibt sie. Alte Parallelbezeichnungen sind nicht
+Teil der Schnittstelle. Im Demo-Modus kann `get_cfg(..., true)` eine für die
+Anzeige maskierte Kopie liefern; `set_cfg()` ist dann immer gesperrt.
 
 ## dbxWebApp
 
@@ -85,6 +91,10 @@ Template-Engine für HTML-Templates, Marker und Template-Slots.
 ## dbxDB
 
 Datenzugriff, DD-Laden, Rechte, Trace, Performance, Backup/Restore/Transfer.
+Fachliche Änderungen laufen ausschließlich über `insert()`, `update()`,
+`save()` und `delete()`. Im Demo-Modus verweigert die zentrale Rechteprüfung
+diese Methoden. Explizite Systemaufrufe mit `verify_access=0`, insbesondere
+der Session-Lebenszyklus, bleiben davon getrennt.
 
 ## dbxDD
 

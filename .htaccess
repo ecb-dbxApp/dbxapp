@@ -17,6 +17,24 @@ DirectoryIndex index.php index.html index.htm
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Die frühere Dokumentations-Subdomain wird seitenweise in den festen
+    # Bereich der Hauptdomain überführt. Der alte Pfad bleibt dabei erhalten.
+    RewriteCond %{HTTP_HOST} ^doku\.dbxapp\.de$ [NC]
+    RewriteRule ^$ https://dbxapp.de/dokumentation/ [R=301,L,NE,QSD]
+    RewriteCond %{HTTP_HOST} ^doku\.dbxapp\.de$ [NC]
+    RewriteRule ^(?:dokumentation/)?(.+?)/?$ https://dbxapp.de/dokumentation/$1 [R=301,L,NE]
+
+    # Frühere flache Dokumentations- und Tutorial-URLs behalten ein exaktes
+    # Ziel unter /dokumentation/ statt nur auf der Startseite zu landen.
+    RewriteCond %{HTTP_HOST} ^(?:www\.)?dbxapp\.de$ [NC]
+    RewriteRule ^tutorials-dbxapp/?$ https://dbxapp.de/dokumentation/ [R=301,L,NE]
+    RewriteCond %{HTTP_HOST} ^(?:www\.)?dbxapp\.de$ [NC]
+    RewriteRule ^((?:dokumentation|documentation|documentacion|tutorial)-[A-Za-z0-9_-]+)/?$ https://dbxapp.de/dokumentation/$1 [R=301,L,NE]
+    RewriteCond %{HTTP_HOST} !^(?:www\.)?dbxapp\.de$ [NC]
+    RewriteRule ^tutorials-dbxapp/?$ https://%{HTTP_HOST}/dbxapp/dokumentation/ [R=301,L,NE]
+    RewriteCond %{HTTP_HOST} !^(?:www\.)?dbxapp\.de$ [NC]
+    RewriteRule ^((?:dokumentation|documentation|documentacion|tutorial)-[A-Za-z0-9_-]+)/?$ https://%{HTTP_HOST}/dbxapp/dokumentation/$1 [R=301,L,NE]
+
     # Startseitenalias direkt (ohne Redirect-Kette) auf die kanonische URL.
     RewriteCond %{HTTP_HOST} ^(?:www\.)?dbxapp\.de$ [NC]
     RewriteRule ^home/?$ https://dbxapp.de/ [R=301,L,NE,QSD]

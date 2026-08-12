@@ -30,8 +30,8 @@
         }
     }
 
-    function allowLeaveGuardNavigation(durationMs = 2000) {
-        leaveGuardAllowUntil = Date.now() + Math.max(250, Number(durationMs) || 2000);
+    function allowLeaveGuardNavigation(durationMs = 15000) {
+        leaveGuardAllowUntil = Date.now() + Math.max(250, Number(durationMs) || 15000);
     }
 
     function isSameWebsiteNavigation(url) {
@@ -43,7 +43,7 @@
         }
     }
 
-    function allowIfInternalNavigation(url, durationMs = 2000) {
+    function allowIfInternalNavigation(url, durationMs = 15000) {
         if (!isSameWebsiteNavigation(url)) {
             return false;
         }
@@ -76,19 +76,21 @@
             if (target && target !== "_self") {
                 return;
             }
-            if (isSameWebsiteNavigation(link.href)) {
-                allowLeaveGuardNavigation();
-            }
+            // Ein normaler Link ist eine bewusste Navigation und kein
+            // Schliessen des Tabs/Fensters. Das gilt auch fuer externe Ziele.
+            allowLeaveGuardNavigation();
         }, true);
 
         document.addEventListener("submit", function (event) {
             const form = event.target;
-            if (!form || !form.action) {
+            if (!form) {
                 return;
             }
-            if (isSameWebsiteNavigation(form.action)) {
-                allowLeaveGuardNavigation();
+            const target = String(form.getAttribute("target") || "").toLowerCase();
+            if (target && target !== "_self") {
+                return;
             }
+            allowLeaveGuardNavigation();
         }, true);
 
         // Ein Reload verlaesst fachlich weder Datensatz noch Anwendung. Die
@@ -98,14 +100,17 @@
         document.addEventListener("keydown", function (event) {
             const key = String(event.key || "").toLowerCase();
             if (key === "f5" || ((event.ctrlKey || event.metaKey) && key === "r")) {
-                allowLeaveGuardNavigation(10000);
+                allowLeaveGuardNavigation();
             }
         }, true);
 
         if (window.navigation && typeof window.navigation.addEventListener === "function") {
             window.navigation.addEventListener("navigate", function (event) {
-                if (event && event.navigationType === "reload") {
-                    allowLeaveGuardNavigation(10000);
+                // Der Navigation-Event wird fuer Reload, History-Navigation
+                // und programmatische Seitenwechsel ausgeloest, nicht jedoch
+                // fuer das reine Schliessen eines Tabs oder Fensters.
+                if (event) {
+                    allowLeaveGuardNavigation();
                 }
             });
         }
@@ -290,124 +295,123 @@
     let tooltipEl = null;
     let tooltipTarget = null;
     let tooltipBound = false;
+    let tooltipStyleRequested = false;
+    let tooltipPointerTarget = null;
+    let tooltipFocusTarget = null;
+    let tooltipAttributeObserver = null;
+    let tooltipPositionFrame = 0;
+    let tooltipPositionDeadline = 0;
+    let tooltipPositionRect = "";
+    let tooltipStableFrames = 0;
+    let tooltipSuppressedTitles = [];
+    let tooltipAriaTarget = null;
+    let tooltipAriaDescription = null;
+    const TOOLTIP_ID = "dbx-utility-tooltip";
     const TOOLTIP_SELECTOR = "[data-dbx-tooltip],[data-dbx-errormsg]";
 
     function ensureTooltipStyle() {
-        if (document.getElementById("dbx-utility-tooltip-style")) return;
-        const style = document.createElement("style");
-        style.id = "dbx-utility-tooltip-style";
-        style.textContent = `
-.dbx-utility-tooltip {
-    position: fixed;
-    z-index: 2147483000;
-    min-width: 9rem;
-    max-width: min(460px, calc(100vw - 24px));
-    padding: .55rem .7rem;
-    color: #111827;
-    background: #fff1a8;
-    border: 1px solid #d2a800;
-    border-radius: .45rem;
-    box-shadow: 0 .55rem 1.25rem rgba(15, 23, 42, .22);
-    font-size: .82rem;
-    line-height: 1.35;
-    pointer-events: none;
-    white-space: normal;
-}
-.dbx-utility-tooltip::before,
-.dbx-utility-tooltip::after {
-    content: "";
-    position: absolute;
-    left: var(--dbx-tooltip-arrow-left, 22px);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-}
-.dbx-utility-tooltip::before {
-    bottom: -9px;
-    border-top: 9px solid #d2a800;
-}
-.dbx-utility-tooltip::after {
-    bottom: -8px;
-    border-top: 8px solid #fff1a8;
-}
-.dbx-utility-tooltip[data-placement="bottom"]::before {
-    top: -9px;
-    bottom: auto;
-    border-top: 0;
-    border-bottom: 9px solid #d2a800;
-}
-.dbx-utility-tooltip[data-placement="bottom"]::after {
-    top: -8px;
-    bottom: auto;
-    border-top: 0;
-    border-bottom: 8px solid #fff1a8;
-}
-.dbx-utility-tooltip[data-kind="error"] {
-    color: #4a0306;
-    background: #ffe4e6;
-    border-color: #dc3545;
-}
-.dbx-utility-tooltip[data-kind="error"]::before {
-    border-top-color: #dc3545;
-}
-.dbx-utility-tooltip[data-kind="error"]::after {
-    border-top-color: #ffe4e6;
-}
-.dbx-utility-tooltip[data-kind="error"][data-placement="bottom"]::before {
-    border-top-color: transparent;
-    border-bottom-color: #dc3545;
-}
-.dbx-utility-tooltip[data-kind="error"][data-placement="bottom"]::after {
-    border-top-color: transparent;
-    border-bottom-color: #ffe4e6;
-}
-.dbx-utility-tooltip-title {
-    display: block;
-    margin-bottom: .35rem;
-    font-weight: 700;
-}
-.dbx-utility-tooltip-list {
-    display: grid;
-    gap: .28rem;
-}
-.dbx-utility-tooltip-row {
-    display: grid;
-    grid-template-columns: max-content minmax(4.5rem, max-content) minmax(8rem, 1fr);
-    gap: .35rem .55rem;
-    align-items: start;
-}
-.dbx-utility-tooltip-id {
-    font-weight: 700;
-    white-space: nowrap;
-}
-.dbx-utility-tooltip-folder {
-    white-space: nowrap;
-    color: #1f2937;
-}
-.dbx-utility-tooltip-text,
-.dbx-utility-tooltip-title-text {
-    min-width: 0;
-}
-.dbx-utility-tooltip-empty {
-    font-weight: 600;
-}
-`;
-        document.head.appendChild(style);
+        if (tooltipStyleRequested) return;
+        tooltipStyleRequested = true;
+        if (window.dbx && typeof window.dbx.add_css === "function") {
+            window.dbx.add_css("design", "c-tooltip.css");
+        }
+    }
+
+    function closestTooltipTarget(node) {
+        const target = node && node.closest ? node.closest(TOOLTIP_SELECTOR) : null;
+        if (!target || target === tooltipEl) return null;
+        return target;
+    }
+
+    function suppressNativeTitles(target) {
+        tooltipSuppressedTitles = [];
+        let current = target;
+        while (current && current !== document.body && current !== document.documentElement) {
+            if (current.hasAttribute && current.hasAttribute("title")) {
+                tooltipSuppressedTitles.push({
+                    element: current,
+                    title: current.getAttribute("title") || ""
+                });
+                current.removeAttribute("title");
+            }
+            current = current.parentElement;
+        }
+    }
+
+    function restoreNativeTitles() {
+        tooltipSuppressedTitles.forEach(item => {
+            if (item.element && item.element.isConnected && !item.element.hasAttribute("title")) {
+                item.element.setAttribute("title", item.title);
+            }
+        });
+        tooltipSuppressedTitles = [];
+    }
+
+    function bindTooltipDescription(target) {
+        tooltipAriaTarget = target;
+        tooltipAriaDescription = target.getAttribute("aria-describedby");
+        const ids = String(tooltipAriaDescription || "").split(/\s+/).filter(Boolean);
+        if (!ids.includes(TOOLTIP_ID)) ids.push(TOOLTIP_ID);
+        target.setAttribute("aria-describedby", ids.join(" "));
+    }
+
+    function restoreTooltipDescription() {
+        if (!tooltipAriaTarget) return;
+        if (tooltipAriaDescription == null || tooltipAriaDescription === "") {
+            tooltipAriaTarget.removeAttribute("aria-describedby");
+        } else {
+            tooltipAriaTarget.setAttribute("aria-describedby", tooltipAriaDescription);
+        }
+        tooltipAriaTarget = null;
+        tooltipAriaDescription = null;
+    }
+
+    function sanitizeTooltipHtml(value) {
+        const allowed = new Set([
+            "B", "STRONG", "EM", "I", "U", "S", "SMALL", "MARK", "BR",
+            "SPAN", "DIV", "P", "H1", "H2", "H3", "H4", "H5", "H6",
+            "BLOCKQUOTE", "PRE", "HR", "UL", "OL", "LI", "DL", "DT", "DD",
+            "CODE", "KBD", "SAMP", "SUB", "SUP", "TABLE", "THEAD",
+            "TBODY", "TFOOT", "TR", "TH", "TD"
+        ]);
+        const removeEntirely = new Set([
+            "SCRIPT", "STYLE", "TEMPLATE", "IFRAME", "OBJECT", "EMBED",
+            "LINK", "META", "BASE", "FORM", "INPUT", "BUTTON", "TEXTAREA",
+            "SELECT", "OPTION", "SVG", "MATH", "IMG", "VIDEO", "AUDIO",
+            "SOURCE", "CANVAS"
+        ]);
+        const tpl = document.createElement("template");
+        tpl.innerHTML = String(value == null ? "" : value);
+
+        Array.from(tpl.content.querySelectorAll("*")).forEach(element => {
+            if (removeEntirely.has(element.tagName)) {
+                element.remove();
+                return;
+            }
+            if (!allowed.has(element.tagName)) {
+                element.replaceWith(...Array.from(element.childNodes));
+                return;
+            }
+            Array.from(element.attributes).forEach(attribute => {
+                if (attribute.name !== "class" && attribute.name !== "aria-hidden") {
+                    element.removeAttribute(attribute.name);
+                }
+            });
+        });
+
+        return tpl.innerHTML;
     }
 
     function normalizeTooltipHtml(value, asHtml) {
         let html = String(value == null ? "" : value).trim();
         if (!html || html === "{tooltip}" || html === "#tooltip#") return "";
         if (/^(?:&nbsp;|\u00a0|\s)+$/i.test(html)) return "";
-        if (!asHtml) {
-            html = escapeHtml(html);
-        }
+        html = asHtml ? sanitizeTooltipHtml(html) : escapeHtml(html);
 
         const tpl = document.createElement("template");
         tpl.innerHTML = html;
         const text = (tpl.content.textContent || "").replace(/\u00a0/g, " ").trim();
-        const hasVisualNode = !!tpl.content.querySelector("img,svg,canvas,table,ul,ol,li");
+        const hasVisualNode = !!tpl.content.querySelector("table,ul,ol,li,dl,br,hr");
         if (!text && !hasVisualNode) return "";
         return html;
     }
@@ -461,16 +465,20 @@
         const margin = 8;
         const width = tooltipEl.offsetWidth || 0;
         const height = tooltipEl.offsetHeight || 0;
-        let left = rect.left + Math.min(rect.width / 2, 28) - 22;
-        let top = rect.top - height - gap;
-        let placement = "top";
+        const center = rect.left + (rect.width / 2);
+        const spaceAbove = rect.top - margin - gap;
+        const spaceBelow = window.innerHeight - rect.bottom - margin - gap;
+        const placement = (height <= spaceAbove || spaceAbove >= spaceBelow)
+            ? "top"
+            : "bottom";
+        let top = placement === "top"
+            ? rect.top - height - gap
+            : rect.bottom + gap;
+        let left = center - (width / 2);
 
-        if (top < margin) {
-            top = rect.bottom + gap;
-            placement = "bottom";
-        }
+        top = Math.max(margin, Math.min(top, window.innerHeight - height - margin));
         left = Math.max(margin, Math.min(left, window.innerWidth - width - margin));
-        const arrowLeft = Math.max(14, Math.min(rect.left + rect.width / 2 - left - 8, width - 22));
+        const arrowLeft = Math.max(14, Math.min(center - left, width - 14));
 
         tooltipEl.dataset.placement = placement;
         tooltipEl.style.left = `${Math.round(left)}px`;
@@ -478,86 +486,157 @@
         tooltipEl.style.setProperty("--dbx-tooltip-arrow-left", `${Math.round(arrowLeft)}px`);
     }
 
+    function stopTooltipPositionTracking() {
+        if (tooltipPositionFrame) window.cancelAnimationFrame(tooltipPositionFrame);
+        tooltipPositionFrame = 0;
+        tooltipPositionDeadline = 0;
+        tooltipPositionRect = "";
+        tooltipStableFrames = 0;
+    }
+
+    function trackTooltipPosition(duration) {
+        if (!tooltipTarget || !tooltipEl || tooltipEl.hidden) return;
+        tooltipPositionDeadline = Math.max(tooltipPositionDeadline, performance.now() + (duration || 1200));
+        if (tooltipPositionFrame) return;
+
+        const update = () => {
+            tooltipPositionFrame = 0;
+            if (!tooltipTarget || !tooltipEl || tooltipEl.hidden || !tooltipTarget.isConnected) return;
+
+            const rect = tooltipTarget.getBoundingClientRect();
+            const rectKey = [rect.left, rect.top, rect.width, rect.height]
+                .map(value => Math.round(value * 10) / 10)
+                .join(":");
+            if (rectKey !== tooltipPositionRect) {
+                tooltipPositionRect = rectKey;
+                tooltipStableFrames = 0;
+                positionTooltip(tooltipTarget);
+            } else {
+                tooltipStableFrames++;
+            }
+
+            if (performance.now() < tooltipPositionDeadline && tooltipStableFrames < 12) {
+                tooltipPositionFrame = window.requestAnimationFrame(update);
+            }
+        };
+
+        tooltipPositionFrame = window.requestAnimationFrame(update);
+    }
+
     function showTooltip(target) {
         const data = tooltipData(target);
         if (!data || !data.html) return;
-        if (target.hasAttribute("title") && !target.hasAttribute("data-dbx-tooltip-title-cache")) {
-            target.setAttribute("data-dbx-tooltip-title-cache", target.getAttribute("title") || "");
-            target.removeAttribute("title");
+        if (tooltipTarget && tooltipTarget !== target) {
+            hideTooltip();
         }
         ensureTooltipStyle();
         if (!tooltipEl) {
             tooltipEl = document.createElement("div");
+            tooltipEl.id = TOOLTIP_ID;
             tooltipEl.className = "dbx-utility-tooltip";
             tooltipEl.setAttribute("role", "tooltip");
+            tooltipEl.setAttribute("data-dbx-layer", "tooltip");
+            tooltipEl.setAttribute("aria-hidden", "true");
             document.body.appendChild(tooltipEl);
+        }
+        if (tooltipTarget !== target) {
+            suppressNativeTitles(target);
+            bindTooltipDescription(target);
         }
         tooltipTarget = target;
         tooltipEl.dataset.kind = data.kind || "tooltip";
         tooltipEl.innerHTML = data.html;
         tooltipEl.style.left = "-9999px";
         tooltipEl.style.top = "-9999px";
+        if (window.dbx && dbx.uiLayer && typeof dbx.uiLayer.next === "function") {
+            tooltipEl.style.zIndex = String(dbx.uiLayer.next({
+                floor: 5000,
+                step: 20,
+                exclude: [tooltipEl]
+            }));
+        }
         tooltipEl.hidden = false;
+        tooltipEl.setAttribute("aria-hidden", "false");
         positionTooltip(target);
+        trackTooltipPosition(1200);
     }
 
     function hideTooltip(target) {
         if (target && tooltipTarget && target !== tooltipTarget) return;
-        const restoreTarget = target || tooltipTarget;
-        if (restoreTarget && restoreTarget.hasAttribute("data-dbx-tooltip-title-cache")) {
-            restoreTarget.setAttribute("title", restoreTarget.getAttribute("data-dbx-tooltip-title-cache") || "");
-            restoreTarget.removeAttribute("data-dbx-tooltip-title-cache");
-        }
+        restoreNativeTitles();
+        restoreTooltipDescription();
+        stopTooltipPositionTracking();
         tooltipTarget = null;
         if (tooltipEl) {
             tooltipEl.hidden = true;
+            tooltipEl.setAttribute("aria-hidden", "true");
         }
     }
 
     function initHtmlTooltips(root) {
+        ensureTooltipStyle();
         if (tooltipBound) return;
         tooltipBound = true;
 
+        tooltipAttributeObserver = new MutationObserver(mutations => {
+            if (!tooltipTarget) return;
+            if (!mutations.some(mutation => mutation.target === tooltipTarget)) return;
+            if (!tooltipTarget.matches(TOOLTIP_SELECTOR) || !tooltipData(tooltipTarget)) {
+                hideTooltip(tooltipTarget);
+                return;
+            }
+            showTooltip(tooltipTarget);
+        });
+        tooltipAttributeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["data-dbx-tooltip", "data-dbx-errormsg"],
+            subtree: true
+        });
+
         document.addEventListener("mouseover", function (e) {
-            const target = e.target && e.target.closest
-                ? e.target.closest(TOOLTIP_SELECTOR)
-                : null;
+            const target = closestTooltipTarget(e.target);
             if (!target || target.contains(e.relatedTarget)) return;
+            tooltipPointerTarget = target;
             showTooltip(target);
         }, true);
 
         document.addEventListener("mouseout", function (e) {
-            let target = e.target && e.target.closest
-                ? e.target.closest(TOOLTIP_SELECTOR)
-                : null;
+            let target = closestTooltipTarget(e.target);
             if (!target && tooltipTarget && (e.target === tooltipTarget || (tooltipTarget.contains && tooltipTarget.contains(e.target)))) {
                 target = tooltipTarget;
             }
             if (!target || target.contains(e.relatedTarget)) return;
+            if (tooltipPointerTarget === target) tooltipPointerTarget = null;
+            if (tooltipFocusTarget === target) return;
             hideTooltip(target);
         }, true);
 
         document.addEventListener("focusin", function (e) {
-            const target = e.target && e.target.closest
-                ? e.target.closest(TOOLTIP_SELECTOR)
-                : null;
-            if (target) showTooltip(target);
+            const target = closestTooltipTarget(e.target);
+            if (!target) return;
+            tooltipFocusTarget = target;
+            showTooltip(target);
         }, true);
 
         document.addEventListener("focusout", function (e) {
-            let target = e.target && e.target.closest
-                ? e.target.closest(TOOLTIP_SELECTOR)
-                : null;
+            let target = closestTooltipTarget(e.target);
             if (!target && tooltipTarget && (e.target === tooltipTarget || (tooltipTarget.contains && tooltipTarget.contains(e.target)))) {
                 target = tooltipTarget;
             }
-            if (target) hideTooltip(target);
+            if (!target) return;
+            if (tooltipFocusTarget === target) tooltipFocusTarget = null;
+            if (tooltipPointerTarget === target) return;
+            hideTooltip(target);
         }, true);
 
         document.addEventListener("scroll", function () {
+            tooltipPointerTarget = null;
+            tooltipFocusTarget = null;
             hideTooltip();
         }, true);
         window.addEventListener("resize", function () {
+            tooltipPointerTarget = null;
+            tooltipFocusTarget = null;
             hideTooltip();
         });
     }
@@ -915,7 +994,7 @@
             btn.type = "button";
             btn.className = "dbx-clear-btn";
             btn.setAttribute("aria-label", "Suche zurücksetzen");
-            btn.setAttribute("title", "Suche zurücksetzen");
+            btn.setAttribute("data-dbx-tooltip", "Suche zurücksetzen");
             btn.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
             wrap.appendChild(btn);
         }

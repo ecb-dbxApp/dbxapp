@@ -9,6 +9,7 @@
  */
 
 $root = dirname(__DIR__, 2);
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
 
 $fail = static function (string $message): void {
     fwrite(STDERR, "FAIL: {$message}\n");
@@ -59,10 +60,10 @@ $contracts = array(
 
 foreach ($contracts as $relative => $requiredFragments) {
     $path = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
-    $source = is_file($path) ? file_get_contents($path) : false;
-    if (!is_string($source)) {
+    if (!is_file($path)) {
         $fail("Datei fehlt: {$relative}");
     }
+    $source = dbx_test_module_source_bundle($path);
     foreach ($requiredFragments as $fragment) {
         if (!str_contains($source, $fragment)) {
             $fail("{$relative}: FD-Vertrag fehlt: {$fragment}");
@@ -79,7 +80,7 @@ foreach ($contracts as $relative => $requiredFragments) {
     }
 }
 
-$shopSource = file_get_contents(
+$shopSource = dbx_test_module_source_bundle(
     $root . '/modules/dbxShop/include/dbxShopService.class.php'
 );
 foreach (array(

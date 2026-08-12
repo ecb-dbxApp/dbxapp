@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_27___installation___updates___d_d___serverbindungen"></a></p>
 <p>Dieses Kapitel ist der verbindliche Betriebsvertrag für Neuinstallationen, Release-Updates und Datenbankänderungen. Maßgeblich ist immer die lokale Installation. Das Release-Verzeichnis ist eine daraus erzeugte, geprüfte Veröffentlichung und keine zweite Entwicklungsquelle.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md465"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md480"></a>
 Grundsatz: Die DD entscheidet, nicht die Datenbankart</h1>
 <p>Jede DD besitzt in <span class="tt">$table['server']</span> einen ausgelieferten Standardserver. Eine Installation darf diesen Standard für jede einzelne DD lokal überschreiben. Dadurch sind in derselben Installation gleichzeitig möglich:</p>
 <ul>
@@ -59,7 +59,7 @@ Grundsatz: Die DD entscheidet, nicht die Datenbankart</h1>
 <div class="line">$users = $db-&gt;select(<span class="stringliteral">&#39;dbx|dbxUser&#39;</span>, array(<span class="stringliteral">&#39;trash&#39;</span> =&gt; 0));</div>
 <div class="line">$orders = $db-&gt;select(<span class="stringliteral">&#39;dbxShop|shopOrder&#39;</span>, array(<span class="stringliteral">&#39;trash&#39;</span> =&gt; 0));</div>
 </div><!-- fragment --><p>Direkter PDO-, SQLite- oder MySQL-Code im Modul, Installer oder in einer Migration ist nicht zulässig.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md466"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md481"></a>
 Auflösung einer Serverbindung</h1>
 <p>Die lokale Konfiguration liegt ausschließlich in:</p>
 <div class="fragment"><div class="line">dbx/modules/dbx/cfg/config.local.php</div>
@@ -83,7 +83,7 @@ Auflösung einer Serverbindung</h1>
 <p>Der aktuelle Zustand kann ohne Datenmutation geprüft werden:</p>
 <div class="fragment"><div class="line">$info = $db-&gt;get_dd_server_binding_info(<span class="stringliteral">&#39;dbxShop|shopOrder&#39;</span>);</div>
 </div><!-- fragment --><p>Die Rückgabe nennt deklarierten und aufgelösten Server, Quelle und Gültigkeit.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md467"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md482"></a>
 Administration</h1>
 <p>Unter <b>System → DD-Serverbindungen</b> listet <span class="tt">dbxAdmin</span> alle gefundenen DDs. Jede DD kann unabhängig auf:</p>
 <ul>
@@ -93,7 +93,7 @@ Administration</h1>
 </ul>
 <p>gesetzt werden. Gespeichert werden nur Abweichungen. Passwörter und andere lokale Datenbankwerte werden dabei nicht neu geschrieben.</p>
 <p>Eine Zieländerung verschiebt keine Daten. Erst ein ausdrücklicher Transfer-/Migrationsprozess darf Tabellen und Datensätze auf ein anderes Ziel übertragen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md468"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md483"></a>
 Neuinstallation und Installationsschalter</h1>
 <p>Eine vollständige Installationsausgabe kann über dbxapp.de bereitgestellt werden. Produktive <span class="tt">.db3</span>-Dateien aus der Entwicklungsinstallation gehören nicht in ein öffentliches Quell- oder Updatepaket.</p>
 <p>Eine Auslieferung startet mit:</p>
@@ -111,11 +111,11 @@ Neuinstallation und Installationsschalter</h1>
 <li>Eine geheimnisfreie Zusammenfassung bestätigen und die Installation lokal aktivieren.</li>
 </ol>
 <p>Der Installer verändert keine vorhandenen Gruppen. Das persönliche Admin-Passwort wird ausschließlich mit <span class="tt">password_hash()</span> gespeichert und nie in Zusammenfassungen, Protokollen oder der lokalen Konfiguration ausgegeben. Eine bestätigte erneute Installation darf das Konto nur mit dem erneut eingegebenen persönlichen Passwort aktualisieren. Wiederholtes Ausführen erzeugt keine doppelten Seed-Datensätze.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md469"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md484"></a>
 PDO-Migration</h2>
 <p>Eine Migration wird nur angeboten, nachdem Servertyp, Host, Datenbank, Benutzer und Port erfasst wurden. Vor dem Speichern der DD-Bindungen muss eine Verbindung direkt zur Zieldatenbank gelingen. Existiert die Datenbank noch nicht, darf der Assistent sie nur nach ausdrücklicher Auswahl und mit einem dafür berechtigten Konto anlegen; anschließend wird die Verbindung zur angelegten Datenbank erneut geprüft.</p>
 <p>Erst im folgenden, getrennt bestätigten Schritt werden Zieltabellen aus den DDs erzeugt und – falls ebenfalls ausdrücklich gewählt – vorhandene DB3-Daten übertragen. Ein Verbindungs-, Anlege- oder Prüfungsfehler beendet den Ablauf vor jeder Schema- oder Datenmigration.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md470"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md485"></a>
 Hilfe im Installationsassistenten</h2>
 <p>Schritt 3 bietet zwei direkt erreichbare <span class="tt">openWin</span>-Hilfen:</p>
 <ul>
@@ -123,7 +123,7 @@ Hilfe im Installationsassistenten</h2>
 <li><b>PDO-Migration Schritt für Schritt</b> trennt Serverdaten, Verbindung, optionale Datenbankanlage, erneute Verbindungsprüfung, DD-Strukturaufbau und die ausdrücklich zu bestätigende Datenübertragung.</li>
 </ul>
 <p>Beide Hilfen werden ohne Formularübermittlung geöffnet. Sie zeigen keine Zugangsdaten und weisen klar darauf hin, dass ohne erfolgreiche Zielverbindung keine Schema- oder Datenänderung startet.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md471"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md486"></a>
 Globaler E-Mail-Betrieb</h2>
 <p><span class="tt">$config['mail_delivery_mode']</span> gilt vor allen Modulkonfigurationen:</p>
 <table class="markdownTable">
@@ -147,7 +147,11 @@ Globaler E-Mail-Betrieb</h2>
 <td class="markdownTableBodyNone">Bestellungen, Bestellstatus und Widerrufe  </td><td class="markdownTableBodyNone"><span class="tt">dbxShop.mail_from</span>  </td><td class="markdownTableBodyNone"><span class="tt">shop@dbxapp.de</span>  </td></tr>
 </table>
 <p>Beide Werte sind in Installationsschritt 6 frei eingebbar und werden zusammen mit <span class="tt">mail_profile = dbxApp</span> in der jeweiligen <span class="tt">config.local.php</span> gespeichert. Das Kontaktformular verwendet die Adresse des Anfragenden ausschließlich als <span class="tt">Reply-To</span>; dadurch bleibt der sichtbare Absender stabil und clientseitige Mailregeln können Kontakt- und Shop-Prozesse zuverlässig unterscheiden. Ist <span class="tt">force_from</span> im globalen Mailprofil aktiviert, ersetzt der Maildienst bewusst beide Modulabsender durch den globalen From-Wert.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md472"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md487"></a>
+Unterstützte Update-Basis</h1>
+<p>dbxApp 4.2.0 ist die erste unterstützte Version. <span class="tt">UPDATE_BASELINE</span> und jedes Update-Manifest schreiben diese Grenze maschinenlesbar fest. Es gibt keine Installation und keine Datenmigration aus einer Version vor 4.2.0.</p>
+<p>Der Updater selbst bleibt vollständig vorwärtsfähig: Neue Releases dürfen Produktdateien ersetzen und entfernen, DD-/dbxDB-Migrationen ausführen, Sicherungen erzeugen und Dateien sowie Datenbanken gemeinsam zurückrollen. Diese Migrationen beginnen immer bei 4.2.0 oder bei einer später im Manifest ausdrücklich verlangten Mindestversion.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md488"></a>
 Datenbankmigration eines Moduls</h1>
 <p>Eine Release-Migration liegt unter:</p>
 <div class="fragment"><div class="line">dbx/modules/{modul}/migrations/*.migration.php</div>
@@ -155,8 +159,8 @@ Datenbankmigration eines Moduls</h1>
 <div class="fragment"><div class="line">&lt;?php</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordflow">return</span> array(</div>
-<div class="line">    <span class="stringliteral">&#39;id&#39;</span> =&gt; <span class="stringliteral">&#39;my-module-4.1.0-order-index&#39;</span>,</div>
-<div class="line">    <span class="stringliteral">&#39;version&#39;</span> =&gt; <span class="stringliteral">&#39;4.1.0&#39;</span>,</div>
+<div class="line">    <span class="stringliteral">&#39;id&#39;</span> =&gt; <span class="stringliteral">&#39;my-module-4.2.1-order-index&#39;</span>,</div>
+<div class="line">    <span class="stringliteral">&#39;version&#39;</span> =&gt; <span class="stringliteral">&#39;4.2.1&#39;</span>,</div>
 <div class="line">    <span class="stringliteral">&#39;description&#39;</span> =&gt; <span class="stringliteral">&#39;Bestellstruktur auf den neuen DD-Stand bringen.&#39;</span>,</div>
 <div class="line">    <span class="stringliteral">&#39;affected_dd&#39;</span> =&gt; array(</div>
 <div class="line">        <span class="stringliteral">&#39;dbxShop|shopOrder&#39;</span>,</div>
@@ -192,10 +196,10 @@ Datenbankmigration eines Moduls</h1>
 <div class="line">    );</div>
 <div class="line">},</div>
 </div><!-- fragment --><p>Für wiederkehrende Seeds ist ein idempotenter Installationsservice zu verwenden. Migrationen dürfen keine lokalen Servernamen voraussetzen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md473"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md489"></a>
 Update-Ablauf</h1>
 <div class="fragment"><div class="line">Release prüfen</div>
-<div class="line">  -&gt; Manifest, Version, PHP, SHA-256 und ZIP-Pfade prüfen</div>
+<div class="line">  -&gt; Manifest, Update-Basis, Version, PHP, SHA-256 und ZIP-Pfade prüfen</div>
 <div class="line">  -&gt; Paket in einen abgeschotteten Stagingbereich entpacken</div>
 <div class="line">  -&gt; Benutzer kann das vorbereitete Update stoppen</div>
 <div class="line">  -&gt; betroffene Dateien und jede betroffene DD-Tabelle sichern</div>
@@ -205,7 +209,7 @@ Update-Ablauf</h1>
 <div class="line">  -&gt; Erfolg protokollieren</div>
 </div><!-- fragment --><p>Bis zum Start der Installation kann der Benutzer das vorbereitete Update vollständig stoppen. Der danach gestartete kritische DB-/Dateischritt ist bewusst nicht teilunterbrechbar. Ein Fehler löst automatisch den gemeinsamen Rollback von Datenbanktabellen und Dateien aus.</p>
 <p>Vor einer Migration wird jede betroffene DD erneut aufgelöst. Die Sicherung wird nach dem tatsächlich verwendeten Server gruppiert. Damit bleibt ein Update korrekt, wenn beispielsweise Benutzer und Bestellungen auf MySQL, Content und Sessions aber in verschiedenen DB3-Dateien liegen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md474"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md490"></a>
 Schutz gegen unbeabsichtigte Serverwechsel</h1>
 <p>Ändert ein Release den in einer DD ausgelieferten <span class="tt">$table['server']</span>, darf das Update eine bestehende Installation nicht stillschweigend auf das neue Ziel umlenken. Ohne explizite lokale Bindung wird der Updatevorgang abgelehnt.</p>
 <p>Der Betreiber entscheidet dann bewusst:</p>
@@ -214,7 +218,7 @@ Schutz gegen unbeabsichtigte Serverwechsel</h1>
 <li>Daten mit dem vorgesehenen Transferprozess auf das neue Ziel übertragen und erst danach die Bindung ändern.</li>
 </ol>
 <p>Das gilt auch für DB3-zu-MySQL- und MySQL-zu-DB3-Wechsel.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md475"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md491"></a>
 Migrations-Ledger und Rollback</h1>
 <p>Ausgeführte Migrationen werden in <span class="tt">dbxAdmin|dbxMigration</span> mit ID, Version, Modul, Checksum, Status, betroffenen Servern und Sicherungsreferenz protokolliert.</p>
 <p>Vor dem ersten Schreibschritt werden Schema, Indizes und Daten jeder betroffenen existierenden Tabelle gesichert. Beim Rollback werden:</p>
@@ -225,11 +229,12 @@ Migrations-Ledger und Rollback</h1>
 <li>der Migrationsstatus als zurückgerollt markiert;</li>
 <li>geänderte Programmdateien aus derselben Updatesicherung wiederhergestellt.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md476"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md492"></a>
 Release-Verantwortung</h1>
 <p>Die Entwicklung findet im <span class="tt">&lt;dbxapp-quellverzeichnis&gt;</span> statt. Erst ein bewusster Release-Schritt synchronisiert den geprüften Quellstand nach <span class="tt">&lt;dbxapp-release-verzeichnis&gt;</span>, erstellt Inventar, ZIP, Prüfsummen und Manifest und veröffentlicht anschließend GitHub.</p>
 <p>Installationsdaten und lokale Konfiguration werden nie von GitHub in eine bestehende Installation kopiert. Updates liefern Code, DDs und versionierte Migrationen. Die lokale DD-Serverbindung bleibt die Wahrheit der jeweiligen Installation.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md477"></a>
+<p>Dasselbe Eigentumsprinzip gilt für Menüinhalte: installationsbezogene Menü-Templates sind Kundendateien. Eine lokale Menüanpassung wird direkt in der betroffenen Installation gepflegt, nicht als Produktänderung veröffentlicht und darf von einem Update nicht überschrieben werden. Die Implementierung des Menümoduls und ihre System-Sourcen bleiben dagegen Produktdateien; Änderungen an PHP, DD, FD, JavaScript oder CSS werden ausschließlich über den geprüften Release- und Updateprozess ausgeliefert.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md493"></a>
 Abnahmematrix</h1>
 <p>Vor Veröffentlichung eines Releases müssen mindestens bestanden sein:</p>
 <ol type="1">

@@ -18,12 +18,20 @@ $fail = static function (string $message, int $code): void {
 $manualScopeAllowlist = array(
    'dbxAdmin/include/dbxUser.class.php' =>
       'verify, lock, unlock und reset_password mit RID',
+   'dbxContent_admin/include/dbxContentCmsCoreService.trait.php' =>
+      'Implementierung des gemeinsamen Scopes fuer CMS-JSON, Upload, Medien- und Sprachaktionen',
    'dbxContent_admin/include/dbxContent_cms.class.php' =>
-      'CMS-JSON, Upload, Medien- und Sprachaktionen',
+      'kleiner CMS-Einstieg ruft den gemeinsamen manuellen Scope-Guard vor dem Dispatch auf',
    'dbxContent_admin/include/dbxContent_seo.class.php' =>
       'SEO-JSON und gemeinsam genutzte CMS-Medienendpunkte',
-   'dbxKi/include/dbxKiCmsService.class.php' =>
+   'dbxKi/include/dbxKiCmsCoreService.trait.php' =>
       'zweistufige plan/execute-API mit expliziter Bestaetigung',
+   'dbxKi/include/dbxKiCmsDescribeService.trait.php' =>
+      'zweistufige plan/execute-API mit expliziter Bestaetigung',
+   'dbxKi/include/dbxKiCmsBundleService.trait.php' =>
+      'zweistufige plan/execute-API mit expliziter Bestaetigung',
+   'dbxKi/include/dbxKiModuleBriefingService.class.php' =>
+      'zweistufige Modul-preview/execute-API und gebundene Browser-Vorschau',
    'dbxLogin/include/login.class.php' =>
       'Tokenausgabe fuer erneuten Versand der Registrierung',
    'dbxLogin/include/register.class.php' =>
@@ -34,6 +42,8 @@ $manualScopeAllowlist = array(
       'JSON-Testorchestrierung mit eigenem, admininternem Aktionsscope',
    'dbxShop_admin/include/dbxShopAdmin.class.php' =>
       'Shop-Sammel-, Medien-, Installations- und Statusaktionen',
+   'dbxShop_admin/include/dbxShopAdminProductActionService.trait.php' =>
+      'Produkt-Medienaktionen erzeugen den bestehenden CMS-Scope fuer den gemeinsamen Medienendpunkt',
    'dbxWorkflow/include/dbxWorkflowEngine.class.php' =>
       'Workflow-Start und instanzgebundene Prozesskommandos',
    'dbxWorkflow_admin/include/dbxWorkflowAdmin.class.php' =>

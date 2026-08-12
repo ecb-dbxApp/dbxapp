@@ -7,7 +7,7 @@ class dbxContentTranslate {
    private static array $logged = array();
 
    public static function provider(): string {
-      $provider = strtolower(trim((string) dbx()->get_config('dbxContent', 'lng_translate_provider', 'copy')));
+      $provider = strtolower(trim((string) dbx()->get_cfg('dbxContent', 'lng_translate_provider', 'copy')));
       if ($provider === '' || $provider === 'undef') {
          return 'copy';
       }
@@ -94,13 +94,13 @@ class dbxContentTranslate {
    }
 
    private static function translateDeepL(string $text, string $from, string $to, string $context): string {
-      $key = trim((string) dbx()->get_config('dbxContent', 'lng_translate_api_key', ''));
+      $key = trim((string) dbx()->get_cfg('dbxContent', 'lng_translate_api_key', ''));
       if ($key === '') {
          self::addWarning('deepl', 'API-Key fehlt (lng_translate_api_key), Text wird kopiert.', $context, $to);
          return $text;
       }
 
-      $url = trim((string) dbx()->get_config('dbxContent', 'lng_translate_api_url', ''));
+      $url = trim((string) dbx()->get_cfg('dbxContent', 'lng_translate_api_url', ''));
       if ($url === '') {
          $url = 'https://api-free.deepl.com/v2/translate';
       }
@@ -131,18 +131,18 @@ class dbxContentTranslate {
    }
 
    private static function translateOpenAi(string $text, string $from, string $to, string $context): string {
-      $key = trim((string) dbx()->get_config('dbxContent', 'lng_translate_api_key', ''));
+      $key = trim((string) dbx()->get_cfg('dbxContent', 'lng_translate_api_key', ''));
       if ($key === '') {
          self::addWarning('openai', 'API-Key fehlt (lng_translate_api_key), Text wird kopiert.', $context, $to);
          return $text;
       }
 
-      $url = trim((string) dbx()->get_config('dbxContent', 'lng_translate_api_url', ''));
+      $url = trim((string) dbx()->get_cfg('dbxContent', 'lng_translate_api_url', ''));
       if ($url === '') {
          $url = 'https://api.openai.com/v1/chat/completions';
       }
 
-      $model = trim((string) dbx()->get_config('dbxContent', 'lng_translate_model', 'gpt-4o-mini'));
+      $model = trim((string) dbx()->get_cfg('dbxContent', 'lng_translate_model', 'gpt-4o-mini'));
       if ($model === '') {
          $model = 'gpt-4o-mini';
       }

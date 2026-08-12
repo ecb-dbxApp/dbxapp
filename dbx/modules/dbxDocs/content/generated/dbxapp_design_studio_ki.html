@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -45,9 +45,9 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="textblock"><p><a class="anchor" id="md_26___design___studio___k_i"></a></p>
 <p>Stand: 2026-07-25</p>
 <p><span class="tt">dbxDesign_admin</span> ist die verbindliche Oberfläche zum Personalisieren und Erstellen vollständiger dbxapp-Designs. Das Modul verbindet einen einfachen Wizard mit der kontrollierten Design-Pipeline von <span class="tt">dbxKi</span>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md452"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md467"></a>
 Benutzerwege</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md453"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md468"></a>
 Ohne KI</h2>
 <div class="fragment"><div class="line">Design Studio</div>
 <div class="line">  -&gt; Ausgangsdesign wählen</div>
@@ -61,7 +61,7 @@ Ohne KI</h2>
 <div class="fragment"><div class="line">?dbx_modul=dbxDesign_admin&amp;dbx_run1=list</div>
 <div class="line">?dbx_modul=dbxDesign_admin&amp;dbx_run1=wizard</div>
 </div><!-- fragment --><p>Der Wizard ändert das Ausgangsdesign niemals. Er kopiert es als eigenständige technische Grundlage, ersetzt alle harten Pfade auf das Ausgangspaket und erzeugt anschließend die neue Schale. Dadurch bleiben die vorhandenen Styles für dbxForm, dbxReport, CMS, Shop, Menüs, Ajax und openWin verfügbar, ohne dass das neue Design zur Laufzeit von privaten Dateien eines anderen Designs abhängt.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md454"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md469"></a>
 Mit KI</h2>
 <div class="fragment"><div class="line">Design Studio oder dbxKi-Hub</div>
 <div class="line">  -&gt; Design-Briefing öffnen</div>
@@ -75,7 +75,7 @@ Mit KI</h2>
 <div class="line">  -&gt; Backup, Staging, Vertragsprüfung und Aktivierung</div>
 </div><!-- fragment --><p>Einstieg:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxKi&amp;dbx_run1=briefing_design</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md455"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md470"></a>
 Warum ein neues Design immer ein eigenes Paket ist</h1>
 <p>Eine direkte Änderung von <span class="tt">dbxapp</span> oder <span class="tt">flowers</span> wäre für einen ungeübten Benutzer zwar kurzfristig einfach, würde aber Updates, Vergleiche und Wiederherstellung erschweren. Deshalb ist die Standardaktion <b>Personalisieren</b> technisch eine sichere Ableitung:</p>
 <ul>
@@ -86,7 +86,7 @@ Warum ein neues Design immer ein eigenes Paket ist</h1>
 <li>als Frontend-Standard nur nach ausdrücklicher Auswahl;</li>
 <li>neue Designs erscheinen automatisch in der bestehenden Designauswahl.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md456"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md471"></a>
 Dateivertrag</h1>
 <p>Ein vom Wizard verwaltetes Design besitzt zusätzlich <span class="tt">design.json</span>:</p>
 <div class="fragment"><div class="line">{</div>
@@ -108,7 +108,7 @@ Dateivertrag</h1>
 <div class="line">css/design-custom.css</div>
 <div class="line">design.json</div>
 </div><!-- fragment --><p>Alle übrigen Komponenten-Dateien stammen als unabhängige Kopie aus dem Ausgangsdesign.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md457"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md472"></a>
 Design-Slots</h1>
 <p>Die optionale Strukturierung erfolgt über:</p>
 <table class="markdownTable">
@@ -123,7 +123,7 @@ Design-Slots</h1>
 </table>
 <p><span class="tt">dbxTPL::replace_design_slots()</span> setzt nur Marker ein, die in der geladenen Designschale vorkommen. Fehlt ein Fragment, wird der betreffende optionale Marker leer aufgelöst. Designs ohne diese Marker bleiben byte-logisch im bisherigen Ablauf. Fragmente dürfen weder <code>[dbx:content]</code> noch weitere Design-Slots enthalten; die Laufzeit entfernt solche verschachtelten Marker vorsorglich und der Designvalidator lehnt das Paket ab.</p>
 <p>Die zentrale Erweiterung ist notwendig, weil wiederverwendbare Bereiche der Designschale eine Runtime-Verantwortung und keine Modulverantwortung sind. Es gibt keine zweite Template-Engine und keine Spezialbehandlung in <span class="tt">dbxDesign_admin</span>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md458"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md473"></a>
 dbxForm, dbxTPL, dbxDB und dbxReport</h1>
 <ul>
 <li>Der Wizard und alle Freigaben laufen über <span class="tt">dbxForm</span>.</li>
@@ -132,7 +132,7 @@ dbxForm, dbxTPL, dbxDB und dbxReport</h1>
 <li><span class="tt">dbxReport</span> wird nicht zweckentfremdet: Die Designübersicht besitzt keine DD- oder Tabellenquelle und benötigt weder DB-Pagination noch DB-Selektion.</li>
 </ul>
 <p>Damit werden die Bibliotheken nach ihrer Fachverantwortung genutzt und nicht nur formal aufgerufen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md459"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md474"></a>
 KI-Auftrags-ZIP</h1>
 <p>Ein Design-Briefing enthält:</p>
 <div class="fragment"><div class="line">00-START.md</div>
@@ -143,7 +143,7 @@ KI-Auftrags-ZIP</h1>
 <div class="line">RESULT-FORMAT.md</div>
 <div class="line">source-design/{design}/...</div>
 </div><!-- fragment --><p>Der komplette Designkontext ist enthalten. Die KI muss keine Pfade, Marker oder Abhängigkeiten erraten. <span class="tt">manifest.json</span> kennzeichnet dieses Paket mit dem Vertrag <span class="tt">dbx.design.briefing.v1</span> und verlangt als Antwort <span class="tt">dbx.design.result.v1</span>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md460"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md475"></a>
 KI-Antwort-ZIP</h1>
 <p>Die Antwort besitzt ausschließlich:</p>
 <div class="fragment"><div class="line">manifest.json</div>
@@ -157,7 +157,7 @@ KI-Antwort-ZIP</h1>
 <div class="line">  &quot;summary&quot;: &quot;Header, Branding und mobile Navigation überarbeitet&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>Es wird kein PHP und kein freier KI-Befehl ausgeführt. dbxKi übernimmt nur Dateien mit erlaubten Design-Endungen. Das Ergebnis wird auf einer Kopie im Staging aufgebaut und gegen den vollständigen Designvertrag geprüft.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md461"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md476"></a>
 Sicherheits- und Integritätsregeln</h1>
 <ol type="1">
 <li>Modulzugriff ist auf die Gruppe <span class="tt">admin</span> beschränkt.</li>
@@ -172,7 +172,7 @@ Sicherheits- und Integritätsregeln</h1>
 <li>Ein neues Design überschreibt kein vorhandenes Paket.</li>
 <li>Die KI ändert keine Module, DDs, FDs, Datenbanken oder Rechte.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md462"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md477"></a>
 Kompatibilitätsprüfung</h1>
 <p>Ein Design gilt erst als aktivierbar, wenn mindestens Folgendes erfüllt ist:</p>
 <ul>
@@ -194,7 +194,7 @@ Kompatibilitätsprüfung</h1>
 <li>schmale und breite Viewports;</li>
 <li>alle vom Ausgangsdesign angebotenen Skins.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md463"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md478"></a>
 Verantwortliche Klassen</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -208,7 +208,7 @@ Verantwortliche Klassen</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><span class="tt">dbxTPL</span>  </td><td class="markdownTableBodyNone">optionale Design-Slots in der Seitenschale  </td></tr>
 </table>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md464"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md479"></a>
 Verwandte Dokumentation</h1>
 <ul>
 <li><a class="el" href="dbxapp_design_themes_skins.html" title="Design, Themes und Skins">Design, Themes und Skins</a></li>

@@ -121,7 +121,7 @@
     input.dataset.dbxPasswordVisible = show ? "1" : "0";
     button.setAttribute("aria-pressed", show ? "true" : "false");
     button.setAttribute("aria-label", show ? "Passwort verbergen" : "Passwort anzeigen");
-    button.setAttribute("title", show ? "Passwort verbergen" : "Passwort anzeigen");
+    button.setAttribute("data-dbx-tooltip", show ? "Passwort verbergen" : "Passwort anzeigen");
 
     if (icon) {
       icon.classList.toggle("bi-eye", !show);

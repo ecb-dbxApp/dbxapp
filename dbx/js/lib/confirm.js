@@ -572,13 +572,28 @@
 
     function autoConfirmZIndex(root, opts) {
         if (opts && opts.zIndex > 0) return opts.zIndex;
+
+        if (dbx.uiLayer && typeof dbx.uiLayer.next === "function") {
+            return dbx.uiLayer.next({
+                floor: 5000,
+                step: 20,
+                elements: [
+                    opts && opts.source,
+                    opts && opts.callerEl,
+                    root,
+                    opts && opts.mountEl
+                ]
+            });
+        }
+
         let max = 5000;
         max = Math.max(max, maxAncestorZIndex(opts && opts.source));
         max = Math.max(max, maxAncestorZIndex(opts && opts.callerEl));
         max = Math.max(max, maxAncestorZIndex(root));
         max = Math.max(max, maxAncestorZIndex(opts && opts.mountEl));
         document.querySelectorAll(".dbx-window, .dbx-window-overlay, .dbx-confirm-overlay, .dbx-confirm-dialog").forEach(el => {
-            if (el.offsetParent !== null || el === document.body || el.classList.contains("dbx-confirm-overlay")) {
+            const style = window.getComputedStyle(el);
+            if (el.isConnected && style.display !== "none" && style.visibility !== "hidden" && el.getClientRects().length > 0) {
                 max = Math.max(max, numericZIndex(el));
             }
         });
@@ -591,6 +606,8 @@
 
         const overlay = document.createElement("div");
         overlay.className = "dbx-confirm-overlay";
+        overlay.setAttribute("data-dbx-layer", "confirm-overlay");
+        overlay.setAttribute("data-dbx-escape-owner", "confirm");
         overlay.style.position = "fixed";
         overlay.style.inset = "0";
         overlay.style.zIndex = String(autoConfirmZIndex(root, opts));
@@ -603,6 +620,10 @@
 
         const dialog = document.createElement("div");
         dialog.className = "dbx-confirm-dialog card shadow-lg";
+        dialog.setAttribute("data-dbx-layer", "confirm-dialog");
+        dialog.setAttribute("role", "alertdialog");
+        dialog.setAttribute("aria-modal", "true");
+        dialog.setAttribute("tabindex", "-1");
         dialog.style.width = "100%";
         dialog.style.maxWidth = "640px";
         dialog.style.border = "1px solid rgba(62, 129, 218, 0.28)";
@@ -642,6 +663,10 @@
         title.style.fontSize = "1.08rem";
         title.style.lineHeight = "1.25";
         title.style.minWidth = "0";
+
+        const ariaId = String(opts.id || "dbx-confirm").replace(/[^a-zA-Z0-9_-]/g, "-");
+        title.id = ariaId + "-title";
+        dialog.setAttribute("aria-labelledby", title.id);
 
         const btnClose = document.createElement("button");
         btnClose.type = "button";
@@ -771,6 +796,15 @@
 
         delete _dialogs[id];
 
+        const previousFocus = entry.previousFocus;
+        if (previousFocus && previousFocus.isConnected && typeof previousFocus.focus === "function") {
+            try {
+                previousFocus.focus({ preventScroll: true });
+            } catch (_) {
+                previousFocus.focus();
+            }
+        }
+
         emit("confirm:result", {
             id: id,
             action: result.action,
@@ -780,6 +814,47 @@
         });
 
         entry.resolve(result);
+    }
+
+    function topDialogEntry() {
+        let top = null;
+        let topZ = -1;
+        Object.keys(_dialogs).forEach(id => {
+            const entry = _dialogs[id];
+            const overlay = entry && entry.ui ? entry.ui.overlay : null;
+            if (!overlay || !overlay.isConnected) return;
+            const zIndex = dbx.uiLayer && typeof dbx.uiLayer.ancestorZIndex === "function"
+                ? dbx.uiLayer.ancestorZIndex(overlay)
+                : numericZIndex(overlay);
+            if (zIndex >= topZ) {
+                top = entry;
+                topZ = zIndex;
+            }
+        });
+        return top;
+    }
+
+    function dialogFocusableElements(dialog) {
+        if (!dialog) return [];
+        const selector = "button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex='-1'])";
+        return Array.from(dialog.querySelectorAll(selector)).filter(el => {
+            const style = window.getComputedStyle(el);
+            return style.display !== "none" && style.visibility !== "hidden" && el.getClientRects().length > 0;
+        });
+    }
+
+    function focusDialog(entry) {
+        if (!entry || entry.closed || topDialogEntry() !== entry) return;
+        const ui = entry.ui;
+        const target = ui.footer.querySelector("[data-confirm-action]")
+            || (entry.options.closable ? ui.btnClose : null)
+            || ui.dialog;
+        if (!target || typeof target.focus !== "function") return;
+        try {
+            target.focus({ preventScroll: true });
+        } catch (_) {
+            target.focus();
+        }
     }
 
     function continueOriginalAction(entry) {
@@ -861,7 +936,10 @@
         const opts = {
             id: str(rawOptions.id, "dbx-confirm-" + (++_uid)),
             root: ensureRoot(rawOptions.root),
-            source: rawOptions.source || rawOptions.callerEl || rawOptions.caller || null,
+            // Nur ein deklarativ erkannter `source` darf nach "yes" seine
+            // ursprüngliche Aktion fortsetzen. `callerEl` dient bei
+            // programmatischen Dialogen ausschließlich Layering und Fokus.
+            source: rawOptions.source || null,
             callerEl: rawOptions.callerEl || rawOptions.caller || rawOptions.source || null,
             mountEl: rawOptions.mountEl || null,
             zIndex: parseInt(rawOptions.zIndex, 10) || 0,
@@ -903,7 +981,8 @@
                 ui: ui,
                 resolve: resolve,
                 closed: false,
-                keyHandler: null
+                keyHandler: null,
+                previousFocus: document.activeElement
             };
 
             _dialogs[opts.id] = entry;
@@ -990,7 +1069,32 @@
 
             entry.keyHandler = function (e) {
 
+                if (topDialogEntry() !== entry) return;
+
+                if (e.key === "Tab") {
+                    const focusable = dialogFocusableElements(ui.dialog);
+                    if (!focusable.length) {
+                        e.preventDefault();
+                        ui.dialog.focus();
+                        return;
+                    }
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                    return;
+                }
+
                 if (e.key !== "Escape") return;
+
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
                 if (!opts.escclose) return;
 
                 closeDialog(entry, {
@@ -1010,6 +1114,8 @@
                 document.removeEventListener("keydown", entry.keyHandler, true);
                 oldResolve(result);
             };
+
+            focusDialog(entry);
         });
     }
 

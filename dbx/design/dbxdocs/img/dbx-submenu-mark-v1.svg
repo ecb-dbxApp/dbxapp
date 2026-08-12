@@ -1,43 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 640">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 640" role="img" aria-label="Dezente technische Leiterbahnen">
   <defs>
     <linearGradient id="fade" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
-      <stop offset="0.62" stop-color="#9ed2ff" stop-opacity="0.035"/>
-      <stop offset="1" stop-color="#68b5ff" stop-opacity="0.12"/>
+      <stop offset="0.64" stop-color="#7dc4ff" stop-opacity="0.025"/>
+      <stop offset="1" stop-color="#238ee8" stop-opacity="0.11"/>
     </linearGradient>
-    <linearGradient id="arc-red" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ff7c86" stop-opacity="0.96"/>
-      <stop offset="0.48" stop-color="#ef3340"/>
-      <stop offset="1" stop-color="#a90d1c" stop-opacity="0.94"/>
+    <linearGradient id="trace" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b9e1ff" stop-opacity="0.28"/>
+      <stop offset="0.58" stop-color="#70bdff" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#2d91e5" stop-opacity="0.9"/>
     </linearGradient>
   </defs>
 
   <rect width="420" height="640" fill="url(#fade)"/>
-
-  <g fill="none" stroke="#8fcaff" stroke-linecap="square" opacity="0.14">
-    <path d="M74 462h86l34-34h72l38-38h92"/>
-    <path d="M116 510h92l28-28h74l32-32h54"/>
-    <path d="M168 554h58l25-25h62"/>
-    <circle cx="160" cy="462" r="3" fill="#8fcaff"/>
-    <circle cx="266" cy="428" r="3" fill="#8fcaff"/>
-    <circle cx="310" cy="482" r="3" fill="#8fcaff"/>
+  <g fill="none" stroke="#9bd2ff" stroke-width="1.2" stroke-linecap="square" opacity="0.13">
+    <path d="M286 520h60l18-18h68"/>
+    <path d="M316 555h50l17-17h49"/>
+    <path d="M338 590h32l15-15h47"/>
+    <rect x="282" y="516" width="8" height="8" rx="1"/>
+    <rect x="312" y="551" width="8" height="8" rx="1"/>
+    <rect x="334" y="586" width="8" height="8" rx="1"/>
   </g>
-
-  <!-- Technisches Relief-Signet: Schatten, roter Kern und obere Lichtkante. -->
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <g stroke="#650914" opacity="0.72" transform="translate(1.5 2)">
-      <path d="M432.5 587.9 A108 108 0 0 1 367.9 652.5" stroke-width="6.5"/>
-      <path d="M415.9 600 A98 98 0 0 1 380 635.9" stroke-width="5.25"/>
+  <g fill="none" stroke-linecap="square" stroke-linejoin="miter">
+    <g stroke="#071b31" stroke-width="5" opacity="0.48" transform="translate(1.5 2)">
+      <path d="M432 557h-38l-25 25h-24"/>
+      <path d="M432 596h-22l-19 19h-20"/>
     </g>
-
-    <g stroke="url(#arc-red)">
-      <path d="M432.5 587.9 A108 108 0 0 1 367.9 652.5" stroke-width="4.75"/>
-      <path d="M415.9 600 A98 98 0 0 1 380 635.9" stroke-width="3.6"/>
+    <g stroke="url(#trace)">
+      <path d="M432 557h-38l-25 25h-24" stroke-width="3.2"/>
+      <path d="M432 596h-22l-19 19h-20" stroke-width="2.6"/>
     </g>
-
-    <g stroke="#ffd2d6" opacity="0.82" transform="translate(-0.55 -0.7)">
-      <path d="M432.5 587.9 A108 108 0 0 1 367.9 652.5" stroke-width="1.15"/>
-      <path d="M415.9 600 A98 98 0 0 1 380 635.9" stroke-width="0.9"/>
+    <g stroke="#e8f6ff" opacity="0.58" transform="translate(-0.4 -0.7)">
+      <path d="M432 557h-38l-25 25h-24" stroke-width="0.9"/>
+      <path d="M432 596h-22l-19 19h-20" stroke-width="0.75"/>
     </g>
+  </g>
+  <g fill="#80c8ff" stroke="#dff2ff" stroke-width="0.8" opacity="0.76">
+    <rect x="340" y="577" width="10" height="10" rx="1"/>
+    <rect x="366" y="610" width="10" height="10" rx="1"/>
+    <rect x="389" y="552" width="9" height="9" transform="rotate(45 393.5 556.5)"/>
+    <rect x="406" y="591" width="8" height="8" transform="rotate(45 410 595)"/>
   </g>
 </svg>

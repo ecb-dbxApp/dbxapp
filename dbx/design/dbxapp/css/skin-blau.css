@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* Skin: blau – bisheriges DBX-Standarddesign */
 :root {
     --dbx-primary:         #0d6efd;
@@ -25,8 +26,6 @@
     --dbx-report-row-striped-bg:   #e3f0ff;
 
     --dbx-menu-mobile-panel-main-bottom:   rgba(235,242,252,0.97);
-    --dbx-menu-mobile-panel-admin-top:     rgba(214,226,248,0.97);
-    --dbx-menu-mobile-panel-admin-bottom:  rgba(186,206,238,0.97);
     --dbx-bg-menu-main-top:         rgba(57,117,185,0.99);
     --dbx-bg-menu-main-bottom:      rgba(27,79,140,1);
     --dbx-bg-menu-admin-top:        rgba(31,87,141,0.99);
@@ -53,11 +52,5 @@
     --dbx-window-subbar-border:     #3b72a8;
     --dbx-window-footer-bg:         rgba(13,110,253,0.08);
 
-    --dbx-grid-header-top:          rgba(235,245,255,0.95);
-    --dbx-grid-header-bottom:       rgba(200,220,245,0.95);
-    --dbx-grid-col-top:             #e3f0ff;
-    --dbx-grid-col-bottom:          #bdd7f4;
-    --dbx-grid-col-hover-top:       #d2e6ff;
-    --dbx-grid-col-hover-bottom:    #a8c9ee;
     --dbx-grid-col-text:            #0b3a6f;
 }

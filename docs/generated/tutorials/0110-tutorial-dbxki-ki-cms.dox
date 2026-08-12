@@ -11,7 +11,6 @@
 
 @htmlonly
 <div class="dbx-tutorial-source">
-<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_dbxki_ki_cms.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
 <p class="lead">Mit dbxKi lassen sich neue CMS-Seiten vorbereiten, vorhandene Inhalte gezielt verbessern und Sprachversionen strukturiert erstellen. Dieses Tutorial zeigt den vollständigen Ablauf von der Aufgabenbeschreibung bis zur geprüften Veröffentlichung in dbxContent.</p>
 
 <div class="alert alert-primary"><strong>Grundprinzip:</strong> dbxKi arbeitet innerhalb des CMS-Ablaufs. Sie benennen Ziel, Inhalt und gewünschte Änderung; vor der Freigabe prüfen Sie Seite, Medien, Rechte und Darstellung.</div>

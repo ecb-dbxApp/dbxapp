@@ -142,14 +142,20 @@ class dbxWebApp {
      * Diese Funktion bestimmt das Protokoll, die Host-Adresse und den Port,
      * um eine vollständige URL zu generieren. Falls der Port 4221 ist,
      * wird die Basis-URL aus einer Konfigurationsdatei gelesen.
-     * 
+     *
      * Die URL wird für Performance-Zwecke zwischengespeichert und
      * kann über `dbx_get_Remember` aus dem Cache abgerufen werden.
+     *
+     * Bewusst nicht `get_base_url()` genannt: `dbx()->get_base_url()` (dbxApi.php)
+     * ist die weitverbreitete, argumentlose Fassaden-Methode, die nur den bereits
+     * berechneten Systemvar-Wert liest. Diese Methode hier berechnet ihn erst
+     * (und wird intern von `dbx()->get_base_url()` befüllt) — gleicher Name auf
+     * zwei Klassen hätte zu Verwechslungen geführt.
      *
      * @param string $uri Der URI, der an die Basis-URL angehängt wird.
      * @return string Die vollständige URL mit angehängtem URI.
      */
-    function get_base_url(string $uri): string {
+    function resolve_base_url(string $uri): string {
         $base_url = dbx()->get_remember_var('base_url', 0, 'dbx');
 
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -242,7 +248,7 @@ class dbxWebApp {
      } else {
        // create Modul cfg; 
      }
-     dbx()->set_config($modul,$config);
+     dbx()->set_cfg($modul,$config);
      return $config;
   }
 
@@ -603,7 +609,7 @@ function parse_route_url($url) {
      }
 
      if (!array_key_exists($modul, $this->actionRouteCache)) {
-        $routes = dbx()->get_config($modul, 'action_routes', array());
+        $routes = dbx()->get_cfg($modul, 'action_routes', array());
         $this->actionRouteCache[$modul] = is_array($routes) ? $routes : array();
      }
 
@@ -1203,7 +1209,7 @@ function get_self_url($permalink,$unwanted) {
 
     //dbx_debug('#OUT-GET POST' ,$_GET,$_POST);
     
-    $base_url =$this->get_base_url($base_uri);
+    $base_url =$this->resolve_base_url($base_uri);
     $permalink=$this->get_permalink($base_uri);
     $self_url =$this->get_self_url($permalink,'dbx_ajax,dbx_window,dbx_target,dbx_go');
     $go       = dbx()->get_request_var('dbx_go'    ,0,'parameter');
@@ -1323,7 +1329,7 @@ function get_self_url($permalink,$unwanted) {
       return '';
     }
 
-    $redirects = dbx()->get_config('dbxContent', 'permalink_redirects', array());
+    $redirects = dbx()->get_cfg('dbxContent', 'permalink_redirects', array());
     $redirects = is_array($redirects) && is_array($redirects[$lng] ?? null)
       ? $redirects[$lng]
       : array();
@@ -1501,7 +1507,7 @@ function get_self_url($permalink,$unwanted) {
    * @return void
    */
   function check_config() {
-    $config=dbx()->get_config('dbx');
+    $config=dbx()->get_cfg('dbx');
     if (!is_array($config)) { 
       $config=$this->create_new_cfg('dbx');
     } else {
@@ -1578,17 +1584,40 @@ function get_self_url($permalink,$unwanted) {
    */
   public function check_remember() {
     // #Session switch values 
-    //$page  =dbx()->get_remember_var('dbx_page'  ,'default','dbx');
+    $page  =dbx()->get_remember_var('dbx_page'  ,'default','dbx');
     $design=dbx()->get_remember_var('dbx_design','user'   ,'dbx');
     $edit  =dbx()->get_remember_var('dbx_edit'  ,0        ,'dbx');
     $lng   =dbx()->get_remember_var('dbx_lng'   ,'de'     ,'dbx');
     $defaultColor = dbx()->normalize_skin(
-      (string)dbx()->get_config('dbx', 'default_color', 'blau'),
+      (string)dbx()->get_cfg('dbx', 'default_color', 'blau'),
       (string)$design
     );
     $color = dbx()->get_remember_var('dbx_color', $defaultColor, 'dbx');
 
-    //$page  =dbx()->get_request_var('dbx_page'  ,$page);
+    // Der Dokumentationsmodus besitzt ein eigenes Design. Vor dem Wechsel
+    // merken wir deshalb das tatsaechliche Frontend-Design samt zugehoerigem
+    // Skin separat. Weitere Aufrufe innerhalb von dbxdocs duerfen diesen
+    // Ruecksprung nicht mit dbxdocs/hell ueberschreiben.
+    $requestedDesign = dbx()->get_request_var('dbx_design', null);
+    if (is_string($requestedDesign)
+        && strtolower(trim($requestedDesign)) === 'dbxdocs') {
+      $returnDesign = $this->normalize_documentation_return_design((string)$design);
+      if ($returnDesign !== 'dbxdocs') {
+        dbx()->set_remember_var('dbx_docs_return_design', $returnDesign, 'dbx');
+        dbx()->set_remember_var(
+          'dbx_docs_return_color',
+          dbx()->normalize_skin((string)$color, $returnDesign),
+          'dbx'
+        );
+        dbx()->set_remember_var(
+          'dbx_docs_return_page',
+          $this->normalize_documentation_return_page((string)$page),
+          'dbx'
+        );
+      }
+    }
+
+    $page  =dbx()->get_request_var('dbx_page'  ,$page);
     $design=dbx()->get_request_var('dbx_design',$design);
     $edit  =dbx()->get_request_var('dbx_edit'  ,$edit);
     $lng   =dbx()->get_request_var('dbx_lng'   ,$lng);
@@ -1603,7 +1632,13 @@ function get_self_url($permalink,$unwanted) {
       $design = 'flowers';
     }
    
-    //dbx()->set_remember_var('dbx_page'  ,$page  ,'dbx');
+    // Die Layoutseite gehört zum Designzustand. Ohne Remember-State konnte
+    // der Rückweg aus dbxdocs zwar Design und Skin umschalten, anschließend
+    // aber erneut das Dokumentationslayout auswählen.
+    if (strtolower(trim((string)$design)) !== 'dbxdocs') {
+      $page = $this->normalize_documentation_return_page((string)$page);
+      dbx()->set_remember_var('dbx_page', $page, 'dbx');
+    }
     dbx()->set_remember_var('dbx_design',$design,'dbx');
     dbx()->set_remember_var('dbx_edit'  ,$edit  ,'dbx');  
     dbx()->set_remember_var('dbx_lng'   ,$lng   ,'dbx');  
@@ -1613,6 +1648,8 @@ function get_self_url($permalink,$unwanted) {
     dbx()->set_system_var('dbx_edit'  , $edit);
     dbx()->set_system_var('dbx_lng'   , $lng);
     dbx()->set_system_var('dbx_color' , $color);
+    dbx()->set_system_var('dbx_page'  , $page);
+    dbx()->set_system_var('dbx_docs_return_url', $this->documentation_return_url());
     dbx()->set_system_var('dbx_last_editor_tpl_paths', array());
 
   }
@@ -1638,7 +1675,7 @@ function get_self_url($permalink,$unwanted) {
         return (int) $requestRoot;
      }
 
-     $configRoot = dbx()->get_config('dbxContent', 'root');
+     $configRoot = dbx()->get_cfg('dbxContent', 'root');
      if ($configRoot === 'undef' || $configRoot === '') {
         return 0;
      }
@@ -1682,6 +1719,75 @@ function get_self_url($permalink,$unwanted) {
      dbx()->debug("#PERMALINK set dbxContent mode=($mode) root=($root) cid=($cid) source=($source)");
   }
 
+  /**
+   * Liefert den sicheren Ruecksprung aus der Dokumentation zur Website.
+   *
+   * Design und Skin stammen ausschliesslich aus validiertem Remember-State.
+   * Ein manipuliertes oder inzwischen entferntes Design faellt auf das
+   * konfigurierte Benutzerdesign zurueck.
+   */
+  public function documentation_return_url(): string {
+    $config = dbx()->get_cfg('dbx');
+    $defaultDesign = (string)($config['default_design_user'] ?? 'dbxapp');
+    $design = $this->normalize_documentation_return_design((string)dbx()->get_remember_var(
+      'dbx_docs_return_design',
+      $defaultDesign,
+      'dbx'
+    ));
+    if ($design === 'dbxdocs') {
+      $design = $this->normalize_documentation_return_design($defaultDesign);
+    }
+    $skin = dbx()->normalize_skin(
+      (string)dbx()->get_remember_var('dbx_docs_return_color', '', 'dbx'),
+      $design
+    );
+    $page = $this->normalize_documentation_return_page((string)dbx()->get_remember_var(
+      'dbx_docs_return_page',
+      'default',
+      'dbx'
+    ));
+
+    return $this->append_route_params(
+      rtrim((string)dbx()->get_base_url(), '/') . '/',
+      array('dbx_design' => $design, 'dbx_color' => $skin, 'dbx_page' => $page)
+    );
+  }
+
+  /** Normalisiert die Layoutseite für den Rücksprung aus der Dokumentation. */
+  private function normalize_documentation_return_page(string $page): string {
+    $page = trim($page);
+    if ($page === '' || !preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/', $page)) {
+      return 'default';
+    }
+    return $page;
+  }
+
+  /**
+   * Normalisiert ein Ruecksprungdesign ohne unsichere Verzeichniswerte.
+   */
+  private function normalize_documentation_return_design(string $design): string {
+    $config = dbx()->get_cfg('dbx');
+    $design = trim($design);
+    $key = strtolower($design);
+    if ($key === 'user') {
+      $design = (string)($config['default_design_user'] ?? 'dbxapp');
+    } elseif ($key === 'admin') {
+      $design = (string)($config['default_design_admin'] ?? 'dbxapp');
+    } elseif ($key === 'fleurop') {
+      $design = 'flowers';
+    }
+
+    if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/', $design)
+        || !dbx()->is_design($design)) {
+      $design = (string)($config['default_design_user'] ?? 'dbxapp');
+    }
+    if (!dbx()->is_design($design)) {
+      $design = 'dbxapp';
+    }
+
+    return $design;
+  }
+
   /** Wählt im dbxdocs-Design das serverseitige dbx_page des Bereichs. */
   private function apply_docs_page_layout(
      int $cid = 0,
@@ -1691,7 +1797,7 @@ function get_self_url($permalink,$unwanted) {
   ): void {
      $design = strtolower(trim((string)dbx()->get_system_var('dbx_design', '')));
      if ($design === '' || $design === 'user') {
-        $design = strtolower(trim((string)dbx()->get_config('dbx', 'default_design_user', 'dbxapp')));
+        $design = strtolower(trim((string)dbx()->get_cfg('dbx', 'default_design_user', 'dbxapp')));
      }
      if ($design !== 'dbxdocs') {
         return;
@@ -1834,7 +1940,7 @@ function get_self_url($permalink,$unwanted) {
 
 
 
-     $check_perma=dbx()->get_config('dbx','permalink');
+     $check_perma=dbx()->get_cfg('dbx','permalink');
      if ($permalink > ' ' && $check_perma) {
        //$permalink=strtolower($permalink);
        dbx()->debug("##Permalink## ($permalink) Lng=($lng) check content#");
@@ -1846,9 +1952,7 @@ function get_self_url($permalink,$unwanted) {
           // Sprachspezifische Permalinks tragen ihre Sprache bereits eindeutig
           // in der Content-Tabelle. Dadurch bleiben saubere URLs ohne
           // dbx_lng-Query auch fuer Suchmaschinen direkt erreichbar.
-          $accessibleLngs = function_exists('dbx_accessible_lngs')
-             ? dbx_accessible_lngs()
-             : array($lng);
+          $accessibleLngs = dbx()->accessible_lngs();
           foreach ($accessibleLngs as $candidateLng) {
              $candidateLng = strtolower(trim((string)$candidateLng));
              if ($candidateLng === '' || $candidateLng === $lng) {
@@ -1925,7 +2029,7 @@ function get_self_url($permalink,$unwanted) {
    */
   public function check_design() {
     $admin =dbx()->can('admin');
-    $config=dbx()->get_config('dbx');
+    $config=dbx()->get_cfg('dbx');
     $user_default = (string)($config['default_design_user'] ?? 'dbxapp');
     $admin_default= (string)($config['default_design_admin'] ?? 'dbxapp');
     $construct    = (int)($config['construct'] ?? 0);
@@ -1941,7 +2045,8 @@ function get_self_url($permalink,$unwanted) {
     //$page          = dbx()->get_remember_var('dbx_page' , 'default'    ,'dbx');
     $page          = dbx()->get_system_var('dbx_page' , 'default');
     $modul         = dbx()->get_system_var('dbx_modul'); 
-    $admin_modul   = dbx()->has_text($modul,'_admin');
+    $admin_modul   = $this->is_admin_route_module((string)$modul)
+      || $this->is_admin_only_module((string)$modul);
     
     
     if (!dbx()->is_design($design)) {
@@ -1995,12 +2100,47 @@ function get_self_url($permalink,$unwanted) {
 
 
   /**
+   * Erkennt Systemrouten, die zwingend im konfigurierten Admin-Design laufen.
+   *
+   * Das zentrale Modul heißt historisch `dbxAdmin` und trägt deshalb – anders
+   * als die fachlichen Verwaltungsvarianten (`*_admin`) – kein Suffix. Eine
+   * zentrale Erkennung verhindert, dass ein Wechsel aus einem Frontend- oder
+   * Dokumentationsdesign die Admin-Oberfläche im falschen Design rendert.
+   */
+  public function is_admin_route_module(string $modul): bool {
+    $modul = strtolower(trim($modul));
+    return $modul === 'dbxadmin' || str_ends_with($modul, '_admin');
+  }
+
+  /**
+   * Erkennt Module, deren Konfiguration ausschließlich die Gruppe `admin`
+   * zulässt. Das deckt bewusst Module wie dbxSelfTest ab, die Teil der
+   * Administration sind, aber aus historischen Gründen kein `_admin`-Suffix
+   * besitzen.
+   */
+  public function is_admin_only_module(string $modul): bool {
+    $modul = trim($modul);
+    if ($modul === '') return false;
+    $groups = dbx()->get_cfg($modul, 'groups');
+    if (is_string($groups)) {
+      $groups = preg_split('/\s*,\s*/', strtolower(trim($groups)), -1, PREG_SPLIT_NO_EMPTY);
+    }
+    if (!is_array($groups)) return false;
+    $groups = array_values(array_unique(array_map(
+      static fn($group): string => strtolower(trim((string)$group)),
+      $groups
+    )));
+    return $groups === array('admin');
+  }
+
+
+  /**
    * Prueft und speichert die aktive Sprache.
    *
    * @return void
    */
   public function check_lng() {
-    $config=dbx()->get_config('dbx');
+    $config=dbx()->get_cfg('dbx');
     $lng_default   =$config['default_lng'];
     $lng_accessible=$config['accessible_lng'];
     $lng=dbx()->get_system_var('dbx_lng',dbx()->get_remember_var('dbx_lng',$lng_default,'dbx'));
@@ -2139,14 +2279,30 @@ function get_self_url($permalink,$unwanted) {
         $oTPL=dbx()->get_system_obj('dbxTPL');
         $content=$oTPL->get_design_tpl($design,$page,$lng,'htm',1);
 
-        if (defined('dbxRunAsAdmin') && (int) constant('dbxRunAsAdmin') === 1) {
+        if (dbx()->is_admin_bypass_active()) {
           $admin_bypass_alert=$oTPL->get_tpl('dbx|alert-warning', array(
             'msg' => 'Admin Bypass ist aktiv'
           ));
           $modul_content=$admin_bypass_alert.'<br>'.$modul_content;
         }
 
+        if (dbx()->is_demo_mode()) {
+          $demo_alert=$oTPL->get_tpl('dbx|alert-warning', array(
+            'msg' => 'Demo-Modus: Nur Ansicht. Änderungen sind gesperrt und Geheimnisse werden als ****** angezeigt.'
+          ));
+          $modul_content=$demo_alert.'<br>'.$modul_content;
+        }
+
         $content = (str_replace("[dbx:content]",$modul_content,$content));
+        if (dbx()->is_demo_mode()) {
+          $content=(string)preg_replace('/<body\b/i', '<body data-dbx-demo-mode="read-only"', $content, 1);
+          if (stripos($content, 'dbx/js/lib/demoMode.js') === false) {
+            $demoModeFile = dirname(__DIR__) . '/js/lib/demoMode.js';
+            $demoModeRevision = is_file($demoModeFile) ? (string) filemtime($demoModeFile) : '0';
+            $script='<script src="dbx/js/lib/demoMode.js?v=' . rawurlencode(dbx()->get_version() . '-' . $demoModeRevision) . '"></script>';
+            $content=(string)preg_replace('/<\/body>/i', $script.'</body>', $content, 1);
+          }
+        }
     } else {
         $content=$modul_content;
     }
@@ -2229,7 +2385,7 @@ function get_self_url($permalink,$unwanted) {
 
     $html  = '<div id="dbxEditorFilesMenu" class="dbx-editor-files-menu" ';
     $html .= 'style="display:none;">';
-    $html .= '<button type="button" class="dbx-editor-files-count" title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '" ';
+    $html .= '<button type="button" class="dbx-editor-files-count" data-dbx-tooltip="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '" ';
     $html .= 'onclick="this.parentElement.classList.toggle(\'is-open\')" ';
     $html .= 'style="display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:4px 8px;border:1px solid rgba(0,0,0,.18);border-radius:4px;background:#212529;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.18);">';
     $html .= '<i class="bi bi-pencil-square"></i><span>' . count($files) . '</span></button>';

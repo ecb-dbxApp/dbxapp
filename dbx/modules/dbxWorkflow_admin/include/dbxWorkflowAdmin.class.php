@@ -344,12 +344,12 @@ class dbxWorkflowAdmin {
             . '<span class="dbx-workflow-node-port is-in" aria-hidden="true"></span>'
             . '<details class="dbx-workflow-step-details"' . (!$isEmpty ? ' open' : '') . '>'
             . '<summary class="dbx-workflow-step-summary">'
-            . '<button class="dbx-workflow-drag-handle" type="button" draggable="true" data-workflow-drag-handle title="' . $this->h($texts->get_fd_message('step_move')) . '" aria-label="' . $this->h($texts->get_fd_message('step_move')) . '"><i class="bi bi-grip-vertical"></i></button>'
+            . '<button class="dbx-workflow-drag-handle" type="button" draggable="true" data-workflow-drag-handle data-dbx-tooltip="' . $this->h($texts->get_fd_message('step_move')) . '" aria-label="' . $this->h($texts->get_fd_message('step_move')) . '"><i class="bi bi-grip-vertical"></i></button>'
             . '<span class="dbx-workflow-step-num" data-workflow-step-number>' . str_pad((string)($i + 1), 2, '0', STR_PAD_LEFT) . '</span>'
             . '<span class="dbx-workflow-step-kind"><i class="bi ' . $this->h($kindIcon) . '" data-workflow-kind-icon></i><span data-workflow-kind-label>' . $this->h($kindLabel) . '</span></span>'
             . '<span class="dbx-workflow-step-caption"><strong data-workflow-step-title>' . $this->h($label !== '' ? $label : $texts->get_fd_message('new_task')) . '</strong><small data-workflow-step-result>' . $this->h($event !== '' ? $event : $texts->get_fd_message('no_result')) . '</small></span>'
             . '<span class="dbx-workflow-auto-badge" data-workflow-auto-badge' . ($automation === 'observe' ? '' : ' hidden') . '><i class="bi bi-stars"></i> ' . $this->h($texts->get_fd_message('automation_badge')) . '</span>'
-            . '<button class="dbx-workflow-remove-step" type="button" data-workflow-remove-step title="' . $this->h($texts->get_fd_message('step_remove')) . '" aria-label="' . $this->h($texts->get_fd_message('step_remove')) . '"><i class="bi bi-trash3"></i></button>'
+            . '<button class="dbx-workflow-remove-step" type="button" data-workflow-remove-step data-dbx-tooltip="' . $this->h($texts->get_fd_message('step_remove')) . '" aria-label="' . $this->h($texts->get_fd_message('step_remove')) . '"><i class="bi bi-trash3"></i></button>'
             . '</summary>'
             . '<div class="dbx-workflow-step-main">'
             . '<div class="row g-2 align-items-end">'
@@ -963,7 +963,7 @@ class dbxWorkflowAdmin {
 
    private function instance_percent_bar(int $percent): string {
       $percent = max(0, min(100, $percent));
-      return '<div class="dbx-workflow-instance-progress" title="' . $percent . '%">'
+      return '<div class="dbx-workflow-instance-progress" data-dbx-tooltip="' . $percent . '%">'
          . '<div class="dbx-workflow-instance-progress-bar" style="width:' . $percent . '%"></div>'
          . '<span>' . $percent . '%</span>'
          . '</div>';

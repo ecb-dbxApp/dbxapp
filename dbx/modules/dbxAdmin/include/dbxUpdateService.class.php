@@ -9,16 +9,18 @@ use Throwable;
 use ZipArchive;
 
 /**
- * Sicherer dbxApp Release-Updater fuer Dateien und optionale DB-Migrationen.
+ * Sicherer dbxApp Release-Updater fuer Produktdateien.
  *
  * Runtime-Daten und lokale Konfiguration bleiben aus Paketen ausgeschlossen.
- * Datenbankarbeit wird ausschliesslich an den zentralen DD/dbxDB-Adapter
- * delegiert und gemeinsam mit dem Datei-Backup zurueckgerollt.
+ * UPDATE_BASELINE definiert die erste unterstuetzte Installation. Der
+ * Datenbankadapter ist ausschliesslich fuer kuenftige Vorwaertsmigrationen ab
+ * dieser Basis vorgesehen; Upgradepfade aus Vorversionen existieren nicht.
  */
 class dbxUpdateService
 {
    private const PRODUCT = 'dbxapp';
    private const CHANNEL = 'stable';
+   private const RELEASE_SCHEMA = 2;
    private const OWNER_REPOSITORY = 'ecb-dbxApp/dbxapp';
    private const MAX_MANIFEST_BYTES = 1048576;
    private const MAX_PACKAGE_BYTES = 268435456;
@@ -71,11 +73,7 @@ class dbxUpdateService
     */
    public static function configured(): self
    {
-      $config = dbx()->get_config('dbxAdmin');
-      dbx()->get_include_obj('dbxDatabaseMigrationService', 'dbxAdmin');
-      dbx()->get_include_obj('dbxUpdateDatabaseAdapter', 'dbxAdmin');
-      $databaseAdapter = new dbxUpdateDatabaseAdapter();
-
+      $config = dbx()->get_cfg('dbxAdmin');
       return new self(
          '',
          is_array($config)
@@ -83,8 +81,7 @@ class dbxUpdateService
             : '',
          is_array($config)
             ? (int)($config['update_cache_ttl'] ?? 21600)
-            : 21600,
-         $databaseAdapter
+         : 21600
       );
    }
 
@@ -103,9 +100,19 @@ class dbxUpdateService
       $installed = $this->readJson($this->workDirectory . DIRECTORY_SEPARATOR . 'installed.json');
       $manifest = is_array($cached['manifest'] ?? null) ? $cached['manifest'] : array();
       $current = $this->currentVersion();
+      if ($manifest !== array()) {
+         try {
+            $manifest = $this->validateManifest($manifest);
+         } catch (Throwable) {
+            // Veraltete oder unvollstaendige Cache-Dateien duerfen weder das
+            // Dashboard stoeren noch ein nicht kompatibles Update anbieten.
+            $manifest = array();
+         }
+      }
 
       return array(
          'current_version' => $current,
+         'update_baseline' => $this->updateBaseline(),
          'available_version' => (string)($manifest['version'] ?? ''),
          'update_available' => isset($manifest['version'])
             && version_compare((string)$manifest['version'], $current, '>'),
@@ -186,7 +193,7 @@ class dbxUpdateService
     */
    public function validateManifest(array $manifest): array
    {
-      if ((int)($manifest['schema'] ?? 0) !== 1
+      if ((int)($manifest['schema'] ?? 0) !== self::RELEASE_SCHEMA
          || (string)($manifest['product'] ?? '') !== self::PRODUCT
          || (string)($manifest['channel'] ?? '') !== self::CHANNEL) {
          throw new RuntimeException('Das Update-Manifest gehört nicht zum stabilen dbxApp-Kanal.');
@@ -214,6 +221,24 @@ class dbxUpdateService
       $requires = is_array($manifest['requires'] ?? null)
          ? $manifest['requires']
          : array();
+      $dbxRequirement = trim((string)($requires['dbxapp'] ?? ''));
+      if (!preg_match('/^>=\d+\.\d+\.\d+$/', $dbxRequirement)) {
+         throw new RuntimeException('Die dbxApp-Basis im Manifest ist ungueltig.');
+      }
+      $minimumDbx = substr($dbxRequirement, 2);
+      $baseline = $this->updateBaseline();
+      if (version_compare($minimumDbx, $baseline, '<')) {
+         throw new RuntimeException(
+            'Das Update-Manifest enthaelt einen nicht unterstuetzten Altversionspfad.'
+         );
+      }
+      $currentStable = preg_replace('/-dev$/', '', $this->currentVersion());
+      if (!is_string($currentStable)
+         || version_compare($currentStable, $minimumDbx, '<')) {
+         throw new RuntimeException(
+            'Das Update benoetigt mindestens dbxApp ' . $minimumDbx . '.'
+         );
+      }
       $phpRequirement = trim((string)($requires['php'] ?? '>=8.2'));
       if (!preg_match('/^>=\d+\.\d+(?:\.\d+)?$/', $phpRequirement)) {
          throw new RuntimeException('Die PHP-Anforderung im Manifest ist ungültig.');
@@ -242,6 +267,7 @@ class dbxUpdateService
       $manifest['version'] = $version;
       $manifest['sha256'] = $hash;
       $manifest['requires'] = array(
+         'dbxapp' => $dbxRequirement,
          'php' => $phpRequirement,
          'extensions' => array_values($extensions),
       );
@@ -416,7 +442,7 @@ class dbxUpdateService
             $files[] = $relative;
          }
 
-         foreach (array('VERSION', 'index.php', 'dbx/include/dbxApi.php', '.dbx-release-files.json') as $required) {
+         foreach (array('VERSION', 'UPDATE_BASELINE', 'index.php', 'dbx/include/dbxApi.php', '.dbx-release-files.json') as $required) {
             if (!in_array($required, $files, true)) {
                throw new RuntimeException('Im Update-Paket fehlt ' . $required . '.');
             }
@@ -430,9 +456,10 @@ class dbxUpdateService
          $inventoryJson = $zip->getFromName('.dbx-release-files.json');
          $inventory = json_decode((string)$inventoryJson, true);
          if (!is_array($inventory)
-            || (int)($inventory['schema'] ?? 0) !== 1
+            || (int)($inventory['schema'] ?? 0) !== self::RELEASE_SCHEMA
             || (string)($inventory['product'] ?? '') !== self::PRODUCT
             || (string)($inventory['version'] ?? '') !== $manifest['version']
+            || (string)($inventory['minimum_source_version'] ?? '') !== substr((string)$manifest['requires']['dbxapp'], 2)
             || !is_array($inventory['files'] ?? null)) {
             throw new RuntimeException('Das Update-Paket enthält kein gültiges Datei-Inventar.');
          }
@@ -793,7 +820,7 @@ class dbxUpdateService
       $inventory = $this->readJson(
          $this->root . DIRECTORY_SEPARATOR . '.dbx-release-files.json'
       );
-      if ((int)($inventory['schema'] ?? 0) !== 1
+      if ((int)($inventory['schema'] ?? 0) !== self::RELEASE_SCHEMA
          || (string)($inventory['product'] ?? '') !== self::PRODUCT
          || !is_array($inventory['files'] ?? null)) {
          return array();
@@ -834,6 +861,23 @@ class dbxUpdateService
       $version = is_file($versionFile) ? trim((string)file_get_contents($versionFile)) : '';
       if (!preg_match('/^\d+\.\d+\.\d+(?:-dev)?$/', $version)) {
          throw new RuntimeException('Die lokal installierte VERSION ist ungültig.');
+      }
+      $stable = preg_replace('/-dev$/', '', $version);
+      if (!is_string($stable)
+         || version_compare($stable, $this->updateBaseline(), '<')) {
+         throw new RuntimeException(
+            'Diese Installation liegt vor der ersten unterstuetzten Update-Basis.'
+         );
+      }
+      return $version;
+   }
+
+   private function updateBaseline(): string
+   {
+      $file = $this->root . DIRECTORY_SEPARATOR . 'UPDATE_BASELINE';
+      $version = is_file($file) ? trim((string)file_get_contents($file)) : '';
+      if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
+         throw new RuntimeException('UPDATE_BASELINE ist ungueltig oder fehlt.');
       }
       return $version;
    }

@@ -8,7 +8,7 @@ $table['table']='dbx_performance_request';
 $table['datadic']='dbxPerformanceRequest';
 $table['primary']='';
 $table['language']='';
-$table['version']='1';
+$table['version']='2';
 $table['autosync']='1';
 $table['cache']='0';
 $table['trash']='0';
@@ -50,6 +50,13 @@ foreach (array(
    array('total_memory_kb', 'int', '', '11', '0', 'Memory KB', 'int'),
    array('peak_memory_mb', 'int', '', '11', '0', 'End Memory MB', 'int'),
    array('timer_count', 'int', '', '11', '0', 'Timer', 'int'),
+   array('query_count', 'int', 'MU', '11', '0', 'Queries', 'int'),
+   array('query_unique_count', 'int', '', '11', '0', 'Query-Strukturen', 'int'),
+   array('query_duplicate_count', 'int', 'MU', '11', '0', 'Query-Duplikate', 'int'),
+   array('slow_query_count', 'int', 'MU', '11', '0', 'Langsame Queries', 'int'),
+   array('failed_query_count', 'int', '', '11', '0', 'Fehlgeschlagene Queries', 'int'),
+   array('query_time_ms', 'int', 'MU', '11', '0', 'Query-Zeit ms', 'int'),
+   array('query_affected_rows', 'int', '', '11', '0', 'Betroffene Zeilen', 'int'),
    array('sample_rate', 'int', '', '11', '1', 'Sample Rate', 'int'),
 ) as $def) {
    $field['name']=$def[0];

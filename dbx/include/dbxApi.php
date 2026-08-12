@@ -3,20 +3,16 @@
  * @file dbxApi.php
  * Zentrale Laufzeit-API und Kernel-Helfer.
  *
- * Neue DBX-Entwicklung soll ueber `dbx()` und die Methoden von dbxApi laufen.
- * Allgemeine Laufzeitfunktionen werden als Methoden dieser API bereitgestellt.
- * Verbleibende globale Fachhelfer werden schrittweise auf `dbx()` umgestellt.
+ * Anwendungscode laeuft ausschliesslich ueber `dbx()` und die Methoden
+ * dieser Klasse. Freie globale dbx_*-Funktionen existieren bewusst nicht
+ * mehr - einzige Ausnahme sind dbx_get_base_dir()/dbx_get_file_dir() in
+ * index.php, die den Installationspfad liefern muessen, bevor dbxApi.php
+ * ueberhaupt geladen werden kann.
  */
 
 //include_once $this->os_path($this->get_base_dir().'dbx/add_ons/sftp/vendor/autoload.php');
-//use phpseclib3\Crypt\AES;
-use \phpseclib3\Crypt\AES;
 
 Global $_dbxCache;
-
-function dbx_log_missing_entry($missing = '') {
-   return function_exists('dbx') ? (int) dbx()->log_missing($missing) : 0;
-}
 
 /**
  * Zentrale Laufzeit-API von dbXapp.
@@ -38,6 +34,17 @@ function dbx_log_missing_entry($missing = '') {
  */
 class dbxApi {
 
+   /** Zustandsbehaftete Builder werden niemals im Service-Cache geteilt. */
+   private const FACTORY_SYSTEM_CLASSES = array(
+      'dbxForm',
+      'dbxReport',
+      'dbxView',
+      'dbxProcess',
+   );
+
+   /** Flüchtiger, nicht sessiongebundener Laufzeitkontext. */
+   private ?dbxRequestContext $request_context = null;
+
    /** Dateien, die im aktuellen Request fuer den Editor markiert werden. */
    public array $editor_files = array();
 
@@ -58,6 +65,14 @@ class dbxApi {
 
    /** Schutz gegen rekursives Laden des administrativen Benutzerkontexts. */
    private bool $admin_bypass_user_loading = false;
+
+   /** Installierte dbxapp-Version; wird pro Request genau einmal aus VERSION gelesen. */
+   private ?string $installed_version = null;
+
+   /** Fuer die aktuelle Seite registrierte Modul-CSS/JS-Dateien (add_css()/add_js()). */
+   private array $module_asset_queue = array('css' => array(), 'js' => array());
+
+   /** Separater, niemals als Admin-Login behandelter Nur-Lese-Demomodus. */
 
    /**
     * Legt ein Owner-Objekt auf den Callback-Stack.
@@ -170,7 +185,8 @@ class dbxApi {
          throw new Exception("Invalid system class name '$class'.");
       }
 
-      if (isset($_dbxCache[$class])) {
+      $factory = in_array($class, self::FACTORY_SYSTEM_CLASSES, true);
+      if (!$factory && isset($_dbxCache[$class])) {
          return !$use ? $_dbxCache[$class] : null;
       }
 
@@ -199,11 +215,26 @@ class dbxApi {
       }
 
       if (class_exists($createClass)) {
-         $_dbxCache[$class] = new $createClass();
-         return $_dbxCache[$class];
+         $object = new $createClass();
+         if ($factory) {
+            return $object;
+         }
+         $_dbxCache[$class] = $object;
+         return $object;
       }
 
       throw new Exception("Klasse '$createClass' konnte nicht geladen werden.");
+   }
+
+   /** Liefert den flüchtigen Zustand des aktuellen Requests. */
+   public function request_context(): dbxRequestContext {
+      if ($this->request_context === null) {
+         require_once $this->os_path(
+            $this->get_base_dir() . 'dbx/include/dbxRequestContext.class.php'
+         );
+         $this->request_context = new dbxRequestContext();
+      }
+      return $this->request_context;
    }
 
    /**
@@ -317,7 +348,7 @@ class dbxApi {
    
       // Admin-spezifisches Design anwenden, falls Modul ein Admin-Modul ist
       if (stripos($class, 'admin') !== false) {
-          //$admin_design = $this->get_config('dbx', 'default_design_admin');
+          //$admin_design = $this->get_cfg('dbx', 'default_design_admin');
           //$this->set_system_var('dbx_design', $admin_design);
       }
    
@@ -448,7 +479,7 @@ class dbxApi {
     *
     * @param string $varname Name der Systemvariable.
     * @param mixed $default Rueckgabe, wenn kein gueltiger Wert existiert.
-    * @param string $rules Validierungsregel fuer dbx_validate_var().
+    * @param string $rules Validierungsregel fuer validate_var().
     * @return mixed Validierter Wert oder Default.
     */
    public function get_system_var(string $varname, $default = '', string $rules = '*') {
@@ -457,8 +488,9 @@ class dbxApi {
       $danger_value = '';
    
       // ÃœberprÃ¼fen, ob die Variable in der Session vorhanden ist
-      if (isset($_SESSION['dbx']['tmp'][0]['dbx'][$varname])) {
-          $danger_value = $_SESSION['dbx']['tmp'][0]['dbx'][$varname];
+      $context = $this->request_context();
+      if ($context->hasSystem($varname)) {
+          $danger_value = $context->system($varname);
       } else {
           // Wenn nicht, nach der Variable in GET oder POST suchen
           if (isset($_GET[$varname])) {
@@ -471,7 +503,7 @@ class dbxApi {
    
       // Wenn ein Wert vorhanden und gÃ¼ltig ist, validieren und zurÃ¼ckgeben
       if (($danger_value !== '') && ($danger_value !== null)) {
-          if (dbx_validate_var($danger_value, $rules, $varname)) {
+          if ($this->validate_var($danger_value, $rules, $varname)) {
               $value = $danger_value;
           }
       }
@@ -489,7 +521,7 @@ class dbxApi {
     * ```
     *
     * Wirkung:
-    * Veraendert den globalen Laufkontext in $_SESSION['dbx']['tmp'][0]['dbx'].
+    * Veraendert den nur fuer diesen Request gueltigen Laufkontext.
     *
     * @param string $varname Name der Systemvariable.
     * @param mixed $value Neuer Wert.
@@ -497,7 +529,7 @@ class dbxApi {
     */
    public function set_system_var(string $varname, $value) {
       // Speichert den Wert der Systemvariable in der Session
-      $_SESSION['dbx']['tmp'][0]['dbx'][$varname] = $value;
+      $this->request_context()->setSystem($varname, $value);
    }
 
    /**
@@ -525,8 +557,9 @@ class dbxApi {
       $mid   = $this->get_system_var('dbx_activ_modul_id', 88888, '*');
    
       // Versuchen, die Variable aus der Session zu holen
-      if (isset($_SESSION['dbx']['tmp'][$mid][$modul][$varname])) {
-          $danger_value = $_SESSION['dbx']['tmp'][$mid][$modul][$varname];
+      $context = $this->request_context();
+      if ($context->hasModule($mid, $modul, $varname)) {
+          $danger_value = $context->module($mid, $modul, $varname);
       } else {
           // Wenn nicht in der Session, versuche GET und POST
           $danger_value = '';
@@ -541,7 +574,7 @@ class dbxApi {
       }
    
       // Wenn ein Wert vorhanden ist und er gÃ¼ltig ist, validiere den Wert
-      if ($danger_value !== '' && $danger_value !== null && dbx_validate_var($danger_value, $rules, $varname)) {
+      if ($danger_value !== '' && $danger_value !== null && $this->validate_var($danger_value, $rules, $varname)) {
           $value = $danger_value;
       }
    
@@ -576,8 +609,9 @@ class dbxApi {
       // nicht ueber $this->get_modul_var(), damit GET/POST hier niemals mitreden.
       if ($check_protected) {
          $protected = array();
-         if (isset($_SESSION['dbx']['tmp'][$mid][$modul]['dbx_protected_modulvars'])) {
-            $protected = $_SESSION['dbx']['tmp'][$mid][$modul]['dbx_protected_modulvars'];
+         $context = $this->request_context();
+         if ($context->hasModule($mid, $modul, 'dbx_protected_modulvars')) {
+            $protected = $context->module($mid, $modul, 'dbx_protected_modulvars');
          }
          if (is_array($protected) && array_key_exists($varname, $protected)) {
             dbx()->debug("PROTECTED ($varname)");
@@ -586,7 +620,7 @@ class dbxApi {
       }
    
       // Setze den Wert in der Session
-      $_SESSION['dbx']['tmp'][$mid][$modul][$varname] = $value;
+      $this->request_context()->setModule($mid, $modul, $varname, $value);
    
       // Optional: Debugging-Informationen hinzufÃ¼gen
       // dbx_debug("dbx_set_ModulVar modul=($modul) Mod=($mid) Var=($varname) val=($value)");
@@ -604,8 +638,8 @@ class dbxApi {
     *
     * Beispiel:
     * ```
-    * $cache = dbx()->get_config('dbx', 'cache');
-    * $config = dbx()->get_config('dbx');
+    * $cache = dbx()->get_cfg('dbx', 'cache');
+    * $config = dbx()->get_cfg('dbx');
     * ```
     *
     * Wirkung:
@@ -615,9 +649,11 @@ class dbxApi {
     * @param string $modul Modulname.
     * @param string $key Optionaler Config-Schluessel.
     * @param mixed $default Rueckgabewert, wenn der Schluessel nicht existiert.
+    * @param bool $forDisplay Maskiert Geheimnisse aus config.php/config.local.php
+    *                         im Demo-Modus fuer die Anzeige.
     * @return mixed
     */
-   public function get_config(string $modul = 'dbx', string $key = '', $default = null) {
+   public function get_cfg(string $modul = 'dbx', string $key = '', $default = null, bool $forDisplay = false) {
       $moduleConfigFile = $this->os_path($this->get_base_dir() . "dbx/modules/$modul/cfg/config.php");
       $moduleLocalConfigFile = $this->os_path($this->get_base_dir() . "dbx/modules/$modul/cfg/config.local.php");
 
@@ -635,7 +671,6 @@ class dbxApi {
       if (!isset($_SESSION['dbx']['config'][$modul]) || $cachedSignature !== $signature) {
          $config = $this->read_config_file($moduleConfigFile);
          $localConfig = $this->read_config_file($moduleLocalConfigFile);
-         $localConfig = $this->normalize_legacy_install_config($modul, $moduleLocalConfigFile, $localConfig);
          if ($localConfig) {
             $config = array_replace_recursive($config, $localConfig);
          }
@@ -663,11 +698,82 @@ class dbxApi {
               return $default;
           }
 
-          return $val;
+          return $forDisplay && $this->is_demo_mode()
+             ? $this->mask_cfg_for_display($val, $key)
+             : $val;
       }
    
-      // Gesamte Konfiguration zurÃ¼ckgeben
-      return $config;
+      // Gesamte Konfiguration zurueckgeben. Nur explizite Anzeigeaufrufe
+      // maskieren Geheimnisse; interne Dienste benoetigen die Originalwerte.
+      return $forDisplay && $this->is_demo_mode()
+         ? $this->mask_cfg_for_display($config)
+         : $config;
+   }
+
+   /**
+    * Prüft den benutzerbezogenen Nur-Lese-Demomodus.
+    *
+    * Ausschliesslich die exakte Rolle `demo` aktiviert den Modus. Globale
+    * Konfigurations- oder Umgebungswerte beeinflussen normale Benutzer nicht.
+    * Der Wert wird nicht gecached, weil sich der Benutzer im selben Request-
+    * Prozess an- oder abmelden kann.
+    */
+   public function is_demo_mode(): bool {
+      $roles = $_SESSION['dbx']['current_user']['roles'] ?? array();
+      $roles = $this->normalize_group_list($roles, true);
+      return in_array('demo', $roles, true);
+   }
+
+   /**
+    * Prueft, ob der Entwicklungs-Admin-Bypass im aktuellen Request wirksam ist.
+    *
+    * Eine echte Anmeldung hat immer Vorrang. Dadurch werden Demo- und andere
+    * Benutzer weder als Administrator ueberlagert noch mit einer irrefuehrenden
+    * Bypass-Meldung dargestellt, nur weil die Entwicklungskonstante gesetzt ist.
+    */
+   public function is_admin_bypass_active(): bool {
+      if (!defined('dbxRunAsAdmin') || (int)constant('dbxRunAsAdmin') !== 1) {
+         return false;
+      }
+
+      return (int)($_SESSION['dbx']['current_user']['id'] ?? 0) <= 0;
+   }
+
+   /** Normalisiert kommaseparierte oder bereits aufgeteilte Gruppenlisten. */
+   private function normalize_group_list($groups, bool $lowercase = false): array {
+      if (!is_array($groups)) $groups = explode(',', (string)$groups);
+      $groups = array_values(array_filter(array_map(static function($group) use ($lowercase): string {
+         $group = trim((string)$group);
+         return $lowercase ? strtolower($group) : $group;
+      }, $groups), static fn(string $group): bool => $group !== ''));
+      return array_values(array_unique($groups));
+   }
+
+   /**
+    * Erkennt geheime Konfigurationsfelder ausschliesslich innerhalb der von
+    * get_cfg() geladenen Config-Arrays. Zugangsdaten und API-Schluessel muessen
+    * gemaess der einheitlichen Config-Konvention `pass`, `key` oder `token` im
+    * Feldnamen tragen. Dadurch bleibt die Maskierung eindeutig und pruefbar.
+    */
+   private function is_cfg_secret_key(string $key): bool {
+      return preg_match('/(?:pass|key|token)/i', $key) === 1;
+   }
+
+   /** Maskiert Geheimnisse rekursiv, ohne die intern geladene Config zu veraendern. */
+   private function mask_cfg_for_display($value, string $key = '') {
+      if (is_array($value)) {
+         $masked = array();
+         foreach ($value as $childKey => $childValue) {
+            $masked[$childKey] = $this->mask_cfg_for_display($childValue, (string)$childKey);
+         }
+         return $masked;
+      }
+
+      if ($this->is_cfg_secret_key($key) && (is_scalar($value) || $value === null)) {
+         return '******';
+      }
+
+      return $value;
    }
 
    /**
@@ -700,44 +806,29 @@ class dbxApi {
          return array();
       }
 
-      $config = array();
-      $content = file_get_contents($dir_file);
-      if (!is_string($content) || $content === '') {
-         return array();
-      }
+       $config = array();
+       $loader = static function (string $__dbxConfigFile): array {
+          $config = array();
+          include $__dbxConfigFile;
+          return is_array($config) ? $config : array();
+       };
+       $outputLevel = ob_get_level();
+       ob_start();
+       set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+          throw new \Exception("Fehler in config.php: $errstr in Zeile $errline");
+       });
 
-      $clean_code = str_replace(array('<?php', '?>'), '', $content);
-      set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-         throw new \Exception("Fehler in config.php: $errstr in Zeile $errline");
-      });
-
-      try {
-         eval($clean_code);
-      } catch (\Throwable $e) {
-         $this->debug('#CFG read failed file=(' . $dir_file . ') error=(' . $e->getMessage() . ')');
-         $config = array();
-      } finally {
-         restore_error_handler();
-      }
+       try {
+          $config = $loader($dir_file);
+       } catch (\Throwable $e) {
+          $this->debug('#CFG read failed file=(' . $dir_file . ') error=(' . $e->getMessage() . ')');
+          $config = array();
+       } finally {
+          restore_error_handler();
+          while (ob_get_level() > $outputLevel) ob_end_clean();
+       }
 
       return is_array($config) ? $config : array();
-   }
-
-   /**
-    * Erhaelt den Installationsstatus bestehender Installationen beim Update.
-    *
-    * Releases bis 4.0.2 lieferten `install = 0` als oeffentlichen Standard aus.
-    * Deren lokale Konfiguration enthaelt deshalb noch keinen eigenen Schalter.
-    * Seit Neuinstallationen mit `install = 1` starten, muss eine bereits
-    * vorhandene lokale Kernkonfiguration diesen Altbestand eindeutig als
-    * installiert kennzeichnen. Explizite lokale Werte bleiben unveraendert.
-    */
-   private function normalize_legacy_install_config(string $modul, string $localFile, array $localConfig): array {
-      if ($modul === 'dbx' && is_file($localFile) && !array_key_exists('install', $localConfig)) {
-         $localConfig['install'] = 0;
-      }
-
-      return $localConfig;
    }
 
    /** Liefert eine kompakte Signatur fuer die Cache-Invalidierung. */
@@ -783,14 +874,44 @@ class dbxApi {
     *
     * Beispiel:
     * ```
-    * dbx()->set_config('dbx', $config);
+    * dbx()->set_cfg('dbx', $config);
     * ```
     *
     * @param string $modul Modulname.
     * @param array $config Zu speichernde Konfiguration.
+    * @param string $scope `base` fuer config.php, `local` fuer config.local.php.
     * @return int Anzahl geschriebener Bytes oder 0 bei Fehler.
     */
-   public function set_config(string $modul, array $config): int {
+   public function set_cfg(string $modul, array $config, string $scope = 'base'): int {
+      if ($this->is_demo_mode()
+          || preg_match('/^[A-Za-z0-9_]+$/', $modul) !== 1
+          || !in_array($scope, array('base', 'local'), true)
+      ) {
+         return 0;
+      }
+
+      if ($scope === 'local') {
+         $dir = $this->os_path($this->get_base_dir() . "dbx/modules/$modul/cfg/");
+         if (!is_dir($dir) && !mkdir($dir, 0700, true) && !is_dir($dir)) {
+            return 0;
+         }
+
+         $localFile = $this->os_path($dir . 'config.local.php');
+         $content = "<?php\n" . $this->convert_array_to_php_code($config, '$config');
+         $written = file_put_contents($localFile, $content, LOCK_EX);
+         if ($written === false) {
+            return 0;
+         }
+
+         @chmod($localFile, 0600);
+         unset(
+            $_SESSION['dbx']['config'][$modul],
+            $_SESSION['dbx']['config_signature'][$modul]
+         );
+         $this->get_cfg($modul);
+         return (int)$written;
+      }
+
       $content = "<?php \n"; // PHP-Tag hinzufÃ¼gen, um die Datei als ausfÃ¼hrbaren Code zu speichern
       $dir = $this->get_base_dir() . "dbx/modules/$modul/cfg/";
       if (isset($config['form-config-edit'])) unset($config['form-config-edit']);
@@ -807,7 +928,7 @@ class dbxApi {
    
       // Konfigurationsarray in PHP-Code konvertieren
       if (is_array($config)) {
-          $content .= dbx_convertArrayToPHPCode($config, '$config'); // Array in PHP-Code umwandeln
+          $content .= $this->convert_array_to_php_code($config, '$config'); // Array in PHP-Code umwandeln
       }
    
       // Verzeichnis erstellen, falls es nicht existiert
@@ -832,41 +953,6 @@ class dbxApi {
    }
 
    /**
-    * Speichert die vollstaendige lokale Konfiguration eines Moduls.
-    *
-    * `config.local.php` enthaelt installationsbezogene Serverbindungen und
-    * Geheimnisse. Die Datei wird von Releases nicht ausgeliefert und darf
-    * deshalb getrennt von `set_config()` geschrieben werden.
-    */
-   public function set_local_config(string $modul, array $localConfig): int {
-      if (preg_match('/^[A-Za-z0-9_]+$/', $modul) !== 1) {
-         return 0;
-      }
-
-      $dir = $this->os_path($this->get_base_dir() . "dbx/modules/$modul/cfg/");
-      if (!is_dir($dir) && !mkdir($dir, 0700, true) && !is_dir($dir)) {
-         return 0;
-      }
-
-      $localFile = $this->os_path($dir . 'config.local.php');
-      $content = "<?php\n"
-         . dbx_convertArrayToPHPCode($localConfig, '$config');
-      $written = file_put_contents($localFile, $content, LOCK_EX);
-      if ($written === false) {
-         return 0;
-      }
-
-      @chmod($localFile, 0600);
-      unset(
-         $_SESSION['dbx']['config'][$modul],
-         $_SESSION['dbx']['config_signature'][$modul]
-      );
-      $this->get_config($modul);
-
-      return (int)$written;
-   }
-
-   /**
     * Fuehrt einen lokalen Konfigurationsausschnitt rekursiv zusammen.
     *
     * Bestehende Passwoerter oder andere lokale Werte bleiben erhalten, wenn
@@ -883,7 +969,7 @@ class dbxApi {
       $localConfig = $this->read_config_file($localFile);
       $localConfig = array_replace_recursive($localConfig, $patch);
 
-      return $this->set_local_config($modul, $localConfig);
+      return $this->set_cfg($modul, $localConfig, 'local');
    }
 
    /**
@@ -910,7 +996,7 @@ class dbxApi {
       $localConfig = $this->read_config_file($localFile);
       $localConfig[$section] = $value;
 
-      return $this->set_local_config($modul, $localConfig);
+      return $this->set_cfg($modul, $localConfig, 'local');
    }
 
    /**
@@ -1194,10 +1280,8 @@ class dbxApi {
    /**
     * Prueft ein sessiongebundenes Aktions-Token.
     *
-    * Leere Tokens werden ohne Session-Schreibzugriff verworfen. Fuer bereits
-    * geoeffnete Seiten einer laufenden Session werden vor der Umstellung
-    * gespeicherte Scope-Tokens weiterhin akzeptiert. Neue Tokens verwenden
-    * ausschliesslich die konstante HMAC-Ablage.
+    * Leere Tokens werden ohne Session-Schreibzugriff verworfen. Gueltige Tokens
+    * verwenden ausschliesslich das konstante, sessiongebundene HMAC-Secret.
     *
     * @param string $scope Eindeutiger Aktionsbereich.
     * @param string $token Uebergebenes Token.
@@ -1209,16 +1293,6 @@ class dbxApi {
      }
 
      $scope = $this->normalize_action_scope($scope);
-
-     // Kompatibilitaet fuer Links, die vor dem HMAC-Wechsel gerendert wurden.
-     // Wichtig: Bei unbekannten Scopes wird hier kein neuer Eintrag erzeugt.
-     $legacyTokens = $this->get_session_var('action_tokens', array(), 'security', 'dbx');
-     if (is_array($legacyTokens)
-         && isset($legacyTokens[$scope])
-         && preg_match('/^[a-f0-9]{64}$/', (string)$legacyTokens[$scope])
-         && hash_equals((string)$legacyTokens[$scope], $token)) {
-       return true;
-     }
 
      // Eine Pruefung darf niemals erst ein Secret und damit Sessionzustand
      // erzeugen. Das Secret entsteht ausschliesslich beim Rendern eines
@@ -1239,14 +1313,10 @@ class dbxApi {
     * Gast- oder Benutzer-Token darf danach nicht weiterverwendet werden.
     * Der naechste action_token()-Aufruf erzeugt automatisch ein neues Secret.
     *
-    * Die Legacy-Ablage wird ebenfalls entfernt, damit alte geoeffnete Links
-    * keinen Wechsel des angemeldeten Benutzers ueberleben.
-    *
     * @return void
     */
    public function invalidate_action_tokens(): void {
      $this->delete_session_var('action_token_secret', 'security', 'dbx');
-     $this->delete_session_var('action_tokens', 'security', 'dbx');
    }
 
    /**
@@ -1305,7 +1375,7 @@ class dbxApi {
    public function user($key='id') {
       $current_user = $_SESSION['dbx']['current_user'] ?? array();
 
-      if (defined('dbxRunAsAdmin') && (int) constant('dbxRunAsAdmin') === 1) {
+      if ($this->is_admin_bypass_active()) {
          $current_user = $this->get_admin_bypass_user($current_user);
       }
 
@@ -1380,16 +1450,15 @@ class dbxApi {
     */
    public function can($access_groups = '', $user_groups = '') {
        $access = 0;
-       if (defined('dbxRunAsAdmin') && (int) constant('dbxRunAsAdmin') === 1) return 1;
+       if ($this->is_admin_bypass_active()) return 1;
+       if ($this->is_demo_mode()) return 1;
        if ($access_groups=='*') return 1;
        if (!$access_groups)     return 1;
        $current_user_groups = !$user_groups;
        if ($current_user_groups) $user_groups = $_SESSION['dbx']['current_user']['roles'] ?? '';
 
-       if (!is_array($user_groups))    $user_groups   = explode(',', $user_groups);
-       if (!is_array($access_groups))  $access_groups = explode(',', $access_groups);
-       $user_groups   = array_map('trim', $user_groups);
-       $access_groups = array_map('trim', $access_groups);
+       $user_groups   = $this->normalize_group_list($user_groups);
+       $access_groups = $this->normalize_group_list($access_groups);
 
        if ($current_user_groups && in_array('authenticated', $access_groups, true) && (int)$this->user() > 0) {
            return 1;
@@ -1432,12 +1501,15 @@ class dbxApi {
      $access=0;
      
      $current_user= $_SESSION['dbx']['current_user'] ?? array();
-     $modul_config= $this->get_config($modul);
+     $modul_config= $this->get_cfg($modul);
      $groups =$modul_config['groups'] ?? '';
      $uid    =$current_user['id'] ?? 0;
      $install=$this->get_system_var('dbx_install',0,'int');
 
-     if (defined('dbxRunAsAdmin') && (int) constant('dbxRunAsAdmin') === 1) {
+     if ($this->is_admin_bypass_active()) {
+        return 1;
+     }
+     if ($this->is_demo_mode()) {
         return 1;
      }
      if ((int)$uid === 1) {
@@ -1530,6 +1602,93 @@ class dbxApi {
    }
 
    /**
+    * Registriert eine modul-eigene CSS-Datei aus tpl/css/ fuer die aktuelle Seite.
+    *
+    * Templates sollen kein eingebettetes CSS enthalten. Ein Modul lagert
+    * eigenes CSS stattdessen nach dbx/modules/{modul}/tpl/css/{file} aus und
+    * meldet die Datei einmalig waehrend des Renderns hier an. Das
+    * Design-Template laedt alle so registrierten Dateien am Seitenende
+    * client-seitig ueber core.js (dbx.add_css) nach — dieselbe Ladefunktion,
+    * die auch dbx.feature.register(...).css bereits verwendet.
+    *
+    * Beispiel:
+    * ```
+    * dbx()->add_css('dbxKi', 'ki-briefing.css');
+    * ```
+    *
+    * @param string $modul Technischer Modulname (Ordner unter dbx/modules/).
+    * @param string $file Dateiname innerhalb von dbx/modules/{modul}/tpl/css/.
+    * @return void
+    */
+   public function add_css(string $modul, string $file): void {
+      $this->queue_module_asset('css', $modul, $file);
+   }
+
+   /**
+    * Registriert eine modul-eigene JS-Datei aus tpl/js/ fuer die aktuelle Seite.
+    *
+    * Wirkung und Ladeweg wie add_css(), nur fuer
+    * dbx/modules/{modul}/tpl/js/{file} und dbx.add_js().
+    *
+    * Beispiel:
+    * ```
+    * dbx()->add_js('dbxKi', 'ki-briefing.js');
+    * ```
+    *
+    * @param string $modul Technischer Modulname (Ordner unter dbx/modules/).
+    * @param string $file Dateiname innerhalb von dbx/modules/{modul}/tpl/js/.
+    * @return void
+    */
+   public function add_js(string $modul, string $file): void {
+      $this->queue_module_asset('js', $modul, $file);
+   }
+
+   /**
+    * Liefert die fuer die aktuelle Seite registrierten Modul-Assets.
+    *
+    * Wird von dbxTPL beim Ausgeben des Design-Templates gelesen ({dbx:module_assets}).
+    *
+    * @param string $type 'css' oder 'js'.
+    * @return array<int, string> Relative Pfade in Registrierreihenfolge, ohne Duplikate.
+    */
+   public function get_module_assets(string $type): array {
+      return array_values($this->module_asset_queue[$type] ?? array());
+   }
+
+   /**
+    * Validiert und merkt eine Modul-Asset-Datei fuer add_css()/add_js() vor.
+    *
+    * @param string $type 'css' oder 'js'.
+    * @param string $modul Technischer Modulname.
+    * @param string $file Dateiname innerhalb von tpl/{type}/.
+    * @return void
+    */
+   private function queue_module_asset(string $type, string $modul, string $file): void {
+      if ($type !== 'css' && $type !== 'js') {
+         return;
+      }
+      $modul = trim($modul);
+      $file = trim($file);
+      if ($modul === '' || $file === '' || !preg_match('/^[A-Za-z0-9_]+$/', $modul)) {
+         return;
+      }
+      // Nur einfache Dateinamen innerhalb von tpl/{type}/ - keine Pfad-Traversierung.
+      if (strpos($file, '/') !== false || strpos($file, '\\') !== false || strpos($file, '..') !== false) {
+         return;
+      }
+      $ext = '.' . $type;
+      if (substr($file, -strlen($ext)) !== $ext) {
+         $file .= $ext;
+      }
+      // Relativ zu dbx/ (dbx.add_css/add_js "root" laedt bereits ab dbx/, siehe core.js rootPath).
+      $relPath = 'modules/' . $modul . '/tpl/' . $type . '/' . $file;
+      if (!is_file($this->get_base_dir() . 'dbx/' . $relPath)) {
+         return;
+      }
+      $this->module_asset_queue[$type][$modul . '/' . $file] = $relPath;
+   }
+
+   /**
     * Normalisiert einen Pfad fuer das aktuelle Betriebssystem.
     *
     * @param string $path Eingabepfad.
@@ -1547,6 +1706,36 @@ class dbxApi {
          $path .= $separator;
       }
       return $path;
+   }
+
+   /**
+    * Liefert die Version der aktuell ausgefuehrten dbxapp-Installation.
+    *
+    * Die Datei VERSION im Installationsstamm ist die einzige Quelle. Dadurch
+    * zeigen auch aktualisierte Kundeninstallationen stets ihren tatsaechlich
+    * installierten Stand und benoetigen keine hart codierte Versionsnummer.
+    *
+    * @return string Semantische Version oder eine leere Zeichenfolge bei einer
+    *                unvollstaendigen beziehungsweise ungueltigen Installation.
+    */
+   public function get_version(): string {
+      if ($this->installed_version !== null) {
+         return $this->installed_version;
+      }
+
+      // VERSION besitzt absichtlich keine Dateiendung; os_path() wuerde den
+      // Namen deshalb wie ein Verzeichnis behandeln und einen Slash anhaengen.
+      $versionFile = str_replace('/', DIRECTORY_SEPARATOR, $this->get_base_dir() . 'VERSION');
+      $version = is_file($versionFile) && is_readable($versionFile)
+         ? trim((string) file_get_contents($versionFile))
+         : '';
+
+      if (preg_match('/^\d+\.\d+\.\d+(?:-dev)?$/', $version) !== 1) {
+         $version = '';
+      }
+
+      $this->installed_version = $version;
+      return $this->installed_version;
    }
 
    /** Prueft, ob ein Dateipfad absolut ist. */
@@ -1794,7 +1983,7 @@ class dbxApi {
 
       $key = strtolower($design);
       if ($key === 'user' || $key === 'admin') {
-         $config = $this->get_config('dbx');
+         $config = $this->get_cfg('dbx');
          $design = (string)($config[$key === 'admin' ? 'default_design_admin' : 'default_design_user'] ?? 'dbxapp');
       } elseif ($key === 'fleurop') {
          $design = 'flowers';
@@ -1837,7 +2026,7 @@ class dbxApi {
       }
 
       if ($skin === '' || !in_array($skin, $skinIds, true)) {
-         $cfg = strtolower(trim((string) $this->get_config('dbx', 'default_color', 'blau')));
+         $cfg = strtolower(trim((string) $this->get_cfg('dbx', 'default_color', 'blau')));
          $skin = $map[$cfg] ?? $cfg;
       }
 
@@ -2087,7 +2276,7 @@ class dbxApi {
             $status = 'warning';
          }
 
-         $sysMsgLevel = strtolower(trim((string) $this->get_config('dbx', 'sys_msg_level', 'all')));
+         $sysMsgLevel = strtolower(trim((string) $this->get_cfg('dbx', 'sys_msg_level', 'all')));
          if ($sysMsgLevel === '') {
             $sysMsgLevel = 'all';
          }
@@ -2346,11 +2535,7 @@ class dbxApi {
          unset($overrides['placeholder']);
       }
 
-      $data = array_merge($defaults, $overrides);
-      if (trim((string)$data['tooltip']) === '') {
-         $data['tooltip'] = (string)$data['title'];
-      }
-      return $data;
+      return array_merge($defaults, $overrides);
    }
 
    /**
@@ -2489,7 +2674,7 @@ class dbxApi {
          header_remove('Set-Cookie');
          header_remove('Expires');
          header_remove('Pragma');
-         $ttl = max(0, min(3600, (int)$this->get_config('dbx', 'full_page_browser_ttl', 60)));
+         $ttl = max(0, min(3600, (int)$this->get_cfg('dbx', 'full_page_browser_ttl', 60)));
          header('Cache-Control: public, max-age=' . $ttl . ', stale-while-revalidate=30');
          $etag = '"' . hash('sha256', $html) . '"';
          header('ETag: ' . $etag);
@@ -2576,7 +2761,7 @@ class dbxApi {
       $base = $this->get_base_url();
       $uid = $this->user();
       $ajax = $this->get_system_var('dbx_ajax', 0, 'int');
-      $cache = $this->get_config('dbx', 'cache');
+      $cache = $this->get_cfg('dbx', 'cache');
       $perma = $this->get_system_var('dbx_permalink', 'undef');
       $modul = $this->get_system_var('dbx_modul', 'undef');
       $this->debug("#DBX RUN Base-URL($base) Self=($self) Ajax=($ajax) Perma ($perma) User=($uid) SYS CACHE=($cache) ");
@@ -2648,9 +2833,10 @@ class dbxApi {
 
       $runtimeService = $this->get_system_obj('dbxRuntime');
       $runtimeService->debug_timer(0);
-      if ($syncRequest && (int)$this->get_system_var('dbx_ajax', 0, 'int') !== 1) {
-         $runtimeService->store_performance_timer();
-      }
+      // Vollseiten-, Ajax-/openWin- und asynchrone Requests durchlaufen
+      // denselben Abschluss. Die Persistenz erfolgt nach der Response und
+      // schliesst ihre eigenen DB-Zugriffe zentral von der Messung aus.
+      $runtimeService->store_performance_timer();
       $this->debug('#END#');
    }
 
@@ -2765,7 +2951,11 @@ class dbxApi {
 
       $cfgFile = $this->os_path($cfgDir . 'config.php');
       if (!file_exists($cfgFile)) {
-         file_put_contents($cfgFile, "<?php\n\$config['version']='1';\n\$config['activ']='1';\n\$config['groups']='*';\n");
+         $this->set_cfg('myX', array(
+            'version' => '1',
+            'activ' => '1',
+            'groups' => '*',
+         ));
       }
 
       $moduleFile = $this->os_path($moduleDir . 'myX.class.php');
@@ -2786,6 +2976,290 @@ class dbxApi {
       }
 
       return $file;
+   }
+
+   /* =====================================================
+    * Sprachhilfen (lng_*)
+    * ===================================================== */
+
+   /**
+    * Aktive UI-Sprache des laufenden Requests.
+    *
+    * Liest die Systemvariable `dbx_lng` und liefert immer einen
+    * gueltigen, kleingeschriebenen Sprachcode zurueck - nie leer.
+    *
+    * Beispiel:
+    * ```php
+    * $lng = dbx()->lng_current(); // z. B. 'de', 'en', 'es'
+    * ```
+    *
+    * @return string Aktueller Sprachcode, Fallback 'de'.
+    */
+   public function lng_current(): string {
+      $lng = strtolower(trim((string) $this->get_system_var('dbx_lng', 'de')));
+      return $lng !== '' ? $lng : 'de';
+   }
+
+   /**
+    * Konfigurierte, freigeschaltete Sprachen der Installation.
+    *
+    * Liest `accessible_lng` aus der dbx-Basiskonfiguration (Komma-Liste
+    * oder Array) und liefert eine bereinigte Liste zweistelliger
+    * Sprachcodes. Ungueltige Eintraege werden verworfen; ist danach
+    * nichts uebrig, wird `['de']` zurueckgegeben.
+    *
+    * Beispiel:
+    * ```php
+    * foreach (dbx()->accessible_lngs() as $lng) {
+    *     // z. B. Sprachumschalter im Menue aufbauen
+    * }
+    * ```
+    *
+    * @return string[] Liste aktiver Sprachcodes, mindestens ['de'].
+    */
+   public function accessible_lngs(): array {
+      $raw = $this->get_cfg('dbx', 'accessible_lng', 'de');
+      if ($raw === 'undef' || $raw === '' || $raw === null) {
+         $raw = 'de';
+      }
+
+      $candidates = is_array($raw) ? $raw : preg_split('/\s*,\s*/', (string) $raw, -1, PREG_SPLIT_NO_EMPTY);
+      $out = array();
+      foreach ((array) $candidates as $val) {
+         $val = strtolower(trim((string) $val));
+         if ($val !== '' && $val !== 'undef' && preg_match('/^[a-z]{2,3}$/', $val)) {
+            $out[] = $val;
+         }
+      }
+
+      return count($out) ? $out : array('de');
+   }
+
+   /**
+    * Haengt ein Sprachsuffix an einen Basisnamen: content + de => content_de.
+    *
+    * Wird genutzt, um sprachabhaengige DD-/Tabellennamen aus einem
+    * neutralen Basisnamen zu bilden (z. B. fuer dbxContent-Tabellen,
+    * die je Sprache eine eigene Tabelle besitzen).
+    *
+    * Beispiel:
+    * ```php
+    * $table = dbx()->lng_name('content', 'en'); // 'content_en'
+    * $table = dbx()->lng_name('content');       // aktive Sprache, z. B. 'content_de'
+    * ```
+    *
+    * @param string $base Basisname ohne Sprachsuffix.
+    * @param string $lng  Sprachcode; leer = aktive Sprache (lng_current()).
+    * @return string Basisname mit Sprachsuffix, oder '' wenn $base leer ist.
+    */
+   public function lng_name(string $base, string $lng = ''): string {
+      $base = trim($base);
+      if ($base === '') {
+         return '';
+      }
+
+      $lng = strtolower(trim($lng !== '' ? $lng : $this->lng_current()));
+      if ($lng === '') {
+         return $base;
+      }
+
+      return $base . '_' . $lng;
+   }
+
+   /**
+    * Loest eine sprachabhaengige Datei auf: name_lng.ext mit Fallback name.ext.
+    *
+    * Sucht zuerst `{$dir}{$name}_{$lng}.{$ext}`. Existiert die Datei nicht
+    * und `$fallback` ist true, wird stattdessen die sprachneutrale Datei
+    * `{$dir}{$name}.{$ext}` verwendet. Existiert keine der beiden, wird
+    * ein leerer String zurueckgegeben.
+    *
+    * Beispiel:
+    * ```php
+    * // sucht z. B. tpl/htm/form-help-bar_en.htm, sonst tpl/htm/form-help-bar.htm
+    * $file = dbx()->lng_resolve_file($dir, 'form-help-bar', 'htm', 'en');
+    * ```
+    *
+    * @param string $dir      Verzeichnis mit abschliessendem '/'.
+    * @param string $name     Dateiname ohne Sprachsuffix und ohne Endung.
+    * @param string $ext      Dateiendung ohne fuehrenden Punkt.
+    * @param string $lng      Sprachcode; leer = aktive Sprache (lng_current()).
+    * @param bool   $fallback Bei fehlender Sprachdatei die neutrale Datei nutzen.
+    * @return string Absoluter, os-normalisierter Pfad oder '' wenn nichts gefunden wurde.
+    */
+   public function lng_resolve_file(string $dir, string $name, string $ext, string $lng = '', bool $fallback = true): string {
+      $dir = str_replace('\\', '/', $dir);
+      if ($dir !== '' && substr($dir, -1) !== '/') {
+         $dir .= '/';
+      }
+
+      $name = strtolower(trim($name));
+      $ext  = ltrim(strtolower(trim($ext)), '.');
+      if ($name === '' || $ext === '') {
+         return '';
+      }
+
+      $lng = strtolower(trim($lng !== '' ? $lng : $this->lng_current()));
+      if ($lng !== '') {
+         $pathLng = $dir . $name . '_' . $lng . '.' . $ext;
+         if (is_file($pathLng)) {
+            return $this->os_path($pathLng);
+         }
+      }
+
+      if (!$fallback) {
+         return '';
+      }
+
+      $pathDef = $dir . $name . '.' . $ext;
+      if (is_file($pathDef)) {
+         return $this->os_path($pathDef);
+      }
+
+      return '';
+   }
+
+   /* =====================================================
+    * Validierung & Codegenerierung
+    * ===================================================== */
+
+   /**
+    * Validiert einen Wert gegen eine dbxValidator-Regel.
+    *
+    * Duenner Zugang zu dbxValidator::validate() ueber die Fassade, damit
+    * Aufrufer nicht selbst `dbx()->get_system_obj('dbxValidator')` holen
+    * muessen. `$rules = '*'` ueberspringt die Pruefung bewusst (z. B. fuer
+    * Werte, die schon anderweitig gesichert sind).
+    *
+    * Beispiel:
+    * ```php
+    * if (!dbx()->validate_var($_POST['email'] ?? '', 'email', 'email')) {
+    *     // ungueltige Eingabe behandeln
+    * }
+    * ```
+    *
+    * @param mixed  $value Zu pruefender, nicht vertrauenswuerdiger Wert.
+    * @param string $rules Validierungsregel(n); '*' = keine Pruefung.
+    * @param string $name  Variablenname, nur fuer Fehlermeldungen/Logging.
+    * @return bool true wenn gueltig oder $rules == '*', sonst false.
+    */
+   public function validate_var($value, string $rules = 'parameter', string $name = 'undef'): bool {
+      if ($rules === '*') {
+         return true;
+      }
+
+      $oValidator = $this->get_system_obj('dbxValidator'); // #cache for speed
+      return $oValidator->validate($value, $rules, $name);
+   }
+
+   /**
+    * Konvertiert ein (verschachteltes) Array in rekonstruierenden PHP-Code.
+    *
+    * Erzeugt fuer jeden Blattwert eine Zuweisungszeile der Form
+    * `$prefix['key'] = wert;`, rekursiv fuer verschachtelte Arrays. Wird
+    * z. B. genutzt, um Konfigurationsarrays lesbar als PHP-Quelltext in
+    * `cfg/config.local.php`-Dateien zu schreiben.
+    *
+    * Beispiel:
+    * ```php
+    * $code = dbx()->convert_array_to_php_code(['a' => 1, 'b' => ['c' => 'x']], '$config');
+    * // $config['a'] = 1;
+    * // $config['b']['c'] = 'x';
+    * ```
+    *
+    * @param array  $array  Quell-Array, darf verschachtelt sein.
+    * @param string $prefix Variablenname/Basispfad der Zuweisung, z. B. '$config'.
+    * @return string Generierter PHP-Code, eine Zuweisung pro Blattwert.
+    */
+   public function convert_array_to_php_code(array $array, string $prefix): string {
+      $code = '';
+
+      foreach ($array as $key => $value) {
+         $keyPart = is_numeric($key) ? "[$key]" : "['" . addslashes((string) $key) . "']";
+
+         if (is_array($value)) {
+            $code .= $this->convert_array_to_php_code($value, $prefix . $keyPart);
+            continue;
+         }
+
+         if (is_string($value)) {
+            $formattedValue = "'" . addslashes($value) . "'";
+         } elseif (is_bool($value)) {
+            $formattedValue = $value ? 'true' : 'false';
+         } elseif ($value === null) {
+            $formattedValue = 'null';
+         } else {
+            $formattedValue = $value;
+         }
+
+         $code .= "$prefix$keyPart = $formattedValue;\n";
+      }
+
+      return $code;
+   }
+
+   /**
+    * Loescht ein Cookie sofort (setzt es mit einem Verfallsdatum in der Vergangenheit).
+    *
+    * Beispiel:
+    * ```php
+    * dbx()->delete_cookie('dbXwebApp');
+    * ```
+    *
+    * @param string $cookie Name des zu loeschenden Cookies.
+    * @return void
+    */
+   public function delete_cookie(string $cookie): void {
+      setcookie($cookie, '', time() - 3600, '/');
+   }
+
+   /**
+    * Prueft, ob ein dbxDB-Rueckgabewert (insert()/update()/delete()/count() ...)
+    * einen verweigerten Zugriff bedeutet.
+    *
+    * dbxDB folgt der Konvention 1 = Erfolg, 0 = kein Treffer/keine Aenderung/
+    * Validierungsfehler, -1 = Zugriff verweigert, -2 = Datenbankfehler. Da 0,
+    * -1 und -2 in PHP alle falsy sind, liefert ein einfaches `if (!$result)`
+    * keine Unterscheidung zwischen "nichts zu tun" und "verboten". Diese
+    * Methode macht genau diesen einen Fall explizit pruefbar.
+    *
+    * Beispiel:
+    * ```php
+    * $result = dbx()->get_system_obj('dbxDB')->update('dbxUser', $values, $where);
+    * if (dbx()->is_access_denied($result)) {
+    *     sys_msg('Kein Zugriff.', 'error');
+    * } elseif (dbx()->is_db_error($result)) {
+    *     sys_msg('Datenbankfehler.', 'error');
+    * }
+    * ```
+    *
+    * @param int $result Rueckgabewert von dbxDB::insert()/update()/delete()/count() u.ae.
+    * @return bool true, wenn der Rueckgabewert "Zugriff verweigert" (-1) bedeutet.
+    */
+   public function is_access_denied(int $result): bool {
+      return $result === -1;
+   }
+
+   /**
+    * Prueft, ob ein dbxDB-Rueckgabewert (insert()/update()/delete()/count() ...)
+    * einen Datenbankfehler bedeutet (z. B. Verbindungsfehler oder gescheitertes SQL).
+    *
+    * Ergaenzt is_access_denied(): zusammen decken beide Methoden die
+    * negativen, sonst nicht unterscheidbaren Fehlercodes -1 und -2 ab.
+    *
+    * Beispiel:
+    * ```php
+    * $result = dbx()->get_system_obj('dbxDB')->insert('dbxUser', $values);
+    * if (dbx()->is_db_error($result)) {
+    *     sys_msg('Datenbankfehler.', 'error');
+    * }
+    * ```
+    *
+    * @param int $result Rueckgabewert von dbxDB::insert()/update()/delete()/count() u.ae.
+    * @return bool true, wenn der Rueckgabewert "Datenbankfehler" (-2) bedeutet.
+    */
+   public function is_db_error(int $result): bool {
+      return $result === -2;
    }
 }
 
@@ -2810,994 +3284,3 @@ function dbx(): dbxApi {
    return $api;
 }
 
-
-/**
- * Prueft einen projektspezifischen Stichtag.
- *
- * @return bool true ab 2025-06-01.
- */
-function ge_stichtag() {
-    $heute  = new DateTime();
-    $grenze = new DateTime('2025-06-01');
-    return $heute >= $grenze;
-}
-
-
-/**
- * Kopiert ein komplettes Verzeichnis rekursiv.
- *
- * @param string $src Quellverzeichnis (mit / am Ende oder ohne)
- * @param string $dst Zielverzeichnis (mit / am Ende oder ohne)
- * @return bool true bei Erfolg, false bei Fehler
- */
-function dbx_copy_recursive($src, $dst) {
-    $src = rtrim($src, '/\\');
-    $dst = rtrim($dst, '/\\');
-
-    if (!is_dir($src)) {
-        dbx()->debug("dbx_copy_recursive Error DIR");
-        return 0;
-    }
-
-    if (!file_exists($dst)) {
-        if (!mkdir($dst, 0777, true)) {
-            dbx()->debug("dbx_copy_recursive mkdir Error($dst)");
-            return 0;
-        }
-    }
-
-    $items = scandir($src);
-    foreach ($items as $item) {
-        if ($item === '.' || $item === '..') {
-            continue;
-        }
-
-        $srcPath = $src . DIRECTORY_SEPARATOR . $item;
-        $dstPath = $dst . DIRECTORY_SEPARATOR . $item;
-
-        if (is_dir($srcPath)) {
-            // Rekursiv fÃ¼r Verzeichnisse
-            if (!dbx_copy_recursive($srcPath, $dstPath)) {
-                dbx()->debug("dbx_copy_recursive Error A");
-                return 0;
-            }
-        } else {
-            // Datei kopieren (Ã¼berschreiben erlaubt)
-            if (!copy($srcPath, $dstPath)) {
-                dbx()->debug("dbx_copy_recursive Error B");
-
-                return 0;
-            }
-        }
-    }
-
-    return 1;
-}
-
-
-
-
-/**
- * Liefert ein DBX-Datum/Zeit-Format mit optionalem Offset.
- *
- * Beispiel:
- * ```php
- * echo dbx_DateTime('now', 3600); // aktuelle Zeit plus eine Stunde
- * echo dbx_DateTime('2026-06-06 10:00:00', 0, '+2 days');
- * ```
- *
- * @param string $date_time Ausgangszeit oder `now`.
- * @param int $calc Sekundenoffset.
- * @param string $special strtotime-Ausdruck relativ zur Ausgangszeit.
- * @return string Datum/Zeit im Format `Y-m-d H:i:s`.
- */
-function dbx_DateTime($date_time='now',$calc=0,$special='') {
-   $timezone = 'Europe/Berlin';
-   $offset   = 0;  // Offset Sommer/Winter
-
-   if ($date_time=='now') {
-      $offset   = (60*60*$offset);
-      $calc=($calc + $offset);
-      $date_time = date("Y-m-d  H:i:s", (time()  + $calc));
-   } else {
-      $offset   = (60*60*$offset);
-      $calc=($calc + $offset);
-      $date_time = date("Y-m-d  H:i:s", (strtotime($date_time) + $calc ));
-   }
-    
-   if ($special) {
-      $time=strtotime($date_time);
-      $date_time=date("Y-m-d  H:i:s", strtotime($special, $time));
-   }
-
-
-   $week_start  = strtotime('last Sunday', time());
-   $week_end    = strtotime('next Sunday', time());
-   
-   $month_start = strtotime('first day of this month', time());
-   $month_end   = strtotime('last day of this month', time());
-   
-   $year_start  = strtotime('first day of January', time());
-   $year_end    = strtotime('last day of December', time());
-
-    //$now_date = gmdate("Y-m-d  H:i:s", (time()  + $calc));
-    return  $date_time;
-}
-
-
-/**
- * Erstellt ein Verzeichnis und alle notwendigen Unterverzeichnisse.
- *
- * @param string $path Der Pfad des zu erstellenden Verzeichnisses.
- * @return int 1 bei Erfolg oder wenn das Verzeichnis bereits existiert, 0 bei Fehler.
- *
- * Beispiel:
- * ```php
- * $path = '/var/www/html/myBefund/ldt-in/';
- * $ok   = dbx_make_dir($path);
- * echo $ok ? 'Verzeichnis erstellt oder existiert bereits' : 'Fehler beim Erstellen';
- * ```
- */
-function dbx_make_dir(string $path): int {
-    // Prüfen, ob das Verzeichnis bereits existiert
-    if (is_dir($path)) return 1;
-
-    // Versuchen, das Verzeichnis rekursiv zu erstellen
-    if (mkdir($path, 0777, true)) {
-        return 1; // Erfolgreich erstellt
-    }
-
-    return 0; // Fehler beim Erstellen
-}
-
-
-/**
- * Kompatibilitaetswrapper fuer dbx()->send_mail().
- *
- * @param string $from Absender-E-Mail.
- * @param string $fromname Absendername.
- * @param string|array $to Empfaenger.
- * @param string $subject Betreff.
- * @param string $text Inhalt.
- * @param string $type html|text.
- * @param mixed $attach Anhaenge.
- * @param int $archiv Historischer Parameter, aktuell nicht ausgewertet.
- * @return int 1 bei Erfolg, 0 bei Fehler.
- */
-function dbx_sendMail($from,$fromname,$to,$subject,$text,$type='html',$attach='',$archiv=0) {
-    $from = array('email' => $from, 'name' => $fromname);
-    return dbx()->send_mail($from, $to, (string) $subject, (string) $text, (string) $type, $attach);
-}
-
-
-/**
- * Prueft, ob ein historisches Template unter dbx/tpl/htm existiert.
- *
- * @param string $page Template-/Seitenname.
- * @param string $design Historischer Parameter.
- * @param string $lng Historischer Parameter.
- * @return bool
- */
-function dbx_is_page($page,$design,$lng='') {
-    $retval=false;
-    $page_tpl=dbx()->get_base_dir()."dbx/tpl/htm/$page.htm";
-    if (file_exists($page_tpl)) $retval=true;
-    return $retval;
-}
-
-
-
-
- 
-   
-
-
-/**
- * LÃ¤dt eine Klasse aus dem Cache oder erstellt eine neue Instanz der Klasse.
- *
- * Die Funktion versucht, ein Objekt der angegebenen Klasse zu laden:
- * 1. Wenn das Objekt bereits im Cache vorhanden ist, wird es zurÃ¼ckgegeben.
- * 2. Andernfalls wird die entsprechende Klassen-Datei eingebunden und ein neues Objekt erstellt.
- * 
- * @param string $class Der Name der Klasse, die geladen werden soll.
- * @param string $use (Optional) Kann verwendet werden, um andere Logiken basierend auf der Klasse zu implementieren. 
- *                    StandardmÃ¤ÃŸig leer.
- * @return object|null Gibt das Klassen-Objekt zurÃ¼ck oder `null`, falls ein Fehler auftritt oder `$use` gesetzt ist.
- * @throws Exception Wenn die Klasse nicht geladen werden kann und keine Fallback-Klasse definiert ist.
- */
-/**
- * LÃ¤dt ein Modul-Objekt basierend auf dem Modulnamen und aktualisiert zugehÃ¶rige System- und Modulvariablen.
- *
- * Diese Funktion:
- * 1. Erzeugt den vollqualifizierten Klassennamen des Moduls.
- * 2. Aktualisiert System- und Modulvariablen wie `dbx_activ_modul_id`, `dbx_activ_modul` und Design-Informationen.
- * 3. LÃ¤dt die Klassen-Datei des Moduls und erstellt eine Instanz der Klasse.
- * 
- * @param string $class Der Name des Moduls, das geladen werden soll.
- * @return object Gibt eine Instanz des Modul-Objekts zurÃ¼ck.
- * @throws Exception Wenn die Klassen-Datei des Moduls fehlt oder die Klasse nicht geladen werden kann.
- */
-/**
- * LÃ¤dt eine Klasse aus dem `include`-Ordner eines Moduls und erstellt ein Objekt.
- *
- * Die Funktion sucht nach einer Klassen-Datei im `include`-Ordner des angegebenen Moduls
- * oder des aktuell aktiven Moduls, lÃ¤dt diese und erstellt eine Instanz der Klasse.
- *
- * @param string $class Der Name der Klasse, die geladen werden soll.
- * @param string $modul (Optional) Der Name des Moduls, zu dem die Klasse gehÃ¶rt. 
- *                      StandardmÃ¤ÃŸig wird das aktuell aktive Modul verwendet.
- * @param string $use (Optional) ZusÃ¤tzliche Steuerung, ob ein Objekt zurÃ¼ckgegeben wird. Standard: leer.
- * @return object|null Gibt eine Instanz des Klassen-Objekts zurÃ¼ck oder `null`, wenn `$use` gesetzt ist.
- * @throws Exception Wenn die Klassen-Datei fehlt oder die Klasse nicht geladen werden kann.
- */
-/**
- * Aktive UI-Sprache (SysVar dbx_lng).
- *
- * @return string z. B. de, en, es
- */
-function dbx_lng_current(): string {
-   $lng = strtolower(trim((string) dbx()->get_system_var('dbx_lng', 'de')));
-   return $lng !== '' ? $lng : 'de';
-}
-
-/**
- * Konfigurierte Sprachen aus dbx-Config.
- *
- * @return string[]
- */
-function dbx_accessible_lngs(): array {
-   $raw = dbx()->get_config('dbx', 'accessible_lng', 'de');
-   if ($raw === 'undef' || $raw === '' || $raw === null) {
-      $raw = 'de';
-   }
-   if (is_array($raw)) {
-      $out = array();
-      foreach ($raw as $val) {
-         $val = strtolower(trim((string) $val));
-         if ($val !== '' && $val !== 'undef' && preg_match('/^[a-z]{2,3}$/', $val)) {
-            $out[] = $val;
-         }
-      }
-      return count($out) ? $out : array('de');
-   }
-
-   $parts = preg_split('/\s*,\s*/', (string) $raw, -1, PREG_SPLIT_NO_EMPTY);
-   $out = array();
-   if (is_array($parts)) {
-      foreach ($parts as $val) {
-         $val = strtolower(trim((string) $val));
-         if ($val !== '' && $val !== 'undef' && preg_match('/^[a-z]{2,3}$/', $val)) {
-            $out[] = $val;
-         }
-      }
-   }
-
-   return count($out) ? $out : array('de');
-}
-
-/**
- * Sprachsuffix an Basisnamen haengen: content + de => content_de.
- *
- * @param string $base  Basis ohne Sprachsuffix
- * @param string $lng   Sprache; leer = aktive Sprache
- * @return string
- */
-function dbx_lng_name(string $base, string $lng = ''): string {
-   $base = trim($base);
-   if ($base === '') {
-      return '';
-   }
-
-   $lng = strtolower(trim($lng !== '' ? $lng : dbx_lng_current()));
-   if ($lng === '') {
-      return $base;
-   }
-
-   return $base . '_' . $lng;
-}
-
-/**
- * Datei mit Sprachsuffix aufloesen: name_lng.ext mit Fallback name.ext.
- *
- * @param string $dir       Verzeichnis mit abschliessendem /
- * @param string $name      Dateiname ohne Endung
- * @param string $ext       Endung ohne Punkt
- * @param string $lng       Sprache; leer = aktive Sprache
- * @param bool   $fallback  Neutralen Namen als Fallback nutzen
- * @return string Absoluter Pfad oder leer
- */
-function dbx_lng_resolve_file(string $dir, string $name, string $ext, string $lng = '', bool $fallback = true): string {
-   $dir = str_replace('\\', '/', $dir);
-   if ($dir !== '' && substr($dir, -1) !== '/') {
-      $dir .= '/';
-   }
-
-   $name = strtolower(trim($name));
-   $ext  = ltrim(strtolower(trim($ext)), '.');
-   if ($name === '' || $ext === '') {
-      return '';
-   }
-
-   $lng = strtolower(trim($lng !== '' ? $lng : dbx_lng_current()));
-   if ($lng !== '') {
-      $pathLng = $dir . $name . '_' . $lng . '.' . $ext;
-      if (is_file($pathLng)) {
-         return dbx()->os_path($pathLng);
-      }
-   }
-
-   if (!$fallback) {
-      return '';
-   }
-
-   $pathDef = $dir . $name . '.' . $ext;
-   if (is_file($pathDef)) {
-      return dbx()->os_path($pathDef);
-   }
-
-   return '';
-}
-
-/**
- * Wendet die modulbezogene translate.php auf Inhalt an.
- *
- * Beispiel:
- * ```php
- * $html = dbx_modul_translate($html, 'dbxContent', 'de');
- * ```
- *
- * @param string $content Zu uebersetzender Inhalt.
- * @param string $modul Modulname; leer nutzt aktives Modul.
- * @param string $lng Sprache; leer nutzt aktive Sprache.
- * @return string Uebersetzter Inhalt.
- */
-function dbx_modul_translate($content,$modul='',$lng='') {
-   if (!$modul) $modul=dbx()->get_system_var('dbx_activ_modul','dbx');
-   if (!$lng)     $lng=dbx()->get_system_var('dbx_lng','de');
-   $dir_file=dbx()->get_base_dir()."dbx/modules/$modul/translate.php";
-   $dir_file=dbx()->os_path($dir_file);
-   if (file_exists($dir_file)) {
-      include $dir_file;
-   }
-   return $content;
-}
-
-/**
- * Ersetzt das erste Vorkommen einer Zeichenfolge.
- *
- * @param string $search_str Gesuchte Zeichenfolge.
- * @param string $replacement_str Ersatztext.
- * @param string $src_str Quelltext.
- * @return string Text mit hoechstens einer Ersetzung.
- */
-function dbx_replace_first($search_str, $replacement_str, $src_str){
-  return (false !== ($pos = strpos($src_str, $search_str))) ? substr_replace($src_str, $replacement_str, $pos, strlen($search_str)) : $src_str;
-}
-
-
-/**
- * Konvertiert ein Array in PHP-Code, der es rekonstruiert.
- *
- * Diese Funktion:
- * - Traversiert ein Array rekursiv.
- * - Generiert PHP-Code, um das Array durch Zuweisungen zu rekonstruieren.
- * - UnterstÃ¼tzt verschachtelte Arrays und escapt automatisch Strings.
- *
- * @param array $array Das Array, das konvertiert werden soll.
- * @param string $prefix Der Prefix, der die Basisvariable oder den Startpunkt angibt.
- * @return string Der generierte PHP-Code, der das Array rekonstruiert.
- */
-function dbx_convertArrayToPHPCode(array $array, string $prefix): string {
-   $code = "";
-
-   foreach ($array as $key => $value) {
-       // Generiere den SchlÃ¼ssel (numerisch oder als String)
-       $keyPart = is_numeric($key) ? "[$key]" : "['" . addslashes($key) . "']";
-
-       if (is_array($value)) {
-           // Rekursive Verarbeitung fÃ¼r verschachtelte Arrays
-           $code .= dbx_convertArrayToPHPCode($value, $prefix . $keyPart);
-       } else {
-           // Wert formatieren
-           if (is_string($value)) {
-               // Strings escapen (inklusive Backslashes)
-               $formattedValue = "'" . addslashes($value) . "'";
-           } elseif (is_bool($value)) {
-               // Booleans in `true` oder `false` konvertieren
-               $formattedValue = $value ? 'true' : 'false';
-           } elseif ($value === null) {
-               // `null` als Wert setzen
-               $formattedValue = 'null';
-           } else {
-               // Andere Datentypen (z. B. Zahlen) direkt verwenden
-               $formattedValue = $value;
-           }
-
-           // PHP-Code-Zuweisung generieren
-           $code .= "$prefix$keyPart = $formattedValue;\n";
-       }
-   }
-
-   return $code;
-}
-
-
-/**
- * LÃ¤dt die Konfigurationsdaten eines Moduls aus einer Datei (verschlÃ¼sselt oder unverschlÃ¼sselt) und speichert sie im Session-Cache.
- *
- * Diese Funktion:
- * - Liest die Konfigurationsdatei des angegebenen Moduls.
- * - UnterstÃ¼tzt verschlÃ¼sselte und unverschlÃ¼sselte Konfigurationsdateien.
- * - LÃ¤dt die Konfiguration in den Session-Cache, um wiederholte Dateizugriffe zu vermeiden.
- * - Gibt einen spezifischen Konfigurationswert oder die gesamte Konfiguration zurÃ¼ck.
- *
- * @param string $modul Der Modulname, dessen Konfiguration geladen werden soll. Standard ist 'dbx'.
- * @param string $key (Optional) Ein spezifischer SchlÃ¼ssel, dessen Wert zurÃ¼ckgegeben werden soll.
- * @return mixed Die gesamte Konfiguration als Array, der spezifische Wert fÃ¼r `$key`, oder 'undef', falls der SchlÃ¼ssel nicht existiert.
- */
-/**
- * Speichert die Konfiguration eines Moduls in einer Datei (verschlÃ¼sselt oder unverschlÃ¼sselt) 
- * und aktualisiert den Session-Cache.
- *
- * Diese Funktion:
- * - Akzeptiert ein Modul und die zu speichernde Konfiguration als Array.
- * - Aktualisiert die Konfiguration im Session-Cache fÃ¼r sofortige VerfÃ¼gbarkeit.
- * - Speichert die Konfiguration in einer Datei, verschlÃ¼sselt, falls aktiviert.
- * - Erstellt das Zielverzeichnis, falls es nicht existiert.
- *
- * @param string $modul Der Modulname, dessen Konfiguration gespeichert werden soll.
- * @param array $config Die Konfigurationsdaten als assoziatives Array.
- * @return int Gibt 0 zurÃ¼ck, falls ein Fehler aufgetreten ist, oder die Anzahl der geschriebenen Bytes.
- */
-/**
- * Konvertiert eine Zeichenkette in eine angegebene Zeichenkodierung.
- *
- * Diese Funktion:
- * - Wandelt die Eingabezeichenkette in eine neue Kodierung um, wenn die Zielkodierung (`$charset`)
- *   von der Quellkodierung (`$incharset`) abweicht.
- * - FÃ¼hrt eine Erkennung der aktuellen Kodierung durch, falls `$incharset` als UTF-8 definiert ist.
- * - Ersetzt explizit deutsche Umlaute (Ã¤, Ã¶, Ã¼, ÃŸ, Ã„, Ã–, Ãœ) durch ihre entsprechenden Zeichencodes,
- *   falls notwendig.
- *
- * @param string $in Die zu konvertierende Zeichenkette.
- * @param string $charset Die Zielzeichenkodierung (z. B. 'ISO-8859-1').
- * @param string $incharset Die Eingabezeichenkodierung (Standard: 'UTF-8').
- * @return string Die konvertierte Zeichenkette.
- */
-function dbx_convert_charset(string $in, string $charset, string $incharset = 'UTF-8'): string {
-   // Nur konvertieren, wenn Zielkodierung von Eingabekodierung abweicht
-   if ($charset !== $incharset) {
-       // Spezielle Behandlung fÃ¼r deutsche Umlaute und scharfes S
-       $umlaute = [
-           'Ã¤' => chr(228), 'Ã¶' => chr(246), 'Ã¼' => chr(252), 'ÃŸ' => chr(223),
-           'Ã„' => chr(196), 'Ã–' => chr(214), 'Ãœ' => chr(220)
-       ];
-       $in = str_replace(array_keys($umlaute), array_values($umlaute), $in);
-
-       // Kodierung mit automatischer Erkennung der Eingabekodierung konvertieren
-       $in = mb_convert_encoding(
-           $in,
-           $charset,
-           mb_detect_encoding($in, "UTF-8, $charset, ISO-8859-1, ISO-8859-15", true)
-       );
-   }
-
-   return $in;
-}
-
-
-/**
- * Erzeugt einen Modul-String im spezifischen Format mit den angegebenen Parametern.
- *
- * Diese Funktion erstellt einen String, der ein Modul mit seinen zugehÃ¶rigen Parametern
- * (Aktion und Arbeit) darstellt. Der resultierende String kann fÃ¼r Konfigurations-,
- * Protokollierungs- oder andere Zwecke verwendet werden.
- *
- * @param string $modul Der Name des Moduls.
- * @param string $action Die auszufÃ¼hrende Aktion im Modul.
- * @param string $work (Optional) ZusÃ¤tzliche Arbeitsinformationen.
- * @return string Der generierte Modul-String im Format:
- *                `[modul=<Modul>]dbx_run1=<Aktion>&dbx_run2=<Arbeit>[/modul]`
- */
-function dbx_add_modul(string $modul, string $action, string $work = ''): string {
-   // Grundstruktur mit Modul und Aktion aufbauen
-   $content = '[modul=' . $modul . ']dbx_run1=' . $action;
-
-   // Falls 'work' definiert ist, hinzufÃ¼gen
-   if (!empty($work)) {
-       $content .= '&dbx_run2=' . $work;
-   }
-
-   // Abschluss des Modul-Strings
-   $content .= '[/modul]';
-   return $content;
-}
-
-
-
-/**
- * Validiert eine Eingabe basierend auf angegebenen Regeln.
- *
- * Diese Funktion Ã¼berprÃ¼ft, ob der Ã¼bergebene Wert (`$danger_value`) den festgelegten
- * Validierungsregeln entspricht. Sie verwendet ein Validator-Objekt, um die Validierung
- * durchzufÃ¼hren, es sei denn, die Regeln sind auf '*' gesetzt, was bedeutet, dass keine
- * Validierung erfolgt.
- *
- * @param mixed $danger_value Der Wert, der validiert werden soll.
- * @param string $rules Die Validierungsregeln. Kann eine spezifische Regel oder '*' sein, um keine Validierung durchzufÃ¼hren.
- * @param string $varname Der Name der Variablen, der nur zu Validierungszwecken verwendet wird. (Standardwert: 'undef')
- * @return bool Gibt `true` zurÃ¼ck, wenn die Validierung erfolgreich ist, andernfalls `false`.
- */
-function dbx_validate_var($danger_value, $rules = 'parameter', $varname = 'undef'): bool {
-   // Wenn keine Validierung erforderlich ist, einfach true zurÃ¼ckgeben
-   if ($rules == '*') return true;
-   // Validator-Objekt aus dem Cache holen
-   $oValidator = dbx()->get_system_obj('dbxValidator'); // #cache for speed
-   // Validierung durchfÃ¼hren
-   return $oValidator->validate($danger_value, $rules, $varname);
-}
-
-
-
-
-
-/**
- * Holt und validiert eine POST-Variable.
- *
- * Diese Funktion prÃ¼ft, ob eine POST-Variable vorhanden ist, validiert den Wert
- * anhand der angegebenen Regeln und gibt den validierten Wert zurÃ¼ck. Wenn der Wert
- * nicht vorhanden ist oder die Validierung fehlschlÃ¤gt, wird der Standardwert zurÃ¼ckgegeben.
- *
- * @param string $varname Der Name der POST-Variable, die abgerufen werden soll.
- * @param mixed $default Der Standardwert, der zurÃ¼ckgegeben wird, wenn die POST-Variable nicht gesetzt ist oder die Validierung fehlschlÃ¤gt. (Standard: leerer String)
- * @param string $rules Die Validierungsregeln fÃ¼r die POST-Variable. (Standard: 'parameter')
- * @return mixed Der validierte Wert der POST-Variable oder der Standardwert, wenn die Variable nicht gesetzt oder ungÃ¼ltig ist.
- */
-/**
- * Holt und validiert eine GET-Variable.
- *
- * Diese Funktion prÃ¼ft, ob eine GET-Variable vorhanden ist, validiert den Wert
- * anhand der angegebenen Regeln und gibt den validierten Wert zurÃ¼ck. Wenn der Wert
- * nicht vorhanden ist oder die Validierung fehlschlÃ¤gt, wird der Standardwert zurÃ¼ckgegeben.
- *
- * @param string $varname Der Name der GET-Variable, die abgerufen werden soll.
- * @param mixed $default Der Standardwert, der zurÃ¼ckgegeben wird, wenn die GET-Variable nicht gesetzt ist oder die Validierung fehlschlÃ¤gt. (Standard: leerer String)
- * @param string $rules Die Validierungsregeln fÃ¼r die GET-Variable. (Standard: 'parameter')
- * @return mixed Der validierte Wert der GET-Variable oder der Standardwert, wenn die Variable nicht gesetzt oder ungÃ¼ltig ist.
- */
-/**
- * Holt und validiert eine POST- oder GET-Variable.
- *
- * Diese Funktion prÃ¼ft, ob eine Variable in den `$_POST`- oder `$_GET`-Daten vorhanden ist,
- * validiert den Wert anhand der angegebenen Regeln und gibt den validierten Wert zurÃ¼ck. 
- * Wenn der Wert nicht vorhanden ist oder die Validierung fehlschlÃ¤gt, wird der Standardwert zurÃ¼ckgegeben.
- *
- * @param string $varname Der Name der POST- oder GET-Variable, die abgerufen werden soll.
- * @param mixed $default Der Standardwert, der zurÃ¼ckgegeben wird, wenn die Variable nicht gesetzt ist oder die Validierung fehlschlÃ¤gt. (Standard: leerer String)
- * @param string $rules Die Validierungsregeln fÃ¼r die Variable. (Standard: 'parameter')
- * @return mixed Der validierte Wert der Variable oder der Standardwert, wenn die Variable nicht gesetzt oder ungÃ¼ltig ist.
- */
-/**
- * Holt eine Systemvariable aus der Session, POST oder GET und validiert sie.
- *
- * Diese Funktion prÃ¼ft, ob eine Systemvariable in der Session, POST oder GET vorhanden ist,
- * validiert den Wert anhand der angegebenen Regeln und gibt den validierten Wert zurÃ¼ck. 
- * Wenn die Variable nicht vorhanden oder ungÃ¼ltig ist, wird der Standardwert zurÃ¼ckgegeben.
- *
- * @param string $varname Der Name der Systemvariable, die abgerufen werden soll.
- * @param mixed $default Der Standardwert, der zurÃ¼ckgegeben wird, wenn die Variable nicht gesetzt ist oder die Validierung fehlschlÃ¤gt. (Standard: leerer String)
- * @param string $rules Die Validierungsregeln fÃ¼r die Variable. (Standard: '*' fÃ¼r keine Validierung)
- * @return mixed Der validierte Wert der Systemvariable oder der Standardwert, wenn die Variable nicht gesetzt oder ungÃ¼ltig ist.
- */
-/**
- * Holt eine "Remember"-Variable aus der Session und validiert sie.
- *
- * Diese Funktion sucht nach einer Variable in der Session unter der "remember"-Sektion des angegebenen Moduls,
- * validiert den Wert gemÃ¤ÃŸ den angegebenen Regeln und gibt den validierten Wert zurÃ¼ck. 
- * Wenn die Variable nicht vorhanden oder ungÃ¼ltig ist, wird der Standardwert zurÃ¼ckgegeben.
- *
- * @param string $varname Der Name der "Remember"-Variablen, die abgerufen werden soll.
- * @param mixed $default Der Standardwert, der zurÃ¼ckgegeben wird, wenn die Variable nicht gesetzt ist oder ungÃ¼ltig ist. (Standard: leerer String)
- * @param string $modul Das Modul, zu dem die "Remember"-Variable gehÃ¶rt. (Standard: 'modul')
- * @return mixed Der validierte Wert der "Remember"-Variable oder der Standardwert, wenn die Variable nicht gesetzt oder ungÃ¼ltig ist.
- */
-/**
- * Setzt eine "Remember"-Variable in der Session und optional im System.
- *
- * Diese Funktion speichert eine Variable in der Session unter der "remember"-Sektion des angegebenen Moduls. 
- * Wenn das Modul `dbx` ist, wird die Variable zusÃ¤tzlich in der System-Session gespeichert.
- *
- * @param string $varname Der Name der "Remember"-Variablen, die gesetzt werden soll.
- * @param mixed $value Der Wert, der fÃ¼r die Variable gespeichert werden soll.
- * @param string $modul Das Modul, zu dem die "Remember"-Variable gehÃ¶rt. (Standard: 'modul')
- */
-/**
- * Setzt eine Systemvariable in der Session.
- *
- * Diese Funktion speichert eine Systemvariable in der Session unter `$_SESSION['dbx']['tmp'][0]['dbx']`,
- * sodass der Wert zwischen verschiedenen Anfragen erhalten bleibt.
- *
- * @param string $varname Der Name der Systemvariablen, die gesetzt werden soll.
- * @param mixed $value Der Wert, der fÃ¼r die Systemvariable gespeichert werden soll.
- */
-/**
- * Holt eine Modul-spezifische Variable aus verschiedenen Quellen (Session, GET, POST).
- * Wenn der Wert nicht vorhanden oder ungÃ¼ltig ist, wird der Standardwert zurÃ¼ckgegeben.
- *
- * Wichtige DBX-Regeln:
- * - ModulVar aus dem aktuellen Modulkontext hat Vorrang.
- * - Wenn kein ModulVar-Wert existiert, wird zuerst GET und danach POST geprÃ¼ft.
- * - POST gewinnt dadurch vor GET.
- * - Werte wie 0 oder "0" sind gÃ¼ltige Werte und dÃ¼rfen nicht auf den Default zurÃ¼ckfallen.
- * - Der Default gilt nur bei nicht vorhandenem Wert, leerem String oder ungÃ¼ltiger Validierung.
- *
- * @param string $varname Der Name der zu holenden Variable.
- * @param mixed $default Der Standardwert, der zurÃ¼ckgegeben wird, wenn die Variable nicht gefunden wird oder ungÃ¼ltig ist. (Standard: '')
- * @param string $rules Die Validierungsregel fÃ¼r die Variable (Standard: 'alphanum').
- *
- * @return mixed Der Wert der Variable oder der Standardwert, wenn die Variable nicht gefunden oder ungÃ¼ltig ist.
- */
-/**
- * Setzt eine Modul-spezifische Variable in der Session.
- *
- * GeschÃ¼tzte ModulVariablen werden nicht Ã¼berschrieben, wenn sie in
- * dbx_protected_modulvars des aktuellen Modulkontexts eingetragen sind.
- *
- * Wichtig:
- * - Die Schutzliste wird direkt aus der ModulVar-Session gelesen.
- * - GET/POST dÃ¼rfen bei der SchutzprÃ¼fung niemals mitreden.
- * - Mit $check_protected = false kann bewusst intern/gezielt Ã¼berschrieben werden.
- *
- * @param string $varname Der Name der zu setzenden Variable.
- * @param mixed  $value Der Wert, der fÃ¼r die Variable gespeichert werden soll.
- * @param bool   $check_protected Ob geschÃ¼tzte ModulVariablen beachtet werden sollen.
- *
- * @return void
- */
-// Session
-
-//  Session - - - - - - - - - - - - - - - - - - - - - - - - -
-
-/**
- * Liefert einen float-basierten Zufalls-Seed aus microtime().
- *
- * @return float Seed-Wert.
- */
-function dbx_make_seed(){
-    list($usec, $sec) = explode(' ', microtime());
-    return (float) $sec + ((float) $usec * 100000);
-}
-
-/**
- * Lädt einen JSON-Cookie in den dbxapp-Sessionbereich.
- *
- * @param string $cookie Name des zu ladenden Cookies.
- * @return void
- */
-function dbx_load_cookie($cookie) {
-   $data=array();
-   if (isset($_COOKIE[$cookie])) $data = json_decode($_COOKIE[$cookie], true);
-   $_SESSION['dbx']['cookie'][$cookie]=$data;
-}
-
-
-function dbx_save_cookie($cookie,$hh=12) {
-   $data=$_SESSION['dbx']['cookie'][$cookie];
-   setcookie($cookie, json_encode($data), time()+3600*$hh,'/');
-}
-
-function dbx_delete_cookie($cookie) {
-  setcookie($cookie, '', time() - 3600, '/');
-}
-
-
-function dbx_get_cookie_val($cookie,$key,$default='') {
-  $val=$default;
-  if (isset($_SESSION['dbx']['cookie'][$cookie][$key])) {
-     $val=$_SESSION['dbx']['cookie'][$cookie][$key];
-  }
-  return $val;
-}
-
-
-// Format Value
-/**
- * Validates and formats a date string based on the input and output format.
- * 
- * @param string $date The date string to validate and format.
- * @param string $io   The desired output format ('web' for DD.MM.YYYY, 'php' for YYYY-MM-DD).
- * @param string $default The default value to return if the date is invalid.
- * 
- * @return string The formatted date or the default value if validation fails.
- */
-function dbx_get_Date($date, $io, $default = ''): string {
-   //dbx_debug("dbx_get_Date($date) io=($io) defalut=($default)"); 
-   if (!$date || $date===null) $date=''; 
-   $date = trim($date);
-
-   // Ensure the date only contains valid characters.
-   if (!preg_match('#^[0-9./-]+$#', $date)) {
-       dbx()->set_system_var('dbx_validate_error', 1);
-       return $default;
-   }
-
-   // Check date length.
-   if (strlen($date) !== 10) {
-       dbx()->set_system_var('dbx_validate_error', 1);
-       return $default;
-   }
-
-   // Determine delimiter and split the date.
-   $delimiter = '';
-   if (strpos($date, '-') !== false) {
-       $delimiter = '-';
-   } elseif (strpos($date, '.') !== false) {
-       $delimiter = '.';
-   } elseif (strpos($date, '/') !== false) {
-       $delimiter = '/';
-   }
-
-   if (!$delimiter) {
-       dbx()->set_system_var('dbx_validate_error', 1);
-       return $default;
-   }
-
-   $parts = explode($delimiter, $date);
-
-   // Ensure valid parts based on delimiter.
-   if (count($parts) !== 3) {
-       dbx()->set_system_var('dbx_validate_error', 1);
-       return $default;
-   }
-
-   [$first, $second, $third] = $parts;
-
-   // Determine the format (DD.MM.YYYY or YYYY-MM-DD).
-   if ($delimiter === '-') {
-       [$year, $month, $day] = [$first, $second, $third];
-   } else {
-       [$day, $month, $year] = [$first, $second, $third];
-   }
-
-   // Validate the extracted date.
-   if (!checkdate((int)$month, (int)$day, (int)$year)) {
-       dbx()->set_system_var('dbx_validate_error', 1);
-       return $default;
-   }
-
-   // Format date based on the desired output.
-   if ($io === 'web') {
-       return sprintf('%02d.%02d.%04d', $day, $month, $year);
-   } elseif ($io === 'php') {
-       return sprintf('%04d-%02d-%02d', $year, $month, $day);
-   }
-
-   // Default return in case of unsupported $io value.
-   dbx()->set_system_var('dbx_validate_error', 1);
-   return $default;
-}
-
-
-function dbx_get_webDate($date,$default='') {
- $date=dbx_get_Date($date,'web');
- if (!$date) $date=$default;
- return $date;
-}
-
-function dbx_get_phpDate($date,$default='') {
- $date=dbx_get_Date($date,'php');
- if (!$date) $date=$default;
- return $date;
-}
-
-
-
-function dbx_get_webDateTime($date_time,$default='') {
- $date=substr($date_time, 0, 10);
- $time=substr($date_time,11,  8);
- $date=dbx_get_Date($date,'web');
- return $date.' '.$time;
-}
-
-
-// Secure
-
-function dbx_is_Login() {
-   return dbx()->user('id');
-}
-
-/**
- * Setzt einen Wert oder den gesamten aktuellen Benutzerkontext.
- *
- * @param string $key Feldname oder `*` fuer den vollstaendigen Kontext.
- * @param mixed $value Zu speichernder Feldwert oder Benutzer-Array.
- * @return void
- */
-function dbx_set_CurrentUser($key,$value) {
-   if ($key != '*') {
-      $_SESSION['dbx']['current_user'][$key]=$value;
-   } else {
-     $_SESSION['dbx']['current_user']=$value;
-   }
-}
-function dbx_is_decimal($value) {
-   if (trim($value)=='') return FALSE;
-   $lang   = strlen($value);
-   $okcahr = '-0123456789.,';
-   for ($i = 0; $i < $lang; $i++) {
-     $char = $value[$i];
-     $ok = strrpos($okcahr, $char);
-     if ($ok === FALSE) return FALSE;
-   }
-   return TRUE;
-}
-
-
-
-
-// Time
-
-
-function dbx_get_Today($days=0) {
-  $today = getdate();
-  $date=$today['year'].'-'.$today['mon'].'-'.$today['mday'];
-  //return $date;
-
-  $date_t = strtotime($date.' UTC');
-  return gmdate('Y-m-d',$date_t + ($days*86400));
-
-
-}
-
-function dbx_get_Microtime() {
-  list($usec, $sec) = explode(' ',microtime());
-  return ((float)$usec + (float)$sec);
-}
-
-// File Upload
-
-function dbx_upload() {
-   $oUpload=dbx()->get_system_obj('dbxUpload');
-
-}
-
-
-// Mail
-
-
-
-
-
-
-function dbx_html2txt($txt) {
-   $txt = dbx_html2src($txt);
-   $txt = str_replace('<br/>',"\n", $txt );
-   $txt = str_replace('<br>' ,"\n", $txt );
-   return $txt;
-}
-
-function dbx_txt2html($txt) {
-   $txt = str_replace("\n",'<br/>',$txt);
-   return $txt;
-}
-
-function dbx_html2src($html_in) {
-  $html_in=stripslashes($html_in);
-  $html_in = str_replace ('&nbsp;' , ' ', $html_in);
-  $html_in = str_replace ('&amp;'  , '&', $html_in);
-  $html_in = str_replace ('&quot;' , '"', $html_in);
-  $html_in = str_replace ('&#039;' , "'", $html_in);
-  $html_in = str_replace ('&lt;'   , '<', $html_in);
-  $html_in = str_replace ('&gt;'   , '>', $html_in);
-  $html_in = str_replace ('%7B'    , '{', $html_in);
-  $html_in = str_replace ('%7D'    , '}', $html_in);
-
-  $html_in = str_replace ('&uuml;', 'Ã¼', $html_in);
-  $html_in = str_replace ('&ouml;', 'Ã¶', $html_in);
-  $html_in = str_replace ('&auml;', 'Ã¤', $html_in);
-  $html_in = str_replace ('&Uuml;', 'Ãœ', $html_in);
-  $html_in = str_replace ('&Ouml;', 'Ã–', $html_in);
-  $html_in = str_replace ('&Auml;', 'Ã„', $html_in);
-
-  return $html_in;
-}
-
-
-
-// dbx Util
-
-
-function dbx_interpreter($content) {
-   $int=dbx()->get_system_obj('dbxInterpreter');
-   $content=$int->run($content);
-   return $content;
-}
-
-
-
-// crypt / decrypt
-
-// use \phpseclib3\Crypt\AES; // wird am anfang gemacht.
-
-/**
- * Decrypts content using AES-128-CBC encryption.
- *
- * @param string $content The content to decrypt.
- * @param string $xkey    Optional. The encryption key. Defaults to a predefined key.
- * @param string $master  Optional. The master key. Defaults to the value from dbx()->get_config('dbx', 'crypt').
- *
- * @return string|false The decrypted content or false on failure.
- */
-function dbx_decrypt($content, $xkey = '', $master = '') {
-    try {
-        if (!$master) {
-            $master = dbx()->get_config('dbx', 'crypt');
-            if (!$master) {
-                throw new Exception("Master key is not set.");
-            }
-        }
-
-        if (!$xkey) {
-            $xkey = 'jkgj89bz7b789345%$&8t5';
-        }
-
-        $crypt_key = md5($xkey . $master);
-        $key = substr($crypt_key, 0, 16);
-        $iv = substr($crypt_key, -16);
-
-        //dbx_debug("decrypt ($xkey) ($master) Key=($key) IV=($iv)");
-
-        $aes = new AES('cbc');
-        $aes->setKey($key);
-        $aes->setIV($iv);
-
-        $decrypt_content = $aes->decrypt($content);
-
-        return $decrypt_content;
-    } catch (Exception $e) {
-        dbx()->debug("Decryption error: " . $e->getMessage());
-        return false;
-    }
-}
-
-/**
- * Encrypts content using AES-128-CBC encryption.
- *
- * @param string $content The content to encrypt.
- * @param string $xkey    Optional. The encryption key. Defaults to a predefined key.
- * @param string $master  Optional. The master key. Defaults to the value from dbx()->get_config('dbx', 'crypt').
- *
- * @return string|false The encrypted content or false on failure.
- */
-function dbx_crypt($content, $xkey = '', $master = '') {
-    try {
-
-        if (!$master) {
-            $master = dbx()->get_config('dbx', 'crypt');
-            if (!$master) {
-                throw new Exception("Master key is not set.");
-            }
-        }
-
-        if (!$xkey) {
-            $xkey = 'jkgj89bz7b789345%$&8t5';
-        }
-
-        $crypt_key = md5($xkey . $master);
-        $key = substr($crypt_key, 0, 16);
-        $iv = substr($crypt_key, -16);
-
-        //dbx_debug("crypt ($xkey) ($master) Key=($key) IV=($iv)");
-
-        $aes = new AES('cbc');
-        $aes->setKey($key);
-        $aes->setIV($iv);
-
-        $crypt_content = $aes->encrypt($content);
-
-        return $crypt_content;
-    } catch (Exception $e) {
-        dbx()->debug("Encryption error: " . $e->getMessage());
-        return false;
-    }
-}

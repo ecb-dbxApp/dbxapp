@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* Sprach-Auswahl im User-Menue */
 .dbx-lng-menu-root > .dbx-menu-link,
 .dbx-lng-menu-root > a {
@@ -575,9 +576,9 @@
     );
 }
 
-/* Dezentes DBX-Technikmotiv, im Asset nach unten rechts deutlich dichter. */
+/* Dezente kantige Leiterbahn-Gravur als ruhiger Panelabschluss. */
 .dbx-menu-item > .dbx-menu-list::before {
-    background-image: url("../img/dbx-submenu-mark-v1.svg?v=11");
+    background-image: url("../../dbxapp/img/dbx-submenu-mark-v1.svg?v=15");
     background-position: right bottom;
     background-repeat: no-repeat;
     background-size: auto max(100%, 560px);
@@ -856,7 +857,7 @@
    - kompaktere Darstellung
    ========================================================= */
 
-@media (max-width: 991.98px) {
+@media (max-width: 1199.98px) {
 
     .dbx-menu-main,
     .dbx-menu-admin {

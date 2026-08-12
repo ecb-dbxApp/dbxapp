@@ -61,15 +61,18 @@ function update_db_stage(
     string $version,
     string $newIndex
 ): array {
-    update_db_write($root . '/VERSION', "4.0.1\n");
+    update_db_write($root . '/VERSION', "4.2.0\n");
+    update_db_write($root . '/UPDATE_BASELINE', "4.2.0\n");
     update_db_write($root . '/index.php', "<?php echo 'old';\n");
     update_db_write($root . '/dbx/include/dbxApi.php', "<?php // old api\n");
     $oldInventory = array(
-        'schema' => 1,
+        'schema' => 2,
         'product' => 'dbxapp',
-        'version' => '4.0.1',
+        'version' => '4.2.0',
+        'minimum_source_version' => '4.2.0',
         'files' => array(
-            'VERSION' => hash('sha256', "4.0.1\n"),
+            'VERSION' => hash('sha256', "4.2.0\n"),
+            'UPDATE_BASELINE' => hash('sha256', "4.2.0\n"),
             'index.php' => hash('sha256', "<?php echo 'old';\n"),
             'dbx/include/dbxApi.php' => hash('sha256', "<?php // old api\n"),
             '.dbx-release-files.json' => null,
@@ -87,6 +90,7 @@ function update_db_stage(
     }
     $contents = array(
         'VERSION' => $version . "\n",
+        'UPDATE_BASELINE' => "4.2.0\n",
         'index.php' => $newIndex,
         'dbx/include/dbxApi.php' => "<?php // new api\n",
     );
@@ -96,9 +100,10 @@ function update_db_stage(
     }
     $files['.dbx-release-files.json'] = null;
     $inventory = json_encode(array(
-        'schema' => 1,
+        'schema' => 2,
         'product' => 'dbxapp',
         'version' => $version,
+        'minimum_source_version' => '4.2.0',
         'files' => $files,
     ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
 
@@ -111,7 +116,7 @@ function update_db_stage(
     $zip->close();
 
     $manifest = array(
-        'schema' => 1,
+        'schema' => 2,
         'product' => 'dbxapp',
         'channel' => 'stable',
         'version' => $version,
@@ -120,6 +125,7 @@ function update_db_stage(
             . $version . '/dbxapp-' . $version . '.zip',
         'sha256' => hash_file('sha256', $zipFile),
         'requires' => array(
+            'dbxapp' => '>=4.2.0',
             'php' => '>=8.2',
             'extensions' => array('json', 'pdo', 'zip'),
         ),
@@ -154,7 +160,7 @@ function update_db_assert(bool $condition, string $message): void
 
 $root = sys_get_temp_dir() . '/dbx-update-db-adapter-' . bin2hex(random_bytes(5));
 try {
-    [$manifest] = update_db_stage($root, '4.0.2', "<?php echo 'new';\n");
+    [$manifest] = update_db_stage($root, '4.2.1', "<?php echo 'new';\n");
     $adapter = new UpdateDatabaseAdapterStub();
     $service = new dbxUpdateService($root, '', 21600, $adapter);
     $service->install();
@@ -165,7 +171,7 @@ try {
     $service->rollback();
     update_db_assert(
         $adapter->calls === array('prepare', 'apply', 'rollback')
-            && trim((string)file_get_contents($root . '/VERSION')) === '4.0.1',
+            && trim((string)file_get_contents($root . '/VERSION')) === '4.2.0',
         'Expliziter Rollback hat DB und Dateien nicht gemeinsam behandelt.'
     );
 } finally {
@@ -174,7 +180,7 @@ try {
 
 $root = sys_get_temp_dir() . '/dbx-update-db-failure-' . bin2hex(random_bytes(5));
 try {
-    update_db_stage($root, '4.0.2', "<?php echo 'new';\n");
+    update_db_stage($root, '4.2.1', "<?php echo 'new';\n");
     $adapter = new UpdateDatabaseAdapterStub();
     $adapter->failApply = true;
     $service = new dbxUpdateService($root, '', 21600, $adapter);
@@ -189,7 +195,7 @@ try {
     }
     update_db_assert(
         $adapter->calls === array('prepare', 'apply', 'rollback')
-            && trim((string)file_get_contents($root . '/VERSION')) === '4.0.1'
+            && trim((string)file_get_contents($root . '/VERSION')) === '4.2.0'
             && str_contains((string)file_get_contents($root . '/index.php'), 'old'),
         'Fehlerpfad hat DB und Dateien nicht vollständig zurückgerollt.'
     );

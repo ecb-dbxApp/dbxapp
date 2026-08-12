@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 3);
+require_once __DIR__ . '/dbxCssTestReader.php';
 
 function docs_portal_assert(bool $condition, string $message): void
 {
@@ -28,8 +29,10 @@ $pageShellContent = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/page-
 $template = $pageShellHead . $pageShellStage . $pageShellContent;
 $layout = docs_portal_read($designRoot . '/css/docs-layout.css');
 $docsContent = docs_portal_read($designRoot . '/css/docs-content.css');
-$contentCss = docs_portal_read($designRoot . '/css/c-content.css');
-$darkSkin = docs_portal_read($designRoot . '/css/skin-dunkel.css');
+$contentCss = dbx_test_read_css($designRoot . '/css/c-content.css');
+$dbxappTemplate = docs_portal_read($root . '/dbx/design/dbxapp/htm/default.htm');
+$dbxappWindowTemplate = docs_portal_read($root . '/dbx/design/dbxapp/htm/_window.htm');
+$dbxappDocsContent = docs_portal_read($root . '/dbx/design/dbxapp/css/docs-content.css');
 $javascript = docs_portal_read($designRoot . '/js/dbxdocs.js');
 $homeContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_home.html');
 $installationContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_user_installation.html');
@@ -37,20 +40,8 @@ $installationTutorial = docs_portal_read($root . '/dbx/modules/dbxDocs/content/t
 $selfTestContent = docs_portal_read($root . '/dbx/modules/dbxDocs/content/dbxapp_user_selftest.html');
 $menuJavascript = docs_portal_read($root . '/dbx/js/lib/menu.js');
 $menuModule = docs_portal_read($root . '/dbx/modules/dbxMenu/dbxMenu.class.php');
-$menuDe = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main-primary.htm');
-$menuEn = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main-primary_en.htm');
-$menuEs = docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-main-primary_es.htm');
-$sectionMenus = array(
-    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-start.htm'),
-    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-apply.htm'),
-    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-develop.htm'),
-    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-operate.htm'),
-);
-$referenceMenus = array(
-    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-reference.htm'),
-    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-reference_en.htm'),
-    docs_portal_read($root . '/dbx/modules/dbxMenu/tpl/htm/dbx-docs-section-reference_es.htm'),
-);
+$webApp = docs_portal_read($root . '/dbx/include/dbxWebApp.class.php');
+$tplEngine = docs_portal_read($root . '/dbx/include/dbxTPL.class.php');
 $pageResolver = docs_portal_read($root . '/dbx/modules/dbxDocs/include/dbxDocsPageResolver.class.php');
 $doxyfile = is_file($root . '/Doxyfile') ? docs_portal_read($root . '/Doxyfile') : '';
 $index = docs_portal_read($root . '/index.php');
@@ -61,10 +52,13 @@ $docsWindowTemplate = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/ref
 $docsSearchTemplate = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/search.htm');
 $docsNotFoundTemplate = docs_portal_read($root . '/dbx/modules/dbxDocs/tpl/htm/not-found.htm');
 $docsProvision = docs_portal_read($root . '/dbx/modules/dbxDocs/include/dbxDocsContentProvision.class.php');
-$docsMediaProvision = docs_portal_read($root . '/dbx/modules/dbxDocs/tools/update_docs_portal_media_20260728.php');
+$contentRenderer = docs_portal_read($root . '/dbx/modules/dbxContent/include/dbxContentRenderer.class.php');
+$documentationContentTemplate = docs_portal_read($root . '/dbx/modules/dbxContent/tpl/htm/c-doku.htm');
 $docsAccess = docs_portal_read($root . '/dbx/modules/dbxDocs/tools/configure_docs_access_20260728.php');
 $htaccess = docs_portal_read($root . '/.htaccess');
 $contentMenu = docs_portal_read($root . '/dbx/modules/dbxMenu/include/dbxContent_menu.class.php');
+$contentPermalink = docs_portal_read($root . '/dbx/modules/dbxContent/include/dbxContent_permalink.class.php');
+$contentSitemap = docs_portal_read($root . '/dbx/modules/dbxContent/include/dbxContentSitemap.class.php');
 docs_portal_assert(
     is_file($root . '/dbx/modules/dbxContent/tpl/htm/c-content.htm'),
     'Das sprachunabhängige Standard-Content-Template c-content.htm fehlt.'
@@ -75,7 +69,7 @@ foreach (array(
     'c-form.css',
     'c-report.css',
     'c-menu.css',
-    'skin-blau.css',
+    'skin-hell.css',
     'theme.css',
     'docs-layout.css',
     'docs-content.css',
@@ -108,9 +102,9 @@ docs_portal_assert(
 );
 docs_portal_assert(
     str_contains($template, 'data-dbx-menu-active-open="1"')
-        && str_contains($template, 'docs-layout.css?v=11')
-        && str_contains($template, 'dbxdocs.js?v=6')
-        && preg_match('/core\.js\?design=\{dbx:design\}&log=off&v=\d+/', $template) === 1
+        && str_contains($template, 'docs-layout.css?v={dbx:asset_version}')
+        && str_contains($template, 'dbxdocs.js?v={dbx:asset_version}')
+        && str_contains($template, 'core.js?design={dbx:design}&log=off&v={dbx:asset_version}')
         && str_contains($menuJavascript, "data-dbx-menu-active-open")
         && str_contains($menuJavascript, 'restoreActivePath($el)')
         && str_contains($menuJavascript, 'function closeBranch($item)')
@@ -131,21 +125,22 @@ docs_portal_assert(
     'Das Dokumentationsportal darf mit eingeblendeter Admin-Navigation nicht horizontal überlaufen.'
 );
 docs_portal_assert(
-    str_contains($menuModule, "\$docsDisplay = stripos((string)\$menu, 'dbx-docs-main') !== false")
-        && str_contains($menuModule, "array('dbxdocs' => 'dbxapp (Blau)')")
-        && str_contains($menuModule, "array('blau' => true, 'dunkel' => true)")
-        && str_contains($menuModule, "\$options['blau']['label'] = 'Light'")
-        && str_contains($menuModule, "\$options['dunkel']['label'] = 'Dark'"),
-    'Die Dokumentationsnavigation muss genau dbxapp (Blau) mit Light und Dark anbieten.'
+    str_contains($layout, '#dbxHeader.dbxdocs-sidebar .dbx-menu .dbx-menu-item > .dbx-menu-list')
+        && str_contains($layout, 'background: #061d3d !important;')
+        && str_contains($layout, '.dbx-menu-link.is-active')
+        && str_contains($layout, 'background: linear-gradient(135deg, #0b6fc7, #0752aa);'),
+    'Sprach-, Design- und Skin-Auswahl benötigen kontrastreiche Untermenüs und einen eindeutigen Aktivzustand.'
 );
 docs_portal_assert(
-    str_contains($darkSkin, 'text-shadow: 0 0 1px rgba(95, 255, 95, 0.18)')
-        && !str_contains($darkSkin, '0 0 9px rgba(63, 255, 63, 0.30)')
-        && substr_count($darkSkin, 'text-shadow: none;') >= 2,
-    'Die grüne Dark-Skin-Schrift muss ohne unscharfen Leuchteffekt bleiben.'
+    str_contains($menuModule, "return 'dbxdocs';")
+        && str_contains($menuModule, '$this->render_design_menu($baseSelf, $activeDesign)')
+        && str_contains($menuModule, 'foreach ($this->frontend_design_options() as $design => $designLabel)')
+        && !str_contains($menuModule, "array('dbxdocs' => 'dbxapp (Blau)')")
+        && !str_contains($menuModule, 'array_intersect_key($options'),
+    'Die Dokumentationsnavigation muss alle installierten Designs anbieten.'
 );
 docs_portal_assert(
-    str_contains($template, 'docs-content.css?v=9')
+    str_contains($template, 'docs-content.css?v={dbx:asset_version}')
         && str_contains($docsContent, '.dbx-user-nav-icon svg')
         && str_contains($docsContent, '.dbx-ki-area-grid')
         && str_contains($docsContent, '.dbx-update-state-grid')
@@ -168,11 +163,22 @@ docs_portal_assert(
     'Die Portal-Galerie muss Bilder im Querformat darstellen.'
 );
 docs_portal_assert(
-    str_contains($docsMediaProvision, "\$mediaDd = 'dbx|dbxMedia';")
-        && str_contains($docsMediaProvision, "\$usageDd = 'dbx|dbxMediaUsage';")
-        && str_contains($docsMediaProvision, 'thumb_file_path')
-        && str_contains($docsMediaProvision, 'dbxContentPageCache::invalidateAll()'),
-    'Reproduzierbare Medienaktualisierung über dbxDB und Cache-Invalidierung fehlt.'
+    str_contains($dbxappTemplate, 'dbx/design/dbxapp/css/docs-content.css?v={dbx:asset_version}')
+        && str_contains($dbxappWindowTemplate, 'dbx/design/dbxapp/css/docs-content.css?v={dbx:asset_version}')
+        && str_contains($dbxappDocsContent, '.dbxdocs-home-grid')
+        && str_contains($dbxappDocsContent, '.dbxdocs-search-result')
+        && str_contains($dbxappDocsContent, '.dbx-documentation-page > .dbx-doc-meta')
+        && str_contains($dbxappDocsContent, '.dbxdocs-reference-frame')
+        && str_contains($dbxappDocsContent, 'var(--dbx-primary, #0d6efd)'),
+    'Die Dokumentation muss im dbxapp-Design und in dbx-Fenstern dessen Designvariablen verwenden.'
+);
+docs_portal_assert(
+    str_contains($contentCss, 'grid-template-columns: repeat(5, minmax(0, 1fr));')
+        && str_contains($contentCss, 'grid-template-columns: repeat(3, minmax(0, 1fr));')
+        && str_contains($contentCss, 'grid-template-columns: repeat(2, minmax(0, 1fr));')
+        && str_contains($docsContent, 'box-shadow: inset 0 3px 0 #0b75d1;')
+        && str_contains($docsContent, 'overflow-wrap: anywhere;'),
+    'Der Dokumentstatus muss die volle Breite nutzen und responsiv lesbar bleiben.'
 );
 docs_portal_assert(
     str_contains($javascript, 'sidebarCollapsed')
@@ -190,10 +196,15 @@ docs_portal_assert(
     'Das automatisch erzeugte Inhaltsverzeichnis für lange Seiten fehlt.'
 );
 docs_portal_assert(
-    str_contains($homeContent, 'data-dbx-doc-revision="2026-08-01-portal-v5"')
+    str_contains($homeContent, 'data-dbx-doc-revision="2026-08-03-portal-v6"')
         && str_contains($homeContent, 'Wissen aus einer Quelle')
         && !str_contains($homeContent, 'Version 4.')
         && str_contains($homeContent, '<h1>Was möchten Sie erreichen?</h1>')
+        && str_contains($homeContent, 'Vier klare Arbeitsbereiche')
+        && str_contains($homeContent, 'dokumentation-einstieg')
+        && str_contains($homeContent, 'dokumentation-betrieb')
+        && str_contains($homeContent, 'dokumentation-entwickeln')
+        && str_contains($homeContent, 'dokumentation-ki-agenten')
         && substr_count($homeContent, 'dbxdocs-home-card') >= 10
         && str_contains($homeContent, 'dokumentation-selbsttest')
         && str_contains($homeContent, 'dbx_run1=" value="search') === false
@@ -206,6 +217,26 @@ docs_portal_assert(
     'Die kurze Startseite oder die vollständige Entfernung der Animation ist nicht abgesichert.'
 );
 docs_portal_assert(
+    str_contains($pageShellStage, 'href="{dbx:docs_return_url}"')
+        && str_contains($pageShellStage, 'Zurück zu dbXapp')
+        && str_contains($pageShellContent, 'href="{dbx:docs_return_url}"')
+        && str_contains($webApp, "'dbx_docs_return_design'")
+        && str_contains($webApp, "'dbx_docs_return_color'")
+        && str_contains($webApp, 'documentation_return_url()')
+        && str_contains($tplEngine, "'{dbx:docs_return_url}'"),
+    'Der validierte Rückweg aus dbxdocs zum zuvor aktiven Design/Skin fehlt.'
+);
+docs_portal_assert(
+    str_contains($pageShellHead, '<base href="{dbx:base_href}">')
+        && str_contains($pageShellHead, 'href="{dbx:docs_home_url}"')
+        && str_contains($contentPermalink, "return 'dokumentation/' . \$permalink;")
+        && str_contains($contentPermalink, "str_starts_with(\$legacy, 'dokumentation/')")
+        && str_contains($contentSitemap, 'dbxContent_permalink::publicPath')
+        && str_contains($htaccess, 'doku\\.dbxapp\\.de')
+        && str_contains($htaccess, 'https://dbxapp.de/dokumentation/$1'),
+    'Der kanonische Dokumentationsbereich unter /dokumentation/ oder die seitenweise Subdomain-Weiterleitung fehlt.'
+);
+docs_portal_assert(
     str_contains($docsAccess, "array('dbxUser', 'dbxUser_groups')")
         && str_contains($docsAccess, 'new dbxInstallationService')
         && str_contains($docsAccess, "patch_local_config('dbxLogin', array('register' => '0'))")
@@ -214,29 +245,6 @@ docs_portal_assert(
     'Benutzer-DD, Admin-Seed und ausgeschaltete Registrierung sind nicht reproduzierbar konfiguriert.'
 );
 
-docs_portal_assert(str_contains($sectionMenus[0], 'Dokumentation/Einstieg'), 'Deutscher Einstiegsbereich fehlt.');
-docs_portal_assert(str_contains($sectionMenus[1], 'Dokumentation/Anwenden'), 'Deutscher Anwendungsbereich fehlt.');
-docs_portal_assert(str_contains($sectionMenus[2], 'Dokumentation/Entwickeln'), 'Deutscher Entwicklungsbereich fehlt.');
-docs_portal_assert(str_contains($sectionMenus[3], 'Dokumentation/Betrieb'), 'Deutscher Betriebsbereich fehlt.');
-foreach (array($menuDe, $menuEn, $menuEs) as $menu) {
-    docs_portal_assert(
-        str_contains($menu, 'dbx_modul=dbxDocs')
-            && str_contains($menu, 'dbx_run1=search')
-            && !str_contains($menu, '{dbx:profile_link}')
-            && !str_contains($menu, 'dbx_modul=dbxLogin')
-            && !str_contains($menu, 'dbx_modul=dbxShop'),
-        'Das fokussierte Sprachmenü enthält nicht nur Dokumentationsfunktionen.'
-    );
-}
-foreach ($referenceMenus as $menu) {
-    docs_portal_assert(
-        str_contains($menu, 'dbx_run2=classes')
-            && str_contains($menu, 'dbx_run2=namespaces')
-            && str_contains($menu, 'dbx_run2=files')
-            && str_contains($menu, 'dbx_run2=examples'),
-        'Das horizontale Referenzmenü ist unvollständig.'
-    );
-}
 docs_portal_assert(
     str_contains($pageResolver, "'anwenden' => 'docs-apply'")
         && str_contains($pageResolver, "'entwickeln' => 'docs-develop'")
@@ -259,6 +267,8 @@ docs_portal_assert(
         && str_contains($docsModule, 'realpath')
         && str_contains($docsModule, 'dbx_run2=window')
         && str_contains($docsModule, '&dbx_window=1')
+        && str_contains($layout, '#dbxContent:has(> .dbxdocs-reference)')
+        && str_contains($layout, 'max-width: none;')
         && str_contains($docsTemplate, '<iframe')
         && str_contains($docsTemplate, 'class="btn btn-outline-primary dbx-win"')
         && str_contains($docsTemplate, 'href="{reference_tab_url}"')
@@ -280,10 +290,10 @@ docs_portal_assert(
     'Volltextsuche, hilfreiche 404-Seite oder Weiterleitung alter Doxygen-URLs fehlen.'
 );
 foreach (array(
-    "'name' => 'Einstieg'",
+    "'name' => 'Anwender'",
     "'name' => 'CMS & KI'",
-    "'name' => 'Entwickeln'",
-    "'name' => 'Betrieb'",
+    "'name' => 'Entwickler'",
+    "'name' => 'Administratoren'",
     "'name' => 'Service'",
     'dbxContact]dbx_run1=form',
     'repairDocumentationLinks()',
@@ -296,7 +306,7 @@ foreach (array(
     "'permalink' => 'tutorial-installation'",
     "'permalink' => 'dokumentation-selbsttest'",
     '2026-08-01-ki-design-4',
-    '2026-08-01-portal-v5',
+    '2026-08-03-portal-v6',
     'entwickler|entwickeln|architektur',
     '2026-08-01-dbxform-quickstart-1',
     '2026-08-01-dbxreport-quickstart-1',
@@ -309,8 +319,11 @@ foreach (array(
     '$navigation !== array()',
     "'id,folder,menu_title,sorter'",
 ) as $needle) {
+    $haystack = in_array($needle, array('entwickler|entwickeln|architektur', 'Kanonische Seite'), true)
+        ? $docsProvision . $contentRenderer . $documentationContentTemplate
+        : $docsProvision;
     docs_portal_assert(
-        str_contains($docsProvision, $needle),
+        str_contains($haystack, $needle),
         'CMS-Dokumentationsstruktur ist unvollständig: ' . $needle
     );
 }
@@ -350,7 +363,7 @@ docs_portal_assert(
 
 docs_portal_assert(
     $doxyfile === '' || (
-        str_contains($doxyfile, 'OUTPUT_DIRECTORY       = C:/xampp/htdocs/dbxapp-docs/reference')
+        str_contains($doxyfile, 'OUTPUT_DIRECTORY       = reference')
         && str_contains($doxyfile, 'HTML_OUTPUT            = current')
         && str_contains($doxyfile, 'docs/doxygen-generated-main.dox')
         && !str_contains($doxyfile, 'docs/doxygen-navigation.dox')

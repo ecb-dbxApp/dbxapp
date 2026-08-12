@@ -243,7 +243,7 @@ class dbxWorkflowModule {
          return \dbx\dbxContact\dbxContactConfig::modulMailEnabled((string) $modul, (string) $key);
       }
 
-      $mode = strtolower(trim((string) dbx()->get_config($modul, $key)));
+      $mode = strtolower(trim((string) dbx()->get_cfg($modul, $key)));
       return ($mode === 'both' || $mode === 'mail' || strpos($mode, 'mail') !== false);
    }
 
@@ -814,7 +814,8 @@ class dbxWorkflowModule {
          return array('ok' => 1, 'message' => 'Artikel wurde im Shop freigegeben.');
       }
 
-      $channelRows = $this->db()->select(
+      $db = $this->db();
+      $channelRows = $db->select(
          'dbxShop|shopProductChannel',
          array('product_id' => $productId, 'channel_key' => 'ebay'),
          '*',
@@ -825,7 +826,7 @@ class dbxWorkflowModule {
          0,
          1
       );
-      if (!is_array($channelRows)) {
+      if (!is_array($channelRows) || $db->get_error_status() !== '') {
          return array('ok' => 0, 'message' => 'Channel-Daten konnten nicht gelesen werden.');
       }
       $channelRow = (is_array($channelRows) && isset($channelRows[0])) ? $channelRows[0] : array();
@@ -918,11 +919,11 @@ class dbxWorkflowModule {
                }
                $html = $bodyTpl !== '' ? $this->tpl()->get_tpl($bodyTpl, $bodyVars) : nl2br($this->h((string)($update['reply_text'] ?? '')));
 
-               $from = trim((string)dbx()->get_config($configModul, 'mail_from'));
-               $fromName = trim((string)dbx()->get_config($configModul, 'mail_from_name'));
+               $from = trim((string)dbx()->get_cfg($configModul, 'mail_from'));
+               $fromName = trim((string)dbx()->get_cfg($configModul, 'mail_from_name'));
                $fromParam = ($from !== '') ? array('email' => $from, 'name' => $fromName) : '';
                $options = array('text' => strip_tags(str_replace('<br />', "\n", $html)));
-               $profile = trim((string)dbx()->get_config($configModul, 'mail_profile'));
+               $profile = trim((string)dbx()->get_cfg($configModul, 'mail_profile'));
                if ($profile !== '') {
                   $options['mail_profile'] = $profile;
                }

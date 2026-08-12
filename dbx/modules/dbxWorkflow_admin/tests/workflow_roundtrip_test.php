@@ -47,7 +47,7 @@ class WorkflowDefinitionApiStub {
       $this->module = new WorkflowDefinitionModuleStub();
    }
 
-   public function get_config($modul = 'dbx', $key = '', $default = null) {
+   public function get_cfg($modul = 'dbx', $key = '', $default = null) {
       return $key === 'default_workflow' ? 'active_flow' : $default;
    }
 

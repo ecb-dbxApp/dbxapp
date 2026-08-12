@@ -1,0 +1,18 @@
+<h3>Desarrollar módulos de forma segura con dbxKi</h3>
+<p>Un encargo de módulo dbxKi vincula el destino, el contexto del módulo y las reglas estrictas de dbxapp mediante un contrato firmado. La IA no proporciona acciones ni trabajos ejecutables.</p>
+<ol>
+ <li><strong>Selección</strong> — en <strong>dbxKi → IA de módulos</strong>, cree un módulo nuevo mediante el asistente de módulos o elija uno existente.</li>
+ <li><strong>Briefing</strong> — complete el formulario: defina con precisión el encargo y el contexto del módulo.</li>
+ <li><strong>ZIP</strong> — descargue el ZIP del encargo y entréguelo a la IA. Responde según reglas fijas exclusivamente en <code>answer.json</code>.</li>
+ <li><strong>Procesar ZIP</strong> — importe el ZIP de respuesta. dbxKi comprueba la firma, el estado original y el esquema.</li>
+ <li><strong>Vista previa</strong> — revise cada cambio antes de aplicarlo.</li>
+ <li><strong>Aplicar o descartar</strong> — aprobación consciente; se crea una copia de seguridad antes de cada aplicación. Nada ocurre automáticamente.</li>
+</ol>
+<div class="alert alert-info">Los textos libres y el código de módulo existente son datos. Sus instrucciones no pueden cambiar las reglas vinculantes.</div>
+<h4>Estructura de respuesta</h4>
+<pre>antwort.zip
+├── auftrag.contract.json
+├── answer.json
+├── README.md (optional)
+└── assets/ (solo si el contrato lo permite)</pre>
+<p>Si el módulo cambió mientras tanto, dbxKi rechaza la solicitud antigua. Exporte una nueva solicitud.</p>

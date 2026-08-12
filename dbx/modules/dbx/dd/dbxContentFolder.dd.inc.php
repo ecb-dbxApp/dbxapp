@@ -1,7 +1,7 @@
 <?php
 
 if (!isset($__dbx_lng_dd) || (string) $__dbx_lng_dd === '') {
-   $__dbx_lng_dd = strtolower(trim((string) dbx()->get_config('dbx', 'default_lng', 'de')));
+   $__dbx_lng_dd = strtolower(trim((string) dbx()->get_cfg('dbx', 'default_lng', 'de')));
 }
 $__dbx_lng_dd = strtolower(trim((string) $__dbx_lng_dd));
 if ($__dbx_lng_dd === '') {

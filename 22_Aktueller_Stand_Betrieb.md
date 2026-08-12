@@ -41,11 +41,13 @@ Bootstrap- oder Kompatibilitätsgründen vor der API existieren müssen.
 
 Für Datenlisten gilt entsprechend: Datenzugriffe bleiben zentral in `dbxDB`,
 fachliche Mengenbildung und Zuordnung gehören in das jeweilige Repository.
-Wiederholte Beziehungen werden mit gebündelten DD-Abfragen geladen, nicht mit
-einem pauschalen Ergebnis-Cache im Kernel. Kleine unveränderliche
-Referenzlisten dürfen innerhalb eines Requests im Fach-Repository gemerkt
-werden, wenn jede zugehörige Mutation den Cache leert. So bleiben
-Rechteprüfung, Transaktionen und Aktualität einfach nachvollziehbar.
+Wiederholte Beziehungen einer Liste werden weiterhin mit gebündelten
+DD-Abfragen geladen. Zusätzlich cached `dbxDB::select1()` identische
+Einzelsatzzugriffe requestlokal pro DD und verwirft sie zentral bei
+`insert()`, `update()`, `save()` und `delete()`. Transaktionen umgehen den
+Cache. Kleine unveränderliche Referenzlisten dürfen daneben innerhalb eines
+Requests im Fach-Repository gemerkt werden, wenn jede zugehörige Mutation den
+Cache leert.
 
 Direkte PDO- oder mysqli-Aufrufe außerhalb von `dbxDB` sind auch in
 Kommandozeilen-, Migrations- und Wartungswerkzeugen nicht zulässig.

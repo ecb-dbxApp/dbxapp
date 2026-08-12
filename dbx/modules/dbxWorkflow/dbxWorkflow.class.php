@@ -12,7 +12,7 @@ class dbxWorkflow {
       }
 
       if ($run === 'start') {
-         $workflow = dbx()->get_modul_var('workflow', (string)dbx()->get_config('dbxWorkflow', 'default_workflow'), 'parameter');
+         $workflow = dbx()->get_modul_var('workflow', (string)dbx()->get_cfg('dbxWorkflow', 'default_workflow'), 'parameter');
          return $engine->start($workflow);
       }
 
@@ -21,7 +21,7 @@ class dbxWorkflow {
          return $engine->render($iid);
       }
 
-      $workflow = dbx()->get_modul_var('workflow', (string)dbx()->get_config('dbxWorkflow', 'default_workflow'), 'parameter');
+      $workflow = dbx()->get_modul_var('workflow', (string)dbx()->get_cfg('dbxWorkflow', 'default_workflow'), 'parameter');
       return $engine->overview($workflow);
    }
 }

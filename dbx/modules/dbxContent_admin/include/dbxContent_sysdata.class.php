@@ -92,7 +92,7 @@ class dbxContent_sysdata extends \dbxObj {
        $db  = dbx()->get_system_obj('dbxDB');
        $lng = dbx()->get_system_var('dbx_lng','de');
 
-       $tab_content = dbx_lng_name('content', $lng);
+       $tab_content = dbx()->lng_name('content', $lng);
        $tab_folder = $tab_content.'_folder';
 
 

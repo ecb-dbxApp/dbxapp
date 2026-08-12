@@ -1,10 +1,10 @@
 <aside class="dbx-cms-media-panel" data-cms-right-panel>
  <div class="dbx-cms-right-panel-rail">
-  <button type="button" class="btn btn-outline-primary btn-sm dbx-cms-right-panel-toggle dbx-cms-right-panel-toggle-top" data-cms-action="toggle-right-panel" title="{right_show}" aria-label="{right_show}" aria-expanded="false">
+  <button type="button" class="btn btn-outline-primary btn-sm dbx-cms-right-panel-toggle dbx-cms-right-panel-toggle-top" data-cms-action="toggle-right-panel" data-dbx-tooltip="{right_show}" aria-label="{right_show}" aria-expanded="false">
    <i class="bi bi-list" aria-hidden="true"></i>
   </button>
   <span class="dbx-cms-right-panel-hint" aria-hidden="true">{right_panel_hint}</span>
-  <button type="button" class="btn btn-outline-primary btn-sm dbx-cms-right-panel-toggle dbx-cms-right-panel-toggle-bottom" data-cms-action="toggle-right-panel" title="{right_hide}" aria-label="{right_hide}" aria-expanded="true">
+  <button type="button" class="btn btn-outline-primary btn-sm dbx-cms-right-panel-toggle dbx-cms-right-panel-toggle-bottom" data-cms-action="toggle-right-panel" data-dbx-tooltip="{right_hide}" aria-label="{right_hide}" aria-expanded="true">
    <i class="bi bi-chevron-bar-right" aria-hidden="true"></i>
   </button>
  </div>
@@ -12,9 +12,9 @@
   {settings_form}
   <details class="dbx-cms-settings-panel dbx-cms-media-list-panel" data-cms-ui-state="media-list" open>
    <summary><i class="bi bi-chevron-right dbx-cms-toggle-icon"></i><span>{inline_media_title}</span></summary>
-   <div class="dbx-cms-settings-grid">
-    <div class="dbx-cms-settings-actions">
-     <button type="button" class="btn btn-outline-primary btn-sm" data-cms-action="assign-media" data-cms-slot="inline" title="{inline_media_assign_title}">
+   <div class="dbx-form-grid dbx-form-grid--2">
+    <div class="dbx-form-grid__item dbx-form-grid__item--full dbx-cms-settings-actions">
+     <button type="button" class="btn btn-outline-primary btn-sm" data-cms-action="assign-media" data-cms-slot="inline" data-dbx-tooltip="{inline_media_assign_title}">
       <i class="bi bi-images"></i><i class="bi bi-camera-video"></i><i class="bi bi-upload"></i><span>{selection_label}</span>
      </button>
     </div>

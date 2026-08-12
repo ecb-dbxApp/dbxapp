@@ -279,9 +279,22 @@ Fachmodule ergänzen Konfiguration und Fachendpunkte, nicht die Basispipeline.
 | `menu.js` | Navigation und Chronik |
 | `utilities.js` | allgemeine UI-Hilfen, Collapse, Theme/Skin |
 | `ace.js` | Source- und Templateeditor |
-| `cms.js` | CMS-Baum, Medien und Inclusion-Hilfen |
+| `cms.js` | stabiler CMS-/Jodit-Kern, Cursor und Komponentenbearbeitung |
+| `cms-page.js` | Seitenformular und Seitenaktionen; im CMS vorab geladen |
+| `cms-tree.js` | Content-Baum; erst beim Öffnen geladen |
+| `cms-media.js` | Medienbrowser, Upload und Medienwartung; erst bei Nutzung geladen |
+| `cms-language.js` | Sprachabgleich und Sprachdialoge; erst bei Nutzung geladen |
+| `cms-jodit-image.js` | erweiterter Jodit-Bilddialog; erst beim Bilddialog geladen |
 | `kiBriefing.js` | KI-Briefing-Oberfläche |
 | `seoAdmin.js` | SEO-Verwaltung |
+
+Die CMS-Module werden über `dbx.cmsRuntime` registriert. Nur der für jede
+Bearbeitung notwendige Kern und die Seitensteuerung werden initial geladen.
+Ein Featuremodul darf keine zweite Ajax-, Fenster-, Layer- oder
+Editor-Infrastruktur aufbauen; Requests laufen über `ajax.js`, Fenster über
+`openWin.js` und gemeinsame Helfer werden aus dem Runtime-Kontext bezogen.
+Der Browsercache reduziert wiederholte Übertragung, Lazy Loading spart aber
+zusätzlich Parse-, Initialisierungs- und Eventkosten für unbenutzte Funktionen.
 
 ## Verbindliche Regeln
 

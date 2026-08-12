@@ -13,7 +13,7 @@ class dbxContactForm {
    }
 
    private function mail_profile_options(array $extra = array()) {
-      $profile = trim((string) dbx()->get_config('dbxContact', 'mail_profile'));
+      $profile = trim((string) dbx()->get_cfg('dbxContact', 'mail_profile'));
       if ($profile !== '') {
          $extra['mail_profile'] = $profile;
       }
@@ -22,8 +22,8 @@ class dbxContactForm {
    }
 
    private function mail_from_param(): array {
-      $from = trim((string) dbx()->get_config('dbxContact', 'mail_from'));
-      $fromName = trim((string) dbx()->get_config('dbxContact', 'mail_from_name'));
+      $from = trim((string) dbx()->get_cfg('dbxContact', 'mail_from'));
+      $fromName = trim((string) dbx()->get_cfg('dbxContact', 'mail_from_name'));
       return array('email' => $from, 'name' => $fromName);
    }
 
@@ -45,7 +45,7 @@ class dbxContactForm {
    }
 
    private function mail_request(array $data, int $rid) {
-      $to = trim((string) dbx()->get_config('dbxContact', 'mail_to'));
+      $to = trim((string) dbx()->get_cfg('dbxContact', 'mail_to'));
       if ($to === '') {
          return false;
       }
@@ -54,7 +54,7 @@ class dbxContactForm {
          return false;
       }
 
-      $prefix = trim((string) dbx()->get_config('dbxContact', 'mail_subject_prefix'));
+      $prefix = trim((string) dbx()->get_cfg('dbxContact', 'mail_subject_prefix'));
       $subject = trim($prefix . ': ' . ($data['subject'] ?? ''));
       if ($rid > 0) {
          $subject .= ' #' . $rid;
@@ -94,7 +94,7 @@ class dbxContactForm {
          return false;
       }
 
-      $subject = trim((string) dbx()->get_config('dbxContact', 'mail_confirm_subject'));
+      $subject = trim((string) dbx()->get_cfg('dbxContact', 'mail_confirm_subject'));
       if ($subject === '') {
          $subject = 'Ihre Kontaktanfrage';
       }
@@ -250,9 +250,9 @@ class dbxContactForm {
          'frame_body_class'    => '',
          'frame_body_head'     => '',
          'frame_body_tail'     => '',
-         'bar_class'           => 'dbx-module-bar',
-         'bar_title_class'     => 'dbx-module-bar-titleblock',
-         'bar_actions_class'   => 'dbx-module-bar-actions',
+         'bar_class'           => 'dbx-bar--module',
+         'bar_title_class'     => 'dbx-bar-title',
+         'bar_actions_class'   => 'dbx-bar-actions',
          'bar_title'           => $form->get_fd_message('confirm_title'),
          'bar_icon'            => 'bi-check2-circle',
          'bar_subtitle'        => $form->get_fd_message(
@@ -286,7 +286,7 @@ class dbxContactForm {
          'bi-envelope-paper',
          $oForm->get_fd_message('bar_subtitle')
       );
-      $oForm->add_rep('bar_class', 'dbx-module-bar');
+      $oForm->add_rep('bar_class', 'dbx-bar--module');
       $oForm->add_rep('frame_panel_class', 'dbxForm_wrapper dbx-contact');
       $oForm->prepare_form_shell(array('class' => 'dbx-contact-form'));
       $oForm->add_rep('bar_actions', '{obj:contact_bar_actions}');

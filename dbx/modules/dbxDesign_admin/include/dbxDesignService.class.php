@@ -167,12 +167,12 @@ class dbxDesignService {
       }
 
       if (!empty($input['set_default'])) {
-         $config = dbx()->get_config('dbx');
+         $config = dbx()->get_cfg('dbx');
          if (!is_array($config)) {
             $config = array();
          }
          $config['default_design_user'] = $target;
-         dbx()->set_config('dbx', $config);
+         dbx()->set_cfg('dbx', $config);
       }
 
       return array(
@@ -223,13 +223,23 @@ class dbxDesignService {
       if (substr_count($html, '[dbx:content]') !== 1) {
          $errors[] = 'htm/default.htm muss [dbx:content] genau einmal enthalten.';
       }
-      foreach (array('{dbx:title}', '{dbx:design}', '{dbx:skin_css}', '{dbx:skin_class}', 'dbx/js/lib/core.js') as $required) {
+      foreach (array('{dbx:design}', '{dbx:skin_css}', '{dbx:skin_class}', 'dbx/js/lib/core.js', '{dbx:module_assets}') as $required) {
          if (strpos($html, $required) === false) {
             if ($strict) {
                $errors[] = 'Template-Marker fehlt: ' . $required;
             } else {
                $warnings[] = 'Template-Marker fehlt: ' . $required;
             }
+         }
+      }
+      // {dbx:document_title} loeste {dbx:title} im <title>-Tag ab; dbxTPL::replaces_dbx()
+      // ersetzt beide, daher genuegt einer der beiden Marker.
+      if (strpos($html, '{dbx:title}') === false && strpos($html, '{dbx:document_title}') === false) {
+         $message = 'Template-Marker fehlt: {dbx:title} oder {dbx:document_title}';
+         if ($strict) {
+            $errors[] = $message;
+         } else {
+            $warnings[] = $message;
          }
       }
       foreach (array('logo', 'branding', 'footer') as $slot) {
@@ -609,6 +619,7 @@ HTML;
          . '<button id="dbxBackToTop" class="btn btn-primary" type="button" aria-label="Nach oben"><i class="bi bi-arrow-up"></i></button>' . "\n"
          . '<script src="dbx/vendor/components/jquery/jquery.min.js"></script>' . "\n"
          . '<script src="dbx/js/lib/core.js?design={dbx:design}"></script>' . "\n"
+         . '{dbx:module_assets}' . "\n"
          . '</body></html>';
    }
 
@@ -634,7 +645,7 @@ HTML;
    private function buildFooterFragment(array $in): string {
       $mode = in_array($in['footer_mode'], array('full', 'minimal', 'none'), true) ? $in['footer_mode'] : 'full';
       $dock = '<div class="dbx-footer-dockbar" aria-label="Fensterleiste"><div id="windrop" class="dbx-window-dock" aria-label="Minimierte Fenster"></div>'
-         . '<button id="dbxWindowCloseAll" class="dbx-footer-window-close-all" type="button" title="Alle Fenster schliessen" aria-label="Alle Fenster schliessen"><i class="bi bi-x-square"></i></button></div>';
+         . '<button id="dbxWindowCloseAll" class="dbx-footer-window-close-all" type="button" data-dbx-tooltip="Alle Fenster schliessen" aria-label="Alle Fenster schliessen"><i class="bi bi-x-square"></i></button></div>';
       if ($mode === 'none') {
          return '<footer id="dbxFooter" class="dbx-design-footer dbx-footer-dock-only">' . $dock . '</footer>';
       }

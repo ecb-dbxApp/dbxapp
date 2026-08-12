@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* =========================================================
    dbxapp – GLASS & DEPTH
    ---------------------------------------------------------
@@ -14,7 +15,6 @@ body.dbx-app {
     --dbx-glass-border-soft: color-mix(in srgb, var(--dbx-panel-border) 54%, rgba(255, 255, 255, 0.58));
     --dbx-glass-highlight: rgba(255, 255, 255, 0.76);
     --dbx-glass-highlight-soft: rgba(255, 255, 255, 0.34);
-    --dbx-glass-depth: color-mix(in srgb, var(--dbx-primary) 25%, rgba(10, 24, 48, 0.30));
     --dbx-glass-shadow:
         0 1px 0 rgba(255, 255, 255, 0.86) inset,
         0 -1px 0 color-mix(in srgb, var(--dbx-primary) 15%, transparent) inset,
@@ -45,7 +45,6 @@ body.dbx-app.skin-dunkel {
     --dbx-glass-border-soft: color-mix(in srgb, var(--dbx-panel-border) 72%, rgba(255, 255, 255, 0.12));
     --dbx-glass-highlight: rgba(255, 255, 255, 0.17);
     --dbx-glass-highlight-soft: rgba(255, 255, 255, 0.08);
-    --dbx-glass-depth: color-mix(in srgb, var(--dbx-primary) 34%, rgba(0, 0, 0, 0.64));
     --dbx-glass-shadow:
         0 1px 0 rgba(255, 255, 255, 0.14) inset,
         0 -1px 0 rgba(0, 0, 0, 0.82) inset,
@@ -103,7 +102,7 @@ body.dbx-app #dbxMain::after {
     background-image:
         radial-gradient(circle at 18% 25%, color-mix(in srgb, var(--dbx-primary) 22%, transparent), transparent 27%),
         radial-gradient(circle at 82% 72%, rgba(91, 207, 255, 0.16), transparent 28%),
-        url("../img/dbx-tech-circuit-v1.webp");
+        url("../../dbxapp/img/dbx-tech-circuit-v1.webp");
     background-position: center, center, center;
     background-repeat: no-repeat;
     /* Das Motiv muss die gesamte Arbeitsflaeche abdecken. Eine feste
@@ -116,7 +115,7 @@ body.dbx-app #dbxMain::after {
 /* Blauer dbxapp-Skin: helles Contentbild mit exaktem dbXapp-Wasserzeichen. */
 body.dbx-app.skin-blau #dbxMain {
     background-color: #edf6ff;
-    background-image: url("../img/dbx-content-blue-v1.svg?v=2");
+    background-image: url("../../dbxapp/img/dbx-content-blue-v1.svg?v=2");
     background-position: center bottom;
     background-repeat: no-repeat;
     background-size: cover;
@@ -357,7 +356,6 @@ body.dbx-app .dbx-report-body {
 /* --- Gloss bars ---------------------------------------------- */
 
 body.dbx-app .dbx-bar,
-body.dbx-app .dbx-module-bar,
 body.dbx-app .dbx-grid-bar,
 body.dbx-app .dbx-report-bar,
 body.dbx-app .dbx-report-footer,
@@ -376,7 +374,6 @@ body.dbx-app .dbx-panel-head {
 }
 
 body.dbx-app .dbx-bar::after,
-body.dbx-app .dbx-module-bar::after,
 body.dbx-app .dbx-form-bar::after,
 body.dbx-app .dbx-grid-head::after,
 body.dbx-app .dbx-panel-head::after {
@@ -393,7 +390,7 @@ body.dbx-app .dbx-panel-head::after {
 
 body.dbx-app .dbx-bar-title > i,
 body.dbx-app .dbx-admin-dashboard-card-title i,
-body.dbx-app .dbx-module-bar-titleblock > i {
+body.dbx-app .dbx-bar-title > i {
     background:
         linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.12)),
         color-mix(in srgb, var(--dbx-primary) 14%, transparent);

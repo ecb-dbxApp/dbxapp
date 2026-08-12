@@ -8,13 +8,14 @@
       <div class="d-flex justify-content-center align-items-center bg-light border rounded mb-3" style="min-height:220px">
        <img src="dbx/modules/dbxKi/tpl/img/dbxKi.png" alt="dbxKi" style="display:block;max-width:82%;max-height:210px;object-fit:contain">
       </div>
-      <div class="text-uppercase small fw-bold text-muted mb-1">dbxKi Gasoducto del módulo</div>
-      <h2 class="h3 mb-2">Modificar y actualizar módulos</h2>
-      <p class="text-muted mb-3">La AI funciona según la unión dbXapp-Manual de trabajo y referencia ejecutable myInvoices. dbxKi comprueba, guarda y escribe exclusivamente dentro del módulo seleccionado.</p>
+      <div class="text-uppercase small fw-bold text-muted mb-1">dbxKi Módulo-Pipeline</div>
+      <h2 class="h3 mb-2">Editar y actualizar módulos</h2>
+      <p class="text-muted mb-2">La IA sigue el manual vinculante de módulos dbXapp y la referencia ejecutable myInvoices. Solo devuelve el contrato sin cambios y <code>answer.json</code>.</p>
+      <p class="small text-muted mb-3">dbxKi muestra primero la vista previa del plan, trabaja en staging, comprueba PHP y las pruebas existentes y aplica el módulo con copia de seguridad y reversión.</p>
       <div class="row g-2 text-center">
        <div class="col-4"><div class="border rounded bg-light p-2 h-100"><strong class="d-block">ZIP</strong><small class="text-muted">Contexto</small></div></div>
        <div class="col-4"><div class="border rounded bg-light p-2 h-100"><strong class="d-block">API</strong><small class="text-muted">Reglas</small></div></div>
-       <div class="col-4"><div class="border rounded bg-light p-2 h-100"><strong class="d-block">Estándar</strong><small class="text-muted">Manual + Referencia</small></div></div>
+       <div class="col-4"><div class="border rounded bg-light p-2 h-100"><strong class="d-block">Standard</strong><small class="text-muted">Manual + referencia</small></div></div>
       </div>
      </div>
     </div>
@@ -26,14 +27,14 @@
        {obj:form_msg}
        <div class="row g-3">
         <div class="col-md-6"><label class="form-label fw-semibold">Módulo</label><select name="xmodul" class="form-select" required>{module_options}</select></div>
-        <div class="col-md-6"><label class="form-label fw-semibold">DDD</label><input name="dd_name" class="form-control" value="{dd_name}" placeholder="Facultativo"></div>
-        <div class="col-md-6"><label class="form-label fw-semibold">Tareas</label><select name="task_type" class="form-select">{task_options}</select></div>
+        <div class="col-md-6"><label class="form-label fw-semibold">DD</label><input name="dd_name" class="form-control" value="{dd_name}" placeholder="optional"></div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Tarea</label><select name="task_type" class="form-select">{task_options}</select></div>
         <div class="col-md-6"><label class="form-label fw-semibold">Contexto</label><select name="include_context" class="form-select">{context_options}</select></div>
-        <div class="col-12"><label class="form-label fw-semibold">Mission for AI</label><textarea name="brief" class="form-control" rows="10" placeholder="¿Qué se debe hacer en el módulo?"></textarea></div>
+        <div class="col-12"><label class="form-label fw-semibold">Instrucciones para la IA</label><textarea name="brief" class="form-control" rows="10" placeholder="Was soll im Módulo gemacht werden?"></textarea></div>
         <div class="col-12 d-flex flex-wrap gap-2 pt-1">
-         <button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-download"></i> Crear una cremallera de orden AI</button>
-         <a class="btn btn-success btn-lg" href="{bundle_url}"><i class="bi bi-upload"></i> Respuesta del módulo de importación</a>
-         <a class="btn btn-outline-secondary btn-lg" target="_blank" href="{api_url}"><i class="bi bi-braces"></i> Módulo AI API</a>
+         <button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-download"></i> Crear ZIP de solicitud IA</button>
+         <a class="btn btn-success btn-lg" href="{bundle_url}"><i class="bi bi-upload"></i> Módulo-Importar respuesta</a>
+         <a class="btn btn-outline-secondary btn-lg" target="_blank" href="{api_url}"><i class="bi bi-braces"></i> IA de módulos API</a>
         </div>
        </div>
        [dbx:form]
@@ -44,3 +45,4 @@
   </div>
  </div>
 </div>
+

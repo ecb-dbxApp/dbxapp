@@ -1,7 +1,7 @@
 <!-- dbxdocs-portal:start -->
 <section
     class="dbxdocs-home"
-    data-dbx-doc-revision="2026-08-01-portal-v5"
+    data-dbx-doc-revision="2026-08-03-portal-v6"
     data-dbx-doc-type="Einstieg"
     data-dbx-doc-audience="Alle"
 >
@@ -10,8 +10,8 @@
             <span class="dbxdocs-home-kicker">dbxapp Dokumentation · Wissen aus einer Quelle</span>
             <h1>Was möchten Sie erreichen?</h1>
             <p>
-                Finden Sie verlässliche Anleitungen für Bedienung, Betrieb und
-                Entwicklung – mit klaren Einstiegen und einer gemeinsamen Suche.
+                Wählen Sie Ihren Bereich: Anwender, Administration, Entwicklung
+                oder KI. Alle Bereiche nutzen dieselbe Suche und dieselbe Referenz.
             </p>
         </div>
     </header>
@@ -35,11 +35,11 @@
 
     <section class="dbxdocs-home-entrances" aria-labelledby="dbxdocs-home-entrances-title">
         <div class="dbxdocs-section-heading">
-            <span>Fünf klare Wege</span>
+            <span>Vier klare Arbeitsbereiche</span>
             <h2 id="dbxdocs-home-entrances-title">Wählen Sie Ihren Arbeitsbereich</h2>
         </div>
         <div class="dbxdocs-home-grid">
-            <a class="dbxdocs-home-card is-user" href="dokumentation-anwender">
+            <a class="dbxdocs-home-card is-user" href="dokumentation/dokumentation-einstieg">
                 <span class="dbxdocs-home-card-icon"><i class="bi bi-person-check" aria-hidden="true"></i></span>
                 <span class="dbxdocs-home-card-copy">
                     <small>Bedienen und gestalten</small>
@@ -49,7 +49,7 @@
                 <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </a>
 
-            <a class="dbxdocs-home-card is-admin" href="dokumentation-administration">
+            <a class="dbxdocs-home-card is-admin" href="dokumentation/dokumentation-betrieb">
                 <span class="dbxdocs-home-card-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
                 <span class="dbxdocs-home-card-copy">
                     <small>Installieren und betreiben</small>
@@ -59,7 +59,7 @@
                 <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </a>
 
-            <a class="dbxdocs-home-card is-developer" href="dokumentation-entwickler">
+            <a class="dbxdocs-home-card is-developer" href="dokumentation/dokumentation-entwickeln">
                 <span class="dbxdocs-home-card-icon"><i class="bi bi-braces-asterisk" aria-hidden="true"></i></span>
                 <span class="dbxdocs-home-card-copy">
                     <small>Verstehen und erweitern</small>
@@ -69,7 +69,7 @@
                 <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </a>
 
-            <a class="dbxdocs-home-card is-ai" href="dokumentation-ki-agenten">
+            <a class="dbxdocs-home-card is-ai" href="dokumentation/dokumentation-ki-agenten">
                 <span class="dbxdocs-home-card-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
                 <span class="dbxdocs-home-card-copy">
                     <small>Regelkonform arbeiten</small>
@@ -79,17 +79,16 @@
                 <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </a>
 
-            <a class="dbxdocs-home-card is-reference" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=overview">
-                <span class="dbxdocs-home-card-icon"><i class="bi bi-code-square" aria-hidden="true"></i></span>
-                <span class="dbxdocs-home-card-copy">
-                    <small>Automatisch aus dem Quellcode</small>
-                    <strong>API-Referenz</strong>
-                    <span>Klassen, Namespaces, Dateien, Methoden und Beispiele.</span>
-                </span>
-                <i class="bi bi-arrow-right" aria-hidden="true"></i>
-            </a>
         </div>
     </section>
+
+    <aside class="dbxdocs-home-reference" aria-label="Technische Referenz">
+        <div>
+            <strong>API-Referenz aus dem aktuellen Quellcode</strong>
+            <span>Klassen, Namespaces, Dateien, Methoden und Beispiele.</span>
+        </div>
+        <a class="btn btn-outline-primary" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=overview"><i class="bi bi-code-square" aria-hidden="true"></i> Referenz öffnen</a>
+    </aside>
 
     <section class="dbxdocs-home-recommended" aria-labelledby="dbxdocs-home-recommended-title">
         <div class="dbxdocs-section-heading">
@@ -97,10 +96,10 @@
             <h2 id="dbxdocs-home-recommended-title">Direkt zur passenden Anleitung</h2>
         </div>
         <nav class="dbxdocs-home-quicklinks" aria-label="Empfohlene Einstiege">
-            <a href="dokumentation-erste-schritte"><i class="bi bi-1-circle" aria-hidden="true"></i> Erste Schritte</a>
-            <a href="dokumentation-installation"><i class="bi bi-download" aria-hidden="true"></i> Installation</a>
-            <a href="dokumentation-selbsttest"><i class="bi bi-check2-circle" aria-hidden="true"></i> System-Selbsttest</a>
-            <a href="dokumentation-modul-schnellstart"><i class="bi bi-lightning-charge" aria-hidden="true"></i> Modul in 30 Minuten</a>
+            <a href="dokumentation/dokumentation-erste-schritte"><i class="bi bi-1-circle" aria-hidden="true"></i> Erste Schritte</a>
+            <a href="dokumentation/dokumentation-installation"><i class="bi bi-download" aria-hidden="true"></i> Installation</a>
+            <a href="dokumentation/dokumentation-selbsttest"><i class="bi bi-check2-circle" aria-hidden="true"></i> System-Selbsttest</a>
+            <a href="dokumentation/dokumentation-modul-schnellstart"><i class="bi bi-lightning-charge" aria-hidden="true"></i> Modul in 30 Minuten</a>
         </nav>
     </section>
 </section>

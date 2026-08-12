@@ -1,5 +1,5 @@
 <?php
-$config=dbx()->get_config($record['modul']);
+$config=dbx()->get_cfg($record['modul']);
 $activ='#N#';
 if ($config['active'] == 1) $activ='#Y#';
 

@@ -11,7 +11,6 @@
 
 @htmlonly
 <div class="dbx-tutorial-source">
-<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_shop_dashboard.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
 <p class="lead">Das Shop-Dashboard ist die zentrale Arbeitsübersicht für den laufenden Shop-Betrieb. Es zeigt offene Arbeit, warnt vor knappem Bestand und führt direkt zu Produkten, Bestellungen, Gruppen, Channels, Medien, Rechtstexten und Widerrufen. Dieses Tutorial erklärt alle Bereiche und die zugehörigen Möglichkeiten Schritt für Schritt.</p>
 
 <div class="alert alert-info"><strong>Hinweis zu den Screenshots:</strong> Die Bilder zeigen echte Beispieldaten. Bestellzahlen, Status, Artikel und Zeitstempel verändern sich im laufenden Betrieb. Entscheidend ist, wie die Werte berechnet werden und welche Handlung daraus folgt.</div>

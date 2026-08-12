@@ -20,7 +20,7 @@ class dbxSQLreader extends dbxObj {
     $this->set_property('file_ext',$ext);
 
     $process    = $this->get_property('process','sqlImport');
-    $server     = $this->get_property('server', dbx()->get_config('dbx', 'default_server'));
+    $server     = $this->get_property('server', dbx()->get_cfg('dbx', 'default_server'));
     $bytes      = $this->get_property('run_bytes',96000);
     $maxRuntime = $this->get_property('run_time',1);  // less then your max script execution limit
     $deadline   = time()+$maxRuntime;

@@ -269,6 +269,35 @@ eingebunden. Die Datei gestaltet die vorhandenen Komponenten über die
 Skin-Tokens und darf deshalb keine eigene, vom Skin getrennte Farbwelt
 einführen.
 
+## Verbindliche Strukturklassen
+
+Die HTML-Struktur ist systemweit einheitlich, die visuelle Ausgestaltung
+bleibt je Design eigenständig. `dbxTPL`, `dbxForm` und `dbxReport` erzeugen
+dafür dieselben semantischen Klassen:
+
+| Klasse | Bedeutung |
+| --- | --- |
+| `.dbx-panel` | äußerer Komponentenrahmen |
+| `.dbx-panel-body` | gepolsterter Inhaltsbereich |
+| `.dbx-bar` | Basis jeder Kopf- oder Werkzeugleiste |
+| `.dbx-bar--module` | Kopf eines Moduls, Formulars oder Reports |
+| `.dbx-bar--editor` | Editorleiste |
+| `.dbx-bar--toolbar` | eigenständige Werkzeugleiste |
+| `.dbx-bar-title` | Titelgruppe mit Icon und Text |
+| `.dbx-bar-copy` | Textcontainer innerhalb der Titelgruppe |
+| `.dbx-bar-heading` | sichtbare Hauptüberschrift |
+| `.dbx-bar-subtitle` | optionale zweite Zeile |
+| `.dbx-bar-actions` | rechte Aktionsgruppe |
+
+Eine Variante ergänzt immer die Basisklasse, zum Beispiel
+`class="dbx-bar dbx-bar--module"`. JavaScript verwendet fachliche
+`data-dbx-*`-Attribute und keine Darstellungsklasse als Verhaltensanker.
+Alte Parallelbegriffe für Modul-, Editor- oder Toolbar-Leisten sind nicht
+zulässig. Ein Design darf Farben, Abstände, Typografie und Effekte vollständig
+selbst bestimmen, muss aber diesen Strukturvertrag unterstützen. Dadurch
+bleiben Templates, Formulare und Reports vorhersehbar, ohne Designs
+voneinander abhängig zu machen.
+
 ## Das Flowers-Design
 
 `flowers` ist bewusst keine Farbkopie von `dbxapp`. Seine Merkmale sind:
