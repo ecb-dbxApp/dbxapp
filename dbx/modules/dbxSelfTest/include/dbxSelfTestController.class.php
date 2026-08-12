@@ -23,20 +23,15 @@ class dbxSelfTestController
     private function url(string $action, bool $tokenized = false, array $params = array()): string
     {
         $url = '?dbx_modul=dbxSelfTest&dbx_run1=' . rawurlencode($action);
-        foreach ($params as $key => $value) {
-            $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-        }
         if ($tokenized) {
-            $url .= '&dbx_token=' . rawurlencode(dbx()->action_token(self::TOKEN_SCOPE));
+            $params['dbx_token'] = dbx()->action_token(self::TOKEN_SCOPE);
         }
-        return $url;
+        return dbx()->append_url_params($url, $params);
     }
 
     private function payload(): array
     {
-        $raw = file_get_contents('php://input');
-        $data = is_string($raw) && trim($raw) !== '' ? json_decode($raw, true) : array();
-        return is_array($data) ? $data : array();
+        return dbx()->get_json_request();
     }
 
     private function requireToken(string $action): void

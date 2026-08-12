@@ -1149,11 +1149,10 @@ function get_self_url($permalink,$unwanted) {
     //dbx_debug("SERVER"      ,$_SERVER);
 
     // JSON-Body einlesen (z. B. von fetch)
-    $raw = file_get_contents('php://input');
-    $data = json_decode($raw, true);
+    $data = dbx()->get_json_request();
 
     // Falls gültiges JSON → $_POST damit befüllen
-    if (is_array($data)) {
+    if ($data) {
         $_POST = array_merge($_POST, $data);
     }
 
@@ -2370,77 +2369,8 @@ function get_self_url($permalink,$unwanted) {
     return $data . $content;
   }
 
-  private function render_editor_files_menu($edit, $files) {
-    if (!is_array($files) || !count($files)) {
-      return '';
-    }
 
-    $title = 'Editor Dateien';
-    if ($edit == 4) $title = 'FD Dateien';
-    if ($edit == 5) $title = 'DD Dateien';
-    if ($edit == 6) $title = 'Modul PHP Dateien';
-    if ($edit == 7) $title = 'myX SysClass Dateien';
-    if ($edit == 8) $title = 'Config Dateien';
-    if ($edit == 9) $title = 'Alle Editor Dateien';
 
-    $html  = '<div id="dbxEditorFilesMenu" class="dbx-editor-files-menu" ';
-    $html .= 'style="display:none;">';
-    $html .= '<button type="button" class="dbx-editor-files-count" data-dbx-tooltip="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '" ';
-    $html .= 'onclick="this.parentElement.classList.toggle(\'is-open\')" ';
-    $html .= 'style="display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:4px 8px;border:1px solid rgba(0,0,0,.18);border-radius:4px;background:#212529;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.18);">';
-    $html .= '<i class="bi bi-pencil-square"></i><span>' . count($files) . '</span></button>';
-    $html .= '<div class="dbx-editor-files-list" style="max-height:min(520px,calc(100vh - 96px));overflow:auto;padding:8px;border:1px solid rgba(0,0,0,.16);border-radius:4px;background:#fff;color:#212529;box-shadow:0 10px 28px rgba(0,0,0,.2);">';
-    $html .= '<div class="dbx-editor-files-title" style="padding:4px 6px;font-weight:600;color:#495057;">' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</div>';
-
-    foreach ($files as $file) {
-      if (!isset($file['file'])) {
-        continue;
-      }
-
-      $path = $file['file'];
-      $kind = isset($file['kind']) ? (string)$file['kind'] : '';
-      $url  = $this->editor_file_url($kind, $path);
-      $label = $this->short_editor_file_label($path);
-
-      $html .= '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" ';
-      $html .= 'data-url="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" data-title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '" ';
-      $html .= 'style="display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:6px;padding:5px 6px;border-radius:4px;color:#212529;text-decoration:none;" class="dbx-win">';
-      $html .= '<i class="bi bi-filetype-php"></i>';
-      $html .= '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>';
-      $html .= '</a>';
-    }
-
-    $html .= '</div>';
-    $html .= '</div>';
-
-    return $html;
-  }
-
-  private function short_editor_file_label($path) {
-    $path = str_replace('\\', '/', $path);
-    $prefix = 'dbx/modules/';
-
-    if (strpos($path, $prefix) === 0) {
-      return substr($path, strlen($prefix));
-    }
-
-    return $path;
-  }
-
-  private function editor_file_url($kind, $path) {
-    $kind = strtolower(trim((string)$kind));
-    $path = str_replace('\\', '/', (string)$path);
-
-    if ($kind === 'dd' && preg_match('#^dbx/modules/([^/]+)/dd/([^/]+)\.dd\.php$#', $path, $m)) {
-      return '?dbx_modul=dbxAdmin&dbx_run1=edit_dd&modul=' . rawurlencode($m[1]) . '&dd=' . rawurlencode($m[2]);
-    }
-
-    if ($kind === 'fd' && preg_match('#^dbx/modules/([^/]+)/fd/([^/]+)\.fd\.php$#', $path, $m)) {
-      return '?dbx_modul=dbxAdmin&dbx_run1=edit_fd&modul=' . rawurlencode($m[1]) . '&fd=' . rawurlencode($m[2]);
-    }
-
-    return '?dbx_modul=dbxEditor&dbx_run1=edit&file=' . rawurlencode($path);
-  }
 
   /**
    * Baut die zentrale Ablehnung fuer einen ungueltigen Action-Request.

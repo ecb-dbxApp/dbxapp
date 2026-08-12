@@ -336,15 +336,6 @@
         return "800x600";
     }
 
-    function containerWidth(root) {
-        if (!root) return 0;
-        const rect = root.getBoundingClientRect ? root.getBoundingClientRect() : null;
-        if (rect && rect.width > 0) return rect.width;
-        const parent = root.parentElement;
-        const parentRect = parent && parent.getBoundingClientRect ? parent.getBoundingClientRect() : null;
-        if (parentRect && parentRect.width > 0) return parentRect.width;
-        return document.documentElement ? document.documentElement.clientWidth : 0;
-    }
 
     function galleryConfig(cfg) {
         cfg = cfg || {};

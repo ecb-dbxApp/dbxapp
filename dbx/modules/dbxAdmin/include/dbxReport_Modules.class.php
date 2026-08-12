@@ -296,57 +296,6 @@ class dbxReport_Modules extends \dbxReport {
       return $this->buildModuleImagesPreviewHtml($record);
    }
 
-   private function renderGraphic(array $record): string {
-      $previewUrl = dbx()->esc((string)($record['preview_url'] ?? ''));
-      $title = dbx()->esc((string)($record['title'] ?? ''));
-      $winAttrs = ' class="dbx-module-graphic dbx-win" href="' . $previewUrl . '" data-url="' . $previewUrl
-         . '" data-title="' . dbx()->esc($this->format_fd_message('module_preview', array('module' => (string)($record['title'] ?? ''))))
-         . '" data-width="88%" data-height="88%" title="' . dbx()->esc($this->get_fd_message('open_preview')) . '"';
-
-      $items = $record['image_items'] ?? array();
-      if (!is_array($items)) {
-         $items = array();
-      }
-
-      if ($items) {
-         $slides = '';
-         foreach ($items as $i => $item) {
-            if (!is_array($item)) {
-               continue;
-            }
-            $url = dbx()->esc((string)($item['url'] ?? ''));
-            $label = dbx()->esc((string)($item['label'] ?? ''));
-            $active = ($i === 0) ? ' is-active' : '';
-            $slides .= '<img src="' . $url . '" alt="' . $label . '" class="dbx-module-graphic-img' . $active . '" loading="lazy">';
-         }
-         if ($slides !== '') {
-            return '<a' . $winAttrs . '><div class="dbx-module-graphic-stack">' . $slides . '</div></a>';
-         }
-      }
-
-      $graphicUrl = trim((string)($record['graphic_url'] ?? ''));
-      $alt = dbx()->esc((string)($record['graphic_alt'] ?? $record['title'] ?? ''));
-
-      if ($graphicUrl !== '') {
-         $badge = trim((string)($record['graphic_badge'] ?? ''));
-         $badgeHtml = '';
-         if ($badge !== '') {
-            $badgeHtml = '<span class="dbx-module-graphic-badge">' . dbx()->esc($badge) . '</span>';
-         }
-
-         return '<a' . $winAttrs . '>'
-            . '<img src="' . dbx()->esc($graphicUrl) . '" alt="' . $alt . '" class="dbx-module-graphic-img is-active" loading="lazy">'
-            . $badgeHtml
-            . '</a>';
-      }
-
-      return '<a' . $winAttrs . '>'
-         . '<span class="dbx-module-graphic-placeholder" aria-hidden="true">'
-         . '<i class="bi bi-box-seam dbx-module-graphic-fallback-icon"></i>'
-         . '<span class="dbx-module-graphic-placeholder-label">' . dbx()->esc($this->get_fd_message('preview_label')) . '</span>'
-         . '</span>'
-         . '</a>';
-   }
 
    private function renderInstallButton(array $record): string {
       if (empty($record['install_url'])) {

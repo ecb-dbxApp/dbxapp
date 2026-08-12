@@ -298,21 +298,11 @@ Class dbxMenu {
     */
    private function frontend_design_options(): array {
       $options = array();
-      $designRoot = dbx()->get_base_dir() . 'dbx/design';
-
-      foreach (glob($designRoot . '/*', GLOB_ONLYDIR) ?: array() as $dir) {
-         $name = basename($dir);
+      foreach (dbx()->get_design_catalog() as $name => $design) {
          if ($name === '' || $name[0] === '_' || $name[0] === '-') {
             continue;
          }
-         if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/', $name)) {
-            continue;
-         }
-         if (!is_file(dbx()->os_path($dir . '/htm/default.htm'))) {
-            continue;
-         }
-
-         $options[$name] = $this->design_label($name);
+         $options[$name] = (string)($design['title'] ?? $this->design_label($name));
       }
 
       if (empty($options)) {

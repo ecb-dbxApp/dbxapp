@@ -146,7 +146,7 @@ try {
    );
 
    $newContents = array(
-      'VERSION' => "4.2.1\n",
+      'VERSION' => "4.3.0\n",
       'UPDATE_BASELINE' => "4.2.0\n",
       'index.php' => "<?php echo 'new';\n",
       'dbx/include/dbxApi.php' => "<?php // new api\n",
@@ -154,19 +154,19 @@ try {
    );
    $work = $root . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'update';
    $zipFile = $work . DIRECTORY_SEPARATOR . 'downloads'
-      . DIRECTORY_SEPARATOR . 'dbxapp-4.2.1.zip';
+      . DIRECTORY_SEPARATOR . 'dbxapp-4.3.0.zip';
    if (!is_dir(dirname($zipFile))) {
       mkdir(dirname($zipFile), 0775, true);
    }
-   update_test_package($zipFile, '4.2.1', $newContents);
+   update_test_package($zipFile, '4.3.0', $newContents);
 
    $manifest = array(
       'schema' => 2,
       'product' => 'dbxapp',
       'channel' => 'stable',
-      'version' => '4.2.1',
-      'release_url' => 'https://github.com/ecb-dbxApp/dbxapp/releases/tag/v4.2.1',
-      'zip_url' => 'https://github.com/ecb-dbxApp/dbxapp/releases/download/v4.2.1/dbxapp-4.2.1.zip',
+      'version' => '4.3.0',
+      'release_url' => 'https://github.com/ecb-dbxApp/dbxapp/releases/tag/v4.3.0',
+      'zip_url' => 'https://github.com/ecb-dbxApp/dbxapp/releases/download/v4.3.0/dbxapp-4.3.0.zip',
       'sha256' => hash_file('sha256', $zipFile),
       'requires' => array(
          'dbxapp' => '>=4.2.0',
@@ -207,7 +207,7 @@ try {
    );
 
    $badManifest = $manifest;
-   $badManifest['zip_url'] = 'https://github.com/other/project/releases/download/v4.2.1/dbxapp-4.2.1.zip';
+   $badManifest['zip_url'] = 'https://github.com/other/project/releases/download/v4.3.0/dbxapp-4.3.0.zip';
    try {
       $service->validateManifest($badManifest);
       throw new RuntimeException('Fremde GitHub-Release-URL wurde zugelassen.');
@@ -218,9 +218,32 @@ try {
       );
    }
 
+   foreach (array(
+      'dbx/modules/myX/myX.class.php',
+      'dbx/modules/dbxDocs/dbxDocs.class.php',
+      'dbx/modules/dbxMenu/tpl/htm/customer.htm',
+      'docs/customer.md',
+   ) as $protectedPath) {
+      $protectedZip = $work . DIRECTORY_SEPARATOR . 'downloads'
+         . DIRECTORY_SEPARATOR . 'protected-' . md5($protectedPath) . '.zip';
+      $protectedContents = array($protectedPath => 'protected');
+      update_test_package($protectedZip, '4.3.0', $protectedContents);
+      $protectedManifest = $manifest;
+      $protectedManifest['sha256'] = hash_file('sha256', $protectedZip);
+      try {
+         $service->inspectPackage($protectedZip, $protectedManifest);
+         throw new RuntimeException('Geschützte Datei wurde im Update-Paket zugelassen: ' . $protectedPath);
+      } catch (RuntimeException $exception) {
+         update_test_assert(
+            str_contains($exception->getMessage(), 'geschützte lokale Datei'),
+            'Falscher Fehler für geschützte Update-Datei: ' . $protectedPath
+         );
+      }
+   }
+
    $unsafeZip = $work . DIRECTORY_SEPARATOR . 'downloads'
       . DIRECTORY_SEPARATOR . 'unsafe.zip';
-   update_test_package($unsafeZip, '4.2.1', $newContents, '../escape.php');
+   update_test_package($unsafeZip, '4.3.0', $newContents, '../escape.php');
    try {
       $service->inspectPackage($unsafeZip, $manifest);
       throw new RuntimeException('ZIP-Pfad-Traversal wurde zugelassen.');
@@ -237,7 +260,7 @@ try {
       'Vorbereitetes Update kann laut Status nicht gestoppt werden.'
    );
    $stopped = $service->cancel();
-   update_test_assert($stopped['version'] === '4.2.1', 'Gestoppte Version ist falsch.');
+   update_test_assert($stopped['version'] === '4.3.0', 'Gestoppte Version ist falsch.');
    update_test_assert(!is_file($work . '/staged.json'), 'Staging-Status wurde beim Stoppen nicht entfernt.');
    update_test_assert(!is_dir($staging), 'Staging-Verzeichnis wurde beim Stoppen nicht entfernt.');
    update_test_assert(!is_file($zipFile), 'Update-ZIP wurde beim Stoppen nicht entfernt.');
@@ -279,11 +302,11 @@ try {
    unlink($work . DIRECTORY_SEPARATOR . 'staged.json');
    unlink($outsideGuard);
 
-   update_test_package($zipFile, '4.2.1', $newContents);
+   update_test_package($zipFile, '4.3.0', $newContents);
    $manifest['sha256'] = hash_file('sha256', $zipFile);
    $staging = update_test_stage($work, $zipFile, $manifest, $package);
    $installed = $service->install();
-   update_test_assert(trim((string)file_get_contents($root . '/VERSION')) === '4.2.1', 'VERSION wurde nicht aktualisiert.');
+   update_test_assert(trim((string)file_get_contents($root . '/VERSION')) === '4.3.0', 'VERSION wurde nicht aktualisiert.');
    update_test_assert(!is_file($root . '/obsolete.php'), 'Veraltete Datei wurde nicht entfernt.');
    update_test_assert(is_file($root . '/new.php'), 'Neue Datei wurde nicht installiert.');
    update_test_assert((string)file_get_contents($root . '/files/keep.txt') === 'runtime', 'Laufzeitdatei wurde verändert.');

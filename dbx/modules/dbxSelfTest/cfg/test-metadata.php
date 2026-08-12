@@ -36,7 +36,7 @@ return array(
             'pattern' => '~dbxNoInstallationMigration_test\.php$~',
             'tier' => 'quick', 'timeout' => 30, 'isolation' => 'process',
             'resources' => array('filesystem'),
-            'description' => 'Prüft 4.2.0 als erste Update-Basis und verbietet Installations-, Sitzungs- und Einmalwerkzeuge für nicht vorhandene Vorversionen.',
+            'description' => 'Prüft dbxApp 4.3.0 mit 4.2.0 als erster Update-Basis und verbietet Installations-, Sitzungs- und Einmalwerkzeuge für nicht vorhandene Vorversionen.',
         ),
         array(
             'pattern' => '~dbxUpdateService_test\.php$~',

@@ -51,12 +51,6 @@
             return data;
         }
 
-        function element(tag, className, text) {
-            const node = document.createElement(tag);
-            if (className) node.className = className;
-            if (text !== undefined) node.textContent = String(text);
-            return node;
-        }
 
         function escapeHtml(value) {
             const node = document.createElement("span");

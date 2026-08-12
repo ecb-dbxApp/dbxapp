@@ -7,37 +7,7 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 
 trait dbxKiBriefingPageLookupServiceTrait {
 
-   private function buildFolderOptions(string $lng, int $selected): string {
-      $labels = $this->folderLabels($lng);
-      $html = '<option value="">— Ordner waehlen —</option>';
-      foreach ($labels as $id => $label) {
-         $sel = ((int) $id === $selected) ? ' selected' : '';
-         $html .= '<option value="' . (int) $id . '"' . $sel . '>' . $this->esc($label) . ' (#' . (int) $id . ')</option>';
-      }
-      return $html;
-   }
 
-   private function buildPageOptions(string $lng, int $selected): string {
-      $snap = $this->cms()->bundleSnapshot(array('lng' => $lng, 'limit' => 300));
-      $folders = $this->folderLabels($lng);
-      $rows = is_array($snap['pages']['rows'] ?? null) ? $snap['pages']['rows'] : array();
-      $html = '<option value="">— Seite waehlen —</option>';
-      foreach ($rows as $row) {
-         if (!is_array($row)) {
-            continue;
-         }
-         $id = (int) ($row['id'] ?? 0);
-         if ($id <= 0) {
-            continue;
-         }
-         $fid = (int) ($row['folder'] ?? 0);
-         $folder = $folders[$fid] ?? ('Ordner #' . $fid);
-         $title = trim((string) ($row['title'] ?? ''));
-         $sel = ($id === $selected) ? ' selected' : '';
-         $html .= '<option value="' . $id . '"' . $sel . '>' . $this->esc($title) . ' — ' . $this->esc($folder) . ' (#' . $id . ')</option>';
-      }
-      return $html;
-   }
 
    private function buildStyleOptions(string $selected): string {
       $html = '';
@@ -107,12 +77,4 @@ trait dbxKiBriefingPageLookupServiceTrait {
       return $row;
    }
 
-   private function pageContentExcerpt(string $lng, int $pageId): string {
-      try {
-         $row = $this->loadPage($lng, $pageId);
-         return $this->truncate(strip_tags((string) ($row['content'] ?? '')), 2000);
-      } catch (\Throwable $e) {
-         return '';
-      }
-   }
 }

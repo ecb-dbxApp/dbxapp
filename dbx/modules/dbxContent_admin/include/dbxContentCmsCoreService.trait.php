@@ -223,13 +223,10 @@ trait dbxContentCmsCoreServiceTrait {
 
    private function base_url($action, $params = array()) {
       $url = $this->app_url() . '?dbx_modul=dbxContent_admin&dbx_run1=' . rawurlencode((string)$action);
-      foreach ($params as $key => $value) {
-         $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
       if ($this->tokenized_action((string)$action)) {
-         $url .= '&dbx_token=' . rawurlencode(dbx()->action_token(self::ACTION_TOKEN_SCOPE));
+         $params['dbx_token'] = dbx()->action_token(self::ACTION_TOKEN_SCOPE);
       }
-      return $url;
+      return dbx()->append_url_params($url, $params);
    }
 
 
@@ -317,9 +314,6 @@ trait dbxContentCmsCoreServiceTrait {
 
 
 
-   private function flush_lng_sync_cache($db, array $syncResult, bool $flushMenus = true): void {
-      $this->persistence($db)->flushLngSyncCache($syncResult, $flushMenus);
-   }
 
 
 
@@ -329,9 +323,6 @@ trait dbxContentCmsCoreServiceTrait {
 
 
 
-   private function flush_deleted_page_cache(int $cid, string $lng = ''): void {
-      $this->persistence()->flushDeletedPageCache($cid, $lng);
-   }
 
 
 
@@ -503,22 +494,12 @@ trait dbxContentCmsCoreServiceTrait {
 
 
 
-   private function flush_deleted_folder_cache($db, int $folderId, string $lng = ''): void {
-      $this->persistence($db)->flushDeletedFolderCache($folderId, $lng);
-   }
 
 
 
-   private function flush_folder_cache($db, int $folderId): void {
-      $this->persistence($db)->flushFolderCache($folderId);
-   }
 
 
 
-   /** Invalidiert alle von einer Ordnerspeicherung betroffenen Trees und das Menü genau einmal. */
-   private function flush_saved_folder_cache($db, int ...$folderIds): void {
-      $this->persistence($db)->flushSavedFolderCache(...$folderIds);
-   }
 
 
    private function flush_menu_cache(): void {
@@ -527,10 +508,6 @@ trait dbxContentCmsCoreServiceTrait {
 
 
 
-   /** Invalidiert einen Tree-Move gebündelt und ohne wiederholte Menü-Löschung. */
-   private function flush_tree_move_cache($db, string $type, int $id, int $target, int $old_parent, array $changed): void {
-      $this->persistence($db)->flushTreeMoveCache($type, $id, $target, $old_parent, $changed);
-   }
 
 
 
@@ -547,21 +524,7 @@ trait dbxContentCmsCoreServiceTrait {
 
 
    private function request_json() {
-      $data = array();
-
-      $raw = file_get_contents('php://input');
-      if (is_string($raw) && trim($raw) !== '') {
-         $decoded = json_decode($raw, true);
-         if (is_array($decoded)) {
-            $data = $decoded;
-         }
-      }
-
-      if (!count($data) && !empty($_POST) && is_array($_POST)) {
-         $data = $_POST;
-      }
-
-      return $data;
+      return dbx()->get_json_request(true);
    }
 
 

@@ -401,9 +401,6 @@
         preview.textContent = stemForRuns(modul, target.run1, target.run2) + ".*";
     }
 
-    function applyRunTargetToPanel(panel, run1, run2) {
-        setPanelRunTarget(panel, run1, run2);
-    }
 
     function selectGalleryItem(panel, item) {
         if (!panel || !item) {

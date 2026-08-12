@@ -290,21 +290,6 @@ trait dbxDashboardCoreServiceTrait {
       return number_format($seconds, $precision, ',', '.') . ' Sec';
    }
 
-   private function fmt_memory_kb($value) {
-      $value = max(0, (int) $value);
-
-      if ($value >= 1024) {
-         return number_format($value / 1024, 1, ',', '.') . ' MB';
-      }
-
-      return $this->fmt($value) . ' KB';
-   }
-
-   private function fmt_memory_delta_kb($value) {
-      $value = max(0, (int) $value);
-      return '+' . $this->fmt_memory_kb($value);
-   }
-
    private function dbx_config_bool(string $key, $default = 0): bool {
       $value = dbx()->get_cfg('dbx', $key);
       if ($value === 'undef' || $value === '' || $value === null) {

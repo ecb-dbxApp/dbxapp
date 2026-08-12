@@ -55,16 +55,6 @@ trait dbxSchemaDdFieldServiceTrait {
 
 
 
-   /**
-    * Liefert den editorfaehigen Dateipfad zu einer DD-Datei.
-    *
-    * @param string $modul Eingabeparameter fuer diese Methode.
-    * @param string $dd Eingabeparameter fuer diese Methode.
-    * @return string
-    */
-   private function dd_editor_file($modul, $dd) {
-      return dbx()->editor_file_path($this->dd_file_path($modul, $dd));
-   }
 
 
 

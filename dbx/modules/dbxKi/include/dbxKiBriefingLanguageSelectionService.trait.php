@@ -42,19 +42,6 @@ trait dbxKiBriefingLanguageSelectionServiceTrait {
       return $html;
    }
 
-   private function buildTargetLngOptions(string $sourceLng, string $selected): string {
-      $lngs = $this->availableLngs();
-      $html = '';
-      foreach ($lngs as $lng) {
-         $lng = strtolower(trim((string) $lng));
-         if ($lng === '' || $lng === $sourceLng) {
-            continue;
-         }
-         $sel = $lng === $selected ? ' selected' : '';
-         $html .= '<option value="' . $this->esc($lng) . '"' . $sel . '>' . strtoupper($this->esc($lng)) . '</option>';
-      }
-      return $html;
-   }
 
    private function selectedTargetLngsFromRequest(string $sourceLng, bool $defaultAllOthers): array {
       $raw = dbx()->get_request_var('target_lngs', array(), '*');

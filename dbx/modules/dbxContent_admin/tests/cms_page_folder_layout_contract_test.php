@@ -91,7 +91,8 @@ $assert(
         && str_contains($persistence, '$this->db->begin($dd)')
         && str_contains($persistence, '$this->db->commit($dd)')
         && str_contains($persistence, '$this->db->rollback($dd)')
-        && str_contains($cmsClass, 'private function flush_tree_move_cache(')
+        && str_contains($persistence, 'public function flushTreeMoveCache(')
+        && str_contains($persistence, '$this->flushTreeMoveCache($type, $id, $target')
         && str_contains($cmsClass, 'private function lng_save_response('),
     'Transaktion, gebündelte Cache-Invalidierung oder gemeinsame Sprachantwort fehlt.'
 );
@@ -100,7 +101,8 @@ $assert(
         && str_contains($persistence, 'public function saveFolder(')
         && substr_count($persistence, '$this->transaction(') >= 7
         && str_contains($persistence, '$this->flushLngSyncCache((array)$result[\'sync_result\'], false)')
-        && str_contains($cmsClass, 'private function flush_saved_folder_cache('),
+        && str_contains($persistence, 'public function flushSavedFolderCache(')
+        && str_contains($persistence, '$this->flushSavedFolderCache($id, $parentId)'),
     'Seiten-/Ordnerspeichern ist nicht atomar oder invalidiert Caches mehrfach.'
 );
 $assert(

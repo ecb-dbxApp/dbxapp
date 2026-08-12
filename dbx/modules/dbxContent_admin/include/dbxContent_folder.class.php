@@ -372,11 +372,6 @@ Class dbxContent_folder {
    }
 
 
-   private function folder_delete() {
-      $fid=dbx()->get_request_var('id',0,'int');
-      return "Delete Folder ($fid)";
-
-   }
 
 
    // ----------------------------------------------------

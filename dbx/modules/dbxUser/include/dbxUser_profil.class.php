@@ -9,11 +9,8 @@ class dbxUser_profil {
 
    private function design_options(): array {
       $options = array();
-      foreach (glob(dbx()->get_base_dir() . 'dbx/design/*', GLOB_ONLYDIR) ?: array() as $dir) {
-         $name = basename($dir);
-         if ($name !== '') {
-            $options[$name] = $name;
-         }
+      foreach (dbx()->get_design_catalog() as $name => $design) {
+         $options[$name] = (string)($design['title'] ?? $name);
       }
 
       return $options ?: array('dbxapp' => 'dbxapp');

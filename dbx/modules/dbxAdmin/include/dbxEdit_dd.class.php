@@ -520,67 +520,6 @@ class dbxEdit_dd
         );
     }
 
-    /**
-     * Rendert den Fields-Report im tpl-Modus.
-     *
-     * @param string $modul Modulname
-     * @param string $dd DD-Name
-     * @param array  $model DD-Modell
-     *
-     * @return string
-     */
-    private function create_fields_report($modul, $dd, $model)
-    {
-        $fields = array_values((array)($model['fields'] ?? array()));
-        $rows = array();
-
-        foreach ($fields as $pos => $field) {
-            if (!is_array($field)) {
-                continue;
-            }
-
-            $row = $this->field_row_defaults();
-            foreach ($field as $key => $value) {
-                $row[$key] = is_array($value) ? implode(',', $value) : (string)$value;
-            }
-
-            $row['modul']     = $modul;
-            $row['dd']        = $dd;
-            $row['field_pos'] = (string)$pos;
-
-            $rows[] = $row;
-        }
-
-        $data = array(
-            'modul' => $modul,
-            'dd'    => $dd,
-            'count' => count($rows),
-        );
-
-        $oReport = dbx()->get_system_obj('dbxReport');
-        $oReport->init('ddedit_fields_' . $this->safe_id($modul . '_' . $dd), 'ddedit-fields-report');
-        $oReport->_mode  = 'tpl';
-        $oReport->_data  = $data;
-        $oReport->_replaces = $data;
-        $oReport->_rdata = $rows;
-        $oReport->_rcount = count($rows);
-        $oReport->_rrows = 'auto';
-        $oReport->_pages = false;
-
-        $oReport->add_obj(
-            'new_field_form',
-            'obj-value',
-            '[modul=dbxAdmin]dbx_run1=edit_dd&dbx_run2=create_form_dd&modul=' . $modul . '&dd=' . $dd . '&field_pos=new[/modul]'
-        );
-
-        $oReport->add_obj(
-            'field_form',
-            'obj-value',
-            '[modul=dbxAdmin]dbx_run1=edit_dd&dbx_run2=create_form_dd&modul={modul}&dd={dd}&field_pos={field_pos}[/modul]'
-        );
-
-        return $oReport->run();
-    }
 
     /**
      * Rendert die linke Feld-Reihenfolge als eigenen dbxReport.
@@ -1117,11 +1056,7 @@ class dbxEdit_dd
                '&modul=' . rawurlencode($modul) .
                '&dd=' . rawurlencode($dd);
 
-        foreach ((array)$extra as $key => $value) {
-            $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-        }
-
-        return $url;
+        return dbx()->append_url_params($url, (array)$extra);
     }
 
     /**

@@ -182,9 +182,6 @@ trait dbxContentCmsMediaFileServiceTrait {
 
 
 
-   private function media_rel_dir($slot) {
-      return 'media/' . $this->valid_media_slot($slot) . '/';
-   }
 
 
 

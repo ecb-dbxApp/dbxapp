@@ -18,13 +18,8 @@ class dbxDesignAdmin {
    }
 
    private function url(string $run1 = 'list', array $params = array()): string {
-      $url = '?dbx_modul=dbxDesign_admin&dbx_run1=' . rawurlencode($run1);
-      foreach ($params as $key => $value) {
-         if ($value !== '') {
-            $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-         }
-      }
-      return $url;
+      $params = array_filter($params, static fn($value): bool => $value !== '');
+      return dbx()->append_url_params('?dbx_modul=dbxDesign_admin&dbx_run1=' . rawurlencode($run1), $params);
    }
 
    private function h($value): string {

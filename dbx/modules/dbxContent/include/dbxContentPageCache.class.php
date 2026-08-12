@@ -390,10 +390,27 @@ class dbxContentPageCache {
          }
       }
 
+      self::runGenerationMaintenance();
+      self::$dirsReady = true;
+   }
+
+   /** Führt teure Verzeichnisbereinigungen nur einmal je Cache-Generation aus. */
+   private static function runGenerationMaintenance(): void {
+      $generation = self::cacheGeneration();
+      if ($generation === '') {
+         return;
+      }
+
+      $marker = self::baseDir() . 'meta/.maintenance-' . self::FULL_PAGE_CACHE_VERSION;
+      $maintainedGeneration = is_file($marker) ? trim((string)file_get_contents($marker)) : '';
+      if (hash_equals($generation, $maintainedGeneration)) {
+         return;
+      }
+
       self::purgeLegacyMenuCache();
       self::purgeLegacyPageCache();
-      self::purgeStaleFullPages();
-      self::$dirsReady = true;
+      self::purgeStaleFullPages($generation);
+      self::atomicWrite($marker, $generation);
    }
 
    /** Entfernt die nicht mehr verwendeten Permalink-, Home- und Meta-Caches. */
@@ -530,27 +547,12 @@ class dbxContentPageCache {
       return count($meta) ? $meta : null;
    }
 
-   private static function readPageMetaFile(int $cid): ?array {
-      $path = self::pageMetaPath($cid);
-      if (!is_file($path) || !is_readable($path)) {
-         return null;
-      }
-
-      $json = file_get_contents($path);
-      if (!is_string($json) || $json === '') {
-         return null;
-      }
-
-      $data = json_decode($json, true);
-      return is_array($data) ? $data : null;
-   }
-
    public static function writePageMeta(int $cid, array $meta): bool {
       // Seiten-Metadaten werden live aus dbxContent gelesen und nicht gecacht.
       return true;
    }
 
-   public static function invalidateContent(int $cid): void {
+   public static function invalidateContent(int $cid, bool $invalidateSharedCaches = true): void {
       $cid = (int) $cid;
       if ($cid <= 0) {
          return;
@@ -558,102 +560,38 @@ class dbxContentPageCache {
 
       // Der Full-Page-Dateiname enthaelt bewusst keine Content-ID. Bei einer
       // Inhaltsaenderung werden deshalb alle fertigen Gastseiten verworfen.
-      self::invalidateAllFullPages();
-
-      $permalinks = array();
-      $meta = self::readPageMetaFile($cid);
-      if (is_array($meta)) {
-         $permalink = trim((string) ($meta['permalink'] ?? ''));
-         $lng = trim((string) ($meta['lng'] ?? ''));
-         if ($permalink !== '') {
-            $permalinks[] = array('permalink' => $permalink, 'lng' => $lng);
-         }
+      if ($invalidateSharedCaches) {
+         self::invalidateAllFullPages();
       }
 
-      foreach (glob(self::baseDir() . 'meta/permalinks_*.json') ?: array() as $indexFile) {
-         $json = file_get_contents($indexFile);
-         if (!is_string($json) || $json === '') {
-            continue;
-         }
-         $index = json_decode($json, true);
-         if (!is_array($index)) {
-            continue;
-         }
-         $lng = '';
-         if (preg_match('/^permalinks_([a-z]{2,3})\.json$/i', basename($indexFile), $match)) {
-            $lng = strtolower($match[1]);
-         }
-         foreach ($index as $permalink => $row) {
-            if (is_array($row) && (int) ($row['cid'] ?? 0) === $cid) {
-               $permalinks[] = array('permalink' => (string) $permalink, 'lng' => $lng);
-            }
-         }
-      }
-
-      $seen = array();
-      foreach ($permalinks as $item) {
-         $permalink = trim((string) ($item['permalink'] ?? ''));
-         if ($permalink === '') {
-            continue;
-         }
-         $lng = trim((string) ($item['lng'] ?? ''));
-         $token = self::permalinkFileToken($permalink);
-         $key = $token . '|' . $lng;
-         if (isset($seen[$key])) {
-            continue;
-         }
-         $seen[$key] = 1;
-         $legacyToken = self::legacyPermalinkFileToken($permalink);
-         $pattern = $lng !== ''
-            ? self::baseDir() . 'content/' . $token . '.' . self::safeToken($lng, 'de') . '.htm'
-            : self::baseDir() . 'content/' . $token . '.*.htm';
-         foreach (glob($pattern) ?: array() as $file) {
-            @unlink($file);
-         }
-         foreach (array(
-            self::baseDir() . 'content/' . $legacyToken . '.*.htm',
-            self::baseDir() . 'content/' . $legacyToken . '__*.html',
-         ) as $legacyPattern) {
-            foreach (glob($legacyPattern) ?: array() as $file) {
-               @unlink($file);
-            }
-         }
-      }
-
+      // Permalink-, Menü- und Seiten-Metacaches sind deaktivierte Altformate.
+      // Sie werden einmal je Cache-Generation zentral bereinigt und müssen bei
+      // einer normalen Inhaltsänderung nicht erneut durchsucht werden.
       foreach (glob(self::baseDir() . 'content/cid-' . $cid . '.*.htm') ?: array() as $file) {
          @unlink($file);
       }
       foreach (glob(self::baseDir() . 'content/cid-' . $cid . '.*.full-*.html') ?: array() as $file) {
          @unlink($file);
       }
-      foreach (glob(self::baseDir() . 'content/full-page/*/*.htm.meta.json') ?: array() as $metaFile) {
-         $cacheMeta = self::readJsonFile($metaFile);
-         if (!is_array($cacheMeta) || (int)($cacheMeta['cid'] ?? 0) !== $cid) {
-            continue;
-         }
-         $htmlFile = preg_replace('/\.meta\.json$/', '', $metaFile);
-         if (is_string($htmlFile)) {
-            @unlink($htmlFile);
-         }
-         @unlink($metaFile);
-      }
       foreach (glob(self::baseDir() . 'content/' . $cid . '_*.html') ?: array() as $file) {
          @unlink($file);
       }
 
       @unlink(self::pageMetaPath($cid));
-      if (class_exists(__NAMESPACE__ . '\\dbxContentSitemap')) {
-         dbxContentSitemap::invalidate();
+      if ($invalidateSharedCaches) {
+         self::invalidateSitemap();
       }
    }
 
-   public static function invalidateMenu(int $root): void {
+   public static function invalidateMenu(int $root, bool $invalidateFullPages = true): void {
       $root = (int) $root;
       $pattern = self::baseDir() . 'menu/' . $root . '_*.html';
       foreach (glob($pattern) ?: array() as $file) {
          @unlink($file);
       }
-      self::invalidateAllFullPages();
+      if ($invalidateFullPages) {
+         self::invalidateAllFullPages();
+      }
    }
 
    public static function invalidateAllMenus(): void {
@@ -815,20 +753,19 @@ class dbxContentPageCache {
       }
 
       $folderId = (int) $folderId;
-      self::invalidateMenu($folderId);
-      self::invalidateMenu(0);
-
       $folderIds = self::collectFolderIds($db, $folderId);
-      foreach ($folderIds as $id) {
-         self::invalidateMenu((int) $id);
+      foreach (array_unique(array_merge(array(0), $folderIds)) as $id) {
+         self::invalidateMenu((int) $id, false);
       }
 
       $pages = $db->select(dbxContentLng::ddContent(), 'folder IN (' . implode(',', array_map('intval', $folderIds)) . ')', 'id', 'id', 'ASC', '', 0, 0, 0);
       if (is_array($pages)) {
          foreach ($pages as $page) {
-            self::invalidateContent((int) ($page['id'] ?? 0));
+            self::invalidateContent((int) ($page['id'] ?? 0), false);
          }
       }
+      self::invalidateAllFullPages();
+      self::invalidateSitemap();
    }
 
    private static function collectFolderIds($db, int $folderId): array {
@@ -836,14 +773,19 @@ class dbxContentPageCache {
       $ids = array($folderId);
       $queue = array($folderId);
 
+      $rows = $db->select(dbxContentLng::ddFolder(), '1=1', 'id,parent_id', 'id', 'ASC', '', 0, 0, 0);
+      $children = array();
+      foreach (is_array($rows) ? $rows : array() as $row) {
+         $parentId = (int)($row['parent_id'] ?? 0);
+         $id = (int)($row['id'] ?? 0);
+         if ($id > 0) {
+            $children[$parentId][] = $id;
+         }
+      }
+
       while (count($queue)) {
          $current = (int) array_shift($queue);
-         $rows = $db->select(dbxContentLng::ddFolder(), 'parent_id = ' . $current, 'id', 'id', 'ASC', '', 0, 0, 0);
-         if (!is_array($rows)) {
-            continue;
-         }
-         foreach ($rows as $row) {
-            $id = (int) ($row['id'] ?? 0);
+         foreach ($children[$current] ?? array() as $id) {
             if ($id > 0 && !in_array($id, $ids, true)) {
                $ids[] = $id;
                $queue[] = $id;
@@ -917,20 +859,6 @@ class dbxContentPageCache {
 
    private static function fullPageMetaPath(string $htmlPath): string {
       return $htmlPath . '.meta.json';
-   }
-
-   private static function readJsonFile(string $path): ?array {
-      if (!is_file($path) || !is_readable($path)) {
-         return null;
-      }
-
-      $json = file_get_contents($path);
-      if (!is_string($json) || $json === '') {
-         return null;
-      }
-
-      $data = json_decode($json, true);
-      return is_array($data) ? $data : null;
    }
 
    private static function isCompleteHtml(string $html): bool {
@@ -1154,23 +1082,4 @@ class dbxContentPageCache {
       return strtolower($token . '-' . substr(hash('sha256', $permalink), 0, 24));
    }
 
-   private static function legacyPermalinkFileToken(string $permalink): string {
-      $permalink = strtolower(trim(str_replace('\\', '/', $permalink), '/'));
-      if ($permalink === '') {
-         return 'home';
-      }
-
-      $token = preg_replace('/[^a-z0-9_-]+/i', '-', $permalink);
-      $token = trim((string) $token, '-_');
-      if ($token === '') {
-         $token = 'page';
-      }
-
-      $hash = substr(sha1($permalink), 0, 8);
-      if (strlen($token) > 80) {
-         $token = substr($token, 0, 80);
-      }
-
-      return strtolower($token . '-' . $hash);
-   }
 }

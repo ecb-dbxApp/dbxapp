@@ -103,11 +103,7 @@ class dbxContent_treeview {
    }
 
    private function base_url($action, $params = array()) {
-      $url = '?dbx_modul=dbxContent&dbx_run1=' . rawurlencode((string)$action);
-      foreach ($params as $key => $value) {
-         $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
-      return $url;
+      return dbx()->append_url_params('?dbx_modul=dbxContent&dbx_run1=' . rawurlencode((string)$action), $params);
    }
 
    private function root_id() {

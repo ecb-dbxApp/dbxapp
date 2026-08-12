@@ -127,14 +127,7 @@ trait dbxKiCmsCoreServiceTrait {
    }
 
    private function request(): array {
-      $request = array();
-      $raw = file_get_contents('php://input');
-      if (is_string($raw) && trim($raw) !== '') {
-         $json = json_decode($raw, true);
-         if (is_array($json)) {
-            $request = $json;
-         }
-      }
+      $request = dbx()->get_json_request();
 
       foreach (array('action', 'mode', 'token', 'expected_plan_id', 'confirm') as $key) {
          if (!array_key_exists($key, $request)) {

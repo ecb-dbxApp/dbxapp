@@ -198,34 +198,23 @@ trait dbxShopAdminProductActionServiceTrait {
 
    private function cmsEndpoint(string $run1, array $params = array(), bool $mutating = false): string {
       $url = '?dbx_modul=dbxContent_admin&dbx_run1=' . rawurlencode($run1);
-      foreach ($params as $key => $value) {
-         $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
       if ($mutating) {
-         $url .= '&dbx_token=' . rawurlencode(dbx()->action_token('dbxContent_admin.actions'));
+         $params['dbx_token'] = dbx()->action_token('dbxContent_admin.actions');
       }
-      return $url;
+      return dbx()->append_url_params($url, $params);
    }
 
 
 
    private function shopEndpoint(string $run1, array $params = array(), bool $mutating = false): string {
-      $url = '?dbx_modul=dbxShop_admin&dbx_run1=' . rawurlencode($run1);
-      foreach ($params as $key => $value) {
-         $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
+      $url = dbx()->append_url_params('?dbx_modul=dbxShop_admin&dbx_run1=' . rawurlencode($run1), $params);
       return $mutating ? $this->actionUrl($url) : $url;
    }
 
 
 
    private function readJsonPayload(): array {
-      $raw = (string)file_get_contents('php://input');
-      $data = $raw !== '' ? json_decode($raw, true) : null;
-      if (is_array($data)) {
-         return $data;
-      }
-      return $_POST;
+      return dbx()->get_json_request(true);
    }
 
 

@@ -13,11 +13,10 @@ class dbxUser {
    private string $actionError = '';
 
    private function url($run2, $params = array()) {
-      $url = '?dbx_modul=dbxAdmin&dbx_run1=user&dbx_run2=' . rawurlencode((string)$run2);
-      foreach ($params as $key => $value) {
-         $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
-      return $url;
+      return dbx()->append_url_params(
+         '?dbx_modul=dbxAdmin&dbx_run1=user&dbx_run2=' . rawurlencode((string)$run2),
+         $params
+      );
    }
 
    private function action_url($run2, $params = array()) {

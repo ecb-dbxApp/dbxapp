@@ -589,11 +589,7 @@ class __CLASS__ {
    }
 
    private function base_url($run1 = 'report', array $params = array()) {
-      $url = '?dbx_modul=__MODUL__&dbx_run1=' . rawurlencode($run1);
-      foreach ($params as $key => $value) {
-         $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
-      return $url;
+      return dbx()->append_url_params('?dbx_modul=__MODUL__&dbx_run1=' . rawurlencode($run1), $params);
    }
 
    /**

@@ -82,9 +82,10 @@ $assert(
     str_contains($dashboard, 'AVG(CASE WHEN query_count > 0 THEN query_count END) AS avg_query_count')
         && str_contains($dashboard, 'AVG(CASE WHEN query_count > 0 THEN query_duplicate_count END) AS avg_query_duplicate_count')
         && str_contains($dashboard, 'AVG(CASE WHEN r.query_count > 0 THEN r.query_count END) AS avg_query_count')
-        && str_contains($dashboard, "substr(\$section, 0, 9) === 'db-query-'")
-        && str_contains($dashboard, "'bi-database-gear'"),
-    'Das Admin-Dashboard wertet Query-Anzahl, Duplikate und Fingerprints nicht aus.'
+        && str_contains($dashboard, "'avg_query_count' =>")
+        && str_contains($dashboard, "'avg_duplicate_count' =>")
+        && str_contains($dashboard, "'bi-database-check'"),
+    'Das Admin-Dashboard wertet Query-Anzahl und Duplikate nicht in der aktiven Modulansicht aus.'
 );
 
 if ($failures !== array()) {

@@ -39,11 +39,7 @@ class dbxKiModuleBriefingService {
    }
 
    private function moduleUrl(string $run1, array $params = array()): string {
-      $url = '?dbx_modul=dbxKi&dbx_run1=' . rawurlencode($run1);
-      foreach ($params as $key => $value) {
-         $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
-      return $url;
+      return dbx()->append_url_params('?dbx_modul=dbxKi&dbx_run1=' . rawurlencode($run1), $params);
    }
 
    /**
@@ -1194,12 +1190,7 @@ class dbxKiModuleBriefingService {
    }
 
    public function handleApi(): void {
-      $raw = file_get_contents('php://input');
-      $body = array();
-      if (is_string($raw) && trim($raw) !== '') {
-         $decoded = json_decode($raw, true);
-         if (is_array($decoded)) $body = $decoded;
-      }
+      $body = dbx()->get_json_request();
       $params = is_array($body['params'] ?? null) ? $body['params'] : array();
       $action = (string)($body['action'] ?? dbx()->get_request_var('action', 'system.describe', 'parameter+.'));
       $modul = (string)($params['xmodul'] ?? $params['module'] ?? dbx()->get_request_var('xmodul', '', 'parameter'));

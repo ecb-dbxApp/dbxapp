@@ -24,13 +24,6 @@
         return Array.from(el.querySelectorAll(".dbx-schema-mapping, [data-mapping-root='1']"));
     }
 
-    function esc(value) {
-        value = String(value || "");
-        if (window.CSS && typeof window.CSS.escape === "function") {
-            return window.CSS.escape(value);
-        }
-        return value.replace(/([^A-Za-z0-9_-])/g, "\\$1");
-    }
 
     function sourceItems(root) {
         return Array.from(root.querySelectorAll("[data-mapping-source]"));

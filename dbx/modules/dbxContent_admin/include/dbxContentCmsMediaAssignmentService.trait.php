@@ -52,54 +52,6 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
 
 
 
-   private function copy_media_to_slot($db, array $row, $slot) {
-      return 0;
-      $slot = $this->valid_media_slot($slot);
-      $src = $this->source_media_file($row);
-      if ($src === '') return 0;
-
-      $dir = $this->cms_media_dir($slot);
-      if (!is_dir($dir)) @mkdir($dir, 0777, true);
-      if (!is_dir($dir)) return 0;
-
-      $name = $this->unique_media_name((string)($row['file_name'] ?? basename($src)), $slot);
-      $dst = rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . $name;
-      if (!copy($src, $dst)) return 0;
-
-      $rel = $this->media_rel_dir($slot) . $name;
-      $mime = (string)($row['mime'] ?? '');
-      $width = 0;
-      $height = 0;
-      $img = @getimagesize($dst);
-      if (is_array($img)) {
-         $width = (int)($img[0] ?? 0);
-         $height = (int)($img[1] ?? 0);
-      }
-
-      $insert = array(
-         'active' => 1,
-         'content_id' => (int)($row['content_id'] ?? 0),
-         'folder_id' => (int)($row['folder_id'] ?? 0),
-         'slot' => $slot,
-         'usage' => $slot,
-         'sorter' => $this->next_media_sorter($db, (int)($row['content_id'] ?? 0), $slot),
-         'template' => (string)($row['template'] ?? ''),
-         'title' => (string)($row['title'] ?? pathinfo($name, PATHINFO_FILENAME)),
-         'alt' => (string)($row['alt'] ?? $row['title'] ?? ''),
-         'caption' => (string)($row['caption'] ?? ''),
-         'file_name' => $name,
-         'file_path' => $rel,
-         'mime' => $mime,
-         'size' => (int)@filesize($dst),
-         'width' => $width,
-         'height' => $height,
-         'tags' => (string)($row['tags'] ?? ''),
-         'media_type' => $this->media_type(array('mime' => $mime, 'file_name' => $name)),
-      );
-      $thumb = $this->create_media_thumbnail($dst, $slot, $name, $mime);
-      if ($thumb) $insert = array_merge($insert, $thumb);
-      return ($db->insert($this->dd_media, $insert) === 1) ? $db->get_insert_id() : 0;
-   }
 
 
 

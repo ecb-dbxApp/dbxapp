@@ -13,22 +13,6 @@ trait dbxShopServiceCatalogServiceTrait {
       return 'shop';
    }
 
-   private function channelNav(string $active): string {
-      $channels = $this->repo()->channels();
-      $html = '<div class="dbx-shop-channel-nav">';
-      foreach ($channels as $channel) {
-         $key = (string)($channel['channel_key'] ?? '');
-         if ($key === '') {
-            continue;
-         }
-         $cls = $key === $active ? ' active' : '';
-         $html .= '<a class="btn btn-outline-secondary btn-sm' . $cls . '" href="?dbx_modul=dbxShop&amp;dbx_run1=catalog&amp;channel=' . rawurlencode($key) . '">';
-         $html .= $this->h($channel['title'] ?? $key);
-         $html .= '</a>';
-      }
-      $html .= '</div>';
-      return $html;
-   }
 
    private function productHasChannel(array $product, string $channel): bool {
       foreach (($product['channels'] ?? array()) as $ch) {
@@ -135,16 +119,6 @@ trait dbxShopServiceCatalogServiceTrait {
       return false;
    }
 
-   private function channelsHtml(array $product): string {
-      $html = '';
-      foreach (($product['channels'] ?? array()) as $channel) {
-         if ((int)($channel['active'] ?? 0) !== 1) {
-            continue;
-         }
-         $html .= '<span class="dbx-shop-chip dbx-shop-chip-channel">' . $this->h($channel['title'] ?? $channel['channel_key'] ?? '') . '</span>';
-      }
-      return $html;
-   }
 
    private function normalizedText(string $value): string {
       $value = strtolower($value);
@@ -194,9 +168,6 @@ trait dbxShopServiceCatalogServiceTrait {
       return array_keys($out);
    }
 
-   private function textMatchesSearchTerm(string $text, string $term): bool {
-      return $this->searchFieldScore($text, $term, 1) > 0;
-   }
 
    private function searchFieldScore(string $text, string $term, int $weight): int {
       if ($text === '' || $term === '') {
@@ -343,9 +314,6 @@ trait dbxShopServiceCatalogServiceTrait {
       return $out;
    }
 
-   private function productMatchesQuery(array $product, string $query): bool {
-      return $this->productSearchScore($product, $query) > 0;
-   }
 
    private function productMatchesAttributeFilters(array $product, array $filters): bool {
       if ($filters === array()) {

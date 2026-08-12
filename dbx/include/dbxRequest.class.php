@@ -5,6 +5,40 @@
  */
 class dbxRequest {
 
+   private static bool $bodyRead = false;
+   private static string $rawBody = '';
+   private static ?array $jsonBody = null;
+
+   /**
+    * Liest den unveränderten Request-Body höchstens einmal pro Request.
+    */
+   public function rawBody(): string {
+      if (!self::$bodyRead) {
+         $raw = file_get_contents('php://input');
+         self::$rawBody = is_string($raw) ? $raw : '';
+         self::$bodyRead = true;
+      }
+
+      return self::$rawBody;
+   }
+
+   /**
+    * Liefert einen JSON-Objektbody als Array. Optional dient POST als Fallback.
+    */
+   public function json(bool $postFallback = false): array {
+      if (self::$jsonBody === null) {
+         $raw = trim($this->rawBody());
+         $decoded = $raw !== '' ? json_decode($raw, true) : null;
+         self::$jsonBody = is_array($decoded) ? $decoded : array();
+      }
+
+      if (!self::$jsonBody && $postFallback && is_array($_POST)) {
+         return $_POST;
+      }
+
+      return self::$jsonBody;
+   }
+
    /**
     * Liest GET oder POST; POST hat Vorrang.
     */
@@ -55,4 +89,3 @@ class dbxRequest {
          : $default;
    }
 }
-

@@ -392,38 +392,6 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
       return strtr($text, $replacements);
    }
 
-   private function menschAnleitungCreate(string $title): string {
-      return "# Anleitung fuer Menschen\n\n"
-         . "## Schritt 1 — Formular (erledigt)\n\n"
-         . "Sie haben den Auftrag **" . $title . "** spezifiziert.\n\n"
-         . "## Schritt 2 — ZIP an die KI\n\n"
-         . "1. Diese ZIP bei ChatGPT, DeepSeek o.ae. hochladen **oder**\n"
-         . "2. Den Inhalt von `KI-AUFTRAG.md` kopieren und einfügen.\n\n"
-         . "Sagen Sie der KI: *„Arbeite 00-START.md und KI-AUFTRAG.md exakt ab. Liefere nur auftrag.contract.json, answer.json und die erlaubten Assets.“*\n\n"
-         . "## Schritt 3 — Antwort importieren\n\n"
-         . "1. In dbXapp: **dbxKi → Bundle importieren**\n"
-         . "2. Die ZIP der KI hochladen\n"
-         . "3. Vorschau pruefen → **Ausfuehren**\n";
-   }
 
-   private function menschAnleitungUpdate(): string {
-      return "# Anleitung fuer Menschen\n\n"
-         . "1. ZIP an die KI geben (siehe KI-AUFTRAG.md)\n"
-         . "2. Fertige ZIP mit unveraendertem Vertrag und `answer.json` zurueck erhalten\n"
-         . "3. Unter dbxKi → Bundle importieren und ausfuehren\n";
-   }
 
-   private function menschAnleitungTranslate(string $title, string $targetLng): string {
-      return "# Anleitung fuer Menschen\n\n"
-         . "## Schritt 1 — Formular (erledigt)\n\n"
-         . "Uebersetzungsauftrag fuer **" . $title . "** nach **" . strtoupper($targetLng) . "**.\n\n"
-         . "## Schritt 2 — ZIP an die KI\n\n"
-         . "1. Diese ZIP bei ChatGPT, DeepSeek o.ae. hochladen **oder**\n"
-         . "2. Den Inhalt von `KI-AUFTRAG.md` kopieren und einfügen.\n\n"
-         . "Sagen Sie der KI: *„Arbeite 00-START.md und KI-AUFTRAG.md exakt ab und liefere antwort.zip mit Vertrag und answer.json.“*\n\n"
-         . "## Schritt 3 — Antwort importieren\n\n"
-         . "1. In dbXapp: **dbxKi → Bundle importieren**\n"
-         . "2. Die ZIP der KI hochladen\n"
-         . "3. Vorschau pruefen → **Ausfuehren**\n";
-   }
 }
