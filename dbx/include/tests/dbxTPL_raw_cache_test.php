@@ -2,7 +2,7 @@
 /**
  * Regressionstest für den dbxTPL-Rohcache.
  *
- * Der Test stellt sicher, dass DBX-Systemvariablen nicht in den Session-Cache
+ * Der Test stellt sicher, dass DBX-Systemvariablen nicht in den Requestcache
  * eingebrannt werden. Ein bereits gecachtes Template muss deshalb bei einer
  * Änderung des aktiven Designs im selben Request den neuen Wert ausgeben.
  */
@@ -78,6 +78,14 @@ class dbxTPLRawCacheTestApi
     public function register_editor_file(string $kind, string $path): void
     {
     }
+
+    public function lng_resolve_file(string $dir, string $name, string $ext, string $lng = '', bool $fallback = true): string
+    {
+        $dir = str_replace('\\', '/', $dir);
+        if ($dir !== '' && substr($dir, -1) !== '/') $dir .= '/';
+        $path = $dir . strtolower(trim($name)) . '.' . ltrim(strtolower(trim($ext)), '.');
+        return is_file($path) ? $this->os_path($path) : '';
+    }
 }
 
 function dbx(): dbxTPLRawCacheTestApi
@@ -89,7 +97,7 @@ function dbx(): dbxTPLRawCacheTestApi
     return $api;
 }
 
-$_SESSION = array('dbx' => array('cache' => array('tpl' => array())));
+$_SESSION = array();
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'dbxTPL.class.php';
 
@@ -98,12 +106,6 @@ $first = $tpl->get_tpl('dbx|test-dbx-runtime-cache', array());
 
 if (trim($first) !== 'first') {
     fwrite(STDERR, "FAIL: Erster DBX-Systemwert wurde nicht eingesetzt.\n");
-    exit(1);
-}
-
-$cached = $_SESSION['dbx']['cache']['tpl']['dbx']['test-dbx-runtime-cache']['htm']['']['tpl'] ?? '';
-if (strpos($cached, '{dbx:design}') === false) {
-    fwrite(STDERR, "FAIL: Template-Cache enthält keinen rohen DBX-Platzhalter.\n");
     exit(1);
 }
 
@@ -131,11 +133,10 @@ if (!mkdir($tempTplDir, 0777, true) && !is_dir($tempTplDir)) {
 $tempTpl = $tempTplDir . DIRECTORY_SEPARATOR . 'test-source-change.htm';
 file_put_contents($tempTpl, 'erste Version');
 dbx()->baseDir = $tempRoot . DIRECTORY_SEPARATOR;
-$_SESSION['dbx']['cache']['tpl'] = array();
-
 $sourceFirst = $tpl->get_tpl('dbx|test-source-change', array());
 file_put_contents($tempTpl, 'zweite, laengere Version');
 clearstatcache(true, $tempTpl);
+$tpl->clear_raw_cache();
 $sourceSecond = $tpl->get_tpl('dbx|test-source-change', array());
 
 @unlink($tempTpl);
@@ -147,8 +148,8 @@ $sourceSecond = $tpl->get_tpl('dbx|test-source-change', array());
 @rmdir($tempRoot);
 
 if ($sourceFirst !== 'erste Version' || $sourceSecond !== 'zweite, laengere Version') {
-    fwrite(STDERR, "FAIL: Geaenderte Template-Datei blieb in der Session veraltet.\n");
+    fwrite(STDERR, "FAIL: Geaenderte Template-Datei blieb im Requestcache veraltet.\n");
     exit(1);
 }
 
-echo "OK: dbxTPL cached rohe Templates, aktualisiert geaenderte Quellen und setzt DBX-Systemwerte bei jeder Ausgabe neu ein.\n";
+echo "OK: dbxTPL cached rohe Templates requestlokal, aktualisiert geaenderte Quellen und setzt DBX-Systemwerte bei jeder Ausgabe neu ein.\n";

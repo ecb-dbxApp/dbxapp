@@ -1,15 +1,30 @@
 @import url("./components.css");
 
-.dbx-cms-form-grid-page {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: .75rem;
-    align-items: end;
+/* Aktive CMS-Seite: bewusst heller als Such- und Drop-Markierungen. */
+.dbx-cms-tree-row.is-active {
+    border-left-width: 4px;
+    color: #493600;
+    font-weight: 700;
+    box-shadow:
+        inset 4px 0 0 #b97918,
+        inset 0 1px 0 rgba(255,255,255,.92),
+        0 2px 7px rgba(101,65,18,.2);
 }
 
-.dbx-cms-form-grid-page .dbx-cms-system-field-description,
-.dbx-cms-form-grid-page .dbx-cms-system-field-keywords {
-    grid-column: 1 / -1;
+.dbx-cms-tree-page.is-active {
+    background: linear-gradient(180deg, #fff9d8, #f7e7b2);
+    border-color: #c89b4a;
+    border-left: 4px solid #b97918 !important;
+}
+
+.dbx-cms-tree-folder.is-active {
+    background: linear-gradient(180deg, #fff3c1, #ecd49d);
+    border-color: #b9873d;
+    border-left: 4px solid #a76d12 !important;
+}
+
+.dbx-cms-page-panel > .dbx-form-grid {
+    align-items: end;
 }
 
 .jodit-wysiwyg .is-dbx-cms-selected {
@@ -17,36 +32,108 @@
     outline-offset: 3px;
 }
 
-@media (max-width: 1200px) {
-    .dbx-cms-form-grid-page {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+.jodit-wysiwyg [data-dbx-cms-movable-block][contenteditable="false"],
+.jodit-wysiwyg a[data-dbx-cms-movable-button] {
+    cursor: grab;
+}
+
+.jodit-wysiwyg .is-dbx-cms-dragging {
+    opacity: .55;
+}
+
+.jodit-wysiwyg .is-dbx-cms-drop-target {
+    outline: 2px dashed var(--dbx-cms-accent, #1d70d6);
+    outline-offset: 3px;
+}
+
+.dbx-cms-editor-group .jodit-wysiwyg {
+    caret-color: #0057ff !important;
+}
+
+.dbx-cms-editor-group .jodit-wysiwyg.is-dbx-cms-caret-preview {
+    caret-color: transparent !important;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-button-caret-anchor],
+.dbx-cms-editor-group [data-dbx-cms-element-caret-anchor] {
+    cursor: text;
+    display: inline-block;
+    height: 1.35em;
+    min-width: .65rem;
+    vertical-align: middle;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-layout="inline"][data-dbx-cms-caret-side="after"]:last-child {
+    min-width: 2rem;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-layout="block"] {
+    display: block;
+    height: 6px;
+    line-height: 0;
+    margin: 1px 0;
+    min-width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-layout="block"]::after {
+    content: "";
+    cursor: text;
+    height: 6px;
+    inset: 0;
+    position: absolute;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-host] {
+    caret-color: #0057ff;
+    outline: none;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-host="block"] {
+    margin: 0;
+    min-height: 1.35em;
+}
+
+.dbx-cms-editor-caret-hint {
+    animation: dbxCmsCaretPulse 1.05s ease-in-out infinite;
+    background: #0057ff;
+    border: 1px solid #ffffff;
+    border-radius: 1px;
+    box-shadow: 0 0 0 1px #0057ff, 0 0 8px rgba(0, 87, 255, .62);
+    display: block;
+    pointer-events: none;
+    position: fixed;
+    width: 3px;
+    z-index: 2147483646;
+}
+
+@keyframes dbxCmsCaretPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .62; }
 }
 
 @media (max-width: 767px) {
-    .dbx-cms-form-grid-page {
-        grid-template-columns: 1fr;
-    }
-
-    .dbx-cms-form-grid-page .dbx-cms-system-field {
-        grid-column: 1 / -1;
+    .dbx-cms-editor-group .jodit-wysiwyg table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
     }
 }
 
 .dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]) {
-    border: 1px dashed transparent;
-    border-radius: 6px;
-    padding: 4px;
+    border: 0;
+    padding: 0;
 }
 
-.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]):hover {
-    border-color: rgba(13, 110, 253, .55);
+.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]) > .col:hover,
+.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]) > [class*="col-"]:hover {
+    outline: 1px solid rgba(13, 110, 253, .28);
+    outline-offset: -2px;
 }
 
-.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]):hover > .col,
-.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]):hover > [class*="col-"] {
-    box-shadow: inset 0 0 0 1px rgba(13, 110, 253, .22);
-    min-height: 2.5rem;
+.dbx-cms-hero-actions .dbx-cms-hero-save {
+    grid-column: 1 / -1;
 }
 
 .dbx-cms-media-maintenance-report {

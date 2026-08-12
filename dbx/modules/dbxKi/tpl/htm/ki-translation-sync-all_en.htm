@@ -1,36 +1,57 @@
-<div class="dbx-panel dbx-ki-translation-sync">
+<div class="dbx-panel dbx-ki-briefing-form dbx-ki-update dbx-ki-create dbx-ki-translation-sync"
+     data-dbx="lib=kiBriefing|mode=folder|tree={tree_url}|folderid={root_folder_id}|lng={source_lng}">
  [tpl=dbx|module-bar]
- <div class="container py-4">
-  <form method="post" class="card p-3 mb-3" action="{action}">
-   {obj:form_msg}
-   <div class="row g-3">
-    <div class="col-md-4">
-     <label class="form-label">From Language</label>
-     <select class="form-select" name="source_lng">{language_options}</select>
+ <div class="dbx-ki-update-shell">
+  <div class="dbx-ki-update-workspace dbx-ki-create-workspace">
+   <aside class="dbx-ki-tree-panel">
+    <div class="dbx-ki-panel-head">
+     <strong>Content Tree</strong>
+     <span>Choose root folder (optional)</span>
     </div>
-    <div class="col-md-8">
-     <label class="form-label d-block">Target language</label>
-     <div class="border rounded p-2 bg-light">{target_language_checkboxes}</div>
+    <div class="dbx-cms-view-tree-tools">
+     <input type="search" class="form-control form-control-sm" data-ki-tree-search placeholder="Search tree">
     </div>
-    <div class="col-md-4">
-     <label class="form-label">Root folder ID</label>
-     <input class="form-control" type="number" name="root_folder_id" min="0" value="{root_folder_id}">
-     <div class="form-text">0 means complete language.</div>
+    <div class="dbx-cms-tree dbx-ki-tree" data-ki-tree>
+     <div class="dbx-cms-empty">Loading tree...</div>
     </div>
-    <div class="col-md-8">
-     <label class="form-label d-block">Options</label>
-     <label class="form-check form-check-inline mb-2"><input class="form-check-input" type="checkbox" name="update_existing" value="1" {update_existing_checked}><span class="form-check-label">Update existing translations</span></label>
-     <label class="form-check form-check-inline mb-2"><input class="form-check-input" type="checkbox" name="skip_manual" value="1" {skip_manual_checked}><span class="form-check-label">Manual target content</span></label>
-     <label class="form-check form-check-inline mb-2"><input class="form-check-input" type="checkbox" name="copy_media" value="1" {copy_media_checked}><span class="form-check-label">Adopt media assignments</span></label>
-     <label class="form-check form-check-inline mb-2"><input class="form-check-input" type="checkbox" name="replace_media_usage" value="1" {replace_media_usage_checked}><span class="form-check-label">Replace media assignments in the target</span></label>
+   </aside>
+
+   <aside class="dbx-ki-order-panel">
+   <form method="post" class="card p-3 mb-3" action="{action}">
+    {obj:form_msg}
+    <input type="hidden" name="root_folder_id" value="{root_folder_id}" data-ki-root-folder-id>
+
+    <section class="dbx-ki-card dbx-ki-selected-context">
+     <strong>Root folder:</strong> <span data-ki-root-folder-label>{root_folder_label}</span>
+     <button type="button" class="btn btn-link btn-sm p-0 ms-2" data-ki-root-folder-reset>Reset (whole language)</button>
+     <div class="form-text">Only pages and folders inside the selected folder are translated. No folder selected = entire language.</div>
+    </section>
+
+    <div class="row g-3">
+     <div class="col-md-6">
+      <label class="form-label">From Language</label>
+      <select class="form-select" name="source_lng" data-ki-lng>{language_options}</select>
+     </div>
+     <div class="col-md-6">
+      <label class="form-label d-block">Target language</label>
+      <div class="border rounded p-2 bg-light">{target_language_checkboxes}</div>
+     </div>
+     <div class="col-12">
+      <label class="form-label d-block">Options</label>
+      <label class="form-check form-check-inline mb-2"><input class="form-check-input" type="checkbox" name="update_existing" value="1" {update_existing_checked}><span class="form-check-label">Update existing translations</span></label>
+      <label class="form-check form-check-inline mb-2"><input class="form-check-input" type="checkbox" name="skip_manual" value="1" {skip_manual_checked}><span class="form-check-label">Manual target content</span></label>
+      <label class="form-check form-check-inline mb-2"><input class="form-check-input" type="checkbox" name="copy_media" value="1" {copy_media_checked}><span class="form-check-label">Adopt media assignments</span></label>
+      <label class="form-check form-check-inline mb-2"><input class="form-check-input" type="checkbox" name="replace_media_usage" value="1" {replace_media_usage_checked}><span class="form-check-label">Replace media assignments in the target</span></label>
+     </div>
     </div>
-   </div>
-   <div class="d-flex flex-wrap gap-2 mt-3">
-    <button class="btn btn-outline-primary" type="submit" name="sync_mode" value="preview">Preview</button>
-    <button class="btn btn-primary" type="submit" name="sync_mode" value="execute">Implement now</button>
-   </div>
-   [dbx:form]
-  </form>
-  {result_html}
+    <div class="d-flex flex-wrap gap-2 mt-3">
+     <button class="btn btn-outline-primary" type="submit" name="sync_mode" value="preview">Preview</button>
+     <button class="btn btn-primary" type="submit" name="sync_mode" value="execute">Implement now</button>
+    </div>
+    [dbx:form]
+   </form>
+   {result_html}
+   </aside>
+  </div>
  </div>
 </div>

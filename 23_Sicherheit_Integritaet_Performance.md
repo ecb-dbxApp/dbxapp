@@ -1,6 +1,6 @@
 # Sicherheit, Integrität und Performance {#dbxapp_security_integrity_performance}
 
-Stand: 25. Juli 2026
+Stand: 2. August 2026
 
 Dieses Kapitel dokumentiert die Härtung der öffentlichen Laufzeit, von
 `dbxWorkflow`, `dbxShop` und `dbxContent_admin`. Es ergänzt die verbindlichen
@@ -149,10 +149,24 @@ versionierbare Vorlage liegt unter:
 dbx/modules/dbx/cfg/config.local.example.php
 ```
 
-`dbxApi::get_config()` lädt zuerst die Basis und überlagert anschließend die
-lokale Datei rekursiv. `set_config()` entfernt lokale Override-Pfade vor dem
-Schreiben der Basisdatei. Dadurch kann ein Admin-Speichervorgang lokale Secrets
-nicht versehentlich zurück in die versionierte Konfiguration kopieren.
+`dbxApi::get_cfg()` lädt zuerst die Basis und überlagert anschließend die
+lokale Datei rekursiv. `set_cfg()` entfernt beim Schreiben der Basis lokale
+Override-Pfade. Lokale Installationswerte werden ausschließlich über
+`set_cfg($modul, $werte, 'local')` geschrieben. Dadurch kann ein
+Admin-Speichervorgang lokale Secrets nicht versehentlich zurück in die
+versionierte Konfiguration kopieren.
+
+Es gibt bewusst keine parallelen Methoden `get_config()`, `set_config()` oder
+`set_local_config()`. Jede Konfigurationslesung läuft über `get_cfg()`, jede
+Konfigurationsänderung über `set_cfg()`. Verwaltungsansichten fordern im
+Demo-Modus mit dem vierten Parameter eine maskierte Kopie an:
+
+```php
+$runtime = dbx()->get_cfg('dbx');                  // echte Werte intern
+$display = dbx()->get_cfg('dbx', '', null, true); // Secrets als ******
+dbx()->set_cfg('dbx', $config);
+dbx()->set_cfg('dbx', $localConfig, 'local');
+```
 
 Wichtig: Das Entfernen aus dem aktuellen Quellstand löscht keine Werte aus
 bereits vorhandener Git-Historie, Backups oder Logs. Alle ehemals im Repository
@@ -160,6 +174,36 @@ gespeicherten Zugangsdaten müssen nach der Umstellung rotiert werden.
 
 Die frühere Sonderbehandlung `dbx_api -> login(2)` wurde entfernt. Ein
 Requestparameter darf keine Identität und keine Berechtigung erzeugen.
+
+## Nur-Lese-Demomodus
+
+Der installationsweite Demomodus wird updatesicher in
+`config.local.php` aktiviert:
+
+```php
+$config['demo_mode'] = 1;
+```
+
+Alternativ hat die Umgebungsvariable `DBX_DEMO_MODE=1` Vorrang. Der Modus ist
+kein Admin-Login und verwendet keinen `dbxRunAsAdmin`-Bypass: Der Besucher
+bleibt technisch Gast, sieht aber das Admin-Menü und darf alle Module zur
+Demonstration öffnen.
+
+Die Nur-Lese-Grenzen sind zentral und unabhängig von der Oberfläche:
+
+- `set_cfg()` verweigert jede Basis- und lokale Konfigurationsänderung;
+- `dbxDB::insert()`, `update()`, `save()` und `delete()` werden bei aktiver
+  Rechteprüfung vor der Admin-Sonderberechtigung abgewiesen;
+- mutierende POST-, PUT-, PATCH-, DELETE- und tokenpflichtige GET-Aktionen
+  erreichen den Modulcode nicht und liefern HTTP 403;
+- Konfigurationsansichten erhalten Secrets ausschließlich maskiert als
+  `******`;
+- Demo-Seiten werden nie als normale Gastseiten im Full-Page-Cache abgelegt.
+
+Technische Session-Schreibvorgänge bleiben ausdrücklich möglich. Sie rufen
+`dbxDB` mit `verify_access=0` auf und durchlaufen daher die fachliche
+Demo-Rechteprüfung nicht. Diese Ausnahme gilt für den Session-Lebenszyklus,
+nicht für Module oder Konfigurationswerte.
 
 ## Workflow-Vertrag
 
@@ -217,12 +261,14 @@ mit dem Methodenaufruf; sie kann nach einem späteren Schreibzugriff nicht
 veraltet weiterleben. `products()` und `productsByIds()` nutzen denselben Pfad,
 die bisherigen Einzelmethoden bleiben kompatibel.
 
-Ein globaler Ergebnis-Cache in `dbxDB` wurde bewusst nicht ergänzt. dbxDB
-besitzt neben DD-Selects auch rohe Queries, Schreibpfade und Transaktionen;
-außerdem können getrennte Prozesse schreiben. Eine lückenlose, rechte- und
-transaktionssichere Invalidierung wäre unverhältnismäßig komplex.
+`dbxDB::select1()` cached identische Einzelsatzzugriffe innerhalb genau eines
+Requests. Der Schlüssel enthält DD, WHERE, Spaltenauswahl, Rechteprüfung und
+Benutzerkontext. Erfolgreiche Schreibzugriffe invalidieren die betroffene DD;
+Transaktionen umgehen den Cache und verwerfen beim Abschluss die DD-Caches des
+Servers. Es gibt weiterhin keinen prozess-, session- oder requestübergreifenden
+DB-Ergebnis-Cache.
 
-Stattdessen merkt das Shop-Repository innerhalb genau eines Requests kleine,
+Ergänzend merkt das Shop-Repository innerhalb genau eines Requests kleine,
 häufig wiederverwendete Referenzlisten: Gruppen, Channels,
 Attributdefinitionen und Filterdefinitionen. Jede zugehörige
 Repository-Mutation leert diesen Cache sofort. Er enthält keine Benutzer-,
@@ -281,7 +327,8 @@ Synchronisation erfolgt über `dbxDD` im administrativen DD-Ablauf.
 
 Auch einmalige Werkzeuge halten diese Grenze ein:
 
-- `migrate_flat_permalinks.php` arbeitet über Content-DD und `dbxDB`;
+- Permalinks werden beim Schreiben direkt über Content-DD und `dbxDB`
+  normalisiert; ein nachträgliches Migrationswerkzeug existiert nicht;
 - `rebuild_tutorial_callouts.php` verwendet Content-, Media- und
   Media-Usage-DDs sowie getrennte dbxDB-Transaktionen;
 - die beiden MySQL-Prüfwerkzeuge verwenden den konfigurierten dbxDB-Server.
@@ -480,6 +527,35 @@ Der Content-Renderer:
   Permalink-Index-Scan.
 
 ## Verifikation
+
+### Reproduzierbare UI-Regressionsmatrix
+
+Der Komplettlauf von `dbxSelfTest` führt
+`dbxUiRegressionMatrix_browser_test.js` in einem gerenderten, außerhalb des
+sichtbaren Bereichs liegenden Browser-Viewport aus. `hidden`-Frames sind dafür
+unzulässig, weil sie Fokus, Rechtecke, Überlauf und Layer nicht realistisch
+abbilden.
+
+Die feste Matrix lädt `/home`, Content-ID 1 und eine echte dbxReport-Seite als
+Desktop (1440×960), Tablet (1024×768) und Mobilgerät (390×844). Sie prüft:
+
+- DOM-, Ressourcen- und Navigationszeit-Budgets sowie horizontalen Überlauf;
+- Fokusierbarkeit, eindeutige DOM-IDs und sichtbare Laufzeitfehler;
+- Einfügen direkt vor und hinter dem Bootstrap-Link „Projekt besprechen“ im
+  Jodit-Editor, ohne die Seite zu speichern;
+- genau einen oberhalb positionierten HTML-Tooltip ohne parallelen nativen
+  `title`;
+- ein per `openWin` und zentralem `ajax.js` geladenes Fenster samt Viewport- und
+  Z-Index-Vertrag;
+- Medienbrowser, Ordnerbaum, Medienraster, vollständiges dbxForm-Uploadformular
+  und den darüberliegenden Wartungsdialog. Automatisch wird keine Datei
+  hochgeladen und keine Wartung gestartet, damit ein Regressionstest niemals
+  Kundendaten mutiert.
+
+Der schnelle PHP-Vertrag `dbxUiRegressionMatrix_contract_test.php` verhindert,
+dass Profile, Zielseiten, Interaktionen, Budgets oder der Layout-Viewport
+unbemerkt entfernt werden. Echte Upload-/Löschabläufe werden zusätzlich mit
+einer eigens erzeugten Testdatei geprüft und unmittelbar wieder bereinigt.
 
 Am 24. Juli 2026 wurden ausgeführt:
 

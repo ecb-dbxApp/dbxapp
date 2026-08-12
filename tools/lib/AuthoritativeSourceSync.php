@@ -15,8 +15,10 @@ final class AuthoritativeSourceSync
    /** @var array<string,true> */
    private const ROOT_FILES = array(
       '.env.example' => true,
+      'AGENTS.md' => true,
       '.htaccess' => true,
       'Doxyfile' => true,
+      'UPDATE_BASELINE' => true,
       'VERSION' => true,
       'index.php' => true,
       'favicon.ico' => true,
@@ -44,8 +46,7 @@ final class AuthoritativeSourceSync
 
       if (isset(self::ROOT_FILES[$relative])
          || isset(self::SHARED_RELEASE_TOOLS[$relative])
-         || preg_match('/^\d{2}_[A-Za-z0-9_.-]+\.md$/', $relative)
-         || preg_match('/^RELEASE_NOTES_[A-Za-z0-9_.-]+\.md$/', $relative)) {
+         || preg_match('/^\d{2}_[A-Za-z0-9_.-]+\.md$/', $relative)) {
          return true;
       }
 
@@ -70,6 +71,8 @@ final class AuthoritativeSourceSync
       if (preg_match('#^dbx/vendor/#i', $relative)
          || preg_match('#^dbx/files/#i', $relative)
          || preg_match('#^dbx/modules/myLKW/#i', $relative)
+         || preg_match('#^dbx/modules/myX/#i', $relative)
+         || preg_match('#^dbx/modules/dbxMenu/tpl/htm/#i', $relative)
          || preg_match('#/(?:cache|tmp|work|backup|backups|_backup|\.backup|uploads)/#i', '/' . $relative)
          || preg_match('#/db/#i', '/' . $relative)
          || in_array($base, array('.env', '.env.local', 'config.local.php'), true)
@@ -142,8 +145,8 @@ final class AuthoritativeSourceSync
    /**
     * Applies a previously created plan.
     *
-    * The target must be a clean Git checkout. This makes every replacement
-    * recoverable and prevents accidental mixing with hand-edited mirror files.
+    * Managed target files are replaced from the authoritative source. Unmanaged
+    * GitHub release and policy files remain untouched.
     *
     * @return array{copied:int,deleted:int}
     */
@@ -151,8 +154,6 @@ final class AuthoritativeSourceSync
    {
       $source = self::realDirectory($source, 'Quellverzeichnis');
       $target = self::realDirectory($target, 'Zielverzeichnis');
-      self::assertGitClean($target);
-
       $copied = 0;
       foreach (($plan['copy'] ?? array()) as $relative => $sourceFile) {
          if (!self::isManagedFile((string)$relative)
@@ -230,22 +231,6 @@ final class AuthoritativeSourceSync
       if (!is_dir($target . DIRECTORY_SEPARATOR . '.git')
          || !is_file($target . DIRECTORY_SEPARATOR . 'RELEASE_PROCESS.md')) {
          throw new RuntimeException('Das Ziel ist kein vorbereiteter dbxApp-GitHub-Spiegel.');
-      }
-   }
-
-   private static function assertGitClean(string $target): void
-   {
-      $command = 'git -C ' . escapeshellarg($target) . ' status --porcelain';
-      $output = array();
-      $code = 0;
-      exec($command, $output, $code);
-      if ($code !== 0) {
-         throw new RuntimeException('Der Git-Status des Zielverzeichnisses konnte nicht geprüft werden.');
-      }
-      if ($output !== array()) {
-         throw new RuntimeException(
-            'Der GitHub-Spiegel enthält lokale Änderungen. Erst committen oder bereinigen.'
-         );
       }
    }
 

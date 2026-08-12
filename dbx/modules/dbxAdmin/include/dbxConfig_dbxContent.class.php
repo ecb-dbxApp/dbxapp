@@ -24,7 +24,7 @@ class dbxConfig_dbxContent {
     * Aktive Werte aus dbx, dbxHome und dbxContent fuer $data zusammenfuehren.
     */
    private function buildFormData(): array {
-      $contentCfg = dbx()->get_config('dbxContent');
+      $contentCfg = dbx()->get_cfg('dbxContent', '', null, true);
       if (!is_array($contentCfg)) {
          $contentCfg = array();
       }
@@ -43,7 +43,7 @@ class dbxConfig_dbxContent {
          $data['lng_translate_model'] = 'gpt-4o-mini';
       }
 
-      $dbxCfg = dbx()->get_config('dbx');
+      $dbxCfg = dbx()->get_cfg('dbx');
       if (!is_array($dbxCfg)) {
          $dbxCfg = array();
       }
@@ -63,7 +63,7 @@ class dbxConfig_dbxContent {
          $data['accessible_lng'] = $data['default_lng'];
       }
 
-      $homeCfg = dbx()->get_config('dbxHome');
+      $homeCfg = dbx()->get_cfg('dbxHome');
       $data['home_cid'] = is_array($homeCfg) ? (string) ($homeCfg['cid'] ?? '1') : '1';
       if ($data['home_cid'] === '' || $data['home_cid'] === 'undef') {
          $data['home_cid'] = '1';
@@ -115,29 +115,29 @@ class dbxConfig_dbxContent {
 
       $accessibleList = $this->normalizeAccessibleLng($config['accessible_lng'] ?? $defaultLng, $defaultLng);
 
-      $dbxCfg = dbx()->get_config('dbx');
+      $dbxCfg = dbx()->get_cfg('dbx');
       if (!is_array($dbxCfg)) {
          $dbxCfg = array();
       }
       $dbxCfg['default_lng'] = $defaultLng;
       $dbxCfg['accessible_lng'] = implode(',', $accessibleList);
-      dbx()->set_config('dbx', $dbxCfg);
+      dbx()->set_cfg('dbx', $dbxCfg);
 
       $homeCid = trim((string) ($config['home_cid'] ?? '1'));
       if ($homeCid === '' || !ctype_digit($homeCid)) {
          $homeCid = '1';
       }
 
-      $homeCfg = dbx()->get_config('dbxHome');
+      $homeCfg = dbx()->get_cfg('dbxHome');
       if (!is_array($homeCfg)) {
          $homeCfg = array();
       }
       $homeCfg['cid'] = $homeCid;
-      dbx()->set_config('dbxHome', $homeCfg);
+      dbx()->set_cfg('dbxHome', $homeCfg);
    }
 
    private function saveTranslateConfig(array $config): void {
-      $contentCfg = dbx()->get_config('dbxContent');
+      $contentCfg = dbx()->get_cfg('dbxContent');
       if (!is_array($contentCfg)) {
          $contentCfg = array();
       }
@@ -153,7 +153,7 @@ class dbxConfig_dbxContent {
          $contentCfg['dbxConfig_modul'] = 'secure';
       }
 
-      dbx()->set_config('dbxContent', $contentCfg);
+      dbx()->set_cfg('dbxContent', $contentCfg);
    }
 
    public function run($action = '') {
@@ -224,9 +224,9 @@ class dbxConfig_dbxContent {
          'Aktiver Uebersetzungs-Provider: ' . $provider . ' (nach Speichern neu geladen)'
       );
       $oForm->add_rep('bar_icon', 'bi-translate');
-      $oForm->add_rep('bar_class', 'dbx-module-bar');
-      $oForm->add_rep('bar_title_class', 'dbx-module-bar-titleblock');
-      $oForm->add_rep('bar_actions_class', 'dbx-module-bar-actions');
+      $oForm->add_rep('bar_class', 'dbx-bar--module');
+      $oForm->add_rep('bar_title_class', 'dbx-bar-title');
+      $oForm->add_rep('bar_actions_class', 'dbx-bar-actions');
       $oForm->add_rep('current_provider', $provider);
    }
 }

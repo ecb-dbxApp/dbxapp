@@ -236,9 +236,9 @@ class dbxAdminHelp {
       }
 
       return array(
-         'bar_class'         => 'dbx-module-bar',
-         'bar_title_class'   => 'dbx-module-bar-titleblock',
-         'bar_actions_class' => 'dbx-module-bar-actions',
+         'bar_class'         => 'dbx-bar--module',
+         'bar_title_class'   => 'dbx-bar-title',
+         'bar_actions_class' => 'dbx-bar-actions',
          'bar_title'         => (string)$title,
          'bar_icon'          => (string)$icon,
          'bar_subtitle'      => (string)$subtitle,
@@ -264,9 +264,9 @@ class dbxAdminHelp {
       }
 
       return array(
-         'bar_class'               => 'dbx-module-bar dbx-help-context-bar',
-         'bar_title_class'         => 'dbx-module-bar-titleblock',
-         'bar_actions_class'       => 'dbx-module-bar-actions',
+         'bar_class'               => 'dbx-bar--module dbx-help-context-bar',
+         'bar_title_class'         => 'dbx-bar-title',
+         'bar_actions_class'       => 'dbx-bar-actions',
          'bar_title'               => (string)($meta['title'] ?? $topic),
          'bar_icon'                => (string)($meta['icon'] ?? 'bi-question-circle'),
          'bar_subtitle'            => $this->texts()->get_fd_message('context_help'),
@@ -281,9 +281,9 @@ class dbxAdminHelp {
    public function formHelpWindowBarTemplateData(string $title = ''): array {
       $title = trim($title) !== '' ? trim($title) : $this->texts()->get_fd_message('form_help');
       return array(
-         'bar_class'               => 'dbx-module-bar dbx-help-context-bar',
-         'bar_title_class'         => 'dbx-module-bar-titleblock',
-         'bar_actions_class'       => 'dbx-module-bar-actions',
+         'bar_class'               => 'dbx-bar--module dbx-help-context-bar',
+         'bar_title_class'         => 'dbx-bar-title',
+         'bar_actions_class'       => 'dbx-bar-actions',
          'bar_title'               => $this->h($title),
          'bar_icon'                => 'bi-question-circle',
          'bar_subtitle'            => $this->texts()->get_fd_message('form_help_subtitle'),
@@ -305,9 +305,9 @@ class dbxAdminHelp {
          'bar_subtitle' => '',
          'bar_title_pre' => '',
          'bar_title_heading_attrs' => '',
-         'bar_class' => 'dbx-module-bar',
-            'bar_title_class' => 'dbx-module-bar-titleblock',
-            'bar_actions_class' => 'dbx-module-bar-actions',
+         'bar_class' => 'dbx-bar--module',
+            'bar_title_class' => 'dbx-bar-title',
+            'bar_actions_class' => 'dbx-bar-actions',
             'bar_actions' => '',
             'bar_extra' => '',
          );

@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* =========================================================
    dbxapp – THEME.CSS
    ---------------------------------------------------------
@@ -96,7 +97,6 @@ body.dbx-header-sticky #dbxHeader {
 /* --- Bar (hellblau, 100% im Container) --- */
 
 .dbx-bar,
-.dbx-module-bar,
 .dbx-grid-bar,
 .dbx-report-bar,
 .dbx-report-footer,
@@ -313,7 +313,7 @@ body.dbx-header-sticky #dbxHeader {
     width: 1.25rem;
 }
 
-.dbx-bar-title > span:not(.dbx-module-bar-copy),
+.dbx-bar-title > span:not(.dbx-bar-copy),
 .dbx-admin-dashboard-card-title > span,
 .dbxForm_wrapper .dbx-form-bar-title strong {
     overflow: hidden;
@@ -347,7 +347,6 @@ body.dbx-header-sticky #dbxHeader {
 
 /* Hilfe ist in jeder Aktionsleiste immer die letzte, ganz rechte Aktion. */
 .dbx-bar-actions,
-.dbx-module-bar-actions,
 .dbxForm_wrapper .dbx-form-bar-actions {
     margin-left: auto;
 }
@@ -359,7 +358,6 @@ body.dbx-header-sticky #dbxHeader {
 }
 
 .dbx-bar-actions > .dbx-help-action,
-.dbx-module-bar-actions > .dbx-help-action,
 .dbxForm_wrapper .dbx-form-bar-actions > .dbx-help-action,
 .dbx-shop-channel-actions > .dbx-help-action {
     margin-left: auto !important;
@@ -389,14 +387,14 @@ body.dbx-header-sticky #dbxHeader {
 
 /* --- Toolbar-Variante (optional abgerundet) --- */
 
-.dbx-toolbar {
+.dbx-bar--toolbar {
     border: 1px solid var(--dbx-panel-head-border);
     border-radius: var(--dbx-window-radius, 0.5rem);
     contain: paint;
     margin-bottom: 0.5rem;
 }
 
-.dbx-grid-toolbar.dbx-toolbar,
+.dbx-grid-toolbar.dbx-bar--toolbar,
 .dbx-grid-toolbar {
     border: 1px solid var(--dbx-panel-head-border);
     border-radius: var(--dbx-window-radius, 0.5rem);
@@ -449,7 +447,7 @@ body.dbx-header-sticky #dbxHeader {
 
 /* --- Modul-Bar (einheitlich, kompakt, bündig oben) --- */
 
-.dbx-module-bar {
+.dbx-bar--module {
     align-items: center;
     flex-wrap: nowrap;
     gap: 0.625rem;
@@ -458,35 +456,32 @@ body.dbx-header-sticky #dbxHeader {
     width: 100%;
 }
 
-.dbx-panel > .dbx-module-bar,
-.dbx-panel > .dbx-bar.dbx-module-bar {
+.dbx-panel > .dbx-bar--module {
     margin-top: 0;
 }
 
-.dbx-panel > .dbx-module-bar:first-child,
-.dbx-panel > .dbx-bar.dbx-module-bar:first-child {
+.dbx-panel > .dbx-bar--module:first-child {
     border-radius: calc(var(--dbx-window-radius, 0.5rem) - 1px) calc(var(--dbx-window-radius, 0.5rem) - 1px) 0 0;
     border-top: 0;
     margin-top: 0;
 }
 
-.dbx-panel:has(> .dbx-bar.dbx-module-bar:first-child),
-.dbx-panel:has(> .dbx-module-bar:first-child) {
+.dbx-panel:has(> .dbx-bar--module:first-child) {
     box-shadow: var(--dbx-panel-shadow, 0 4px 14px rgba(15, 23, 42, 0.10));
 }
 
 /* Modul-Panel in Hosting-Containern: Bar bündig oben, volle Breite */
-.dbx-content-page .dbx-cms-mod-output:has(> .dbx-panel > .dbx-bar.dbx-module-bar:first-child),
-.dbx-content-page > .dbx-panel.dbxForm_wrapper:has(> .dbx-bar.dbx-module-bar:first-child),
-.dbx-content-page > .dbx-panel.dbxReport:has(> .dbx-bar.dbx-module-bar:first-child) {
+.dbx-content-page .dbx-cms-mod-output:has(> .dbx-panel > .dbx-bar.dbx-bar--module:first-child),
+.dbx-content-page > .dbx-panel.dbxForm_wrapper:has(> .dbx-bar.dbx-bar--module:first-child),
+.dbx-content-page > .dbx-panel.dbxReport:has(> .dbx-bar.dbx-bar--module:first-child) {
     margin-left: calc(-1 * var(--dbx-content-page-pad-x, 0px));
     margin-right: calc(-1 * var(--dbx-content-page-pad-x, 0px));
     width: auto;
 }
 
-.dbx-content-page .dbx-cms-mod-output:first-child:has(> .dbx-panel > .dbx-bar.dbx-module-bar:first-child),
-.dbx-content-page > .dbx-panel.dbxForm_wrapper:first-child:has(> .dbx-bar.dbx-module-bar:first-child),
-.dbx-content-page > .dbx-panel.dbxReport:first-child:has(> .dbx-bar.dbx-module-bar:first-child) {
+.dbx-content-page .dbx-cms-mod-output:first-child:has(> .dbx-panel > .dbx-bar.dbx-bar--module:first-child),
+.dbx-content-page > .dbx-panel.dbxForm_wrapper:first-child:has(> .dbx-bar.dbx-bar--module:first-child),
+.dbx-content-page > .dbx-panel.dbxReport:first-child:has(> .dbx-bar.dbx-bar--module:first-child) {
     margin-top: calc(-1 * var(--dbx-content-page-pad-y, 0px));
 }
 
@@ -545,8 +540,7 @@ body.dbx-header-sticky #dbxHeader {
     width: 100%;
 }
 
-.dbx-module-bar .dbx-module-bar-titleblock,
-.dbx-module-bar .dbx-bar-title {
+.dbx-bar--module .dbx-bar-title {
     align-items: center;
     display: flex;
     flex: 1 1 auto;
@@ -556,12 +550,12 @@ body.dbx-header-sticky #dbxHeader {
     min-width: 0;
 }
 
-.dbx-module-bar .dbx-module-bar-titleblock > i,
-.dbx-module-bar .dbx-module-bar-titleblock > .bi {
+.dbx-bar--module .dbx-bar-title > i,
+.dbx-bar--module .dbx-bar-title > .bi {
     flex: 0 0 auto;
 }
 
-.dbx-module-bar-copy {
+.dbx-bar-copy {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -571,7 +565,7 @@ body.dbx-header-sticky #dbxHeader {
     white-space: normal;
 }
 
-.dbx-module-bar-heading {
+.dbx-bar-heading {
     display: block;
     font-size: 0.875rem;
     font-weight: 700;
@@ -581,7 +575,7 @@ body.dbx-header-sticky #dbxHeader {
     white-space: nowrap;
 }
 
-.dbx-module-bar-subtitle {
+.dbx-bar-subtitle {
     color: var(--dbx-text-muted);
     display: block;
     font-size: 0.72rem;
@@ -593,11 +587,11 @@ body.dbx-header-sticky #dbxHeader {
     white-space: nowrap;
 }
 
-.dbx-module-bar-subtitle:empty {
+.dbx-bar-subtitle:empty {
     display: none;
 }
 
-.dbx-module-bar-actions {
+.dbx-bar-actions {
     align-items: center;
     display: flex;
     flex: 0 0 auto;
@@ -613,25 +607,24 @@ body.dbx-header-sticky #dbxHeader {
  * Eine einzelne Hilfe-Schaltfläche bleibt neben dem Titel.
  */
 @media (max-width: 575.98px) {
-    .dbx-module-bar:has(.dbx-module-bar-actions > :nth-child(2)) {
+    .dbx-bar--module:has(.dbx-bar-actions > :nth-child(2)) {
         align-items: center;
         flex-wrap: wrap;
     }
 
-    .dbx-module-bar:has(.dbx-module-bar-actions > :nth-child(2)) .dbx-module-bar-titleblock,
-    .dbx-module-bar:has(.dbx-module-bar-actions > :nth-child(2)) .dbx-bar-title {
+    .dbx-bar--module:has(.dbx-bar-actions > :nth-child(2)) .dbx-bar-title {
         flex: 1 1 100%;
         width: 100%;
     }
 
-    .dbx-module-bar:has(.dbx-module-bar-actions > :nth-child(2)) .dbx-module-bar-actions {
+    .dbx-bar--module:has(.dbx-bar-actions > :nth-child(2)) .dbx-bar-actions {
         flex: 1 1 100%;
         justify-content: flex-end;
         width: 100%;
     }
 }
 
-.dbx-panel.dbxForm_wrapper > form > .dbx-module-bar:first-child {
+.dbx-panel.dbxForm_wrapper > form > .dbx-bar--module:first-child {
     border-radius: calc(var(--dbx-window-radius, 0.5rem) - 1px) calc(var(--dbx-window-radius, 0.5rem) - 1px) 0 0;
     border-top: 0;
     margin-top: 0;
@@ -663,10 +656,9 @@ body.dbx-header-sticky #dbxHeader {
     overflow: visible;
 }
 
-.dbx-panel.dbxForm_wrapper > .dbx-bar.dbx-module-bar:first-child,
-.dbx-panel.dbxForm_wrapper > .dbx-module-bar:first-child {
+.dbx-panel.dbxForm_wrapper > .dbx-bar--module:first-child {
     position: sticky;
-    top: var(--dbx-module-bar-sticky-top, var(--dbx-cms-sticky-top, 0px));
+    top: var(--dbx-bar-sticky-top, var(--dbx-cms-sticky-top, 0px));
     z-index: 1015;
 }
 

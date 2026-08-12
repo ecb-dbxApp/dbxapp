@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#244a36">
 
-    <title>{dbx:title}</title>{dbx:head_meta}
+    <title>{dbx:document_title}</title>{dbx:head_meta}
 
     <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap-icons/font/bootstrap-icons.css">
 
-    <link rel="stylesheet" href="dbx/design/flowers/css/colors.css?v=1">
+    <link rel="stylesheet" href="dbx/design/flowers/css/colors.css?v={dbx:asset_version}">
     <link rel="stylesheet" href="{dbx:skin_css}">
-    <link rel="stylesheet" href="dbx/design/flowers/css/base.css?v=9">
-    <link rel="stylesheet" href="dbx/design/flowers/css/theme.css?v=2">
+    <link rel="stylesheet" href="dbx/design/flowers/css/base.css?v={dbx:asset_version}">
+    <link rel="stylesheet" href="dbx/design/flowers/css/theme.css?v={dbx:asset_version}">
 </head>
 
 <body class="dbx-fleurop {dbx:skin_class}"[inc=is_dbx_edit()] data-dbx="lib=icons_editor"[/inc] data-dbx-skin="{dbx:color}" data-dbx-design="{dbx:design}">
@@ -57,7 +57,7 @@
             [/inc]
 
             <header class="fleurop-topbar">
-            <button class="fleurop-sidebar-toggle" type="button" data-fleurop-sidebar-toggle title="Navigation ein- oder ausklappen" aria-label="Navigation ein- oder ausklappen" aria-expanded="true">
+            <button class="fleurop-sidebar-toggle" type="button" data-fleurop-sidebar-toggle data-dbx-tooltip="Navigation ein- oder ausklappen" aria-label="Navigation ein- oder ausklappen" aria-expanded="true">
                 <i class="bi bi-list"></i>
             </button>
             <div class="fleurop-page-title">
@@ -81,7 +81,7 @@
         <footer id="dbxFooter" class="fleurop-footer">
             <div class="dbx-footer-dockbar" aria-label="Fensterleiste">
                 <div id="windrop" class="dbx-window-dock" aria-label="Minimierte Fenster"></div>
-                <button id="dbxWindowCloseAll" class="dbx-footer-window-close-all" type="button" title="Alle Fenster schließen" aria-label="Alle Fenster schließen">
+                <button id="dbxWindowCloseAll" class="dbx-footer-window-close-all" type="button" data-dbx-tooltip="Alle Fenster schließen" aria-label="Alle Fenster schließen">
                     <i class="bi bi-x-square"></i>
                 </button>
             </div>
@@ -96,12 +96,13 @@
 </div>
 
 <div id="dbxPreloader" class="dbx-preloader" style="display:none!important;pointer-events:none!important"></div>
-<button id="dbxBackToTop" class="btn fleurop-back-to-top" type="button" title="Nach oben" aria-label="Nach oben">
+<button id="dbxBackToTop" class="btn fleurop-back-to-top" type="button" data-dbx-tooltip="Nach oben" aria-label="Nach oben">
     <i class="bi bi-arrow-up"></i>
 </button>
 
 <script src="dbx/vendor/components/jquery/jquery.min.js"></script>
-<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v=90"></script>
-<script src="dbx/design/flowers/js/flowers.js?v=1"></script>
+<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v={dbx:asset_version}"></script>
+<script src="dbx/design/flowers/js/flowers.js?v={dbx:asset_version}"></script>
+{dbx:module_assets}
 </body>
 </html>

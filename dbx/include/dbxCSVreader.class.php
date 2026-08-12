@@ -141,7 +141,7 @@ class dbxCSVreader extends dbxObj {
     $this->set_property('max_time',$max);
     $this->set_property('file_ext',$ext);
     
-    $max_quick=dbx()->get_config('dbxAdmin','max_quick');
+    $max_quick=dbx()->get_cfg('dbxAdmin','max_quick');
     
     
 

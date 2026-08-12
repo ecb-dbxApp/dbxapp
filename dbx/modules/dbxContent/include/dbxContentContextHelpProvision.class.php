@@ -11,7 +11,7 @@ class dbxContentContextHelpProvision {
    private const CONFIG_KEY = 'context_help_provision_version';
 
    public static function run(): void {
-      $version = (int) dbx()->get_config('dbxContent', self::CONFIG_KEY);
+      $version = (int) dbx()->get_cfg('dbxContent', self::CONFIG_KEY);
       if ($version >= self::PROVISION_VERSION) {
          return;
       }
@@ -139,12 +139,12 @@ class dbxContentContextHelpProvision {
    }
 
    private static function markProvisioned(): void {
-      $config = dbx()->get_config('dbxContent');
+      $config = dbx()->get_cfg('dbxContent');
       if (!is_array($config)) {
          $config = array();
       }
       $config[self::CONFIG_KEY] = self::PROVISION_VERSION;
-      dbx()->set_config('dbxContent', $config);
+      dbx()->set_cfg('dbxContent', $config);
    }
 
    private static function ensureHelpFolder($db, array &$result): int {

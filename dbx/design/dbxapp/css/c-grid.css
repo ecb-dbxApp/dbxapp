@@ -1,6 +1,7 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* ============================================================
    DBX GRID – LKW DESIGN (FINAL, STATE-SAFE, OPTIMIZED)
-   Tabulator 6.3 + Bootstrap 5
+   Tabulator 6.5 + Bootstrap 5
    ============================================================ */
 
 .dbx-schema-data-grid {
@@ -88,6 +89,33 @@
     backdrop-filter: blur(6px);
     will-change: backdrop-filter;
     border-bottom: 2px solid var(--dbx-panel-head-border);
+}
+
+/* ============================================================
+   ISOLATION GEGEN dbxContent-FLIESSTEXT-STYLES
+   ------------------------------------------------------------
+   c-content-frame.css setzt fuer CMS-Fliesstext (Absaetze,
+   Tabellen in Artikeln) per Universalselektor
+   ".c-cms .body *" / ".c-cms .dbx-content-col-inner *" ein
+   "white-space: normal !important". Das trifft ungewollt auch
+   ein hier eingebundenes Tabulator-Grid und hebelt dessen
+   eigenes "white-space: nowrap" (Header/Zeilen/Zellen) aus:
+   die Kopfzeilen-Spalten (inline-block/inline-flex) brechen
+   dann um, wodurch die eingefrorene "_actions"-Spalte nicht
+   mehr zur (dann mehrzeiligen) Kopfzeilenhoehe passt. Direkter
+   Modulaufruf ausserhalb von dbxContent ist davon nicht
+   betroffen. Diese Regel ist per Spezifitaet (3 Klassen) staerker
+   als die Ausloeser-Regel (2 Klassen) und stellt nowrap gezielt
+   wieder her, ohne den mehrzeiligen Editor (siehe
+   .dbx-grid-cell-big-editor weiter oben, hoehere Spezifitaet)
+   zu beeinflussen.
+   ============================================================ */
+
+.c-cms .body .tabulator,
+.c-cms .body .tabulator *,
+.c-cms .dbx-content-col-inner .tabulator,
+.c-cms .dbx-content-col-inner .tabulator * {
+    white-space: nowrap !important;
 }
 
 .tabulator .tabulator-col {

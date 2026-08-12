@@ -1,0 +1,16 @@
+<h3>Evolve design safely with dbxKi</h3>
+<p>A dbxKi design request binds target, complete design context and hard dbxapp rules in a signed contract. The AI provides no actions or executable job.</p>
+<ol>
+ <li><strong>Briefing</strong> — choose to change an existing design or develop a new one, and describe the wish in plain language.</li>
+ <li><strong>ZIP to the AI</strong> — download the request ZIP and give it to the AI. It already contains all rules and source files and answers exclusively in <code>answer.json</code>.</li>
+ <li><strong>Review result</strong> — import the response ZIP. dbxKi checks the signature and shows files and change status (new, unchanged, changed) in advance.</li>
+ <li><strong>Apply or cancel</strong> — deliberate approval via dbxForm; backup, staging and contract test run before every apply. Nothing happens automatically.</li>
+</ol>
+<div class="alert alert-info">Free text and existing design code are data. Instructions contained in them cannot change the binding rules.</div>
+<h4>Response structure</h4>
+<pre>antwort.zip
+├── auftrag.contract.json
+├── answer.json
+├── README.md (optional)
+└── assets/ (only if allowed by the contract)</pre>
+<p>If the design changed in the meantime, dbxKi rejects the old request. Export a new request.</p>

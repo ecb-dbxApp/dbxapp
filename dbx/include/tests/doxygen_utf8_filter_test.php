@@ -2,15 +2,38 @@
 
 $root = dirname(__DIR__, 3);
 $filter = $root . '/docs/tools/doxygen_php_utf8_filter.php';
-$sourceFile = $root . '/dbx/include/dbxApi.php';
 
 $fail = static function (string $message, int $code): void {
     fwrite(STDERR, "FAIL: {$message}\n");
     exit($code);
 };
 
-if (!is_file($filter) || !is_file($sourceFile)) {
-    $fail('Doxygen-UTF-8-Filter oder Testquelle fehlt.', 1);
+if (!is_file($filter)) {
+    $fail('Doxygen-UTF-8-Filter fehlt.', 1);
+}
+
+/*
+ * Eigenstaendiges Fixture statt einer Projektdatei: der Filter arbeitet
+ * dateiinhaltsunabhaengig, daher reicht ein kleines Beispiel mit genau den
+ * zwei Faellen, die abgesichert werden muessen - doppelt codierte Umlaute
+ * in einem Docblock (muessen repariert werden) und dieselbe Zeichenfolge
+ * als String-Literal in echtem Code (darf nicht angefasst werden).
+ */
+$fixtureSource = <<<'PHP'
+<?php
+/**
+ * GeschÃ¼tzte ModulVariablen werden nicht Ã¼berschrieben.
+ * RÃ¼ckgabe des validierten Werts, zusÃ¤tzlich in der System-Session.
+ */
+function example(): array {
+    $umlaute = array('Ã¤' => chr(228), 'Ã¶' => chr(246));
+    return $umlaute;
+}
+PHP;
+
+$sourceFile = tempnam(sys_get_temp_dir(), 'dbx_doxygen_utf8_fixture_');
+if ($sourceFile === false || file_put_contents($sourceFile, $fixtureSource) === false) {
+    $fail('Fixture-Datei konnte nicht angelegt werden.', 7);
 }
 
 $beforeHash = hash_file('sha256', $sourceFile);
@@ -19,6 +42,7 @@ ob_start();
 require $filter;
 $filtered = (string)ob_get_clean();
 $afterHash = hash_file('sha256', $sourceFile);
+unlink($sourceFile);
 
 if ($beforeHash !== $afterHash) {
     $fail('Der Doxygen-Filter hat die PHP-Quelldatei verändert.', 2);

@@ -1,0 +1,9 @@
+{
+  "name": "dbxJstree",
+  "version": "1.0.0",
+  "jquery": "4.x",
+  "based_on": "jsTree 3.3.17",
+  "upstream": "https://github.com/vakata/jstree",
+  "license": "MIT",
+  "entry": "../dbxJstree.js"
+}

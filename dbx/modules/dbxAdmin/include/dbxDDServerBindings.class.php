@@ -16,7 +16,7 @@ class dbxDDServerBindings
         $installer = new $installerClass();
         $catalog = $installer->discoverDDs();
         $db = dbx()->get_system_obj('dbxDB');
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
         $bindings = is_array($config['dd_server_bindings'] ?? null)
             ? $config['dd_server_bindings']
             : array();
@@ -126,13 +126,13 @@ class dbxDDServerBindings
             'bar_subtitle' => $form->get_fd_message('bar_subtitle'),
             'bar_icon' => 'bi-database-gear',
             'bar_actions' => '',
-            'bar_class' => 'dbx-module-bar',
-            'bar_title_class' => 'dbx-module-bar-titleblock',
+            'bar_class' => 'dbx-bar--module',
+            'bar_title_class' => 'dbx-bar-title',
             'bar_title_pre' => '',
             'bar_title_heading_attrs' => '',
             'bar_middle' => '',
             'bar_extra' => '',
-            'bar_actions_class' => 'dbx-module-bar-actions',
+            'bar_actions_class' => 'dbx-bar-actions',
         ) as $name => $value) {
             $form->add_rep($name, $value);
         }

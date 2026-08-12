@@ -382,12 +382,13 @@ prozess- oder requestuebergreifender Cache und benötigt deshalb keine
 Invalidierung. Einzelabrufe wie `productById()` und `productBySku()` bleiben
 unverändert kompatibel.
 
-Ein allgemeiner Ergebnis-Cache wurde nicht in `dbxDB` eingebaut. Identische
-SQL-Texte koennten dort zwar wiederverwendet werden, produktbezogene Abfragen
-mit verschiedenen IDs blieben aber verschieden. Gleichzeitig muessten rohe
-Queries, direkte PDO-Schreibpfade, DDL, Transaktionen und externe Schreiber
-beruecksichtigt werden. Die Repository-Mengenabfrage beseitigt das N+1-Problem
-ohne diese Aktualitaets- und Invalidierungskomplexitaet.
+`dbxDB::select1()` besitzt einen universellen requestlokalen Einzelsatz-Cache.
+Er wiederholt identische DD-/WHERE-/Spaltenzugriffe nicht und wird bei jedem
+Schreibzugriff auf dieselbe DD verworfen. Transaktionen umgehen diesen Cache.
+Die Repository-Mengenabfragen bleiben davon unberührt: Sie sind weiterhin
+der richtige Weg für vollständige Produktlisten mit vielen unterschiedlichen
+IDs, während der zentrale Cache wiederholte Zugriffe auf denselben Einzelsatz
+vermeidet.
 
 Auch die Darstellung folgt dem Mengenprinzip. Der Service liest einmal pro
 Request die in einem Karten- oder Detailtemplate vorhandenen
@@ -401,7 +402,8 @@ keine Produkt-, Benutzer- oder Formulardaten.
 Die Admin-Bildliste folgt demselben Vertrag. `allImages()` lädt alle benötigten
 Produkt- und Gruppentitel in höchstens zwei Mengenabfragen und ordnet sie per
 ID zu. Neue Adminlisten dürfen nicht innerhalb einer Ergebnis-Schleife
-`select1()` für reine Bezeichnungen aufrufen.
+`select1()` für reine Bezeichnungen aufrufen. Der zentrale Cache ist kein
+Ersatz für eine fachlich zusammengehörige Listendatensicht.
 
 ## Warenkorb und Checkout
 
@@ -421,7 +423,7 @@ Die vorhandene dbxForm-CSRF-Prüfung bleibt unverändert; ein separater
 
 Der aktuelle Gesamtzähler steht am zurückgegebenen Warenkorb-Root in
 `data-dbx-shop-cart-count`. Das modulbezogene `design/js/shop.js` synchronisiert
-damit nach `ajax:after` alle Menü-Badges. Die dbxapp-Asset-Version 90 stellt
+damit nach `ajax:after` alle Menü-Badges. Die dbxapp-Asset-Version aus `VERSION` stellt
 sicher, dass Browser die korrigierten Kernel-Bibliotheken neu laden.
 
 Der Ablauf ist:
@@ -520,7 +522,7 @@ Die Admin-Seite `settings` verwaltet unter anderem:
 - digitale Lieferung und pauschalen Versand,
 - den CMS-Medienslot.
 
-Die Konfiguration wird mit `dbx()->get_config('dbxShop')` gelesen und über
+Die Konfiguration wird mit `dbx()->get_cfg('dbxShop')` gelesen und über
 die zentrale Konfigurationsschnittstelle gespeichert. Keine zweite JSON- oder
 ENV-Konfiguration für dieselben Werte einführen.
 

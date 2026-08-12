@@ -1,6 +1,7 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* ============================================================
    DBX GRID – LKW DESIGN (FINAL, STATE-SAFE, OPTIMIZED)
-   Tabulator 6.3 + Bootstrap 5
+   Tabulator 6.5 + Bootstrap 5
    ============================================================ */
 
 .dbx-schema-data-grid {
@@ -88,6 +89,21 @@
     backdrop-filter: blur(6px);
     will-change: backdrop-filter;
     border-bottom: 2px solid var(--dbx-panel-head-border);
+}
+
+/* Isolation gegen c-content-frame.css: ".c-cms .body *" /
+   ".c-cms .dbx-content-col-inner *" erzwingt dort per
+   Universalselektor "white-space: normal !important" fuer
+   CMS-Fliesstext und trifft ungewollt auch ein hier
+   eingebundenes Tabulator-Grid, wodurch Kopfzeilen-Spalten
+   umbrechen und die eingefrorene Spalte nicht mehr zur Hoehe
+   passt. Per Spezifitaet (3 statt 2 Klassen) staerker als die
+   Ausloeser-Regel. */
+.c-cms .body .tabulator,
+.c-cms .body .tabulator *,
+.c-cms .dbx-content-col-inner .tabulator,
+.c-cms .dbx-content-col-inner .tabulator * {
+    white-space: nowrap !important;
 }
 
 .tabulator .tabulator-col {

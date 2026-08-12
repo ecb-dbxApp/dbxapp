@@ -1,64 +1,45 @@
-<div class="dbx-panel dbx-selftest" data-dbx-selftest
- data-catalog-url="{catalog_url}"
- data-start-url="{start_url}"
- data-execute-url="{execute_url}"
- data-finish-url="{finish_url}"
- data-browser-result-url="{browser_result_url}"
- data-run-url="{run_url}"
- data-download-url="{download_url}">
+<div class="dbx-panel dbxReport dbx-ajax-root dbx-selftest" id="dbx_target_{i}"
+     data-dbx="lib=report|form=0"
+     data-dbx-selftest
+     data-start-url="{start_url}"
+     data-execute-url="{execute_url}"
+     data-finish-url="{finish_url}"
+     data-browser-result-url="{browser_result_url}">
  [tpl=dbx|module-bar]
- <style>
- .dbx-selftest{--st-line:color-mix(in srgb,var(--dbx-primary,#2563eb) 18%,transparent);--st-soft:color-mix(in srgb,var(--dbx-primary,#2563eb) 7%,white)}
- .dbx-selftest-body{padding:1rem}.dbx-selftest-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;margin-bottom:1rem}
- .dbx-selftest-metric{background:var(--dbx-bg-panel,#fff);border:1px solid var(--st-line);border-radius:.9rem;padding:.85rem 1rem;box-shadow:0 8px 20px rgba(15,23,42,.05)}
- .dbx-selftest-metric strong{display:block;font-size:1.45rem;line-height:1.1}.dbx-selftest-metric span{color:var(--dbx-text-muted,#64748b);font-size:.82rem}
- .dbx-selftest-actions{align-items:center;background:linear-gradient(135deg,var(--st-soft),var(--dbx-bg-panel,#fff));border:1px solid var(--st-line);border-radius:1rem;display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1rem;padding:.85rem}
- .dbx-selftest-actions .btn-stop{margin-left:auto}.dbx-selftest-progress{border:1px solid var(--st-line);border-radius:1rem;margin-bottom:1rem;padding:1rem}
- .dbx-selftest-progress-head{align-items:center;display:flex;justify-content:space-between;margin-bottom:.5rem}.dbx-selftest-progress .progress{height:.75rem}
- .dbx-selftest-toolbar{align-items:center;display:grid;grid-template-columns:minmax(220px,1fr) 220px auto;gap:.65rem;margin-bottom:.75rem}
- .dbx-selftest-list{border:1px solid var(--st-line);border-radius:.9rem;max-height:54vh;overflow:auto}.dbx-selftest-table{margin:0}
- .dbx-selftest-table thead{position:sticky;top:0;z-index:2}.dbx-selftest-table th{background:var(--dbx-bg-panel,#fff)}
- .dbx-selftest-testname{font-weight:650}.dbx-selftest-path{color:var(--dbx-text-muted,#64748b);display:block;font-size:.72rem;max-width:660px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- .dbx-selftest-status{font-size:.75rem;min-width:78px}.dbx-selftest-row.is-running{background:color-mix(in srgb,#0d6efd 7%,transparent)}
- .dbx-selftest-row.is-failed{background:color-mix(in srgb,#dc3545 6%,transparent)}.dbx-selftest-row.is-passed{background:color-mix(in srgb,#198754 5%,transparent)}
- .dbx-selftest-results,.dbx-selftest-history{margin-top:1rem}.dbx-selftest-result{border:1px solid var(--st-line);border-radius:.75rem;margin:.5rem 0;overflow:hidden}
- .dbx-selftest-result summary{align-items:center;cursor:pointer;display:flex;gap:.55rem;padding:.7rem .8rem}.dbx-selftest-result pre{background:#0f172a;color:#e2e8f0;font-size:.76rem;margin:0;max-height:320px;overflow:auto;padding:.85rem;white-space:pre-wrap}
- .dbx-selftest-history-list{display:grid;gap:.5rem}.dbx-selftest-history-item{align-items:center;border:1px solid var(--st-line);border-radius:.75rem;display:grid;gap:.6rem;grid-template-columns:minmax(190px,1fr) auto auto auto;padding:.7rem .8rem}
- .dbx-selftest-empty{color:var(--dbx-text-muted,#64748b);padding:1.5rem;text-align:center}
- @media(max-width:850px){.dbx-selftest-summary{grid-template-columns:1fr}.dbx-selftest-toolbar{grid-template-columns:1fr}.dbx-selftest-history-item{grid-template-columns:1fr}.dbx-selftest-actions .btn-stop{margin-left:0}}
- </style>
- <div class="dbx-selftest-body">
-  <section class="dbx-selftest-summary" aria-label="Alcance de la prueba">
-   <div class="dbx-selftest-metric"><strong>{test_count}</strong><span>pruebas detectadas automáticamente</span></div>
-   <div class="dbx-selftest-metric"><strong>{quick_count}</strong><span>pruebas en la ejecución rápida</span></div>
-   <div class="dbx-selftest-metric"><strong>{category_count}</strong><span>áreas del sistema y de los módulos</span></div>
-  </section>
-  <section class="dbx-selftest-actions" aria-label="Acciones de prueba">
-   <button type="button" class="btn btn-primary" data-selftest-run="full"><i class="bi bi-play-circle"></i> Prueba completa</button>
-   <button type="button" class="btn btn-outline-primary" data-selftest-run="quick"><i class="bi bi-lightning-charge"></i> Prueba rápida</button>
-   <button type="button" class="btn btn-outline-secondary" data-selftest-run="selected"><i class="bi bi-check2-square"></i> Probar selección</button>
-   <button type="button" class="btn btn-outline-danger btn-stop" data-selftest-stop hidden><i class="bi bi-stop-circle"></i> Detener ejecución</button>
-  </section>
-  <section class="dbx-selftest-progress" data-selftest-progress hidden aria-live="polite">
+ [tpl=dbxSelfTest|selftest-dashboard-style]
+ <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
+  [dbx:form]
+  [tpl=dbx|report-form-select]
+  <div class="dbx-selftest-summary-bar alert {summary_class} d-flex align-items-center justify-content-between flex-wrap gap-2"
+       data-selftest-run-summary role="status">
+   <span data-selftest-run-summary-text><i class="bi {summary_icon}" aria-hidden="true"></i> {summary_line}</span>
+   {clear_history_button}
+  </div>
+  <div class="dbx-selftest-actions">
+   <button type="button" class="btn btn-primary btn-sm" data-selftest-run="full"><i class="bi bi-play-circle"></i> Prueba completa</button>
+   <button type="button" class="btn btn-outline-primary btn-sm" data-selftest-run="quick"><i class="bi bi-lightning-charge"></i> Prueba rápida</button>
+   <button type="button" class="btn btn-outline-secondary btn-sm" data-selftest-run="selected"><i class="bi bi-check2-square"></i> Probar selección</button>
+   <button type="button" class="btn btn-outline-danger btn-sm btn-stop" data-selftest-stop hidden><i class="bi bi-stop-circle"></i> Detener ejecución</button>
+  </div>
+  <div class="dbx-selftest-progress" data-selftest-progress hidden aria-live="polite">
    <div class="dbx-selftest-progress-head"><strong data-selftest-progress-title>Ejecución de prueba</strong><span data-selftest-progress-count>0 / 0</span></div>
    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar progress-bar-striped progress-bar-animated" data-selftest-progress-bar style="width:0%"></div></div>
    <div class="small text-muted mt-2" data-selftest-current>Preparando …</div>
-  </section>
-  <section aria-labelledby="dbx-selftest-catalog-title">
-   <h2 id="dbx-selftest-catalog-title" class="h5">Catálogo de pruebas</h2>
-   <div class="dbx-selftest-toolbar">
-    <input type="search" class="form-control" data-selftest-search placeholder="Buscar prueba, módulo o ruta de archivo">
-    <select class="form-select" data-selftest-category><option value="">Todas las áreas</option></select>
-    <label class="form-check mb-0"><input class="form-check-input" type="checkbox" data-selftest-select-all checked> todas las visibles</label>
-   </div>
-   <div class="dbx-selftest-list" data-selftest-list><div class="dbx-selftest-empty">Cargando catálogo de pruebas …</div></div>
-  </section>
-  <section class="dbx-selftest-results" data-selftest-results-wrap hidden>
-   <h2 class="h5">Resultados</h2><div data-selftest-results></div>
-  </section>
-  <section class="dbx-selftest-history">
-   <h2 class="h5">Ejecuciones recientes</h2><div class="dbx-selftest-history-list" data-selftest-history><div class="dbx-selftest-empty">Cargando protocolos …</div></div>
-  </section>
- </div>
- <script src="dbx/modules/dbxSelfTest/tpl/js/selftest.js?v=20260731-4" defer></script>
+  </div>
+  [dbx:pagination]
+  <div class="table-responsive dbx-report-table-scroll">
+   <table class="table table-striped table-bordered table-hover align-middle dbx-selftest-table">
+    <thead>
+     <tr class="{tr-class}">[rpt:row]</tr>
+    </thead>
+    <tbody>
+     <hr class="dbx_split">
+     <tr class="{tr-class}">[rpt:row]</tr>
+     <hr class="dbx_split">
+    </tbody>
+   </table>
+  </div>
+  [dbx:js]
+ </form>
+ <script src="dbx/modules/dbxSelfTest/tpl/js/selftest.js?v={dbx:asset_version}-1" defer></script>
 </div>

@@ -1,6 +1,8 @@
 <?php
 
 $root = dirname(__DIR__, 2);
+require_once __DIR__ . '/dbxCssTestReader.php';
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
 $modules = $root . DIRECTORY_SEPARATOR . 'modules';
 $errors = array();
 $checked = 0;
@@ -52,11 +54,11 @@ if ($errors) {
 }
 
 $helpButtonTemplate = (string)file_get_contents($modules . DIRECTORY_SEPARATOR . 'dbxAdmin' . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm' . DIRECTORY_SEPARATOR . 'admin-help-button.htm');
-$dbxappTheme = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'design' . DIRECTORY_SEPARATOR . 'dbxapp' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'theme.css');
+$dbxappTheme = dbx_test_read_css($root . DIRECTORY_SEPARATOR . 'design' . DIRECTORY_SEPARATOR . 'dbxapp' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'theme.css');
 $flowersTheme = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'design' . DIRECTORY_SEPARATOR . 'flowers' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'theme.css');
 $flowersForm = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'design' . DIRECTORY_SEPARATOR . 'flowers' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'c-form.css');
 $shopChannelTemplate = (string)file_get_contents($modules . DIRECTORY_SEPARATOR . 'dbxShop_admin' . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm' . DIRECTORY_SEPARATOR . 'shop-channel-form.htm');
-$dashboardClass = (string)file_get_contents($modules . DIRECTORY_SEPARATOR . 'dbxAdmin' . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxDashboard.class.php');
+$dashboardClass = dbx_test_module_source_bundle($modules . DIRECTORY_SEPARATOR . 'dbxAdmin' . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxDashboard.class.php');
 $dashboardCacheActions = (string)file_get_contents($modules . DIRECTORY_SEPARATOR . 'dbxAdmin' . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm' . DIRECTORY_SEPARATOR . 'admin-dashboard-content-cache-actions.htm');
 $contextHelpClass = (string)file_get_contents($modules . DIRECTORY_SEPARATOR . 'dbxContent' . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxContentContextHelp.class.php');
 $contentClass = (string)file_get_contents($modules . DIRECTORY_SEPARATOR . 'dbxContent' . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxContent_content.class.php');

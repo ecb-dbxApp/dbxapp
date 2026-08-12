@@ -250,11 +250,11 @@ class dbxContent_seo {
          'seo_image_id' => 0,
       );
       $texts = $this->seo_texts();
-      $form->add_fld('id', 'dbxContent_admin|cms-field-hidden', data: array('cms_field' => 'id', 'seo_field' => 'id'));
-      $form->add_fld('keywords', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_keywords'), rules: 'varchar', data: array('cms_field' => 'keywords', 'seo_field' => 'keywords'), placeholder: $texts->get_fd_message('placeholder_keywords'));
-      $form->add_fld('meta_robots', 'dbxContent_admin|cms-field-select', label: $texts->get_fd_message('label_robots'), rules: 'varchar', data: array('cms_field' => 'meta_robots', 'seo_field' => 'meta_robots'), options: $this->meta_robots_values());
-      $form->add_fld('seo_title', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_seo_title'), rules: 'varchar', data: array('cms_field' => 'seo_title', 'seo_field' => 'seo_title'), placeholder: $texts->get_fd_message('placeholder_seo_title'));
-      $form->add_fld('seo_image_id', 'dbxContent_admin|cms-field-hidden', rules: 'int', data: array('cms_field' => 'seo_image_id', 'seo_field' => 'seo_image_id'));
+      $form->add_fld('id', 'dbxContent_admin|cms-field-hidden', data: array('cms_field' => 'id', 'cms_field_scope' => 'seo', 'seo_field' => 'id'));
+      $form->add_fld('keywords', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_keywords'), rules: 'varchar', data: array('cms_field' => 'keywords', 'cms_field_scope' => 'seo', 'seo_field' => 'keywords'), placeholder: $texts->get_fd_message('placeholder_keywords'));
+      $form->add_fld('meta_robots', 'dbxContent_admin|cms-field-select', label: $texts->get_fd_message('label_robots'), rules: 'varchar', data: array('cms_field' => 'meta_robots', 'cms_field_scope' => 'seo', 'seo_field' => 'meta_robots'), options: $this->meta_robots_values());
+      $form->add_fld('seo_title', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_seo_title'), rules: 'varchar', data: array('cms_field' => 'seo_title', 'cms_field_scope' => 'seo', 'seo_field' => 'seo_title'), placeholder: $texts->get_fd_message('placeholder_seo_title'));
+      $form->add_fld('seo_image_id', 'dbxContent_admin|cms-field-hidden', rules: 'int', data: array('cms_field' => 'seo_image_id', 'cms_field_scope' => 'seo', 'seo_field' => 'seo_image_id'));
       return $form->run();
    }
 
@@ -399,7 +399,7 @@ class dbxContent_seo {
       $db->connect_db_server('dbx|dbxContent.db3');
       $db->connect_db_server('dbx|dbxMedia.db3');
       $this->ensure_cms_schema($db);
-      $media_id = (int)dbx()->get_config('dbxContent', self::CONFIG_OG_MEDIA_ID);
+      $media_id = (int)dbx()->get_cfg('dbxContent', self::CONFIG_OG_MEDIA_ID);
       if ($media_id > 0) {
          $exists = $db->select1($this->dd_media, $media_id, 'id,active', 0);
          if (is_array($exists) && (int)($exists['id'] ?? 0) > 0 && (int)($exists['active'] ?? 0) === 1) {
@@ -464,10 +464,10 @@ class dbxContent_seo {
          return 0;
       }
 
-      $config = dbx()->get_config('dbxContent');
+      $config = dbx()->get_cfg('dbxContent');
       if (!is_array($config)) $config = array();
       $config[self::CONFIG_OG_MEDIA_ID] = $media_id;
-      dbx()->set_config('dbxContent', $config);
+      dbx()->set_cfg('dbxContent', $config);
 
       $this->assign_home_og_image($db, $media_id);
       return $media_id;

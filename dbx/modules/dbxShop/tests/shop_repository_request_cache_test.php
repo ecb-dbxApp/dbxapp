@@ -1,7 +1,9 @@
 <?php
 
+require_once dirname(__DIR__, 3) . '/include/tests/dbxModuleSourceBundle.php';
+
 $file = dirname(__DIR__) . '/include/dbxShopRepository.class.php';
-$repo = file_get_contents($file);
+$repo = dbx_test_module_source_bundle($file);
 
 $fail = static function (string $message, int $code): void {
    fwrite(STDERR, "FAIL: $message\n");

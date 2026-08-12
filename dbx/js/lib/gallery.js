@@ -98,12 +98,12 @@
         box.innerHTML = `
             <figure class="dbx-gallery-lightbox-figure">
                 <div class="dbx-gallery-lightbox-stage">
-                    <button type="button" class="dbx-gallery-lightbox-nav dbx-gallery-lightbox-prev" data-dbx-gallery-prev title="Vorheriges Bild"><i class="bi bi-chevron-left"></i></button>
-                    <button type="button" class="dbx-gallery-lightbox-close" data-dbx-gallery-close title="Schliessen"><i class="bi bi-x-lg"></i></button>
+                    <button type="button" class="dbx-gallery-lightbox-nav dbx-gallery-lightbox-prev" data-dbx-gallery-prev data-dbx-tooltip="Vorheriges Bild"><i class="bi bi-chevron-left"></i></button>
+                    <button type="button" class="dbx-gallery-lightbox-close" data-dbx-gallery-close data-dbx-tooltip="Schliessen"><i class="bi bi-x-lg"></i></button>
                     <img src="" alt="" data-dbx-gallery-image>
                     <video controls playsinline preload="metadata" data-dbx-gallery-video hidden></video>
                     <iframe src="" title="" loading="lazy" allowfullscreen data-dbx-gallery-frame hidden></iframe>
-                    <button type="button" class="dbx-gallery-lightbox-nav dbx-gallery-lightbox-next" data-dbx-gallery-next title="Naechstes Bild"><i class="bi bi-chevron-right"></i></button>
+                    <button type="button" class="dbx-gallery-lightbox-nav dbx-gallery-lightbox-next" data-dbx-gallery-next data-dbx-tooltip="Naechstes Bild"><i class="bi bi-chevron-right"></i></button>
                 </div>
                 <figcaption data-dbx-gallery-caption></figcaption>
             </figure>`;

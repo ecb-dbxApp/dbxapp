@@ -25,6 +25,10 @@
             noWindows: "Keine Fenster geöffnet",
             openWindow: "Fenster öffnen: {title}",
             reloadWindow: "Fenster neu laden",
+            minimizeWindow: "Fenster minimieren",
+            maximizeWindow: "Fenster maximieren",
+            restoreWindow: "Fenster wiederherstellen",
+            closeWindow: "Fenster schließen",
             loading: "Laden...",
             loadError: "Fehler beim Laden",
             unknownError: "Unbekannter Fehler",
@@ -43,6 +47,10 @@
             noWindows: "No windows open",
             openWindow: "Open window: {title}",
             reloadWindow: "Reload window",
+            minimizeWindow: "Minimize window",
+            maximizeWindow: "Maximize window",
+            restoreWindow: "Restore window",
+            closeWindow: "Close window",
             loading: "Loading...",
             loadError: "Error while loading",
             unknownError: "Unknown error",
@@ -61,6 +69,10 @@
             noWindows: "No hay ventanas abiertas",
             openWindow: "Abrir ventana: {title}",
             reloadWindow: "Volver a cargar la ventana",
+            minimizeWindow: "Minimizar ventana",
+            maximizeWindow: "Maximizar ventana",
+            restoreWindow: "Restaurar ventana",
+            closeWindow: "Cerrar ventana",
             loading: "Cargando...",
             loadError: "Error al cargar",
             unknownError: "Error desconocido",
@@ -121,6 +133,7 @@
             this.stateSaveTimer = null;
             this.restoringState = false;
             this.stateRestored = false;
+            this.ajaxReadyPromise = null;
 
             this.localizeChrome();
             this.initEventSystem();
@@ -313,6 +326,11 @@
 
         handleKeyDown(e) {
 
+            if ((typeof e.isDefaultPrevented === "function" && e.isDefaultPrevented())
+                || (e.originalEvent && e.originalEvent.defaultPrevented)) {
+                return;
+            }
+
             // 🔥 PROMPT KEYBOARD + TYPEAHEAD
             if (this.stack.length > 0) {
 
@@ -453,6 +471,18 @@
                 const activeWin = this.stack[this.stack.length - 1];
                 if (!activeWin) return;
 
+                // Nur der oberste registrierte UI-Layer darf Escape behandeln.
+                // Bestätigungen und ausgelagerte Editor-Vollbilder liegen als
+                // Geschwister im body und dürfen niemals das Fenster darunter
+                // unbeabsichtigt schließen.
+                if (dbx.uiLayer && typeof dbx.uiLayer.top === "function") {
+                    const topOwner = dbx.uiLayer.top({ selector: "[data-dbx-escape-owner]" });
+                    const activeEl = activeWin.element && activeWin.element[0];
+                    if (topOwner && activeEl && topOwner !== activeEl && !activeEl.contains(topOwner)) {
+                        return;
+                    }
+                }
+
                 if (activeWin.fullscreen && !this.isMobileViewport()) {
 
                     const $win = activeWin.element;
@@ -469,16 +499,17 @@
                     activeWin.fullscreen = false;
                     $win.removeClass("dbx-window-fullscreen");
 
-                    $win.find(".dbx-window-maximize")
-                        .html('<i class="bi bi-square"></i>');
+                    this.setMaximizeControlState($win, false);
 
                     e.preventDefault();
+                    e.stopPropagation();
                     return;
                 }
 
                 if (activeWin.cfg.closable != 0) {
                     this.closeWindow(activeWin.id);
                     e.preventDefault();
+                    e.stopPropagation();
                 }
             }
 
@@ -496,11 +527,11 @@
             $(".dbx-footer-dockbar").attr("aria-label", ui.windowBar);
             $("#windrop").attr("aria-label", ui.minimizedWindows);
             $("#dbxWindowCloseAll")
-                .attr("title", ui.closeAll)
+                .attr("data-dbx-tooltip", ui.closeAll)
                 .attr("aria-label", ui.closeAll);
             $(".dbx-footer-info").attr("aria-label", ui.systemInfo);
             $(".dbx-footer-info-item")
-                .attr("title", ui.runtimeTitle)
+                .attr("data-dbx-tooltip", ui.runtimeTitle)
                 .each(function () {
                     $(this).find("span").first().text(ui.runtime);
                 });
@@ -585,11 +616,17 @@
         numericZIndex(el) {
             el = this.domElement(el);
             if (!el) return 0;
+            if (dbx.uiLayer && typeof dbx.uiLayer.zIndex === "function") {
+                return dbx.uiLayer.zIndex(el);
+            }
             const z = parseInt(window.getComputedStyle(el).zIndex, 10);
             return Number.isFinite(z) ? z : 0;
         }
 
         maxElementZIndex(el) {
+            if (dbx.uiLayer && typeof dbx.uiLayer.ancestorZIndex === "function") {
+                return dbx.uiLayer.ancestorZIndex(el);
+            }
             let max = 0;
             let cur = this.domElement(el);
             while (cur && cur !== document.documentElement) {
@@ -673,6 +710,8 @@
             const windowData = this.windows.get(windowId);
             if (!windowData) return;
 
+            this.ensureWindowContent(windowData);
+
             if (this.isMobileViewport()) {
                 this.applyMobileWindowMode(windowData);
                 this.bringToFront(windowId);
@@ -694,7 +733,7 @@
                         top: windowData.originalPosition.top
                     });
                     windowData.maximized = false;
-                    $win.find(".dbx-window-maximize").html('<i class="bi bi-square"></i>');
+                    this.setMaximizeControlState($win, false);
                 }
 
                 if (windowData.overlay) {
@@ -756,7 +795,7 @@
             if ($closeAll.length) {
                 $closeAll
                     .prop("disabled", windowCount < 1)
-                    .attr("title", windowCount > 0 ? ui.closeAll + " (" + windowCount + ")" : ui.noWindows)
+                    .attr("data-dbx-tooltip", windowCount > 0 ? ui.closeAll + " (" + windowCount + ")" : ui.noWindows)
                     .attr("aria-label", windowCount > 0 ? ui.closeAll : ui.noWindows)
                     .attr("aria-hidden", windowCount > 0 ? "false" : "true");
             }
@@ -788,7 +827,7 @@
 
             $item
                 .attr("data-window-id", windowData.id)
-                .attr("title", title)
+                .attr("data-dbx-tooltip", title)
                 .attr("aria-label", uiFormat(ui.openWindow, { title: title }))
                 .removeClass("is-restoring")
                 .addClass("is-minimized");
@@ -953,21 +992,38 @@
             const windowData = this.windows.get(windowId);
             if (!windowData) return;
 
-            let url = windowData.url;
+            const url = this.removeCacheBust(windowData.url);
             if (!url) return;
 
-            // 🔥 cache bust (optional, aber sinnvoll)
             const sep = url.includes("?") ? "&" : "?";
-            url = url + sep + "_=" + Date.now();
+            const requestUrl = url + sep + "_=" + Date.now();
 
-            this.safeLog("reload", windowId, url);
+            this.safeLog("reload", windowId, requestUrl);
+            windowData.url = url;
 
-            this.loadContent(windowId, url, windowData.cfg);
+            return this.loadContent(windowId, requestUrl, windowData.cfg).then(result => {
+                if (this.windows.get(windowId) === windowData) windowData.url = url;
+                return result;
+            });
         }       
 
         // --------------------------------------------------
         // HILFSFUNKTIONEN
         // --------------------------------------------------
+
+        removeCacheBust(url) {
+            const value = String(url || "");
+            const hashAt = value.indexOf("#");
+            const hash = hashAt >= 0 ? value.slice(hashAt) : "";
+            const plain = hashAt >= 0 ? value.slice(0, hashAt) : value;
+            const queryAt = plain.indexOf("?");
+            if (queryAt < 0) return value;
+
+            const params = new URLSearchParams(plain.slice(queryAt + 1));
+            params.delete("_");
+            const query = params.toString();
+            return plain.slice(0, queryAt) + (query ? "?" + query : "") + hash;
+        }
 
         safeLog(...args) {
             if (dbx.log && typeof dbx.log == 'function') {
@@ -1320,7 +1376,7 @@
 
                 windowData.fullscreen = true;
                 $win.addClass("dbx-window-fullscreen");
-                $win.find(".dbx-window-maximize").html('<i class="bi bi-arrows-angle-contract"></i>');
+                this.setMaximizeControlState($win, true);
             }
         }
 
@@ -1728,6 +1784,16 @@
         // MINIMIZE / MAXIMIZE
         // --------------------------------------------------
 
+        setMaximizeControlState($win, fullscreen) {
+            const label = fullscreen ? ui.restoreWindow : ui.maximizeWindow;
+            $win.find(".dbx-window-maximize")
+                .html(fullscreen
+                    ? '<i class="bi bi-arrows-angle-contract"></i>'
+                    : '<i class="bi bi-square"></i>')
+                .attr("data-dbx-tooltip", label)
+                .attr("aria-label", label);
+        }
+
         initMinimize(windowId) {
             const windowData = this.windows.get(windowId);
             if (!windowData) return;
@@ -1804,7 +1870,7 @@
                     windowData.fullscreen = false;
                     $win.removeClass("dbx-window-fullscreen");
 
-                    $maximizeBtn.html('<i class="bi bi-square"></i>');
+                    this.setMaximizeControlState($win, false);
 
                 } else {
 
@@ -1828,7 +1894,7 @@
                     windowData.fullscreen = true;
                     $win.addClass("dbx-window-fullscreen");
 
-                    $maximizeBtn.html('<i class="bi bi-arrows-angle-contract"></i>');
+                    this.setMaximizeControlState($win, true);
                 }
 
                 this.scheduleSaveState();
@@ -1839,31 +1905,94 @@
         // CONTENT LOADING
         // --------------------------------------------------
 
+        ajaxAvailable() {
+            return !!(dbx.ajax && typeof dbx.ajax.request === "function");
+        }
+
+        ensureAjaxReady(timeout = 5000) {
+            if (this.ajaxAvailable()) return Promise.resolve(true);
+            if (this.ajaxReadyPromise) return this.ajaxReadyPromise;
+
+            this.ajaxReadyPromise = new Promise(resolve => {
+                const startedAt = Date.now();
+                let finished = false;
+
+                const check = () => {
+                    if (finished) return;
+                    if (this.ajaxAvailable()) {
+                        finished = true;
+                        resolve(true);
+                        return;
+                    }
+                    if (Date.now() - startedAt >= timeout) {
+                        finished = true;
+                        resolve(false);
+                        return;
+                    }
+                    window.setTimeout(check, 25);
+                };
+
+                if (typeof dbx.add_js === "function") dbx.add_js("lib", "ajax.js");
+                check();
+            }).then(ready => {
+                if (!ready) this.ajaxReadyPromise = null;
+                return ready;
+            });
+
+            return this.ajaxReadyPromise;
+        }
+
+        isCurrentContentRequest(windowData, requestToken) {
+            return !!(
+                windowData
+                && !windowData.closing
+                && this.windows.get(windowData.id) === windowData
+                && windowData.contentRequestToken === requestToken
+            );
+        }
+
+        showWindowLoadError(windowData, cfg, error, requestToken) {
+            if (!this.isCurrentContentRequest(windowData, requestToken)) return;
+            const message = error && error.message ? error.message : String(error || ui.unknownError);
+            const $target = this.getWindowInnerTarget(windowData);
+            const errorHtml = cfg.errorMessage || `
+                <div class="dbx-window-error" role="alert">
+                    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+                    <div>
+                        <strong>${this.escapeHtml(ui.loadError)}</strong>
+                        <small>${this.escapeHtml(message)}</small>
+                    </div>
+                </div>`;
+            $target.html(errorHtml);
+            windowData.contentState = "error";
+            windowData.contentRequest = null;
+            this.triggerCallback(cfg.onError, windowData.element[0], error);
+        }
+
+        ensureWindowContent(windowData) {
+            if (!windowData || windowData.contentState !== "deferred") return;
+            this.loadContent(windowData.id, windowData.url, windowData.cfg);
+        }
+
         loadContent(windowId, url, cfg) {
             const windowData = this.windows.get(windowId);
-            if (!windowData) return;
+            if (!windowData) return Promise.resolve(null);
+
+            cfg = cfg || {};
+            const requestToken = (windowData.contentRequestToken || 0) + 1;
+            windowData.contentRequestToken = requestToken;
+            windowData.contentState = "loading";
 
             const $body = windowData.element.find(".dbx-window-body");
             const $target = this.getWindowInnerTarget(windowData);
             this.syncContentFlags(windowData);
 
             $target.html(`
-                <div class="dbx-window-loading">
-                    ${ui.loading}
+                <div class="dbx-window-loading" role="status" aria-live="polite">
+                    <span class="dbx-window-loading-spinner" aria-hidden="true"></span>
+                    <span>${this.escapeHtml(ui.loading)}</span>
                 </div>
             `);
-
-            if (!dbx.ajax || typeof dbx.ajax.request !== "function") {
-                const errorMsg = cfg.errorMessage || `
-                    <div class='dbx-window-error text-danger p-3'>
-                        <i class="bi bi-exclamation-triangle"></i>
-                        <strong>${ui.loadError}</strong><br>
-                        <small>${ui.ajaxMissing}</small>
-                    </div>`;
-                $target.html(errorMsg);
-                this.triggerCallback(cfg.onError, windowData.element[0], ui.ajaxMissing);
-                return;
-            }
 
             const requestConfig = {
                 url: url,
@@ -1877,11 +2006,23 @@
                 requestConfig.headers = cfg.headers;
             }
 
-            dbx.ajax.request(requestConfig)
-                .then(response => {
+            return this.ensureAjaxReady().then(ready => {
+                if (!this.isCurrentContentRequest(windowData, requestToken)) return null;
+                if (!ready) {
+                    this.showWindowLoadError(windowData, cfg, new Error(ui.ajaxMissing), requestToken);
+                    return null;
+                }
+
+                const request = dbx.ajax.request(requestConfig);
+                windowData.contentRequest = request;
+
+                return request.then(response => {
+                    if (!this.isCurrentContentRequest(windowData, requestToken)) return null;
                     this.safeLog("loaded", url);
                     windowData.url = url;
                     windowData.cfg = $.extend(true, {}, windowData.cfg || {}, cfg || {});
+                    windowData.contentState = "loaded";
+                    windowData.contentRequest = null;
                     $target.html(response);
                     this.syncContentFlags(windowData);
 
@@ -1890,19 +2031,26 @@
                         $body.scrollTop(windowData.restoreState.scrollTop);
                     }
                     this.triggerCallback(cfg.onLoad, windowData.element[0]);
-                })
-                .catch(error => {
+                    return response;
+                }).catch(error => {
+                    if (!this.isCurrentContentRequest(windowData, requestToken)) return null;
                     const msg = error && error.message ? error.message : ui.unknownError;
                     this.safeWarn("load failed", url, msg);
-                    const errorMsg = cfg.errorMessage || `
-                        <div class='dbx-window-error text-danger p-3'>
-                            <i class="bi bi-exclamation-triangle"></i>
-                            <strong>${ui.loadError}</strong><br>
-                            <small>${msg}</small>
-                        </div>`;
-                    $target.html(errorMsg);
-                    this.triggerCallback(cfg.onError, windowData.element[0], error);
+                    this.showWindowLoadError(windowData, cfg, error, requestToken);
+                    return null;
                 });
+            });
+        }
+
+        dispatchLifecycle(name, windowData) {
+            if (!windowData || typeof window.CustomEvent !== "function") return;
+            document.dispatchEvent(new CustomEvent(name, {
+                detail: {
+                    id: windowData.id,
+                    element: windowData.element && windowData.element[0],
+                    config: windowData.cfg || {}
+                }
+            }));
         }
 
         getWindowInnerTarget(windowData) {
@@ -1994,7 +2142,8 @@
             const zIndex = winZ - 1;
 
             const $overlay = $(`
-                <div id="${overlayId}" class="dbx-window-overlay" 
+                <div id="${overlayId}" class="dbx-window-overlay"
+                    data-dbx-layer="openwin-overlay"
                     style="position:fixed; top:0; left:0; width:100%; height:100%; 
                             z-index:${zIndex};
                             display:none;">
@@ -2018,7 +2167,15 @@
         // --------------------------------------------------
 
         createWindow(cfg, url, callerEl = null) {
+            // DOM-Inhalte muessen als dieselbe Node in das Fenster verschoben
+            // werden. Ein Deep-Copy der Konfiguration darf die Node nicht
+            // klonen: Event-Listener, Expando-Zustand und laufende Requests
+            // (z. B. Medienbrowser oder Editor) gehoeren zur Instanz.
+            const inlineContent = cfg && Object.prototype.hasOwnProperty.call(cfg, "content")
+                ? cfg.content
+                : undefined;
             cfg = $.extend(true, {}, cfg || {});
+            if (inlineContent !== undefined) cfg.content = inlineContent;
             cfg = this.normalizeConfig(cfg);
 
             const restoreState = cfg.__restoreState || null;
@@ -2055,10 +2212,14 @@
             const scrollClass = (cfg.scroll == 0) ? 'dbx-window-no-scroll' : 'dbx-window-scroll';
 
             const customTools = isMobileViewport ? '' : (cfg.tools || '');
+            const hasInlineContent = cfg.content !== undefined || cfg.html !== undefined;
+            const deferContent = !isMobileViewport && restoreMinimized && !hasInlineContent;
 
             const html = `
                 <div class="dbx-window ${isModal ? 'dbx-window-modal' : 'dbx-window-draggable'} ${scrollClass}" 
                     id="${windowId}" 
+                    data-dbx-layer="openwin"
+                    data-dbx-escape-owner="openwin"
                     style="z-index:${zIndex}; position:absolute; display:none;"
                     tabindex="-1"
                     role="dialog"
@@ -2071,10 +2232,10 @@
 
                             ${customTools}
 
-                            ${showReload ? '<span class="dbx-window-reload" data-action="reload" title="' + ui.reloadWindow + '" aria-label="' + ui.reloadWindow + '"><i class="bi bi-arrow-clockwise"></i></span>' : ''}
-                            ${showMinimize ? '<span class="dbx-window-minimize"><i class="bi bi-dash"></i></span>' : ''}
-                            ${showMaximize ? '<span class="dbx-window-maximize"><i class="bi bi-square"></i></span>' : ''}
-                            ${showClose ? '<span class="dbx-window-close"><i class="bi bi-x"></i></span>' : ''}
+                            ${showReload ? '<span class="dbx-window-reload" role="button" tabindex="0" data-action="reload" data-dbx-tooltip="' + ui.reloadWindow + '" aria-label="' + ui.reloadWindow + '"><i class="bi bi-arrow-clockwise"></i></span>' : ''}
+                            ${showMinimize ? '<span class="dbx-window-minimize" role="button" tabindex="0" data-dbx-tooltip="' + ui.minimizeWindow + '" aria-label="' + ui.minimizeWindow + '"><i class="bi bi-dash"></i></span>' : ''}
+                            ${showMaximize ? '<span class="dbx-window-maximize" role="button" tabindex="0" data-dbx-tooltip="' + ui.maximizeWindow + '" aria-label="' + ui.maximizeWindow + '"><i class="bi bi-square"></i></span>' : ''}
+                            ${showClose ? '<span class="dbx-window-close" role="button" tabindex="0" data-dbx-tooltip="' + ui.closeWindow + '" aria-label="' + ui.closeWindow + '"><i class="bi bi-x"></i></span>' : ''}
                         </div>
                     </div>
 
@@ -2104,6 +2265,9 @@
                 originalPosition: null,
                 overlay: null,
                 restoreState: restoreState,
+                contentState: deferContent ? "deferred" : "idle",
+                contentRequest: null,
+                contentRequestToken: 0,
                 selectedValues: []
             };
 
@@ -2192,8 +2356,7 @@
                 windowData.fullscreen = true;
                 $win.addClass("dbx-window-fullscreen");
 
-                $win.find(".dbx-window-maximize")
-                    .html('<i class="bi bi-arrows-angle-contract"></i>');
+                this.setMaximizeControlState($win, true);
             }
 
             if (isMobileViewport) {
@@ -2208,16 +2371,17 @@
             if (!isMobileViewport && showMaximize) this.initMaximize(windowId);
             if (isModal) this.createOverlay(windowId);
 
-            if (cfg.content !== undefined || cfg.html !== undefined) {
+            if (hasInlineContent) {
                 const $body = this.getWindowInnerTarget(windowData);
                 if (cfg.content !== undefined) {
                     $body.empty().append(cfg.content);
                 } else {
                     $body.html(cfg.html);
                 }
+                windowData.contentState = "loaded";
                 this.rescanContent($body[0]);
                 this.triggerCallback(cfg.onLoad, $win[0]);
-            } else {
+            } else if (!deferContent) {
                 this.loadContent(windowId, url, cfg);
             }
 
@@ -2355,6 +2519,14 @@
                     this.closeWindow(windowId);
                 });
 
+            $win.find(".dbx-window-controls [role=button]")
+                .off("keydown.keyboard-activate")
+                .on("keydown.keyboard-activate", function (e) {
+                    if (e.key !== "Enter" && e.key !== " ") return;
+                    e.preventDefault();
+                    $(this).trigger("click");
+                });
+
             $win.attr('tabindex', '-1');
         }
 
@@ -2379,7 +2551,9 @@
 
             if (!shouldClose) return;
 
+            this.dispatchLifecycle("dbx:openwin-before-close", windowData);
             windowData.closing = true;
+            windowData.contentRequestToken = (windowData.contentRequestToken || 0) + 1;
             this.removeDockItem(windowId);
 
             if (windowData.overlay) {
@@ -2435,6 +2609,7 @@
                 }
 
                 this.triggerCallback(cfg.onClose);
+                this.dispatchLifecycle("dbx:openwin-close", windowData);
                 this.safeLog("closed", windowId);
             });
         }

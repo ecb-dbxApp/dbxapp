@@ -2,13 +2,13 @@
 
 ## Unterstützte Versionen
 
-Es wird ausschließlich die neueste stabile Minor-Version der aktuellen
-Major-Linie mit Sicherheitsupdates versorgt.
+Ab der ersten Veröffentlichung wird ausschließlich die neueste stabile
+Minor-Version der 4.2-Produktlinie mit Sicherheitsupdates versorgt.
 
 | Version | Status |
 |---|---|
-| 4.0.x | unterstützt |
-| 3.x und älter | nicht öffentlich unterstützt |
+| 4.2.x | unterstützt |
+| Vor 4.2.0 | nicht veröffentlicht / nicht unterstützt |
 
 Der konkrete Status wird bei jedem Release aktualisiert.
 

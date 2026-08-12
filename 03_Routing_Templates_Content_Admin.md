@@ -117,30 +117,6 @@ besitzen, enthält die Sitemap nur die maßgebliche deutsche Sprachfassung.
 Weitere Sprachen dürfen erst mit jeweils eindeutigen kanonischen URLs in die
 Sitemap aufgenommen werden.
 
-Die reproduzierbare Migration liegt unter
-`dbx/modules/dbxContent/tools/restructure_marketing_de.php`:
-
-```powershell
-# Nur Planung, keine Änderung
-php dbx\modules\dbxContent\tools\restructure_marketing_de.php
-
-# Vollständiges DB3-Backup, dbxDB-Transaktion und Anwendung
-php dbx\modules\dbxContent\tools\restructure_marketing_de.php --apply
-```
-
-Alle Datenbankzugriffe laufen über die sprachabhängigen DDs und `dbxDB`.
-Vor dem schreibenden Lauf wird die vollständige `dbxContent.db3` im
-Unterordner `dbx/modules/dbx/db/backup/` gesichert. Ein Fehler führt zum
-Rollback der Transaktion. Der Lauf verändert ausschließlich deutsche Content-
-und Ordnerdatensätze; Englisch und Spanisch werden weder synchronisiert noch
-geschrieben. Anschließend werden Content-, Menü- und Sitemap-Caches
-invalidiert.
-
-Der Test
-`dbx/modules/dbxContent/tests/dbxContentMarketingDeMigration_test.php` prüft
-Zielseiten, Schreibweise, Umlaute, den admin-geschützten `/trash`-Ordner und
-den vollständigen Archivstatus jedes verschobenen Datensatzes.
-
 ## Administration: Parameter-getrieben
 
 In der Administration sind URL-Parameter der Standard.

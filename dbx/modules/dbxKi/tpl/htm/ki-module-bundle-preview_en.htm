@@ -1,0 +1,17 @@
+<div class="dbx-panel">
+ [tpl=dbx|module-bar]
+ <div class="p-3">
+  <div class="alert alert-info mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i> Response checked. Nothing has been changed yet.</div>
+  <h3 class="h6">Planned steps</h3>
+  <ul class="list-group mb-3">{step_items}</ul>
+  {run_panel}
+  <div class="d-flex flex-wrap gap-2 justify-content-end">
+   <button type="button" class="btn btn-outline-danger" data-dbx-ki-discard="{discard_url}" data-confirm="Discard this module response? The changes will not be applied.">
+    <i class="bi bi-x-lg" aria-hidden="true"></i> Discard
+   </button>
+   <button type="button" class="btn btn-primary" data-dbx-ki-inline-action="{execute_url}" data-confirm="Apply the reviewed module changes now? A backup will be created automatically first.">
+    <i class="bi bi-check2-circle" aria-hidden="true"></i> Apply
+   </button>
+  </div>
+ </div>
+</div>

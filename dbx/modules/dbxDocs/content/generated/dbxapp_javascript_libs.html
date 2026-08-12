@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="textblock"><p><a class="anchor" id="md_09___java_script___libs"></a></p>
 <p>dbxapp-JavaScript ist eine deklarative Erweiterung der serverseitigen Pipelines. <span class="tt">core.js</span> erkennt benötigte Features, lädt sie und initialisiert sie auch nach einem HTML-Ajax-Replace erneut.</p>
 <p>Das vollständige Zusammenspiel mit einem Modul steht unter <a class="el" href="dbxapp_module_reference.html" title="Verbindliches Modulhandbuch">Verbindliches Modulhandbuch</a>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md132"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md135"></a>
 Grundvertrag</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -68,7 +68,7 @@ Grundvertrag</h1>
 <td class="markdownTableBodyNone">längere Prozesse  </td><td class="markdownTableBodyNone"><span class="tt">process.js</span>  </td></tr>
 </table>
 <p>Eine vorhandene Systemfähigkeit wird nicht mit <span class="tt">fetch()</span>, <span class="tt">window.confirm()</span>, einem zweiten Modal oder direktem Browser-Storage nachgebaut.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md133"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md136"></a>
 Sprache im Browser</h1>
 <p>Allgemeine Frameworktexte wie „Ja/Nein/Abbrechen“, Sortierzustände oder technische Laufzeitfehler werden zentral mit <span class="tt">dbx.translate(key, fallback)</span> aus der aktiven Sprache aufgelöst. Fachliche Texte bleiben dagegen Eigentum der sprachabhängigen FD und werden serverseitig in HTML oder Datenattribute eingesetzt:</p>
 <div class="fragment"><div class="line">&lt;a <span class="keyword">class</span>=<span class="stringliteral">&quot;dbxConfirm&quot;</span></div>
@@ -83,7 +83,7 @@ Sprache im Browser</h1>
 <li>aktive FD für Formular-, Report- und Fachmeldungen eines Moduls.</li>
 </ul>
 <p>Modul-JavaScript führt keine eigene dritte Übersetzungstabelle für dieselben Formulartexte.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md134"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md137"></a>
 Feature-Scope und automatische Initialisierung</h1>
 <p>Features werden auf einem Root registriert:</p>
 <div class="fragment"><div class="line">&lt;div id=&quot;dbx_target_7&quot;</div>
@@ -95,7 +95,7 @@ Feature-Scope und automatische Initialisierung</h1>
 <div class="fragment"><div class="line">&lt;div id=&quot;dbxForm_{i}&quot;&gt;...&lt;/div&gt;</div>
 <div class="line">&lt;div id=&quot;dbx_target_{i}&quot;&gt;...&lt;/div&gt;</div>
 </div><!-- fragment --><p>So bleiben mehrere Instanzen derselben Route voneinander getrennt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md135"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md138"></a>
 Ajax: HTML ist der Standard</h1>
 <p>Ein Formular:</p>
 <div class="fragment"><div class="line">&lt;form action=&quot;{action}&quot; method=&quot;post&quot; class=&quot;dbxAjax&quot;</div>
@@ -132,7 +132,7 @@ Ajax: HTML ist der Standard</h1>
 </table>
 <p>Vorhandene Altattribute wie <span class="tt">data-target</span> oder <span class="tt">data-replace</span> bleiben in Bestandsmodulen kompatibel. Neue Templates SOLLEN die <span class="tt">data-ajax-*</span>-Namen verwenden, weil Zweck und Zugehörigkeit eindeutig sind.</p>
 <p><span class="tt">dbx_ajax=1</span> wird nicht in normale Links geschrieben. Nur <span class="tt">ajax.js</span> setzt den Ajax-Kontext des von ihm ausgeführten Requests.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md136"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md139"></a>
 Normaler Request bleibt funktionsfähig</h1>
 <p>Ajax ist progressive Verbesserung:</p>
 <ol type="1">
@@ -142,7 +142,7 @@ Normaler Request bleibt funktionsfähig</h1>
 <li>Ajax ersetzt nur die passende Teiloberfläche.</li>
 </ol>
 <p>Eine Modulaktion darf nicht ausschließlich funktionieren, wenn ein JavaScript-Eventhandler ausgeführt wurde.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md137"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md140"></a>
 Confirm: deklarativer Standard</h1>
 <div class="fragment"><div class="line">&lt;a class=&quot;dbxAjax dbxConfirm&quot;</div>
 <div class="line">   href=&quot;{delete_url}&quot;</div>
@@ -181,7 +181,7 @@ Confirm: deklarativer Standard</h1>
 </table>
 <p>Bei „Ja“ setzt <span class="tt">confirm.js</span> die ursprüngliche Link-, Button- oder Formularaktion automatisch fort. Ist dieselbe Quelle als <span class="tt">dbxAjax</span> gekennzeichnet, wird zuerst der Ajax-Weg verwendet; andernfalls folgt der normale Browserweg.</p>
 <p>Confirm führt keine Mutation aus und ist keine Sicherheitsprüfung. Rechte, Validierung und bei mutierenden GETs der Action-Token werden serverseitig geprüft.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md138"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md141"></a>
 Confirm und Ajax: festgelegte Reihenfolge</h1>
 <div class="fragment"><div class="line">Klick</div>
 <div class="line">  -&gt; confirm.js öffnet Dialog</div>
@@ -193,7 +193,7 @@ Confirm und Ajax: festgelegte Reihenfolge</h1>
 <div class="line">                 -&gt; ajax.js ersetzt Target</div>
 <div class="line">                    -&gt; core.js initialisiert neuen Inhalt</div>
 </div><!-- fragment --><p>Das Modul soll diese Reihenfolge nicht mit eigenen Clickhandlern nachbauen. Insbesondere dürfen Confirm und openWin nicht unabhängig denselben Klick verarbeiten.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md139"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md142"></a>
 Programmatisches Confirm</h1>
 <p>Nur wenn die deklarative Fortsetzung nicht genügt:</p>
 <div class="fragment"><div class="line">dbx.confirm.open({</div>
@@ -209,7 +209,7 @@ Programmatisches Confirm</h1>
 <div class="line">    }</div>
 <div class="line">});</div>
 </div><!-- fragment --><p>Die Promise liefert <span class="tt">yes</span>, <span class="tt">no</span>, <span class="tt">cancel</span> oder <span class="tt">close</span>. Auch hier gehört die Fachmutation auf den Server. Eigene Dialog-DOM-Strukturen sind nicht erforderlich.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md140"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md143"></a>
 JSON-Ajax</h1>
 <p>HTML ist passend für <span class="tt">dbxForm</span> und <span class="tt">dbxReport</span>, weil beide vollständige Teiloberflächen zurückgeben. JSON ist für begrenzte Status- oder API-Aktionen geeignet:</p>
 <div class="fragment"><div class="line">&lt;div id=&quot;my_task_status&quot;</div>
@@ -220,7 +220,7 @@ JSON-Ajax</h1>
 <div class="line"> &lt;/button&gt;</div>
 <div class="line">&lt;/div&gt;</div>
 </div><!-- fragment --><p>JSON- und HTML-Routen haben unterschiedliche Antwortverträge. Eine JSON-Route rendert nicht nebenbei ein Formtemplate. Ein normaler Form-/Report-Ajax liefert keine willkürliche Mischantwort.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md141"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md144"></a>
 <span class="tt">core.js</span> und UI-State</h1>
 <div class="fragment"><div class="line">const state = dbx.uiGet(</div>
 <div class="line">    &quot;collapse&quot;,</div>
@@ -235,7 +235,7 @@ JSON-Ajax</h1>
 <div class="line">    &quot;collapsed&quot;</div>
 <div class="line">);</div>
 </div><!-- fragment --><p>Direkter Zugriff auf <span class="tt">localStorage</span> oder <span class="tt">sessionStorage</span> außerhalb von <span class="tt">core.js</span> ist verboten. Nur der zentrale State kann Namensräume, Kompatibilität und Bereinigung systemweit steuern.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md142"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md145"></a>
 <span class="tt">report.js</span>, <span class="tt">form.js</span> und <span class="tt">grid.js</span></h1>
 <p><span class="tt">report.js</span> übernimmt:</p>
 <ul>
@@ -258,7 +258,7 @@ JSON-Ajax</h1>
 <li>UI-State über <span class="tt">core.js</span>.</li>
 </ul>
 <p>Fachmodule ergänzen Konfiguration und Fachendpunkte, nicht die Basispipeline.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md143"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md146"></a>
 Weitere Systemlibs</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -272,13 +272,24 @@ Weitere Systemlibs</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><span class="tt">ace.js</span>  </td><td class="markdownTableBodyNone">Source- und Templateeditor  </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><span class="tt">cms.js</span>  </td><td class="markdownTableBodyNone">CMS-Baum, Medien und Inclusion-Hilfen  </td></tr>
+<td class="markdownTableBodyNone"><span class="tt">cms.js</span>  </td><td class="markdownTableBodyNone">stabiler CMS-/Jodit-Kern, Cursor und Komponentenbearbeitung  </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><span class="tt">kiBriefing.js</span>  </td><td class="markdownTableBodyNone">KI-Briefing-Oberfläche  </td></tr>
+<td class="markdownTableBodyNone"><span class="tt">cms-page.js</span>  </td><td class="markdownTableBodyNone">Seitenformular und Seitenaktionen; im CMS vorab geladen  </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">cms-tree.js</span>  </td><td class="markdownTableBodyNone">Content-Baum; erst beim Öffnen geladen  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">cms-media.js</span>  </td><td class="markdownTableBodyNone">Medienbrowser, Upload und Medienwartung; erst bei Nutzung geladen  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">cms-language.js</span>  </td><td class="markdownTableBodyNone">Sprachabgleich und Sprachdialoge; erst bei Nutzung geladen  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">cms-jodit-image.js</span>  </td><td class="markdownTableBodyNone">erweiterter Jodit-Bilddialog; erst beim Bilddialog geladen  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">kiBriefing.js</span>  </td><td class="markdownTableBodyNone">KI-Briefing-Oberfläche  </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><span class="tt">seoAdmin.js</span>  </td><td class="markdownTableBodyNone">SEO-Verwaltung  </td></tr>
 </table>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md144"></a>
+<p>Die CMS-Module werden über <span class="tt">dbx.cmsRuntime</span> registriert. Nur der für jede Bearbeitung notwendige Kern und die Seitensteuerung werden initial geladen. Ein Featuremodul darf keine zweite Ajax-, Fenster-, Layer- oder Editor-Infrastruktur aufbauen; Requests laufen über <span class="tt">ajax.js</span>, Fenster über <span class="tt">openWin.js</span> und gemeinsame Helfer werden aus dem Runtime-Kontext bezogen. Der Browsercache reduziert wiederholte Übertragung, Lazy Loading spart aber zusätzlich Parse-, Initialisierungs- und Eventkosten für unbenutzte Funktionen.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md147"></a>
 Verbindliche Regeln</h1>
 <ol type="1">
 <li>Vorhandene Lib verwenden, keine zweite Implementierung.</li>
@@ -292,7 +303,7 @@ Verbindliche Regeln</h1>
 <li>JavaScript muss nach einem Ajax-Replace wiederholbar initialisierbar sein.</li>
 <li>Direkten Browser-Storage vermeiden.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md145"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md148"></a>
 Mindesttests</h1>
 <ul>
 <li>Link/Formular ohne JavaScript;</li>
@@ -305,7 +316,7 @@ Mindesttests</h1>
 <li>ungültige Rechte oder Token werden serverseitig abgewiesen;</li>
 <li>erneute Featurefunktion nach einem Target-Replace.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md146"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md149"></a>
 Weiterführende Kapitel</h1>
 <ul>
 <li><a class="el" href="dbxapp_module_reference.html" title="Verbindliches Modulhandbuch">Verbindliches Modulhandbuch</a></li>

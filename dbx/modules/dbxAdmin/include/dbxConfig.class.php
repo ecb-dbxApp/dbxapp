@@ -5,7 +5,7 @@ Class dbxConfig {
 
    Private function Get_ConfigModule() {
      $xmodul  = dbx()->get_modul_var('modul','undef');
-     $config  = dbx()->get_config($xmodul);
+     $config  = dbx()->get_cfg($xmodul, '', null, true);
      $tpl     ='Form-dbxConfig';
      $oForm=dbx()->get_system_obj('dbxForm');
      $oForm->_dbData  =$config;
@@ -25,7 +25,7 @@ Class dbxConfig {
 
    public function edit_config() {
       $xmodul=dbx()->get_modul_var('xmodul');
-      $data  =dbx()->get_config($xmodul);
+      $data  =dbx()->get_cfg($xmodul, '', null, true);
       if (!is_array($data)) $data=$this->get_new_cfg();
 
       //dbx_debug("GET CFG ($xmodul)=",$data);
@@ -47,7 +47,7 @@ Class dbxConfig {
       
       if ($oForm->submit()) {
          $config=$oForm->_post;
-         $ok=dbx()->set_config($xmodul,$config); 
+         $ok=dbx()->set_cfg($xmodul,$config); 
       }   
 
       $content=$oForm->run();

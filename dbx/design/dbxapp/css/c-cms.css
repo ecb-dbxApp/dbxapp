@@ -67,8 +67,8 @@
     z-index: 12;
 }
 
-.dbx-content-frame .dbx-cms-head .dbx-module-bar-title,
-.dbx-content-frame-frontend .dbx-cms-head .dbx-module-bar-title {
+.dbx-content-frame .dbx-cms-head .dbx-bar-heading,
+.dbx-content-frame-frontend .dbx-cms-head .dbx-bar-heading {
     font-size: 0.95rem;
     font-weight: 700;
     line-height: 1.2;
@@ -101,6 +101,14 @@
 .dbx-cms-view {
     margin-top: -8px;
     position: relative;
+}
+
+/* Das CMS-Fenster besitzt bereits einen eigenen horizontalen Scrollkontext.
+   Editorinterne Mess- und Fixed-Elemente duerfen dessen Scrollbreite nicht
+   vergroessern; die responsiven CMS-Grids selbst bleiben davon unberuehrt. */
+.dbx-window-body .dbx-panel.dbx-cms.dbxReport {
+    max-width: 100%;
+    overflow-x: clip;
 }
 
 .dbx-cms-shell {
@@ -165,7 +173,7 @@
     grid-column: 2;
 }
 
-/* Bar-Skin/Layout: .dbx-bar + .dbx-module-bar (theme.css). .dbx-cms-head = JS-Anker. */
+/* Bar-Skin/Layout: .dbx-bar + .dbx-bar--module (theme.css). .dbx-cms-head = JS-Anker. */
 
 .dbx-cms-head .dbx-cms-tree-toggle {
     align-items: center;
@@ -670,16 +678,15 @@ body.dbx-app .dbx-cms:not(.dbx-cms-view) .dbx-cms-head {
     box-shadow: inset 0 0 0 2px rgba(21,148,71,0.35), 0 0 0 3px rgba(21,148,71,0.18);
 }
 
-.dbx-cms-tree-row.is-drop-before {
-    background: #eef5ff;
-    border-top-color: #0b5fff;
-    box-shadow: inset 0 4px 0 #0b5fff, 0 -2px 0 #0b5fff;
-}
-
-.dbx-cms-tree-row.is-drop-after {
-    background: #eef5ff;
-    border-bottom-color: #0b5fff;
-    box-shadow: inset 0 -4px 0 #0b5fff, 0 2px 0 #0b5fff;
+.dbx-cms-tree-dropline {
+    background: rgba(11, 95, 255, 0.14);
+    border: 2px dashed #0b5fff;
+    border-radius: 6px;
+    display: none;
+    height: 12px;
+    pointer-events: none;
+    position: absolute;
+    z-index: 40;
 }
 
 .dbx-cms-tree-row:hover {
@@ -695,19 +702,25 @@ body.dbx-app .dbx-cms:not(.dbx-cms-view) .dbx-cms-head {
 }
 
 .dbx-cms-tree-row.is-active {
+    border-left-width: 4px;
+    color: #493600;
+    font-weight: 700;
     box-shadow:
+        inset 4px 0 0 #d69a00,
         inset 0 1px 0 rgba(255,255,255,0.95),
-        0 2px 6px rgba(37,99,235,0.14);
+        0 2px 7px rgba(146,101,0,0.18);
 }
 
 .dbx-cms-tree-page.is-active {
-    background: linear-gradient(180deg, #eef5ff, #dfeaff);
-    border-color: #8eb7f5;
+    background: linear-gradient(180deg, #fff9d8, #ffefad);
+    border-color: #e0b83f;
+    border-left: 4px solid #d69a00 !important;
 }
 
 .dbx-cms-tree-folder.is-active {
-    background: linear-gradient(180deg, #dceaff, #c8dcfb);
-    border-color: #7aa8e8;
+    background: linear-gradient(180deg, #fff5c2, #ffe79a);
+    border-color: #d9aa28;
+    border-left: 4px solid #c88b00 !important;
 }
 
 .dbx-cms-tree-row.is-search-path {
@@ -923,7 +936,7 @@ body.dbx-app .dbx-cms:not(.dbx-cms-view) .dbx-cms-head {
     min-width: 0;
 }
 
-.dbx-cms-folder-editor-bar .dbx-module-bar-heading {
+.dbx-cms-folder-editor-bar .dbx-bar-heading {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -956,8 +969,7 @@ body.dbx-app .dbx-cms:not(.dbx-cms-view) .dbx-cms-head {
     margin-top: 9px;
 }
 
-.dbx-cms-folder-rights .dbx-cms-field-group_read,
-.dbx-cms-folder-rights .dbx-cms-field {
+.dbx-cms-folder-rights .dbx-form-field {
     margin-bottom: 0;
 }
 
@@ -1531,6 +1543,87 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
     color: #8fa0b8;
 }
 
+.jodit-wysiwyg [data-dbx-cms-movable-block][contenteditable="false"],
+.jodit-wysiwyg a[data-dbx-cms-movable-button] {
+    cursor: grab;
+}
+
+.jodit-wysiwyg .is-dbx-cms-dragging {
+    opacity: .55;
+}
+
+.jodit-wysiwyg .is-dbx-cms-drop-target {
+    outline: 2px dashed var(--dbx-cms-accent, #1d70d6);
+    outline-offset: 3px;
+}
+
+.dbx-cms-editor-group .jodit-wysiwyg {
+    caret-color: #0057ff !important;
+}
+
+.dbx-cms-editor-group .jodit-wysiwyg.is-dbx-cms-caret-preview {
+    caret-color: transparent !important;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-button-caret-anchor],
+.dbx-cms-editor-group [data-dbx-cms-element-caret-anchor] {
+    cursor: text;
+    display: inline-block;
+    height: 1.35em;
+    min-width: .65rem;
+    vertical-align: middle;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-layout="inline"][data-dbx-cms-caret-side="after"]:last-child {
+    min-width: 2rem;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-layout="block"] {
+    display: block;
+    height: 6px;
+    line-height: 0;
+    margin: 1px 0;
+    min-width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-layout="block"]::after {
+    content: "";
+    cursor: text;
+    height: 6px;
+    inset: 0;
+    position: absolute;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-host] {
+    caret-color: #0057ff;
+    outline: none;
+}
+
+.dbx-cms-editor-group [data-dbx-cms-caret-host="block"] {
+    margin: 0;
+    min-height: 1.35em;
+}
+
+.dbx-cms-editor-caret-hint {
+    animation: dbxCmsCaretPulse 1.05s ease-in-out infinite;
+    background: #0057ff;
+    border: 1px solid #ffffff;
+    border-radius: 1px;
+    box-shadow: 0 0 0 1px #0057ff, 0 0 8px rgba(0, 87, 255, .62);
+    display: block;
+    pointer-events: none;
+    position: fixed;
+    width: 3px;
+    z-index: 2147483646;
+}
+
+@keyframes dbxCmsCaretPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .62; }
+}
+
 .dbx-cms-inline-media {
     background: transparent;
     border: 0;
@@ -1708,19 +1801,14 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
 }
 
 .dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]) {
-    border: 1px dashed transparent;
-    border-radius: 6px;
-    padding: 4px;
+    border: 0;
+    padding: 0;
 }
 
-.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]):hover {
-    border-color: rgba(13, 110, 253, .55);
-}
-
-.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]):hover > .col,
-.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]):hover > [class*="col-"] {
-    box-shadow: inset 0 0 0 1px rgba(13, 110, 253, .22);
-    min-height: 2.5rem;
+.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]) > .col:hover,
+.dbx-cms-editor-group .jodit-wysiwyg .row:has(> .col, > [class*="col-"]) > [class*="col-"]:hover {
+    outline: 1px solid rgba(13, 110, 253, .28);
+    outline-offset: -2px;
 }
 
 .dbx-cms-inline-video-block {
@@ -2162,7 +2250,6 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
 .dbx-cms-settings-actions {
     display: grid;
     gap: 8px;
-    grid-column: 1 / -1;
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
 }
 
@@ -2426,6 +2513,18 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
 .dbx-cms-media-browser-window {
     border-color: var(--dbx-window-header, var(--dbx-primary, #0d6efd)) !important;
     z-index: 240000 !important;
+}
+
+/* Das Medienfenster wird aus einem beliebig weit gescrollten Editor geoeffnet.
+   Desktopseitig muss seine Lage daher viewport- und nicht dokumentbezogen sein.
+   Mobile dbx-Fenster behalten ihre eigene Vollbildpositionierung. */
+.dbx-cms-media-browser-window:not(.dbx-window-mobile-fullscreen) {
+    left: 50% !important;
+    max-height: calc(100dvh - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    position: fixed !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
 }
 
 .dbx-cms-media-browser-window .dbx-cms-media-browser {
@@ -2949,6 +3048,25 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
     padding: 8px 10px;
 }
 
+.dbx-cms-media-explorer-folder-management {
+    align-items: stretch;
+    border-bottom: 1px solid #d4dfed;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 5px;
+    padding: 6px;
+}
+
+.dbx-cms-media-explorer-folder-management .form-control {
+    min-width: 0;
+}
+
+.dbx-cms-media-explorer-folder-management .btn {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+}
+
 .dbx-cms-media-explorer-folders {
     display: grid;
     gap: 2px;
@@ -3071,8 +3189,11 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
 }
 
 .dbx-cms-media-explorer-grid {
+    align-content: start;
+    align-items: start;
     display: grid;
     gap: 8px;
+    grid-auto-rows: max-content;
     grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
     min-height: 0;
     overflow: auto;
@@ -4447,6 +4568,11 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
         grid-template-columns: 1fr;
     }
 
+    .dbx-cms:not(.dbx-cms-view).is-tree-collapsed .dbx-cms-shell,
+    .dbx-cms:not(.dbx-cms-view):not(.is-tree-collapsed) .dbx-cms-shell {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
     .dbx-cms:not(.dbx-cms-view).is-right-panel-collapsed .dbx-cms-shell {
         grid-template-columns: minmax(0, 1fr) 44px;
     }
@@ -4501,69 +4627,19 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
 }
 
 @media (max-width: 760px) {
-    .dbx-cms-view .dbx-module-bar-actions {
+    .dbx-cms-view .dbx-bar-actions {
         flex: 0 0 auto;
         justify-content: flex-end;
     }
 }
 
-.dbx-cms-form-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: .75rem;
-}
-
-.dbx-cms-form-grid-system {
+.dbx-cms-page-panel > .dbx-form-grid {
     align-items: end;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-}
-
-.dbx-cms-form-grid-page {
-    align-items: end;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
-.dbx-cms-form-grid-page .dbx-cms-system-field-description {
-    grid-column: 1 / -1;
-}
-
-.dbx-cms-form-grid-page .dbx-cms-system-field-keywords {
-    grid-column: 1 / -1;
-}
-
-.dbx-cms-form-grid-page .dbx-cms-system-field-title,
-.dbx-cms-form-grid-page .dbx-cms-system-field-menu-title,
-.dbx-cms-form-grid-page .dbx-cms-system-field-permalink,
-.dbx-cms-form-grid-page .dbx-cms-system-field-activ,
-.dbx-cms-form-grid-page .dbx-cms-system-field-template {
-    grid-column: auto;
 }
 
 .jodit-wysiwyg .is-dbx-cms-selected {
     outline: 2px solid var(--dbx-primary, #0d6efd);
     outline-offset: 3px;
-}
-
-.dbx-cms-system-field {
-    min-width: 0;
-}
-
-.dbx-cms-system-field-title,
-.dbx-cms-system-field-template,
-.dbx-cms-system-field-keywords {
-    grid-column: span 6;
-}
-
-.dbx-cms-system-field-permalink {
-    grid-column: span 4;
-}
-
-.dbx-cms-system-field-activ {
-    grid-column: span 2;
-}
-
-.dbx-cms-system-field-description {
-    grid-column: 1 / -1;
 }
 
 .dbx-cms-page-panel {
@@ -4633,20 +4709,6 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
     display: none;
 }
 
-.dbx-cms-settings-grid {
-    display: grid;
-    gap: .75rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.dbx-cms-hero-preview,
-.dbx-cms-field-hero_template,
-.dbx-cms-field-hero_scroll_layer,
-.dbx-cms-hero-upload,
-.dbx-cms-hero-actions {
-    grid-column: 1 / -1;
-}
-
 .dbx-cms-hero-preview {
     align-items: stretch;
     aspect-ratio: 21 / 8;
@@ -4698,24 +4760,6 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
     overflow: hidden;
 }
 
-.dbx-cms-hero-upload {
-    align-items: stretch;
-    display: grid;
-    gap: 8px;
-    grid-template-columns: minmax(0, 1fr) 38px;
-}
-
-.dbx-cms-hero-upload.has-file .dbx-cms-upload-drop {
-    background: #eefaf3;
-    border-color: #49a76b;
-}
-
-.dbx-cms-hero-upload .btn {
-    align-items: center;
-    display: inline-flex;
-    justify-content: center;
-}
-
 .dbx-cms-hero-actions {
     display: grid;
     gap: 8px;
@@ -4730,35 +4774,8 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
     min-width: 0;
 }
 
-.dbx-cms-field {
-    align-self: stretch;
-    display: flex;
-    flex-direction: column;
-    gap: .3rem;
-    min-width: 0;
-    white-space: normal;
-    width: 100% !important;
-}
-
-.dbx-cms-field span,
-.dbx-cms-settings-grid label > span {
-    color: var(--dbx-muted, #667085);
-    font-size: .8125rem;
-    font-weight: 600;
-}
-
-.dbx-cms-field-labelbar {
-    align-items: center;
-    display: flex;
-    gap: .35rem;
-    min-height: 1.25rem;
-}
-
-.dbx-cms-field-labelbar > label {
-    color: var(--dbx-muted, #667085);
-    font-size: .8125rem;
-    font-weight: 600;
-    margin: 0;
+.dbx-cms-hero-actions .dbx-cms-hero-save {
+    grid-column: 1 / -1;
 }
 
 .dbx-cms-content-template-edit {
@@ -4786,12 +4803,7 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
     pointer-events: none;
 }
 
-.dbx-cms-field .form-control,
-.dbx-cms-field .form-select {
-    width: 100%;
-}
-
-.dbx-cms-field .form-select,
+.dbx-cms .dbx-form-field__control.form-select,
 .dbx-cms-media-filter .form-select {
     appearance: none;
     background-color: var(--dbx-input-bg);
@@ -4930,34 +4942,6 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
     font-weight: 700;
 }
 
-.dbx-cms-form-grid-system .dbx-cms-field-title {
-    grid-column: span 6;
-}
-
-.dbx-cms-form-grid-system .dbx-cms-field-permalink {
-    grid-column: span 4;
-}
-
-.dbx-cms-form-grid-system .dbx-cms-field-activ {
-    grid-column: span 2;
-}
-
-.dbx-cms-form-grid-system .dbx-cms-field-template {
-    grid-column: span 6;
-}
-
-.dbx-cms-form-grid-system .dbx-cms-field-keywords {
-    grid-column: span 6;
-}
-
-.dbx-cms-form-grid-system .dbx-cms-field-description {
-    grid-column: 1 / -1;
-}
-
-.dbx-cms-field-content {
-    display: none;
-}
-
 .dbx-cms-settings {
     display: grid;
     gap: .75rem;
@@ -5014,40 +4998,25 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
     transition: color .16s ease;
 }
 
-.dbx-cms-settings-panel .dbx-cms-settings-grid {
+.dbx-cms-settings-panel > .dbx-form-grid {
     padding: .75rem .1rem .1rem;
 }
 
 @media (max-width: 1200px) {
-    .dbx-cms-form-grid:not(.dbx-cms-form-grid-system) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .dbx-cms-form-grid-page .dbx-cms-system-field-description {
-        grid-column: 1 / -1;
-    }
-
-    .dbx-cms-form-grid-page .dbx-cms-system-field-keywords {
-        grid-column: 1 / -1;
-    }
-
     .dbx-cms-folder-grid {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 
-    .dbx-cms-folder-grid .dbx-cms-field-name {
+    .dbx-cms-folder-grid > .dbx-form-grid__item:first-child {
         grid-column: 1 / -1;
     }
 }
 
 @media (max-width: 700px) {
-    .dbx-cms-form-grid,
-    .dbx-cms-settings-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .dbx-cms-form-grid-page .dbx-cms-system-field {
-        grid-column: 1 / -1;
+    .dbx-cms-editor-group .jodit-wysiwyg table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
     }
 
     .dbx-cms-folder-grid {
@@ -5066,13 +5035,6 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
         grid-template-columns: 1fr;
     }
 
-    .dbx-cms-form-grid-system {
-        grid-template-columns: 1fr;
-    }
-
-    .dbx-cms-form-grid-system .dbx-cms-field {
-        grid-column: 1 / -1;
-    }
 }
 
 /* =========================================================
@@ -6265,6 +6227,22 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
     gap: 12px;
     grid-template-columns: minmax(300px, 390px) minmax(0, 1fr) minmax(300px, 360px);
     min-height: calc(100vh - 190px);
+    transition: grid-template-columns .25s ease;
+}
+
+/* Auftragsspalte vergroessert sich beim Hineinklicken, damit die
+   Formularfelder mehr Platz bekommen; ausserhalb-Klick stellt die
+   normale Spaltenbreite wieder her (siehe kiBriefing.js). Nur auf der
+   echten 3-Spalten-Breite relevant (siehe max-width:1180px darunter,
+   dort belegt die Auftragsspalte ohnehin bereits die volle Breite). */
+@media (min-width: 1181px) {
+    .dbx-ki-update-workspace.is-order-expanded {
+        /* Letzte Spalte bewusst mit 1fr statt einer festen Maximalbreite,
+           damit sie bis zum rechten Rand reicht statt eine leere Luecke
+           zu lassen (Grid packt ungenutzten Platz sonst hinter der
+           letzten Spalte, da justify-content standardmaessig "start" ist). */
+        grid-template-columns: minmax(280px, 340px) minmax(0, .35fr) minmax(520px, 1fr);
+    }
 }
 
 .dbx-ki-create-workspace {
@@ -6586,6 +6564,64 @@ body.dbx-app .dbx-cms-editor-group .jodit-container.jodit_fullsize.jodit_sticky 
 .dbx-ki-context-empty {
     color: var(--dbx-text-muted);
     font-size: .82rem;
+}
+
+/* ============================================================
+   KI-ERGEBNISFENSTER / MODUL-STICKY-RUN-PANEL
+   ------------------------------------------------------------
+   Wird innerhalb eines per kiResultWindow.js geoeffneten
+   openWin-Fensters gerendert, wenn die geprüfte KI-Antwort ein
+   Modul betrifft: sticky Leiste mit den verfügbaren run1-Aktionen
+   des Moduls über einem iframe, damit das Modul waehrend der
+   Pruefung direkt getestet werden kann.
+   ============================================================ */
+
+.dbx-ki-import-success {
+    padding: 1.25rem;
+}
+
+.dbx-ki-module-run {
+    border: 1px solid var(--dbx-panel-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: .75rem 0 1rem;
+}
+
+.dbx-ki-module-run-bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+    padding: .5rem .75rem;
+    background: linear-gradient(180deg, var(--dbx-panel-head-bg-top), var(--dbx-panel-head-bg-bottom));
+    border-bottom: 1px solid var(--dbx-panel-border);
+}
+
+.dbx-ki-module-run-info {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .85rem;
+    color: var(--dbx-panel-head-text);
+}
+
+.dbx-ki-module-run-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+}
+
+.dbx-ki-module-run-frame {
+    width: 100%;
+    height: 55vh;
+    min-height: 320px;
+    border: 0;
+    display: block;
+    background: #fff;
 }
 
 @media (max-width: 1180px) {

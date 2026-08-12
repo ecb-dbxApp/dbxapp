@@ -64,7 +64,7 @@ class dbxInstall
      */
     public function run(): string
     {
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
         if ((int)($config['install'] ?? 1) !== 1
             && (int)dbx()->get_system_var('dbx_install', 0, 'int') !== 1
@@ -352,7 +352,7 @@ class dbxInstall
                 $this->errors[] = 'Für SQLite/DB3 muss die Erweiterung pdo_sqlite aktiviert sein.';
                 return false;
             }
-            $bindings = dbx()->get_config('dbx', 'dd_server_bindings', array());
+            $bindings = dbx()->get_cfg('dbx', 'dd_server_bindings', array());
             if (is_array($bindings) && $bindings !== array()) {
                 if (!dbx()->set_local_config_section('dbx', 'dd_server_bindings', array())) {
                     $this->errors[] = 'Die lokalen DD-Serverbindungen konnten nicht zurückgesetzt werden.';
@@ -403,7 +403,7 @@ class dbxInstall
         $user = $this->postText('db_user', 255);
         $password = $this->postSecret('db_password', 1024);
         if ($password === '') {
-            $current = dbx()->get_config('dbx', 'db', array());
+            $current = dbx()->get_cfg('dbx', 'db', array());
             $password = is_array($current)
                 ? (string)($current[self::SQL_SERVER]['pass'] ?? '')
                 : '';
@@ -617,7 +617,7 @@ class dbxInstall
         $user = $this->postText('mail_user', 255);
         $password = $this->postSecret('mail_password', 2048);
         if ($password === '') {
-            $current = dbx()->get_config('dbx', 'mail', array());
+            $current = dbx()->get_cfg('dbx', 'mail', array());
             $password = is_array($current)
                 ? (string)($current[self::SQL_SERVER]['pass'] ?? '')
                 : '';
@@ -795,7 +795,7 @@ class dbxInstall
 
         $basics = $this->state('basics', array());
         $admin = (array)$this->state('admin', array());
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
         $secret = trim((string)($config['secure'] ?? ''));
         if (strlen($secret) < 32) {
@@ -896,7 +896,7 @@ class dbxInstall
 
     private function renderBasics(): string
     {
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
         $values = array_replace(
             array(
@@ -950,7 +950,7 @@ class dbxInstall
 
     private function renderDatabase(): string
     {
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
         $profile = is_array($config['db'][self::SQL_SERVER] ?? null)
             ? $config['db'][self::SQL_SERVER]
@@ -1191,7 +1191,7 @@ class dbxInstall
 
     private function renderAdmin(): string
     {
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
         try {
             $admin = $this->installer()->inspectInitialAdmin();
@@ -1239,7 +1239,7 @@ class dbxInstall
 
     private function renderMail(): string
     {
-        $config = dbx()->get_config('dbx');
+        $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
         $profile = is_array($config['mail'][self::SQL_SERVER] ?? null)
             ? $config['mail'][self::SQL_SERVER]
@@ -1251,9 +1251,9 @@ class dbxInstall
         $transport = (string)($saved['transport'] ?? ($profile['transport'] ?? 'smtp'));
         $globalFrom = (string)($saved['from_email']
             ?? ($profile['from_email'] ?? ($admin['email'] ?? '')));
-        $contactConfig = dbx()->get_config('dbxContact');
+        $contactConfig = dbx()->get_cfg('dbxContact');
         $contactConfig = is_array($contactConfig) ? $contactConfig : array();
-        $shopConfig = dbx()->get_config('dbxShop');
+        $shopConfig = dbx()->get_cfg('dbxShop');
         $shopConfig = is_array($shopConfig) ? $shopConfig : array();
         $contactDerived = $this->moduleSenderAddress('kontakt', $globalFrom);
         $contactFrom = (string)($saved['contact_from']

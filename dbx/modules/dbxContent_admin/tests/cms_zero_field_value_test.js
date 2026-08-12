@@ -3,12 +3,12 @@
 const fs = require("fs");
 const path = require("path");
 
-const cmsFile = path.resolve(__dirname, "../../../js/lib/cms.js");
+const cmsFile = path.resolve(__dirname, "../../../js/lib/cms-page.js");
 const source = fs.readFileSync(cmsFile, "utf8");
-const match = source.match(/function cmsFieldValue\([^)]*\) \{[\s\S]*?\n    \}/);
+const match = source.match(/function cmsFieldValue\([^)]*\) \{[\s\S]*?\n        \}/);
 
 if (!match) {
-    throw new Error("cmsFieldValue wurde in cms.js nicht gefunden.");
+    throw new Error("cmsFieldValue wurde in cms-page.js nicht gefunden.");
 }
 
 const cmsFieldValue = Function(`"use strict"; return (${match[0]});`)();

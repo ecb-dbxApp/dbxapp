@@ -78,7 +78,7 @@
  *   - class=dbxUiAjax
  *   - class=*            → alle passenden Elemente im Scope
  *
- * mode=html|json|text
+ * mode=html|json|text|auto
  *   Default-Response-Typ dieser AJAX-Instanz.
  *
  *   html:
@@ -94,6 +94,10 @@
  *   text:
  *   - Response wird als Text gelesen
  *   - kein automatischer Replace, außer explizit aktiviert
+ *
+ *   auto:
+ *   - für programmatische Bibliotheks-Requests
+ *   - erkennt JSON anhand Content-Type bzw. Antwortstruktur, sonst Text
  *
  * bind=form,link,button
  *   Welche Elementtypen diese AJAX-Instanz behandeln darf.
@@ -531,6 +535,7 @@
 
         if (mode === "json") return "json";
         if (mode === "text") return "text";
+        if (mode === "auto") return "auto";
 
         return "html";
     }
@@ -1588,7 +1593,8 @@
         const data    = (options && typeof options.data !== "undefined") ? options.data : null;
         const timeout = Math.max(0, Number((options && options.timeout) || 0));
         const keepalive = bool(options && options.keepalive, false);
-        const controller = timeout > 0 && window.AbortController ? new AbortController() : null;
+        const abortable = bool(options && options.abortable, false);
+        const controller = (timeout > 0 || abortable) && window.AbortController ? new AbortController() : null;
         let timer = null;
         let runtimeUpdated = false;
         const startedAt = requestNow();
@@ -1630,7 +1636,7 @@
             timer = window.setTimeout(() => controller.abort(), timeout);
         }
 
-        return fetch(url, {
+        const request = fetch(url, {
             method: method,
             body: body,
             headers: headers,
@@ -1670,6 +1676,30 @@
                 });
             }
 
+            if (mode === "auto") {
+                return response.text().then(txt => {
+                    const contentType = String(response.headers.get("Content-Type") || "").toLowerCase();
+                    const trimmed = String(txt || "").trim();
+                    const looksJson = contentType.includes("json") || /^[\[{]/.test(trimmed);
+                    if (!looksJson || !trimmed) {
+                        markRuntime(response, txt);
+                        return txt;
+                    }
+                    try {
+                        const data = JSON.parse(trimmed);
+                        markRuntime(response, data);
+                        return data;
+                    } catch (err) {
+                        if (contentType.includes("json")) {
+                            markRuntime(response, null);
+                            throw new Error("Ungueltige JSON-Serverantwort");
+                        }
+                        markRuntime(response, txt);
+                        return txt;
+                    }
+                });
+            }
+
             return response.text().then(txt => {
                 markRuntime(response, txt);
                 return txt;
@@ -1685,6 +1715,11 @@
         .finally(() => {
             if (timer) window.clearTimeout(timer);
         });
+
+        request.abort = function () {
+            if (controller) controller.abort();
+        };
+        return request;
     };
 
 

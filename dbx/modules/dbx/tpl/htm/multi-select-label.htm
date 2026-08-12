@@ -1,4 +1,4 @@
-<label class="control-label" for="{name}_{i}"  data-dbx-tooltip="{tooltip}" data-dbx-errormsg="{errormsg}">{label}</label> 
-<select class="form-control d-block w-100 {class}" id="{name}_{i}" name="{name}[]"  multiple="multiple" size="{size}" {required} data-dbx-tooltip="{tooltip}" data-dbx-errormsg="{errormsg}"> 
- {{name}_options} 
+<label class="control-label" for="{name}_{i}" data-dbx-errormsg="{errormsg}">{label}{tooltip}</label>
+<select class="form-control d-block w-100 {class}" id="{name}_{i}" name="{name}[]" multiple="multiple" size="{size}" {required} data-dbx-errormsg="{errormsg}">
+ {{name}_options}
 </select>

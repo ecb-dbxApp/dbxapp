@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -45,10 +45,10 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="textblock"><p><a class="anchor" id="md_08___modulaufbau___patterns"></a></p>
 <p><a href="https://dbxapp.de">Offizielle dbxapp Website</a></p>
 <p>Ein dbxapp-Modul kapselt eine fachliche Aufgabe. Es erhält Requests über den Modulrouter, liest Daten über DD/dbxDB, verwendet dbxForm und dbxReport und rendert über dbxTPL. Kernel, globale JavaScript-Libs und zentrale UI-Pipelines werden dabei wiederverwendet.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md109"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md110"></a>
 Verhältnis zum verbindlichen Modulhandbuch</h1>
 <p><a class="el" href="dbxapp_module_reference.html" title="Verbindliches Modulhandbuch">Verbindliches Modulhandbuch</a> ist der normative Golden Path und enthält ein vollständiges Referenzmodul. Dieses Kapitel ergänzt Varianten, größere Fachaufteilungen und reale Projektmuster. Bei einem Widerspruch gilt das verbindliche Modulhandbuch zusammen mit den aktuellen Sicherheitsinvarianten.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md110"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md111"></a>
 Modularten</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -63,7 +63,7 @@ Modularten</h1>
 <td class="markdownTableBodyNone">Einbettbares Modul  </td><td class="markdownTableBodyNone">grundsätzlich jedes geeignete Modul  </td><td class="markdownTableBodyNone">Aufruf aus CMS/Templates über <span class="tt">[modul=...]</span>  </td></tr>
 </table>
 <p>Frontend und Administration können getrennt werden. Das hält Rechte, Design, Routen und fachliche Oberfläche übersichtlich.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md111"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md112"></a>
 Vollständige Struktur</h1>
 <div class="fragment"><div class="line">dbx/modules/myTasks/</div>
 <div class="line">  myTasks.class.php</div>
@@ -81,7 +81,7 @@ Vollständige Struktur</h1>
 <div class="line">  tpl/img/myTasks.png</div>
 <div class="line">  README.md</div>
 </div><!-- fragment --><p>Nicht jedes Modul braucht alle Ordner. Ein reines Ausgabemodul kann ohne DD und FD auskommen; ein API-Modul benötigt möglicherweise keine HTML-Templates. Die Trennung von Router, Service und Template bleibt trotzdem sinnvoll.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md112"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md113"></a>
 Konfiguration</h1>
 <p><span class="tt">cfg/config.php</span> legt Aktivierung und Gruppen fest:</p>
 <div class="fragment"><div class="line">&lt;?php</div>
@@ -102,9 +102,9 @@ Konfiguration</h1>
 <div class="line"> </div>
 <div class="line">?&gt;</div>
 </div><!-- fragment --><p>Lesen erfolgt über die zentrale Konfiguration:</p>
-<div class="fragment"><div class="line">$pageSize = (int)dbx()-&gt;get_config(<span class="stringliteral">&#39;myTasks&#39;</span>, <span class="stringliteral">&#39;page_size&#39;</span>);</div>
+<div class="fragment"><div class="line">$pageSize = (int)dbx()-&gt;get_cfg(<span class="stringliteral">&#39;myTasks&#39;</span>, <span class="stringliteral">&#39;page_size&#39;</span>);</div>
 </div><!-- fragment --><p>Keine zweite JSON-/ENV-Konfiguration für dieselben Werte anlegen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md113"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md114"></a>
 Router: klein und eindeutig</h1>
 <p>Datei <span class="tt">myTasks.class.php</span>:</p>
 <div class="fragment"><div class="line">&lt;?php</div>
@@ -147,7 +147,7 @@ Router: klein und eindeutig</h1>
 <li><span class="tt">dbx/modules/dbxShop/dbxShop.class.php</span>: umfangreicher Fachrouter.</li>
 <li><span class="tt">dbx/modules/dbxWorkflow_admin/dbxWorkflow_admin.class.php</span>: delegierender Adminwrapper.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md114"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md115"></a>
 Service-Grundgerüst</h1>
 <p>Datei <span class="tt">include/myTasksService.class.php</span>:</p>
 <div class="fragment"><div class="line">&lt;?php</div>
@@ -187,7 +187,12 @@ Service-Grundgerüst</h1>
 <div class="line"> </div>
 <div class="line">?&gt;</div>
 </div><!-- fragment --><p>Die Serviceklasse darf bei großen Fachbereichen weiter aufgeteilt werden, beispielsweise in Repository, Service, Provideradapter oder Renderer. Der Shop verwendet genau diese Aufteilung.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md115"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md116"></a>
+Große Ablaufklassen ohne Laufzeit-Overhead zerlegen</h2>
+<p>Wenn mehrere Verantwortlichkeiten bewusst denselben Requestzustand teilen, kann eine direkte Trait-Komposition sinnvoller sein als eine Kette von Weiterleitungsobjekten. Verbindlich bleiben dabei fachlich benannte Blöcke, explizite <span class="tt">require_once</span>-Einbindungen und eine kleine sichtbare Hauptklasse. Magic-Dispatch, dynamische Trait-Suche und gegenseitige Service-Abhängigkeiten sind nicht zulässig.</p>
+<p>Die Referenz sind <span class="tt">dbxContent_cms</span> und <span class="tt">dbxShopAdmin</span>: Die Hauptklassen halten nur Zustand, Einstieg und Aktionsvertrag. Form, Report, Page-Aktionen, Tree, Katalog, Bestellung und die einzelnen Medienaufgaben liegen in benannten <span class="tt">*Service.trait.php</span>-Dateien. PHP komponiert diese Methoden direkt in die Klasse; dadurch entstehen weder zusätzliche Serviceobjekte noch zusätzliche Datenbankabfragen. Persistente Fachgrenzen wie <span class="tt">dbxContentCmsPersistenceService</span> bleiben eigenständige Klassen.</p>
+<p>Der Vertrag wird mit <span class="tt">dbxModuleDecomposition_contract_test.php</span> kontrolliert: Die Ablaufklasse bleibt unter 250 Zeilen, ein Verantwortungsblock unter 1000 Zeilen. Quelltextverträge lesen die explizite Komposition über <span class="tt">dbxModuleSourceBundle.php</span>, statt Implementierung zurück in einen Monolithen zu zwingen. Datenzugriff, Ausgabe und Eingaben verwenden auch innerhalb der Blöcke weiterhin <span class="tt">dbxDB</span>, <span class="tt">dbxTPL</span>, <span class="tt">dbxForm</span> und <span class="tt">dbxReport</span>.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md117"></a>
 Datenmodell</h1>
 <p>Eine neue persistente Tabelle erhält eine vollständige DD:</p>
 <div class="fragment"><div class="line">dd/myTask.dd.php -&gt; myTasks|myTask -&gt; Tabelle my_task</div>
@@ -196,7 +201,7 @@ Datenmodell</h1>
 <div class="fragment"><div class="line">fd/myTask-form.fd.php</div>
 <div class="line">fd/rpt-myTask-selection.fd.php</div>
 </div><!-- fragment --><p>Das vollständige DD-/FD-Muster steht unter <a class="el" href="dbxapp_dbxdb_dd_fd.html" title="dbxDB, dbxDD und FD">dbxDB, dbxDD und FD</a>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md116"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md118"></a>
 Formularmethode</h1>
 <div class="fragment"><div class="line"><span class="keyword">public</span> <span class="keyword">function</span> form() {</div>
 <div class="line">    $rid = (int)dbx()-&gt;get_modul_var(<span class="stringliteral">&#39;rid&#39;</span>, 0, <span class="stringliteral">&#39;int&#39;</span>);</div>
@@ -224,7 +229,7 @@ Formularmethode</h1>
 <div class="line">    <span class="keywordflow">return</span> $form-&gt;run();</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>Weitere Möglichkeiten wie einzelne Felder, Callbacks, Shells und eingebettete Reports stehen unter <a class="el" href="dbxapp_dbxform.html" title="dbxForm">dbxForm</a>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md117"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md119"></a>
 Reportmethode</h1>
 <div class="fragment"><div class="line"><span class="keyword">public</span> <span class="keyword">function</span> report() {</div>
 <div class="line">    $db = dbx()-&gt;get_system_obj(<span class="stringliteral">&#39;dbxDB&#39;</span>);</div>
@@ -279,7 +284,7 @@ Reportmethode</h1>
 <div class="line">    <span class="keywordflow">return</span> $report-&gt;run();</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>Multi-Auswahl, Aktionen, HTML-Felder und TPL/Grid-Modus sind unter <a class="el" href="dbxapp_dbxreport.html" title="dbxReport">dbxReport</a> beschrieben.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md118"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md120"></a>
 Templates statt PHP-HTML</h1>
 <div class="fragment"><div class="line"><span class="keywordflow">return</span> dbx()-&gt;get_system_obj(<span class="stringliteral">&#39;dbxTPL&#39;</span>)-&gt;get_tpl(<span class="stringliteral">&#39;myTasks|detail&#39;</span>, array(</div>
 <div class="line">    <span class="stringliteral">&#39;title&#39;</span> =&gt; $row[<span class="stringliteral">&#39;title&#39;</span>],</div>
@@ -301,27 +306,38 @@ Templates statt PHP-HTML</h1>
 <li>Mail-, PDF- oder Drucktemplate innerhalb der dafür vorgesehenen Pipeline.</li>
 </ul>
 <p>Templates können sprachabhängig als <span class="tt">name_de.htm</span>, <span class="tt">name_en.htm</span> usw. vorliegen. dbxTPL verwendet die aktive Sprachvariante und anschließend den neutralen Fallback.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md119"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md121"></a>
+Menüeinträge des aktiven Hauptmoduls</h2>
+<p>Ein Hauptmodul kann einen Eintrag für das vorhandene Benutzer- oder Adminmenü registrieren, ohne ein eigenes Menüsystem aufzubauen:</p>
+<div class="fragment"><div class="line">$menu = dbx()-&gt;get_include_obj(<span class="stringliteral">&#39;dbxMenuSlot&#39;</span>, <span class="stringliteral">&#39;dbxMenu&#39;</span>);</div>
+<div class="line">$menu-&gt;register(<span class="stringliteral">&#39;user&#39;</span>, <span class="stringliteral">&#39;menu-user&#39;</span>, array(<span class="stringliteral">&#39;count&#39;</span> =&gt; $count));</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordflow">if</span> (dbx()-&gt;can(<span class="stringliteral">&#39;admin&#39;</span>)) {</div>
+<div class="line">    $menu-&gt;register(<span class="stringliteral">&#39;admin&#39;</span>, <span class="stringliteral">&#39;menu-admin&#39;</span>);</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>Die Templates <span class="tt">tpl/htm/menu-user.htm</span> und <span class="tt">tpl/htm/menu-admin.htm</span> liefern nur die zum vorhandenen Menü passende Struktur, normalerweise ein oder mehrere <span class="tt">&lt;li&gt;</span>-Elemente. Dynamische Werte werden als Template-Daten übergeben; das Modul wird nicht erneut ausgeführt. Sprachvarianten löst <span class="tt">dbxTPL</span> wie gewohnt auf.</p>
+<p>Die Kunden-Menütemplates entscheiden über die Position. Sie enthalten dafür optional <span class="tt">{dbx:modul_menu_user}</span> beziehungsweise <span class="tt">{dbx:modul_menu_admin}</span>. Fehlt ein Slot oder eine Registrierung, bleibt die Ausgabe leer. Nur das aktive Hauptmodul darf registrieren; eingebettete Module innerhalb eines bereits gerenderten CMS-Inhalts dürfen das Menü nicht nachträglich verändern. Gastabhängige Beiträge müssen für URL, Sprache und Design deterministisch sein, damit sie mit dem Full-Page-Cache verträglich bleiben.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md122"></a>
 Aufrufmöglichkeiten</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md120"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md123"></a>
 Direkter Modulrequest</h2>
 <div class="fragment"><div class="line">?dbx_modul=myTasks&amp;dbx_run1=report</div>
 <div class="line">?dbx_modul=myTasks&amp;dbx_run1=form&amp;rid=12</div>
-</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md121"></a>
+</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md124"></a>
 CMS- oder Template-Inclusion</h2>
 <div class="fragment"><div class="line">[modul=myTasks]dbx_run1=report&amp;status=open[/modul]</div>
-</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md122"></a>
+</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md125"></a>
 Mehrere Instanzen auf derselben Seite</h2>
 <div class="fragment"><div class="line">[modul=myTasks]dbx_run1=report&amp;status=open[/modul]</div>
 <div class="line">[modul=myTasks]dbx_run1=report&amp;status=done[/modul]</div>
 </div><!-- fragment --><p>Form- und Reporttemplates verwenden <span class="tt">{i}</span> in IDs und Targets. Dadurch bleiben Parameter-, AJAX- und UI-Zustände der Instanzen getrennt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md123"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md126"></a>
 Request-Werte</h1>
 <div class="fragment"><div class="line">$rid    = dbx()-&gt;get_modul_var(<span class="stringliteral">&#39;rid&#39;</span>, 0, <span class="stringliteral">&#39;int&#39;</span>);</div>
 <div class="line">$status = dbx()-&gt;get_modul_var(<span class="stringliteral">&#39;status&#39;</span>, <span class="stringliteral">&#39;open&#39;</span>, <span class="stringliteral">&#39;parameter&#39;</span>);</div>
 <div class="line">$search = dbx()-&gt;get_modul_var(<span class="charliteral">&#39;q&#39;</span>, <span class="stringliteral">&#39;&#39;</span>, <span class="stringliteral">&#39;sqlsearch|max=64&#39;</span>);</div>
 </div><!-- fragment --><p>Der dritte Parameter ist die Validatorregel. Werte nicht direkt aus <span class="tt">$_GET</span> oder <span class="tt">$_POST</span> in SQL, Templates oder Dateipfade übernehmen. dbxForm besitzt für seine Felder eine eigene Requestpipeline; der Router liest nur Routenparameter.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md124"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md127"></a>
 AJAX, openWin und Confirm</h1>
 <p>Vorhandene JavaScript-Libs werden deklarativ über Klassen/Datenattribute angebunden:</p>
 <div class="fragment"><div class="line">&lt;a class=&quot;btn btn-primary dbx-win&quot;</div>
@@ -339,7 +355,7 @@ AJAX, openWin und Confirm</h1>
 </div><!-- fragment --><p>Kein zweites Modal-, AJAX- oder Confirm-System im Modul einbauen.</p>
 <p><span class="tt">dbx_ajax=1</span> wird nicht manuell an normale Links angehängt. Nur <span class="tt">ajax.js</span> setzt den Ajax-Kontext für den von ihm ausgeführten Request. Ein Link, der eine vollständige CMS- oder Adminseite öffnen soll, bleibt ohne <span class="tt">dbx_ajax</span>.</p>
 <p>Wenn eine Aktion erst bestätigt und danach in einem Fenster geladen werden soll, dürfen Confirm- und openWin-Handler nicht gleichzeitig denselben Klick verarbeiten. Entweder übernimmt <span class="tt">confirm.js</span> die deklarative Fortsetzung oder der Modulhandler wartet programmatisch auf <span class="tt">dbx.confirm.open()</span> und ruft erst bei <span class="tt">action === "yes"</span> den Ajax-/openWin-Schritt auf.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md125"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md128"></a>
 JSON-API als eigene Route</h1>
 <div class="fragment"><div class="line"><span class="keyword">public</span> <span class="keyword">function</span> api() {</div>
 <div class="line">    $action = dbx()-&gt;get_modul_var(<span class="stringliteral">&#39;action&#39;</span>, <span class="stringliteral">&#39;list&#39;</span>, <span class="stringliteral">&#39;parameter&#39;</span>);</div>
@@ -360,13 +376,13 @@ JSON-API als eigene Route</h1>
 <div class="line">    ));</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>API und HTML sind getrennte Antwortarten. Ein API-Endpunkt rendert kein Formtemplate und eine normale AJAX-Formaktion liefert in der Regel HTML für ihr Target. Rechte gelten für beide Wege identisch.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md126"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md129"></a>
 Frontend- und Adminmodul trennen</h1>
 <p>Empfohlen bei größeren Anwendungen:</p>
 <div class="fragment"><div class="line">myTasks/        öffentliche/benutzerbezogene Anzeige und Aktionen</div>
 <div class="line">myTasks_admin/  Installation, Pflege, Reports und Konfiguration</div>
 </div><!-- fragment --><p>Gemeinsame Fachlogik kann über klar benannte Klassen des Fachmoduls genutzt werden. Das Adminmodul darf aber nicht die Rechteprüfung des Fachmoduls umgehen. Ein gutes reales Muster sind <span class="tt">dbxShop</span> und <span class="tt">dbxShop_admin</span>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md127"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md130"></a>
 Installation und Schema</h1>
 <p>Ein Installationspfad synchronisiert nur die DDs seines Moduls:</p>
 <div class="fragment"><div class="line"><span class="keyword">public</span> <span class="keyword">function</span> install() {</div>
@@ -384,11 +400,11 @@ Installation und Schema</h1>
 <div class="line">    ));</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>Installation ist eine Adminaktion. Sie läuft nicht bei jedem normalen Request.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md128"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md131"></a>
 Assets und Skin-Fähigkeit</h1>
 <p>Modulspezifisches CSS und JavaScript liegen unter <span class="tt">design/css</span> bzw. <span class="tt">design/js</span>. CSS verwendet die vom aktiven Design bereitgestellten Variablen und Komponenten. Farben, Abstände oder Hintergründe nicht so fest verdrahten, dass <span class="tt">dbxapp</span>, <span class="tt">flowers</span> oder weitere Skins unlesbar werden.</p>
 <p>JavaScript erweitert die vorhandenen Libs und initialisiert sich wiederholbar, auch nachdem AJAX neuen HTML-Inhalt eingesetzt hat.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md129"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md132"></a>
 Empfohlene Reihenfolge für ein neues Modul</h1>
 <ol type="1">
 <li>Fachzweck, Benutzergruppen und Routen festlegen.</li>
@@ -403,14 +419,14 @@ Empfohlene Reihenfolge für ein neues Modul</h1>
 <li>Doxygen und Modul-README aktualisieren.</li>
 </ol>
 <p>Der aktuelle <span class="tt">dbxWizard</span> kann ein neues Modul oder Ergänzungen für ein vorhandenes Modul erzeugen. Er validiert Modul- und Dateinamen, beschränkt alle Ziele auf <span class="tt">dbx/modules/{modul}/</span>, kann DD/FD, Router, Service, Formular, Report und Templates generieren und legt vor Überschreibungen Sicherungen unter <span class="tt">files/module-backup/</span> an. Nach der Erzeugung werden PHP-Syntax und die Route mit <span class="tt">dbx/modules/dbxAdmin/tests/dbxWizard_generation_test.php</span> geprüft.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md130"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md133"></a>
 Verbindliche Regeln</h1>
 <ul>
 <li>Modulcode bleibt unter <span class="tt">dbx/modules/{modul}/</span>.</li>
 <li>Router klein halten; Fachlogik in Include-/Serviceklassen.</li>
 <li>Datenzugriff über dbxDB und DD, Eingaben über dbxForm, Listen über dbxReport.</li>
 <li>Ausgabe über dbxTPL; keine großen HTML-Strings in PHP.</li>
-<li>Konfiguration über <span class="tt">cfg/config.php</span> und <span class="tt">dbx()-&gt;get_config()</span>.</li>
+<li>Konfiguration über <span class="tt">cfg/config.php</span> und <span class="tt">dbx()-&gt;get_cfg()</span>.</li>
 <li>Request-Werte mit <span class="tt">get_modul_var()</span> oder dbxForm validieren.</li>
 <li>Bestehende AJAX-, openWin-, Confirm- und Core-Libs verwenden.</li>
 <li>Keine privaten <span class="tt">db()</span>-, <span class="tt">tpl()</span>- oder Escape-Aliase anlegen, die nur vorhandene <span class="tt">dbx()</span>-Methoden weiterreichen.</li>
@@ -420,7 +436,7 @@ Verbindliche Regeln</h1>
 <li>Moduloberflächen bleiben responsive und skin-fähig.</li>
 <li>Reine GET-Navigation bleibt tokenlos. Schreibende GET-Aktionen verwenden den vorhandenen Action-Token zusätzlich zu Modul- und DD-Rechten.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md131"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md134"></a>
 Reale Referenzen</h1>
 <ul>
 <li><span class="tt">dbx/modules/dbxAdmin/include/dbxWizard.class.php</span>: aktueller Generator für Router, Service, DD, FD, Form und Report.</li>

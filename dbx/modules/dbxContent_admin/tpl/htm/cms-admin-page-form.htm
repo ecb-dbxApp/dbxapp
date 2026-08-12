@@ -1,17 +1,17 @@
-<form class="dbx-cms-form" data-cms-form>
+<form class="dbx-cms-form" data-cms-form data-cms-form-scope="page">
  {obj:id}
- {obj:folder}
 	<section class="dbx-form-group dbx-cms-page-section">
 		<details class="dbx-cms-page-panel" data-cms-ui-state="page" open>
-			<summary><i class="bi bi-chevron-right dbx-cms-toggle-icon dbx-cms-toggle-icon-closed"></i><i class="bi bi-chevron-down dbx-cms-toggle-icon dbx-cms-toggle-icon-open"></i><span>Seite</span></summary>
-			<div class="dbx-cms-form-grid dbx-cms-form-grid-page">
-				<div class="dbx-cms-system-field dbx-cms-system-field-title">{obj:title}</div>
-				<div class="dbx-cms-system-field dbx-cms-system-field-menu-title">{obj:menu_title}</div>
-				<div class="dbx-cms-system-field dbx-cms-system-field-permalink">{obj:permalink}</div>
-				<div class="dbx-cms-system-field dbx-cms-system-field-template">{obj:template}</div>
-				<div class="dbx-cms-system-field dbx-cms-system-field-activ">{obj:activ}</div>
-				<div class="dbx-cms-system-field dbx-cms-system-field-description">{obj:description}</div>
-				<div class="dbx-cms-system-field dbx-cms-system-field-keywords">{obj:keywords}</div>
+			<summary><i class="bi bi-chevron-right dbx-cms-toggle-icon dbx-cms-toggle-icon-closed"></i><i class="bi bi-chevron-down dbx-cms-toggle-icon dbx-cms-toggle-icon-open"></i><span>{page_section_title}</span></summary>
+			<div class="dbx-form-grid dbx-form-grid--6">
+				<div class="dbx-form-grid__item">{obj:title}</div>
+				<div class="dbx-form-grid__item">{obj:menu_title}</div>
+				<div class="dbx-form-grid__item">{obj:permalink}</div>
+				<div class="dbx-form-grid__item">{obj:folder}</div>
+				<div class="dbx-form-grid__item">{obj:template}</div>
+				<div class="dbx-form-grid__item">{obj:activ}</div>
+				<div class="dbx-form-grid__item dbx-form-grid__item--full">{obj:description}</div>
+				<div class="dbx-form-grid__item dbx-form-grid__item--full">{obj:keywords}</div>
 			</div>
 		</details>
 	</section>

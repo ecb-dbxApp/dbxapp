@@ -21,7 +21,7 @@ class dbxSession {
   } 
 
   Private function get_new_session($uid) {
-    $config=dbx()->get_config('dbx');
+    $config=dbx()->get_cfg('dbx');
     $cookie=0; if (count($_COOKIE)>0) $cookie=1;
     $oBrowser =dbx()->get_system_obj('dbxBrowser');
     $sid=$this->get_new_session_id($uid);
@@ -51,9 +51,7 @@ class dbxSession {
     $session['record']['request_current']= '';
 
     $session['current_user']=$this->get_current_user($uid);
-    $session['tmp']=array();
     $session['remember']=array();
-    $session['cache']['tpl']=array();
     $session['cache']['obj']=array();
   
     // - - - - - - - - - - -
@@ -157,10 +155,9 @@ class dbxSession {
     dbx()->timer('session-browser');
   }
   public function clean_session() {
-     $cache = dbx()->get_config('dbx','cache');
+     $cache = dbx()->get_cfg('dbx','cache');
      //$cache2 = dbx()->get_system_var('dbx_cache',0);
      //dbx_debug("##clear session cache=($cache)");
-     $_SESSION['dbx']['tmp']  =array();
      $_SESSION['dbx']['norep']=array();
      if (!$cache) {
       //dbx_debug("clear cache config");
@@ -170,8 +167,8 @@ class dbxSession {
   }
 
   public function save_session($rec=1) {
-    $session_db=dbx()->get_config('dbx','session_db');
-    $session_db_guest=(int)dbx()->get_config('dbx','session_db_guest',0) === 1;
+    $session_db=dbx()->get_cfg('dbx','session_db');
+    $session_db_guest=(int)dbx()->get_cfg('dbx','session_db_guest',0) === 1;
     $uid=(int)dbx()->user();
     $existingId=(int)($_SESSION['dbx']['record']['id'] ?? 0);
     if ($session_db && !$session_db_guest && $uid <= 0 && $existingId <= 0) {
@@ -372,7 +369,7 @@ class dbxSession {
           session_destroy();
        }
 
-       dbx_delete_cookie('dbXwebApp');
+       dbx()->delete_cookie('dbXwebApp');
    }
 
    public function login($uid,$remember=0) {

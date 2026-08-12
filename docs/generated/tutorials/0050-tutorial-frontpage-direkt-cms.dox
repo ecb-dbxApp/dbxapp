@@ -11,12 +11,11 @@
 
 @htmlonly
 <div class="dbx-tutorial-source">
-<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_frontpage_direkt_cms.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
 <p>Content direkt aus der sichtbaren Frontpage im CMS öffnen.</p><p>Nutzen Sie die Slideshow, um die einzelnen Schritte in Ruhe durchzugehen.</p>
 </div>
 @endhtmlonly
 
-## Screenshots aus dbxContent (35)
+## Screenshots aus dbxContent (7)
 
 @htmlonly
 <div class="dbx-tutorial-gallery">
@@ -34,62 +33,6 @@
 @image html dbxcontent-media-280-aktuelle-seite-geladen.png "Beim Frontpage-Aufruf gibt es keinen Umweg: Sie bearbeiten die Seite, die im Frontend sichtbar war."
 
 @image html dbxcontent-media-377-dbxapp-ki.webp "dbxapp KI"
-
-@image html dbxcontent-media-341-dbxapp-laptop-sleeve.webp "dbxapp Laptop Sleeve"
-
-@image html dbxcontent-media-342-dbxapp-smartphone-huelle.webp "dbxapp Smartphone-Huelle"
-
-@image html dbxcontent-media-343-dbxapp-beanie.webp "dbxapp Beanie"
-
-@image html dbxcontent-media-344-dbxapp-socken.webp "dbxapp Socken"
-
-@image html dbxcontent-media-345-dbxapp-poster.webp "dbxapp Poster"
-
-@image html dbxcontent-media-346-dbxapp-schluesselanhaenger.webp "dbxapp Schluesselanhaenger"
-
-@image html dbxcontent-media-347-dbxapp-powerbank.webp "dbxapp Powerbank"
-
-@image html dbxcontent-media-348-dbxapp-usb-stick.webp "dbxapp USB-Stick"
-
-@image html dbxcontent-media-349-dbxapp-thermobecher.webp "dbxapp Thermobecher"
-
-@image html dbxcontent-media-350-dbxapp-trinkflasche.webp "dbxapp Trinkflasche"
-
-@image html dbxcontent-media-351-dbxapp-stofftasche.webp "dbxapp Stofftasche"
-
-@image html dbxcontent-media-352-dbxapp-lanyard.webp "dbxapp Lanyard"
-
-@image html dbxcontent-media-353-dbxapp-kugelschreiber-set.webp "dbxapp Kugelschreiber Set"
-
-@image html dbxcontent-media-354-dbxapp-notizbuch.webp "dbxapp Notizbuch"
-
-@image html dbxcontent-media-355-dbxapp-sticker-set.webp "dbxapp Sticker Set"
-
-@image html dbxcontent-media-356-dbxapp-deskmat.webp "dbxapp Deskmat"
-
-@image html dbxcontent-media-357-dbxapp-mauspad-xl.webp "dbxapp Mauspad XL"
-
-@image html dbxcontent-media-358-dbxapp-mauspad-classic.webp "dbxapp Mauspad Classic"
-
-@image html dbxcontent-media-359-dbxapp-kaffeetasse-weiss.webp "dbxapp Kaffeetasse Weiss"
-
-@image html dbxcontent-media-360-dbxapp-kaffeetasse-blau.webp "dbxapp Kaffeetasse Blau"
-
-@image html dbxcontent-media-361-hoodie-mit-dbxapp-logo.webp "Hoodie mit dbxapp Logo"
-
-@image html dbxcontent-media-362-hoodie.svg "Hoodie"
-
-@image html dbxcontent-media-363-kappe-mit-dbxapp-logo.webp "Kappe mit dbxapp Logo"
-
-@image html dbxcontent-media-364-kappe.svg "Kappe"
-
-@image html dbxcontent-media-365-t-shirt-mit-dbxapp-logo.webp "T-Shirt mit dbxapp Logo"
-
-@image html dbxcontent-media-366-t-shirt.svg "T-Shirt"
-
-@image html dbxcontent-media-367-zubehoer.svg "Zubehoer"
-
-@image html dbxcontent-media-368-service-und-schulung.svg "Service und Schulung"
 
 @htmlonly
 </div>

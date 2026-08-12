@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="textblock"><p><a class="anchor" id="md_16___design___k_i___referenz"></a></p>
 <p>Stand: 2026-07-14</p>
 <p>Diese Datei ist der verbindliche Arbeitskontext für KI-Agenten bei Aufgaben an Designs, Themes, Skins, Menüs und Design-Fenstern. Die erklaerende Menschen-Dokumentation steht unter <a class="el" href="dbxapp_design_themes_skins.html" title="Design, Themes und Skins">Design, Themes und Skins</a>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md239"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md244"></a>
 Geltungsbereich</h1>
 <div class="fragment"><div class="line">domain: dbxapp-design</div>
 <div class="line">frontend_design_root: dbx/design</div>
@@ -58,7 +58,7 @@ Geltungsbereich</h1>
 <div class="line">  - dbxapp</div>
 <div class="line">  - flowers</div>
 <div class="line">admin_default_design: dbxapp</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md240"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md245"></a>
 Unveraenderliche Architekturregeln</h1>
 <ol type="1">
 <li>Ein Design ist ein eigenständiges Paket unter <span class="tt">dbx/design/{name}</span>.</li>
@@ -73,7 +73,7 @@ Unveraenderliche Architekturregeln</h1>
 <li>Keine neue iframe-, Ajax-, Fenster- oder Persistenzarchitektur ohne einen ausdrücklichen Auftrag und eine Aktualisierung dieser Dokumentation.</li>
 <li>Geführte Design-Erstellung und Design-KI laufen über <span class="tt">dbxDesign_admin</span> beziehungsweise <span class="tt">dbxKiDesignService</span>; freie Dateischreibwege sind kein Ersatz.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md241"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md246"></a>
 Kanonische Laufzeitwerte</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -102,7 +102,7 @@ Kanonische Laufzeitwerte</h1>
 <div class="fragment"><div class="line">default_design_user: dbxapp</div>
 <div class="line">default_design_admin: dbxapp</div>
 <div class="line">default_color: blau</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md242"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md247"></a>
 Vor jeder Designaenderung lesen</h1>
 <p>Mindestens diese Dateien prüfen:</p>
 <div class="fragment"><div class="line">15_Design_Themes_Skins.md</div>
@@ -123,9 +123,9 @@ Vor jeder Designaenderung lesen</h1>
 <div class="line">dbx/design/flowers/css/colors.css</div>
 <div class="line">dbx/design/flowers/css/skin-hell.css</div>
 <div class="line">dbx/design/flowers/css/skin-dunkel.css</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md243"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md248"></a>
 Aktuelle Designvertraege</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md244"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md249"></a>
 dbxapp</h2>
 <div class="fragment"><div class="line">id: dbxapp</div>
 <div class="line">purpose: technisches Standard- und Admin-Design</div>
@@ -138,7 +138,7 @@ dbxapp</h2>
 <div class="line">  hell: Hell</div>
 <div class="line">  dunkel: Dunkel</div>
 <div class="line">default_skin: blau</div>
-</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md245"></a>
+</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md250"></a>
 flowers</h2>
 <div class="fragment"><div class="line">id: flowers</div>
 <div class="line">purpose: organisches Frontend für Blumen- und Pflanzenhandel</div>
@@ -156,13 +156,13 @@ flowers</h2>
 <div class="line">default_skin: hell</div>
 <div class="line">design_script: dbx/design/flowers/js/flowers.js</div>
 </div><!-- fragment --><p>Andere vorhandene Flowers-Dateien mit Namen wie <span class="tt">skin-blau.css</span> sind keine Freigabe, diese Varianten im Menü anzuzeigen. Die sichtbaren Optionen werden in <span class="tt">dbxMenu::skin_options()</span> festgelegt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md246"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md251"></a>
 Design-Erkennung und Auswahl</h1>
 <p><span class="tt">dbxMenu::frontend_design_options()</span> erkennt Verzeichnisse nach diesem Vertrag:</p>
 <div class="fragment"><div class="line">include, wenn: dbx/design/{name}/htm/default.htm existiert</div>
 <div class="line">exclude, wenn: {name} mit _ oder - beginnt</div>
 </div><!-- fragment --><p>Eine KI darf für ein neues Design keine zweite statische Designliste einführen. Beschriftungen werden derzeit aus dem Verzeichnisnamen abgeleitet; <span class="tt">dbxapp</span> erhält die Sonderbeschriftung <span class="tt">dbxapp</span>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md247"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md252"></a>
 Template-Vertrag</h1>
 <p>Ein <span class="tt">default.htm</span> muss die folgenden Aufgaben erfuellen:</p>
 <div class="fragment"><div class="line">required:</div>
@@ -187,7 +187,7 @@ Template-Vertrag</h1>
 <div class="line">  - &quot;[dbx:branding] -&gt; htm/branding.htm&quot;</div>
 <div class="line">  - &quot;[dbx:footer] -&gt; htm/footer.htm&quot;</div>
 </div><!-- fragment --><p>Beim Kopieren eines Design-Templates sind harte Pfade auf das Ursprungsdesign vollständig zu ersetzen. Nur Vendor- und zentrale dbxapp-Ressourcen bleiben gemeinsam.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md248"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md253"></a>
 CSS-Vertrag</h1>
 <div class="fragment"><div class="line">colors.css: semantische Tokens und designweite Variablen</div>
 <div class="line">skin-*.css: Skinwerte und Kontrastmodus</div>
@@ -203,7 +203,7 @@ CSS-Vertrag</h1>
 <div class="line">Fachkomponente?       -&gt; dbx/modules/{modul}/design/</div>
 <div class="line">Verhalten?            -&gt; vorhandene Core-Lib oder Design-JS</div>
 </div><!-- fragment --><p>Keine unnötigen <span class="tt">!important</span>-Ketten erzeugen. Vor einem <span class="tt">z-index</span>-Fix zuerst Stacking Contexts (<span class="tt">position</span>, <span class="tt">transform</span>, <span class="tt">filter</span>, <span class="tt">overflow</span>, <span class="tt">isolation</span>) der beteiligten Eltern prüfen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md249"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md254"></a>
 Fenster und Admin-Inhalte</h1>
 <p>Aktueller Ist-Zustand:</p>
 <div class="fragment"><div class="line">iframe_isolation: false</div>
@@ -213,7 +213,7 @@ Fenster und Admin-Inhalte</h1>
 <div class="line">open_window_shell_owner: calling_frontend</div>
 <div class="line">admin_component_style_owner: admin_module</div>
 </div><!-- fragment --><p>Die Bezeichnung <span class="tt">_adminWin</span> ist eine moegliche spätere Zielrichtung, aber keine aktuelle Datei oder Runtime-Regel. Eine KI darf sie nicht dokumentieren oder verwenden, bevor Implementierung, Fallback und Tests existieren.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md250"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md255"></a>
 Erlaubte Änderungen</h1>
 <ul>
 <li>Ein bestehendes Design visuell verbessern.</li>
@@ -223,7 +223,7 @@ Erlaubte Änderungen</h1>
 <li>Design-spezifische responsive oder Accessibility-Fixes vornehmen.</li>
 <li>Das Flowers-Menü scroll- und dropdownfaehig halten.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md251"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md256"></a>
 Nicht ohne ausdrücklichen Auftrag</h1>
 <ul>
 <li><span class="tt">default_design_admin</span> von <span class="tt">dbxapp</span> wegschalten.</li>
@@ -234,7 +234,7 @@ Nicht ohne ausdrücklichen Auftrag</h1>
 <li>neue Skin-IDs ohne server- und clientseitige Normalisierung einführen.</li>
 <li>eine <span class="tt">_adminWin</span>- oder iframe-Architektur nur teilweise implementieren.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md252"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md257"></a>
 Arbeitsablauf für KI-Agenten</h1>
 <ol type="1">
 <li>Auftrag einer Ebene zuordnen: globales Design, Skin, Systemkomponente oder Modulkomponente.</li>
@@ -256,7 +256,7 @@ Arbeitsablauf für KI-Agenten</h1>
 <div class="line">  -&gt; dbxForm-Freigabe</div>
 <div class="line">  -&gt; Backup + Staging + vollständige Vertragsprüfung</div>
 </div><!-- fragment --><p>Die KI liefert nur Dateien unter <span class="tt">result/design/</span>. PHP, Module, DD, FD, Datenbankaktionen und freie Shell-Anweisungen sind in diesem Vertrag verboten.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md253"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md258"></a>
 Mindesttests</h1>
 <div class="fragment"><div class="line">pages:</div>
 <div class="line">  - frontend_home</div>
@@ -282,7 +282,7 @@ Mindesttests</h1>
 <div class="line">  - core_libraries_loaded</div>
 <div class="line">  - design_choice_persisted</div>
 <div class="line">  - admin_module_uses_admin_design</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md254"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md259"></a>
 Abschlussbericht einer KI</h1>
 <p>Der Bericht nennt:</p>
 <ol type="1">

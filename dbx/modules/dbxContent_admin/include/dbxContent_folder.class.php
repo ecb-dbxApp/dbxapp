@@ -135,8 +135,8 @@ class dbxFolder_edit extends \dbxObj {
        $db  = dbx()->get_system_obj('dbxDB');
        $lng = dbx()->get_system_var('dbx_lng','de');
 
-       $dd_content = dbx_lng_name('content', $lng);
-       $dd_folder = dbx_lng_name('content_folder', $lng);
+       $dd_content = dbx()->lng_name('content', $lng);
+       $dd_folder = dbx()->lng_name('content_folder', $lng);
 
 
        $data         =$db->select1($dd_folder,$rid);
@@ -252,8 +252,8 @@ Class dbxContent_folder {
       $oDB     = dbx()->get_system_obj('dbxDB');
       $lng     = dbx()->get_modul_var('lng','de');
 
-      $dd_content = dbx_lng_name('content', $lng);
-      $dd_folder = dbx_lng_name('content_folder', $lng);
+      $dd_content = dbx()->lng_name('content', $lng);
+      $dd_folder = dbx()->lng_name('content_folder', $lng);
       $dd_groups = 'dbxUser_groups';
 
       $rid=dbx()->get_modul_var('rid',0,'int');
@@ -326,8 +326,8 @@ Class dbxContent_folder {
       $oReport->add_action('rows_activate'  ,'action_button_activate'  ,'&dbx_run2=multi_activate');
       $oReport->add_action('rows_deactivate','action_button_deactivate','&dbx_run2=multi_deactivate');
 
-      $work=$oReport->get_sel('dbx_run2');
-      $rid =$oReport->get_sel('rid',0,'int');
+      $work=$oReport->get_fld_val('dbx_run2','','parameter');
+      $rid =$oReport->get_fld_val('rid',0,'int|min=0');
 
 
       if($oReport->submit()) {
@@ -341,13 +341,18 @@ Class dbxContent_folder {
 
       // get all selections and order
       $rgroup='';
-      $rwhere=$oReport->get_sel('dbx_rwhere','');
-      $rrows =$oReport->get_sel('dbx_rrows',10);
-      $rpos  =$oReport->get_sel('dbx_rpos',0);
-      $rsort =$oReport->get_sel('dbx_rsort','id');
-      $rdesc =$oReport->get_sel('dbx_rdesc','ASC');
+      $rwhere=$oReport->get_fld_val('dbx_rwhere','','varchar|trim');
+      $rrows =$oReport->get_fld_val('dbx_rrows',10,'int|min=1|max=1000');
+      $rpos  =$oReport->get_fld_val('dbx_rpos',0,'int|min=0');
+      $rsort =$oReport->get_fld_val('dbx_rsort','id','parameter');
+      $rdesc =strtoupper((string)$oReport->get_fld_val('dbx_rdesc','ASC','parameter'));
+      if (!in_array($rdesc, array('ASC', 'DESC'), true)) $rdesc = 'ASC';
 
-      if ($rwhere) $rwhere="title  LIKE '$rwhere%' ";
+      if ($rwhere) {
+         $server = $oDB->get_dd_server($dd_folder);
+         $needle = $oDB->escape_like($rwhere, $server);
+         $rwhere = "name LIKE '$needle%'";
+      }
       $oReport->_rcount=$oDB->count($dd_folder,$rwhere);
       $oReport->_rdata =$oDB->select($dd_folder,$rwhere,$flds,$rsort,$rdesc,$rgroup,$rrows,$rpos);
 

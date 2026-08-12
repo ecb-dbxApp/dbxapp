@@ -271,9 +271,9 @@ class dbxContactList {
       $status = dbxContactTicket::normalizeStatus((string) ($ticket['status'] ?? 'open'));
 
       return $this->tpl()->get_tpl('dbxContact|contact-ticket-detail', array(
-         'bar_class' => 'dbx-module-bar',
-         'bar_title_class' => 'dbx-module-bar-titleblock',
-         'bar_actions_class' => 'dbx-module-bar-actions',
+         'bar_class' => 'dbx-bar--module',
+         'bar_title_class' => 'dbx-bar-title',
+         'bar_actions_class' => 'dbx-bar-actions',
          'bar_title_pre' => '',
          'bar_title_heading_attrs' => '',
          'bar_icon' => 'bi-life-preserver',

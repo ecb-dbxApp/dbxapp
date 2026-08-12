@@ -8,7 +8,7 @@ oder JavaScript-Libs eingebunden.
 
 | Library | Verwendung | Link |
 | --- | --- | --- |
-| jQuery (`components/jquery`) | DOM/AJAX-Basis für Teile der UI | https://jquery.com/ |
+| jQuery 4.0 (`components/jquery`) | DOM/AJAX-Basis für Teile der UI | https://jquery.com/ |
 | Bootstrap (`twbs/bootstrap`) | Layout, Komponenten, Styles | https://getbootstrap.com/ |
 | Bootstrap Icons (`twbs/bootstrap-icons`) | Icons in Buttons, Menüs, Panels | https://icons.getbootstrap.com/ |
 | PHPMailer (`phpmailer/phpmailer`) | Mailversand | https://github.com/PHPMailer/PHPMailer |
@@ -18,17 +18,16 @@ oder JavaScript-Libs eingebunden.
 
 ## Add-ons
 
-| Add-on | Verwendung | Link |
-| --- | --- | --- |
-| Ace Editor | Source-/Template-Editor | https://ace.c9.io/ |
-| GLightbox | Lightbox für Medien/Galerien | https://biati-digital.github.io/glightbox/ |
-| jsTree | Baumdarstellungen, z.B. CMS/Struktur | https://www.jstree.com/ |
-| PureCounter | animierte Zähler | https://github.com/srexi/purecounterjs |
-| Remix Icon | Iconset | https://remixicon.com/ |
-| Tabulator | interaktive Tabellen/Grid | https://tabulator.info/ |
-| jsPDF | PDF-Erzeugung im Browser | https://github.com/parallax/jsPDF |
-| jsPDF AutoTable | Tabellen in jsPDF | https://github.com/simonbengtsson/jsPDF-AutoTable |
-| SheetJS/xlsx | Excel/XLSX Import/Export | https://sheetjs.com/ |
+| Add-on | Version | Verwendung | Link |
+| --- | --- | --- | --- |
+| Ace Editor | 1.44.0 | Source-/Template-Editor | https://ace.c9.io/ |
+| GLightbox | 3.3.1 | Lightbox für Medien/Galerien | https://biati-digital.github.io/glightbox/ |
+| PureCounter | 1.5.0 | animierte Zähler | https://github.com/srexi/purecounterjs |
+| Remix Icon | 4.9.1 | Iconset | https://remixicon.com/ |
+| Tabulator | 6.5.2 | interaktive Tabellen/Grid | https://tabulator.info/ |
+| jsPDF | 4.2.1 | PDF-Erzeugung im Browser | https://github.com/parallax/jsPDF |
+| jsPDF AutoTable | 5.0.8 | Tabellen in jsPDF | https://github.com/simonbengtsson/jsPDF-AutoTable |
+| SheetJS/xlsx | 0.20.3 | Excel/XLSX Import/Export | https://sheetjs.com/ |
 
 ## Verwendung in dbxapp
 
@@ -39,6 +38,10 @@ Beispiele:
 
 - Tabulator wird über `grid.js` und `dbxReport` Grid-Modus verwendet.
 - Ace wird über `ace.js` für Editorbereiche verwendet.
+- `dbx/js/lib/dbxJstree.js` ist die vollständige dbxapp-Bibliothek
+  dbxJstree 1.0.0 für Baumdarstellungen auf jQuery 4.x. Sie basiert auf
+  jsTree 3.3.17 (MIT); das frühere separate jsTree-Add-on wird nicht mehr
+  ausgeliefert.
 - Bootstrap Icons werden in Templates für Aktionen verwendet.
 - PHPMailer wird über `dbxMail` genutzt.
 

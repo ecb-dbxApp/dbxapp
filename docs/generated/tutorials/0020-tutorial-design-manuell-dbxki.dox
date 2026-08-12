@@ -11,7 +11,6 @@
 
 @htmlonly
 <div class="dbx-tutorial-source">
-<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_design_manuell_dbxki.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
 <section class="dbx-tutorial-intro">
 <h2>Designs in dbxapp: manuell erstellen und mit dbxKi entwickeln</h2>
 <p>Ein dbxapp-Design verändert die Darstellung und die Seitenaufteilung, nicht die Fachlogik. Menüs, Rechte, Module, Ajax, <code>openWin</code>, <code>dbxForm</code>, <code>dbxReport</code> und dbxContent bleiben dadurch kompatibel. Dieses Tutorial zeigt beide vorgesehenen Wege: den geführten Design-Wizard für eine kontrollierte manuelle Erstellung und dbxKi für umfangreiche, KI-gestützte Entwürfe oder Änderungen.</p>

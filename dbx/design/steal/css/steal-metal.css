@@ -165,7 +165,6 @@ body.dbx-steal :is(
     .dbx-box,
     .dbx-panel,
     .dbx-bar,
-    .dbx-module-bar,
     .accordion-item,
     .list-group-item,
     .modal-content,
@@ -192,7 +191,7 @@ body.dbx-steal :is(.card-header, .card-footer, .modal-header, .modal-footer, .of
 }
 
 body.dbx-steal :is(.card, .modal-content, .offcanvas) :is(h1, h2, h3, h4, h5, h6),
-body.dbx-steal .dbx-module-bar {
+body.dbx-steal .dbx-bar--module {
     text-shadow: 0 1px 0 rgba(255, 255, 255, .75);
 }
 
@@ -398,7 +397,7 @@ body.dbx-steal *::-webkit-scrollbar-thumb {
         width: 32vw;
     }
 
-    body.dbx-steal :is(.card, .dbx-card, .dbx-box, .dbx-panel, .dbx-bar, .dbx-module-bar) {
+    body.dbx-steal :is(.card, .dbx-card, .dbx-box, .dbx-panel, .dbx-bar) {
         border-radius: .45rem;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .75), 0 5px 16px rgba(13, 17, 20, .18);
     }
@@ -434,7 +433,6 @@ body.dbx-steal *::-webkit-scrollbar-thumb {
  */
 body.dbx-steal {
     --dbx-primary: #2d6f8b;
-    --dbx-primary-dark: #17475c;
     --dbx-bg-main: #aeb7bb;
     --dbx-bg-panel: #bdc5c9;
     --dbx-panel-bg-top: #dce1e3;

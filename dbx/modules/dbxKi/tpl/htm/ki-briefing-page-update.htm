@@ -15,6 +15,8 @@
    </div>
   </header>
 
+  {workflow_hint}
+
   <div class="dbx-ki-update-workspace">
    <aside class="dbx-ki-tree-panel">
     <div class="dbx-ki-panel-head">
@@ -66,6 +68,10 @@
        <label><input type="checkbox" name="change_description" value="1" {field_description_checked}> <span>Beschreibung</span></label>
        <label><input type="checkbox" name="change_hero" value="1" {field_hero_checked}> <span>Hero-Bild</span></label>
       </div>
+      <div class="dbx-ki-radio-stack mt-2">
+       <label><input type="radio" name="hero_mode" value="replace" {hero_mode_replace_checked}> <span>Bestehende Hero-Datei ersetzen</span></label>
+       <label><input type="radio" name="hero_mode" value="create" {hero_mode_create_checked}> <span>Neues Hero-Medium anlegen und zuweisen</span></label>
+      </div>
       <textarea class="form-control form-control-sm mt-2" name="hero_brief" rows="2" placeholder="Nur wenn Hero-Bild geaendert wird: Motiv / Stimmung">{hero_brief}</textarea>
      </section>
 
@@ -73,18 +79,26 @@
       <h3>Bootstrap-Komponenten</h3>
       <p class="dbx-ki-help dbx-ki-help-top">Nur auswaehlen, wenn die KI diese Bausteine beim Content-Update verwenden darf.</p>
       <div class="dbx-ki-checkgrid dbx-ki-component-grid">
-       {bootstrap_component_choices}
+       {obj:comp_alert}
+       {obj:comp_card}
+       {obj:comp_list_group}
+       {obj:comp_badges}
+       {obj:comp_buttons}
+       {obj:comp_table}
+       {obj:comp_accordion}
+       {obj:comp_tabs}
       </div>
      </section>
 
      <section class="dbx-ki-card">
       <h3>Medien &amp; Module</h3>
       <div class="dbx-ki-radio-stack">
+       <label><input type="radio" name="embedded_policy" value="modify" {embedded_policy_modify_checked}> <span>Aendern/Hinzufuegen</span></label>
        <label><input type="radio" name="embedded_policy" value="preserve" {embedded_policy_preserve_checked}> <span>Nicht aendern</span></label>
        <label><input type="radio" name="embedded_policy" value="reorder" {embedded_policy_reorder_checked}> <span>Neu anordnen</span></label>
        <label><input type="radio" name="embedded_policy" value="remove" {embedded_policy_remove_checked}> <span>Entfernen</span></label>
       </div>
-      <textarea class="form-control form-control-sm mt-2" name="embedded_change_notes" rows="2" placeholder="Was genau neu anordnen oder entfernen?">{embedded_change_notes}</textarea>
+      <textarea class="form-control form-control-sm mt-2" name="embedded_change_notes" rows="2" placeholder="Was genau aendern, hinzufuegen, neu anordnen oder entfernen?">{embedded_change_notes}</textarea>
      </section>
 
      <section class="dbx-ki-card">

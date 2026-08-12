@@ -170,6 +170,7 @@ class dbxReport_Server extends \dbxReport {
             $but['href']  =$action.'&dbx_run3=create_db&rid='.$server;
             $but['label'] ='DB';
             $but['class'] ='btn-inline'; 
+            $but['title'] = 'DB';
             $but['tooltip'] = $this->get_fd_message('connection_check');
 
             $but_connect=$oTPL->get_tpl('dbx|button_dbcreate',$but);
@@ -346,7 +347,7 @@ Class dbxServer extends \dbxObj {
         }
 
         $config = dbx()->get_system_obj('dbxConfigStore')->normalize_for_store($config);
-        $content = "<?php \n" . dbx_convertArrayToPHPCode($config, '$config');
+        $content = "<?php \n" . dbx()->convert_array_to_php_code($config, '$config');
         $ok = file_put_contents($file, $content);
 
         if ($ok) {
@@ -595,7 +596,7 @@ Class dbxServer extends \dbxObj {
             unset($oDB->db[$server]);
         }
 
-        $config = dbx()->get_config('dbx', 'db');
+        $config = dbx()->get_cfg('dbx', 'db');
         $dbConfig = is_array($config) && isset($config[$server]) && is_array($config[$server]) ? $config[$server] : array();
         if (!$oDB->db_server_config_is_active((string)$server, $dbConfig)) {
             $msg['msg'] = $texts->format_fd_message('server_disabled', array('server' => $server));

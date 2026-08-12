@@ -2,16 +2,16 @@
  <label class="dbx-cms-upload-drop" data-cms-dropzone>
   <input type="file" name="file" accept="image/*,video/*,.pdf" multiple>
   <span class="dbx-cms-upload-icon"><i class="bi bi-cloud-arrow-up"></i></span>
-  <span class="dbx-cms-upload-text" data-cms-upload-label>Medium hochladen oder hier ablegen</span>
+  <span class="dbx-cms-upload-text" data-cms-upload-label>{upload_drop_label}</span>
  </label>
  <div class="dbx-cms-upload-target">
   <label class="dbx-cms-upload-folder-label">
-   <span class="form-label small mb-1">Zielordner</span>
-   <select class="form-select form-select-sm" name="media_folder" data-cms-upload-folder title="Zielordner fuer Upload"></select>
+   <span class="form-label small mb-1">{upload_folder_label}</span>
+   <select class="form-select form-select-sm" name="media_folder" data-cms-upload-folder data-dbx-tooltip="{upload_folder_title}"></select>
   </label>
-  <button type="submit" class="btn btn-primary btn-sm" title="Medium hochladen und einfuegen">
+  <button type="submit" class="btn btn-primary btn-sm" data-dbx-tooltip="{upload_submit_title}">
    <i class="bi bi-upload"></i>
-   <span>Upload</span>
+   <span>{upload_label}</span>
   </button>
  </div>
  <input type="hidden" name="slot" value="inline">

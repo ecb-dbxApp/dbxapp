@@ -58,25 +58,20 @@ Class dbxMenu {
           'language_title',
           array('language' => $lngMeta['label'])
        );
-        $docsDisplay = stripos((string)$menu, 'dbx-docs-main') !== false;
         $activeDesign = $this->active_frontend_design();
         $data['design_active']       = $activeDesign;
-        $data['design_active_label'] = $docsDisplay ? 'dbxapp (Blau)' : $this->design_label($activeDesign);
-        $activeSkin = $this->normalize_design_skin($activeDesign, dbx()->get_skin());
-        $data['design_skin_menu']      = $this->render_design_skin_menu(
-           $baseSelf,
-           $activeDesign,
-           $activeSkin,
-           $docsDisplay
+        $data['design_active_label'] = $this->design_label($activeDesign);
+        $data['design_menu']         = $this->render_design_menu($baseSelf, $activeDesign);
+        $data['design_toggle_title'] = $this->texts()->format_fd_message(
+           'design_title',
+           array('design' => $data['design_active_label'])
         );
-        $data['design_toggle_title']  = $this->texts()->format_fd_message(
-           'display_title',
-           array(
-              'design' => $data['design_active_label'],
-              'skin' => $docsDisplay
-                 ? ($activeSkin === 'dunkel' ? 'Dark' : 'Light')
-                 : $this->skin_label($activeDesign, $activeSkin),
-           )
+        $nightActive = dbx()->get_skin() === 'dunkel';
+        $data['theme_toggle_url']   = $this->theme_toggle_url($baseSelf, $nightActive);
+        $data['theme_toggle_icon']  = $nightActive ? 'bi-moon-stars-fill' : 'bi-sun';
+        $data['theme_toggle_title'] = $this->texts()->format_fd_message(
+           'theme_title',
+           array('mode' => $this->texts()->get_fd_message($nightActive ? 'theme_night' : 'theme_day'))
         );
        $openContactCount = $this->open_contact_count($menu);
        $data['contact_open_count'] = $openContactCount;
@@ -100,6 +95,35 @@ Class dbxMenu {
      }
 
      return $content;
+   }
+
+   /**
+    * Ersetzt die opt-in Slots der Kunden-Menuevorlage. Ohne Slot wird weder
+    * die Registrierungsablage gelesen noch ein Modul-Template gerendert.
+    */
+   private function replace_module_menu_slots(string $content): string {
+      $markers = array(
+         'user' => '{dbx:modul_menu_user}',
+         'admin' => '{dbx:modul_menu_admin}',
+      );
+      if (strpos($content, $markers['user']) === false
+          && strpos($content, $markers['admin']) === false) {
+         return $content;
+      }
+
+      try {
+         $slots = dbx()->get_include_obj('dbxMenuSlot', 'dbxMenu');
+         foreach ($markers as $area => $marker) {
+            if (strpos($content, $marker) !== false) {
+               $content = str_replace($marker, $slots->render($area), $content);
+            }
+         }
+      } catch (\Throwable $e) {
+         dbx()->debug('[dbxMenu] Modul-Menues konnten nicht gerendert werden: ' . $e->getMessage());
+         $content = str_replace(array_values($markers), '', $content);
+      }
+
+      return $content;
    }
 
    private function open_contact_count(string $menu): int {
@@ -174,7 +198,7 @@ Class dbxMenu {
             'editor_level_item',
             array('level' => $level, 'label' => $this->editor_level_label($level))
          ));
-         $html .= '<a class="dbxEditLevel" href="' . $url . '" title="' . $title . '">';
+         $html .= '<a class="dbxEditLevel" href="' . $url . '" data-dbx-tooltip="' . $title . '">';
          $html .= '<i class="bi ' . $icon . '"></i>';
          $html .= '<span>' . $item . '</span>';
          $html .= '</a>';
@@ -201,7 +225,7 @@ Class dbxMenu {
    }
 
    private function language_options(): array {
-      $config = dbx()->get_config('dbx');
+      $config = dbx()->get_cfg('dbx');
       $accessible = $config['accessible_lng'] ?? 'de,en,es';
 
       if (!is_array($accessible)) {
@@ -257,7 +281,8 @@ Class dbxMenu {
          $codeLabel = htmlspecialchars(strtoupper($code), ENT_QUOTES, 'UTF-8');
 
          $html .= '<li' . $class . '>';
-         $html .= '<a class="dbxLngOpt" href="' . $url . '" title="' . $label . '">';
+         $html .= '<a class="dbxLngOpt' . ($code === $activeLng ? ' is-active' : '')
+             . '" href="' . $url . '" data-dbx-tooltip="' . $label . '">';
          $html .= '<span class="dbx-lng-flag" data-dbx-flag="' . $flag . '" aria-hidden="true"></span>';
          $html .= '<span class="dbx-lng-code">' . $codeLabel . '</span>';
          $html .= '</a>';
@@ -302,19 +327,76 @@ Class dbxMenu {
    }
 
    private function design_label(string $design): string {
-      if (strtolower($design) === 'dbxapp') {
+      $key = strtolower($design);
+      if ($key === 'dbxapp') {
          return 'dbXapp';
       }
-      if (strtolower($design) === 'dbxdocs') {
-         return 'dbXapp Dokumentation';
+      if ($key === 'dbxdocs') {
+         return 'dbxdocs';
       }
 
       $label = trim(str_replace(array('-', '_'), ' ', $design));
       return $label !== '' ? ucfirst($label) : $design;
    }
 
+   /**
+    * Erstellt den GET-Aufruf fuer einen Design-Wechsel. Der Farbzustand
+    * (Tag/Nacht) bleibt dabei unangetastet - normalize_skin() faengt es
+    * automatisch ab, falls das Zieldesign den aktuellen Skin nicht kennt.
+    */
+   private function design_url(string $url, string $design): string {
+      $oWeb = dbx()->get_system_obj('dbxWebApp');
+
+      return $oWeb->append_route_params(
+         $oWeb->normalize_self_url($url),
+         array('dbx_design' => $design)
+      );
+   }
+
+   /**
+    * Rendert die flache Design-Auswahl (kein Skin-Untermenue mehr). Der
+    * Tag/Nacht-Wechsel ist ein eigenes, separates Menue-Icon
+    * (siehe theme_toggle_url()) und wirkt designuebergreifend.
+    */
+   private function render_design_menu(string $baseSelf, string $activeDesign): string {
+      $html = '';
+
+      foreach ($this->frontend_design_options() as $design => $designLabel) {
+         $active = $design === $activeDesign;
+         $designEsc = $this->h($design);
+         $url = $this->h($this->design_url($baseSelf, $design));
+
+         $html .= '<li class="dbx-design-item' . ($active ? ' is-active' : '') . '">';
+         $html .= '<a href="' . $url . '" class="dbx-design-opt' . ($active ? ' is-active' : '')
+            . '" data-design="' . $designEsc . '" data-dbx-tooltip="' . $this->h($designLabel) . '">';
+         $html .= '<i class="bi bi-window-sidebar dbx-design-icon" aria-hidden="true"></i><span>' . $this->h($designLabel) . '</span>';
+         if ($active) {
+            $html .= '<i class="bi bi-check2 dbx-design-check" aria-hidden="true"></i>';
+         }
+         $html .= '</a></li>';
+      }
+
+      return $html;
+   }
+
+   /**
+    * Erstellt den GET-Aufruf fuer den Tag/Nacht-Umschalter. Wirkt auf jedes
+    * Design, das einen "dunkel"-Skin mitbringt (aktuell nur dbxapp); bei
+    * Designs ohne Nacht-Skin faengt normalize_skin() den Wert automatisch auf
+    * die einzige vorhandene Farbvariante zurueck, die Darstellung bleibt dann
+    * unveraendert.
+    */
+   private function theme_toggle_url(string $url, bool $nightActive): string {
+      $oWeb = dbx()->get_system_obj('dbxWebApp');
+
+      return $oWeb->append_route_params(
+         $oWeb->normalize_self_url($url),
+         array('dbx_color' => $nightActive ? 'blau' : 'dunkel')
+      );
+   }
+
    private function active_frontend_design(): string {
-      $config = dbx()->get_config('dbx');
+      $config = dbx()->get_cfg('dbx');
       $design = trim((string)dbx()->get_system_var('dbx_design', $config['default_design_user'] ?? 'dbxapp'));
 
       if ($design === 'user') {
@@ -330,132 +412,6 @@ Class dbxMenu {
       }
 
       return $design;
-   }
-
-   /**
-    * Erstellt den kompatiblen GET-Aufruf fuer eine eindeutige
-    * Design-/Skin-Kombination.
-    */
-   private function design_skin_url(string $url, string $design, string $skin): string {
-      $oWeb = dbx()->get_system_obj('dbxWebApp');
-
-      return $oWeb->append_route_params(
-         $oWeb->normalize_self_url($url),
-         array(
-            'dbx_design' => $design,
-            'dbx_color'  => $this->normalize_design_skin($design, $skin),
-         )
-      );
-   }
-
-   /**
-    * Liefert die Darstellungsdaten fuer die von einem Design bereitgestellten
-    * Skin-Dateien. Die Liste der IDs kommt ausschliesslich aus dbxApi.
-    */
-   private function skin_options(string $design): array {
-      $known = array(
-         'hell'    => array('label' => $this->texts()->get_fd_message('skin_light'),  'icon' => 'bi-sun'),
-         'gelb'    => array('label' => $this->texts()->get_fd_message('skin_yellow'), 'icon' => 'bi-brightness-high'),
-         'rot'     => array('label' => $this->texts()->get_fd_message('skin_red'),    'icon' => 'bi-droplet-fill'),
-         'gruen'   => array('label' => $this->texts()->get_fd_message('skin_green'),  'icon' => 'bi-tree'),
-         'blau'    => array('label' => $this->texts()->get_fd_message('skin_blue'),   'icon' => 'bi-droplet'),
-         'dunkel'  => array('label' => $this->texts()->get_fd_message('skin_dark'),   'icon' => 'bi-moon'),
-      );
-      $options = array();
-
-      foreach (dbx()->get_design_skin_ids($design) as $skin) {
-         $options[$skin] = $known[$skin] ?? array(
-            'label' => ucfirst(str_replace(array('-', '_'), ' ', $skin)),
-            'icon'  => 'bi-palette',
-         );
-      }
-
-      return $options;
-   }
-
-   private function normalize_design_skin(string $design, string $skin): string {
-      return dbx()->normalize_skin($skin, $design);
-   }
-
-   private function skin_label(string $design, string $skin): string {
-      $options = $this->skin_options($design);
-      return (string)($options[$skin]['label'] ?? $skin);
-   }
-
-   /**
-    * Rendert alle Designs mit ihren jeweils eigenen Skins als kompakte
-    * Untermenues. Jeder Skin-Eintrag bleibt ein normaler GET-Link.
-    */
-   private function render_design_skin_menu(
-      string $baseSelf,
-      string $activeDesign,
-      string $activeSkin,
-      bool $docsDisplay = false
-   ): string {
-      $html = '';
-      $designs = $docsDisplay
-         ? array('dbxdocs' => 'dbxapp (Blau)')
-         : $this->frontend_design_options();
-
-      foreach ($designs as $design => $designLabel) {
-         $designActive = $design === $activeDesign;
-         $designEsc = $this->h($design);
-         $options = $this->skin_options($design);
-         if ($docsDisplay) {
-            $options = array_intersect_key($options, array('blau' => true, 'dunkel' => true));
-            if (isset($options['blau'])) {
-               $options['blau']['label'] = 'Light';
-            }
-            if (isset($options['dunkel'])) {
-               $options['dunkel']['label'] = 'Dark';
-            }
-         }
-         $designUrl = $this->h($this->design_skin_url($baseSelf, $design, $activeSkin));
-         $html .= '<li class="dbx-design-skin-group' . ($designActive ? ' is-active' : '')
-            . '" data-design="' . $designEsc . '">';
-         $html .= '<a class="dbx-design-opt' . ($designActive ? ' is-active' : '')
-            . '" href="' . $designUrl . '" data-design="' . $designEsc
-            . '" title="Design ' . $this->h($designLabel) . '">';
-         $html .= '<i class="bi bi-window-sidebar dbx-design-icon" aria-hidden="true"></i>';
-         $html .= '<span>' . $this->h($designLabel) . '</span>';
-         if ($designActive) {
-            $html .= '<i class="bi bi-check2 dbx-design-check" aria-hidden="true"></i>';
-         }
-         $html .= '</a>';
-
-         if (!$options) {
-            $html .= '</li>';
-            continue;
-         }
-
-         $html .= '<ul>';
-         foreach ($options as $skin => $meta) {
-            $active = $designActive && $skin === $activeSkin;
-            $skinEsc = $this->h($skin);
-            $labelEsc = $this->h((string)$meta['label']);
-            $iconEsc = $this->h((string)$meta['icon']);
-            $url = $this->h($this->design_skin_url($baseSelf, $design, $skin));
-            $classes = 'dbx-design-skin-opt';
-            if ($designActive) {
-               $classes .= ' dbx-skin-opt';
-            }
-            if ($active) {
-               $classes .= ' is-active';
-            }
-
-            $html .= '<li class="dbx-design-skin-item' . ($active ? ' is-active' : '') . '">';
-            $html .= '<a href="' . $url . '" class="' . $classes . '" data-design="' . $designEsc
-               . '" data-skin="' . $skinEsc . '" title="' . $this->h($designLabel . ': ' . $meta['label']) . '">';
-            $html .= '<i class="bi ' . $iconEsc . '" aria-hidden="true"></i><span>' . $labelEsc . '</span>';
-            if ($active) {
-               $html .= '<i class="bi bi-check2 dbx-skin-check" aria-hidden="true"></i>';
-            }
-            $html .= '</a></li>';
-         }
-         $html .= '</ul></li>';
-      }
-
-      return $html;
    }
 
    private function h($value): string {
@@ -528,7 +484,7 @@ Class dbxMenu {
       $texts = $this->texts();
       $user = $this->h($texts->get_fd_message('user'));
       return '<li class="align-right dbx-user-avatar-menu">'
-         . '<a title="' . $user . '" style="cursor:pointer;">'
+         . '<a data-dbx-tooltip="' . $user . '" style="cursor:pointer;">'
          . '<span class="dbx-user-menu-avatar-wrap">'
          . '<img class="dbx-user-menu-avatar" src="' . $avatar . '?' . time() . '" alt="' . $user . '">'
          . '<span class="dbx-user-menu-mail" aria-hidden="true"><i class="bi bi-envelope-fill"></i></span>'
@@ -621,6 +577,7 @@ Class dbxMenu {
       $lng   =dbx()->get_system_var('dbx_activ_lng');
 
       if (dbx()->can('admin'))         $AdminMenu="Admin";
+      $content=$this->replace_module_menu_slots($content);
       $content=str_replace('{dbx:Admin}'    ,$AdminMenu,$content);
       $content=str_replace('{dbx:LogInOut}' ,$LoginOut ,$content);
       $content=str_replace('{dbx:login_out}',$login_out,$content);
@@ -632,22 +589,25 @@ Class dbxMenu {
 
       $docsAreaUrls = array(
          'de' => array(
-            'start' => 'dokumentation-einstieg',
-            'apply' => 'dokumentation-anwenden',
-            'develop' => 'dokumentation-entwickeln',
-            'operate' => 'dokumentation-betrieb',
+            'start' => 'dokumentation/dokumentation-einstieg',
+            'apply' => 'dokumentation/dokumentation-einstieg',
+            'develop' => 'dokumentation/dokumentation-entwickeln',
+            'operate' => 'dokumentation/dokumentation-betrieb',
+            'ai' => 'dokumentation/dokumentation-ki-agenten',
          ),
          'en' => array(
-            'start' => 'documentation-getting-started',
-            'apply' => 'documentation-use',
-            'develop' => 'documentation-develop',
-            'operate' => 'documentation-operate',
+            'start' => 'dokumentation/documentation-getting-started',
+            'apply' => 'dokumentation/documentation-getting-started',
+            'develop' => 'dokumentation/documentation-develop',
+            'operate' => 'dokumentation/documentation-operate',
+            'ai' => 'dokumentation/documentation-ai',
          ),
          'es' => array(
-            'start' => 'documentacion-primeros-pasos',
-            'apply' => 'documentacion-usar',
-            'develop' => 'documentacion-desarrollar',
-            'operate' => 'documentacion-operar',
+            'start' => 'dokumentation/documentacion-primeros-pasos',
+            'apply' => 'dokumentation/documentacion-primeros-pasos',
+            'develop' => 'dokumentation/documentacion-desarrollar',
+            'operate' => 'dokumentation/documentacion-operar',
+            'ai' => 'dokumentation/documentacion-ia',
          ),
       );
       $docsLanguage = strtolower(trim((string)$lng));

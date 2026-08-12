@@ -1,14 +1,13 @@
-<div class="dbx-cms-field dbx-cms-field-{name}" style="width: 100% !important; white-space: normal;">
- <div class="dbx-cms-field-labelbar">
-  <label for="{name}_{i}">{label}</label>
+<div class="dbx-form-field" data-cms-field-wrap="{cms_field}" data-cms-field-scope="{cms_field_scope}">
+ <div class="dbx-form-field__labelbar">
+  <label class="dbx-form-field__label" for="{name}_{i}">{label}</label>
   <a href="#" data-url="" class="btn-inline dbx-cms-content-template-edit"
      data-cms-content-template-edit
-     data-title="Content-Template bearbeiten"
-     aria-label="Ausgewaehltes Content-Template im ACE-Editor bearbeiten"
-     aria-disabled="false" tabindex="0" role="button"
-     title="Zuerst ein c-* Content-Template auswaehlen">
+     data-title="{content_template_edit_title}"
+     aria-label="{content_template_edit_aria}"
+     aria-disabled="false" tabindex="0" role="button" data-dbx-tooltip="{content_template_select_first}">
    <i class="bi bi-pencil-square" aria-hidden="true"></i>
   </a>
  </div>
- <select class="form-select {class}" id="{name}_{i}" name="{name}" data-cms-field="{cms_field}" data-cms-select-title style="width: 100%; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" {required}>{{name}_options}</select>
+ <select class="form-select dbx-form-field__control {class}" id="{name}_{i}" name="{name}" data-cms-field="{cms_field}" data-cms-field-scope="{cms_field_scope}" data-cms-select-title {required}>{{name}_options}</select>
 </div>

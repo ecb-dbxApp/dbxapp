@@ -209,6 +209,18 @@ $field['tpl'] = 'text-label';
 $fields[] = $field;
 
 $field = array();
+$field['name'] = 'performance_timer_slow_query_ms';
+$field['type'] = 'int';
+$field['length'] = '8';
+$field['default'] = '100';
+$field['label'] = 'Performance: Query langsam ab (ms)';
+$field['rules'] = 'int|min=1';
+$field['tooltip'] = 'Schwellwert fuer langsame einzelne Datenbankabfragen.';
+$field['placeholder'] = '100';
+$field['tpl'] = 'text-label';
+$fields[] = $field;
+
+$field = array();
 $field['name'] = 'intro';
 $field['type'] = 'int';
 $field['length'] = '1';

@@ -61,11 +61,11 @@
  *
  * Speicherort:
  *
- *   $_SESSION['dbx']['cache']['tpl']
+ *   private $templateCache im aktuellen dbxTPL-Objekt/Request
  *
  * Struktur:
  *
- *   [modul][file][type][lng] = [
+ *   [modul|file|type|lng] = [
  *       'tpl'  => 'Roher Template-Inhalt',
  *       'path' => 'Dateipfad'
  *   ]
@@ -244,7 +244,7 @@
  * Strategie:
  *
  *   - File IO nur einmal
- *   - rohe Templates im Laufzeit-/Session-Cache
+ *   - rohe Templates im requestlokalen Laufzeitcache
  *   - aktuelle Systemvariablen werden erst bei der Ausgabe eingesetzt
  *
  *
@@ -284,6 +284,18 @@ class dbxTPL extends \dbxObj {
     private $maxDepth = 10;
     public $_modul = 'dbx';
 
+    /** Rohcache der in diesem Request bereits gelesenen Templates. */
+    private array $templateCache = array();
+
+    /**
+     * Leert den Rohcache gezielt nach einem In-Request-Editor-Schreibvorgang.
+     * Normale HTTP-Requests benötigen keinen Dateifingerprint: eine neue
+     * dbxTPL-Instanz beginnt immer mit einem leeren Cache.
+     */
+    public function clear_raw_cache(): void {
+        $this->templateCache = array();
+    }
+
 
     /* =========================================================
        BASIC REPLACE
@@ -316,13 +328,16 @@ class dbxTPL extends \dbxObj {
 
 
     /**
-     * Ersetzt DBX-Systemvariablen (CACHEBAR!)
+     * Ersetzt DBX-Systemvariablen (CACHEBAR!).
+     *
+     * Unterstuetzte globale Laufzeitwerte umfassen unter anderem
+     * `{dbx:version}` und `{dbx:asset_version}` fuer die Version der aktuellen Installation.
      */
     public function replaces_dbx(string $tpl): string {
 
         $api = dbx();
         $coreConfig = is_object($api) && method_exists($api, 'get_config')
-            ? $api->get_config('dbx')
+            ? $api->get_cfg('dbx')
             : array();
         $coreConfig = is_array($coreConfig) ? $coreConfig : array();
         $brand = trim((string)($coreConfig['brand_name'] ?? ''));
@@ -331,7 +346,8 @@ class dbxTPL extends \dbxObj {
         }
         $tagline = trim((string)($coreConfig['brand_tagline'] ?? ''));
         $pageTitle = trim((string)dbx()->get_system_var('dbx_title', ''));
-        $documentTitle = $pageTitle;
+        $seoTitle = trim((string)dbx()->get_system_var('dbx_seo_title', ''));
+        $documentTitle = $seoTitle !== '' ? $seoTitle : $pageTitle;
         if ($documentTitle === '') {
             $documentTitle = $brand;
         } elseif ($brand !== '' && stripos($documentTitle, $brand) === false) {
@@ -339,10 +355,26 @@ class dbxTPL extends \dbxObj {
         }
 
         $tpl = str_replace('{dbx:base_href}', dbx()->get_base_url(), $tpl);
+        $tpl = str_replace('{dbx:docs_home_url}', dbx()->get_base_url() . 'dokumentation/', $tpl);
         $tpl = str_replace('{dbx:design}'   , dbx()->get_system_var('dbx_activ_design', dbx()->get_system_var('dbx_design')), $tpl);
         $tpl = str_replace('{dbx:color}'    , dbx()->get_skin(), $tpl);
         $tpl = str_replace('{dbx:skin_css}' , dbx()->get_skin_css(), $tpl);
         $tpl = str_replace('{dbx:skin_class}', dbx()->get_skin_class(), $tpl);
+        $docsReturnUrl = (string)dbx()->get_system_var('dbx_docs_return_url', '');
+        if ($docsReturnUrl === '' && method_exists(dbx(), 'get_system_obj')) {
+            $webApp = dbx()->get_system_obj('dbxWebApp');
+            $docsReturnUrl = method_exists($webApp, 'documentation_return_url')
+                ? $webApp->documentation_return_url()
+                : dbx()->get_base_url();
+        }
+        if ($docsReturnUrl === '') {
+            $docsReturnUrl = dbx()->get_base_url();
+        }
+        $tpl = str_replace(
+            '{dbx:docs_return_url}',
+            htmlspecialchars($docsReturnUrl, ENT_QUOTES, 'UTF-8'),
+            $tpl
+        );
         $tpl = str_replace('{dbx:page}'     , dbx()->get_system_var('dbx_activ_page', dbx()->get_system_var('dbx_page')), $tpl);
         $tpl = str_replace('{dbx:lng}'      , dbx()->get_system_var('dbx_activ_lng', dbx()->get_system_var('dbx_lng')), $tpl);
         $tpl = str_replace('{dbx:title}'    , htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8'), $tpl);
@@ -350,6 +382,11 @@ class dbxTPL extends \dbxObj {
         $tpl = str_replace('{dbx:brand}'    , htmlspecialchars($brand, ENT_QUOTES, 'UTF-8'), $tpl);
         $tpl = str_replace('{dbx:tagline}'  , htmlspecialchars($tagline, ENT_QUOTES, 'UTF-8'), $tpl);
         $tpl = str_replace('{dbx:perma}'    , dbx()->get_system_var('dbx_perma'), $tpl);
+        $rawVersion = is_object($api) && method_exists($api, 'get_version') ? $api->get_version() : '';
+        $version = htmlspecialchars($rawVersion, ENT_QUOTES, 'UTF-8');
+        $assetVersion = htmlspecialchars($this->asset_version($rawVersion), ENT_QUOTES, 'UTF-8');
+        $tpl = str_replace('{dbx:version}', $version, $tpl);
+        $tpl = str_replace('{dbx:asset_version}', $assetVersion, $tpl);
 
         $meta_description = (string)dbx()->get_system_var('dbx_meta_description', '');
         $meta_keywords    = (string)dbx()->get_system_var('dbx_meta_keywords', '');
@@ -369,8 +406,80 @@ class dbxTPL extends \dbxObj {
         $tpl = str_replace('{dbx:og_url}'          , $this->seo_attr_esc($og_url), $tpl);
         $tpl = str_replace('{dbx:og_image}'        , $this->seo_attr_esc($og_image), $tpl);
         $tpl = str_replace('{dbx:head_meta}'       , $this->build_head_meta_block(), $tpl);
+        $tpl = str_replace('{dbx:module_assets}'   , $this->build_module_assets_block(), $tpl);
 
         return $tpl;
+    }
+
+    /**
+     * Liefert eine stabile Asset-Version pro Quellstand.
+     *
+     * Die Produktversion allein darf hier nicht verwendet werden: CSS- und
+     * JavaScript-Aenderungen waehrend der Entwicklung wuerden sonst unter der
+     * unveraenderten URL aus dem Browser-Cache geladen. 171 Asset-Dateien sind
+     * klein genug fuer einen periodischen Scan. Das Ergebnis wird zwei Sekunden
+     * pro Installation zwischengespeichert; normale Requests lesen dadurch nur
+     * eine kleine JSON-Datei statt den gesamten Design-/JS-/Modulbaum erneut.
+     */
+    private function asset_version(string $version): string {
+        static $versions = array();
+
+        if (isset($versions[$version])) {
+            return $versions[$version];
+        }
+
+        $base = trim($version) !== '' ? trim($version) : '0';
+        $cacheDir = dirname(__DIR__, 2) . '/files/sys/cache';
+        $cacheFile = $cacheDir . '/asset-version.json';
+        $cached = is_file($cacheFile) ? json_decode((string)@file_get_contents($cacheFile), true) : null;
+        if (is_array($cached)
+            && (string)($cached['base'] ?? '') === $base
+            && (int)($cached['scanned_at'] ?? 0) >= time() - 2
+            && (int)($cached['latest_mtime'] ?? 0) > 0
+        ) {
+            return $versions[$version] = $base . '.' . (int)$cached['latest_mtime'];
+        }
+
+        $dbxDir = dirname(__DIR__);
+        $latestMtime = 0;
+        foreach (array($dbxDir . '/design', $dbxDir . '/js', $dbxDir . '/modules') as $root) {
+            if (!is_dir($root)) {
+                continue;
+            }
+
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $file) {
+                if (!$file->isFile()) {
+                    continue;
+                }
+                $extension = strtolower((string)$file->getExtension());
+                if ($extension !== 'css' && $extension !== 'js') {
+                    continue;
+                }
+                $latestMtime = max($latestMtime, (int)$file->getMTime());
+            }
+        }
+
+        if (!is_dir($cacheDir)) @mkdir($cacheDir, 0775, true);
+        if (is_dir($cacheDir) && is_writable($cacheDir)) {
+            $payload = json_encode(array(
+                'base' => $base,
+                'latest_mtime' => $latestMtime,
+                'scanned_at' => time(),
+            ), JSON_UNESCAPED_SLASHES);
+            if (is_string($payload)) {
+                $temporary = $cacheFile . '.' . getmypid() . '.tmp';
+                if (@file_put_contents($temporary, $payload, LOCK_EX) !== false) {
+                    if (is_file($cacheFile)) @unlink($cacheFile);
+                    if (!@rename($temporary, $cacheFile)) @unlink($temporary);
+                }
+            }
+        }
+
+        $versions[$version] = $latestMtime > 0 ? $base . '.' . $latestMtime : $base;
+        return $versions[$version];
     }
 
     private function seo_attr_esc($value): string {
@@ -441,6 +550,32 @@ class dbxTPL extends \dbxObj {
         return "\n    " . implode("\n    ", $lines);
     }
 
+    /**
+     * Baut das Nachlade-Skript fuer per dbx()->add_css()/add_js() registrierte
+     * Modul-Assets. Die Dateien werden nicht direkt verlinkt, sondern ueber
+     * core.js (dbx.add_css/dbx.add_js) nachgeladen, damit dbxapp einen
+     * einzigen Lade-/Cache-Weg fuer alle Design- und Modul-Assets behaelt.
+     */
+    private function build_module_assets_block(): string {
+        $api = dbx();
+        $css = method_exists($api, 'get_module_assets') ? $api->get_module_assets('css') : array();
+        $js  = method_exists($api, 'get_module_assets') ? $api->get_module_assets('js') : array();
+        if (!$css && !$js) {
+            return '';
+        }
+
+        $calls = array();
+        foreach ($css as $path) {
+            $calls[] = 'dbx.add_css("root", ' . json_encode((string)$path, JSON_UNESCAPED_SLASHES) . ');';
+        }
+        foreach ($js as $path) {
+            $calls[] = 'dbx.add_js("root", ' . json_encode((string)$path, JSON_UNESCAPED_SLASHES) . ');';
+        }
+
+        return "\n<script>(function () { if (window.dbx && dbx.add_css && dbx.add_js) {\n"
+            . implode("\n", $calls) . "\n} })();</script>";
+    }
+
     private function effective_robots_meta(): string {
         // Technische Routen sind niemals eigenstaendige Suchergebnisse.
         // Diese Regel hat Vorrang vor dem SEO-Wert eines eventuell zugleich
@@ -509,17 +644,9 @@ class dbxTPL extends \dbxObj {
         $file = strtolower($file);
         $lng  = dbx()->get_system_var('dbx_lng', '');
 
-        if (!isset($_SESSION['dbx']['cache']['tpl'])) {
-            $_SESSION['dbx']['cache']['tpl'] = [];
-        }
-
-        $cache =& $_SESSION['dbx']['cache']['tpl'];
-
         $base = dbx()->get_base_dir() . "dbx/modules/$modul/tpl/$type/";
 
-        $path = function_exists('dbx_lng_resolve_file')
-            ? dbx_lng_resolve_file($base, $file, $type, '', true)
-            : '';
+        $path = dbx()->lng_resolve_file($base, $file, $type, '', true);
 
         if ($path === '') {
             $file_lng = $base . $file . '_' . $lng . '.' . $type;
@@ -537,17 +664,10 @@ class dbxTPL extends \dbxObj {
         }
 
         $relPath = dbx()->editor_file_path($path);
-        $mtime = (int) @filemtime($path);
-        $size = (int) @filesize($path);
-        $cached = $cache[$modul][$file][$type][$lng] ?? null;
-
-        // Eine Session darf geänderte oder neu angelegte Sprach-Templates nicht
-        // dauerhaft verdecken. Der Cache bleibt schnell, validiert aber seine
-        // konkrete Quelldatei bei jedem Lesezugriff.
+        $cacheKey = $modul . '|' . $file . '|' . $type . '|' . $lng;
+        $cached = $this->templateCache[$cacheKey] ?? null;
         if (is_array($cached)
-            && (string)($cached['path'] ?? '') === $relPath
-            && (int)($cached['mtime'] ?? -1) === $mtime
-            && (int)($cached['size'] ?? -1) === $size) {
+            && (string)($cached['path'] ?? '') === $relPath) {
             return (string)($cached['tpl'] ?? '');
         }
 
@@ -557,11 +677,9 @@ class dbxTPL extends \dbxObj {
         }
 
         // Cache speichern
-        $cache[$modul][$file][$type][$lng] = [
+        $this->templateCache[$cacheKey] = [
             'tpl'   => $tpl,
             'path'  => $relPath,
-            'mtime' => $mtime,
-            'size'  => $size,
         ];
 
         return $tpl;
@@ -607,9 +725,10 @@ class dbxTPL extends \dbxObj {
 
     private function get_cached_tpl_path($modul, $file, $type): string {
         $lng = dbx()->get_system_var('dbx_lng', '');
-        $path = $_SESSION['dbx']['cache']['tpl'][$modul][$file][$type][$lng]['path'] ?? '';
+        $cacheKey = $modul . '|' . strtolower((string)$file) . '|' . $type . '|' . $lng;
+        $path = $this->templateCache[$cacheKey]['path'] ?? '';
 
-        // Auch alte Session-Cache-Eintraege mit absoluten Windows-Pfaden bereinigen.
+        // Auch absolute Windows-Pfade aus dem requestlokalen Rohcache normalisieren.
         return $path !== '' ? dbx()->editor_file_path($path) : '';
     }
 
@@ -830,7 +949,7 @@ class dbxTPL extends \dbxObj {
 
         // Design Mapping (user/admin)
         if ($design == 'admin' || $design == 'user') {
-            $config = dbx()->get_config('dbx');
+            $config = dbx()->get_cfg('dbx');
             if ($design == 'admin') $design = $config['default_design_admin'];
             if ($design == 'user')  $design = $config['default_design_user'];
         }
@@ -999,9 +1118,7 @@ class dbxTPL extends \dbxObj {
         $base = dbx()->get_base_dir() . "dbx/design/$design/$type/";
 
         // 1. gewünschte Datei (mit Sprachsuffix)
-        $dir_file = function_exists('dbx_lng_resolve_file')
-            ? dbx_lng_resolve_file($base, $file, $type, '', false)
-            : '';
+        $dir_file = dbx()->lng_resolve_file($base, $file, $type, '', false);
 
         if ($dir_file === '' && file_exists($base . $file . '.' . $type)) {
             $dir_file = $base . $file . '.' . $type;
@@ -1016,9 +1133,7 @@ class dbxTPL extends \dbxObj {
         }
 
         // 2. fallback: default (mit Sprachsuffix)
-        $dir_file = function_exists('dbx_lng_resolve_file')
-            ? dbx_lng_resolve_file($base, 'default', $type, '', false)
-            : '';
+        $dir_file = dbx()->lng_resolve_file($base, 'default', $type, '', false);
 
         if ($dir_file === '' && file_exists($base . 'default.' . $type)) {
             $dir_file = $base . 'default.' . $type;

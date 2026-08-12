@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -46,12 +46,12 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <p><b>Durchgeführt:</b> 24. Juli 2026 <br  />
  <b>Ausgangsdatenbank:</b> <span class="tt">dbx/modules/dbxContact/db/dbxContact.db3</span> <br  />
  <b>MySQL-Ziel:</b> <span class="tt">dbxRoundtrip</span> / Datenbank <span class="tt">dbx_roundtrip</span></p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md418"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md433"></a>
 Ergebnis</h1>
 <p>Die SQLite-Datenbank des Moduls <span class="tt">dbxContact</span> wurde gesichert, über den dbxAdmin-Transfer nach MySQL übertragen, dort über die echten <span class="tt">dbxContact_admin</span>-Abläufe gelesen und schreibend getestet und anschließend in eine neu erzeugte DB3 zurückübertragen. Die beiden DDs zeigen abschließend wieder auf:</p>
 <div class="fragment"><div class="line">$table[<span class="stringliteral">&#39;server&#39;</span>]=<span class="stringliteral">&#39;dbxContact|dbxContact.db3&#39;</span>;</div>
 </div><!-- fragment --><p>Die zurückübertragene DB3 ist integer, strukturell gleich und fachlich datengleich zum Original. Die einzigen Rohwertabweichungen sind leere Zeitwerte: Ein ursprünglicher leerer String wurde in MySQL korrekt als SQL <span class="tt">NULL</span> gespeichert und kam deshalb als <span class="tt">NULL</span> zurück. Dies verhindert Zero-Date-Werte und Fehler unter strikten MySQL-SQL-Modi.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md419"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md434"></a>
 Verbindliche Architektur</h1>
 <p>Der gesamte fachliche Datenzugriff blieb innerhalb der dbxapp-Schichten:</p>
 <ul>
@@ -61,7 +61,7 @@ Verbindliche Architektur</h1>
 <li>fachlicher Nutzungstest über das bestehende <span class="tt">dbxContact_admin</span>-Modul mit <span class="tt">dbxReport</span>, <span class="tt">dbxForm</span> und <span class="tt">dbxTPL</span></li>
 </ul>
 <p>Es wurde weder eine direkte PDO-Abfrage außerhalb von <span class="tt">dbxDB</span> ergänzt noch ein paralleler Transferweg gebaut. Die GET-Aufrufe und Modulparameter blieben unverändert. Ein zusätzlicher <span class="tt">dbx_token</span> war nicht erforderlich: Der vorhandene Admin- und Modulzugriff prüft seine Berechtigungen bereits selbst.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md420"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md435"></a>
 Gesicherter Ausgangsstand</h1>
 <p>Der unveränderte Ausgangsstand liegt unter:</p>
 <div class="fragment"><div class="line">files/sys/db-roundtrip/20260724-dbxContact/</div>
@@ -73,7 +73,7 @@ Gesicherter Ausgangsstand</h1>
 </div><!-- fragment --><p>Die fertig zurückübertragene Datei wurde zusätzlich als <span class="tt">dbxContact.final.db3</span> archiviert. Ihr Hash ist mit der aktuell eingesetzten Modul-DB3 identisch:</p>
 <div class="fragment"><div class="line">57D81550F63ADED7B1EEA8DA9F1626C2EFFD9B3F5FF5E178816CF5556D099A54</div>
 </div><!-- fragment --><p>Ein anderer Datei-Hash ist bei einer neu aufgebauten SQLite-Datei normal: Seitengröße, freie Seiten, B-Tree-Anordnung und <span class="tt">VACUUM</span> sind keine fachlichen Daten. Deshalb wurde zusätzlich ein struktur- und datenbezogener Vergleich durchgeführt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md421"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md436"></a>
 Ablauf</h1>
 <ol type="1">
 <li>Original-DB3 und beide DD-Dateien wurden vor der ersten Änderung gesichert.</li>
@@ -87,7 +87,7 @@ Ablauf</h1>
 <li>Report, DD-CRUD, Integrität und logischer Vergleich wurden erneut gegen die neue SQLite-Datei ausgeführt.</li>
 <li>Der ausschließlich lokal verwendete Admin-Test-Bypass wurde entfernt. Nach Logout zeigt der Admin-Link wieder nur die Anmeldung.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md422"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md437"></a>
 Vergleichsergebnis</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -118,7 +118,7 @@ Vergleichsergebnis</h1>
 <li><span class="tt">contact_message.mail_sent_date</span>: 5 Werte</li>
 </ul>
 <p>Alle vorhandenen Datumswerte einschließlich Millisekunden sind erhalten. Der Browser zeigt beispielsweise wieder <span class="tt">07.06.2026 10:46:48.854</span> und nicht eine künstlich aufgefüllte Darstellung mit sechs Nachkommastellen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md423"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md438"></a>
 Notwendige zentrale Korrekturen</h1>
 <p>Die Korrekturen liegen bewusst an den gemeinsamen Stellen, damit alle Module denselben einfachen und sicheren Ablauf nutzen:</p>
 <ul>
@@ -128,7 +128,7 @@ Notwendige zentrale Korrekturen</h1>
 <li>DD-Backups speichern zusätzlich die Quellfeldtypen. Alte Backups ohne diese Metadaten bleiben lesbar.</li>
 <li>Der Restore wandelt leere MySQL-Zeitwerte in <span class="tt">NULL</span> und normalisiert beim SQLite-Rückweg nur technisch angehängte Nullstellen der Sekundenbruchteile. Inhaltliche Werte bleiben unverändert.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md424"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md439"></a>
 Reproduzierbare Prüfungen</h1>
 <div class="fragment"><div class="line">php dbx/include/tests/dbxDB_dynamic_reconnect_test.php</div>
 <div class="line">php dbx/include/tests/dbxDD_restore_temporal_test.php</div>
@@ -161,7 +161,7 @@ Reproduzierbare Prüfungen</h1>
 <td class="markdownTableBodyNone">Browser nach Bypass-Entfernung  </td><td class="markdownTableBodyNone">Admin-Link zeigt Anmeldung  </td></tr>
 </table>
 <p>Die Datei <span class="tt">dbx/modules/dbx/tpl/php/dd_file.php</span> ist eine Generatorvorlage mit noch nicht ersetzten <span class="tt">{...}</span>-Markern und deshalb bewusst keine eigenständig lintbare PHP-Laufzeitdatei.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md425"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md440"></a>
 Wiederherstellung</h1>
 <p>Bei einem später erkannten Problem kann die aktuelle Modul-DB3 nach vorheriger Sicherung durch <span class="tt">dbxContact.original.db3</span> aus dem Archiv ersetzt werden. Anschließend sind die beiden archivierten DD-Dateien zurückzuspielen und <span class="tt">PRAGMA integrity_check</span> sowie der Kontakt-Report zu prüfen. Das <span class="tt">dbx_roundtrip</span>-Schema bleibt als isoliertes, funktionierendes MySQL-Testziel erhalten; kein produktives DD verweist abschließend darauf. </p>
 </div></div><!-- contents -->

@@ -1,0 +1,559 @@
+/*
+ * Dokumentationskomponenten im dbxapp-Design.
+ *
+ * Die Inhalte verwenden in jedem Design dieselben semantischen Klassen. Diese
+ * Datei übersetzt sie in die vorhandenen dbxapp-Designvariablen, damit keine
+ * Farben oder Oberflächen des eigenständigen dbxdocs-Designs durchsickern.
+ */
+.dbxdocs-home,
+.dbxdocs-area-hub,
+.dbxdocs-cms-article,
+.dbxdocs-search,
+.dbxdocs-not-found,
+.dbxdocs-reference {
+    --dbx-docs-accent: var(--dbx-primary, #0d6efd);
+    --dbx-docs-surface: var(--dbx-panel-inner-bg-top, #ffffff);
+    --dbx-docs-border: var(--dbx-panel-border-light, #b9d1eb);
+    --dbx-docs-text: var(--dbx-text-main, #17283a);
+    --dbx-docs-muted: var(--dbx-text-muted, #526173);
+    color: var(--dbx-docs-text);
+}
+
+.dbxdocs-home {
+    display: grid;
+    gap: 1.15rem;
+    width: 100%;
+    margin-inline: auto;
+}
+
+.dbxdocs-home-hero,
+.dbxdocs-area-hero {
+    display: grid;
+    gap: .7rem;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 12px;
+    background:
+        linear-gradient(135deg,
+            color-mix(in srgb, var(--dbx-panel-inner-bg-top, #ffffff) 94%, var(--dbx-docs-accent) 6%),
+            color-mix(in srgb, var(--dbx-panel-bg-top, #eaf3ff) 88%, var(--dbx-docs-accent) 12%));
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight, rgba(255, 255, 255, .9)),
+        0 8px 20px color-mix(in srgb, var(--dbx-docs-accent) 10%, transparent);
+}
+
+.dbxdocs-home-kicker,
+.dbxdocs-kicker,
+.dbxdocs-section-heading > span {
+    color: var(--dbx-docs-accent);
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+
+.dbxdocs-home :where(h1, h2),
+.dbxdocs-area-hero :where(h1, h2),
+.dbxdocs-search-header h1,
+.dbxdocs-not-found h1 {
+    color: var(--dbx-docs-text);
+}
+
+.dbxdocs-home h1 {
+    margin: .25rem 0 .4rem;
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    line-height: 1.15;
+}
+
+.dbxdocs-home-hero p,
+.dbxdocs-area-hero p,
+.dbxdocs-search-header p {
+    margin: 0;
+    color: var(--dbx-docs-muted);
+}
+
+.dbxdocs-home-search {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: .65rem;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: .72rem;
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 10px;
+    background: linear-gradient(180deg, var(--dbx-panel-inner-bg-top, #ffffff), var(--dbx-panel-inner-bg-bottom, #f6f9fd));
+    box-shadow: var(--dbx-shadow-sm, 0 5px 14px rgba(20, 58, 96, .12));
+}
+
+.dbxdocs-home-search > i {
+    color: var(--dbx-docs-accent);
+    font-size: 1.2rem;
+}
+
+.dbxdocs-home-search input[type="search"] {
+    width: 100%;
+    min-width: 0;
+    height: 2.75rem;
+    padding: 0 .85rem;
+    border: 1px solid var(--dbx-input-border, var(--dbx-docs-border));
+    border-radius: 7px;
+    background: var(--dbx-input-bg, #fffdf2);
+    color: var(--dbx-text-main, #17283a);
+}
+
+.dbxdocs-home-search input[type="search"]:focus {
+    border-color: var(--dbx-docs-accent);
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--dbx-docs-accent) 18%, transparent);
+    outline: 0;
+}
+
+.dbxdocs-home-search button {
+    min-width: 7rem;
+    height: 2.75rem;
+}
+
+.dbxdocs-home-entrances,
+.dbxdocs-home-recommended,
+.dbxdocs-area-hub,
+.dbxdocs-section-heading {
+    display: grid;
+    gap: .75rem;
+}
+
+.dbxdocs-section-heading {
+    gap: .12rem;
+}
+
+.dbxdocs-section-heading h2 {
+    margin: 0;
+    font-size: clamp(1.2rem, 2vw, 1.55rem);
+}
+
+.dbxdocs-home-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .8rem;
+}
+
+.dbxdocs-path-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: .8rem;
+}
+
+.dbxdocs-home-card,
+.dbxdocs-path-grid > a {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+    gap: .75rem;
+    align-items: center;
+    min-width: 0;
+    padding: .9rem;
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 10px;
+    background: linear-gradient(180deg, var(--dbx-panel-inner-bg-top, #ffffff), var(--dbx-panel-inner-bg-bottom, #f6f9fd));
+    box-shadow:
+        inset 0 1px 0 var(--dbx-panel-inset-highlight, rgba(255, 255, 255, .9)),
+        0 5px 14px color-mix(in srgb, var(--dbx-docs-accent) 8%, transparent);
+    color: var(--dbx-docs-text);
+    text-decoration: none;
+    transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+.dbxdocs-home-card:hover,
+.dbxdocs-home-card:focus-visible,
+.dbxdocs-path-grid > a:hover,
+.dbxdocs-path-grid > a:focus-visible {
+    border-color: color-mix(in srgb, var(--dbx-docs-accent) 58%, var(--dbx-docs-border));
+    box-shadow: 0 9px 22px color-mix(in srgb, var(--dbx-docs-accent) 16%, transparent);
+    color: var(--dbx-docs-text);
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.dbxdocs-home-card-icon,
+.dbxdocs-path-grid > a > i,
+.dbxdocs-area-icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid color-mix(in srgb, var(--dbx-docs-accent) 68%, #ffffff);
+    border-radius: 9px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--dbx-docs-accent) 72%, #ffffff), var(--dbx-docs-accent));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 4px 9px color-mix(in srgb, var(--dbx-docs-accent) 24%, transparent);
+    color: var(--dbx-text-invert, #ffffff);
+    font-size: 1.15rem;
+}
+
+.dbxdocs-home-card-copy,
+.dbxdocs-home-card-copy > :where(small, strong, span),
+.dbxdocs-path-grid > a > :where(strong, span),
+.dbxdocs-path-grid > a > span :where(strong, small) {
+    display: block;
+    min-width: 0;
+}
+
+.dbxdocs-home-card-copy small,
+.dbxdocs-path-grid > a > span small {
+    color: var(--dbx-docs-muted);
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.dbxdocs-home-card-copy strong,
+.dbxdocs-path-grid > a > span strong {
+    color: var(--dbx-docs-text);
+    font-size: 1rem;
+}
+
+.dbxdocs-home-card-copy > span,
+.dbxdocs-path-grid > a > span {
+    color: var(--dbx-docs-muted);
+    font-size: .84rem;
+    line-height: 1.4;
+}
+
+.dbxdocs-home-reference,
+.dbxdocs-area-next,
+.dbxdocs-search-summary,
+.dbxdocs-home-story {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: .9rem 1rem;
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--dbx-panel-bg-top, #eaf3ff) 84%, var(--dbx-docs-accent) 16%);
+}
+
+.dbxdocs-home-reference > div,
+.dbxdocs-home-reference :where(small, strong, span),
+.dbxdocs-area-next :where(strong, span) {
+    display: block;
+}
+
+.dbxdocs-home-quicklinks {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .55rem;
+    padding: .75rem;
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 10px;
+    background: var(--dbx-panel-bg-top, #edf5ff);
+}
+
+.dbxdocs-home-quicklinks a {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    min-height: 2.8rem;
+    padding: .55rem .7rem;
+    border: 1px solid color-mix(in srgb, var(--dbx-docs-border) 76%, transparent);
+    border-radius: 7px;
+    background: var(--dbx-panel-inner-bg-top, #ffffff);
+    color: var(--dbx-text-link, var(--dbx-docs-accent));
+    text-decoration: none;
+}
+
+.dbxdocs-home-quicklinks a:hover,
+.dbxdocs-home-quicklinks a:focus-visible {
+    border-color: var(--dbx-docs-accent);
+    background: color-mix(in srgb, var(--dbx-panel-inner-bg-top, #ffffff) 88%, var(--dbx-docs-accent) 12%);
+}
+
+.dbx-documentation-page > .dbx-doc-meta {
+    padding: .65rem;
+    border: 1px solid var(--dbx-panel-border-light, #b9d1eb);
+    border-radius: 10px;
+    background: linear-gradient(180deg, var(--dbx-panel-bg-top, #edf5ff), var(--dbx-panel-bg-bottom, #e1edfb));
+    box-shadow: inset 0 3px 0 var(--dbx-primary, #0d6efd);
+}
+
+.dbx-documentation-page > .dbx-doc-meta > :where(span, a) {
+    border-color: color-mix(in srgb, var(--dbx-primary, #0d6efd) 18%, var(--dbx-panel-border-light, #b9d1eb));
+    background: linear-gradient(180deg, var(--dbx-panel-inner-bg-top, #ffffff), var(--dbx-panel-inner-bg-bottom, #f6f9fd));
+    box-shadow: inset 0 1px 0 var(--dbx-panel-inset-highlight, rgba(255, 255, 255, .9));
+}
+
+.dbx-documentation-page > .dbx-doc-meta > a:hover,
+.dbx-documentation-page > .dbx-doc-meta > a:focus-visible {
+    border-color: var(--dbx-primary, #0d6efd);
+    background: color-mix(in srgb, var(--dbx-panel-inner-bg-top, #ffffff) 84%, var(--dbx-primary, #0d6efd) 16%);
+}
+
+.dbxdocs-cms-article {
+    width: 100%;
+    color: var(--dbx-docs-text);
+    line-height: 1.62;
+}
+
+.dbxdocs-cms-article .dbx-doc-kicker {
+    display: inline-flex;
+    padding: .24rem .62rem;
+    border: 1px solid color-mix(in srgb, var(--dbx-docs-accent) 28%, var(--dbx-docs-border));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--dbx-docs-surface) 86%, var(--dbx-docs-accent) 14%);
+    color: var(--dbx-docs-accent);
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+
+.dbxdocs-cms-article :where(.dbx-user-nav-grid, .dbx-ki-area-grid, .dbx-update-state-grid) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: .8rem;
+    margin-block: 1rem;
+}
+
+.dbxdocs-cms-article :where(.dbx-user-nav-card, .dbx-ki-area, .dbx-update-state-card) {
+    min-width: 0;
+    padding: .9rem 1rem;
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 10px;
+    background: linear-gradient(180deg, var(--dbx-panel-inner-bg-top, #ffffff), var(--dbx-panel-inner-bg-bottom, #f6f9fd));
+    box-shadow: 0 5px 14px color-mix(in srgb, var(--dbx-docs-accent) 8%, transparent);
+}
+
+.dbxdocs-cms-article .dbx-user-nav-card {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    gap: .75rem;
+    align-items: center;
+    color: var(--dbx-docs-text);
+    text-decoration: none;
+}
+
+.dbxdocs-cms-article :where(.dbx-user-nav-icon, .dbx-update-state-icon, .dbx-guide-hero-icon, .dbx-area-number) {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--dbx-docs-accent) 72%, #ffffff), var(--dbx-docs-accent));
+    color: var(--dbx-text-invert, #ffffff);
+}
+
+.dbxdocs-cms-article :where(.dbx-user-nav-icon, .dbx-guide-hero-icon) svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+.dbxdocs-cms-article .dbx-ki-area {
+    border-top: 4px solid var(--dbx-docs-accent);
+}
+
+.dbxdocs-cms-article .dbx-guide-hero {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+    margin-block: 1rem;
+    padding: clamp(1rem, 2vw, 1.35rem);
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--dbx-panel-bg-top, #edf5ff) 84%, var(--dbx-docs-accent) 16%);
+}
+
+.dbxdocs-cms-article .dbx-guide-hero :where(h2, p) {
+    margin: 0;
+}
+
+.dbxdocs-cms-article .dbx-guide-hero p,
+.dbxdocs-cms-article :where(.dbx-user-nav-card, .dbx-ki-area, .dbx-update-state-card) p {
+    color: var(--dbx-docs-muted);
+}
+
+.dbxdocs-cms-article .dbx-update-steps {
+    display: grid;
+    gap: .65rem;
+    margin: 1rem 0;
+    padding: 0;
+    counter-reset: dbx-update-step;
+    list-style: none;
+}
+
+.dbxdocs-cms-article .dbx-update-steps li {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: .7rem;
+    align-items: start;
+    padding: .75rem .85rem;
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 9px;
+    background: var(--dbx-panel-inner-bg-top, #ffffff);
+    counter-increment: dbx-update-step;
+}
+
+.dbxdocs-cms-article .dbx-update-steps li::before {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: var(--dbx-docs-accent);
+    color: var(--dbx-text-invert, #ffffff);
+    content: counter(dbx-update-step);
+    font-weight: 800;
+}
+
+.dbxdocs-reference {
+    width: 100%;
+    min-height: calc(100vh - 9.5rem);
+    overflow: hidden;
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 12px;
+    background: var(--dbx-panel-inner-bg-top, #ffffff);
+    box-shadow: var(--dbx-panel-shadow, 0 12px 30px rgba(14, 62, 111, .14));
+}
+
+.dbxdocs-reference-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: .9rem 1rem;
+    border-bottom: 1px solid var(--dbx-docs-border);
+    background: linear-gradient(180deg, var(--dbx-panel-head-bg-top, #eaf4ff), var(--dbx-panel-head-bg-bottom, #cfe5ff));
+}
+
+.dbxdocs-reference-header h1 {
+    margin: .1rem 0;
+    color: var(--dbx-docs-text);
+    font-size: clamp(1.15rem, 2vw, 1.55rem);
+}
+
+.dbxdocs-reference-header p {
+    margin: 0;
+    color: var(--dbx-docs-muted);
+}
+
+.dbxdocs-reference-kicker {
+    color: var(--dbx-docs-accent);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.dbxdocs-reference-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .55rem;
+}
+
+.dbxdocs-reference-frame {
+    display: block;
+    width: 100%;
+    height: calc(100vh - 13.5rem);
+    min-height: 32rem;
+    border: 0;
+    background: #ffffff;
+}
+
+.dbxdocs-reference--window {
+    min-height: calc(100vh - 7rem);
+}
+
+.dbxdocs-reference--window .dbxdocs-reference-frame {
+    height: calc(100vh - 11rem);
+}
+
+.dbxdocs-search,
+.dbxdocs-not-found {
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+}
+
+.dbxdocs-search-results {
+    display: grid;
+    gap: .7rem;
+}
+
+.dbxdocs-search-result,
+.dbxdocs-search-empty,
+.dbxdocs-page-toc {
+    padding: .9rem 1rem;
+    border: 1px solid var(--dbx-docs-border);
+    border-radius: 10px;
+    background: var(--dbx-panel-inner-bg-top, #ffffff);
+    box-shadow: var(--dbx-shadow-sm, 0 5px 14px rgba(20, 58, 96, .1));
+}
+
+.dbxdocs-search-result > span,
+.dbxdocs-page-toc > summary {
+    color: var(--dbx-docs-accent);
+    font-weight: 800;
+}
+
+.dbxdocs-page-toc > summary {
+    cursor: pointer;
+}
+
+.dbxdocs-page-toc > ol {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: .25rem .85rem;
+    margin: .5rem 0 0;
+}
+
+.dbx-documentation-page :where(.dbx-note, .dbx-callout) {
+    margin: 1rem 0;
+    padding: .85rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--dbx-primary, #0d6efd) 30%, var(--dbx-panel-border-light, #b9d1eb));
+    border-left: 5px solid var(--dbx-primary, #0d6efd);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--dbx-panel-inner-bg-top, #ffffff) 88%, var(--dbx-primary, #0d6efd) 12%);
+}
+
+@media (max-width: 1199.98px) {
+    .dbxdocs-home-grid,
+    .dbxdocs-home-quicklinks {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .dbxdocs-home-grid,
+    .dbxdocs-home-quicklinks,
+    .dbxdocs-path-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dbxdocs-home-search {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .dbxdocs-home-search button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .dbxdocs-home-reference,
+    .dbxdocs-area-next,
+    .dbxdocs-search-summary,
+    .dbxdocs-reference-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .dbxdocs-reference-actions {
+        justify-content: flex-start;
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dbxdocs-home-card,
+    .dbxdocs-path-grid > a {
+        transition: none;
+    }
+}

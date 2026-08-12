@@ -72,12 +72,13 @@ class dbxPage_list {
 
      // get all selections and order
      $rgroup='';
-     $rwhere=$oReport->get_sel('dbx_rwhere' ,'');
-     $rrows =$oReport->get_sel('dbx_rrows'  ,10);
-     $rpos  =$oReport->get_sel('dbx_rpos'   ,0);
-     $rsort =$oReport->get_sel('dbx_rsort'  ,'id');
-     $rdesc =$oReport->get_sel('dbx_rdesc'  ,'ASC');
-     $select=$oReport->get_sel('dbx_rselect',0);
+     $rwhere=$oReport->get_fld_val('dbx_rwhere' ,'','varchar|trim');
+     $rrows =$oReport->get_fld_val('dbx_rrows'  ,10,'int|min=1|max=1000');
+     $rpos  =$oReport->get_fld_val('dbx_rpos'   ,0,'int|min=0');
+     $rsort =$oReport->get_fld_val('dbx_rsort'  ,'id','parameter');
+     $rdesc =strtoupper((string)$oReport->get_fld_val('dbx_rdesc','ASC','parameter'));
+     if (!in_array($rdesc, array('ASC', 'DESC'), true)) $rdesc = 'ASC';
+     $select=$oReport->get_fld_val('dbx_rselect',0,'int|min=0');
 
      //if ($rwhere) $rwhere="modul  LIKE '$rwhere%' or action  LIKE '$rwhere%' or work LIKE '$rwhere%' ";
      if ($select) $rwhere=$oReport->add_rwhere_select($rwhere);

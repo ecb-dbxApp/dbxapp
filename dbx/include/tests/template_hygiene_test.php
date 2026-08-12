@@ -26,6 +26,9 @@ foreach ($iterator as $file) {
    if (preg_match('/\son[a-z]+\s*=/i', $source) === 1) {
       $issues[] = 'Inline-Eventhandler';
    }
+   if (preg_match('~\[inc=1\]\s*tpl=[^\[]+\[/inc\]~i', $source) === 1) {
+      $issues[] = 'veralteter Template-Include';
+   }
    if ($issues) {
       $failures[] = str_replace('\\', '/', substr($path, strlen($root) + 1)) . ' (' . implode(', ', $issues) . ')';
    }

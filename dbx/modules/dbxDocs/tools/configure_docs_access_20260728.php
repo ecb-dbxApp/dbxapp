@@ -90,7 +90,7 @@ $binding = $db->get_dd_server_binding_info('dbx|dbxUser');
 $ok = (int)($admin['id'] ?? 0) > 0
     && (int)($admin['status'] ?? 0) === 1
     && str_contains((string)($admin['roles'] ?? ''), 'admin')
-    && (string)dbx()->get_config('dbxLogin', 'register') === '0';
+    && (string)dbx()->get_cfg('dbxLogin', 'register') === '0';
 
 echo json_encode(array(
     'ok' => $ok,

@@ -11,7 +11,6 @@
 
 @htmlonly
 <div class="dbx-tutorial-source">
-<!-- dbxdocs-meta:start --><aside class="dbx-doc-meta" aria-label="Dokumentstatus"><span><small>Seitentyp</small><strong>Tutorial</strong></span><span><small>Zielgruppe</small><strong>Anwender</strong></span><span><small>Gültig für</small><strong>dbxapp 4.1.3</strong></span><span><small>Stand</small><strong>1. August 2026</strong></span><a href="dbxcontent_tutorial_tutorial_workflow_nutzen.html">QuelleKanonische Seite</a></aside><!-- dbxdocs-meta:end -->
 <p class="lead">Dieses Tutorial erklärt die tägliche Bedienung eines dbxWorkflow-Ablaufs: Start, Eingaben, automatische Prüfungen, Fachmodule, Entscheidungen, Pause und kontrollierter Abschluss.</p>
 
 <div class="alert alert-primary"><strong>Wichtig:</strong> Jeder neue Start erzeugt eine eigene Instanz mit einem Snapshot der zu diesem Zeitpunkt aktiven Admin-Definition. Ein unbekannter oder deaktivierter Workflow-Key wird abgelehnt.</div>

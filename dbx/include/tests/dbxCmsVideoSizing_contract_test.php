@@ -1,6 +1,7 @@
 <?php
 
 $base = dirname(__DIR__, 2);
+require_once __DIR__ . '/dbxCssTestReader.php';
 $failures = array();
 
 $assert = static function(bool $condition, string $message) use (&$failures): void {
@@ -45,9 +46,9 @@ $assert(
 );
 
 foreach (array('dbxapp', 'dbxdocs', 'steal') as $design) {
-    $baseCss = (string)file_get_contents($base . '/design/' . $design . '/css/base.css');
-    $contentCss = (string)file_get_contents($base . '/design/' . $design . '/css/c-content.css');
-    $cmsCss = (string)file_get_contents($base . '/design/' . $design . '/css/c-cms.css');
+    $baseCss = dbx_test_read_css($base . '/design/' . $design . '/css/base.css');
+    $contentCss = dbx_test_read_css($base . '/design/' . $design . '/css/c-content.css');
+    $cmsCss = dbx_test_read_css($base . '/design/' . $design . '/css/c-cms.css');
     $assert(
         str_contains($contentCss, '.ratio:has(> .dbx-content-inline-video[style*="width"])')
             && str_contains($contentCss, '--bs-aspect-ratio: 0;')
@@ -81,6 +82,15 @@ foreach (array('dbxapp', 'dbxdocs', 'steal') as $design) {
         str_contains($contentCss, '#dbxContent .dbx-content-inline-video[style*="height"] .dbx-content-video-player')
             && str_contains($cmsCss, '#dbxContent .dbx-cms-inline-video-block[style*="height"] .dbx-cms-inline-video-thumb'),
         'Explicit video heights do not override the generic responsive media height in design ' . $design . '.'
+    );
+    $assert(
+        str_contains($contentCss, '@media (max-width: 575.98px)')
+            && str_contains($contentCss, '.dbx-content-inline-video[style*="height"]')
+            && str_contains($contentCss, 'height: auto !important;')
+            && str_contains($contentCss, 'object-fit: contain;')
+            && str_contains($baseCss, '@media (max-width: 575.98px)')
+            && str_contains($baseCss, '.dbx-content-inline-video[style*="height"]'),
+        'Fixed CMS video heights are not converted to a responsive mobile player in design ' . $design . '.'
     );
 }
 

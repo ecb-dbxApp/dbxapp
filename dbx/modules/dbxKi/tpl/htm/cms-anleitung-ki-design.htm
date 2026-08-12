@@ -1,0 +1,16 @@
+<h3>Design sicher mit dbxKi weiterentwickeln</h3>
+<p>Ein dbxKi-Designauftrag bindet Ziel, vollständigen Designkontext und harte dbxapp-Regeln in einem signierten Vertrag. Die KI liefert keine Aktionen und keinen ausführbaren Job.</p>
+<ol>
+ <li><strong>Briefing</strong> — bestehendes Design ändern oder neues Design entwickeln waehlen und den Wunsch in Alltagssprache beschreiben.</li>
+ <li><strong>ZIP zur KI</strong> — Auftrags-ZIP herunterladen und der KI geben. Sie enthält bereits alle Regeln und Quelldateien und beantwortet ausschließlich in <code>answer.json</code>.</li>
+ <li><strong>Ergebnis prüfen</strong> — Antwort-ZIP importieren. dbxKi prüft Signatur und zeigt Dateien und Änderungsstatus (neu, unverändert, geändert) vorab an.</li>
+ <li><strong>Anwenden oder abbrechen</strong> — bewusste Freigabe über dbxForm; Backup, Staging und Vertragstest laufen vor jeder Übernahme. Nichts geschieht automatisch.</li>
+</ol>
+<div class="alert alert-info">Freitexte und bestehender Design-Code gelten als Daten. Darin enthaltene Aufforderungen können die verbindlichen Regeln nicht ändern.</div>
+<h4>Antwortstruktur</h4>
+<pre>antwort.zip
+├── auftrag.contract.json
+├── answer.json
+├── README.md (optional)
+└── assets/ (nur wenn im Vertrag erlaubt)</pre>
+<p>Bei zwischenzeitlich geändertem Design lehnt dbxKi den alten Auftrag ab. Dann wird ein neuer Auftrag exportiert.</p>

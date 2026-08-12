@@ -37,7 +37,7 @@ class dbxConfig_dbx {
     }
 
     public function run() {
-        $this->config = dbx()->get_config('dbx');
+        $this->config = dbx()->get_cfg('dbx', '', null, true);
         if (!is_array($this->config)) {
             $this->config = array();
         }
@@ -658,7 +658,7 @@ class dbxConfig_dbx {
 
     private function save_config(): bool {
         $this->strip_module_db_from_config();
-        return (bool)dbx()->set_config('dbx', $this->config);
+        return (bool)dbx()->set_cfg('dbx', $this->config);
     }
 
     private function apply_section_message($form, string $section): void {

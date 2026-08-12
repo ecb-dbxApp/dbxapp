@@ -203,9 +203,9 @@
                     icon.href = url;
                     const title = getTemplateOverlayTitle(meta.path || '');
 
-                    icon.innerHTML = '<span title="' + escapeHtml(title) + '">🖍️</span>';
+                    icon.innerHTML = '<span data-dbx-tooltip="' + escapeHtml(title) + '">🖍️</span>';
                     icon.className = ICON_CLASS;
-                    icon.title = title;
+                    icon.dataset.dbxTooltip = title;
 
                     icon.setAttribute(
                         'data-dbx',
@@ -1140,7 +1140,7 @@
                     grouped[kind].push(file);
                 });
 
-                let html = '<a class="dbx-menu-link dbx-editor-files-toggle" data-role="toggle" aria-haspopup="true" aria-expanded="false" title="Verwendete Editor-Dateien">';
+                let html = '<a class="dbx-menu-link dbx-editor-files-toggle" data-role="toggle" aria-haspopup="true" aria-expanded="false" data-dbx-tooltip="Verwendete Editor-Dateien">';
                 html += '<i class="bi bi-files"></i><span>' + files.length + '</span><span class="dbx-caret"></span>';
                 html += '</a>';
                 html += '<ul class="dbx-menu-list dbx-editor-files-list">';

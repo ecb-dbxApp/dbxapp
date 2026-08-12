@@ -4,15 +4,20 @@ namespace dbx\dbxKi;
 use dbx\dbxContent\dbxContentLng;
 
 require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
+require_once __DIR__ . '/dbxKiContractService.class.php';
 
 class dbxKiBundleService {
 
-   private const BUNDLE_VERSION = '1.0';
+   private const BUNDLE_VERSION = '2.0';
    private const SESSION_KEY = 'bundle_jobs';
    private const AREA = 'cms';
 
    private function cms(): dbxKiCmsService {
       return dbx()->get_include_obj('dbxKiCmsService', 'dbxKi');
+   }
+
+   private function contracts(): dbxKiContractService {
+      return dbx()->get_include_obj('dbxKiContractService', 'dbxKi');
    }
 
    private function help(): dbxKiHelp {
@@ -39,7 +44,7 @@ class dbxKiBundleService {
    }
 
    private function configInt(string $key, int $default): int {
-      return max(1, (int)dbx()->get_config('dbxKi', $key, $default));
+      return max(1, (int)dbx()->get_cfg('dbxKi', $key, $default));
    }
 
    private function sessionBucket(): array {
@@ -125,9 +130,8 @@ class dbxKiBundleService {
          'export_url' => $this->moduleUrl('bundle_export'),
          'allowed_actions' => $this->allowedActions(),
          'files' => array(
-            'manifest.json' => 'Metadaten (title, recipe, lng, intent, auto_execute)',
-            'job.json' => 'Geordnete steps mit action und params',
-            'context.json' => 'Optionaler Arbeitskontext',
+            'auftrag.contract.json' => 'Unveraenderter, signierter dbxKi-Auftrag',
+            'answer.json' => 'Ausschliesslich die im Auftrag deklarierten Inhaltsfelder',
             'assets/' => 'Optionale Bilder und Dateien',
             'README.md' => 'Kurzbeschreibung fuer Menschen',
          ),
@@ -143,8 +147,8 @@ class dbxKiBundleService {
          ),
          'automation' => array(
             'default' => 'dbxKi importiert ZIP/JSON, validiert alle Steps und zeigt die Vorschau.',
-            'auto_execute' => 'Wenn manifest.auto_execute=true gesetzt ist, startet dbxKi nach erfolgreicher Validierung automatisch den Bundle-Prozess.',
-            'ki_contract' => 'Die KI liefert nur manifest.json, job.json und optionale assets/. Keine externen Runner oder eigenen Tools.',
+            'auto_execute' => 'Antwort-Bundles werden immer zuerst als Vorschau gezeigt und nur mit dbxKi-Ausfuehrungstoken gestartet.',
+            'ki_contract' => 'Die KI liefert nur den unveraenderten Vertrag, answer.json und erlaubte assets/. Aktionen werden von dbxKi rekonstruiert.',
          ),
          'cms' => $cms->bundleSystemDescribe(),
       );
@@ -183,7 +187,7 @@ class dbxKiBundleService {
          'dbxKi|ki-bundle-zip-upload',
          label: $template === 'ki-briefing-import-panel' ? '3  KI-Antwort-ZIP' : 'Antwort-ZIP',
          rules: '',
-         tooltip: 'ZIP-Datei mit manifest.json und job.json auswaehlen.',
+         tooltip: 'ZIP-Datei mit auftrag.contract.json und answer.json auswaehlen.',
          errormsg: 'Bitte eine gueltige ZIP-Datei auswaehlen.',
          dd: ''
       );
@@ -222,8 +226,21 @@ class dbxKiBundleService {
     * werden wie bisher durch die API-/Jobvalidierung behandelt.
     */
    public function handleImport(): string {
+      // Ergebnis-Fenster: derselbe Endpunkt liefert bei einem reinen GET mit
+      // bekanntem Token (kein neuer Upload) direkt die bereits gespeicherte
+      // Vorschau erneut aus - dadurch ist die Vorschau per URL adressierbar
+      // und laesst sich in ein openWin-Fenster laden (siehe handleImport()
+      // Erfolgszweig unten und kiResultWindow.js).
+      $existingToken = $this->sanitizeToken((string)dbx()->get_request_var('token', '', '*'));
+      if ($existingToken !== '' && $this->firstUploadFile() === array() && !isset($_POST['return_run1'])) {
+         $state = $this->getJob($existingToken);
+         if ($state !== array()) {
+            return $this->renderPreviewPage($existingToken, $state);
+         }
+      }
+
+      $isBrowserUpload = $this->firstUploadFile() !== array() || isset($_POST['return_run1']);
       try {
-         $isBrowserUpload = $this->firstUploadFile() !== array() || isset($_POST['return_run1']);
          if ($isBrowserUpload) {
             $importForm = $this->importForm(
                'ki-briefing-import-panel',
@@ -235,11 +252,19 @@ class dbxKiBundleService {
          }
          $token = $this->newToken();
          $payload = $this->readImportPayload($token);
-         $manifest = is_array($payload['manifest'] ?? null) ? $payload['manifest'] : array();
-         $context = is_array($payload['context'] ?? null) ? $payload['context'] : array();
-         $job = is_array($payload['job'] ?? null) ? $payload['job'] : array();
+         $contract = is_array($payload['contract'] ?? null) ? $payload['contract'] : array();
+         $answer = is_array($payload['answer'] ?? null) ? $payload['answer'] : array();
          $assetsDir = (string)($payload['assets_dir'] ?? '');
          $readme = (string)($payload['readme'] ?? '');
+
+         $bound = $this->contracts()->bind($contract, $answer, $assetsDir);
+         if (($bound['contract']['area'] ?? '') !== self::AREA) {
+            throw new \InvalidArgumentException('Der Auftrag ist kein CMS-Auftrag.');
+         }
+         $manifest = (array)$bound['manifest'];
+         $job = (array)$bound['job'];
+         $this->validateSnapshot((array)$bound['contract']);
+         $this->validateRecipe((array)$bound['contract'], $job);
 
          $validation = $this->validateJob($job, $assetsDir);
          $preview = $this->buildPreview($job, $assetsDir, $manifest);
@@ -251,7 +276,9 @@ class dbxKiBundleService {
             'step_percent' => 0,
             'message' => 'Bundle geprueft. Ausfuehrung starten.',
             'manifest' => $manifest,
-            'context' => $context,
+            'contract' => $bound['contract'],
+            'answer' => $answer,
+            'context' => array(),
             'job' => $job,
             'assets_dir' => $assetsDir,
             'readme' => $readme,
@@ -267,23 +294,9 @@ class dbxKiBundleService {
          );
          $this->setJob($token, $state);
 
-         if ($this->manifestAutoExecute($manifest)) {
-            try {
-               $this->authorizeAutoExecuteManifest();
-               $state['status'] = 'running';
-               $state['message'] = 'Bundle geprueft. Automatische Ausfuehrung gestartet.';
-               $this->setJob($token, $state);
-               $next = $this->moduleUrl('bundle_process', array('proc_key' => $token));
-               return $this->renderProcess($state, $next);
-            } catch (\Throwable $e) {
-               $state['status'] = 'error';
-               $state['message'] = $e->getMessage();
-               $this->setJob($token, $state);
-               $next = $this->moduleUrl('bundle_process', array('proc_key' => $token));
-               return $this->renderProcess($state, $next);
-            }
+         if ($isBrowserUpload) {
+            return $this->renderImportSuccess($token, $state);
          }
-
          return $this->renderPreviewPage($token, $state);
       } catch (\Throwable $e) {
          dbx()->sys_msg('error', 'dbxKi', 'bundle_import', 'Import fehlgeschlagen', $e->getMessage());
@@ -304,30 +317,23 @@ class dbxKiBundleService {
          return $this->extractZipUpload($file, $token);
       }
 
-      $rawJob = trim((string)($_POST['job_json'] ?? ''));
-      if ($rawJob !== '') {
-         $job = json_decode($rawJob, true);
-         if (!is_array($job)) {
-            throw new \InvalidArgumentException('job_json ist kein gueltiges JSON.');
-         }
-         $manifest = array('title' => 'JSON-Job', 'lng' => dbxContentLng::current(), 'bundle_version' => self::BUNDLE_VERSION);
-         $rawManifest = trim((string)($_POST['manifest_json'] ?? ''));
-         if ($rawManifest !== '') {
-            $decoded = json_decode($rawManifest, true);
-            if (is_array($decoded)) {
-               $manifest = array_merge($manifest, $decoded);
-            }
+      $rawContract = trim((string)($_POST['contract_json'] ?? ''));
+      $rawAnswer = trim((string)($_POST['answer_json'] ?? ''));
+      if ($rawContract !== '' || $rawAnswer !== '') {
+         $contract = json_decode($rawContract, true);
+         $answer = json_decode($rawAnswer, true);
+         if (!is_array($contract) || !is_array($answer)) {
+            throw new \InvalidArgumentException('contract_json und answer_json muessen gueltiges JSON sein.');
          }
          return array(
-            'manifest' => $manifest,
-            'context' => array(),
-            'job' => $job,
+            'contract' => $contract,
+            'answer' => $answer,
             'assets_dir' => '',
             'readme' => '',
          );
       }
 
-      throw new \InvalidArgumentException('Bitte ZIP-Datei oder job.json senden.');
+      throw new \InvalidArgumentException('Bitte Antwort-ZIP oder contract_json plus answer_json senden.');
    }
 
    private function firstUploadFile(): array {
@@ -404,31 +410,41 @@ class dbxKiBundleService {
       $zip->close();
 
       $root = $this->findBundleRoot($dest);
-      $manifest = $this->readJsonFile($root . '/manifest.json', false);
-      $context = $this->readJsonFile($root . '/context.json', false);
-      $job = $this->readJsonFile($root . '/job.json', true);
+      $this->validateResponseTree($root);
+      $contract = $this->readJsonFile($root . '/auftrag.contract.json', true);
+      $answer = $this->readJsonFile($root . '/answer.json', true);
       $readme = is_file($root . '/README.md') ? (string)file_get_contents($root . '/README.md') : '';
       $assetsDir = is_dir($root . '/assets') ? $root . '/assets' : '';
 
       return array(
-         'manifest' => is_array($manifest) ? $manifest : array(),
-         'context' => is_array($context) ? $context : array(),
-         'job' => $job,
+         'contract' => $contract,
+         'answer' => $answer,
          'assets_dir' => $assetsDir,
          'readme' => $readme,
       );
    }
 
    private function findBundleRoot(string $dest): string {
-      if (is_file($dest . '/job.json')) {
+      if (is_file($dest . '/auftrag.contract.json')) {
          return $dest;
       }
       foreach (glob($dest . '/*', GLOB_ONLYDIR) ?: array() as $dir) {
-         if (is_file($dir . '/job.json')) {
+         if (is_file($dir . '/auftrag.contract.json')) {
             return $dir;
          }
       }
-      throw new \InvalidArgumentException('job.json im Bundle nicht gefunden.');
+      throw new \InvalidArgumentException('auftrag.contract.json im Bundle nicht gefunden.');
+   }
+
+   private function validateResponseTree(string $root): void {
+      $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
+      foreach ($it as $item) {
+         if (!$item->isFile()) continue;
+         $relative = str_replace('\\', '/', substr($item->getPathname(), strlen(rtrim($root, '/\\')) + 1));
+         if (in_array($relative, array('auftrag.contract.json', 'answer.json', 'README.md'), true)) continue;
+         if (str_starts_with($relative, 'assets/')) continue;
+         throw new \InvalidArgumentException('Nicht erlaubte Datei in Antwort-ZIP: ' . $relative);
+      }
    }
 
    private function readJsonFile(string $path, bool $required): array {
@@ -446,13 +462,61 @@ class dbxKiBundleService {
       return $data;
    }
 
+   private function validateSnapshot(array $contract): void {
+      $snapshot = is_array($contract['snapshot'] ?? null) ? $contract['snapshot'] : array();
+      $type = strtolower(trim((string)($snapshot['type'] ?? '')));
+      if ($type === '') return;
+      $lng = strtolower(trim((string)($snapshot['lng'] ?? '')));
+      $id = (int)($snapshot['id'] ?? 0);
+      if ($id <= 0) {
+         throw new \InvalidArgumentException('Der Auftrags-Snapshot enthaelt kein gueltiges Ziel.');
+      }
+      if ($type === 'folder') {
+         $current = $this->cms()->bundleRead('folder.get', array('lng' => $lng, 'id' => $id));
+         $row = is_array($current['row'] ?? null) ? $current['row'] : array();
+         $values = array();
+         foreach ((array)($snapshot['fields'] ?? array()) as $field) $values[(string)$field] = $row[(string)$field] ?? null;
+         if (($snapshot['fingerprint'] ?? '') !== '' && !hash_equals((string)$snapshot['fingerprint'], $this->contracts()->fingerprint($values))) {
+            throw new \RuntimeException('Der Zielordner wurde seit dem Export veraendert. Bitte Auftrag neu exportieren.');
+         }
+         return;
+      }
+      if ($type !== 'page') {
+         throw new \InvalidArgumentException('Unbekannter Auftrags-Snapshot: ' . $type);
+      }
+      $current = $this->cms()->bundleRead('page.get', array('lng' => $lng, 'id' => $id));
+      $row = is_array($current['row'] ?? null) ? $current['row'] : array();
+      $values = array();
+      foreach ((array)($snapshot['fields'] ?? array()) as $field) {
+         $values[(string)$field] = $row[(string)$field] ?? null;
+      }
+      $actual = $this->contracts()->fingerprint($values);
+      if (!hash_equals((string)($snapshot['fingerprint'] ?? ''), $actual)) {
+         throw new \RuntimeException('Die CMS-Seite wurde seit dem Export veraendert. Bitte einen neuen KI-Auftrag exportieren.');
+      }
+   }
+
+   private function validateRecipe(array $contract, array $job): void {
+      $recipe = strtolower(trim((string)($contract['recipe'] ?? '')));
+      $allowed = array('page.create.v1', 'page.update.v1', 'translation.v1');
+      if (!in_array($recipe, $allowed, true)) {
+         throw new \InvalidArgumentException('Nicht unterstuetztes CMS-Rezept: ' . $recipe);
+      }
+      $manifestRecipe = strtolower(trim((string)($contract['metadata']['recipe'] ?? '')));
+      if ($manifestRecipe !== $recipe) {
+         throw new \InvalidArgumentException('Rezept und signierte Metadaten widersprechen sich.');
+      }
+      if (!is_array($job['steps'] ?? null) || !$job['steps']) {
+         throw new \InvalidArgumentException('Der signierte Auftrag enthaelt keine Ausfuehrungsschritte.');
+      }
+   }
+
    private function validateJob(array $job, string $assetsDir): array {
       $steps = $job['steps'] ?? null;
       if (!is_array($steps) || !$steps) {
-         throw new \InvalidArgumentException('job.json muss ein nicht-leeres steps-Array enthalten.');
+         throw new \InvalidArgumentException('Der intern gebundene Plan muss mindestens einen Schritt enthalten.');
       }
 
-      $warnings = array();
       $errors = array();
       $seenIds = array();
       $stepResults = array();
@@ -494,7 +558,7 @@ class dbxKiBundleService {
                $stepResults[$id] = $this->syntheticStepResult($action);
                continue;
             }
-            $warnings[] = 'Step ' . $id . ' (' . $action . '): ' . $e->getMessage();
+            $errors[] = 'Step ' . $id . ' (' . $action . '): ' . $e->getMessage();
          }
       }
 
@@ -505,7 +569,7 @@ class dbxKiBundleService {
       return array(
          'ok' => 1,
          'step_count' => count($steps),
-         'warnings' => $warnings,
+         'warnings' => array(),
       );
    }
 
@@ -540,6 +604,38 @@ class dbxKiBundleService {
          'lines' => $lines,
          'step_count' => count($job['steps'] ?? array()),
       );
+   }
+
+   /**
+    * Kompaktes Erfolgsfragment fuer den Upload-Request selbst: das eigentliche
+    * Vorschaufenster wird per kiResultWindow.js automatisch in einem
+    * openWin-Fenster geoeffnet (URL = derselbe Endpunkt mit ?token=..., siehe
+    * handleImport()-Kopf), statt die Vorschau inline auf der Seite zu zeigen.
+    */
+   private function renderImportSuccess(string $token, array $state): string {
+      $tpl = dbx()->get_system_obj('dbxTPL');
+      $title = trim((string)($state['title'] ?? 'KI-Bundle'));
+      return $tpl->get_tpl('dbxKi|ki-bundle-import-success', array(
+         'message' => 'Bundle geprueft. Vorschau wird geoeffnet ...',
+         'preview_url' => $this->esc($this->moduleUrl('bundle_import', array('token' => $token))),
+         'window_title' => $this->esc($title !== '' ? $title : 'KI-Bundle-Vorschau'),
+      ));
+   }
+
+   /**
+    * Verwirft einen geprueften, aber noch nicht ausgefuehrten Bundle-Job.
+    * Von "Verwerfen" im Vorschaufenster per AJAX aufgerufen (kiResultWindow.js
+    * schliesst das Fenster danach clientseitig).
+    */
+   public function handleDiscard(): void {
+      $token = $this->sanitizeToken((string)dbx()->get_request_var('token', '', '*'));
+      if ($token !== '') {
+         $this->removeJobDir($token);
+         unset($_SESSION['dbx']['dbxKi'][self::SESSION_KEY][$token]);
+      }
+      header('Content-Type: text/plain; charset=utf-8');
+      echo 'ok';
+      exit;
    }
 
    private function renderPreviewPage(string $token, array $state): string {
@@ -584,7 +680,7 @@ class dbxKiBundleService {
          'proc_cmd' => 'start',
          'token' => $this->cms()->bundleExecuteToken(),
       ));
-      $footerActions = $this->buildImportFooterActions($state, true, $startUrl, $backUrl);
+      $footerActions = $this->buildImportFooterActions($state, true, $startUrl, $backUrl, $token);
       $barTitle = trim((string)($state['title'] ?? ''));
 
       return $tpl->get_tpl('dbxKi|ki-bundle-preview', $this->withModuleBar(array(
@@ -641,11 +737,17 @@ class dbxKiBundleService {
       return array('cid' => 0, 'lng' => $lng);
    }
 
-   private function buildImportFooterActions(array $state, bool $showExecute, string $executeUrl, string $backUrl): string {
+   private function buildImportFooterActions(array $state, bool $showExecute, string $executeUrl, string $backUrl, string $token = ''): string {
       $html = '';
       if ($showExecute && $executeUrl !== '') {
-         $html .= '<a class="btn btn-primary btn-sm" href="' . $this->esc($executeUrl)
-            . '"><i class="bi bi-play-fill"></i> Ausfuehren</a>';
+         $html .= '<button type="button" class="btn btn-primary btn-sm" data-dbx-ki-inline-action="' . $this->esc($executeUrl)
+            . '"><i class="bi bi-play-fill"></i> Ausfuehren</button>';
+      }
+      if ($token !== '') {
+         $html .= '<button type="button" class="btn btn-outline-danger btn-sm" data-dbx-ki-discard="'
+            . $this->esc($this->moduleUrl('bundle_discard', array('token' => $token)))
+            . '" data-confirm="Bundle wirklich verwerfen? Die Aenderungen werden nicht uebernommen.">'
+            . '<i class="bi bi-x-lg"></i> Verwerfen</button>';
       }
 
       $pageRef = $this->resolveContentPageRef($state);
@@ -744,7 +846,7 @@ class dbxKiBundleService {
       }
 
       if (($state['status'] ?? '') === 'running') {
-         $this->tickJob($state);
+         $this->executeAtomically($state);
       }
 
       $this->setJob($token, $state);
@@ -753,7 +855,7 @@ class dbxKiBundleService {
    }
 
    private function authorizeBundleExecute(): void {
-      if ((int)dbx()->get_config('dbxKi', 'allow_execute', 1) !== 1) {
+      if ((int)dbx()->get_cfg('dbxKi', 'allow_execute', 1) !== 1) {
          throw new \RuntimeException('Automatische Ausfuehrung ist deaktiviert (allow_execute).');
       }
       $token = trim((string)($_GET['token'] ?? $_POST['token'] ?? ''));
@@ -762,19 +864,104 @@ class dbxKiBundleService {
       }
    }
 
-   private function manifestAutoExecute(array $manifest): bool {
-      $value = $manifest['auto_execute'] ?? false;
-      if (is_bool($value)) {
-         return $value;
+   private function executeAtomically(array &$state): void {
+      $db = dbx()->get_system_obj('dbxDB');
+      $dds = $this->transactionDds((array)($state['job'] ?? array()));
+      $started = array();
+      try {
+         foreach ($dds as $dd) {
+            if ($db->begin($dd) !== 1) {
+               throw new \RuntimeException('Transaktion konnte fuer ' . $dd . ' nicht gestartet werden.');
+            }
+            $started[] = $dd;
+         }
+         $guard = 0;
+         while (($state['status'] ?? '') === 'running') {
+            $this->tickJob($state);
+            if (++$guard > 1000) {
+               $state['status'] = 'error';
+               $state['message'] = 'Bundle-Abbruch: ungueltige Schrittfolge.';
+            }
+         }
+         if (($state['status'] ?? '') !== 'finished') {
+            throw new \RuntimeException((string)($state['message'] ?? 'Bundle-Ausfuehrung fehlgeschlagen.'));
+         }
+         $state['verified'] = count((array)($state['step_results'] ?? array())) === count((array)($state['job']['steps'] ?? array()));
+         if (!$state['verified']) {
+            throw new \RuntimeException('Nachpruefung der Bundle-Ergebnisse fehlgeschlagen.');
+         }
+         foreach ($started as $dd) {
+            if ($db->commit($dd) !== 1) {
+               throw new \RuntimeException('Transaktion konnte nicht abgeschlossen werden.');
+            }
+         }
+         $this->contracts()->consume((array)($state['contract'] ?? array()));
+         $this->discardFileBackups((array)($state['file_backups'] ?? array()));
+         $state['file_backups'] = array();
+      } catch (\Throwable $e) {
+         foreach (array_reverse($started) as $dd) {
+            $db->rollback($dd);
+         }
+         $this->removeCreatedMediaFiles((array)($state['step_results'] ?? array()));
+         $this->restoreFileBackups((array)($state['file_backups'] ?? array()));
+         $state['file_backups'] = array();
+         $state['status'] = 'error';
+         $state['rolled_back'] = true;
+         $state['message'] = 'Bundle vollstaendig zurueckgerollt: ' . $e->getMessage();
       }
-      $value = strtolower(trim((string)$value));
-      return in_array($value, array('1', 'true', 'yes', 'ja', 'on'), true);
    }
 
-   private function authorizeAutoExecuteManifest(): void {
-      if ((int)dbx()->get_config('dbxKi', 'allow_execute', 1) !== 1) {
-         throw new \RuntimeException('Automatische Ausfuehrung ist deaktiviert (allow_execute).');
+   private function transactionDds(array $job): array {
+      $dds = array('dbxMedia', 'dbxMediaUsage');
+      foreach ((array)($job['steps'] ?? array()) as $step) {
+         $params = is_array($step['params'] ?? null) ? $step['params'] : array();
+         foreach (array('lng', 'source_lng', 'target_lng') as $key) {
+            $lng = strtolower(trim((string)($params[$key] ?? '')));
+            if ($lng !== '') {
+               $dds[] = dbxContentLng::ddContent($lng);
+               $dds[] = dbxContentLng::ddFolder($lng);
+            }
+         }
       }
+      return array_values(array_unique($dds));
+   }
+
+   private function removeCreatedMediaFiles(array $results): void {
+      $root = rtrim(str_replace('\\', '/', dbx()->get_file_dir()), '/') . '/';
+      foreach ($results as $result) {
+         $relative = str_replace('\\', '/', (string)($result['row']['file_path'] ?? $result['media']['file_path'] ?? ''));
+         if ($relative === '' || str_contains($relative, '..')) continue;
+         $file = dbx()->os_path($root . ltrim($relative, '/'));
+         $normalized = str_replace('\\', '/', $file);
+         if (str_starts_with($normalized, $root) && is_file($file)) {
+            @unlink($file);
+         }
+      }
+   }
+
+   private function captureFileBackups(array $plan, array &$state): void {
+      $target = (string)($plan['target_file'] ?? '');
+      if ($target === '' || !is_file($target)) return;
+      $key = str_replace('\\', '/', $target);
+      if (isset($state['file_backups'][$key])) return;
+      $backup = tempnam(sys_get_temp_dir(), 'dbxki-file-rollback-');
+      if ($backup === false || !copy($target, $backup)) {
+         throw new \RuntimeException('Dateisicherung fuer Rollback fehlgeschlagen.');
+      }
+      $state['file_backups'][$key] = $backup;
+   }
+
+   private function restoreFileBackups(array $backups): void {
+      foreach ($backups as $target => $backup) {
+         if (is_file((string)$backup)) {
+            @copy((string)$backup, dbx()->os_path((string)$target));
+            @unlink((string)$backup);
+         }
+      }
+   }
+
+   private function discardFileBackups(array $backups): void {
+      foreach ($backups as $backup) if (is_file((string)$backup)) @unlink((string)$backup);
    }
 
    private function tickJob(array &$state): void {
@@ -804,6 +991,7 @@ class dbxKiBundleService {
          $params = is_array($step['params'] ?? null) ? $step['params'] : array();
          $resolved = $this->resolveParams($params, $stepResults, $assetsDir, false);
          $plan = $this->cms()->bundleBuildPlan($action, $resolved);
+         $this->captureFileBackups($plan, $state);
          $result = $this->cms()->bundleExecutePlan($action, $resolved, $plan);
          $stepResults[$stepId] = $this->normalizeStepResult($action, $result);
          $state['step_results'] = $stepResults;
@@ -1108,101 +1296,11 @@ class dbxKiBundleService {
    }
 
    public function handleExport(): void {
-      if (!class_exists('ZipArchive')) {
-         dbx()->json_response(array('ok' => 0, 'error' => 'ZipArchive nicht verfuegbar.'), true);
-      }
-
-      $cms = $this->cms();
-      $lng = dbxContentLng::current();
-      $describe = $this->describeBundle();
-      $snapshot = $cms->bundleSnapshot(array('lng' => $lng, 'limit' => 50));
-      $instructionsPath = dirname(__DIR__) . '/KI-INSTRUCTIONS.md';
-      $instructions = is_file($instructionsPath) ? file_get_contents($instructionsPath) : '';
-
-      $manifest = array(
-         'bundle_version' => self::BUNDLE_VERSION,
-         'api_version' => '0.1',
-         'title' => 'dbxKi CMS Briefing',
-         'recipe' => 'page.create.v1',
-         'lng' => $lng,
-         'intent' => 'create',
-         'area' => self::AREA,
-         'auto_execute' => true,
-      );
-
-      $exampleJob = array(
-         'steps' => array(
-            array(
-               'id' => 'hero',
-               'action' => 'media.create_base64',
-               'params' => array(
-                  'file_name' => 'hero.jpg',
-                  'asset_ref' => 'hero.jpg',
-                  'title' => 'Hero',
-                  'alt' => 'Hero-Bild',
-               ),
-            ),
-            array(
-               'id' => 'page',
-               'action' => 'page.create',
-               'params' => array(
-                  'lng' => $lng,
-                  'folder_id' => 1,
-                  'title' => 'Neue KI-Seite',
-                  'template' => 'c-title-hero_header-body1-footer',
-                  'content' => '<p>Inhalt der Seite</p>',
-               ),
-            ),
-            array(
-               'id' => 'hero_assign',
-               'action' => 'media.assign',
-               'params' => array(
-                  'media_id' => '$ref:hero.media_id',
-                  'content_id' => '$ref:page.page_id',
-                  'slot' => 'hero',
-                  'lng' => $lng,
-               ),
-            ),
-         ),
-      );
-
-      $context = array(
-         'lng' => $lng,
-         'snapshot' => $snapshot,
-         'note' => 'Ordner- und Seiten-IDs aus snapshot fuer folder_id / page.update verwenden.',
-      );
-
-      $readme = "# dbxKi CMS Bundle\n\n"
-         . "1. job.json und optionale assets/ bearbeiten\n"
-         . "2. ZIP mit manifest.json, job.json, README.md erstellen\n"
-         . "3. In dbxKi unter Bundle importieren\n";
-
-      $tmp = tempnam(sys_get_temp_dir(), 'dbxki');
-      $zip = new \ZipArchive();
-      if ($zip->open($tmp, \ZipArchive::OVERWRITE) !== true) {
-         @unlink($tmp);
-         throw new \RuntimeException('Export-ZIP konnte nicht erstellt werden.');
-      }
-
-      $zip->addFromString('manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-      $zip->addFromString('job.json', json_encode($exampleJob, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-      $zip->addFromString('context.json', json_encode($context, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-      $zip->addFromString('bundle.describe.json', json_encode($describe, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-      $zip->addFromString('README.md', $readme);
-      if ($instructions !== '') {
-         $zip->addFromString('KI-INSTRUCTIONS.md', $instructions);
-      }
-      $zip->close();
-
-      $name = 'dbxki-cms-briefing-' . $lng . '.zip';
-      header('Content-Type: application/zip');
-      header('Content-Disposition: attachment; filename="' . $name . '"');
-      header('Content-Length: ' . filesize($tmp));
-      readfile($tmp);
-      @unlink($tmp);
+      // Freie Beispiel-Jobs sind in Vertragsversion 2 entfallen. Jeder
+      // Auftrag wird mit konkretem Ziel und Snapshot im Briefing signiert.
+      header('Location: ' . $this->moduleUrl('briefing'));
       exit;
    }
-
    public function handleDescribeJson(): void {
       dbx()->json_response($this->describeBundle(), true);
    }

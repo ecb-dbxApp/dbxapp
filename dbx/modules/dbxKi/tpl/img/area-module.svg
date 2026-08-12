@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" role="img" aria-label="Modul-KI">
+  <defs>
+    <linearGradient id="m-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2fffb"/>
+      <stop offset="1" stop-color="#b9ecdf"/>
+    </linearGradient>
+    <linearGradient id="m-teal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2fd7ba"/>
+      <stop offset="1" stop-color="#0a9c84"/>
+    </linearGradient>
+    <linearGradient id="m-teal-dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#18b39a"/>
+      <stop offset="1" stop-color="#0b7a68"/>
+    </linearGradient>
+    <linearGradient id="m-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffc266"/>
+      <stop offset="1" stop-color="#f5941f"/>
+    </linearGradient>
+    <filter id="m-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0a5a4c" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="400" height="220" rx="24" fill="url(#m-bg)"/>
+  <g filter="url(#m-shadow)">
+    <!-- isometric module box -->
+    <path d="M200 40l64 34v68l-64 34-64-34V74z" fill="#ffffff" stroke="#8fe0cf"/>
+    <path d="M200 40l64 34-64 34-64-34z" fill="#e3fbf5"/>
+    <path d="M200 108l64-34v68l-64 34z" fill="url(#m-teal)"/>
+    <path d="M200 108l-64-34v68l64 34z" fill="#bdeee2"/>
+    <path d="M182 62l36 20M164 72l36 20M182 82l36 20" stroke="#7fd6c2" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+  </g>
+  <g filter="url(#m-shadow)">
+    <circle cx="296" cy="150" r="32" fill="url(#m-amber)"/>
+    <circle cx="296" cy="150" r="13" fill="#ffffff"/>
+    <circle cx="296" cy="150" r="6" fill="#f5941f"/>
+    <g stroke="#ffffff" stroke-width="6" stroke-linecap="round">
+      <path d="M296 128v-6"/>
+      <path d="M296 178v-6"/>
+      <path d="M274 150h-6"/>
+      <path d="M324 150h-6"/>
+      <path d="M280 134l-4-4"/>
+      <path d="M312 166l-4-4"/>
+      <path d="M280 166l-4 4"/>
+      <path d="M312 134l-4 4"/>
+    </g>
+  </g>
+  <g filter="url(#m-shadow)">
+    <circle cx="90" cy="58" r="26" fill="url(#m-teal-dark)"/>
+    <rect x="78" y="48" width="24" height="20" rx="4" fill="#ffffff"/>
+    <path d="M84 48v-6a6 6 0 0 1 12 0v6" fill="none" stroke="#ffffff" stroke-width="4"/>
+  </g>
+  <g fill="#0ea394" opacity=".16">
+    <circle cx="345" cy="60" r="16"/>
+    <circle cx="60" cy="170" r="12"/>
+  </g>
+</svg>

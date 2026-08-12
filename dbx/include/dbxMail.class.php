@@ -208,7 +208,7 @@ class dbxMail {
   public function delivery_mode(): string {
     $mode = 'internal';
     if (function_exists('dbx')) {
-      $configured = dbx()->get_config('dbx', 'mail_delivery_mode', 'internal');
+      $configured = dbx()->get_cfg('dbx', 'mail_delivery_mode', 'internal');
       if (is_scalar($configured)) {
         $mode = strtolower(trim((string)$configured));
       }
@@ -271,12 +271,12 @@ class dbxMail {
     $config = array();
 
     if (function_exists('dbx')) {
-      $cfg = dbx()->get_config('dbx', 'mail');
+      $cfg = dbx()->get_cfg('dbx', 'mail');
       if (is_array($cfg)) {
         $config = $cfg;
       }
 
-      $defaultMail = dbx()->get_config('dbx', 'default_mail');
+      $defaultMail = dbx()->get_cfg('dbx', 'default_mail');
       if ($defaultMail !== 'undef' && $defaultMail !== '') {
         $config['default'] = (string) $defaultMail;
       }

@@ -30,7 +30,7 @@ mkdir($testDir, 0777, true);
 mkdir($logDir, 0777, true);
 file_put_contents(
     $testDir . '/demo_test.php',
-    "<?php if (getenv('DBX_SELFTEST') !== '1') { fwrite(STDERR, 'FAIL missing test context'); exit(9); } echo 'PASS demo';\n"
+    "<?php\n/** Prüft den kontrollierten Testkontext des isolierten Demo-Tests. */\nif (getenv('DBX_SELFTEST') !== '1') { fwrite(STDERR, 'FAIL missing test context'); exit(9); } echo 'PASS demo';\n"
 );
 file_put_contents($testDir . '/demo_test.js', "console.log('PASS browser demo');\n");
 
@@ -39,9 +39,21 @@ try {
     $runnerSource = (string)file_get_contents(dirname(__DIR__) . '/include/dbxSelfTestRunner.class.php');
     $controllerSource = (string)file_get_contents(dirname(__DIR__) . '/include/dbxSelfTestController.class.php');
     $dashboardSource = (string)file_get_contents(dirname(__DIR__) . '/tpl/js/selftest.js');
-    selftest_assert(str_contains($runnerSource, "array(\$php, '-n', '-l', \$file)"), 'PHP-Syntaxchecks muessen ohne php.ini-Startkosten laufen.');
+    selftest_assert(
+        str_contains($runnerSource, 'token_get_all($source, TOKEN_PARSE)')
+            && !str_contains($runnerSource, "array(\$php, '-n', '-l', \$file)"),
+        'PHP-Syntaxchecks muessen ohne wiederholte PHP-Prozessstarts laufen.'
+    );
     selftest_assert(str_contains($controllerSource, '@set_time_limit(360)'), 'Lange Web-Systemtests brauchen ein kontrolliertes Request-Zeitlimit.');
-    selftest_assert(str_contains($dashboardSource, 'runningTestId') && str_contains($dashboardSource, 'response.text()'), 'Das Dashboard muss Aktivitaet und nicht-JSON Serverfehler aussagekraeftig behandeln.');
+    selftest_assert(str_contains($dashboardSource, 'updateRowStatus(id, "running")') && str_contains($dashboardSource, 'response.text()'), 'Das Dashboard muss Aktivitaet und nicht-JSON Serverfehler aussagekraeftig behandeln.');
+    $rowNameSource = (string)file_get_contents(dirname(__DIR__) . '/tpl/htm/selftest-run-name.htm');
+    selftest_assert(
+        !str_contains($dashboardSource, '.title = description;')
+            && !str_contains($dashboardSource, 'dataset.tooltip')
+            && str_contains($rowNameSource, 'data-dbx-tooltip="{tooltip_html}"')
+            && str_contains($controllerSource, "\$tooltipHtml = '<strong>' . \$this->h(\$row['name']) . '</strong>';"),
+        'SelfTest-Testname muss ausschliesslich den zentralen dbx-Tooltip nutzen.'
+    );
     $startFunction = strpos($dashboardSource, 'async function startRun(profile, ids)');
     $busyGuard = $startFunction === false ? false : strpos($dashboardSource, 'if (state.busy) return;', $startFunction);
     $busyLock = $busyGuard === false ? false : strpos($dashboardSource, 'setBusy(true);', $busyGuard);
@@ -60,6 +72,16 @@ try {
     selftest_assert(count($catalog) >= 8, 'Systemtests und Fixture-Test muessen entdeckt werden.');
     selftest_assert(count($demo) === 1, 'PHP-Test muss genau einmal im Katalog stehen.');
     selftest_assert(count($browserDemo) === 1 && $browserDemo[0]['execution'] === 'browser', 'JavaScript-Test muss fuer den Browser katalogisiert werden.');
+    selftest_assert(($demo[0]['isolation'] ?? '') === 'process', 'PHP-Test braucht explizite Prozessisolation.');
+    selftest_assert(
+        ($demo[0]['description'] ?? '') === 'Prüft den kontrollierten Testkontext des isolierten Demo-Tests.',
+        'Der einleitende Testkommentar muss als konkrete UI-Erklärung erscheinen.'
+    );
+    selftest_assert(array_key_exists('resources', $demo[0]), 'Testressourcen muessen im Katalog dokumentiert sein.');
+    selftest_assert(
+        count(array_filter($catalog, static fn(array $test): bool => trim((string)($test['description'] ?? '')) === '')) === 0,
+        'Jeder Test im Katalog braucht eine aussagekraeftige Beschreibung.'
+    );
 
     $run = $runner->startRun('full', array($demo[0]['id']), 'single');
     $result = $runner->executeRunTest($run['id'], $demo[0]['id']);

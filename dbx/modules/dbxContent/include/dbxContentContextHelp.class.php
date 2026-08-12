@@ -47,7 +47,7 @@ class dbxContentContextHelp {
       }
 
       if ($lng === '') {
-         $lng = function_exists('dbx_lng_current') ? dbx_lng_current() : 'de';
+         $lng = dbx()->lng_current();
       }
       $lng = strtolower(trim($lng));
 
@@ -67,7 +67,7 @@ class dbxContentContextHelp {
          return (int) $rec['id'];
       }
 
-      $masterLng = strtolower(trim((string) dbx()->get_config('dbx', 'default_lng', 'de')));
+      $masterLng = strtolower(trim((string) dbx()->get_cfg('dbx', 'default_lng', 'de')));
       if ($masterLng !== '' && $masterLng !== $lng) {
          $ddMaster = dbxContentLng::ddContent($masterLng);
          $rec = $db->select1($ddMaster, array('permalink' => $permalink), 'id', 0);

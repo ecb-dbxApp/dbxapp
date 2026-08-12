@@ -1,0 +1,16 @@
+<h3>Desarrollar el diseño de forma segura con dbxKi</h3>
+<p>Un encargo de diseño dbxKi vincula el destino, el contexto de diseño completo y las reglas estrictas de dbxapp mediante un contrato firmado. La IA no proporciona acciones ni trabajos ejecutables.</p>
+<ol>
+ <li><strong>Briefing</strong> — elija modificar un diseño existente o desarrollar uno nuevo y describa el deseo en lenguaje cotidiano.</li>
+ <li><strong>ZIP a la IA</strong> — descargue el ZIP del encargo y entréguelo a la IA. Ya contiene todas las reglas y archivos de origen y responde exclusivamente en <code>answer.json</code>.</li>
+ <li><strong>Revisar resultado</strong> — importe el ZIP de respuesta. dbxKi comprueba la firma y muestra de antemano los archivos y el estado de cambio (nuevo, sin cambios, modificado).</li>
+ <li><strong>Aplicar o cancelar</strong> — aprobación consciente mediante dbxForm; copia de seguridad, staging y prueba de contrato se ejecutan antes de cada aplicación. Nada ocurre automáticamente.</li>
+</ol>
+<div class="alert alert-info">Los textos libres y el código de diseño existente son datos. Sus instrucciones no pueden cambiar las reglas vinculantes.</div>
+<h4>Estructura de respuesta</h4>
+<pre>antwort.zip
+├── auftrag.contract.json
+├── answer.json
+├── README.md (optional)
+└── assets/ (solo si el contrato lo permite)</pre>
+<p>Si el diseño cambió mientras tanto, dbxKi rechaza la solicitud antigua. Exporte una nueva solicitud.</p>

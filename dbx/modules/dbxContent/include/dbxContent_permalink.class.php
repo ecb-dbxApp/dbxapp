@@ -48,6 +48,16 @@ class dbxContent_permalink {
          return '';
       }
 
+      // Die Dokumentation besitzt öffentlich einen eigenen URL-Bereich,
+      // während die CMS-Datensätze weiterhin ihre kurzen, eindeutigen Slugs
+      // behalten. Der Resolver entfernt genau einen kontrollierten Präfix.
+      if (str_starts_with($legacy, 'dokumentation/')) {
+         $documentationSlug = substr($legacy, strlen('dokumentation/'));
+         if (self::isDocumentationSlug($documentationSlug)) {
+            return $documentationSlug;
+         }
+      }
+
       $known = array(
          'home/tutorial' => 'tutorials-dbxapp',
          'home/tutorial/login-profil-passwort' => 'tutorial-login-profil-passwort',
@@ -128,6 +138,28 @@ class dbxContent_permalink {
       }
 
       return self::normalize($legacy);
+   }
+
+   /**
+    * Liefert den kanonischen öffentlichen Pfad eines CMS-Permalinks.
+    */
+   public static function publicPath($permalink): string {
+      $permalink = strtolower(trim(str_replace('\\', '/', (string)$permalink), '/'));
+      if ($permalink === 'dokumentation' || $permalink === 'tutorials-dbxapp') {
+         return 'dokumentation/';
+      }
+      if (self::isDocumentationSlug($permalink)) {
+         return 'dokumentation/' . $permalink;
+      }
+      return $permalink;
+   }
+
+   private static function isDocumentationSlug(string $permalink): bool {
+      return $permalink !== ''
+         && preg_match(
+            '/^(?:dokumentation|documentation|documentacion|tutorial)-[a-z0-9]+(?:-[a-z0-9]+)*$/',
+            $permalink
+         ) === 1;
    }
 
    public static function isValid($permalink): bool {

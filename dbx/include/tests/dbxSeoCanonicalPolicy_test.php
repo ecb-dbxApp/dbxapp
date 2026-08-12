@@ -13,6 +13,9 @@ $_SERVER['REQUEST_URI'] = '/dbxapp/';
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 require_once dirname(__DIR__) . '/dbxKernel.php';
 require_once dirname(__DIR__) . '/dbxTPL.class.php';
+require_once dirname(__DIR__, 2) . '/modules/dbxContent/include/dbxContentLng.class.php';
+require_once dirname(__DIR__, 2) . '/modules/dbxContent/include/dbxContentLngSync.class.php';
+require_once dirname(__DIR__, 2) . '/modules/dbxContent/include/dbxContentHome.class.php';
 require_once dirname(__DIR__, 2) . '/modules/dbxContent/include/dbxContentRenderer.class.php';
 
 function seoFail(string $message, int $code): void {
@@ -103,6 +106,24 @@ if ($canonicalMethod->invoke($renderer, 'home', true) !== $base) {
 }
 if ($canonicalMethod->invoke($renderer, 'produkte', false) !== $base . 'produkte') {
    seoFail('Normale Inhaltsseiten muessen einen selbstreferenziellen Canonical erhalten.', 14);
+}
+
+$renderer->applySeoMeta(999, array(
+   'id' => 999,
+   'title' => 'Sichtbarer Seitentitel',
+   'seo_title' => 'SEO-Titel dbxapp',
+   'permalink' => 'titel-test',
+   'activ' => 1,
+   'content' => '<p>Test</p>',
+));
+if (dbx()->get_system_var('dbx_title') !== 'Sichtbarer Seitentitel'
+   || dbx()->get_system_var('dbx_seo_title') !== 'SEO-Titel dbxapp') {
+   seoFail('SEO-Titel und sichtbarer Seitentitel werden nicht getrennt geführt.', 19);
+}
+$titleProbe = $tpl->replaces_dbx('<title>{dbx:document_title}</title><h1>{dbx:title}</h1>');
+if (strpos($titleProbe, '<title>SEO-Titel dbxapp</title>') === false
+   || strpos($titleProbe, '<h1>Sichtbarer Seitentitel</h1>') === false) {
+   seoFail('Das Template verwendet den SEO-Titel nicht ausschließlich als Dokumenttitel.', 20);
 }
 
 $root = dirname(__DIR__, 2);

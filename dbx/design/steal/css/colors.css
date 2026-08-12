@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* =========================================================
    DBX DESIGN TOKENS – colors.css
    =========================================================
@@ -103,7 +104,6 @@
     --dbx-panel-inset-shadow:      rgba(58,78,102,0.16);
     --dbx-panel-row-highlight:     rgba(255,255,255,0.72);
     --dbx-shell-max-width:         1800px;
-    --dbx-content-max-width:       1180px;
     --dbx-content-media-bg:        #0f172a;
     --dbx-content-gallery-border:  var(--dbx-panel-border-light, #d7e3f0);
     --dbx-content-gallery-accent:  var(--dbx-panel-border-strong, #b9c7d9);
@@ -193,8 +193,6 @@
       --dbx-menu-mobile-panel-main-top:      rgba(255,255,255,0.97);
       --dbx-menu-mobile-panel-main-bottom:   rgba(245,246,248,0.97);
 
-      --dbx-menu-mobile-panel-admin-top:     rgba(230,233,237,0.97);
-      --dbx-menu-mobile-panel-admin-bottom:  rgba(210,214,220,0.97);
 
 
 
@@ -211,7 +209,6 @@
     --dbx-menu-text:                var(--dbx-text-main);
     --dbx-menu-main-text:           #18324f;
     --dbx-menu-admin-text:          #f7fbff;
-    --dbx-menu-text-active:         var(--dbx-text-invert);
 
     /* Technische Bildmotive bleiben ueber alle Skins dosierbar. */
     --dbx-menu-tech-opacity-main:   0.62;
@@ -251,7 +248,6 @@
     --dbx-menu-separator:           rgba(0,0,0,0.10);
     --dbx-submenu-line-light:       rgba(255, 255, 255, 0.62);
     --dbx-submenu-line-dark:        rgba(0, 0, 0, 0.17);
-    --dbx-submenu-line-shadow:      rgba(0, 0, 0, 0.08);
 
     /* ------------------------------
        MENU – ACCENT / ACTIVE
@@ -296,15 +292,8 @@
        Allgemeine Overlays und Editor-Icons.
        ===================================================== */
 
-    --dbx-overlay-bg:               rgba(255,255,255,0.6);
 
     /* Editor overlay icon für tpl edit ace */
-    --dbx-editor-bg:                rgba(0,0,0,0.65);
-    --dbx-editor-bg-hover:          rgba(0,0,0,0.9);
-    --dbx-editor-border:            rgba(255,255,255,0.28);
-    --dbx-editor-border-hover:      rgba(255,255,255,0.42);
-    --dbx-editor-color:             #ffffff;
-    --dbx-editor-shadow:            rgba(0,0,0,0.6);
     --dbx-editor-icon-filter:
         saturate(1.7) contrast(1.45) brightness(0.58)
         drop-shadow(0 0 1px #ffffff)
@@ -330,9 +319,7 @@
        ------------------------------ */
 
     --dbx-window-bg:                var(--dbx-bg-main);
-    --dbx-window-border:            var(--dbx-border-color);
     --dbx-window-radius:            8px;
-    --dbx-window-shadow:            var(--dbx-shadow-lg);
 
     /* ------------------------------
        WINDOW – HEADER
@@ -387,8 +374,6 @@
        WINDOW – OVERLAY
        ------------------------------ */
 
-    --dbx-window-overlay-bg:        rgba(0,0,0,0.35);
-    --dbx-window-overlay-blur:      blur(2px);
 
 
     /* =====================================================
@@ -399,14 +384,7 @@
        GRID – HEADER
        ------------------------------ */
 
-    --dbx-grid-header-top:          rgba(248,249,250,0.95);
-    --dbx-grid-header-bottom:       rgba(233,236,239,0.95);
-    --dbx-grid-header-border:       rgba(0,0,0,0.45);
 
-    --dbx-grid-col-top:             #f1f3f5;
-    --dbx-grid-col-bottom:          #dee2e6;
-    --dbx-grid-col-hover-top:       #e9ecef;
-    --dbx-grid-col-hover-bottom:    #ced4da;
 
     --dbx-grid-col-text:            #343a40;
 
@@ -414,45 +392,31 @@
        GRID – LINES
        ------------------------------ */
 
-    --dbx-grid-line-row:            rgba(70,70,70,0.85);
-    --dbx-grid-line-col:            rgba(0,0,0,0.25);
-    --dbx-grid-line-header:         rgba(0,0,0,0.35);
 
     /* ------------------------------
        GRID – STATES
        ------------------------------ */
 
-    --dbx-grid-hover-shadow:        rgba(0,0,0,0.28);
-    --dbx-grid-select-shadow:       rgba(0,0,0,0.38);
 
     /* ------------------------------
        GRID – EDIT
        ------------------------------ */
 
-    --dbx-grid-edit-border:         var(--dbx-primary);
 
     /* ------------------------------
        GRID – SCROLLBAR
        ------------------------------ */
 
-    --dbx-grid-scroll-thumb:        #5f6a72;
-    --dbx-grid-scroll-thumb-hover:  #495057;
-    --dbx-grid-scroll-thumb-active: #343a40;
-    --dbx-grid-scroll-track:        #e9ecef;
 
     /* ------------------------------
        GRID – SEPARATORS
        ------------------------------ */
 
-    --dbx-grid-sep-header:          #d8d8d8;
-    --dbx-grid-sep-body:            #e0e0e0;
 
     /* ------------------------------
        GRID – CONFLICT
        ------------------------------ */
 
-    --dbx-grid-conflict-bg:         rgba(255,193,7,0.25);
-    --dbx-grid-conflict-border:     var(--dbx-warning);
 }
 
 
@@ -550,13 +514,10 @@
 
     --dbx-menu-mobile-panel-main-top:      rgba(14, 16, 20, 0.98);
     --dbx-menu-mobile-panel-main-bottom:   rgba(0, 0, 0, 0.98);
-    --dbx-menu-mobile-panel-admin-top:     rgba(10, 10, 12, 0.98);
-    --dbx-menu-mobile-panel-admin-bottom:  rgba(0, 0, 0, 0.98);
 
     --dbx-menu-text:                #f5f7fa;
     --dbx-menu-main-text:           #f5f7fa;
     --dbx-menu-admin-text:          #f7fbff;
-    --dbx-menu-text-active:         var(--dbx-text-invert);
 
     --dbx-menu-tech-opacity-main:   0.64;
     --dbx-menu-tech-opacity-admin:  0.70;
@@ -582,7 +543,6 @@
 
     --dbx-submenu-line-light:       rgba(255, 255, 255, 0.16);
     --dbx-submenu-line-dark:        rgba(0, 0, 0, 0.38);
-    --dbx-submenu-line-shadow:      rgba(0, 0, 0, 0.22);
 
     --dbx-submenu-panel-border-light: rgba(255, 255, 255, 0.22);
     --dbx-submenu-panel-border-dark:  rgba(0, 0, 0, 0.58);
@@ -595,12 +555,6 @@
        EDITOR – DARK
        ===================================================== */
 
-    --dbx-editor-bg:                rgba(5,14,25,0.94);
-    --dbx-editor-bg-hover:          rgba(13,110,253,0.96);
-    --dbx-editor-border:            rgba(255,255,255,0.42);
-    --dbx-editor-border-hover:      rgba(255,255,255,0.60);
-    --dbx-editor-color:             #ffffff;
-    --dbx-editor-shadow:            rgba(0,0,0,0.95);
     --dbx-editor-icon-filter:
         saturate(1.8) contrast(1.35) brightness(1.12)
         drop-shadow(0 0 2px #ffffff)
@@ -622,46 +576,24 @@
        ===================================================== */
 
     --dbx-window-bg:                var(--dbx-bg-main);
-    --dbx-window-border:            var(--dbx-border-color);
     --dbx-window-body-bg:           var(--dbx-bg-panel);
     --dbx-window-body-color:        var(--dbx-text-main);
     --dbx-window-footer-bg:         rgba(110,168,254,0.10);
     --dbx-window-footer-border:     var(--dbx-border-light);
-    --dbx-window-overlay-bg:        rgba(0,0,0,0.45);
 
 
     /* =====================================================
        GRID – DARK
        ===================================================== */
 
-    --dbx-grid-header-top:          rgba(49,63,84,0.96);
-    --dbx-grid-header-bottom:       rgba(36,47,63,0.96);
-    --dbx-grid-header-border:       rgba(255,255,255,0.14);
 
-    --dbx-grid-col-top:             #38506f;
-    --dbx-grid-col-bottom:          #2c4360;
-    --dbx-grid-col-hover-top:       #426081;
-    --dbx-grid-col-hover-bottom:    #315172;
 
     --dbx-grid-col-text:            #e7eef8;
 
-    --dbx-grid-line-row:            rgba(255,255,255,0.12);
-    --dbx-grid-line-col:            rgba(255,255,255,0.08);
-    --dbx-grid-line-header:         rgba(255,255,255,0.12);
 
-    --dbx-grid-hover-shadow:        rgba(0,0,0,0.40);
-    --dbx-grid-select-shadow:       rgba(0,0,0,0.52);
 
-    --dbx-grid-scroll-thumb:        #6b7785;
-    --dbx-grid-scroll-thumb-hover:  #7d8894;
-    --dbx-grid-scroll-thumb-active: #8f9aa6;
-    --dbx-grid-scroll-track:        #24303d;
 
-    --dbx-grid-sep-header:          #4b5969;
-    --dbx-grid-sep-body:            #3f4d5c;
 
-    --dbx-grid-conflict-bg:         rgba(255,193,7,0.20);
-    --dbx-grid-conflict-border:     #ffd24d;
 
 }
 
@@ -720,8 +652,6 @@
 }
 
 .theme-dark .dbxForm_wrapper {
-    --dbx-form-bg: var(--dbx-night-surface);
-    --dbx-form-panel: var(--dbx-night-surface-2);
     --dbx-form-border: var(--dbx-night-surface-border);
     --dbx-form-border-strong: #9ca8b8;
     --dbx-form-text: var(--dbx-night-surface-text);

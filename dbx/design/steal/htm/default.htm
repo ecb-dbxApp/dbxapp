@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#22272b">
 
-    <title>{dbx:title}</title>{dbx:head_meta}
+    <title>{dbx:document_title}</title>{dbx:head_meta}
 
     <!-- base href wird vom System automatisch ergänzt -->
     <!-- {dbx:base_href} -->
@@ -14,13 +14,13 @@
     <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="dbx/vendor/twbs/bootstrap-icons/font/bootstrap-icons.css">
 
-    <link rel="stylesheet" href="dbx/design/steal/css/colors.css?v=40">
-    <link rel="stylesheet" href="{dbx:skin_css}?v=36">
-    <link rel="stylesheet" href="dbx/design/steal/css/base.css?v=31">
-    <link rel="stylesheet" href="dbx/design/steal/css/theme.css?v=31">
-    <link rel="stylesheet" href="dbx/design/steal/css/glass-3d.css?v=9">
-    <link rel="stylesheet" href="dbx/design/steal/css/steal-metal.css?v=4">
-    <link rel="stylesheet" href="dbx/design/steal/css/steal-riffel-chrome.css?v=8">
+    <link rel="stylesheet" href="dbx/design/steal/css/colors.css?v={dbx:asset_version}">
+    <link rel="stylesheet" href="{dbx:skin_css}?v={dbx:asset_version}">
+    <link rel="stylesheet" href="dbx/design/steal/css/base.css?v={dbx:asset_version}">
+    <link rel="stylesheet" href="dbx/design/steal/css/theme.css?v={dbx:asset_version}">
+    <link rel="stylesheet" href="dbx/design/steal/css/glass-3d.css?v={dbx:asset_version}">
+    <link rel="stylesheet" href="dbx/design/steal/css/steal-metal.css?v={dbx:asset_version}">
+    <link rel="stylesheet" href="dbx/design/steal/css/steal-riffel-chrome.css?v={dbx:asset_version}">
 </head>
 
 <body class="dbx-app dbx-header-sticky no-bg dbx-steal dbx-steal-riffel {dbx:skin_class}"[inc=is_dbx_edit()] data-dbx="lib=icons_editor"[/inc] data-dbx-skin="{dbx:color}" data-dbx-design="{dbx:design}">
@@ -48,13 +48,13 @@
     <footer id="dbxFooter" class="dbx-app-footer">
         <div class="dbx-footer-dockbar" aria-label="Fensterleiste">
             <div id="windrop" class="dbx-window-dock" aria-label="Minimierte Fenster"></div>
-            <button id="dbxWindowCloseAll" class="dbx-footer-window-close-all" type="button" title="Alle Fenster schließen" aria-label="Alle Fenster schließen">
+            <button id="dbxWindowCloseAll" class="dbx-footer-window-close-all" type="button" data-dbx-tooltip="Alle Fenster schließen" aria-label="Alle Fenster schließen">
                 <i class="bi bi-x-square"></i>
             </button>
         </div>
 
         <div class="dbx-footer-info" aria-label="Systeminformationen">
-            <span class="dbx-footer-info-item" title="Laufzeit bis die Seite geladen ist">
+            <span class="dbx-footer-info-item" data-dbx-tooltip="Laufzeit bis die Seite geladen ist">
                 <i class="bi bi-speedometer2"></i>
                 <span>Laufzeit</span>
                 <strong id="dbxScriptRuntime" data-dbx-runtime data-dbx-php-runtime="">...</strong>
@@ -72,6 +72,7 @@
 </button>
 
 <script src="dbx/vendor/components/jquery/jquery.min.js"></script>
-<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v=90"></script>
+<script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v={dbx:asset_version}"></script>
+{dbx:module_assets}
 </body>
 </html>

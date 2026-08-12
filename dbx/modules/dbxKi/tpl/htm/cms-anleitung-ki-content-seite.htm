@@ -1,151 +1,16 @@
-<h4>Was Sie lernen</h4>
-<p>Mit <strong>dbxKi</strong> erstellen, aendern oder uebersetzen Sie CMS-Content-Seiten mit ChatGPT, DeepSeek oder anderen KI-Systemen — ohne manuelles HTML-Zusammenbauen in der Oberflaeche. Sie fuellen ein <strong>Formular</strong>, laden ein <strong>KI-Auftrags-ZIP</strong> herunter, geben es der KI und importieren die fertige Antwort-ZIP wieder in dbXapp. dbxKi prueft die JSON-Steps und fuehrt sie bei <code>manifest.auto_execute=true</code> automatisch aus.</p>
-<p><strong>Voraussetzungen:</strong> Admin-Zugang, Modul dbxKi aktiv, CMS-Ordner und ggf. mehrsprachige Inhalte eingerichtet.</p>
-
-<h4>Der Ablauf in 3 Schritten</h4>
-<div class="help-flow">1. Formular in dbxKi ausfuellen
-   ↓
-2. ZIP an ChatGPT / DeepSeek — KI liefert antwort.zip mit manifest.json, job.json und optional assets/
-   ↓
-3. Bundle importieren — dbxKi prueft und fuehrt automatisch aus</div>
-
-<h4>Schritt 1 — Formular: Auftrag spezifizieren</h4>
-<p>Oeffnen Sie <strong>dbxKi → KI-Auftrag (Formular)</strong> oder direkt:</p>
-<ul>
-<li><a href="?dbx_modul=dbxKi&amp;dbx_run1=briefing"><code>?dbx_modul=dbxKi&amp;dbx_run1=briefing</code></a> — Uebersicht mit drei Auftragstypen</li>
-</ul>
-
-<h5>Neue Content-Seite anlegen</h5>
+<h3>CMS-Inhalte sicher mit dbxKi bearbeiten</h3>
+<p>Ein dbxKi-Auftrag bindet Ziel, Rezept und erlaubte Ausgaben in einem signierten Vertrag. Die KI liefert keine Aktionen und keinen ausführbaren Job.</p>
 <ol>
-<li>Auftrag <strong>Neue Content-Seite anlegen</strong> waehlen.</li>
-<li>Zielordner, Titel, Sprache, Text-Briefing und optional Hero/Galerie ausfuellen.</li>
-<li><strong>Schreibstil</strong> waehlen (Ton der KI, z. B. sachlich oder werblich).</li>
-<li><strong>KI-Auftrag als ZIP</strong> herunterladen.</li>
+ <li>Unter <strong>dbxKi → KI-Auftrag</strong> Erstellen, Ändern oder Übersetzen wählen und das Formular präzise ausfüllen.</li>
+ <li>Das Auftrags-ZIP der KI geben. Sie kopiert <code>auftrag.contract.json</code> unverändert und füllt nur <code>answer.json</code> sowie ausdrücklich erlaubte Assets.</li>
+ <li>Die Antwort-ZIP importieren. dbxKi prüft Signatur, Snapshot, Inhalte, Assets und den vollständigen intern erzeugten Plan.</li>
+ <li>Die Vorschau prüfen und erst danach bewusst ausführen.</li>
 </ol>
-<p>URL: <code>?dbx_modul=dbxKi&amp;dbx_run1=briefing_page_create</code></p>
-
-<h5>Bestehende Seite aendern</h5>
-<ol>
-<li>Auftrag <strong>Bestehende Seite aendern</strong> waehlen.</li>
-<li>Seite und gewuenschte Aenderungsfelder (Inhalt, Titel, Beschreibung, Hero) markieren.</li>
-<li>Aenderungswunsch in Klartext beschreiben.</li>
-<li>ZIP herunterladen.</li>
-</ol>
-<p>URL: <code>?dbx_modul=dbxKi&amp;dbx_run1=briefing_page_update</code></p>
-
-<h5>Seite uebersetzen</h5>
-<ol>
-<li>Auftrag <strong>Seite uebersetzen</strong> waehlen.</li>
-<li>Quellsprache, Zielsprache und Quellseite waehlen.</li>
-<li>Optional: Hinweise (formell/informell, Fachbegriffe) und Schreibstil setzen.</li>
-<li>ZIP herunterladen.</li>
-</ol>
-<p>URL: <code>?dbx_modul=dbxKi&amp;dbx_run1=briefing_page_translate</code></p>
-
-<div class="help-example"><strong>Inhalt der Auftrags-ZIP:</strong><br>
-<code>manifest.json</code>, <code>briefing.json</code>, <code>job.vorlage.json</code>, <code>context.json</code>, <code>KI-AUFTRAG.md</code>, <code>MENSCH-ANLEITUNG.md</code> — bei neuen Seiten ggf. Platzhalter unter <code>assets/</code> fuer Hero-Bilder.</div>
-
-<h4>Schreibstile pflegen (optional)</h4>
-<p>Unter <a href="?dbx_modul=dbxKi&amp;dbx_run1=briefing_styles">dbxKi → Schreibstile</a> legen Sie Ton-Vorgaben fuer die KI an (Schluessel, Bezeichnung, Prompt). Gespeicherte Werte ueberschreiben die Standarddatei <code>cfg/writing_styles.php</code>.</p>
-
-<h4>Schritt 2 — ZIP an die KI geben</h4>
-<ol>
-<li>Die heruntergeladene ZIP bei ChatGPT, DeepSeek o. ae. hochladen <strong>oder</strong> den Inhalt von <code>KI-AUFTRAG.md</code> kopieren.</li>
-<li>Der KI sagen: <em>„Arbeite KI-AUFTRAG.md exakt ab. Ersetze alle <code>___KI_FUELLEN___</code> in job.vorlage.json. Liefere antwort.zip mit manifest.json und job.json.“</em></li>
-<li>Die KI erzeugt <code>manifest.json</code> und <code>job.json</code> mit <code>steps</code> (z. B. <code>page.create</code>, <code>page.update</code> oder <code>translation.apply</code>). Keine eigenen Tools, kein SQL, keine direkten DB-Aenderungen.</li>
-</ol>
-
-<div class="help-example"><strong>Beispiel-Prompt (neue Seite):</strong><br>
-<em>„Arbeite KI-AUFTRAG.md exakt ab. Assets-Regeln nicht abweichen. Bei Hero: nur assets/hero.jpg. Liefere antwort.zip mit job.json.“</em></div>
-
-<p><strong>Wichtig fuer Uebersetzungen:</strong> Die KI darf nur sichtbaren Text uebersetzen — HTML-Struktur, Links, <code>data-cms-media-id</code>, URLs und technische Attribute bleiben unveraendert.</p>
-
-<h4>Schritt 3 — Antwort importieren und ausfuehren</h4>
-<ol>
-<li><a href="?dbx_modul=dbxKi&amp;dbx_run1=bundle">dbxKi → Bundle importieren</a> oeffnen.</li>
-<li>Die ZIP der KI hochladen (<code>antwort.zip</code> oder gleichwertig).</li>
-<li><strong>Vorschau</strong> pruefen: geplante CMS-Aenderungen, Ordner, Seiten, Medien.</li>
-<li>Bei <code>auto_execute=true</code> startet dbxKi automatisch. Sonst <strong>Ausfuehren</strong> klicken.</li>
-<li>Seite im CMS kontrollieren und bei Bedarf veroeffentlichen.</li>
-</ol>
-
-<h4>Content-Template und Bereichs-Marker</h4>
-<p>Standard fuer neue Seiten <strong>mit Hero</strong>: Template <code>c-title-hero_header-gallery-body1-footer</code> — Hero, optionale Gallery, Body und Footer. Die Gallery darf leer bleiben.</p>
-<p>Im HTML-Feld <code>content</code> trennen <strong><code>&lt;hr&gt;</code>-Marker</strong> die Bereiche (wie im CMS-Editor eingefuegt):</p>
-<ul>
-<li><code>&lt;hr class="dbx-cms-marker dbx-cms-marker-header" data-dbx-marker="dbx:header" …&gt;</code> — Text **dazwischen** (nach Hero) → eigener Header-Block vor Body</li>
-<li><code>&lt;hr class="dbx-cms-marker dbx-cms-marker-footer" data-dbx-marker="dbx:footer" …&gt;</code> — alles <strong>danach</strong> = Footer; dazwischen = Hauptinhalt</li>
-</ul>
-<p>Ohne Marker wird der gesamte Text als Body gerendert. Gallery-Bilder gehoeren nicht ins HTML.</p>
-
-<h4>Beispiel job.json (neue Seite, gekuerzt)</h4>
-<div class="help-example">
-<pre>{
-  "steps": [
-    {
-      "id": "hero",
-      "action": "media.create_base64",
-      "params": { "file_name": "hero.jpg", "asset_ref": "hero.jpg", "title": "…", "alt": "…" }
-    },
-    {
-      "id": "page",
-      "action": "page.create",
-      "params": {
-        "lng": "de",
-        "folder_id": 3,
-        "title": "Nachhaltigkeit im Buero",
-        "template": "c-title-hero_header-gallery-body1-footer",
-        "content": "&lt;p class=\"lead\"&gt;Teaser&lt;/p&gt;&lt;hr class=\"dbx-cms-marker dbx-cms-marker-header\" data-dbx-marker=\"dbx:header\" data-label=\"Header\"&gt;&lt;h2&gt;…&lt;/h2&gt;&lt;p&gt;…&lt;/p&gt;"
-      }
-    },
-    {
-      "id": "hero_assign",
-      "action": "media.assign",
-      "params": {
-        "media_id": "$ref:hero.media_id",
-        "content_id": "$ref:page.page_id",
-        "slot": "hero"
-      }
-    }
-  ]
-}</pre>
-</div>
-
-<h4>Beispiel job.json (Uebersetzung)</h4>
-<div class="help-example">
-<pre>{
-  "steps": [
-    {
-      "id": "translation",
-      "action": "translation.apply",
-      "params": {
-        "source_lng": "de",
-        "target_lng": "en",
-        "source_id": 42,
-        "copy_media": 1,
-        "translation": {
-          "title": "…",
-          "description": "…",
-          "keywords": "…",
-          "content": "&lt;h2&gt;…&lt;/h2&gt;"
-        }
-      }
-    }
-  ]
-}</pre>
-</div>
-
-<h4>Haeufige Fehler</h4>
-<ul>
-<li><strong>Import schlaegt fehl:</strong> <code>job.json</code> enthaelt noch <code>___KI_FUELLEN___</code> oder ungueltige Aktionen.</li>
-<li><strong>Seite fehlt nach Import:</strong> Ordner-ID oder Sprache in <code>job.json</code> pruefen.</li>
-<li><strong>Uebersetzung unvollstaendig:</strong> Alle vier Felder <code>title</code>, <code>description</code>, <code>keywords</code>, <code>content</code> muessen gesetzt sein.</li>
-<li><strong>Hilfe-Fenster leer:</strong> Als Admin <code>?dbx_modul=dbxKi&amp;dbx_run1=provision_anleitung</code> ausfuehren.</li>
-</ul>
-
-<h4>Weiterfuehrend</h4>
-<ul>
-<li>KI-Auftrag-Hub: <code>?dbx_modul=dbxKi&amp;dbx_run1=briefing</code></li>
-<li>Bundle-Import: <code>?dbx_modul=dbxKi&amp;dbx_run1=bundle</code></li>
-<li>API-Beschreibung: <code>?dbx_modul=dbxKi&amp;dbx_run1=api&amp;action=system.describe</code></li>
-</ul>
+<div class="alert alert-info">Freitexte und bestehende Inhalte gelten als Daten. Darin enthaltene Aufforderungen können die verbindlichen Regeln nicht ändern.</div>
+<h4>Antwortstruktur</h4>
+<pre>antwort.zip
+├── auftrag.contract.json
+├── answer.json
+├── README.md (optional)
+└── assets/ (nur wenn im Vertrag erlaubt)</pre>
+<p>Bei zwischenzeitlich geänderten Seiten lehnt dbxKi den alten Auftrag ab. Dann wird ein neuer Auftrag exportiert.</p>

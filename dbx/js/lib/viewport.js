@@ -68,16 +68,16 @@
                 <span class="dbx-viewport-dimensions" data-dbx-viewport-dimensions></span>
                 <span class="dbx-viewport-scale" data-dbx-viewport-scale></span>
                 <div class="dbx-viewport-toolbar-actions">
-                    <button type="button" data-dbx-viewport-rotate title="Hoch- und Querformat tauschen" aria-label="Hoch- und Querformat tauschen">
+                    <button type="button" data-dbx-viewport-rotate data-dbx-tooltip="Hoch- und Querformat tauschen" aria-label="Hoch- und Querformat tauschen">
                         <i class="bi bi-arrow-repeat"></i>
                     </button>
-                    <button type="button" data-dbx-viewport-reload title="Vorschau neu laden" aria-label="Vorschau neu laden">
+                    <button type="button" data-dbx-viewport-reload data-dbx-tooltip="Vorschau neu laden" aria-label="Vorschau neu laden">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
-                    <button type="button" data-dbx-viewport-open title="Vorschau in neuem Tab öffnen" aria-label="Vorschau in neuem Tab öffnen">
+                    <button type="button" data-dbx-viewport-open data-dbx-tooltip="Vorschau in neuem Tab öffnen" aria-label="Vorschau in neuem Tab öffnen">
                         <i class="bi bi-box-arrow-up-right"></i>
                     </button>
-                    <button type="button" class="dbx-viewport-close" data-dbx-viewport-close title="Viewport-Test schließen" aria-label="Viewport-Test schließen">
+                    <button type="button" class="dbx-viewport-close" data-dbx-viewport-close data-dbx-tooltip="Viewport-Test schließen" aria-label="Viewport-Test schließen">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>

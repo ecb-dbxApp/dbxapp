@@ -85,7 +85,7 @@
  *
  * Sprachabhängige FD und Meldungen
  * ---------------------------------
- * FD-Dateien werden zentral über `dbx_lng_resolve_file()` aufgelöst:
+ * FD-Dateien werden zentral über `dbx()->lng_resolve_file()` aufgelöst:
  * `name_de.fd.php`, `name_en.fd.php`, `name_es.fd.php`, danach die neutrale
  * `name.fd.php` als Fallback. Neben `$fields` darf jede FD ein
  * `$messages`-Array liefern. `save_post()` verwendet `save_success` nach
@@ -318,6 +318,9 @@ class dbxForm extends \dbxObj {
     /** Strukturierte Validator-Ergebnisse, indiziert nach Feldname */
     protected $_validation_results = array();
 
+    /** Zuständig nur für Herkunft und Validierung einzelner Feldwerte. */
+    private ?dbxFormValueResolver $valueResolver = null;
+
     /** Warnungen */
     public $_warnings = array();
 
@@ -398,6 +401,16 @@ class dbxForm extends \dbxObj {
 
     /** 1 = automatische Formularhilfe rendern; 0 = Hilfe kommt aus der umgebenden Bereichsleiste. */
     public $_form_help_enabled = 1;
+
+    /**
+     * 1 = Felder mit FD-Flag `data=ui_persist=1` merken ihren Wert dauerhaft
+     * im Browser (dbx.uiGet/uiSet, siehe core.js) und stellen ihn beim
+     * naechsten Laden automatisch wieder her. Default 0: bestehende
+     * Formulare aendern ihr Verhalten nicht, bis ein Formular dies bewusst
+     * einschaltet. Das Feld-Flag entscheidet zusaetzlich pro Feld, ob es
+     * mitmacht (siehe create_fld()).
+     */
+    public $_ui_state_persist = 0;
 
     /** Historischer Reload-Suffix */
     public $_reload_suffix = '_rlo';
@@ -894,9 +907,9 @@ class dbxForm extends \dbxObj {
 
     protected function defaultModuleBarReplaces(): array {
         return array(
-            'bar_class'               => 'dbx-module-bar',
-            'bar_title_class'         => 'dbx-module-bar-titleblock',
-            'bar_actions_class'       => 'dbx-module-bar-actions',
+            'bar_class'               => 'dbx-bar--module',
+            'bar_title_class'         => 'dbx-bar-title',
+            'bar_actions_class'       => 'dbx-bar-actions',
             'bar_title'               => '',
             'bar_icon'                => 'bi-grid',
             'bar_subtitle'            => '',
@@ -1083,7 +1096,7 @@ class dbxForm extends \dbxObj {
 
             $barClass = trim((string)($this->_replaces['bar_class'] ?? ''));
             if ($barClass === '') {
-                $barClass = 'dbx-module-bar';
+                $barClass = 'dbx-bar--module';
             }
 
             $this->applyModuleBarReplaces(array(
@@ -1943,60 +1956,25 @@ class dbxForm extends \dbxObj {
      * @return mixed
      */
     private function resolve_fld_val($name, $default = '', $rules = '', $useRequest = true, $fallbackToState = true) {
-        $stateValue = $default;
-        $origin     = 'default';
-
-        if (isset($this->_data[$name])) {
-            $stateValue = $this->_data[$name];
-            $origin     = 'data';
+        if ($this->valueResolver === null) {
+            require_once __DIR__ . '/dbxFormValueResolver.class.php';
+            $this->valueResolver = new dbxFormValueResolver($this->oValidator);
         }
-
-        if (isset($this->_sys[$name])) {
-            $stateValue = $this->_sys[$name];
-            $origin     = 'sys';
-        }
-
-        $value = $fallbackToState ? $stateValue : $default;
-
-        if (!$fallbackToState) {
-            $origin = 'default';
-        }
-
-        if ($useRequest) {
-            if (isset($_POST[$name])) {
-                $value  = $_POST[$name];
-                $origin = 'post';
-            } elseif (isset($_GET[$name])) {
-                $value  = $_GET[$name];
-                $origin = 'get';
-            }
-        }
-
-        if ($value === null) {
-            $value = '';
-        }
-
-        $ok = true;
-        $validation = array();
-
-        if ($rules) {
-            $validation = $this->oValidator->validateResult($value, $rules, $name);
-            $ok = (bool)($validation['valid'] ?? false);
-            $this->remember_validation_result((string)$name, $validation);
-
-            // Normalisierung bleibt ausdrücklich opt-in. Dadurch ändern
-            // bestehende Regeln keine Datentypen oder gespeicherten Werte.
-            if ($ok && preg_match('/(?:^|\|)trim(?:\||$)/', (string)$rules)) {
-                $value = $validation['normalized'] ?? $value;
-            }
-        }
-
-        return array(
-            'value'      => $value,
-            'origin'     => $origin,
-            'ok'         => $ok ? 1 : 0,
-            'validation' => $validation,
+        $resolved = $this->valueResolver->resolve(
+            (string)$name,
+            $default,
+            (string)$rules,
+            is_array($this->_data) ? $this->_data : array(),
+            is_array($this->_sys) ? $this->_sys : array(),
+            is_array($_POST ?? null) ? $_POST : array(),
+            is_array($_GET ?? null) ? $_GET : array(),
+            (bool)$useRequest,
+            (bool)$fallbackToState
         );
+        if ((string)$name !== '' && $resolved['validation'] !== array()) {
+            $this->remember_validation_result((string)$name, $resolved['validation']);
+        }
+        return $resolved;
     }
 
     public function get_fld_val($name, $default = '', $rules = '', $submit = -1) {
@@ -2153,8 +2131,65 @@ class dbxForm extends \dbxObj {
      *
      * @return void
      */
+    protected function escape_tooltip_template_data($data) {
+        if (is_array($data) && isset($data['tooltip']) && !is_array($data['tooltip'])) {
+            $data['tooltip'] = htmlspecialchars(
+                (string)$data['tooltip'],
+                ENT_QUOTES | ENT_SUBSTITUTE,
+                'UTF-8'
+            );
+        }
+
+        return $data;
+    }
+
+    /**
+     * Erzeugt den fokussierbaren Hilfe-Marker eines Formularfeldes.
+     *
+     * Feld-Templates kennen nur `{tooltip}`. Der eigentliche Tooltip-Inhalt
+     * bleibt dadurch zentral in dbxForm und wird sicher in das Attribut des
+     * Fragezeichens geschrieben.
+     *
+     * @param mixed $tooltip Tooltip-Inhalt aus FD oder DD
+     * @return string Leerer String oder fertiges Marker-HTML
+     */
+    protected function render_field_tooltip_marker($tooltip): string {
+        if (is_array($tooltip) || is_object($tooltip)) {
+            return '';
+        }
+
+        $tooltip = trim((string)$tooltip);
+        if ($tooltip === '') {
+            return '';
+        }
+
+        $tooltipAttribute = htmlspecialchars(
+            $tooltip,
+            ENT_QUOTES | ENT_SUBSTITUTE,
+            'UTF-8'
+        );
+        $accessibleLabel = trim((string)preg_replace(
+            '/\s+/u',
+            ' ',
+            strip_tags(html_entity_decode($tooltip, ENT_QUOTES | ENT_HTML5, 'UTF-8'))
+        ));
+        if ($accessibleLabel === '') {
+            $accessibleLabel = 'Tooltip';
+        }
+        $accessibleLabel = htmlspecialchars(
+            $accessibleLabel,
+            ENT_QUOTES | ENT_SUBSTITUTE,
+            'UTF-8'
+        );
+
+        return '<span class="dbx-form-tooltip-marker" role="img" tabindex="0"' .
+            ' data-dbx-tooltip="' . $tooltipAttribute . '"' .
+            ' aria-label="' . $accessibleLabel . '">?</span>';
+    }
+
     public function add_obj($obj, $tpl, $data = '', $data2 = '') {
         if ($tpl != 'obj-value' && $tpl != 'obv-value') {
+            $data = $this->escape_tooltip_template_data($data);
             $tpl = $this->get_tpl($tpl, $data);
         } else {
             if ($tpl == 'obv-value') {
@@ -2165,7 +2200,10 @@ class dbxForm extends \dbxObj {
                 $tpl = $data;
             }
 
-            $tpl = $this->oTPL->replaces((string) $tpl, $data2);
+            $tpl = $this->oTPL->replaces(
+                (string)$tpl,
+                $this->escape_tooltip_template_data($data2)
+            );
         }
 
         $tpl = str_replace('{class}', '', $tpl);
@@ -2205,6 +2243,7 @@ class dbxForm extends \dbxObj {
             $xdata = array_merge($xdata, $data);
         }
 
+        $xdata = $this->escape_tooltip_template_data($xdata);
         $tpl = $this->get_tpl($tpl, $xdata);
         $tpl = str_replace('{class}', '', $tpl);
         $tpl = str_replace('{tooltip}', '', $tpl);
@@ -2395,15 +2434,13 @@ class dbxForm extends \dbxObj {
                     $fd_modul = dbx()->get_system_var('dbx_activ_modul', 'dbx');
                 }
 
-                $dd_file = function_exists('dbx_lng_resolve_file')
-                    ? dbx_lng_resolve_file(
-                        dbx()->get_base_dir() . "dbx/modules/$fd_modul/fd/",
-                        $fd_name,
-                        'fd.php',
-                        $this->_dbx_lng,
-                        true
-                    )
-                    : dbx()->get_base_dir() . "dbx/modules/$fd_modul/fd/$fd_name.fd.php";
+                $dd_file = dbx()->lng_resolve_file(
+                    dbx()->get_base_dir() . "dbx/modules/$fd_modul/fd/",
+                    $fd_name,
+                    'fd.php',
+                    $this->_dbx_lng,
+                    true
+                );
                 if ($dd_file === '' || !is_file($dd_file)) {
                     $dd_file = dbx()->get_base_dir() . "dbx/modules/$fd_modul/fd/$fd_name.fd.php";
                 }
@@ -3835,9 +3872,6 @@ class dbxForm extends \dbxObj {
         $data['label'] = (string)($data['label'] ?? '');
         $data['class'] = (string)($data['class'] ?? '');
         $data['style'] = (string)($data['style'] ?? '');
-        if (trim((string)($data['tooltip'] ?? '')) === '') {
-            $data['tooltip'] = (string)($data['title'] ?? 'Suchen');
-        }
         return $data;
     }
 
@@ -3859,8 +3893,8 @@ class dbxForm extends \dbxObj {
 
         $data['label'] = '';
         $data['placeholder'] = $defaults['placeholder'];
-        $data['title'] = trim((string) ($data['tooltip'] ?? '')) !== ''
-            ? (string) $data['tooltip']
+        $data['title'] = trim((string)($data['title'] ?? '')) !== ''
+            ? (string)$data['title']
             : $defaults['title'];
         $data['input_class'] = $defaults['input_class'];
         $data['wrap_class'] = $defaults['wrap_class'];
@@ -3920,6 +3954,18 @@ class dbxForm extends \dbxObj {
             $data['checked'] = '';
         }
 
+        // UI-State-Persistenz: nur wenn das Formular es global erlaubt UND das
+        // Feld selbst per FD-Flag `data=ui_persist=1` zugestimmt hat. Das
+        // Attribut wird von formUiPersist.js (core.js ui state) ausgewertet,
+        // um den Feldwert dauerhaft im Browser zu merken und wiederherzustellen.
+        $data['ui_persist_attr'] = '';
+        if ((int) $this->_ui_state_persist === 1 && (int) ($data['ui_persist'] ?? 0) === 1 && $name !== '') {
+            $formKey = $this->_fid !== '' ? $this->_fid : 'form';
+            $data['ui_persist_attr'] = ' data-dbx="lib=formUiPersist|form='
+                . htmlspecialchars($formKey, ENT_QUOTES, 'UTF-8')
+                . '|key=' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
+        }
+
         // dbxForm validates submitted data itself; native HTML5 required would
         // mark empty fields invalid before submit and can block the request.
         $required = '';
@@ -3936,11 +3982,18 @@ class dbxForm extends \dbxObj {
             }
         }
 
-        foreach (array('tooltip', 'errormsg') as $htmlAttributeKey) {
+        foreach (array('errormsg') as $htmlAttributeKey) {
             if (isset($data[$htmlAttributeKey]) && !is_array($data[$htmlAttributeKey])) {
-                $data[$htmlAttributeKey] = htmlspecialchars(str_replace('"', "'", (string)$data[$htmlAttributeKey]), ENT_QUOTES, 'UTF-8');
+                $data[$htmlAttributeKey] = htmlspecialchars((string)$data[$htmlAttributeKey], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             }
         }
+
+        // Das Feld-Template erhaelt nur einen neutralen Platzhalter. So kann
+        // das Fragezeichen zentral erzeugt werden, ohne dass dbxTPL das
+        // vertrauenswuerdige Marker-HTML erneut escaped.
+        $tooltipMarker = $this->render_field_tooltip_marker($data['tooltip']);
+        $tooltipToken = '__DBX_FORM_FIELD_TOOLTIP_' . (int)$i . '__';
+        $data['tooltip'] = $tooltipToken;
 
         $this->prepare_report_search_fld($name, $tpl, $data);
 
@@ -3956,6 +4009,7 @@ class dbxForm extends \dbxObj {
                 : 'dbx|search-label';
         }
         $tpl = $this->get_tpl($tpl, $data, 'htm', $i);
+        $tpl = str_replace($tooltipToken, $tooltipMarker, $tpl);
 
         if (is_array($options)) {
             $xoptions = '';
@@ -4331,15 +4385,13 @@ class dbxForm extends \dbxObj {
                     $fd_modul = dbx()->get_system_var('dbx_activ_modul', 'dbx');
                 }
 
-                $dd_file = function_exists('dbx_lng_resolve_file')
-                    ? dbx_lng_resolve_file(
-                        dbx()->get_base_dir() . "dbx/modules/$fd_modul/fd/",
-                        $fd_name,
-                        'fd.php',
-                        $this->_dbx_lng,
-                        true
-                    )
-                    : dbx()->get_base_dir() . "dbx/modules/$fd_modul/fd/$fd_name.fd.php";
+                $dd_file = dbx()->lng_resolve_file(
+                    dbx()->get_base_dir() . "dbx/modules/$fd_modul/fd/",
+                    $fd_name,
+                    'fd.php',
+                    $this->_dbx_lng,
+                    true
+                );
                 if ($dd_file === '' || !is_file($dd_file)) {
                     $dd_file = dbx()->get_base_dir() . "dbx/modules/$fd_modul/fd/$fd_name.fd.php";
                 }

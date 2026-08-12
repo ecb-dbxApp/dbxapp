@@ -71,8 +71,8 @@ if (!in_array('img/dbx-page-gears-v1.svg', $assets, true)
    $fail('Zahnrad-Asset oder Manifest-Eintrag ist unvollständig.', 6);
 }
 
-if (strpos($template, 'steal-metal.css?v=4') === false
-    || strpos($template, 'steal-riffel-chrome.css?v=8') === false) {
+if (strpos($template, 'steal-metal.css?v={dbx:asset_version}') === false
+    || strpos($template, 'steal-riffel-chrome.css?v={dbx:asset_version}') === false) {
    $fail('Die Designschale verwendet nicht die aktuellen Cache-Versionen.', 7);
 }
 

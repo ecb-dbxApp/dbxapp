@@ -52,7 +52,7 @@ foreach ($secretPaths as $path) {
 }
 
 if ($local) {
-   $runtime = dbx()->get_config('dbx');
+   $runtime = dbx()->get_cfg('dbx');
    foreach ($secretPaths as $path) {
       $localValue = $readPath($local, $path);
       if ($localValue !== null && $readPath($runtime, $path) !== $localValue) {

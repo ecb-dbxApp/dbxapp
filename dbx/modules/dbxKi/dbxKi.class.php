@@ -31,32 +31,62 @@ class dbxKi {
 
    private function provision() {
       require_once __DIR__ . '/include/dbxKiCmsHelpProvision.class.php';
-      return dbxKiCmsHelpProvision::provision();
+      return dbxKiCmsHelpProvision::provisionAll();
+   }
+
+   private $overviewTexts;
+
+   private function overviewTexts() {
+      if ($this->overviewTexts) {
+         return $this->overviewTexts;
+      }
+      dbx()->get_system_obj('dbxForm', 'use');
+      $texts = new \dbxForm();
+      $texts->init('ki-overview-texts');
+      $texts->_fd = 'dbxKi|overview';
+      $texts->load_fd_messages();
+      $texts->set_form_help_enabled(false);
+      $this->overviewTexts = $texts;
+      return $this->overviewTexts;
+   }
+
+   private function overviewMessage(string $key): string {
+      return $this->overviewTexts()->get_fd_message($key);
+   }
+
+   private function overviewUrl(string $run1): string {
+      return '?dbx_modul=dbxKi&dbx_run1=' . rawurlencode($run1);
    }
 
    private function html_start(): string {
       require_once __DIR__ . '/include/dbxKiCmsHelpProvision.class.php';
       dbxKiCmsHelpProvision::run();
-      $anleitungUrl = dbxKiCmsHelpProvision::pageUrl();
-      $briefing = '?dbx_modul=dbxKi&dbx_run1=briefing';
-      $bundle = '?dbx_modul=dbxKi&dbx_run1=bundle';
-      $design = '?dbx_modul=dbxKi&dbx_run1=briefing_design';
-      $syncAll = '?dbx_modul=dbxKi&dbx_run1=translation_sync_all';
-      $api = '?dbx_modul=dbxKi&dbx_run1=api';
 
-      return '<div class="container py-4">'
-         . '<h1>dbxKi</h1>'
-         . '<p>Formular-basierte KI-Auftraege fuer das Content-CMS.</p>'
-         . '<div class="d-flex flex-wrap gap-2 mb-3">'
-         . '<a class="btn btn-primary" href="' . htmlspecialchars($briefing, ENT_QUOTES, 'UTF-8') . '">KI-Auftrag starten</a>'
-         . '<a class="btn btn-outline-primary" href="' . htmlspecialchars($syncAll, ENT_QUOTES, 'UTF-8') . '">Sprache komplett uebersetzen</a>'
-         . '<a class="btn btn-outline-primary" href="' . htmlspecialchars($bundle, ENT_QUOTES, 'UTF-8') . '">Bundle importieren</a>'
-         . '<a class="btn btn-outline-primary" href="' . htmlspecialchars($design, ENT_QUOTES, 'UTF-8') . '">Design entwickeln</a>'
-         . '<a class="btn btn-outline-secondary" href="' . htmlspecialchars($anleitungUrl, ENT_QUOTES, 'UTF-8') . '">Anleitung</a>'
-         . '</div>'
-         . '<p class="small text-muted">Ablauf: Formular → ZIP an ChatGPT → fertige ZIP importieren und ausfuehren.</p>'
-         . '<p><strong>API:</strong> <code>' . htmlspecialchars($api, ENT_QUOTES, 'UTF-8') . '</code></p>'
-         . '</div>';
+      $keys = array(
+         'hero_eyebrow', 'hero_title', 'hero_subtitle',
+         'areas_title', 'areas_subtitle',
+         'area_design_title', 'area_design_text', 'area_design_cta',
+         'area_content_title', 'area_content_text', 'area_content_cta',
+         'area_module_title', 'area_module_text', 'area_module_cta',
+         'flow_title', 'flow_subtitle',
+         'step1_title', 'step1_text', 'step2_title', 'step2_text',
+         'step3_title', 'step3_text', 'step4_title', 'step4_text',
+         'step5_title', 'step5_text', 'step6_title', 'step6_text',
+         'quick_actions_title', 'action_bundle', 'action_translate', 'action_guide',
+      );
+      $data = array();
+      foreach ($keys as $key) {
+         $data[$key] = $this->overviewMessage($key);
+      }
+
+      $data['design_url'] = $this->esc($this->overviewUrl('briefing_design'));
+      $data['content_url'] = $this->esc($this->overviewUrl('briefing_content'));
+      $data['module_url'] = $this->esc($this->overviewUrl('briefing_module'));
+      $data['bundle_url'] = $this->esc($this->overviewUrl('bundle'));
+      $data['sync_url'] = $this->esc($this->overviewUrl('translation_sync_all'));
+      $data['guide_url'] = $this->esc(dbxKiCmsHelpProvision::pageUrl());
+
+      return dbx()->get_system_obj('dbxTPL')->get_tpl('dbxKi|ki-overview', $data);
    }
 
    private function esc($value): string {
@@ -162,11 +192,15 @@ class dbxKi {
          }
       }
 
+      $rootFolderId = (int)$params['root_folder_id'];
       $replacements = array_merge(array(
          'action' => '?dbx_modul=dbxKi&amp;dbx_run1=translation_sync_all',
+         'tree_url' => $this->esc('?dbx_modul=dbxContent_admin&dbx_run1=cms_tree'),
+         'source_lng' => $this->esc($params['source_lng']),
          'language_options' => $this->language_options($params['source_lng']),
          'target_language_checkboxes' => $this->target_language_checkboxes($params['source_lng'], $params['target_lngs']),
-         'root_folder_id' => $this->esc((string)$params['root_folder_id']),
+         'root_folder_id' => $this->esc((string)$rootFolderId),
+         'root_folder_label' => $this->esc($rootFolderId > 0 ? ('Ordner #' . $rootFolderId) : 'Komplette Sprache (kein Ordner gewählt)'),
          'update_existing_checked' => (int)$params['update_existing'] === 1 ? 'checked' : '',
          'skip_manual_checked' => (int)$params['skip_manual'] === 1 ? 'checked' : '',
          'copy_media_checked' => (int)$params['copy_media'] === 1 ? 'checked' : '',
@@ -174,7 +208,7 @@ class dbxKi {
          'result_html' => $resultHtml,
       ), $this->help()->moduleBarTemplateData(
          'translation_sync_all',
-         '<a class="btn btn-outline-secondary btn-sm" href="?dbx_modul=dbxKi"><i class="bi bi-arrow-left"></i> Zurueck</a>'
+         '<a class="btn btn-outline-secondary btn-sm" href="?dbx_modul=dbxKi"><i class="bi bi-arrow-left"></i> Zurück</a>'
       ));
 
       foreach ($replacements as $key => $value) {
@@ -262,7 +296,13 @@ class dbxKi {
          case 'briefing':
             return $this->briefing()->renderHub();
 
+         case 'briefing_content':
+            return $this->briefing()->renderContentHub();
+
          case 'briefing_module':
+            return $this->briefing()->renderModuleHub();
+
+         case 'briefing_module_edit':
             return $this->moduleBriefing()->renderBriefing();
 
          case 'briefing_module_export':
@@ -270,6 +310,9 @@ class dbxKi {
             return '';
 
          case 'briefing_design':
+            return $this->briefing()->renderDesignHub();
+
+         case 'briefing_design_edit':
             return $this->design()->renderBriefing();
 
          case 'briefing_design_export':
@@ -277,12 +320,16 @@ class dbxKi {
                $this->design()->handleExport();
             } catch (\Throwable $e) {
                dbx()->sys_msg('error', 'dbxKi', 'briefing_design_export', 'Design-Export fehlgeschlagen', $e->getMessage());
-               return $this->html_error($e->getMessage(), '?dbx_modul=dbxKi&dbx_run1=briefing_design');
+               return $this->html_error($e->getMessage(), '?dbx_modul=dbxKi&dbx_run1=briefing_design_edit');
             }
             return '';
 
          case 'design_bundle_import':
             return $this->design()->handleImport();
+
+         case 'design_bundle_discard':
+            $this->design()->handleDiscard();
+            return '';
 
          case 'design_bundle_apply':
             return $this->design()->handleApply();
@@ -292,6 +339,10 @@ class dbxKi {
 
          case 'module_bundle_import':
             return $this->moduleBriefing()->handleBundleImport();
+
+         case 'module_bundle_discard':
+            $this->moduleBriefing()->handleDiscardPreview();
+            return '';
 
          case 'module_api':
             $this->moduleBriefing()->handleApi();
@@ -338,6 +389,10 @@ class dbxKi {
          case 'bundle_import':
             return $this->bundle()->handleImport();
 
+         case 'bundle_discard':
+            $this->bundle()->handleDiscard();
+            return '';
+
          case 'bundle_process':
             return $this->bundle()->handleProcess();
 
@@ -356,12 +411,12 @@ class dbxKi {
             require_once __DIR__ . '/include/dbxKiCmsHelpProvision.class.php';
             $result = $this->provision();
             if (empty($result['errors'])) {
-               $config = dbx()->get_config('dbxKi');
+               $config = dbx()->get_cfg('dbxKi');
                if (!is_array($config)) {
                   $config = array();
                }
                $config[dbxKiCmsHelpProvision::CONFIG_KEY] = dbxKiCmsHelpProvision::PROVISION_VERSION;
-               dbx()->set_config('dbxKi', $config);
+               dbx()->set_cfg('dbxKi', $config);
             }
             return $this->html_provision_result($result);
 

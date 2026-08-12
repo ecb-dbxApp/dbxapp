@@ -78,6 +78,25 @@ Verboten:
 | Modul einbetten | `[modul=...]...[/modul]` |
 | CMS/KI-Änderung | `dbxKi` |
 
+## Kundeninhalt und Systemquelle unterscheiden
+
+Vor jedem Schreibvorgang muss die Zieldatei klassifiziert werden:
+
+- Menüinhalte und installationsbezogene Menü-Templates sind Kundendateien.
+  Sie werden nur in der betroffenen Installation geändert und niemals wegen
+  dieser lokalen Anpassung in die Produktquelle, eine neue Version oder ein
+  Update übernommen.
+- Die Modulimplementierung und ihre System-Sourcen sind Produktdateien. Dazu
+  gehören insbesondere PHP, DD, FD, JavaScript, CSS und andere ausführbare oder
+  systemweit ausgelieferte Modulbestandteile. Änderungen daran erfolgen in der
+  Entwicklungsquelle, werden getestet und über Release und Update verteilt.
+- Eine Kundenänderung darf nicht durch einen nachfolgenden Produktabgleich oder
+  Update-Lauf überschrieben werden.
+
+Ein Auftrag wie „Login/Logout im Kundenmenü ergänzen“ bedeutet daher: das
+vorhandene Menü-Template der Zielinstallation mit dem bestehenden dbxapp-Muster
+ändern. Er bedeutet weder Versionssprung noch Modul- oder Releaseänderung.
+
 ## dbxKi-Regel
 
 CMS-Inhalte, Seiten, Medien, Übersetzungen und SEO-Daten werden von einer KI

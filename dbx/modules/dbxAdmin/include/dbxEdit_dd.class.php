@@ -188,7 +188,7 @@ class dbxEdit_dd
             array('dd' => dbx()->esc($modul . '|' . $dd))
         );
         $barData['bar_subtitle'] = $texts->get_fd_message('bar_subtitle');
-        $barData['bar_class'] = 'dbx-module-bar dbx-ddedit-head';
+        $barData['bar_class'] = 'dbx-bar--module dbx-ddedit-head';
         $data = array_merge($data, $barData);
 
         return $oTPL->get_tpl($this->_admin_modul . '|ddedit-frame', $data);

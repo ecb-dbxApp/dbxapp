@@ -342,6 +342,14 @@ if ((int)($task['id'] ?? 0) <= 0) {
 }
 ```
 
+`select1()` merkt erfolgreiche Einzel- und Leerdatensätze requestlokal. Der
+Cache-Schlüssel enthält den kanonischen DD-Namen, WHERE, Spaltenauswahl,
+Rechteprüfung und Benutzer. `insert()`, `update()`, `save()` und `delete()`
+verwerfen nach erfolgreichem Schreiben alle `select1()`-Einträge genau dieser
+DD. Innerhalb einer Transaktion wird der Cache umgangen; Commit und Rollback
+verwerfen die DD-Caches des betroffenen Servers. Der Cache endet mit dem
+Request und ist auf 1.000 Einträge begrenzt.
+
 ### Listen, Sortierung und Pagination
 
 ```php
@@ -558,6 +566,31 @@ Konfiguration und PHP-Treibern – unter anderem SQLite, MySQL/MariaDB,
 PostgreSQL, SQL Server, Oracle, Firebird sowie weitere PDO-Treiber. Eine DD darf
 daher keine SQLite-spezifische Fachlogik erzwingen. Unterschiede bei Schema und
 Limits werden in dbxDB/dbxDD behandelt.
+
+## Zentrale Query-Performance
+
+Wenn `performance_timer_level` auf `main` oder `detail` steht, misst `dbxDB`
+alle zentralen Query-, Exec-, Insert- und Update-Pfade. Pro Request werden
+Anzahl, eindeutige Strukturen, Wiederholungen, Laufzeit, langsame und
+fehlgeschlagene Queries zusammengefasst. Ab `detail` werden zusätzlich die
+teuersten normalisierten SQL-Strukturen als Fingerprints gespeichert.
+
+SQL-Kommentare und Literalwerte werden vor der Speicherung entfernt;
+gebundene Parameter werden nie protokolliert. Die Schwelle für eine langsame
+Query wird über `performance_timer_slow_query_ms` festgelegt. Die Auswertung
+liegt im Admin-Dashboard. Dadurch werden Optimierungen anhand tatsächlicher
+Request-Kosten und Query-Duplikate vorgenommen, statt einzelne SQL-Stellen auf
+Verdacht mit einer parallelen Messlogik zu versehen.
+
+Die Persistierung ist von der Messung ausgenommen, damit die
+Performance-Tabellen keine rekursiven Eigenmessungen erzeugen. Fachmodule
+verwenden weiterhin ausschließlich `dbxDB`; eigene Query-Logger sind nicht
+zulässig.
+
+Beim ersten Lauf nach einer Erweiterung gleicht der Performance-Dienst seine
+Tabellen additiv mit den DD-Feldern und Indizes ab. Vorhandene Messwerte bleiben
+dabei erhalten. Query-Mittelwerte beziehen historische Datensätze ohne
+Query-Profil auf diese Weise nicht fälschlich als Nullmessungen ein.
 
 ## Verbindliche Regeln
 

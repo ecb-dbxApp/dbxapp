@@ -173,7 +173,7 @@ class dbxTrace {
          $title = $summary['summary'];
       }
 
-      $html  = '<span class="dbx-trace-summary" title="' . dbx()->esc($title) . '">';
+      $html  = '<span class="dbx-trace-summary" data-dbx-tooltip="' . dbx()->esc($title) . '">';
       $html .= '<strong>' . dbx()->esc($summary['summary']) . '</strong>';
 
       if ($summary['fields']) {

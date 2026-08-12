@@ -1,13 +1,13 @@
 <div class="dbx-cms-media-filter">
- <label for="dbx_cms_media_filter_{i}">Anzeige</label>
- <select id="dbx_cms_media_filter_{i}" class="form-select form-select-sm" data-cms-media-filter title="Medienbereich anzeigen">
-  <option value="all" selected>Alle</option>
-  <option value="gallery">Galerie</option>
-  <option value="hero">Hero</option>
-  <option value="inline">Im Text</option>
-  <option value="shop">Shop</option>
+ <label for="dbx_cms_media_filter_{i}">{media_filter_label}</label>
+ <select id="dbx_cms_media_filter_{i}" class="form-select form-select-sm" data-cms-media-filter data-dbx-tooltip="{media_filter_title}">
+  <option value="all" selected>{media_filter_all}</option>
+  <option value="gallery">{media_filter_gallery}</option>
+  <option value="hero">{media_filter_hero}</option>
+  <option value="inline">{media_filter_inline}</option>
+  <option value="shop">{media_filter_shop}</option>
  </select>
 </div>
 <div class="dbx-cms-media-list" data-cms-media>
- <div class="dbx-cms-empty">Keine Medien geladen.</div>
+ <div class="dbx-cms-empty">{media_not_loaded}</div>
 </div>

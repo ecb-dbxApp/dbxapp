@@ -11,6 +11,8 @@ if ($root === false) {
 $dryRun = in_array('--dry-run', $argv, true);
 $versionFile = $root . DIRECTORY_SEPARATOR . 'VERSION';
 $version = is_file($versionFile) ? trim((string)file_get_contents($versionFile)) : '';
+$baselineFile = $root . DIRECTORY_SEPARATOR . 'UPDATE_BASELINE';
+$baseline = is_file($baselineFile) ? trim((string)file_get_contents($baselineFile)) : '';
 
 if ($dryRun) {
    if (!preg_match('/^\d+\.\d+\.\d+(?:-dev)?$/', $version)) {
@@ -19,6 +21,11 @@ if ($dryRun) {
    }
 } elseif (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
    fwrite(STDERR, "Release benötigt eine stabile VERSION ohne -dev: {$version}\n");
+   exit(3);
+}
+if (!preg_match('/^\d+\.\d+\.\d+$/', $baseline)
+   || version_compare(preg_replace('/-dev$/', '', $version), $baseline, '<')) {
+   fwrite(STDERR, "Ungueltige UPDATE_BASELINE fuer VERSION {$version}: {$baseline}\n");
    exit(3);
 }
 
@@ -44,9 +51,16 @@ function release_file_allowed(string $relative): bool
 
    if (preg_match('#^(?:\.git|\.github|dist|tools|files|output|tmp)/#', $relative)
       || str_starts_with($relative, 'dbx/files/')
+      || str_starts_with($relative, 'docs/')
+      || str_starts_with($relative, 'dbx/modules/myX/')
+      || str_starts_with($relative, 'dbx/modules/dbxDocs/')
+      || str_starts_with($relative, 'dbx/modules/dbxMenu/tpl/htm/')
+      || str_starts_with($relative, 'dbx/design/dbxdocs/')
       || preg_match('#/db/#i', '/' . $relative)
       || preg_match('#/(?:cache|tmp|work|backup|backups|_backup|\.backup|uploads)/#i', '/' . $relative)
       || preg_match('/^\d{2}_.*\.md$/', $base)
+      || $base === 'Doxyfile'
+      || $extension === 'md'
       || in_array($base, array('.gitignore', '.gitattributes', '.editorconfig'), true)
       || str_starts_with($base, 'RELEASE_NOTES_')
       || in_array($base, array('.env', '.env.local', 'config.local.php'), true)
@@ -121,9 +135,10 @@ foreach ($files as $relative => $absolute) {
 $inventoryFiles['.dbx-release-files.json'] = null;
 ksort($inventoryFiles);
 $inventory = json_encode(array(
-   'schema' => 1,
+   'schema' => 2,
    'product' => 'dbxapp',
    'version' => $version,
+   'minimum_source_version' => $baseline,
    'files' => $inventoryFiles,
 ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 if (!is_string($inventory)
@@ -153,7 +168,7 @@ if (file_put_contents($checksumPath, $checksumLine, LOCK_EX) === false) {
 
 $baseUrl = 'https://github.com/ecb-dbxApp/dbxapp';
 $updateManifest = json_encode(array(
-   'schema' => 1,
+   'schema' => 2,
    'product' => 'dbxapp',
    'channel' => 'stable',
    'version' => $version,
@@ -163,6 +178,7 @@ $updateManifest = json_encode(array(
    'sha256' => $hash,
    'size' => filesize($zipPath),
    'requires' => array(
+      'dbxapp' => '>=' . $baseline,
       'php' => '>=8.2',
       'extensions' => array('curl', 'json', 'pdo', 'zip'),
    ),

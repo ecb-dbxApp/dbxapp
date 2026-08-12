@@ -15,10 +15,9 @@ if (!defined('dbxRunAsAdmin')) {
 require_once $dbxRoot . '/vendor/autoload.php';
 require_once $dbxRoot . '/include/dbxKernel.php';
 require_once $module . '/include/dbxDashboard.class.php';
+require_once $dbxRoot . '/include/tests/dbxModuleSourceBundle.php';
 
-$source = (string)file_get_contents(
-    $module . '/include/dbxDashboard.class.php'
-);
+$source = dbx_test_module_source_bundle($module . '/include/dbxDashboard.class.php');
 $template = (string)file_get_contents(
     $module . '/tpl/htm/admin-dashboard.htm'
 );

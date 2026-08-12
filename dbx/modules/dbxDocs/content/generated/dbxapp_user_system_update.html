@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"></head><body><div class="contents"><div class="dbxdocs-cms-article"><div class="textblock"><p>Neue dbxapp-Versionen prüfen, vorbereiten, installieren, stoppen und zurückrollen.</p>
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"></head><body><div class="contents"><div class="dbxdocs-cms-article"><div class="dbxdocs-cms-article">
+<div class="dbxdocs-cms-article"><div class="textblock"><p>Neue dbxapp-Versionen prüfen, vorbereiten, installieren, stoppen und zurückrollen.</p>
 <p> 
 <section class="dbx-guide-hero dbx-update-guide-hero">
   <div class="dbx-guide-hero-icon" aria-hidden="true">
@@ -8,47 +9,47 @@
   </div>
   <div>
     <span class="dbx-doc-kicker">Anleitung für Administratoren</span>
-    <h2>Einfach aktualisieren – mit einer sicheren Entscheidung vor der Installation</h2>
+    <h4>Einfach aktualisieren – mit einer sicheren Entscheidung vor der Installation</h4>
     <p>dbxapp prüft und lädt ein Update zuerst in einen getrennten
     Vorbereitungsbereich. Solange noch nicht installiert wurde, können Sie
     ohne Änderung am laufenden System fortfahren oder das Update stoppen.</p>
   </div>
 </section>
 </p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md5"></a>
-Wo finde ich das Update?</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md5"></a>
+Wo finde ich das Update?</h4>
 <p>Melden Sie sich als Administrator an und öffnen Sie:</p>
 <p>ADMIN → Dashboard → Status &amp; Health → Update**</p>
 <p>Der Update-Hinweis erscheint sowohl im linken Dashboard-Menü als auch im Bereich <b>Status &amp; Health</b>. Ein Klick öffnet die zentrale Seite System-Update**.</p>
 <dl class="section note"><dt>Note</dt><dd>Das Dashboard ruft nicht bei jedem Seitenaufruf GitHub auf. Es zeigt den zuletzt lokal gespeicherten Prüfstand an und bleibt deshalb schnell. Eine neue Online-Prüfung beginnt erst, wenn Sie die Update-Seite ausdrücklich starten.</dd></dl>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md6"></a>
-Die vier Anzeigen im Dashboard</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md6"></a>
+Die vier Anzeigen im Dashboard</h4>
 <p> 
 </p><div class="dbx-update-state-grid">
   <article class="dbx-update-state-card is-unknown">
     <span class="dbx-update-state-icon" aria-hidden="true">?</span>
-    <h3>prüfen</h3>
+    <h5>prüfen</h5>
     <p>Auf dieser Installation wurde noch kein stabiler Release geprüft.</p>
   </article>
   <article class="dbx-update-state-card is-current">
     <span class="dbx-update-state-icon" aria-hidden="true">✓</span>
-    <h3>aktuell</h3>
+    <h5>aktuell</h5>
     <p>Der zuletzt geprüfte stabile Stand ist nicht neuer als die installierte Version.</p>
   </article>
   <article class="dbx-update-state-card is-available">
     <span class="dbx-update-state-icon" aria-hidden="true">↓</span>
-    <h3>neu</h3>
+    <h5>neu</h5>
     <p>Ein neuerer stabiler Release ist bekannt und kann vorbereitet werden.</p>
   </article>
   <article class="dbx-update-state-card is-ready">
     <span class="dbx-update-state-icon" aria-hidden="true">◆</span>
-    <h3>bereit</h3>
+    <h5>bereit</h5>
     <p>Download, Prüfsumme, Paketinhalt und Staging sind geprüft. Sie entscheiden.</p>
   </article>
 </div>
 
-<h2 class="doxsection"><a class="anchor" id="autotoc_md7"></a>
-Der empfohlene Ablauf</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md7"></a>
+Der empfohlene Ablauf</h4>
 <p> 
 </p><ol class="dbx-update-steps">
   <li>
@@ -89,8 +90,8 @@ Der empfohlene Ablauf</h2>
   Datenbanktabellen.</span>
 </div>
 
-<h2 class="doxsection"><a class="anchor" id="autotoc_md8"></a>
-Was bedeutet „Update stoppen“?</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md8"></a>
+Was bedeutet „Update stoppen“?</h4>
 <p>Update stoppen** ist für den Zeitraum zwischen Vorbereitung und Installation gedacht. dbxapp entfernt dabei gemeinsam:</p>
 <ul>
 <li>das heruntergeladene Release-ZIP;</li>
@@ -99,8 +100,8 @@ Was bedeutet „Update stoppen“?</h2>
 </ul>
 <p>Installierte Programmdateien und Datenbanken wurden in dieser Phase noch nicht verändert. Die Information über die letzte Release-Prüfung und vorhandene Sicherungen früherer Installationen bleiben erhalten.</p>
 <dl class="section warning"><dt>Warning</dt><dd>Sobald Sie <b>Jetzt sicher installieren</b> bestätigt haben, darf der kurze Datei-/Datenbankschritt nicht manuell unterbrochen werden. Ein Stop-Schalter während dieses kritischen Abschnitts wäre unsicher und wird deshalb bewusst nicht angeboten.</dd></dl>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md9"></a>
-Was geschieht bei „Jetzt sicher installieren“?</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md9"></a>
+Was geschieht bei „Jetzt sicher installieren“?</h4>
 <p>dbxapp führt die folgenden Schritte als einen kontrollierten Vorgang aus:</p>
 <ol type="1">
 <li>Das bereitgestellte Paket und jede entpackte Datei werden erneut geprüft.</li>
@@ -112,8 +113,8 @@ Was geschieht bei „Jetzt sicher installieren“?</h2>
 <li>Staging und Download werden entfernt; ein vorhandener PHP-OPcache wird zurückgesetzt.</li>
 </ol>
 <p>Schlägt ein Installationsschritt fehl, versucht dbxapp automatisch, die gesicherten Dateien und betroffenen Datenbanktabellen gemeinsam wiederherzustellen. Die Fehlermeldung bleibt für die Diagnose sichtbar.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md10"></a>
-Was bleibt bei einem Update unverändert?</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md10"></a>
+Was bleibt bei einem Update unverändert?</h4>
 <p>Lokale Laufzeitdaten und Konfigurationen werden weder aus dem Release übernommen noch überschrieben. Geschützt sind insbesondere:</p>
 <ul>
 <li><span class="tt">.env</span>, <span class="tt">.env.local</span> und lokale <span class="tt">config.local.php</span>;</li>
@@ -123,13 +124,13 @@ Was bleibt bei einem Update unverändert?</h2>
 <li>Schlüssel- und Zertifikatsdateien.</li>
 </ul>
 <p>Module gehören zum normalen dbxapp-Release und werden deshalb zusammen mit dem System aktualisiert. Produktive Daten eines Moduls werden jedoch nicht aus dem Release-ZIP kopiert.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
-DB3, MySQL und gemischte Installationen</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
+DB3, MySQL und gemischte Installationen</h4>
 <p>Jede DD behält beim Update ihre <b>lokal aufgelöste Serverbindung</b>. Deshalb darf eine Installation beispielsweise Benutzer und Bestellungen in MySQL, Content in einer DB3-Datei und Sessions in einer weiteren DB3-Datei führen.</p>
-<p>Vor einer Datenbankänderung ermittelt dbxapp für jede betroffene DD erneut das wirkliche lokale Ziel. Sicherung und Migration laufen ausschließlich über <span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=classdbx_d_b.html" title="Zentrale Datenbank- und DD-Systemklasse von DBX.">dbxDB</a></span> und <span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=classdbx_d_d.html">dbxDD</a></span>.</p>
+<p>Vor einer Datenbankänderung ermittelt dbxapp für jede betroffene DD erneut das wirkliche lokale Ziel. Sicherung und Migration laufen ausschließlich über <span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=%3Fdbx_modul%3DdbxDocs%26dbx_run1%3Dreference%26dbx_run2%3Dpage%26doc%3D%253Fdbx_modul%253DdbxDocs%2526dbx_run1%253Dreference%2526dbx_run2%253Dpage%2526doc%253Dclassdbx_d_b.html" title="Zentrale Datenbank- und DD-Systemklasse von DBX.">dbxDB</a></span> und <span class="tt"><a class="el" href="?dbx_modul=dbxDocs&amp;dbx_run1=reference&amp;dbx_run2=page&amp;doc=%3Fdbx_modul%3DdbxDocs%26dbx_run1%3Dreference%26dbx_run2%3Dpage%26doc%3D%253Fdbx_modul%253DdbxDocs%2526dbx_run1%253Dreference%2526dbx_run2%253Dpage%2526doc%253Dclassdbx_d_d.html">dbxDD</a></span>.</p>
 <p>Ein Release darf ein vorhandenes Datenbankziel nicht unbemerkt ändern. Würde ein neuer DD-Standard eine bestehende Tabelle auf einen anderen Server lenken, stoppt das Update ohne ausdrückliche lokale Bindung. Der Administrator entscheidet dann bewusst über Bindung oder Datentransfer.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
-Stoppen und Zurückrollen sind nicht dasselbe</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md12"></a>
+Stoppen und Zurückrollen sind nicht dasselbe</h4>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Aktion  </th><th class="markdownTableHeadNone">Zeitpunkt  </th><th class="markdownTableHeadNone">Wirkung  </th></tr>
@@ -140,8 +141,8 @@ Stoppen und Zurückrollen sind nicht dasselbe</h2>
 </table>
 <p>Ein Rollback ist nur verfügbar, wenn die letzte Updatesicherung vorhanden, noch nicht zurückgerollt und die installierte Version seitdem nicht anderweitig verändert wurde.</p>
 <dl class="section warning"><dt>Warning</dt><dd>Ein Datenbank-Rollback stellt die gesicherten betroffenen Tabellen auf den Stand <b>vor</b> dem Update zurück. Sind nach dem Update bereits neue Produktivdaten in diesen Tabellen entstanden, muss vor dem Rollback deren Sicherung und weiteres Vorgehen geprüft werden. Rollback ist eine Fehlerbehebung, kein normaler „Zurück“-Schalter.</dd></dl>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md13"></a>
-Typische Meldungen und die richtige Reaktion</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md13"></a>
+Typische Meldungen und die richtige Reaktion</h4>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Anzeige oder Meldung  </th><th class="markdownTableHeadNone">Bedeutung  </th><th class="markdownTableHeadNone">Empfohlene Reaktion  </th></tr>
@@ -158,8 +159,8 @@ Typische Meldungen und die richtige Reaktion</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><b>Update fehlgeschlagen und wurde zurückgerollt</b>  </td><td class="markdownTableBodyNone">Die Installation scheiterte; dbxapp hat die Sicherung wiederhergestellt.  </td><td class="markdownTableBodyNone">Systemstatus und <span class="tt">files/dbxError.log</span> prüfen, bevor erneut gestartet wird.  </td></tr>
 </table>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
-Kurze Checkliste für produktive Systeme</h2>
+<h4 class="doxsection"><a class="anchor" id="autotoc_md14"></a>
+Kurze Checkliste für produktive Systeme</h4>
 <ul>
 <li>Release-Hinweise lesen und ein passendes Wartungsfenster wählen.</li>
 <li>Vor wichtigen Produktivupdates zusätzlich eine externe Gesamtsicherung erstellen.</li>
@@ -177,4 +178,4 @@ Kurze Checkliste für produktive Systeme</h2>
   DD-Serverbindungen</a>.</span>
 </div>
  
-</div></div></div></body></html>
+</div></div></div></div></div></body></html>

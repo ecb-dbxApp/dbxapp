@@ -1,8 +1,10 @@
 <?php
 
+require_once dirname(__DIR__, 3) . '/include/tests/dbxModuleSourceBundle.php';
+
 $root = dirname(__DIR__);
-$repo = file_get_contents($root . '/include/dbxShopRepository.class.php');
-$service = file_get_contents($root . '/include/dbxShopService.class.php');
+$repo = dbx_test_module_source_bundle($root . '/include/dbxShopRepository.class.php');
+$service = dbx_test_module_source_bundle($root . '/include/dbxShopService.class.php');
 
 $fail = static function (string $message, int $code): void {
    fwrite(STDERR, "FAIL: $message\n");

@@ -16,6 +16,13 @@ class dbxTPLDesignSlotsTestApi {
    public function get_skin_class(): string { return 'skin-blau'; }
    public function os_path(string $path): string { return str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path); }
    public function register_editor_file(string $kind, string $file): void { $this->registered[] = array($kind, $file); }
+
+   public function lng_resolve_file(string $dir, string $name, string $ext, string $lng = '', bool $fallback = true): string {
+      $dir = str_replace('\\', '/', $dir);
+      if ($dir !== '' && substr($dir, -1) !== '/') $dir .= '/';
+      $path = $dir . strtolower(trim($name)) . '.' . ltrim(strtolower(trim($ext)), '.');
+      return is_file($path) ? $this->os_path($path) : '';
+   }
 }
 
 function dbx(): dbxTPLDesignSlotsTestApi {

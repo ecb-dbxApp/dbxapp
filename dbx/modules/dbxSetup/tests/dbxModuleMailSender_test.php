@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 4);
+require_once $root . '/dbx/include/tests/dbxModuleSourceBundle.php';
 
 function module_mail_sender_assert(bool $condition, string $message): void
 {
@@ -25,10 +26,10 @@ $contactForm = (string)file_get_contents(
 $contactAdmin = (string)file_get_contents(
     $root . '/dbx/modules/dbxContact_admin/include/dbxContactAdmin.class.php'
 );
-$shopService = (string)file_get_contents(
+$shopService = dbx_test_module_source_bundle(
     $root . '/dbx/modules/dbxShop/include/dbxShopService.class.php'
 );
-$shopAdmin = (string)file_get_contents(
+$shopAdmin = dbx_test_module_source_bundle(
     $root . '/dbx/modules/dbxShop_admin/include/dbxShopAdmin.class.php'
 );
 $installer = (string)file_get_contents(
@@ -42,11 +43,11 @@ module_mail_sender_assert(
     'Das Kontaktmodul muss den installationsbezogenen Absender in der lokalen Konfiguration erwarten.'
 );
 module_mail_sender_assert(
-    substr_count($contactForm, "get_config('dbxContact', 'mail_from')") >= 1
+    substr_count($contactForm, "get_cfg('dbxContact', 'mail_from')") >= 1
         && str_contains($contactForm, '$this->mail_from_param()')
         && str_contains($contactForm, 'FILTER_VALIDATE_EMAIL')
         && str_contains($contactForm, "'reply_to'")
-        && str_contains($contactAdmin, "get_config('dbxContact', 'mail_from')")
+        && str_contains($contactAdmin, "get_cfg('dbxContact', 'mail_from')")
         && str_contains($contactAdmin, 'FILTER_VALIDATE_EMAIL')
         && str_contains($contactAdmin, '$fromParam'),
     'Kontaktbenachrichtigung, Bestätigung oder Supportantwort umgehen mail_from.'

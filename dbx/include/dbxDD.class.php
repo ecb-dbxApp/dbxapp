@@ -1,5 +1,5 @@
 <?php
-include_once 'dbxDB.class.php';
+require_once __DIR__ . '/dbxDB.class.php';
 
 /**
  * =========================================================
@@ -14,9 +14,8 @@ include_once 'dbxDB.class.php';
  *
  * Wichtige Architekturregel
  * -------------------------
- * - dbxDD ist eine Erweiterung von dbxDB.
- * - Bestehende Funktionen aus dbxDB sollen genutzt werden,
- *   nicht parallel neu erfunden werden.
+ * - dbxDD komponiert die zentrale dbxDB-Instanz.
+ * - Verbindungen und DD-Cache werden dadurch nicht doppelt aufgebaut.
  * - dbxDD stellt nur die benötigte Infrastruktur bereit.
  * - Die eigentliche Prozesssteuerung, Benutzerentscheidungen,
  *   Feld-Zuordnungen und Konfliktauflösungen sollen später
@@ -53,8 +52,13 @@ include_once 'dbxDB.class.php';
  * $res = $oDD->sync_db_to_dd('crm', 'kunden', 'merge');
  * ```
  */
-class dbxDD extends dbxDB
+class dbxDD
 {
+    private dbxDB $database;
+
+    /** Kompatible Sicht auf den zentralen Verbindungspool. */
+    public $db = array();
+
     protected string $_remember_modul = 'dbx';
     protected float $_max_step_runtime = 3.0;
     protected int $_chunk_size = 500;
@@ -66,7 +70,29 @@ class dbxDD extends dbxDB
      */
     public function __construct()
     {
-        parent::__construct();
+        $database = dbx()->get_system_obj('dbxDB');
+        if (!$database instanceof dbxDB) {
+            throw new RuntimeException('dbxDD benötigt den zentralen dbxDB-Service.');
+        }
+        $this->database = $database;
+        $this->db =& $this->database->db;
+    }
+
+    /**
+     * Delegiert DB-Operationen an genau den zentralen dbxDB-Service.
+     * dbxDD selbst enthält ausschließlich Schema-/Dictionary-Verhalten.
+     */
+    public function __call(string $method, array $arguments): mixed
+    {
+        if (!is_callable(array($this->database, $method))) {
+            throw new BadMethodCallException('Unbekannte dbxDD/dbxDB-Methode: ' . $method);
+        }
+        return $this->database->{$method}(...$arguments);
+    }
+
+    public function database(): dbxDB
+    {
+        return $this->database;
     }
 
 
@@ -141,7 +167,7 @@ class dbxDD extends dbxDB
      */
     public function load_dd(string $dd): array
     {
-        return parent::load_dd($dd);
+        return $this->database->load_dd($dd);
     }
 
     /**
@@ -1658,6 +1684,11 @@ class dbxDD extends dbxDB
             dbx()->sys_msg('error', 'db', $server, 'create sqlite file failed', $file);
             return 0;
         }
+        // file_exists()/is_file() koennen den vorherigen Negativtreffer bis
+        // zur unmittelbar folgenden Tabellenpruefung cachen. Ohne gezielte
+        // Invalidierung wird eine gerade erzeugte SQLite-Datei einmalig als
+        // fehlend protokolliert.
+        clearstatcache(true, $file);
 
         $hostRel = dbx()->config_path_store($dir, true);
 
@@ -1670,7 +1701,7 @@ class dbxDD extends dbxDB
             'port'   => ''
         ];
 
-        if (!isset($this->db[$server]) && !$this->dbConnect($server, 'sqlite', $hostRel, basename($file))) {
+        if (!isset($this->database->db[$server]) && !$this->database->dbConnect($server, 'sqlite', $hostRel, basename($file))) {
             return 0;
         }
 
@@ -1697,7 +1728,9 @@ class dbxDD extends dbxDB
             return 0;
         }
 
-        if ($this->get_table_exist($server, $table)) {
+        // Eine noch nicht vorhandene Tabelle ist hier der erwartete
+        // Ausgangszustand und darf keine produktive SysMsg erzeugen.
+        if ($this->get_table_exist($server, $table, false)) {
             return 1;
         }
 
@@ -3363,8 +3396,13 @@ class dbxDD extends dbxDB
                      . ' (' . implode(',', array_map(fn($f) => $this->quote_ident($state['server'], $f), $fields)) . ')'
                      . ' VALUES (' . implode(',', $placeholders) . ')';
 
-                $stmt = $this->db[$state['server']]->prepare($sql);
-                $stmt->execute(array_values($dbRec));
+                // Auch Restore-Importe laufen durch die zentrale dbxDB-Schicht.
+                // Damit gelten Fehlerbehandlung, Retry-Logik und PDO-Portabilitaet
+                // identisch fuer alle unterstuetzten Datenbanktreiber.
+                $stmt = $this->database->query($state['server'], $sql, array_values($dbRec));
+                if (!$stmt) {
+                    throw new \RuntimeException('restore row insert failed');
+                }
 
                 $state['done']++;
             }

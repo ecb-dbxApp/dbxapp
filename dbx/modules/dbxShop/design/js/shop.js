@@ -36,7 +36,7 @@
          let badge = icon.querySelector(".dbx-shop-cart-menu-badge");
          if (count <= 0) {
             if (badge) badge.remove();
-            link.setAttribute("title", text.empty);
+            link.setAttribute("data-dbx-tooltip", text.empty);
             return;
          }
 
@@ -48,7 +48,7 @@
 
          badge.textContent = String(count);
          badge.setAttribute("aria-label", label);
-         link.setAttribute("title", label);
+         link.setAttribute("data-dbx-tooltip", label);
       });
    };
 

@@ -28,7 +28,7 @@ class dbxContentPageCache {
          }
       }
 
-      $enabled = dbx()->get_config('dbx', 'cache_content');
+      $enabled = dbx()->get_cfg('dbx', 'cache_content');
       if ($enabled === 'undef' || $enabled === '' || $enabled === null) {
          return true;
       }
@@ -37,7 +37,7 @@ class dbxContentPageCache {
    }
 
    public static function setConfigEnabled(bool $enabled): bool {
-      $config = dbx()->get_config('dbx');
+      $config = dbx()->get_cfg('dbx');
       if (!is_array($config)) {
          $config = array();
       }
@@ -45,7 +45,7 @@ class dbxContentPageCache {
       $config['cache_content'] = $enabled ? 1 : 0;
       // Der Schalter steuert ausschliesslich neue Schreibvorgaenge. Bereits
       // vorhandene Treffer bleiben lesbar und werden nicht geloescht.
-      return (int) dbx()->set_config('dbx', $config) > 0;
+      return (int) dbx()->set_cfg('dbx', $config) > 0;
    }
 
    /** Abwaertskompatibel: "aktiv" bezeichnet das Schreiben neuer Seiten. */
@@ -178,6 +178,12 @@ class dbxContentPageCache {
       dbx()->set_system_var('dbx_full_page_cache_generation', '');
       dbx()->set_system_var('dbx_full_page_cache_cid', 0);
       dbx()->set_system_var('dbx_full_page_cache_lng', '');
+
+      // Demo-Seiten enthalten bewusst die sichtbare Administration. Sie
+      // duerfen nie als normale Gastseite in den Full-Page-Cache gelangen.
+      if (dbx()->is_demo_mode()) {
+         return false;
+      }
 
       if (!self::isRawPermalinkRequest()) {
          return false;
@@ -349,7 +355,7 @@ class dbxContentPageCache {
 
    /** Das Design ist Bestandteil der vollstaendigen HTML-Ausgabe. */
    public static function currentDesign(): string {
-      $config = dbx()->get_config('dbx');
+      $config = dbx()->get_cfg('dbx');
       if (!is_array($config)) {
          $config = array();
       }

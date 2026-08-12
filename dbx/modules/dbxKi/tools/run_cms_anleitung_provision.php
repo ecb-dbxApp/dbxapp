@@ -17,12 +17,12 @@ $result = \dbx\dbxKi\dbxKiCmsHelpProvision::provision();
 echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . PHP_EOL;
 
 if (empty($result['errors'])) {
-   $config = dbx()->get_config('dbxKi');
+   $config = dbx()->get_cfg('dbxKi');
    if (!is_array($config)) {
       $config = array();
    }
    $config[\dbx\dbxKi\dbxKiCmsHelpProvision::CONFIG_KEY] = \dbx\dbxKi\dbxKiCmsHelpProvision::PROVISION_VERSION;
-   dbx()->set_config('dbxKi', $config);
+   dbx()->set_cfg('dbxKi', $config);
    exit(0);
 }
 

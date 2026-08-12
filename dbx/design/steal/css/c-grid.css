@@ -90,6 +90,21 @@
     border-bottom: 2px solid var(--dbx-panel-head-border);
 }
 
+/* Isolation gegen c-content-frame.css: ".c-cms .body *" /
+   ".c-cms .dbx-content-col-inner *" erzwingt dort per
+   Universalselektor "white-space: normal !important" fuer
+   CMS-Fliesstext und trifft ungewollt auch ein hier
+   eingebundenes Tabulator-Grid, wodurch Kopfzeilen-Spalten
+   umbrechen und die eingefrorene Spalte nicht mehr zur Hoehe
+   passt. Per Spezifitaet (3 statt 2 Klassen) staerker als die
+   Ausloeser-Regel. */
+.c-cms .body .tabulator,
+.c-cms .body .tabulator *,
+.c-cms .dbx-content-col-inner .tabulator,
+.c-cms .dbx-content-col-inner .tabulator * {
+    white-space: nowrap !important;
+}
+
 .tabulator .tabulator-col {
     background: linear-gradient(180deg, var(--dbx-panel-head-bg-top), var(--dbx-panel-head-bg-bottom)) !important;
     color: var(--dbx-panel-head-text) !important;

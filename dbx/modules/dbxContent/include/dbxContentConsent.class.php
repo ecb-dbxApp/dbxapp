@@ -22,7 +22,7 @@ class dbxContentConsent {
          . '<button type="button" class="btn btn-primary btn-sm" data-dbx-consent-action="accept-all">Alle akzeptieren</button>'
          . '<button type="button" class="btn btn-outline-secondary btn-sm" data-dbx-consent-action="necessary">Nur notwendige</button>'
          . '<button type="button" class="btn btn-success btn-sm" data-dbx-consent-action="save">Speichern</button>'
-         . '<button type="button" class="btn btn-outline-danger btn-sm" data-dbx-consent-action="reject" title="Alle Zustimmungen widerrufen und Hinweis erneut anzeigen">Ablehnen</button>'
+         . '<button type="button" class="btn btn-outline-danger btn-sm" data-dbx-consent-action="reject" data-dbx-tooltip="Alle Zustimmungen widerrufen und Hinweis erneut anzeigen">Ablehnen</button>'
          . '</div>'
          . '</div>'
          . '</div>';

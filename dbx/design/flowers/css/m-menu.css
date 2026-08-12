@@ -15,6 +15,8 @@
 .dbx-menu-spacer { display: none; }
 .dbx-menu-mobile-bar, .dbx-menu-toggle { display: none; }
 .dbx-menu-mobile-label { display: none; }
+.dbx-menu-root[data-dbx-menu-persist-open="1"] .dbx-menu-mobile-label { display: inline; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.is-sidebar-collapsed .fleurop-sidebar .dbx-menu-mobile-label { display: none; }
 
 .is-sidebar-collapsed .fleurop-sidebar .dbx-menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link { justify-content: center; min-height: 48px; padding: 8px; }
 .is-sidebar-collapsed .fleurop-sidebar .dbx-menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link i { font-size: 1.15rem; }
@@ -51,6 +53,28 @@
 .fleurop-admin-strip .dbx-menu-item > .dbx-menu-list .dbx-menu-item > .dbx-menu-list { top: 0; left: 100%; }
 .fleurop-admin-strip .dbx-menu-item.dbx-menu-right > .dbx-menu-list { right: 0; left: auto; }
 
+/* Zwischen schmalem Desktop und großem Monitor darf die horizontale
+   Systemnavigation auf zwei kompakte Zeilen umbrechen, statt rechts
+   abgeschnitten zu werden. */
+@media (min-width: 992px) and (max-width: 1599.98px) {
+    .fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list,
+    .fleurop-admin-strip .dbx-menu-admin.dbx-menu-list {
+        flex-wrap: wrap;
+    }
+
+    .fleurop-admin-strip .dbx-menu-item.dbx-menu-spacer {
+        display: none;
+    }
+
+    .fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
+    .fleurop-admin-strip .dbx-menu-admin.dbx-menu-list > .dbx-menu-item > .dbx-menu-link {
+        min-height: 35px;
+        gap: 6px;
+        padding: 4px 8px;
+        font-size: .76rem;
+    }
+}
+
 @media (max-width: 991.98px) {
     .dbx-menu-mobile-bar { display: flex; align-items: stretch; gap: 7px; margin: 0 0 8px; width: 100%; }
     .dbx-menu-toggle { display: inline-flex; align-items: center; justify-content: center; flex: 1 1 0; gap: 8px; min-height: 40px; padding: 7px 12px; border: 1px solid rgba(230,190,151,.48); border-radius: 999px; color: #fff8ed; background: rgba(28,21,15,.28); }
@@ -60,10 +84,15 @@
     .dbx-menu-item > .dbx-menu-list { padding-left: 17px; }
     .dbx-menu-mobile-label { display: inline; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .dbx-user-avatar-menu > .dbx-menu-link { justify-content: flex-start !important; }
+    .fleurop-admin-strip > .dbx-menu-mobile-bar { display: flex !important; margin: 0; padding: 6px 8px; }
+    .fleurop-admin-strip .dbx-menu-admin.dbx-menu-root:not(.is-mobile-open) { display: none !important; }
+    .fleurop-admin-strip .dbx-menu-admin.dbx-menu-root.is-mobile-open { display: block !important; }
     .fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list,
-    .fleurop-admin-strip .dbx-menu-admin.dbx-menu-list { display: flex; flex-direction: row; flex-wrap: wrap; max-height: none; overflow: visible; padding: 0; }
+    .fleurop-admin-strip .dbx-menu-admin.dbx-menu-list { display: block; max-height: min(62vh, 520px); overflow-x: hidden; overflow-y: auto; padding: 6px 6px calc(42px + env(safe-area-inset-bottom)); }
     .fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list > .dbx-menu-item,
-    .fleurop-admin-strip .dbx-menu-admin.dbx-menu-list > .dbx-menu-item { display: flex; width: auto; }
-    .fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link { min-height: 35px; padding: 4px 9px; }
+    .fleurop-admin-strip .dbx-menu-admin.dbx-menu-list > .dbx-menu-item { display: block; width: 100%; }
+    .fleurop-admin-strip .dbx-menu-admin > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link { width: 100%; min-height: 40px; padding: 6px 10px; }
+    .fleurop-admin-strip .dbx-menu-item.dbx-menu-spacer { display: none; }
+    .fleurop-admin-strip .dbx-menu-item.dbx-menu-right { margin-left: 0; }
     .fleurop-admin-strip .dbx-menu-item > .dbx-menu-list { padding: 7px; }
 }

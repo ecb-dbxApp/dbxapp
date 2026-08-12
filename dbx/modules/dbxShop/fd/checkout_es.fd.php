@@ -83,7 +83,7 @@ $addField('checkout_request_id','varchar','','parameter|max=64','hidden');
 
 $cfg = array();
 if (function_exists('dbx')) {
-   $rawCfg = dbx()->get_config('dbxShop');
+   $rawCfg = dbx()->get_cfg('dbxShop');
    $cfg = is_array($rawCfg) ? $rawCfg : array();
 }
 $cfgBool = function(string $key, bool $default = false) use ($cfg): bool {

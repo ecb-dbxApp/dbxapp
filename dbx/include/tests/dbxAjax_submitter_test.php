@@ -11,6 +11,7 @@
  */
 
 $dbxRoot = dirname(__DIR__, 2);
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
 $ajaxFile = $dbxRoot . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'ajax.js';
 $confirmFile = $dbxRoot . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'confirm.js';
 $cartTemplate = $dbxRoot . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxShop'
@@ -27,7 +28,7 @@ $confirm = is_file($confirmFile) ? (string)file_get_contents($confirmFile) : '';
 $cart = is_file($cartTemplate) ? (string)file_get_contents($cartTemplate) : '';
 $shopStart = is_file($shopStartTemplate) ? (string)file_get_contents($shopStartTemplate) : '';
 $shopJs = is_file($shopJsFile) ? (string)file_get_contents($shopJsFile) : '';
-$shopService = is_file($shopServiceFile) ? (string)file_get_contents($shopServiceFile) : '';
+$shopService = is_file($shopServiceFile) ? dbx_test_module_source_bundle($shopServiceFile) : '';
 $errors = array();
 
 if (strpos($ajax, 'submitSource: e.submitter || null') === false) {
@@ -64,7 +65,7 @@ if (strpos($cart, 'data-dbx-shop-cart-count="{cart_count}"') === false
     $errors[] = 'Warenkorb-Report veröffentlicht den aktuellen Menüzähler nicht.';
 }
 
-if (!preg_match('#dbxShop/design/js/shop\.js\?v=\d+#', $shopStart)
+if (strpos($shopStart, 'dbxShop/design/js/shop.js?v={dbx:asset_version}') === false
     || strpos($shopJs, 'window.dbx.event.on("ajax:after"') === false) {
     $errors[] = 'Shop-Menüzähler wird nach AJAX-Aktionen nicht synchronisiert.';
 }

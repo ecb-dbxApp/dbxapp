@@ -9,7 +9,7 @@ class dbxShopAmazonPay {
    private const ALGORITHM = 'AMZN-PAY-RSASSA-PSS-V2';
 
    private function config(): array {
-      $cfg = function_exists('dbx') ? dbx()->get_config('dbxShop') : array();
+      $cfg = function_exists('dbx') ? dbx()->get_cfg('dbxShop') : array();
       $cfg = is_array($cfg) ? $cfg : array();
       return array(
          'enabled' => !empty($cfg['payment_amazon_pay_enabled']),

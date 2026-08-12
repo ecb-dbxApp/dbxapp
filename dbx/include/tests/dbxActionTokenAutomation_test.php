@@ -150,20 +150,9 @@ if (isset($_SESSION['dbx']['session']['dbx']['security']['action_token_secret'])
    $fail('Eine ungueltige Token-Pruefung erzeugt ein neues Session-Secret.', 31);
 }
 
-$legacyToken = bin2hex(random_bytes(32));
-dbx()->set_session_var(
-   'action_tokens',
-   array('legacy.scope' => $legacyToken),
-   'security',
-   'dbx'
-);
-if (!dbx()->check_action_token('legacy.scope', $legacyToken)) {
-   $fail('Ein bereits gerenderter Legacy-Link ist nicht mehr kompatibel.', 8);
-}
-
 // Eine Modulroute wird einmal deklarativ registriert. Fuer den Test bleibt
 // die Konfiguration ausschliesslich im aktuellen Session-Cache.
-$dbxConfig = dbx()->get_config('dbx');
+$dbxConfig = dbx()->get_cfg('dbx');
 $dbxConfig['action_routes'] = array(
    'custom_delete' => array(
       'match' => array(

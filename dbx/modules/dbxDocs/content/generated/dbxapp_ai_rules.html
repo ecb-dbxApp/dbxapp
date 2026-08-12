@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <li>Shop: <a class="el" href="dbxapp_shop_ai_reference.html" title="Shop-KI-Referenz">Shop-KI-Referenz</a></li>
 </ul>
 <p>Vor einer Änderung in einem dieser Bereiche muss die passende Referenz vollständig gelesen werden. Eine Bereichsreferenz ergänzt diese Regeln; sie hebt keine projektweite Sicherheits- oder Architekturregel auf.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md202"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md205"></a>
 Nicht anfassen</h1>
 <p>Kernel-Klassen und JavaScript-Libs sind tabu, ausser der Benutzer fordert genau diese Änderung ausdrücklich an.</p>
 <p>Tabu ohne ausdrückliche Anforderung:</p>
@@ -72,7 +72,7 @@ Nicht anfassen</h1>
 <li>andere Systemlibs</li>
 </ul>
 <p>Diese Dateien werden genutzt, nicht ersetzt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md203"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md206"></a>
 Keine neuen Wege erfinden</h1>
 <p>Verboten:</p>
 <ul>
@@ -88,7 +88,7 @@ Keine neuen Wege erfinden</h1>
 <li>DD-Felder über lokale <span class="tt">$addField</span>-Closures oder andere versteckende Hilfsabstraktionen definieren; verbindlich ist das explizite dbxapp-Exportformat mit <span class="tt">TABLE</span>, <span class="tt">FIELDS</span> und <span class="tt">INDEXES</span></li>
 <li>pauschale Escape-Wrapper um normale DD-, Form- oder Reportwerte</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md204"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md207"></a>
 Standardentscheidung</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -118,13 +118,22 @@ Standardentscheidung</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">CMS/KI-Änderung  </td><td class="markdownTableBodyNone"><span class="tt">dbxKi</span>  </td></tr>
 </table>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md205"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md208"></a>
+Kundeninhalt und Systemquelle unterscheiden</h1>
+<p>Vor jedem Schreibvorgang muss die Zieldatei klassifiziert werden:</p>
+<ul>
+<li>Menüinhalte und installationsbezogene Menü-Templates sind Kundendateien. Sie werden nur in der betroffenen Installation geändert und niemals wegen dieser lokalen Anpassung in die Produktquelle, eine neue Version oder ein Update übernommen.</li>
+<li>Die Modulimplementierung und ihre System-Sourcen sind Produktdateien. Dazu gehören insbesondere PHP, DD, FD, JavaScript, CSS und andere ausführbare oder systemweit ausgelieferte Modulbestandteile. Änderungen daran erfolgen in der Entwicklungsquelle, werden getestet und über Release und Update verteilt.</li>
+<li>Eine Kundenänderung darf nicht durch einen nachfolgenden Produktabgleich oder Update-Lauf überschrieben werden.</li>
+</ul>
+<p>Ein Auftrag wie „Login/Logout im Kundenmenü ergänzen“ bedeutet daher: das vorhandene Menü-Template der Zielinstallation mit dem bestehenden dbxapp-Muster ändern. Er bedeutet weder Versionssprung noch Modul- oder Releaseänderung.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md209"></a>
 dbxKi-Regel</h1>
 <p>CMS-Inhalte, Seiten, Medien, Übersetzungen und SEO-Daten werden von einer KI nicht direkt in der Datenbank geändert. Eine KI nutzt dafür <span class="tt">dbxKi</span>.</p>
 <p>Wenn Codex, Cursor oder ein vergleichbarer Agent Zugriff auf die lokale Installation haben, ist der direkte Weg zu verwenden:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxKi&amp;dbx_run1=api</div>
 </div><!-- fragment --><p>Der erste Aufruf ist <span class="tt">system.describe</span>. Danach werden erlaubte Aktionen, Parameter, Tokens und Beispiel-Requests aus der Antwort verwendet. Der ZIP-Bundle-Weg ist nur für KI-Systeme ohne direkten Datei- oder HTTP-Zugriff gedacht.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md206"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md210"></a>
 Vorgehen bei neuen Funktionen</h1>
 <ol type="1">
 <li><a class="el" href="dbxapp_module_reference.html" title="Verbindliches Modulhandbuch">Verbindliches Modulhandbuch</a> lesen.</li>
@@ -141,10 +150,10 @@ Vorgehen bei neuen Funktionen</h1>
 <li>Automatische <span class="tt">dbxDB</span>-Systemfelder nicht im Modul duplizieren.</li>
 <li>Keine unrelated Refactors.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md207"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md211"></a>
 Kernel- und Größenregel</h1>
 <p>Eine große Kernelklasse wird nicht allein wegen ihrer Größe aufgeteilt. <span class="tt">dbxDB</span>, <span class="tt">dbxDD</span>, <span class="tt">dbxForm</span> und <span class="tt">dbxReport</span> bleiben die öffentlichen Fassaden. Eine interne Extraktion erfordert einen nachgewiesenen Nutzen, kompatible API und Regressionstests. Eine KI darf keine neuen öffentlichen Parallelfassaden erfinden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md208"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md212"></a>
 Dashboard-Regel</h1>
 <p>Dashboard-Templates definieren nur Aufteilung.</p>
 <p>Gut:</p>
@@ -157,10 +166,10 @@ Dashboard-Regel</h1>
 <li>Dashboard kopiert Reportlogik.</li>
 <li>Dashboard hat Sonderlogik für Collapse, obwohl Report/Utility das kann.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md209"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md213"></a>
 dbx_edit-Regel</h1>
 <p>Der Interpreter läuft für die Webseitenausgabe auch bei <span class="tt">dbx_edit &gt; 0</span>. Nur im Template-Editor wird Rohtext geschützt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md210"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md214"></a>
 Ziel</h1>
 <p>KI soll dbxapp-Code so erweitern, als wäre sie ein vorsichtiger Entwickler im Projekt: vorhandene Wege verstehen, kleine Änderungen machen, Systemkonzepte respektieren. </p>
 </div></div><!-- contents -->

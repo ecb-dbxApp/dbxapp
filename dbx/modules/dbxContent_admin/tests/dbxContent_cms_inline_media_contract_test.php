@@ -9,7 +9,8 @@ $assert = static function (bool $condition, string $message) use (&$failures): v
     }
 };
 
-$cmsJs = (string)file_get_contents($base . '/dbx/js/lib/cms.js');
+$cmsJs = (string)file_get_contents($base . '/dbx/js/lib/cms.js')
+    . (string)file_get_contents($base . '/dbx/js/lib/cms-page.js');
 foreach (array(
     'editorMediaNodeById',
     'inlineMediaRowsFromEditor',
@@ -28,29 +29,29 @@ $assert(
 foreach (array('data-cms-inline-focus', 'data-cms-media-edit-one', 'data-cms-inline-remove') as $attribute) {
     $assert(str_contains($cmsJs, $attribute), 'Inline media action is missing: ' . $attribute);
 }
-foreach (array(
-    'title: getField(root, "title"),' . "\n" . '            menu_title: getField(root, "menu_title"),',
-    '"title", "menu_title", "permalink"',
-) as $needle) {
-    $assert(str_contains($cmsJs, $needle), 'menu_title is not loaded and saved by the CMS editor.');
-}
+$assert(
+    str_contains($cmsJs, 'title: getField(root, "title"),')
+        && str_contains($cmsJs, 'menu_title: getField(root, "menu_title"),')
+        && str_contains($cmsJs, '"title", "menu_title", "permalink"'),
+    'menu_title is not loaded and saved by the CMS editor.'
+);
+
+$template = (string)file_get_contents(
+    $base . '/dbx/modules/dbxContent_admin/tpl/htm/cms-admin-page-form.htm'
+);
+$titlePosition = strpos($template, '{obj:title}');
+$menuTitlePosition = strpos($template, '{obj:menu_title}');
+$editorPosition = strpos($template, 'data-cms-editor');
+$assert(
+    $titlePosition !== false
+        && $menuTitlePosition !== false
+        && $menuTitlePosition > $titlePosition
+        && $editorPosition !== false
+        && $menuTitlePosition < $editorPosition,
+    'menu_title is not part of the shared page section.'
+);
 
 foreach (array('' => 'de', '_en' => 'en', '_es' => 'es') as $suffix => $language) {
-    $template = (string)file_get_contents(
-        $base . '/dbx/modules/dbxContent_admin/tpl/htm/cms-admin-page-form' . $suffix . '.htm'
-    );
-    $titlePosition = strpos($template, '{obj:title}');
-    $menuTitlePosition = strpos($template, '{obj:menu_title}');
-    $editorPosition = strpos($template, 'data-cms-editor');
-    $assert(
-        $titlePosition !== false
-            && $menuTitlePosition !== false
-            && $menuTitlePosition > $titlePosition
-            && $editorPosition !== false
-            && $menuTitlePosition < $editorPosition,
-        'menu_title is not part of the page section for ' . $language . '.'
-    );
-
     $messages = array();
     require $base . '/dbx/modules/dbxContent_admin/fd/cms-page' . $suffix . '.fd.php';
     foreach (array(
@@ -68,7 +69,7 @@ foreach (array('' => 'de', '_en' => 'en', '_es' => 'es') as $suffix => $language
 foreach (array('dbxapp', 'dbxdocs', 'flowers', 'steal') as $design) {
     $css = (string)file_get_contents($base . '/dbx/design/' . $design . '/css/c-cms.css');
     $assert(
-        str_contains($css, '.dbx-cms-form-grid-page')
+        str_contains($css, '.dbx-cms-page-panel > .dbx-form-grid')
             && str_contains($css, '.is-dbx-cms-selected'),
         'CMS page layout or inline media focus is missing in design ' . $design . '.'
     );

@@ -25,13 +25,15 @@ $home = docs_quality_read($contentRoot . '/dbxapp_home.html');
 $template = docs_quality_read($root . '/dbx/design/dbxdocs/htm/default.htm');
 $doxyfile = is_file($root . '/Doxyfile') ? docs_quality_read($root . '/Doxyfile') : '';
 $provision = docs_quality_read($root . '/dbx/modules/dbxDocs/include/dbxDocsContentProvision.class.php');
+$documentationTemplate = docs_quality_read($root . '/dbx/modules/dbxContent/tpl/htm/c-doku.htm');
+$contentRenderer = docs_quality_read($root . '/dbx/modules/dbxContent/include/dbxContentRenderer.class.php');
 
 docs_quality_assert(
     substr_count($home, '<h1>') === 1
-        && substr_count($home, 'dbxdocs-home-card is-') === 5
+        && substr_count($home, 'dbxdocs-home-card is-') === 4
         && substr_count($home, 'dbxdocs-home-quicklinks') === 1
         && str_contains($home, 'name="dbx_run1" value="search"'),
-    'Die Startseite muss genau eine H1, fünf Einstiege, vier Empfehlungen und eine Suche besitzen.'
+    'Die Startseite muss genau eine H1, vier Zielgruppen-Einstiege, Empfehlungen und eine Suche besitzen.'
 );
 docs_quality_assert(
     !preg_match('/(?:cinematic|dbx-cinema|84\s+Sekunden|Animation starten)/i', $home . $template)
@@ -73,13 +75,24 @@ foreach ($editorial as $file) {
 
 docs_quality_assert(
     str_contains($provision, 'synchronizeDocumentationMetadata()')
-        && str_contains($provision, '<small>Seitentyp</small>')
-        && str_contains($provision, '<small>Zielgruppe</small>')
-        && str_contains($provision, '<small>Gültig für</small>')
-        && str_contains($provision, '<small>Stand</small>')
-        && str_contains($provision, 'rel="canonical"'),
-    'Automatische Seitentyp-, Zielgruppen-, Versions- oder Quellenmetadaten fehlen.'
+        && str_contains($provision, "'template' => \$template")
+        && str_contains($provision, 'documentationTemplateForPermalink')
+        && !str_contains($provision, '<aside class="dbx-doc-meta"')
+        && str_contains($documentationTemplate, '<small>Seitentyp</small>')
+        && str_contains($documentationTemplate, '<small>Zielgruppe</small>')
+        && str_contains($documentationTemplate, '<small>Gültig für</small>')
+        && str_contains($documentationTemplate, '<small>Stand</small>')
+        && str_contains($documentationTemplate, 'rel="canonical"')
+        && str_contains($contentRenderer, 'documentationTemplateMetadata'),
+    'Dokumentmetadaten müssen vollständig aus dem Content-Template kommen.'
 );
+docs_quality_assert(
+    substr_count($documentationTemplate, 'dbxapp {dbx:version}') === 1
+        && !str_contains($provision, 'dbxapp {dbx:version}')
+        && !str_contains($documentationTemplate, "'4.1.3'"),
+    'Das Doku-Template muss die installierte Version ausschließlich über {dbx:version} beziehen.'
+);
+
 docs_quality_assert(
     $doxyfile === '' || str_contains($doxyfile, 'AUTOLINK_SUPPORT       = NO'),
     'Automatische Doxygen-Symbolverlinkung darf redaktionelle Beispiele nicht beschädigen.'

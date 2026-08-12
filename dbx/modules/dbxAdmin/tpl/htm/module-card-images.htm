@@ -4,7 +4,7 @@
    <div class="dbx-module-symbol-preview" data-module-symbol-preview>
 {symbol_preview_html}
    </div>
-   <button type="button" class="btn btn-outline-primary btn-sm dbx-module-symbol-pick dbx-module-images-browser-btn" title="Symbolbild aus CMS-Medien auswaehlen">
+   <button type="button" class="btn btn-outline-primary btn-sm dbx-module-symbol-pick dbx-module-images-browser-btn" data-dbx-tooltip="Symbolbild aus CMS-Medien auswaehlen">
     <i class="bi bi-image"></i><span>Symbolbild</span>
    </button>
   </div>
@@ -13,16 +13,16 @@
     <div class="dbx-module-images-run-fields">
      <label class="dbx-module-images-run-field">
       <span>dbx_run1</span>
-      <input type="text" class="form-control form-control-sm dbx-module-images-run1" list="{run1_list_id}" value="{default_run1}" placeholder="z.B. list" title="dbx_run1 fuer Dateiname und Modulaufruf" required>
+      <input type="text" class="form-control form-control-sm dbx-module-images-run1" list="{run1_list_id}" value="{default_run1}" placeholder="z.B. list" data-dbx-tooltip="dbx_run1 fuer Dateiname und Modulaufruf" required>
      </label>
      <label class="dbx-module-images-run-field">
       <span>dbx_run2</span>
-      <input type="text" class="form-control form-control-sm dbx-module-images-run2" value="{default_run2}" placeholder="optional" title="dbx_run2 fuer Dateiname und Modulaufruf">
+      <input type="text" class="form-control form-control-sm dbx-module-images-run2" value="{default_run2}" placeholder="optional" data-dbx-tooltip="dbx_run2 fuer Dateiname und Modulaufruf">
      </label>
     </div>
     <div class="dbx-module-images-gallery-actions">
      <span class="badge text-bg-light border dbx-module-images-count">{image_count}</span>
-     <button type="button" class="btn btn-outline-primary btn-sm dbx-module-images-pick dbx-module-images-browser-btn" title="Aufrufbild im Medienbrowser verwalten">
+     <button type="button" class="btn btn-outline-primary btn-sm dbx-module-images-pick dbx-module-images-browser-btn" data-dbx-tooltip="Aufrufbild im Medienbrowser verwalten">
       <i class="bi bi-images"></i><span>Aufrufbild</span>
      </button>
     </div>

@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <li>Shopartikel anlegen und veröffentlichen.</li>
 <li>bestehenden Shopartikel für eBay vorbereiten und exportieren.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md315"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md328"></a>
 Architektur</h1>
 <div class="fragment"><div class="line">Workflow-Definition</div>
 <div class="line">  -&gt; Start erzeugt Workflow-Instanz mit Definitions-Snapshot</div>
@@ -95,11 +95,11 @@ Architektur</h1>
 <div class="line">dbx/modules/dbxWorkflow_admin/</div>
 <div class="line">  include/dbxWorkflowAdmin.class.php</div>
 <div class="line">  tpl/htm/workflow-*.htm</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md316"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md329"></a>
 Datenmodell</h1>
 <p>| DD | Zweck | | &mdash; | &mdash; | | <span class="tt">dbxWorkflow|workflowDefinition</span> | fachliche Definition und JSON-Schema | | <span class="tt">dbxWorkflow|workflowInstance</span> | Definitions-Snapshot, laufender Zustand, Werte, Status und Fortschritt | | <span class="tt">dbxWorkflow|workflowStep</span> | nachvollziehbare, abgeschlossene Einzelschritte | | <span class="tt">dbxWorkflow|workflowModuleBind</span> | optionale Kopplung an DD, Templates, Finish und Mail |</p>
 <p>Instanzen und Schritte besitzen <span class="tt">owner</span>. Erstellen ist für zulässige Benutzer möglich, Lesen/Ändern erfolgt owner- bzw. adminbezogen. Die Adminoberfläche ist auf die Gruppe <span class="tt">admin</span> begrenzt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md317"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md330"></a>
 Routen</h1>
 <p>Frontend:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxWorkflow</div>
@@ -114,7 +114,7 @@ Routen</h1>
 <div class="line">?dbx_modul=dbxWorkflow_admin&amp;dbx_run1=edit_bind&amp;rid=new</div>
 </div><!-- fragment --><p>Ein fachlicher Datensatz kann beim Start vorgewählt werden, wenn das Binding <span class="tt">prefill_rid</span> erlaubt:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxWorkflow&amp;dbx_run1=start&amp;workflow=ticket_demo&amp;rid=42</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md318"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md331"></a>
 Eine vollständige Definition</h1>
 <p>Die Definition wird als JSON in <span class="tt">definition_json</span> gespeichert. Das folgende Beispiel zeigt Auswahl, Freitext, Mehrfachauswahl, einen optionalen Schritt und eine Abhängigkeit:</p>
 <div class="fragment"><div class="line">{</div>
@@ -171,9 +171,9 @@ Eine vollständige Definition</h1>
 <div class="line">    &quot;label&quot;: &quot;Angebot abschließen&quot;</div>
 <div class="line">  }</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md319"></a>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md332"></a>
 Definitionseigenschaften</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md320"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md333"></a>
 Oberste Ebene</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -192,7 +192,7 @@ Oberste Ebene</h2>
 <td class="markdownTableBodyNone"><span class="tt">finish</span>  </td><td class="markdownTableBodyNone">Label und optionales Abschlussverhalten  </td></tr>
 </table>
 <p>| <span class="tt">bind_ref</span> | optionale Referenz <span class="tt">modul|bind_key</span> |</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md321"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md334"></a>
 Need</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -230,7 +230,7 @@ Need</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><span class="tt">complete_label</span>  </td><td class="markdownTableBodyNone">Bestätigungstext nach einem erledigten Modulformular  </td></tr>
 </table>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md322"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md335"></a>
 Aktionsarten</h2>
 <ul>
 <li><span class="tt">select</span>: einen oder mehrere Werte auswählen.</li>
@@ -239,7 +239,7 @@ Aktionsarten</h2>
 <li><span class="tt">module</span>: ein vorhandenes Fachformular öffnen, dort speichern und den Schritt anschließend bestätigen.</li>
 </ul>
 <p>Ein Workflow ersetzt kein gutes Fachformular. <span class="tt">module</span> ist richtig, wenn ein Artikel, Kunde oder Mapping bereits eine umfangreiche Pflegeoberfläche besitzt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md323"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md336"></a>
 Kurze Need-Syntax</h1>
 <p>Die Engine kann außer JSON auch zeilenbasierte Definitionen normalisieren:</p>
 <div class="fragment"><div class="line">result=Versandfertiges Angebot</div>
@@ -247,7 +247,7 @@ Kurze Need-Syntax</h1>
 <div class="line">Leistungen=multiple|required|select!|options=Beratung,Einrichtung,Schulung</div>
 <div class="line">Notiz=single|optional|form!</div>
 </div><!-- fragment --><p><span class="tt">!</span> markiert die bevorzugte Aktion. JSON ist für Abhängigkeiten, Modul-Links, strukturierte Optionen und Bindings besser geeignet; die Zeilensyntax ist für kleine Workflows und schnelle Entwürfe gedacht.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md324"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md337"></a>
 Definition in PHP normalisieren</h1>
 <p>Die Engine akzeptiert Array, JSON oder Need-Zeilen:</p>
 <div class="fragment"><div class="line">$engine = dbx()-&gt;get_include_obj(<span class="stringliteral">&#39;dbxWorkflowEngine&#39;</span>, <span class="stringliteral">&#39;dbxWorkflow&#39;</span>);</div>
@@ -257,7 +257,7 @@ Definition in PHP normalisieren</h1>
 <div class="line">    <span class="keywordflow">throw</span> new \InvalidArgumentException(<span class="stringliteral">&#39;Mindestens ein Need ist erforderlich.&#39;</span>);</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>Die Adminoberfläche verwendet diesen Weg vor dem Speichern und legt die normalisierte Definition als lesbares JSON ab. Dabei wird die vorhandene Definition als Basis verwendet: bekannte Designerfelder werden aktualisiert, unbekannte Schema- und Modulerweiterungen bleiben round-trip-sicher erhalten.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md325"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md338"></a>
 Instanz und Schritte</h1>
 <p>Beim Start erzeugt die Engine einen Datensatz:</p>
 <div class="fragment"><div class="line">$record = array(</div>
@@ -294,12 +294,12 @@ Instanz und Schritte</h1>
 <div class="line">&amp;proc_cmd=cancel</div>
 <div class="line">&amp;proc_cmd=restart</div>
 </div><!-- fragment --><p><span class="tt">process.js</span> erhält Status, URLs, Prozentwerte und Intervall über die vom Workflow-Frame erzeugten <span class="tt">data-process-*</span>-Attribute.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md326"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md339"></a>
 Fachmodule über Bindings anbinden</h1>
 <p>Ein Workflow soll ein Fachmodul nicht hart kennen müssen. Er referenziert:</p>
 <div class="fragment"><div class="line">&quot;bind_ref&quot;: &quot;dbxContact|contact_reply&quot;</div>
 </div><!-- fragment --><p>Die Binding-Tabelle löst diese Referenz in ein deklaratives <span class="tt">bind_json</span> auf. Das Fachmodul bleibt unabhängig; dbxWorkflow kennt DD, Felder, Templates und Abschlussabbildung aus dem Binding.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md327"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md340"></a>
 Reales Binding-Muster</h2>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;modul&quot;: &quot;dbxContact&quot;,</div>
@@ -354,7 +354,7 @@ Reales Binding-Muster</h2>
 <div class="line">    }</div>
 <div class="line">  }</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md328"></a>
+</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md341"></a>
 Binding-Quellen</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -369,7 +369,7 @@ Binding-Quellen</h2>
 <td class="markdownTableBodyNone"><span class="tt">static_select</span>  </td><td class="markdownTableBodyNone">feste <span class="tt">{value,label}</span>-Optionen  </td></tr>
 </table>
 <p><span class="tt">show_if_config</span> kann einen Need nur zeigen, wenn eine Modulkonfiguration eine Fähigkeit aktiviert hat, z. B. Mailversand.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md329"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md342"></a>
 Finish-Mapping</h2>
 <p>Bei <span class="tt">type = dd_update</span> wird der über <span class="tt">record.id_need</span> gewählte Datensatz aktualisiert. Quellen im Mapping:</p>
 <ul>
@@ -381,7 +381,7 @@ Finish-Mapping</h2>
 <li>ein konstanter Wert.</li>
 </ul>
 <p>Ein optionaler <span class="tt">finish.mail</span>-Block kann Empfängerfeld, Betreff, Bodytemplate, Variablen und Trackingfelder definieren. Der Versand läuft erst nach erfolgreicher fachlicher Prüfung und nur, wenn die Modulkonfiguration ihn erlaubt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md330"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md343"></a>
 Binding-Grundgerüst erzeugen</h1>
 <p><span class="tt">dbxWorkflowBindRegistry</span> kann eine Modul-DD untersuchen:</p>
 <div class="fragment"><div class="line">$registry = dbx()-&gt;get_include_obj(</div>
@@ -395,7 +395,7 @@ Binding-Grundgerüst erzeugen</h1>
 <div class="line">    <span class="stringliteral">&#39;contact_reply&#39;</span></div>
 <div class="line">);</div>
 </div><!-- fragment --><p>Das Ergebnis ist ein Startpunkt, kein blind fertiger Fachprozess. WHERE, Labels, Pflichtschritte, Finish-Mapping, Mail und Rechte müssen fachlich geprüft werden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md331"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md344"></a>
 Eigenes Modul an Workflow anbinden</h1>
 <ol type="1">
 <li>Fach-DD und Formulare im Modul fertigstellen.</li>
@@ -409,11 +409,11 @@ Eigenes Modul an Workflow anbinden</h1>
 <li>Start ohne RID und mit <span class="tt">&amp;rid=...</span> testen.</li>
 <li>Pause, Fortsetzen, Abbruch, Neustart und Review testen.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md332"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md345"></a>
 Wann ein Built-in sinnvoll ist</h1>
 <p>Die Engine enthält derzeit besondere Shop-Workflows, weil Artikelanlage, Channel-Mapping, Export und Providerstatus zusätzliche Fachlogik besitzen. Neue Standardfälle sollten bevorzugt über Definition und Binding entstehen. Ein neuer hart codierter Engine-Zweig ist nur gerechtfertigt, wenn deklaratives <span class="tt">dd_update</span> die fachliche Operation nicht sicher abbilden kann.</p>
 <p>Komplexe Abschlüsse gehören dann in einen klaren Fachservice oder Adapter. Die Workflow-Engine koordiniert und zeigt Status; sie sollte keine zweite Kopie der Shop-, CRM- oder ERP-Logik enthalten.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md333"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md346"></a>
 Administration</h1>
 <p>Die Adminoberfläche bietet:</p>
 <ul>
@@ -424,7 +424,7 @@ Administration</h1>
 <li>Demo- und Shopdefinitionen bei der Installation bereitstellen.</li>
 </ul>
 <p>Definitionen werden mit dbxForm gepflegt, Listen mit dbxReport. DD-Sync läuft über die vier Workflow-DDs und wird nicht durch manuelle Tabellenänderungen ersetzt.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md334"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md347"></a>
 Sicherheits- und Konsistenzregeln</h1>
 <ol type="1">
 <li>Instanzen und Schritte bleiben owner-/adminbezogen.</li>
@@ -440,7 +440,7 @@ Sicherheits- und Konsistenzregeln</h1>
 <li>Ein alter Start-/Command-Link ohne Token bleibt erreichbar, mutiert aber nicht und führt auf eine Seite mit frischem Aktionslink.</li>
 <li>Der Abschluss wird atomar als <span class="tt">finishing</span> beansprucht; nur der Gewinner darf Fachoperation, Mail oder Provideraktion ausführen.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md335"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md348"></a>
 Prüfliste</h1>
 <ul>
 <li>Definition enthält eindeutigen Key, Titel, Ergebnis und mindestens einen Need.</li>
@@ -454,7 +454,7 @@ Prüfliste</h1>
 <li>Pause, Resume, Cancel und Restart funktionieren.</li>
 <li>Adminreport zeigt Status, aktuellen Need, Fortschritt und Meldung.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md336"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md349"></a>
 Verwandte Dokumentation</h1>
 <ul>
 <li><a class="el" href="dbxapp_security_integrity_performance.html" title="Sicherheit, Integrität und Performance">Sicherheit, Integrität und Performance</a></li>

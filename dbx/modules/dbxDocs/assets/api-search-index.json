@@ -2,9 +2,9 @@
     "schema": 1,
     "language": "de",
     "source": "reference/current/search",
-    "source_version": "4.1.3",
-    "generated_at": "2026-08-01T23:20:38+02:00",
-    "count": 2093,
+    "source_version": "4.2.0",
+    "generated_at": "2026-08-05T20:56:14+02:00",
+    "count": 2057,
     "entries": [
         {
             "title": "--avatar_upload.js",
@@ -42,30 +42,6 @@
             "title": ".dd.php",
             "context": "",
             "url": "_8dd_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
-            "title": "4.0.3-001-user-identity.migration.php",
-            "context": "",
-            "url": "4_80_83-001-user-identity_8migration_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
-            "title": "4.1.0-001-media-usage-language.migration.php",
-            "context": "",
-            "url": "4_81_80-001-media-usage-language_8migration_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
-            "title": "4.1.2-001-media-usage-schema-repair.migration.php",
-            "context": "",
-            "url": "4_81_82-001-media-usage-schema-repair_8migration_8php.html",
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
@@ -111,6 +87,22 @@
             "weight": 28
         },
         {
+            "title": "action",
+            "context": "dbxActionManifest",
+            "url": "classdbx_action_manifest.html#ad309704f0504e52995abc6da9d504bda",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "actions.php",
+            "context": "",
+            "url": "actions_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
             "title": "action_policy_for_url",
             "context": "dbxWebApp",
             "url": "classdbx_web_app.html#a05b229e5d5c04736a1158d74730743aa",
@@ -122,22 +114,6 @@
             "title": "action_scope_for_url",
             "context": "dbxWebApp",
             "url": "classdbx_web_app.html#a7195af84467a7bea14076f0c15ea1b7f",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "action_token",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a8c682eb2d79df4aafc0eeab57342afce",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "action_url",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a00c2fa341f456c0a01e9f8c37e56dc37",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -384,7 +360,7 @@
         },
         {
             "title": "add_rwhere_search",
-            "context": "dbxReport\\add_rwhere_search($sql, $suchWert, $feldListe)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#adacecde3816211d51e03d4e0d2b7e849",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -392,7 +368,7 @@
         },
         {
             "title": "add_rwhere_select",
-            "context": "dbxReport\\add_rwhere_select($rwhere)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a6cb995c1104fd5669ab3ede3777fb285",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -400,7 +376,7 @@
         },
         {
             "title": "add_where",
-            "context": "dbxReport\\add_where($mode, $select, $where=&apos;&apos;)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ad87a7a2062aa36205b6a246538a05b77",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -489,7 +465,7 @@
         {
             "title": "ADMIN DDEDIT FIELD FD",
             "context": "DBX ADMIN DDEDIT FIELD FD",
-            "url": "ddedit-field_8fd_8php.html#autotoc_md222",
+            "url": "ddedit-field_8fd_8php.html#autotoc_md211",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -497,7 +473,7 @@
         {
             "title": "ADMIN DDEDIT INDEX FD",
             "context": "DBX ADMIN DDEDIT INDEX FD",
-            "url": "ddedit-index_8fd_8php.html#autotoc_md228",
+            "url": "ddedit-index_8fd_8php.html#autotoc_md217",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -505,7 +481,7 @@
         {
             "title": "ADMIN DDEDIT TABLE FD",
             "context": "DBX ADMIN DDEDIT TABLE FD",
-            "url": "ddedit-table_8fd_8php.html#autotoc_md234",
+            "url": "ddedit-table_8fd_8php.html#autotoc_md223",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -607,14 +583,6 @@
             "weight": 48
         },
         {
-            "title": "apply",
-            "context": "dbx\\dbxAdmin\\dbxDatabaseMigrationService\\apply()",
-            "url": "classdbx_1_1dbx_admin_1_1dbx_database_migration_service.html#a48fffd7b6935e30f33cc48ce07058964",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "applyFinish",
             "context": "dbx::dbxWorkflow::dbxWorkflowModule",
             "url": "classdbx_1_1dbx_workflow_1_1dbx_workflow_module.html#a0402ec9c5191de24706f191274dfac60",
@@ -680,7 +648,7 @@
         },
         {
             "title": "apply_tabulurator_request",
-            "context": "dbxReport\\apply_tabulurator_request()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ae208019c2a03151714287f578e1b67df",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -697,7 +665,7 @@
         {
             "title": "Architektur",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md65",
+            "url": "classdbx_form.html#autotoc_md54",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -785,7 +753,7 @@
         {
             "title": "Aufruf aus dbxAdmin:",
             "context": "",
-            "url": "classdbx_1_1dbx_admin_1_1dbx_edit__dd.html#autotoc_md243",
+            "url": "classdbx_1_1dbx_admin_1_1dbx_edit__dd.html#autotoc_md232",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -793,7 +761,7 @@
         {
             "title": "Auswirkung",
             "context": "Auswirkung",
-            "url": "classdbx_form.html#autotoc_md76",
+            "url": "classdbx_form.html#autotoc_md65",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -801,7 +769,7 @@
         {
             "title": "Auswirkungen",
             "context": "Auswirkungen",
-            "url": "classdbx_form.html#autotoc_md155",
+            "url": "classdbx_form.html#autotoc_md144",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -889,7 +857,7 @@
         {
             "title": "Beispiel: abhängige Formulare",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md74",
+            "url": "classdbx_form.html#autotoc_md63",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -897,7 +865,7 @@
         {
             "title": "Beispiel: automatische Felder aus FD",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md72",
+            "url": "classdbx_form.html#autotoc_md61",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -905,7 +873,7 @@
         {
             "title": "Beispiel: einfache Nutzung mit DD",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md71",
+            "url": "classdbx_form.html#autotoc_md60",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -913,7 +881,7 @@
         {
             "title": "Beispiel: neuer Datensatz mit Draft-Kontext",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md73",
+            "url": "classdbx_form.html#autotoc_md62",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -1169,7 +1137,7 @@
         {
             "title": "Cache",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md137",
+            "url": "classdbx_form.html#autotoc_md126",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -1193,7 +1161,7 @@
         {
             "title": "CACHE SYSTEM",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md200",
+            "url": "classdbx_t_p_l.html#autotoc_md189",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -1201,7 +1169,7 @@
         {
             "title": "Callback-Modell",
             "context": "",
-            "url": "classdbx_report.html#autotoc_md187",
+            "url": "classdbx_report.html#autotoc_md176",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -1218,14 +1186,6 @@
             "title": "cancel",
             "context": "dbx::dbxAdmin::dbxUpdateService",
             "url": "classdbx_1_1dbx_admin_1_1dbx_update_service.html#aa16a82594dbc6ed15ce87daa05eadda3",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "can",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aed6bcd8e6d66022904457855802b5de3",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -1258,14 +1218,6 @@
             "title": "can_connect_database_config",
             "context": "dbxDB",
             "url": "classdbx_d_b.html#a1c519c2f23d4bfdea85e6b7cf3317373",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "can_modul",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a7221b369a9ef514feaab932b45edfd72",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -1599,14 +1551,6 @@
             "weight": 48
         },
         {
-            "title": "check_action_token",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#ac67296804b50dc0ad211099a10f012e4",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "check_config",
             "context": "dbxWebApp",
             "url": "classdbx_web_app.html#a407b4c520411653b06dbe309b8b09ac6",
@@ -1648,7 +1592,7 @@
         },
         {
             "title": "check_is_multiselect",
-            "context": "dbxReport\\check_is_multiselect($rid)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a590549c123083bf84f6778d420a6c4de",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -1847,6 +1791,14 @@
             "weight": 48
         },
         {
+            "title": "clear_raw_cache",
+            "context": "dbxTPL",
+            "url": "classdbx_t_p_l.html#aeac8e0ddbcb5554d540a5f8174028175",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "clear_sys",
             "context": "dbxForm",
             "url": "classdbx_form.html#ae80c6dc1fb8a4a8a4b5e411a6be8737b",
@@ -1861,6 +1813,14 @@
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
+        },
+        {
+            "title": "cms-actions.php",
+            "context": "",
+            "url": "cms-actions_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
         },
         {
             "title": "cms-page.fd.php",
@@ -1893,6 +1853,14 @@
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
+        },
+        {
+            "title": "CmsPersistenceFakeDb",
+            "context": "",
+            "url": "class_cms_persistence_fake_db.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
         },
         {
             "title": "collectFolderSubtreeIds",
@@ -1993,6 +1961,14 @@
         {
             "title": "config.local.example.php",
             "context": "",
+            "url": "hop_2cfg_2config_8local_8example_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "config.local.example.php",
+            "context": "",
             "url": "ogin_2cfg_2config_8local_8example_8php.html",
             "kind": "files",
             "kind_label": "Quelldatei",
@@ -2015,9 +1991,9 @@
             "weight": 28
         },
         {
-            "title": "config.local.example.php",
+            "title": "config.local.php",
             "context": "",
-            "url": "hop_2cfg_2config_8local_8example_8php.html",
+            "url": "cfg_2config_8local_8php.html",
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
@@ -2025,7 +2001,7 @@
         {
             "title": "config.local.php",
             "context": "",
-            "url": "cfg_2config_8local_8php.html",
+            "url": "hop_2cfg_2config_8local_8php.html",
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
@@ -2050,14 +2026,6 @@
             "title": "config.local.php",
             "context": "",
             "url": "own_load_2cfg_2config_8local_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
-            "title": "config.local.php",
-            "context": "",
-            "url": "hop_2cfg_2config_8local_8php.html",
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
@@ -2335,22 +2303,6 @@
             "weight": 28
         },
         {
-            "title": "config_path_resolve",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#ad1a99cdeb403a946b92b1bfd030fb7f7",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "config_path_store",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a35c4d28feddcb09cab25b99057e0f56e",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "confirm.js",
             "context": "",
             "url": "confirm_8js.html",
@@ -2623,6 +2575,14 @@
             "weight": 48
         },
         {
+            "title": "content_template_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a69c7d8677953bdf24bccf7b64e2ade29",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "control_job",
             "context": "dbxProcess",
             "url": "classdbx_process.html#ab14abbc7059ee522c5263d440cca93c3",
@@ -2653,6 +2613,30 @@
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
+        },
+        {
+            "title": "core-functional.fd.php",
+            "context": "",
+            "url": "core-functional_8fd_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "core-functional_en.fd.php",
+            "context": "",
+            "url": "core-functional__en_8fd_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "core-functional_es.fd.php",
+            "context": "",
+            "url": "core-functional__es_8fd_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
         },
         {
             "title": "core.js",
@@ -2690,6 +2674,14 @@
             "title": "createCheckoutSession",
             "context": "dbx::dbxShop::dbxShopAmazonPay",
             "url": "classdbx_1_1dbx_shop_1_1dbx_shop_amazon_pay.html#af20856c20ed893c1f2d27ea5d7140182",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "createFolder",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a98c2e25aa37e074f034cccb1b7444801",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -2735,6 +2727,14 @@
             "weight": 48
         },
         {
+            "title": "createPage",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#ae5f18efa393f0a499248655ee1ab1e60",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "create_db_index",
             "context": "dbxDD",
             "url": "classdbx_d_d.html#a2b830b7b2f4f65e4a6534a9da5a18c45",
@@ -2744,7 +2744,7 @@
         },
         {
             "title": "create_db_tab",
-            "context": "dbxDD\\create_db_tab()",
+            "context": "dbxDD",
             "url": "classdbx_d_d.html#af16d2db24b720c17cdccc216e141583e",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -2879,8 +2879,16 @@
             "weight": 48
         },
         {
+            "title": "database",
+            "context": "dbxDD",
+            "url": "classdbx_d_d.html#a3cea825187d1523baea9c20e1d3bd21e",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "data_rows",
-            "context": "dbxReport\\data_rows($data, $rpos, $rrows)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#aded90e9d0b3b2ad564c82e35348e3339",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -2914,6 +2922,22 @@
             "title": "dbx.class.php",
             "context": "",
             "url": "dbx_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "dbxActionManifest",
+            "context": "",
+            "url": "classdbx_action_manifest.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
+        },
+        {
+            "title": "dbxActionManifest.class.php",
+            "context": "",
+            "url": "dbx_action_manifest_8class_8php.html",
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
@@ -2961,7 +2985,7 @@
         {
             "title": "DBX ADMIN DDEDIT FIELD FD",
             "context": "DBX ADMIN DDEDIT FIELD FD",
-            "url": "ddedit-field_8fd_8php.html#autotoc_md222",
+            "url": "ddedit-field_8fd_8php.html#autotoc_md211",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -2969,7 +2993,7 @@
         {
             "title": "DBX ADMIN DDEDIT INDEX FD",
             "context": "DBX ADMIN DDEDIT INDEX FD",
-            "url": "ddedit-index_8fd_8php.html#autotoc_md228",
+            "url": "ddedit-index_8fd_8php.html#autotoc_md217",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -2977,7 +3001,7 @@
         {
             "title": "DBX ADMIN DD EDITOR (dbxEdit_dd)",
             "context": "",
-            "url": "classdbx_1_1dbx_admin_1_1dbx_edit__dd.html#autotoc_md240",
+            "url": "classdbx_1_1dbx_admin_1_1dbx_edit__dd.html#autotoc_md229",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -2985,7 +3009,7 @@
         {
             "title": "DBX ADMIN DDEDIT TABLE FD",
             "context": "DBX ADMIN DDEDIT TABLE FD",
-            "url": "ddedit-table_8fd_8php.html#autotoc_md234",
+            "url": "ddedit-table_8fd_8php.html#autotoc_md223",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -3021,14 +3045,6 @@
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
-        },
-        {
-            "title": "dbxApi",
-            "context": "",
-            "url": "classdbx_api.html",
-            "kind": "classes",
-            "kind_label": "API-Klasse",
-            "weight": 54
         },
         {
             "title": "dbxApi.php",
@@ -3319,6 +3335,38 @@
             "weight": 28
         },
         {
+            "title": "dbxContentCmsOptionCatalog.class.php",
+            "context": "",
+            "url": "dbx_content_cms_option_catalog_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "dbxContentCmsOptionCatalog",
+            "context": "dbx::dbxContent_admin",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
+        },
+        {
+            "title": "dbxContentCmsPersistenceService.class.php",
+            "context": "",
+            "url": "dbx_content_cms_persistence_service_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "dbxContentCmsPersistenceService",
+            "context": "dbx::dbxContent_admin",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
+        },
+        {
             "title": "dbxContentConsent.class.php",
             "context": "",
             "url": "dbx_content_consent_8class_8php.html",
@@ -3535,6 +3583,14 @@
             "weight": 54
         },
         {
+            "title": "dbxContentReadOnlyUidDb",
+            "context": "",
+            "url": "classdbx_content_read_only_uid_db.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
+        },
+        {
             "title": "dbxContentRenderer.class.php",
             "context": "",
             "url": "dbx_content_renderer_8class_8php.html",
@@ -3578,6 +3634,22 @@
             "title": "dbxContentTranslate",
             "context": "dbx::dbxContent",
             "url": "classdbx_1_1dbx_content_1_1dbx_content_translate.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
+        },
+        {
+            "title": "dbxContentTreeOrder.class.php",
+            "context": "",
+            "url": "dbx_content_tree_order_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "dbxContentTreeOrder",
+            "context": "dbx::dbxContent_admin",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_tree_order.html",
             "kind": "classes",
             "kind_label": "API-Klasse",
             "weight": 54
@@ -3887,22 +3959,6 @@
             "weight": 28
         },
         {
-            "title": "dbxDatabaseMigrationService.class.php",
-            "context": "",
-            "url": "dbx_database_migration_service_8class_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
-            "title": "dbxDatabaseMigrationService",
-            "context": "dbx::dbxAdmin",
-            "url": "classdbx_1_1dbx_admin_1_1dbx_database_migration_service.html",
-            "kind": "classes",
-            "kind_label": "API-Klasse",
-            "weight": 54
-        },
-        {
             "title": "dbxDateTime",
             "context": "",
             "url": "classdbx_date_time.html",
@@ -3935,28 +3991,12 @@
             "weight": 28
         },
         {
-            "title": "dbxDBexport.class.php",
-            "context": "",
-            "url": "dbx_d_bexport_8class_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
             "title": "dbx",
             "context": "dbx",
             "url": "namespacedbx_1_1dbx.html",
             "kind": "namespaces",
             "kind_label": "Namespace",
             "weight": 42
-        },
-        {
-            "title": "dbx",
-            "context": "dbx():&#160;dbxApi.php",
-            "url": "dbx_api_8php.html#a25f4b7f7b428e2e357701181db4cba47",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
         },
         {
             "title": "dbx",
@@ -4001,7 +4041,7 @@
         {
             "title": "DBX DD SYSTEMCLASS (dbxDD)",
             "context": "",
-            "url": "classdbx_d_d.html#autotoc_md52",
+            "url": "classdbx_d_d.html#autotoc_md41",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -4098,6 +4138,22 @@
             "title": "dbxDocs",
             "context": "dbx::dbxDocs",
             "url": "classdbx_1_1dbx_docs_1_1dbx_docs.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
+        },
+        {
+            "title": "dbxDocsPageResolver.class.php",
+            "context": "",
+            "url": "dbx_docs_page_resolver_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "dbxDocsPageResolver",
+            "context": "dbx::dbxDocs",
+            "url": "classdbx_1_1dbx_docs_1_1dbx_docs_page_resolver.html",
             "kind": "classes",
             "kind_label": "API-Klasse",
             "weight": 54
@@ -4321,7 +4377,7 @@
         {
             "title": "DBX FORM SYSTEM (dbxForm)",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md62",
+            "url": "classdbx_form.html#autotoc_md51",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -4341,6 +4397,22 @@
             "kind": "classes",
             "kind_label": "API-Klasse",
             "weight": 54
+        },
+        {
+            "title": "dbxFormValueResolver",
+            "context": "",
+            "url": "classdbx_form_value_resolver.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
+        },
+        {
+            "title": "dbxFormValueResolver.class.php",
+            "context": "",
+            "url": "dbx_form_value_resolver_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
         },
         {
             "title": "dbxHelp.class.php",
@@ -4442,6 +4514,14 @@
             "title": "dbxInterpreter.class.php",
             "context": "",
             "url": "dbx_interpreter_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "dbxJstree.js",
+            "context": "",
+            "url": "dbx_jstree_8js.html",
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
@@ -4695,14 +4775,6 @@
             "weight": 28
         },
         {
-            "title": "dbxMediaUsage.20260530-224958.dd.php",
-            "context": "",
-            "url": "dbx_media_usage_820260530-224958_8dd_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
             "title": "dbxMediaUsage.dd.php",
             "context": "",
             "url": "dbx_media_usage_8dd_8php.html",
@@ -4727,12 +4799,20 @@
             "weight": 42
         },
         {
-            "title": "dbxMigration.dd.php",
+            "title": "dbxMenuSlot.class.php",
             "context": "",
-            "url": "dbx_migration_8dd_8php.html",
+            "url": "dbx_menu_slot_8class_8php.html",
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
+        },
+        {
+            "title": "dbxMenuSlot",
+            "context": "dbx::dbxMenu",
+            "url": "classdbx_1_1dbx_menu_1_1dbx_menu_slot.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
         },
         {
             "title": "dbxMissing.class.php",
@@ -4983,17 +5063,25 @@
             "weight": 28
         },
         {
-            "title": "dbxReport",
-            "context": "DBX REPORT SYSTEM (dbxReport)",
-            "url": "classdbx_report.html#autotoc_md41",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
+            "title": "dbxReportDataWindow",
+            "context": "",
+            "url": "classdbx_report_data_window.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
         },
         {
-            "title": "DBX REPORT SYSTEM dbxReport",
-            "context": "DBX REPORT SYSTEM (dbxReport)",
-            "url": "classdbx_report.html#autotoc_md41",
+            "title": "dbxReportDataWindow.class.php",
+            "context": "",
+            "url": "dbx_report_data_window_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
+            "title": "DBX REPORT SYSTEM (dbxReport)",
+            "context": "",
+            "url": "classdbx_report.html#autotoc_md167",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -5095,6 +5183,22 @@
             "weight": 28
         },
         {
+            "title": "dbxRequestContext",
+            "context": "",
+            "url": "classdbx_request_context.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
+        },
+        {
+            "title": "dbxRequestContext.class.php",
+            "context": "",
+            "url": "dbx_request_context_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
             "title": "dbxRuntime",
             "context": "",
             "url": "classdbx_runtime.html",
@@ -5141,14 +5245,6 @@
             "kind": "classes",
             "kind_label": "API-Klasse",
             "weight": 54
-        },
-        {
-            "title": "dbxSession.20260627-214840.dd.php",
-            "context": "",
-            "url": "dbx_session_820260627-214840_8dd_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
         },
         {
             "title": "dbxSession.class.php",
@@ -5385,7 +5481,7 @@
         {
             "title": "DBX TEMPLATE SYSTEM (dbxTPL)",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md191",
+            "url": "classdbx_t_p_l.html#autotoc_md180",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -5461,22 +5557,6 @@
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
-        },
-        {
-            "title": "dbxUpdateDatabaseAdapter.class.php",
-            "context": "",
-            "url": "dbx_update_database_adapter_8class_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
-            "title": "dbxUpdateDatabaseAdapter",
-            "context": "dbx::dbxAdmin",
-            "url": "classdbx_1_1dbx_admin_1_1dbx_update_database_adapter.html",
-            "kind": "classes",
-            "kind_label": "API-Klasse",
-            "weight": 54
         },
         {
             "title": "dbxUpdate",
@@ -5879,81 +5959,9 @@
             "weight": 54
         },
         {
-            "title": "dbx_accessible_lngs",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a91289583d2ceb66a5d9271cb0f2baa14",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_add_modul",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a175b667256427abfa27ad1f0dc12083d",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "dbx_clean_utf8",
             "context": "dbx::myLKW::myLKW_import",
             "url": "classdbx_1_1my_l_k_w_1_1my_l_k_w__import.html#a68688f99e2388efb8fe31fd63cde872e",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_convertArrayToPHPCode",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a45142573cba2653a076416d6bea0ab21",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_convert_charset",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a323879f6e8cd24b5ee9b7dde73510269",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_copy_recursive",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#afea092b90dfb009bcf22172ace45be16",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_crypt",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a6dcefbabfe10f3076976bf6bf8e27984",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_DateTime",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#acaf6f2a28bfb538a28e10efdd69317c2",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_decrypt",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aa491fe1bba4e18049eb717c5fac9fc2e",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_delete_cookie",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a9b702719460fd7bedc9ed6ad38fe6328",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -5975,22 +5983,6 @@
             "weight": 48
         },
         {
-            "title": "dbx_get_cookie_val",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a8ae384d9e2b26b1bddaeaf6e3d58c737",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_get_Date",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aef0c86a20df86179d4f72ecd57942d6f",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "dbx_get_datum",
             "context": "dbx::myLKW",
             "url": "namespacedbx_1_1my_l_k_w.html#ad33b625eddf1a1dc3485dd8a70246a84",
@@ -6007,153 +5999,9 @@
             "weight": 48
         },
         {
-            "title": "dbx_get_Microtime",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a52b196ecb58b16ea60e382da54533bdd",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_get_phpDate",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#ac1be4d2a4b231a3e5d621bd66347bf66",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_get_Today",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a690c1c64b34603f9cd77584ee60a20d4",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_get_webDate",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a9c8786e32fafeded45ada82d325b1fed",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_get_webDateTime",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a686dd66f2db7cd956c86303273f5f622",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_html2src",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a89fa7f65fc7bc7dbb5b701cbb26a7c12",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_html2txt",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#abc23089de3c80bfe066847b02005f3b6",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_interpreter",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#af52dd3a6bdea037a25fe9a2e37f6f018",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_is_decimal",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a2eea644ed30e138785c57a501527ee10",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_is_Login",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a1cd7e7a7b44fae7e5d3f38d2dc491ea1",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_is_page",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a91f2f5066f1d622042de5c06a9d96f07",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_lng_current",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#ad6620b6a0a1ebbf1f7b268776e314412",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_lng_name",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a61dd7ff7b41ac82de18301eddd11fa4f",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_lng_resolve_file",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#ab6708517d0c220493b92c5337900159d",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_load_cookie",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#abb9084a9078b1bb710fb933356d368ff",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "dbx_log_missing_entry",
             "context": "dbxApi.php",
             "url": "dbx_api_8php.html#a97a35d97b56eb7b9a7f0e21c893e5eb0",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_make_dir",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a916857f6a4e9d597e82f116f30e5222c",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_make_seed",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a75af1108b6dc4c8ac25f5509aed67aae",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_modul_translate",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a4fb785e81fcadb4dd18cedbda3377dfe",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -6170,62 +6018,6 @@
             "title": "dbx_next_process",
             "context": "dbxObj",
             "url": "classdbx_obj.html#a644907e23fe8fa9eb145426d4c2d4459",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_replace_first",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aeffa2cbe54d55d1ee9bf421d0e7ff591",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_save_cookie",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aa8a123919ecb42045cb4483785f11ba2",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_sendMail",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#ab75a2631c85b158ae9766db28dbaa268",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_set_CurrentUser",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#ad43806a8799ebfae653cb92f9a74fd89",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_txt2html",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#abb23f9eeb16c72b8229e258836e8197a",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_upload",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aa40446dfac9c9e4395abec85fb2f7aee",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "dbx_validate_var",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aabd0adc1702204898b76a5b611bab9e3",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -6353,7 +6145,7 @@
         {
             "title": "DDEDIT FIELD FD",
             "context": "DBX ADMIN DDEDIT FIELD FD",
-            "url": "ddedit-field_8fd_8php.html#autotoc_md222",
+            "url": "ddedit-field_8fd_8php.html#autotoc_md211",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -6361,7 +6153,7 @@
         {
             "title": "DDEDIT INDEX FD",
             "context": "DBX ADMIN DDEDIT INDEX FD",
-            "url": "ddedit-index_8fd_8php.html#autotoc_md228",
+            "url": "ddedit-index_8fd_8php.html#autotoc_md217",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -6369,7 +6161,7 @@
         {
             "title": "DDEDIT TABLE FD",
             "context": "DBX ADMIN DDEDIT TABLE FD",
-            "url": "ddedit-table_8fd_8php.html#autotoc_md234",
+            "url": "ddedit-table_8fd_8php.html#autotoc_md223",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -6495,14 +6287,6 @@
             "weight": 48
         },
         {
-            "title": "debug2",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a56199d5f7f296395c71b45f527ac1c80",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "debug_timer",
             "context": "dbxRuntime",
             "url": "classdbx_runtime.html#ab36285e641790852b5b832d533adca5d",
@@ -6567,9 +6351,25 @@
             "weight": 48
         },
         {
+            "title": "deleteFolder",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a6f2bb7b9f3ef21a5dd7e1bddccaa75a9",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "deleteOrder",
             "context": "dbx::dbxShop::dbxShopRepository",
             "url": "classdbx_1_1dbx_shop_1_1dbx_shop_repository.html#a35aa1f4dc2ad7b0e723153868e471c9e",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "deletePage",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a3e727cb19826bcf29a36738992edcb9a",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -6663,14 +6463,6 @@
             "weight": 48
         },
         {
-            "title": "delete_session_var",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a972e6c11422af5b9c971dac837244460",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "delete_tab",
             "context": "dbxDB",
             "url": "classdbx_d_b.html#a6f0e1887f61644a0d624d0555eac6e82",
@@ -6720,7 +6512,7 @@
         },
         {
             "title": "del_multi_select",
-            "context": "dbxReport\\del_multi_select($rid)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#af92b4c1e0777114de98363c35e54279a",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -6728,7 +6520,7 @@
         },
         {
             "title": "del_multi_selects",
-            "context": "dbxReport\\del_multi_selects($id)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a68330b03a3816c872c88564e71fd5f5d",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -6736,7 +6528,7 @@
         },
         {
             "title": "del_multi_select_ids",
-            "context": "dbxReport\\del_multi_select_ids(array $ids)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a4eb1f1119cc3cdb7c2d4c757be0b3a42",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -6752,11 +6544,19 @@
         },
         {
             "title": "del_selected",
-            "context": "dbxReport\\del_selected($dd, $rid=0)",
-            "url": "classdbx_report.html#ab054bd5ab64147b613fc1dad91dc0fcd",
+            "context": "dbxReport",
+            "url": "classdbx_report.html#a839778c79f94fa549b8fe73a31cf6084",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
+        },
+        {
+            "title": "demoMode.js",
+            "context": "",
+            "url": "demo_mode_8js.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
         },
         {
             "title": "dependencies_are_current",
@@ -6825,7 +6625,7 @@
         {
             "title": "DESIGN-PHILOSOPHIE",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md216",
+            "url": "classdbx_t_p_l.html#autotoc_md205",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -6849,7 +6649,7 @@
         {
             "title": "DESIGN TEMPLATES",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md210",
+            "url": "classdbx_t_p_l.html#autotoc_md199",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -6887,17 +6687,17 @@
             "weight": 48
         },
         {
-            "title": "discover",
-            "context": "dbx::dbxAdmin::dbxDatabaseMigrationService",
-            "url": "classdbx_1_1dbx_admin_1_1dbx_database_migration_service.html#a97f322b3bbb188b671fdc5052a8f0d83",
+            "title": "discoverDDs",
+            "context": "dbx::dbxSetup::dbxInstallationService",
+            "url": "classdbx_1_1dbx_setup_1_1dbx_installation_service.html#a0426a70a5e868fd5c3ab514ada0606bb",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
         },
         {
-            "title": "discoverDDs",
-            "context": "dbx::dbxSetup::dbxInstallationService",
-            "url": "classdbx_1_1dbx_setup_1_1dbx_installation_service.html#a0426a70a5e868fd5c3ab514ada0606bb",
+            "title": "documentation_return_url",
+            "context": "dbxWebApp",
+            "url": "classdbx_web_app.html#ac88d66141ca752c56eef1c953e465669",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -6976,8 +6776,16 @@
         },
         {
             "title": "drop_db_tab",
-            "context": "dbxDD\\drop_db_tab()",
+            "context": "dbxDD",
             "url": "classdbx_d_d.html#adbdfa3e418cd1c451079191e65e28ee6",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "duplicatePage",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a3e2120f21e610c87189eb514468e9872",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -7001,26 +6809,10 @@
         {
             "title": "EDITOR SYSTEM (Marker)",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md208",
+            "url": "classdbx_t_p_l.html#autotoc_md197",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
-        },
-        {
-            "title": "editor_file_path",
-            "context": "dbxApi\\editor_file_path()",
-            "url": "classdbx_api.html#a23ecdfb91ebc328e53168e75f913a8ec",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "editor_marker",
-            "context": "dbxApi",
-            "url": "classdbx_api.html#a0ff88ce9b4de308440485035e376d851",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
         },
         {
             "title": "empty",
@@ -7209,7 +7001,7 @@
         {
             "title": "ERGEBNIS",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md218",
+            "url": "classdbx_t_p_l.html#autotoc_md207",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -7231,25 +7023,9 @@
             "weight": 48
         },
         {
-            "title": "error_log_file",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a3c345a4bd123ad76ca2798b05a0a4bf3",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "error_type",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a87f631328a647479f475377493785fd3",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "Erwartete Dateien:",
             "context": "",
-            "url": "classdbx_1_1dbx_admin_1_1dbx_edit__dd.html#autotoc_md242",
+            "url": "classdbx_1_1dbx_admin_1_1dbx_edit__dd.html#autotoc_md231",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -7266,14 +7042,6 @@
             "title": "escape_like",
             "context": "dbxDB",
             "url": "classdbx_d_b.html#a3f5e8900676ab9a7362d01d8bbae6575",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "esc",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a4b2c3bca7acfabc8257082b2bb0e74a1",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -7376,7 +7144,7 @@
         },
         {
             "title": "fast_response_rows_json",
-            "context": "dbxReport\\fast_response_rows_json()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#aa817d53d47cd8e66504a3f47b5a874b6",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7385,7 +7153,7 @@
         {
             "title": "FD-/DD-Felddefinitionen",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md67",
+            "url": "classdbx_form.html#autotoc_md56",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -7393,7 +7161,7 @@
         {
             "title": "FD",
             "context": "Beispiel: automatische Felder aus FD",
-            "url": "classdbx_form.html#autotoc_md72",
+            "url": "classdbx_form.html#autotoc_md61",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -7401,7 +7169,7 @@
         {
             "title": "FIELD FD",
             "context": "DBX ADMIN DDEDIT FIELD FD",
-            "url": "ddedit-field_8fd_8php.html#autotoc_md222",
+            "url": "ddedit-field_8fd_8php.html#autotoc_md211",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -7447,6 +7215,86 @@
             "weight": 48
         },
         {
+            "title": "flushDeletedFolderCache",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#ac68392715838e2f33cf8bd979e9991ed",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "flushDeletedPageCache",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a53ddfe2d4fdec9004d58619e62df8215",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "flushFolderCache",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a367cde646cfe84efe139ce07523255a1",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "flushLngSyncCache",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#acb478d9d52d064921302e1d1805f7f23",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "flushMediaByMediaId",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a58c54ab712146c6ebd0aa4eb4f629994",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "flushMediaCache",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a8231cb6110789ef02987bb87390b13c4",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "flushMenuCache",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a7b5504870b16dc06c65c9cbd91c5e45b",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "flushSavedFolderCache",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a7eb72dc92ad7b0b6f500285bbba5303f",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "flushSavedPageCache",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#aef5f98dee7cf423324352cbdbc047e87",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "flushTreeMoveCache",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a2ab9c01607448216b207e7b5629d7ef7",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "folderDeletable",
             "context": "dbx::dbxContent::dbxContentLngSync",
             "url": "classdbx_1_1dbx_content_1_1dbx_content_lng_sync.html#a4176a8eff15af37dbf5bd71aec9c2d8f",
@@ -7466,6 +7314,14 @@
             "title": "folder_row_action_data",
             "context": "dbx::dbxContent_admin::dbxContent_sections",
             "url": "classdbx_1_1dbx_content__admin_1_1dbx_content__sections.html#a12e6bb9de2f63f259d98d760a0244962",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "forContent",
+            "context": "dbx::dbxDocs::dbxDocsPageResolver",
+            "url": "classdbx_1_1dbx_docs_1_1dbx_docs_page_resolver.html#a5d4d6947b2c8a28fe2b4b7a4dcc0418e",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -7527,6 +7383,14 @@
             "weight": 48
         },
         {
+            "title": "forModule",
+            "context": "dbx::dbxDocs::dbxDocsPageResolver",
+            "url": "classdbx_1_1dbx_docs_1_1dbx_docs_page_resolver.html#ac1cea22f07d95766e4dc1fed744f594c",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "formUrl",
             "context": "dbx::dbxAdmin::dbxAdminHelp",
             "url": "classdbx_1_1dbx_admin_1_1dbx_admin_help.html#a16a43224ff26eb8c5550f3fa91b9cfb1",
@@ -7536,7 +7400,7 @@
         },
         {
             "title": "forward_get_footer_page",
-            "context": "dbxReport\\forward_get_footer_page()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ab65baa388afc95611673348f033bf5f4",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7544,7 +7408,7 @@
         },
         {
             "title": "forward_get_haeder_page",
-            "context": "dbxReport\\forward_get_haeder_page()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a44e71a46b85d46a20c27be0066dcb1bd",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7568,7 +7432,7 @@
         },
         {
             "title": "forward_run_body",
-            "context": "dbxReport\\forward_run_body($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a6dce1070c03804d7c8390f731df9e7fe",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7576,7 +7440,7 @@
         },
         {
             "title": "forward_run_footer",
-            "context": "dbxReport\\forward_run_footer($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ada231721d663c4fabfb34dfa11b59966",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7584,7 +7448,7 @@
         },
         {
             "title": "forward_run_haeder",
-            "context": "dbxReport\\forward_run_haeder($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a618ec67412e702b9d00b85706f306e16",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7592,7 +7456,7 @@
         },
         {
             "title": "forward_run_page_footer",
-            "context": "dbxReport\\forward_run_page_footer($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ab41828f1d7e9b82dd931c0342d24bd3f",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7600,7 +7464,7 @@
         },
         {
             "title": "forward_run_page_haeder",
-            "context": "dbxReport\\forward_run_page_haeder($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#adcf3597c6893d03c316d9ea99ab11718",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7608,7 +7472,7 @@
         },
         {
             "title": "forward_run_report_footer",
-            "context": "dbxReport\\forward_run_report_footer($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a70780289085c0251167ad396fe75fdb8",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7616,7 +7480,7 @@
         },
         {
             "title": "forward_run_report_haeder",
-            "context": "dbxReport\\forward_run_report_haeder($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#aac64597087f77b30ac7a124f77322bcd",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7653,6 +7517,70 @@
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
+        },
+        {
+            "title": "gallery_click_options",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a033937e86023aabcefa23d2a9e778971",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "gallery_click_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a38b38f04bc6920cd81f7c9bd1b850d36",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "gallery_image_size_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a19be75daaf593840a400dc3c5760e7d4",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "gallery_lightbox_width_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#adccf66ab857367a5bcbe0a12bee929da",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "gallery_overflow_options",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a9c0a8906e8ace7a42d082785415909c0",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "gallery_overflow_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#afa624b55ee44c0ee0d0356f34e2abad2",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "gallery_template_options",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#aedb79f0aef276de821e4d87b1de21979",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "gallery_template_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a3557392d893b0da6e68f01e9aa8e1784",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
         },
         {
             "title": "gdversion",
@@ -7920,24 +7848,8 @@
         },
         {
             "title": "get_class_tr",
-            "context": "dbxReport\\get_class_tr($record)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a62e692300750994efbd496b800a2ddbd",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "get_config",
-            "context": "dbxApi\\get_config()",
-            "url": "classdbx_api.html#a07df82c6c0f3fa75f971fdfe9cdc8e3c",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "get_content_permalink_mode",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a918455f5043ea1463a2a09c126531174",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -7952,7 +7864,7 @@
         },
         {
             "title": "get_count_selects",
-            "context": "dbxReport\\get_count_selects()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a0a5cd85ba8f3b57147ce7f80b2b33933",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7967,14 +7879,6 @@
             "weight": 48
         },
         {
-            "title": "get_current_owner",
-            "context": "dbxApi",
-            "url": "classdbx_api.html#ab239c651ad7172179cee022470deb375",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "get_current_user",
             "context": "dbxSession",
             "url": "classdbx_session.html#ac4bc4af4a0c38d6c819f0574098cf9d0",
@@ -7984,7 +7888,7 @@
         },
         {
             "title": "get_db_fields",
-            "context": "dbxDD\\get_db_fields()",
+            "context": "dbxDD",
             "url": "classdbx_d_d.html#a3504995205135b1398e2e7887881987a",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -7992,7 +7896,7 @@
         },
         {
             "title": "get_db_indexes",
-            "context": "dbxDD\\get_db_indexes()",
+            "context": "dbxDD",
             "url": "classdbx_d_d.html#ab6470e6b5afa1480cbf08a96727ea9ad",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8112,7 +8016,7 @@
         },
         {
             "title": "get_dd_server",
-            "context": "dbxDB\\get_dd_server()",
+            "context": "dbxDB",
             "url": "classdbx_d_b.html#acd58637bbe52645295e685c7b8f41b9d",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8152,7 +8056,7 @@
         },
         {
             "title": "get_dd_table",
-            "context": "dbxDB\\get_dd_table()",
+            "context": "dbxDB",
             "url": "classdbx_d_b.html#a8b4b2c42d9e5f6830b8d7920b56f4d82",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8191,14 +8095,6 @@
             "weight": 48
         },
         {
-            "title": "get_design_skin_ids",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a93fb65ef02c040099e48a35340612868",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "get_design_tpl",
             "context": "dbxTPL",
             "url": "classdbx_t_p_l.html#a7efdc1bf1163fd573405b73f2e398f81",
@@ -8218,14 +8114,6 @@
             "title": "get_draft_id",
             "context": "dbxForm",
             "url": "classdbx_form.html#a2fe5fb049bfe4ecfdd2878a5e33c8536",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "get_editor_files",
-            "context": "dbxApi",
-            "url": "classdbx_api.html#a0eca85ab153d05053f6b92eac5b9f6d4",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -8320,7 +8208,7 @@
         },
         {
             "title": "get_footer_page",
-            "context": "dbxReport\\get_footer_page()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ac148e30a44a2e4600ab75943a5d9108e",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8344,7 +8232,7 @@
         },
         {
             "title": "get_grid_action_url",
-            "context": "dbxReport\\get_grid_action_url($url, $action)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a71ab8ce20b0b5f85fcbabbc31f433162",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8352,7 +8240,7 @@
         },
         {
             "title": "get_grid_replaces",
-            "context": "dbxReport\\get_grid_replaces()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ac6e08ed6a25e72370217b5b43e4ba5d4",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8360,7 +8248,7 @@
         },
         {
             "title": "get_haeder_page",
-            "context": "dbxReport\\get_haeder_page()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#aeead25afb842a9e097d22c8132f5636e",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8386,14 +8274,6 @@
             "title": "get_image_html",
             "context": "dbxBarcode",
             "url": "classdbx_barcode.html#ab89cf1d7a144340e3cfe5d6c84f7664c",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "get_include_obj",
-            "context": "dbxApi\\get_include_obj()",
-            "url": "classdbx_api.html#ae53955896ae49f53ee3180e4999892c7",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -8431,24 +8311,8 @@
             "weight": 48
         },
         {
-            "title": "get_modul_obj",
-            "context": "dbxApi",
-            "url": "classdbx_api.html#a128388075e5055ec155eef89c1a89ca1",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "get_modul_var",
-            "context": "dbxApi",
-            "url": "classdbx_api.html#a253f400efe07d8254f1bff15df3cce57",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "get_multi_selects",
-            "context": "dbxReport\\get_multi_selects()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a1017a3eba611b1f057b0bf87fced9204",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8560,7 +8424,7 @@
         },
         {
             "title": "get_record_rid",
-            "context": "dbxReport\\get_record_rid($record, $default=-1)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a52da6216ae9b302a5c5ab6cdc58a8678",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8568,7 +8432,7 @@
         },
         {
             "title": "get_record_select_key",
-            "context": "dbxReport\\get_record_select_key($record)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#aa94433da24c498ac92c04ec9430d1614",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8583,14 +8447,6 @@
             "weight": 48
         },
         {
-            "title": "get_remember_var",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aeb318799a3638b8a3bfc2c85b100a133",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "get_report_action_label",
             "context": "dbxReport",
             "url": "classdbx_report.html#aac42fdcfa7b9275db8e093bd4447e664",
@@ -8600,7 +8456,7 @@
         },
         {
             "title": "get_report_action_url",
-            "context": "dbxReport\\get_report_action_url()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a9615fdf03240b674db7c26a66d63d476",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8608,7 +8464,7 @@
         },
         {
             "title": "get_report_body",
-            "context": "dbxReport\\get_report_body()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a464c0e572d5f419acba99d0e7558868c",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8616,7 +8472,7 @@
         },
         {
             "title": "get_report_footer",
-            "context": "dbxReport\\get_report_footer()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a4a5e5884090d9907d45312cc33bea97d",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8632,7 +8488,7 @@
         },
         {
             "title": "get_report_haeder",
-            "context": "dbxReport\\get_report_haeder($content=&apos;&apos;)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a5989c71f01096116798295437c1a8304",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8640,23 +8496,15 @@
         },
         {
             "title": "get_report_pages",
-            "context": "dbxReport\\get_report_pages()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ac06de8d220c3c5533920cf1ce684da0d",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
         },
         {
-            "title": "get_report_remember_key",
-            "context": "dbxReport",
-            "url": "classdbx_report.html#a9a5153c09b4449205e62d9470cbddc42",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "get_report_rows_array",
-            "context": "dbxReport\\get_report_rows_array()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ac4bf9496d0398520691ae59efc76955d",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8674,14 +8522,6 @@
             "title": "get_request_route_string",
             "context": "dbxWebApp",
             "url": "classdbx_web_app.html#afe452cbe8ece7ddbeb319d6d48b5d848",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "get_request_var",
-            "context": "dbxApi\\get_request_var()",
-            "url": "classdbx_api.html#ae52857be9054bfd6a91d5c85ec69db3c",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -8727,14 +8567,6 @@
             "weight": 48
         },
         {
-            "title": "get_sel",
-            "context": "dbxReport",
-            "url": "classdbx_report.html#a99cbca95272062351b96df10dc71dc5d",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "get_select_tpl",
             "context": "dbx\\dbxContent_admin\\dbxFolder_edit\\get_select_tpl()",
             "url": "classdbx_1_1dbx_content__admin_1_1dbx_folder__edit.html#aa285a30d3ce5f96e7f810709fba17d27",
@@ -8754,14 +8586,6 @@
             "title": "get_session_rec",
             "context": "dbxWebApp",
             "url": "classdbx_web_app.html#a87a2f7d1d59bdd4772457da08e91eaa3",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "get_session_var",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#af08067cd86d2613b2157f23171d9a6b2",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -8791,32 +8615,8 @@
             "weight": 48
         },
         {
-            "title": "get_sys",
-            "context": "dbxReport",
-            "url": "classdbx_report.html#a21d485d7e9e799acd914334c4b5c8a62",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "get_system_obj",
-            "context": "dbxApi\\get_system_obj()",
-            "url": "classdbx_api.html#a75640a61110857c5e9220fd8c2e83792",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "get_system_var",
-            "context": "dbxApi\\get_system_var()",
-            "url": "classdbx_api.html#ad7de93449355354849854a26c6f9a1d0",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "get_table_action_definitions",
-            "context": "dbxReport\\get_table_action_definitions()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a75fcbccaba2b6aab327784cbcf3dcdc8",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8825,14 +8625,14 @@
         {
             "title": "get_table_exist",
             "context": "dbxDB\\get_table_exist()",
-            "url": "classdbx_d_b.html#a16acc139cef952e4e5524c82d0648240",
+            "url": "classdbx_d_b.html#a0b081e139d79796ebcb96877dd810c00",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
         },
         {
             "title": "get_table_row_action_data",
-            "context": "dbxReport\\get_table_row_action_data($type, array $record)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a79a57b4e8fba1996a2f38a66bcc0a169",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8856,7 +8656,7 @@
         },
         {
             "title": "get_visible_multi_select_ids",
-            "context": "dbxReport\\get_visible_multi_select_ids()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a0d8afd6e15cd6c2ee5e4b955db7cd97b",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8864,7 +8664,7 @@
         },
         {
             "title": "get_visible_multi_select_state",
-            "context": "dbxReport\\get_visible_multi_select_state(array $visibleIds=array())",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a4c4eab7f364a9fea6ed75367cad0e93f",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -8882,14 +8682,6 @@
             "title": "get_workflow_state_key",
             "context": "dbxForm",
             "url": "classdbx_form.html#ab39c8b1093eb3362d7286ea28c03d7ac",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "ge_stichtag",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a055f6abbcf2fd4059083683c75f14f13",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -8968,8 +8760,8 @@
         },
         {
             "title": "Grundprinzip",
-            "context": "Grundprinzip",
-            "url": "classdbx_report.html#autotoc_md43",
+            "context": "",
+            "url": "classdbx_report.html#autotoc_md169",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -8977,7 +8769,7 @@
         {
             "title": "Grundsatz",
             "context": "Mapping-Grundsatz",
-            "url": "classdbx_d_d.html#autotoc_md55",
+            "url": "classdbx_d_d.html#autotoc_md44",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -9087,6 +8879,14 @@
             "weight": 48
         },
         {
+            "title": "hasModule",
+            "context": "dbxRequestContext",
+            "url": "classdbx_request_context.html#ae007193e8e60d5d5566dc894d1325490",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "hasOrderHistoryEvent",
             "context": "dbx::dbxShop::dbxShopRepository",
             "url": "classdbx_1_1dbx_shop_1_1dbx_shop_repository.html#a6fa982e7276656416a39bf8810fe48bb",
@@ -9095,17 +8895,9 @@
             "weight": 48
         },
         {
-            "title": "has_group",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a45cf4ddc9b4cc9db9bbc3c0b6c6b036e",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "has_text",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a2b5b2968654b4f85736f842d3fff0e47",
+            "title": "hasSystem",
+            "context": "dbxRequestContext",
+            "url": "classdbx_request_context.html#a81435e0a64f621e288b908be4a93632c",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -9113,7 +8905,7 @@
         {
             "title": "HAUPTFUNKTION",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md194",
+            "url": "classdbx_t_p_l.html#autotoc_md183",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -9135,6 +8927,54 @@
             "weight": 48
         },
         {
+            "title": "hero_scroll_layer_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#ad806f30af3dd2f03285d9b7adfa9047b",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "hero_sticky_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a4e9b4e11b4b9a7a179accd2401ac182f",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "hero_template_options",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a437c73d9e9ab64418c6201a05b590013",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "hero_template_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a021286713e48cdc6eacad538a3694567",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "hero_variant_options",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a1d6ec3ec46caa25d2b3dd590c2952d1b",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "hero_variant_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#ab1753b65f3fa0d9b4b73169b93fc4ab9",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "Hinweis",
             "context": "Hinweis",
             "url": "classdbx_d_b.html#autotoc_md14",
@@ -9151,22 +8991,6 @@
             "weight": 48
         },
         {
-            "title": "Hook-Modell",
-            "context": "",
-            "url": "classdbx_report.html#autotoc_md49",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
-        },
-        {
-            "title": "html",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a6bb1870d57f33ca360ca4892b1200ac4",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "htmltext",
             "context": "dbxMail",
             "url": "classdbx_mail.html#a4e24b60eba6d78cb4fcd53e339fc3f9b",
@@ -9177,7 +9001,7 @@
         {
             "title": "Hybrid-Regel",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md145",
+            "url": "classdbx_form.html#autotoc_md134",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -9197,14 +9021,6 @@
             "kind": "files",
             "kind_label": "Quelldatei",
             "weight": 28
-        },
-        {
-            "title": "ID RID",
-            "context": "Select-ID / RID",
-            "url": "classdbx_report.html#autotoc_md47",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
         },
         {
             "title": "imagebmp",
@@ -9321,7 +9137,7 @@
         {
             "title": "INDEX FD",
             "context": "DBX ADMIN DDEDIT INDEX FD",
-            "url": "ddedit-index_8fd_8php.html#autotoc_md228",
+            "url": "ddedit-index_8fd_8php.html#autotoc_md217",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -9538,14 +9354,6 @@
             "title": "invalidateSitemap",
             "context": "dbx::dbxContent::dbxContentPageCache",
             "url": "classdbx_1_1dbx_content_1_1dbx_content_page_cache.html#a0e7831bef7ad71b5debe7605c248138b",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "invalidate_action_tokens",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a9232df119fbcc080737e89bddc41ca4d",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -9783,9 +9591,17 @@
             "weight": 48
         },
         {
-            "title": "is_dbx_edit",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aeccb155cf047ce214ef76e40359d47c8",
+            "title": "is_admin_only_module",
+            "context": "dbxWebApp",
+            "url": "classdbx_web_app.html#ac1d2ccc376963fbd730b847ae2613cf9",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "is_admin_route_module",
+            "context": "dbxWebApp",
+            "url": "classdbx_web_app.html#a624d8ffac1e10b8e4f853583295e4d79",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -9802,14 +9618,6 @@
             "title": "is_dd_field_compatible_with_db",
             "context": "dbxDD",
             "url": "classdbx_d_d.html#aff40247102602e5b8ed608600e7b5c2f",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "is_design",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a51b5e99696acfec3b9328b7aeb9ba550",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -9858,22 +9666,6 @@
             "title": "is_form_valid",
             "context": "dbxForm",
             "url": "classdbx_form.html#a85da1cb2e468d818785b665914a1336f",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "is_int_value",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aeddc456e313cf211675249060e0a5dd3",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "is_modul",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a061cf7ed224b0807bd2801a1ddf986e2",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -9951,14 +9743,6 @@
             "weight": 48
         },
         {
-            "title": "json_response",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a9aee464530efbb61446dbe70598c1067",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "kiBriefing.js",
             "context": "",
             "url": "ki_briefing_8js.html",
@@ -9969,7 +9753,7 @@
         {
             "title": "Konsequenz",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md87",
+            "url": "classdbx_form.html#autotoc_md76",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -9978,6 +9762,22 @@
             "title": "label",
             "context": "dbx::dbxKi::dbxKiWritingStyles",
             "url": "classdbx_1_1dbx_ki_1_1dbx_ki_writing_styles.html#a8d9933c49a9bf0c802b1e070ae9c3fba",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "languageProvisionOpenFlag",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a0272d15e434c7241567691a6a87c595a",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "languageSaveResponse",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a2b7a90b4be39656bbfd94dd9290c94a2",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -10079,22 +9879,6 @@
             "weight": 28
         },
         {
-            "title": "lkw.20260526-192807.dd.php",
-            "context": "",
-            "url": "lkw_820260526-192807_8dd_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
-            "title": "lkw.20260530-230346.dd.php",
-            "context": "",
-            "url": "lkw_820260530-230346_8dd_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
             "title": "lkw.dd.php",
             "context": "",
             "url": "lkw_8dd_8php.html",
@@ -10122,14 +9906,6 @@
             "title": "loadRecord",
             "context": "dbx::dbxWorkflow::dbxWorkflowModule",
             "url": "classdbx_1_1dbx_workflow_1_1dbx_workflow_module.html#a4218655ef6e2a5b510b42ff298224e4d",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "load_content_cache_classes",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a9bd35c91013c91ea848042b52ede3a2e",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -10208,7 +9984,7 @@
         },
         {
             "title": "login",
-            "context": "dbxSession\\login()",
+            "context": "dbxSession",
             "url": "classdbx_session.html#a92f9a5cef34025a8426061d6232e0223",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -10273,7 +10049,7 @@
         {
             "title": "Mapping",
             "context": "",
-            "url": "classdbx_d_d.html#autotoc_md58",
+            "url": "classdbx_d_d.html#autotoc_md47",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -10281,7 +10057,7 @@
         {
             "title": "Mapping-Grundsatz",
             "context": "",
-            "url": "classdbx_d_d.html#autotoc_md55",
+            "url": "classdbx_d_d.html#autotoc_md44",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -10329,7 +10105,7 @@
         {
             "title": "Marker-Regel",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md149",
+            "url": "classdbx_form.html#autotoc_md138",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -10337,7 +10113,7 @@
         {
             "title": "Marker",
             "context": "EDITOR SYSTEM (Marker)",
-            "url": "classdbx_t_p_l.html#autotoc_md208",
+            "url": "classdbx_t_p_l.html#autotoc_md197",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -10402,6 +10178,14 @@
             "title": "media_row_action_data",
             "context": "dbx::dbxContent_admin::dbxContent_sections",
             "url": "classdbx_1_1dbx_content__admin_1_1dbx_content__sections.html#a7c4cf84a0c690ac880f9db56551995ca",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "media_template_options",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#aa0cadbfa87018dbc0d78ab36fccc4f25",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -10527,14 +10311,6 @@
             "weight": 48
         },
         {
-            "title": "migrate_flat_permalinks.php",
-            "context": "",
-            "url": "migrate__flat__permalinks_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
             "title": "minimumLength",
             "context": "dbxPasswordPolicy",
             "url": "classdbx_password_policy.html#af2dc060fec057d85f7241acd808c2855",
@@ -10565,14 +10341,6 @@
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
-        },
-        {
-            "title": "Modell",
-            "context": "Callback-Modell",
-            "url": "classdbx_report.html#autotoc_md187",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
         },
         {
             "title": "Modi",
@@ -10634,6 +10402,14 @@
             "title": "moduleBarTemplateData",
             "context": "dbx\\dbxAdmin\\dbxAdminHelp\\moduleBarTemplateData()",
             "url": "classdbx_1_1dbx_admin_1_1dbx_admin_help.html#a4be5e8c63c390ec369ff7909e81a0248",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "module",
+            "context": "dbxActionManifest\\module()",
+            "url": "classdbx_action_manifest.html#ae00d5a247c9d4835100d09a260b565b1",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -10753,7 +10529,7 @@
         {
             "title": "Modus",
             "context": "",
-            "url": "classdbx_d_d.html#autotoc_md60",
+            "url": "classdbx_d_d.html#autotoc_md49",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -10839,12 +10615,28 @@
             "weight": 48
         },
         {
+            "title": "moveNode",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#afd5deb8efab5bf63edaf62850359771b",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "moveProductGroupParent",
             "context": "dbx::dbxShop::dbxShopRepository",
             "url": "classdbx_1_1dbx_shop_1_1dbx_shop_repository.html#a6262af89e0d8e926310fc20f2ac63e3c",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
+        },
+        {
+            "title": "Multi-Select",
+            "context": "",
+            "url": "classdbx_report.html#autotoc_md173",
+            "kind": "pages",
+            "kind_label": "API-Abschnitt",
+            "weight": 38
         },
         {
             "title": "multiAction",
@@ -10855,12 +10647,20 @@
             "weight": 48
         },
         {
-            "title": "Multi Select",
-            "context": "Multi-Select",
-            "url": "classdbx_report.html#autotoc_md46",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
+            "title": "myActionManifest",
+            "context": "",
+            "url": "classmy_action_manifest.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
+        },
+        {
+            "title": "myActionManifest.class.php",
+            "context": "",
+            "url": "my_action_manifest_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
         },
         {
             "title": "myBrowser",
@@ -11345,7 +11145,7 @@
         {
             "title": "Neuer empfohlener Ablauf",
             "context": "",
-            "url": "classdbx_report.html#autotoc_md181",
+            "url": "classdbx_report.html#autotoc_md170",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -11383,14 +11183,6 @@
             "weight": 48
         },
         {
-            "title": "new_password",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aa0f5e0854cb1c7d236863f3ff9589a32",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "nextInvoiceNo",
             "context": "dbx::dbxShop::dbxShopRepository",
             "url": "classdbx_1_1dbx_shop_1_1dbx_shop_repository.html#ab5a23ef29cf069eba477aa2e71679412",
@@ -11402,22 +11194,6 @@
             "title": "next_i",
             "context": "dbxForm",
             "url": "classdbx_form.html#a40a94160140c7ff1c1bcc4e0423bd792",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "next_id",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a65e40b8138297e55b5efa042bc68d030",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "norep",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#adde2070022b2b365e938f95aa9cec366",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -11544,7 +11320,7 @@
         },
         {
             "title": "normalize_multi_select_key",
-            "context": "dbxReport\\normalize_multi_select_key($rid)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ae738c0baec883e62182b6555f1594f5b",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -11591,14 +11367,6 @@
             "weight": 48
         },
         {
-            "title": "normalize_skin",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#ab6523d36e4a54558797b7072800c6990",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "normalize_str",
             "context": "dbx::myLKW::myLKW_import",
             "url": "classdbx_1_1my_l_k_w_1_1my_l_k_w__import.html#a787f0468c23ec7421ac9340fbe4e83fe",
@@ -11624,7 +11392,7 @@
         },
         {
             "title": "no_page_reset",
-            "context": "dbxReport\\no_page_reset()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a9d4063b806f8f2cb9dd181de0b3b74e1",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -11816,7 +11584,7 @@
         },
         {
             "title": "parse_multi_select_ids",
-            "context": "dbxReport\\parse_multi_select_ids($raw)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#aee437d992a0f35a74ce58c4a1eb5e3a3",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -11847,28 +11615,20 @@
             "weight": 48
         },
         {
-            "title": "parse_url",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a5b6db971db7c7215b4c5805ddcc86e1f",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
+            "title": "password_reset.class.php",
+            "context": "",
+            "url": "password__reset_8class_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
         },
         {
-            "title": "part_select",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a9ba7097badd73802a504858d04153aff",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "patch_local_config",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aa8ab78ec88f91a7828db00b56e1f8f10",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
+            "title": "password_reset",
+            "context": "dbx::dbxLogin",
+            "url": "classdbx_1_1dbx_login_1_1password__reset.html",
+            "kind": "classes",
+            "kind_label": "API-Klasse",
+            "weight": 54
         },
         {
             "title": "payment.php",
@@ -11913,7 +11673,7 @@
         {
             "title": "PERFORMANCE",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md214",
+            "url": "classdbx_t_p_l.html#autotoc_md203",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -11921,7 +11681,7 @@
         {
             "title": "Performance",
             "context": "Performance",
-            "url": "classdbx_form.html#autotoc_md136",
+            "url": "classdbx_form.html#autotoc_md125",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -11977,7 +11737,7 @@
         {
             "title": "PIPELINE (Reihenfolge ist fix!)",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md196",
+            "url": "classdbx_t_p_l.html#autotoc_md185",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -11992,8 +11752,8 @@
         },
         {
             "title": "plan",
-            "context": "dbx\\dbxAdmin\\dbxDatabaseMigrationService\\plan()",
-            "url": "classdbx_1_1dbx_admin_1_1dbx_database_migration_service.html#a05a73236bc9e2db08732b162313fe2cf",
+            "context": "dbx\\dbxContent_admin\\dbxContentMediaUsageMaintenance\\plan()",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_media_usage_maintenance.html#a9de7d641c37ce837b6e95b875a178c9c",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -12024,8 +11784,8 @@
         },
         {
             "title": "prepare",
-            "context": "dbx\\dbxAdmin\\dbxDatabaseMigrationService\\prepare()",
-            "url": "classdbx_1_1dbx_admin_1_1dbx_database_migration_service.html#af771dc7eac8360f7fc0c0b7fc13636ad",
+            "context": "dbx\\dbxAdmin\\dbxUpdateService\\prepare()",
+            "url": "classdbx_1_1dbx_admin_1_1dbx_update_service.html#aa9633cb5eacb8ea0e9c4523be4107e86",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -12327,6 +12087,14 @@
             "weight": 28
         },
         {
+            "title": "publicPath",
+            "context": "dbx::dbxContent::dbxContent_permalink",
+            "url": "classdbx_1_1dbx_content_1_1dbx_content__permalink.html#aed0c1dafd5f65bd26e27a7806fef3046",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "purgeLegacyMenuCache",
             "context": "dbx::dbxContent::dbxContentPageCache",
             "url": "classdbx_1_1dbx_content_1_1dbx_content_page_cache.html#ad8ef3d65688dc9c01b6efc6d23287fbe",
@@ -12345,7 +12113,7 @@
         {
             "title": "query",
             "context": "dbxDB",
-            "url": "classdbx_d_b.html#a520f2b1fba8e8a4aedf256c6207c9cc5",
+            "url": "classdbx_d_b.html#acf4aa93b36a297e374b72c92ca2198d2",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -12463,9 +12231,9 @@
             "weight": 48
         },
         {
-            "title": "redirect",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a7bf91a63573530c93dcc5864e70e1689",
+            "title": "recordUid",
+            "context": "dbx::dbxContent::dbxContentLngSync",
+            "url": "classdbx_1_1dbx_content_1_1dbx_content_lng_sync.html#a498d21401b73534b389503e6562f0f65",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -12497,7 +12265,7 @@
         {
             "title": "Regel",
             "context": "Hybrid-Regel",
-            "url": "classdbx_form.html#autotoc_md145",
+            "url": "classdbx_form.html#autotoc_md134",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -12535,9 +12303,9 @@
             "weight": 54
         },
         {
-            "title": "register_editor_file",
-            "context": "dbxApi\\register_editor_file()",
-            "url": "classdbx_api.html#acda8c8b0e886135a67f436e9ade2d902",
+            "title": "register",
+            "context": "dbx::dbxMenu::dbxMenuSlot",
+            "url": "classdbx_1_1dbx_menu_1_1dbx_menu_slot.html#a44752f86b97dc06bf1e5f73afed3ad81",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -12912,7 +12680,7 @@
         },
         {
             "title": "render_table_header_action_block",
-            "context": "dbxReport\\render_table_header_action_block()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ad1c54d630ca1a9bd2df0b1c48ca49c36",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -12920,7 +12688,7 @@
         },
         {
             "title": "render_table_header_data_columns",
-            "context": "dbxReport\\render_table_header_data_columns(array $auto_flds, $fld_id)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#afc1f14907be4a02544097e40860161ce",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -12928,7 +12696,7 @@
         },
         {
             "title": "render_table_header_select",
-            "context": "dbxReport\\render_table_header_select(array $auto_flds, $fld_id, $class, array $select_state)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a931993f137d0f6d823eee8efafff298f",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -12936,7 +12704,7 @@
         },
         {
             "title": "render_table_row_action_block",
-            "context": "dbxReport\\render_table_row_action_block(array $record)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a2f2ca3ab88cf1cbaed983ab2097b5d26",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -12944,7 +12712,7 @@
         },
         {
             "title": "render_table_row_data_columns",
-            "context": "dbxReport\\render_table_row_data_columns(array $record, array $auto_flds, $fld_id, $defaultClass=&apos;auto-fld&apos;)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a2b3f3c24232301f892226e56ea4a0a25",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -12952,7 +12720,7 @@
         },
         {
             "title": "render_table_row_select",
-            "context": "dbxReport\\render_table_row_select(array $record, $class)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#afd75c0ade66145dabd5996dde0761efb",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -12977,7 +12745,7 @@
         {
             "title": "REPLACE SYSTEM",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md202",
+            "url": "classdbx_t_p_l.html#autotoc_md191",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -13037,14 +12805,6 @@
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
-        },
-        {
-            "title": "REPORT SYSTEM dbxReport",
-            "context": "DBX REPORT SYSTEM (dbxReport)",
-            "url": "classdbx_report.html#autotoc_md41",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
         },
         {
             "title": "report_cell_allows_html",
@@ -13136,8 +12896,8 @@
         },
         {
             "title": "resolve",
-            "context": "dbx::dbxContent::dbxContentPermalinkIndex",
-            "url": "classdbx_1_1dbx_content_1_1dbx_content_permalink_index.html#aef414b949359197b3adb4dabe335dc6a",
+            "context": "dbxFormValueResolver\\resolve()",
+            "url": "classdbx_form_value_resolver.html#a23ec0f875be11a837e9bc2c58362cc31",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -13224,27 +12984,35 @@
         },
         {
             "title": "restore",
-            "context": "dbxDD",
+            "context": "dbxDD\\restore()",
             "url": "classdbx_d_d.html#a585ddde78dc6ef1d58d558ddb68aaf4e",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
         },
         {
-            "title": "restructure_marketing_de.php",
-            "context": "",
-            "url": "restructure__marketing__de_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
+            "title": "restoreSystem",
+            "context": "dbxRequestContext",
+            "url": "classdbx_request_context.html#aa38d7333c48c392619e2faa333c153d7",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
         },
         {
-            "title": "RID",
-            "context": "Select-ID / RID",
-            "url": "classdbx_report.html#autotoc_md47",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
+            "title": "rights_options",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a8f1d1d596151b6ce3b426440c9016686",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "rights_values",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#ab824d7f3ccd6f466c4fda5a10820baf5",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
         },
         {
             "title": "rmkdir",
@@ -13624,7 +13392,7 @@
         },
         {
             "title": "rpt_format",
-            "context": "dbxReport\\rpt_format($key, $value)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a4b444d32b4ef2b8523ef2bc918c979cd",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -13632,7 +13400,7 @@
         },
         {
             "title": "rpt_merge_obj",
-            "context": "dbxReport\\rpt_merge_obj($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#aa60f91c77ce678d173b820a38beba49e",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -13656,7 +13424,7 @@
         },
         {
             "title": "run_body",
-            "context": "dbxReport\\run_body($content)",
+            "context": "dbxReport\\run_body()",
             "url": "classdbx_report.html#aa176d69dafc39cc9a848dc35129c24e2",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -13680,7 +13448,7 @@
         },
         {
             "title": "run_footer",
-            "context": "dbxReport\\run_footer($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a0f568fed6e273a3ac4f91a40831e900b",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -13688,7 +13456,7 @@
         },
         {
             "title": "run_haeder",
-            "context": "dbxReport\\run_haeder($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a6b8f68898e11a539ae18ebe40e19d4f5",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -13711,16 +13479,8 @@
             "weight": 48
         },
         {
-            "title": "run_owner",
-            "context": "dbxApi",
-            "url": "classdbx_api.html#aa62e9758329944e4c0c2d556cec2cb74",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "run_page_footer",
-            "context": "dbxReport\\run_page_footer($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a86c539a8abed8dd4f98501dfc0f1166f",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -13728,7 +13488,7 @@
         },
         {
             "title": "run_page_haeder",
-            "context": "dbxReport\\run_page_haeder($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a40bf514474880a7d105c29d38ff162ae",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -13736,7 +13496,7 @@
         },
         {
             "title": "run_report_footer",
-            "context": "dbxReport\\run_report_footer($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#afb0b65d6cbc5a842129205aa6fa6d5b6",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -13744,7 +13504,7 @@
         },
         {
             "title": "run_report_haeder",
-            "context": "dbxReport\\run_report_haeder($content)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ac1faed102b5f3d8d1dae6017bf45b769",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -13754,14 +13514,6 @@
             "title": "run_selected_modules",
             "context": "dbxInterpreter",
             "url": "classdbx_interpreter.html#a4db4301da8b529001fc462a3724e97c9",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "run_web_app_request",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#ab3398c1051a95ed11e51b7ab4aad7099",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -13815,6 +13567,14 @@
             "weight": 48
         },
         {
+            "title": "saveFolder",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a1caa339473ab2727dc04a5428961b2ac",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "saveFromUpload",
             "context": "dbx::dbxAdmin::dbxModuleImages",
             "url": "classdbx_1_1dbx_admin_1_1dbx_module_images.html#a8e9d77abef1d31459744d93524f0f2c8",
@@ -13842,6 +13602,14 @@
             "title": "saveMediaImage",
             "context": "dbx::dbxShop::dbxShopRepository",
             "url": "classdbx_1_1dbx_shop_1_1dbx_shop_repository.html#a9ab92cb400da15f701879e43c7e36f29",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "savePage",
+            "context": "dbx::dbxContent_admin::dbxContentCmsPersistenceService",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_persistence_service.html#a51f4ac2916c54a4da46a8012c8ddd1c8",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -13951,6 +13719,14 @@
             "weight": 48
         },
         {
+            "title": "schema-actions.php",
+            "context": "",
+            "url": "schema-actions_8php.html",
+            "kind": "files",
+            "kind_label": "Quelldatei",
+            "weight": 28
+        },
+        {
             "title": "schema-report.fd.php",
             "context": "",
             "url": "schema-report_8fd_8php.html",
@@ -14025,7 +13801,7 @@
         {
             "title": "Schlüsselaufbau",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md170",
+            "url": "classdbx_form.html#autotoc_md159",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -14034,14 +13810,6 @@
             "title": "screens",
             "context": "dbx::dbxKi::dbxKiHelp",
             "url": "classdbx_1_1dbx_ki_1_1dbx_ki_help.html#a965453a3b1c7eb82406e4b579477b22a",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "search_defaults",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a52dacd2d5566cbe475c3c92ed6330cf4",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -14135,6 +13903,14 @@
             "weight": 48
         },
         {
+            "title": "Select-ID / RID",
+            "context": "",
+            "url": "classdbx_report.html#autotoc_md174",
+            "kind": "pages",
+            "kind_label": "API-Abschnitt",
+            "weight": 38
+        },
+        {
             "title": "select1",
             "context": "dbxDB\\select1()",
             "url": "classdbx_d_b.html#ae7c1152461aac9aa06e9cdaf19090915",
@@ -14149,22 +13925,6 @@
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
-        },
-        {
-            "title": "Select ID RID",
-            "context": "Select-ID / RID",
-            "url": "classdbx_report.html#autotoc_md47",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
-        },
-        {
-            "title": "Select",
-            "context": "Multi-Select",
-            "url": "classdbx_report.html#autotoc_md46",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
         },
         {
             "title": "select_query",
@@ -14215,16 +13975,8 @@
             "weight": 48
         },
         {
-            "title": "send_mail",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a61acd473dbfb22c5f8beac7353a34b5d",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "send_multi_select_json_response",
-            "context": "dbxReport\\send_multi_select_json_response(array $visibleIds=array(), $dbx_do=&apos;&apos;)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a184f1494aea74deedfc3dd3e85074caf",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -14351,6 +14103,14 @@
             "weight": 48
         },
         {
+            "title": "setModule",
+            "context": "dbxRequestContext",
+            "url": "classdbx_request_context.html#ae781b5d94ef66e228495a6469338a394",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
             "title": "setPlatform",
             "context": "dbxBrowser",
             "url": "classdbx_browser.html#ab904a92db2d66074022d1b2839180e4c",
@@ -14370,6 +14130,14 @@
             "title": "setRequestUriToGet",
             "context": "dbxWebApp",
             "url": "classdbx_web_app.html#abafbbf846cb1ba241c36d046377dfb91",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "setSystem",
+            "context": "dbxRequestContext",
+            "url": "classdbx_request_context.html#ae436ea8f1942246486800b8e510fc6b9",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -14432,16 +14200,8 @@
         },
         {
             "title": "set_class_haeder",
-            "context": "dbxReport\\set_class_haeder($key, $class=&apos;&apos;)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#acf19d9a65f5cad28badaf2c6e0c78202",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "set_cookie_var",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a3ade4723f7b557e60673caf95e6a75ff",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -14536,7 +14296,7 @@
         },
         {
             "title": "set_form_selects",
-            "context": "dbxReport\\set_form_selects()",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ae04cc33b7582d4dd3f148bebf31e4248",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -14591,30 +14351,6 @@
             "weight": 48
         },
         {
-            "title": "set_local_config",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a45b5e29dcff81e13b37ab6fa734e56e7",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "set_local_config_section",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#a77afe2d29aed05ea1c31756e68b48814",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "set_modul_var",
-            "context": "dbxApi",
-            "url": "classdbx_api.html#a94a68674585620b2555aa848ac693f11",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "set_msg_error",
             "context": "dbxForm",
             "url": "classdbx_form.html#a3742e049363d2bf194d9b53c040ea91e",
@@ -14648,7 +14384,7 @@
         },
         {
             "title": "set_multi_select",
-            "context": "dbxReport\\set_multi_select($rid)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#acf995ff5fc3455a5a36a3d491f81d352",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -14656,7 +14392,7 @@
         },
         {
             "title": "set_multi_selects",
-            "context": "dbxReport\\set_multi_selects($selects)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#ae52ba8b2e352c2710b47678fa9a740ea",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -14664,7 +14400,7 @@
         },
         {
             "title": "set_multi_select_ids",
-            "context": "dbxReport\\set_multi_select_ids(array $ids)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#afea651c55aec9f79e1d524a2665086eb",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -14735,14 +14471,6 @@
             "weight": 48
         },
         {
-            "title": "set_remember_var",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aeeae56da22ea2137f159f7d20d8395b0",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "set_report_footer_callback",
             "context": "dbxReport",
             "url": "classdbx_report.html#ae99e3a0c4ab49fa95040549656988848",
@@ -14767,22 +14495,6 @@
             "weight": 48
         },
         {
-            "title": "set_sel",
-            "context": "dbxReport",
-            "url": "classdbx_report.html#ac96f968f9dc47efbc7bb8609c38700f2",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
-            "title": "set_session_var",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#aed6d77fb1bcfea018d85119cfb3a55f1",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "set_state_value",
             "context": "dbxForm",
             "url": "classdbx_form.html#aed40aa2a85ac045dccd853f9165e7a86",
@@ -14800,7 +14512,7 @@
         },
         {
             "title": "set_style_haeder",
-            "context": "dbxReport\\set_style_haeder($key, $style)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a22f122d9ff1c5f1c2b921933073014bd",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -14815,16 +14527,8 @@
             "weight": 48
         },
         {
-            "title": "set_system_var",
-            "context": "dbxApi\\set_system_var()",
-            "url": "classdbx_api.html#af6d9b06dffd3b545b3399b764eb61f0b",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "set_tabel_tpl",
-            "context": "dbxReport\\set_tabel_tpl($tid, $tpl)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a7af50cbf639fc862553bd84a9abe712a",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -15345,7 +15049,7 @@
         {
             "title": "SICHERHEIT",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md212",
+            "url": "classdbx_t_p_l.html#autotoc_md201",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -15353,7 +15057,7 @@
         {
             "title": "Sicherheitsvertrag: dbxForm und Action-Token",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md69",
+            "url": "classdbx_form.html#autotoc_md58",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -15361,7 +15065,7 @@
         {
             "title": "Sinn Zweck",
             "context": "Sinn/Zweck",
-            "url": "classdbx_form.html#autotoc_md84",
+            "url": "classdbx_form.html#autotoc_md73",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -15370,6 +15074,14 @@
             "title": "slaveLngs",
             "context": "dbx::dbxContent::dbxContentLngSync",
             "url": "classdbx_1_1dbx_content_1_1dbx_content_lng_sync.html#ae48ccd2eec6d8d90fa4db6f4769abc71",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "slice",
+            "context": "dbxReportDataWindow",
+            "url": "classdbx_report_data_window.html#a0a3dd6c60076ca592608cd9351968a0c",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -15386,6 +15098,14 @@
             "title": "slugKey",
             "context": "dbx::dbxKi::dbxKiWritingStyles",
             "url": "classdbx_1_1dbx_ki_1_1dbx_ki_writing_styles.html#a8e8b50a532f6ef260e7b01ff842b8451",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "snapshot",
+            "context": "dbxRequestContext",
+            "url": "classdbx_request_context.html#a1287a901d9a754fc495476081d687cf7",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -15408,7 +15128,7 @@
         },
         {
             "title": "split_tpl",
-            "context": "dbxReport\\split_tpl($report)",
+            "context": "dbxReport",
             "url": "classdbx_report.html#a3a51cbda6da0201c34665daeac16ff6d",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -15417,7 +15137,7 @@
         {
             "title": "Sprachabhängige FD und Meldungen",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md68",
+            "url": "classdbx_form.html#autotoc_md57",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -15584,8 +15304,8 @@
         },
         {
             "title": "submit",
-            "context": "dbxReport\\submit()",
-            "url": "classdbx_report.html#af14e928750ceebcedbc95b00c8d30384",
+            "context": "dbxForm",
+            "url": "classdbx_form.html#aacf25796de3b5a088c7df168d0d74905",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -15610,6 +15330,14 @@
             "title": "suggestFilename",
             "context": "dbx::dbxAdmin::dbxModuleImages",
             "url": "classdbx_1_1dbx_admin_1_1dbx_module_images.html#a02d82e7ee4fe064776cb7b7500d39513",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "supports_action",
+            "context": "dbx::dbxContent_admin::dbxContent_cms",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content__cms.html#a158cded32a63e4bfaf12daba5d89d3b2",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -15649,7 +15377,7 @@
         {
             "title": "SYSTEM",
             "context": "CACHE SYSTEM",
-            "url": "classdbx_t_p_l.html#autotoc_md200",
+            "url": "classdbx_t_p_l.html#autotoc_md189",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -15663,25 +15391,33 @@
             "weight": 48
         },
         {
-            "title": "SYSTEM dbxReport",
-            "context": "DBX REPORT SYSTEM (dbxReport)",
-            "url": "classdbx_report.html#autotoc_md41",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
+            "title": "system",
+            "context": "dbxRequestContext",
+            "url": "classdbx_request_context.html#aebabafa1a8397e283f21446b586a0378",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "systemSnapshot",
+            "context": "dbxRequestContext",
+            "url": "classdbx_request_context.html#af3853f854eb58d8f5352f519596aa038",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
         },
         {
             "title": "TABLE FD",
             "context": "DBX ADMIN DDEDIT TABLE FD",
-            "url": "ddedit-table_8fd_8php.html#autotoc_md234",
+            "url": "ddedit-table_8fd_8php.html#autotoc_md223",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
         },
         {
-            "title": "Template Hinweis",
-            "context": "Template-Hinweis",
-            "url": "classdbx_report.html#autotoc_md48",
+            "title": "Template-Hinweis",
+            "context": "",
+            "url": "classdbx_report.html#autotoc_md175",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -15689,10 +15425,18 @@
         {
             "title": "TEMPLATE STRUKTUR",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md198",
+            "url": "classdbx_t_p_l.html#autotoc_md187",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
+        },
+        {
+            "title": "template_options",
+            "context": "dbx::dbxContent_admin::dbxContentCmsOptionCatalog",
+            "url": "classdbx_1_1dbx_content__admin_1_1dbx_content_cms_option_catalog.html#a784ed75737660b5d763f76a197b67d42",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
         },
         {
             "title": "template_row_action_data",
@@ -15791,16 +15535,8 @@
             "weight": 48
         },
         {
-            "title": "timer",
-            "context": "dbxApi.php",
-            "url": "dbx_api_8php.html#abaf29cfda5dc5ca8de12772cc8a8e524",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "timestamp",
-            "context": "dbxFormTryCountApi\\timestamp()",
+            "context": "dbxFormTryCountApi",
             "url": "classdbx_form_try_count_api.html#a52e83ac35662286d013d62bd2292b293",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -15808,7 +15544,7 @@
         },
         {
             "title": "time_diff",
-            "context": "dbxFormTryCountApi\\time_diff()",
+            "context": "dbxFormTryCountApi",
             "url": "classdbx_form_try_count_api.html#ab4e55c8a3b07120a22fb63cccc9183b5",
             "kind": "functions",
             "kind_label": "API-Methode",
@@ -15913,7 +15649,7 @@
         {
             "title": "Typ-Grundsatz",
             "context": "",
-            "url": "classdbx_d_d.html#autotoc_md56",
+            "url": "classdbx_d_d.html#autotoc_md45",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -15921,15 +15657,7 @@
         {
             "title": "Typische Aufgaben",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md64",
-            "kind": "pages",
-            "kind_label": "API-Abschnitt",
-            "weight": 38
-        },
-        {
-            "title": "Typischer Ablauf",
-            "context": "",
-            "url": "classdbx_report.html#autotoc_md44",
+            "url": "classdbx_form.html#autotoc_md53",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -15945,7 +15673,7 @@
         {
             "title": "Unterstützt",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md152",
+            "url": "classdbx_form.html#autotoc_md141",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -15969,7 +15697,7 @@
         {
             "title": "Unterstützte Quellen",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md132",
+            "url": "classdbx_form.html#autotoc_md121",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16071,28 +15799,12 @@
             "weight": 48
         },
         {
-            "title": "update_docs_portal_media_20260728.php",
-            "context": "",
-            "url": "update__docs__portal__media__20260728_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
-        },
-        {
             "title": "update_error_fld",
             "context": "dbxForm",
             "url": "classdbx_form.html#a1b23d73e1e9a8fdbb2b8e5c28612f4ef",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
-        },
-        {
-            "title": "update_homepage_20260728.php",
-            "context": "",
-            "url": "update__homepage__20260728_8php.html",
-            "kind": "files",
-            "kind_label": "Quelldatei",
-            "weight": 28
         },
         {
             "title": "update_query",
@@ -16223,14 +15935,6 @@
             "weight": 48
         },
         {
-            "title": "use_system_class",
-            "context": "dbxApi",
-            "url": "classdbx_api.html#abb2c8c315700b2938c19a6efc7326bb1",
-            "kind": "functions",
-            "kind_label": "API-Methode",
-            "weight": 48
-        },
-        {
             "title": "utilities.js",
             "context": "",
             "url": "utilities_8js.html",
@@ -16337,7 +16041,7 @@
         {
             "title": "Verwendung",
             "context": "Verwendung",
-            "url": "classdbx_form.html#autotoc_md75",
+            "url": "classdbx_form.html#autotoc_md64",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16377,7 +16081,7 @@
         {
             "title": "Wichtige Architekturregel",
             "context": "",
-            "url": "classdbx_d_d.html#autotoc_md54",
+            "url": "classdbx_d_d.html#autotoc_md43",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16385,7 +16089,7 @@
         {
             "title": "Wichtige Grundsätze",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md66",
+            "url": "classdbx_form.html#autotoc_md55",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16393,7 +16097,7 @@
         {
             "title": "Wichtige Regeln",
             "context": "",
-            "url": "classdbx_validator.html#autotoc_md220",
+            "url": "classdbx_validator.html#autotoc_md209",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16409,7 +16113,7 @@
         {
             "title": "Wichtiger Punkt",
             "context": "",
-            "url": "classdbx_d_d.html#autotoc_md59",
+            "url": "classdbx_d_d.html#autotoc_md48",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16417,7 +16121,7 @@
         {
             "title": "Wichtige Selektions-Regel",
             "context": "",
-            "url": "classdbx_report.html#autotoc_md182",
+            "url": "classdbx_report.html#autotoc_md171",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16433,7 +16137,7 @@
         {
             "title": "Wichtig",
             "context": "Wichtig",
-            "url": "classdbx_form.html#autotoc_md86",
+            "url": "classdbx_form.html#autotoc_md75",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16441,7 +16145,7 @@
         {
             "title": "Wirkung",
             "context": "Wirkung",
-            "url": "classdbx_form.html#autotoc_md119",
+            "url": "classdbx_form.html#autotoc_md108",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16521,7 +16225,7 @@
         {
             "title": "Workflow-/Draft-Gedanke",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md70",
+            "url": "classdbx_form.html#autotoc_md59",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16561,7 +16265,7 @@
         {
             "title": "Workflow-Hinweis",
             "context": "",
-            "url": "classdbx_form.html#autotoc_md83",
+            "url": "classdbx_form.html#autotoc_md72",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16689,7 +16393,7 @@
         {
             "title": "Zweck",
             "context": "Sinn/Zweck",
-            "url": "classdbx_form.html#autotoc_md84",
+            "url": "classdbx_form.html#autotoc_md73",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16697,7 +16401,7 @@
         {
             "title": "[inc] SYSTEM (Bedingungen)",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md204",
+            "url": "classdbx_t_p_l.html#autotoc_md193",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16705,7 +16409,7 @@
         {
             "title": "[tpl] SYSTEM (Template Includes)",
             "context": "",
-            "url": "classdbx_t_p_l.html#autotoc_md206",
+            "url": "classdbx_t_p_l.html#autotoc_md195",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38
@@ -16722,6 +16426,14 @@
             "title": "_mkdir",
             "context": "dbxUpload",
             "url": "classdbx_upload.html#a69c32f503b9a147792feadef6a44397d",
+            "kind": "functions",
+            "kind_label": "API-Methode",
+            "weight": 48
+        },
+        {
+            "title": "__call",
+            "context": "dbxDD",
+            "url": "classdbx_d_d.html#aa161eac5b7e624fa7a63bdf48ae39511",
             "kind": "functions",
             "kind_label": "API-Methode",
             "weight": 48
@@ -16745,7 +16457,7 @@
         {
             "title": "Überblick",
             "context": "Überblick",
-            "url": "classdbx_report.html#autotoc_md42",
+            "url": "classdbx_report.html#autotoc_md168",
             "kind": "pages",
             "kind_label": "API-Abschnitt",
             "weight": 38

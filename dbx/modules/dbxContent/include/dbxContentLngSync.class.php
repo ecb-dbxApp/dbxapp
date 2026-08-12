@@ -8,7 +8,7 @@ require_once __DIR__ . '/dbxContent_permalink.class.php';
 class dbxContentLngSync {
 
    public static function masterLng(): string {
-      $lng = strtolower(trim((string) dbx()->get_config('dbx', 'default_lng', 'de')));
+      $lng = strtolower(trim((string) dbx()->get_cfg('dbx', 'default_lng', 'de')));
       if ($lng === '' || $lng === 'undef') {
          return 'de';
       }
@@ -16,11 +16,7 @@ class dbxContentLngSync {
    }
 
    public static function accessibleLngs(): array {
-      if (function_exists('dbx_accessible_lngs')) {
-         return dbx_accessible_lngs();
-      }
-
-      return array(self::masterLng());
+      return dbx()->accessible_lngs();
    }
 
    public static function isMasterLng(?string $lng = null): bool {
@@ -44,6 +40,23 @@ class dbxContentLngSync {
       }
 
       return $prefix . '_' . $rand;
+   }
+
+   /**
+    * Liest die Sprach-UID eines Datensatzes ohne Seiteneffekt.
+    *
+    * Anzeige-, Routing- und Coverage-Abläufe dürfen keine Datenbankänderung
+    * auslösen. Fehlende UIDs werden deshalb nur von ensureRecordUid() in
+    * ausdrücklich schreibenden Speicher-/Provisionierungsabläufen ergänzt.
+    */
+   public static function recordUid($db, string $dd, int $id): string {
+      $id = (int) $id;
+      if ($id <= 0 || !is_object($db)) {
+         return '';
+      }
+
+      $row = $db->select1($dd, $id, 'lng_uid', 0);
+      return is_array($row) ? trim((string)($row['lng_uid'] ?? '')) : '';
    }
 
    public static function ensureSchema($db): void {
@@ -281,7 +294,7 @@ class dbxContentLngSync {
          if (!empty($item['title'])) {
             $title .= ' — ' . $item['title'];
          }
-         $parts[] = '<span class="' . $class . '" data-lng="' . htmlspecialchars($lng, ENT_QUOTES, 'UTF-8') . '" title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(strtoupper($lng), ENT_QUOTES, 'UTF-8') . '</span>';
+         $parts[] = '<span class="' . $class . '" data-lng="' . htmlspecialchars($lng, ENT_QUOTES, 'UTF-8') . '" data-dbx-tooltip="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(strtoupper($lng), ENT_QUOTES, 'UTF-8') . '</span>';
       }
 
       if (!count($parts)) {

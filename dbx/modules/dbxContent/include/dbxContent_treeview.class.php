@@ -72,9 +72,9 @@ class dbxContent_treeview {
          'frame_form_close'      => '',
          'frame_body_head'       => '',
          'frame_body_tail'       => '',
-         'bar_class'             => 'dbx-module-bar dbx-cms-head',
-         'bar_title_class'       => 'dbx-module-bar-titleblock',
-         'bar_actions_class'     => 'dbx-module-bar-actions flex-nowrap',
+         'bar_class'             => 'dbx-bar--module dbx-cms-head',
+         'bar_title_class'       => 'dbx-bar-title',
+         'bar_actions_class'     => 'dbx-bar-actions flex-nowrap',
          'bar_title'             => $barTitle,
          'bar_icon'              => 'bi-file-earmark-text',
          'bar_subtitle'          => $barSubtitle,
@@ -139,12 +139,7 @@ class dbxContent_treeview {
       $name = preg_replace('/[^A-Za-z0-9_]+/', '', (string)$name);
       if ($server === '' || $table === '' || $name === '') return;
 
-      $cols = $db->select_query($server, 'PRAGMA table_info(' . $table . ')');
-      if (is_array($cols)) {
-         foreach ($cols as $col) {
-            if (isset($col['name']) && strtolower((string)$col['name']) === strtolower($name)) return;
-         }
-      }
+      if ($db->has_table_column($server, $table, $name)) return;
 
       $db->exec($server, 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $name . ' ' . $type);
    }

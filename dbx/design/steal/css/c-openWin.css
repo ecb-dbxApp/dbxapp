@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* =====================================================
    DBX WINDOW – FINAL (TOKENIZED + UX UPGRADE)
 ===================================================== */
@@ -137,8 +138,7 @@
    ===================================================== */
 
 body.dbx-app .dbx-window .dbx-window-body .dbx-bar,
-body.dbx-app .dbx-window .dbx-window-body .dbx-module-bar,
-body.dbx-app .dbx-window .c-ace .dbx-editor-bar {
+body.dbx-app .dbx-window .c-ace .dbx-bar--editor {
     background:
         linear-gradient(180deg, rgba(255,255,255,.46), rgba(255,255,255,.10) 44%, rgba(12,47,82,.08)),
         linear-gradient(
@@ -156,12 +156,12 @@ body.dbx-app .dbx-window .c-ace .dbx-editor-bar {
     text-shadow: 0 1px 0 rgba(255,255,255,.42);
 }
 
-body.dbx-app .dbx-window .dbx-window-body .dbx-bar :where(.dbx-bar-title, .dbx-module-bar-heading, .dbx-bar-meta),
-body.dbx-app .dbx-window .c-ace .dbx-editor-bar > span {
+body.dbx-app .dbx-window .dbx-window-body .dbx-bar :where(.dbx-bar-title, .dbx-bar-heading, .dbx-bar-meta),
+body.dbx-app .dbx-window .c-ace .dbx-bar--editor > span {
     color: var(--dbx-window-subbar-text, #102b49);
 }
 
-body.dbx-app .dbx-window .c-ace .dbx-editor-bar button {
+body.dbx-app .dbx-window .c-ace .dbx-bar--editor button {
     background: rgba(255,255,255,.72);
     border-color: color-mix(in srgb, var(--dbx-window-subbar-border, #3b72a8) 62%, #ffffff);
     color: var(--dbx-window-subbar-text, #102b49);
@@ -170,7 +170,7 @@ body.dbx-app .dbx-window .c-ace .dbx-editor-bar button {
         0 1px 2px rgba(12,41,72,.12);
 }
 
-body.dbx-app .dbx-window .c-ace .dbx-editor-bar button:hover {
+body.dbx-app .dbx-window .c-ace .dbx-bar--editor button:hover {
     background: color-mix(in srgb, var(--dbx-primary) 15%, #ffffff);
     border-color: var(--dbx-window-subbar-border, #3b72a8);
 }
@@ -178,20 +178,20 @@ body.dbx-app .dbx-window .c-ace .dbx-editor-bar button:hover {
 /* Die unmittelbar folgende Werkzeugleiste bleibt bewusst deutlich flacher
    als die Fensterleiste, ohne die Bedienelemente zu klein werden zu lassen. */
 body.dbx-app .dbx-window .dbx-window-body > .dbx-bar:first-child,
-body.dbx-app .dbx-window .dbx-window-body > .dbx-module-bar:first-child,
-body.dbx-app .dbx-window .c-ace .dbx-editor-bar {
+body.dbx-app .dbx-window .dbx-window-body > .dbx-bar--module:first-child,
+body.dbx-app .dbx-window .c-ace .dbx-bar--editor {
     gap: 8px;
     min-height: 38px;
     padding: 3px 10px;
 }
 
-body.dbx-app .dbx-window .c-ace .dbx-editor-bar .editor-filename {
+body.dbx-app .dbx-window .c-ace .dbx-bar--editor .editor-filename {
     height: 28px;
     min-height: 28px;
     padding-block: 2px;
 }
 
-body.dbx-app .dbx-window .c-ace .dbx-editor-bar button {
+body.dbx-app .dbx-window .c-ace .dbx-bar--editor button {
     height: 28px;
     min-height: 28px;
     min-width: 30px;
@@ -225,6 +225,66 @@ body.dbx-app .dbx-window .c-ace .dbx-editor-bar button {
     min-width: 0;
     height: 100%;
     width: 100%;
+}
+
+.dbx-window-loading,
+.dbx-window-error {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: clamp(140px, 30vh, 280px);
+}
+
+.dbx-window-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .65rem;
+    color: var(--dbx-text-muted, #536579);
+    font-weight: 650;
+}
+
+.dbx-window-loading-spinner {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+    border: 2px solid color-mix(in srgb, var(--dbx-primary, #1677e8) 24%, transparent);
+    border-top-color: var(--dbx-primary, #1677e8);
+    border-radius: 50%;
+    animation: dbx-window-loading-spin .7s linear infinite;
+}
+
+.dbx-window-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    padding: 1.25rem;
+    color: var(--dbx-danger, #a52331);
+    text-align: left;
+}
+
+.dbx-window-error > i {
+    flex: 0 0 auto;
+    font-size: 1.45rem;
+}
+
+.dbx-window-error strong,
+.dbx-window-error small {
+    display: block;
+}
+
+.dbx-window-error small {
+    max-width: 42rem;
+    margin-top: .2rem;
+    color: var(--dbx-text-muted, #536579);
+}
+
+@keyframes dbx-window-loading-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dbx-window-loading-spinner { animation: none; }
 }
 
 /* Scroll aktiv */

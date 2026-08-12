@@ -23,7 +23,7 @@ mermaid.initialize({ startOnLoad: true, theme: theme });
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.1.3</span>
+   <div id="projectname">dbxapp Redaktion<span id="projectnumber">&#160;4.2.0</span>
    </div>
    <div id="projectbrief">Versionierte Quellen für das dbxContent-Dokumentationsportal</div>
   </td>
@@ -57,9 +57,9 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <td class="markdownTableBodyNone"><span class="tt">steal</span>  </td><td class="markdownTableBodyNone">Edelstahl, Chrom, Gold und Riffelblech  </td><td class="markdownTableBodyNone">horizontal  </td><td class="markdownTableBodyNone">Blau, Grün, Gelb, Rot, Hell, Dunkel  </td></tr>
 </table>
 <p>Das konfigurierte Admin-Design ist <span class="tt">dbxapp</span>. Ein Frontend-Benutzer darf das Frontend-Design wechseln. Wird im Frontend für Administratoren das horizontale Admin-Menü eingeblendet, bleibt dieses bewusst horizontal und übernimmt nicht die vertikale Flowers-Navigation.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md225"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md229"></a>
 Begriffe und Verantwortung</h1>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md226"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md230"></a>
 Design</h2>
 <p>Ein Design verantwortet:</p>
 <ul>
@@ -79,17 +79,17 @@ Design</h2>
 <li>Report-Pagination oder Ajax-Transport,</li>
 <li>die fachliche Bedeutung eines Moduls.</li>
 </ul>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md227"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md231"></a>
 Skin</h2>
 <p>Ein Skin verändert innerhalb eines Designs vor allem Farben, Kontraste, Schatten, Rahmen und Hell-/Dunkelverhalten. Der Skin darf die Grundstruktur eines Designs nicht neu bauen. Wenn Navigation, Spalten oder Seitenschale anders werden sollen, ist ein eigenes Design die richtige Ebene.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md228"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md232"></a>
 Modul-Design</h2>
 <p>Module dürfen eigenes Komponenten-CSS und eigene Templates mitbringen, zum Beispiel:</p>
 <div class="fragment"><div class="line">dbx/modules/dbxShop/design/css/shop.css</div>
 <div class="line">dbx/modules/dbxShop/design/js/shop.js</div>
 <div class="line">dbx/modules/dbxShop/tpl/htm/product-card-default.htm</div>
 </div><!-- fragment --><p>Dieses Modul-Design gestaltet nur die fachliche Ausgabe. Die umgebende Seite kommt weiterhin aus dem aktiven globalen Design unter <span class="tt">dbx/design/</span>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md229"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md233"></a>
 Verzeichnis eines eigenstaendigen Designs</h1>
 <p>Ein Design liegt unter:</p>
 <div class="fragment"><div class="line">dbx/design/{design}/</div>
@@ -106,7 +106,7 @@ Verzeichnis eines eigenstaendigen Designs</h1>
 <div class="line">  img/</div>
 </div><!-- fragment --><p><span class="tt">htm/default.htm</span> ist die Voraussetzung dafür, dass ein Verzeichnis als öffentlich wählbares Frontend-Design erkannt wird. Verzeichnisse mit einem Namen, der mit <span class="tt">_</span> oder <span class="tt">-</span> beginnt, werden in der Designauswahl nicht angeboten.</p>
 <p>Jedes Design soll alle designbezogenen Dateien selbst besitzen. <span class="tt">flowers</span> soll daher nicht stillschweigend CSS, Bilder oder JavaScript aus <span class="tt">dbxapp</span> erben. Gemeinsam genutzt werden nur zentrale System- und Vendor-Ressourcen, etwa Bootstrap, Bootstrap Icons, jQuery und <span class="tt">dbx/js/lib/core.js</span>.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md230"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md234"></a>
 Design-Templates und Seitenvarianten</h1>
 <p>Die Seitenschale wird mit <span class="tt">dbxTPL::get_design_tpl()</span> geladen. Ausgangspunkt ist die aktive Kombination aus:</p>
 <ul>
@@ -150,7 +150,7 @@ Design-Templates und Seitenvarianten</h1>
 <div class="line">&lt;main&gt;[dbx:content]&lt;/main&gt;</div>
 <div class="line">[dbx:footer]</div>
 </div><!-- fragment --><p>Die Inhalte liegen im selben Design unter <span class="tt">htm/logo.htm</span>, <span class="tt">htm/branding.htm</span> und <span class="tt">htm/footer.htm</span>. <span class="tt">dbxTPL</span> setzt nur tatsächlich verwendete Slots ein. Bestehende Designs ohne Slots bleiben unverändert.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md231"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md235"></a>
 Laufzeit: Wie ein Design bestimmt wird</h1>
 <p>Der Ablauf liegt zentral in <span class="tt">dbxWebApp</span>:</p>
 <ol type="1">
@@ -166,7 +166,7 @@ Laufzeit: Wie ein Design bestimmt wird</h1>
 <div class="line">$config[<span class="stringliteral">&#39;default_design_user&#39;</span>] = <span class="stringliteral">&#39;dbxapp&#39;</span>;</div>
 <div class="line">$config[<span class="stringliteral">&#39;default_design_admin&#39;</span>] = <span class="stringliteral">&#39;dbxapp&#39;</span>;</div>
 </div><!-- fragment --><p>Ein Modul oder Admin-Werkzeug kann für seinen Aufruf <span class="tt">dbx_page</span>, <span class="tt">dbx_design</span>, <span class="tt">dbx_lng</span> und <span class="tt">dbx_color</span> setzen. Solche Umschaltungen müssen vor dem Laden der Designschale erfolgen und dürfen die zentrale Validierung nicht umgehen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md232"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md236"></a>
 Frontend und Administration</h1>
 <p>Die aktuelle Trennung lautet:</p>
 <ul>
@@ -177,7 +177,7 @@ Frontend und Administration</h1>
 <li>Ein per Ajax oder <span class="tt">openWin</span> geladener Inhalt erhält nicht automatisch ein zweites komplettes Design. Die Fensterschale kommt vom aufrufenden Kontext; Komponenten des Admin-Inhalts werden durch ihre Modul-Styles gestaltet.</li>
 </ul>
 <p>Damit bleiben Frontend und Backend visuell trennbar, ohne dass Modulcode dupliziert oder ein iframe vorausgesetzt werden muss. Falls später echte Design-Isolation in Fenstern benötigt wird, muss sie als eigener, dokumentierter Fenstermodus umgesetzt werden.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md233"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md237"></a>
 Design- und Skin-Auswahl im Menü</h1>
 <p>Die Auswahl befindet sich im Hauptmenue-Template:</p>
 <div class="fragment"><div class="line">dbx/modules/dbxMenu/tpl/htm/dbx-top-main.htm</div>
@@ -186,7 +186,7 @@ Design- und Skin-Auswahl im Menü</h1>
 <div class="fragment"><div class="line">dbx/design/{design}/css/skin-*.css</div>
 </div><!-- fragment --><p>Damit gibt es keine zweite Skin-Liste in <span class="tt">dbxMenu</span> oder <span class="tt">utilities.js</span>. Eine neue Datei wie <span class="tt">skin-petrol.css</span> wird automatisch nur in der Gruppe des betreffenden Designs angeboten. <span class="tt">dbxApi::normalize_skin()</span> prüft <span class="tt">dbx_color</span> gegen genau diesen Katalog, damit kein nicht vorhandenes Stylesheet ausgewählt wird.</p>
 <p>Jede Auswahl ist ein normaler, kopierbarer GET-Aufruf mit <span class="tt">dbx_design</span> <b>und</b> <span class="tt">dbx_color</span>. Damit fuehren Designwechsel und reine Farbwechsel denselben serverseitig validierten Ablauf aus; JavaScript ist für die Auswahl nicht erforderlich. <span class="tt">utilities.js</span> behaelt <span class="tt">applySkin()</span> für programmatische Oberflächen und speichert solche lokale Auswahlen pro Design. Die Farbe eines Designs überschreibt damit nicht mehr versehentlich die Auswahl eines anderen Designs.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md234"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md238"></a>
 CSS-Schichten</h1>
 <p>Eine robuste Aufteilung ist:</p>
 <table class="markdownTable">
@@ -209,7 +209,37 @@ CSS-Schichten</h1>
 </table>
 <p>Skins sollten vorzugsweise CSS-Variablen überschreiben. Komponenten greifen auf diese Variablen zu. Dadurch muss eine Dark-Variante nicht die komplette Komponentenbibliothek kopieren.</p>
 <p>Im Design <span class="tt">dbxapp</span> wird <span class="tt">glass-3d.css</span> nach <span class="tt">base.css</span> und <span class="tt">theme.css</span> eingebunden. Die Datei gestaltet die vorhandenen Komponenten über die Skin-Tokens und darf deshalb keine eigene, vom Skin getrennte Farbwelt einführen.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md235"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md239"></a>
+Verbindliche Strukturklassen</h1>
+<p>Die HTML-Struktur ist systemweit einheitlich, die visuelle Ausgestaltung bleibt je Design eigenständig. <span class="tt">dbxTPL</span>, <span class="tt">dbxForm</span> und <span class="tt">dbxReport</span> erzeugen dafür dieselben semantischen Klassen:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Klasse  </th><th class="markdownTableHeadNone">Bedeutung  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-panel</span>  </td><td class="markdownTableBodyNone">äußerer Komponentenrahmen  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-panel-body</span>  </td><td class="markdownTableBodyNone">gepolsterter Inhaltsbereich  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-bar</span>  </td><td class="markdownTableBodyNone">Basis jeder Kopf- oder Werkzeugleiste  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-bar--module</span>  </td><td class="markdownTableBodyNone">Kopf eines Moduls, Formulars oder Reports  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-bar--editor</span>  </td><td class="markdownTableBodyNone">Editorleiste  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-bar--toolbar</span>  </td><td class="markdownTableBodyNone">eigenständige Werkzeugleiste  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-bar-title</span>  </td><td class="markdownTableBodyNone">Titelgruppe mit Icon und Text  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-bar-copy</span>  </td><td class="markdownTableBodyNone">Textcontainer innerhalb der Titelgruppe  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-bar-heading</span>  </td><td class="markdownTableBodyNone">sichtbare Hauptüberschrift  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-bar-subtitle</span>  </td><td class="markdownTableBodyNone">optionale zweite Zeile  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">.dbx-bar-actions</span>  </td><td class="markdownTableBodyNone">rechte Aktionsgruppe  </td></tr>
+</table>
+<p>Eine Variante ergänzt immer die Basisklasse, zum Beispiel <span class="tt">class="dbx-bar dbx-bar--module"</span>. JavaScript verwendet fachliche <span class="tt">data-dbx-*</span>-Attribute und keine Darstellungsklasse als Verhaltensanker. Alte Parallelbegriffe für Modul-, Editor- oder Toolbar-Leisten sind nicht zulässig. Ein Design darf Farben, Abstände, Typografie und Effekte vollständig selbst bestimmen, muss aber diesen Strukturvertrag unterstützen. Dadurch bleiben Templates, Formulare und Reports vorhersehbar, ohne Designs voneinander abhängig zu machen.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md240"></a>
 Das Flowers-Design</h1>
 <p><span class="tt">flowers</span> ist bewusst keine Farbkopie von <span class="tt">dbxapp</span>. Seine Merkmale sind:</p>
 <ul>
@@ -223,7 +253,7 @@ Das Flowers-Design</h1>
 <li>designbezogenes Verhalten in <span class="tt">dbx/design/flowers/js/flowers.js</span>.</li>
 </ul>
 <p>Die linke Navigation muss bei langen oder aufgeklappten Untermenüs scrollbar bleiben. Dropdowns des horizontalen Admin-Menüs müssen über dem Seiteninhalt liegen; deshalb sind Stacking Context und <span class="tt">z-index</span> Teil der Designpruefung.</p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md236"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md241"></a>
 Neues Design anlegen</h1>
 <p>Für Administratoren ist der bevorzugte Weg das Design Studio:</p>
 <div class="fragment"><div class="line">?dbx_modul=dbxDesign_admin&amp;dbx_run1=list</div>
@@ -239,7 +269,7 @@ Neues Design anlegen</h1>
 <li>Formulare, Reports, CMS, Login, Shop und OpenWin/Ajax prüfen.</li>
 <li>Erst danach das Design über <span class="tt">dbx_design={name}</span> produktiv anbieten.</li>
 </ol>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md237"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md242"></a>
 Prüfliste</h1>
 <ul>
 <li><span class="tt">htm/default.htm</span> existiert und enthält <span class="tt">[dbx:content]</span>.</li>
@@ -253,7 +283,7 @@ Prüfliste</h1>
 <li>Login, CMS, Shop, Formulare, Reports, Fenster und Ajax wurden geprüft.</li>
 <li>Admin-Module laufen im Admin-Design; Frontend-Seiten bleiben umschaltbar.</li>
 </ul>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md238"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md243"></a>
 Verwandte Dokumentation</h1>
 <ul>
 <li><a class="el" href="dbxapp_design_ai_reference.html" title="Design-KI-Referenz">Design-KI-Referenz</a></li>

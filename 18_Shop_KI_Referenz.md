@@ -257,7 +257,7 @@ Verfügbarkeit und Preise erneut serverseitig aus dem Repository zu lesen.
 
 ## Konfigurationsvertrag
 
-Quelle: `dbx()->get_config('dbxShop')`.
+Quelle: `dbx()->get_cfg('dbxShop')`.
 
 ```yaml
 general:

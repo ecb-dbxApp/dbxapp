@@ -100,7 +100,7 @@ Class dbxModules {
    }
 
    private function save_config_modul($modul, $data) {
-      return dbx()->set_config($modul, $data);
+      return dbx()->set_cfg($modul, $data);
    }
 
    private function modul_access() {
@@ -110,7 +110,7 @@ Class dbxModules {
          return $this->tpl()->get_tpl('dbx', 'alert-warning', array('msg' => $texts->get_fd_message('no_module')));
       }
 
-      $data = dbx()->get_config($xmodul);
+      $data = dbx()->get_cfg($xmodul);
       if (!is_array($data)) {
          $data = array();
       }
@@ -143,7 +143,7 @@ Class dbxModules {
 
       if ($oForm->submit()) {
          if (!$oForm->errors()) {
-            $config = dbx()->get_config($xmodul);
+            $config = dbx()->get_cfg($xmodul);
             if (!is_array($config)) {
                $config = array();
             }
@@ -466,13 +466,13 @@ Class dbxModules {
       }
       $clean = array_values(array_unique($clean));
 
-      $config = dbx()->get_config($xmodul);
+      $config = dbx()->get_cfg($xmodul);
       if (!is_array($config)) {
          $config = array();
       }
       $config['groups'] = implode(',', $clean);
 
-      $ok = dbx()->set_config($xmodul, $config);
+      $ok = dbx()->set_cfg($xmodul, $config);
       $texts = $this->texts();
       dbx()->json_response(array(
          'ok'     => $ok ? 1 : 0,
@@ -490,7 +490,7 @@ Class dbxModules {
          dbx()->json_response(array('ok' => 0, 'msg' => $texts->get_fd_message('no_module')));
       }
 
-      $config = dbx()->get_config($xmodul);
+      $config = dbx()->get_cfg($xmodul);
       if (!is_array($config)) {
          $config = array();
       }
@@ -510,7 +510,7 @@ Class dbxModules {
 
       $config['activ'] = $active;
       $config['active'] = $active;
-      $ok = dbx()->set_config($xmodul, $config);
+      $ok = dbx()->set_cfg($xmodul, $config);
       dbx()->json_response(array(
          'ok'           => $ok ? 1 : 0,
          'modul'        => $xmodul,

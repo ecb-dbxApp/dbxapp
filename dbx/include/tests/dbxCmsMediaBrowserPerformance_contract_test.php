@@ -1,14 +1,16 @@
 <?php
 
 $base = dirname(__DIR__, 2);
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
 $failures = array();
 
 $assert = static function(bool $condition, string $message) use (&$failures): void {
     if (!$condition) $failures[] = $message;
 };
 
-$cmsJs = (string)file_get_contents($base . '/js/lib/cms.js');
-$cmsPhp = (string)file_get_contents($base . '/modules/dbxContent_admin/include/dbxContent_cms.class.php');
+$cmsJs = (string)file_get_contents($base . '/js/lib/cms.js')
+    . (string)file_get_contents($base . '/js/lib/cms-media.js');
+$cmsPhp = dbx_test_module_source_bundle($base . '/modules/dbxContent_admin/include/dbxContent_cms.class.php');
 $cmsCss = (string)file_get_contents($base . '/design/dbxapp/css/c-cms.css');
 
 $assert(

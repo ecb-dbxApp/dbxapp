@@ -346,7 +346,7 @@
             const previewTitle = moduleMsg(panel, "module_preview", "Preview: {module}", { module: modul || "" });
             const active = index === 0 ? " is-active" : "";
             const previewBtn = (run1 || params)
-                ? '<a class="btn btn-outline-secondary btn-sm dbx-win dbx-module-images-preview" href="' + escapeAttr(preview.url) + '" data-url="' + escapeAttr(preview.url) + '" data-title="' + escapeAttr(previewTitle) + '" data-width="88%" data-height="88%" title="' + escapeAttr(moduleMsg(panel, "open_module", "Open module")) + '"><i class="bi bi-box-arrow-up-right"></i></a>'
+                ? '<a class="btn btn-outline-secondary btn-sm dbx-win dbx-module-images-preview" href="' + escapeAttr(preview.url) + '" data-url="' + escapeAttr(preview.url) + '" data-title="' + escapeAttr(previewTitle) + '" data-width="88%" data-height="88%" data-dbx-tooltip="' + escapeAttr(moduleMsg(panel, "open_module", "Open module")) + '"><i class="bi bi-box-arrow-up-right"></i></a>'
                 : "";
             return '<div class="dbx-module-images-item' + active + '" data-file="' + escapeAttr(file) + '" data-params="' + escapeAttr(params) + '" data-url="' + escapeAttr(url) + '" data-run1="' + escapeAttr(run1) + '" data-run2="' + escapeAttr(run2) + '">'
                 + '<span class="dbx-module-images-thumb"><img src="' + escapeAttr(url) + '" alt="' + escapeAttr(label) + '" loading="lazy"></span>'
@@ -354,7 +354,7 @@
                 + '<span class="dbx-module-images-file">' + escapeHtml(file) + '</span></span>'
                 + '<span class="dbx-module-images-actions">'
                 + previewBtn
-                + '<button type="button" class="btn btn-outline-danger btn-sm dbx-module-images-remove" title="' + escapeAttr(moduleMsg(panel, "remove_image", "Remove image")) + '"><i class="bi bi-trash"></i></button>'
+                + '<button type="button" class="btn btn-outline-danger btn-sm dbx-module-images-remove" data-dbx-tooltip="' + escapeAttr(moduleMsg(panel, "remove_image", "Remove image")) + '"><i class="bi bi-trash"></i></button>'
                 + '</span></div>';
         }).join("");
     }

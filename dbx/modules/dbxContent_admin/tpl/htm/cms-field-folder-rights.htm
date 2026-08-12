@@ -1,4 +1,4 @@
-<label class="dbx-cms-field dbx-cms-field-{name}">
- <span>{label}</span>
- <select class="form-select form-select-sm dbxMultiSelect2 {class}" id="{name}_{i}" name="{name}[]" data-cms-folder-rights data-dbx-multiselect2="1" multiple {required}>{{name}_options}</select>
+<label class="dbx-form-field" data-cms-field-wrap="{cms_field}" data-cms-field-scope="folder">
+ <span class="dbx-form-field__label">{label}</span>
+ <select class="form-select form-select-sm dbx-form-field__control dbxMultiSelect2 {class}" id="{name}_{i}" name="{name}[]" data-cms-field="{cms_field}" data-cms-field-scope="folder" data-dbx-multiselect2="1" multiple {required}>{{name}_options}</select>
 </label>

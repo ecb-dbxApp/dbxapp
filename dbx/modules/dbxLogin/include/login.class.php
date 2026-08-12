@@ -31,7 +31,7 @@ public function run() {
       $oForm->add_module_bar('Login / Anmelden', 'bi-shield-lock', 'Sicher mit Benutzername oder E-Mail anmelden');
       $oForm->_fd = 'dbxLogin|login';
       $oForm->_data=$data;
-      if ((string)dbx()->get_config('dbxLogin', 'register') === '1') {
+      if ((string)dbx()->get_cfg('dbxLogin', 'register') === '1') {
          $register_tpl = $slim ? 'login-register-link-slim' : 'login-register-link';
          $oForm->add_obj('register_link', 'dbxLogin|' . $register_tpl);
       } else {
@@ -61,7 +61,8 @@ public function run() {
       );
       if ($slim) $oForm->_tpl_form_info='';
       dbx()->debug("dbxLogin check submit");
-      if($oForm->submit()) {
+      $submitted = $oForm->submit();
+      if($submitted) {
          dbx()->debug("dbxLogin is SUBMIT");
          if(!$oForm->errors()) {
             dbx()->debug("dbxLogin submit no errors");
@@ -157,6 +158,13 @@ public function run() {
             }
          } // !error()
       } // submit()
+
+      // Passwoerter duerfen nach keinem fehlgeschlagenen Submit erneut im
+      // HTML landen. Das gilt sowohl fuer falsche Zugangsdaten als auch fuer
+      // Validierungsfehler anderer Felder.
+      if ($submitted && !$ok) {
+         $oForm->set_fld_val('password', '');
+      }
       $content= $oForm->run();
    } // !$uid
    if ($ok) {
@@ -439,7 +447,7 @@ private function send_login_success_mail($rec, $username) {
 }
 
 private function mail_enabled($key) {
-   $value = dbx()->get_config('dbxLogin', $key);
+   $value = dbx()->get_cfg('dbxLogin', $key);
    $value = strtolower(trim((string)$value));
    return !in_array($value, array('', '0', 'false', 'off', 'no'), true);
 }

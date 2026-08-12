@@ -272,7 +272,7 @@ class dbxReport_Modules extends \dbxReport {
          $active = ($i === 0) ? ' is-active' : '';
          $previewBtn = '';
          if ($run1 !== '' || $params !== '') {
-            $previewBtn = '<a class="btn btn-outline-secondary btn-sm dbx-win dbx-module-images-preview" href="' . $previewUrl . '" data-url="' . $previewUrl . '" data-title="' . $previewTitle . '" data-width="88%" data-height="88%" title="' . dbx()->esc($this->get_fd_message('open_module')) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+            $previewBtn = '<a class="btn btn-outline-secondary btn-sm dbx-win dbx-module-images-preview" href="' . $previewUrl . '" data-url="' . $previewUrl . '" data-title="' . $previewTitle . '" data-width="88%" data-height="88%" data-dbx-tooltip="' . dbx()->esc($this->get_fd_message('open_module')) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
          }
          $html .= '<div class="dbx-module-images-item' . $active . '" data-file="' . $file . '" data-params="' . dbx()->esc($params) . '" data-url="' . $url . '" data-run1="' . $run1Esc . '" data-run2="' . $run2Esc . '">'
             . '<span class="dbx-module-images-thumb">'
@@ -284,7 +284,7 @@ class dbxReport_Modules extends \dbxReport {
             . '</span>'
             . '<span class="dbx-module-images-actions">'
             . $previewBtn
-            . '<button type="button" class="btn btn-outline-danger btn-sm dbx-module-images-remove" title="' . dbx()->esc($this->get_fd_message('remove_image')) . '"><i class="bi bi-trash"></i></button>'
+            . '<button type="button" class="btn btn-outline-danger btn-sm dbx-module-images-remove" data-dbx-tooltip="' . dbx()->esc($this->get_fd_message('remove_image')) . '"><i class="bi bi-trash"></i></button>'
             . '</span>'
             . '</div>';
       }
@@ -357,7 +357,7 @@ class dbxReport_Modules extends \dbxReport {
       $title = (string)($record['title'] ?? '');
       $dialogTitle = dbx()->esc($this->format_fd_message('install_title', array('module' => $title)));
 
-      return '<a class="btn btn-outline-secondary dbx-win" href="' . $url . '" data-url="' . $url . '" data-title="' . $dialogTitle . '" data-width="82%" data-height="82%" title="' . dbx()->esc($this->get_fd_message('install_module')) . '">'
+      return '<a class="btn btn-outline-secondary dbx-win" href="' . $url . '" data-url="' . $url . '" data-title="' . $dialogTitle . '" data-width="82%" data-height="82%" data-dbx-tooltip="' . dbx()->esc($this->get_fd_message('install_module')) . '">'
          . '<i class="bi bi-database-gear"></i> ' . dbx()->esc($this->get_fd_message('install_module')) . '</a>';
    }
 
@@ -374,7 +374,7 @@ class dbxReport_Modules extends \dbxReport {
       $state = $active ? '1' : '0';
 
       return '<button type="button" class="btn ' . $btnClass . ' dbx-module-active-toggle" data-modul="' . $modul
-         . '" data-active="' . $state . '" data-toggle-url="' . $url . '" title="' . dbx()->esc($this->get_fd_message('toggle_module')) . '">'
+         . '" data-active="' . $state . '" data-toggle-url="' . $url . '" data-dbx-tooltip="' . dbx()->esc($this->get_fd_message('toggle_module')) . '">'
          . '<i class="bi ' . $icon . '"></i> ' . dbx()->esc($label) . '</button>';
    }
 
@@ -390,7 +390,7 @@ class dbxReport_Modules extends \dbxReport {
       }
 
       return '<button type="button" class="btn btn-outline-danger dbx-module-delete-btn" data-modul="' . $modul
-         . '" data-delete-url="' . $url . '" data-title="' . $title . '" title="' . dbx()->esc($this->get_fd_message('delete_module')) . '">'
+         . '" data-delete-url="' . $url . '" data-title="' . $title . '" data-dbx-tooltip="' . dbx()->esc($this->get_fd_message('delete_module')) . '">'
          . '<i class="bi bi-trash"></i> ' . dbx()->esc($this->get_fd_message('delete_button')) . '</button>';
    }
 
@@ -463,7 +463,7 @@ class dbxReport_Modules extends \dbxReport {
          $stripe = ($i % 2 === 0) ? ' odd' : ' even';
          $gallery .= '<button type="button" class="dbx-module-dd-item' . $active . $stripe . '" role="option"'
             . ' data-edit-url="' . $url . '" data-edit-title="' . $title . '"'
-            . ' aria-selected="' . ($i === 0 ? 'true' : 'false') . '" title="' . $title . '">'
+            . ' aria-selected="' . ($i === 0 ? 'true' : 'false') . '" data-dbx-tooltip="' . $title . '">'
             . '<span class="dbx-module-dd-item-name">' . $label . '</span>'
             . '</button>';
       }

@@ -27,9 +27,22 @@ class dbxContentMediaForms {
       $form->_dbx_modul = 'dbxContent_admin';
       $form->_sys = $form->load_sysdata();
       $form->_action = $action;
+      $form->_fd = 'dbxContent_admin|cms-page';
+      $form->load_fd_messages();
       $form->_msg_info = '';
       $form->set_form_help_enabled(false);
       $form->add_rep('action', dbx()->esc($action));
+      foreach (array(
+         'upload_drop_label',
+         'upload_folder_label',
+         'upload_folder_title',
+         'upload_submit_title',
+         'upload_label',
+         'external_video_placeholder',
+         'external_video_submit_title',
+      ) as $key) {
+         $form->add_rep($key, dbx()->esc($form->get_fd_message($key)));
+      }
       return $form;
    }
 

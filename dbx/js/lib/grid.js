@@ -809,16 +809,18 @@
                 state.callbacks = [];
             };
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
+            if (!dbx.ajax || typeof dbx.ajax.request !== 'function') {
+                dbx.error('[grid] ajax.js is required for export dependency loading', url);
+                finish(false);
+                return;
+            }
 
-            xhr.onload = () => {
-                if (xhr.status < 200 || xhr.status >= 300) {
-                    dbx.error('[grid] export dependency load failed', url, 'HTTP ' + xhr.status);
-                    finish(false);
-                    return;
-                }
-
+            dbx.ajax.request({
+                url: url,
+                method: 'GET',
+                mode: 'text',
+                timeout: 30000
+            }).then(source => {
                 try {
                     const run = new Function(
                         'window',
@@ -828,7 +830,7 @@
                         'exports',
                         'module',
                         'define',
-                        xhr.responseText + '\n//# sourceURL=' + url
+                        String(source || '') + '\n//# sourceURL=' + url
                     );
 
                     run.call(window, window, window, window, window, undefined, undefined, undefined);
@@ -837,14 +839,10 @@
                     dbx.error('[grid] export dependency load failed', url, e);
                     finish(false);
                 }
-            };
-
-            xhr.onerror = () => {
-                dbx.error('[grid] export dependency load failed', url);
+            }).catch(error => {
+                dbx.error('[grid] export dependency load failed', url, error);
                 finish(false);
-            };
-
-            xhr.send();
+            });
         },
 
         _waitForExportDep(check, done, attempts) {
@@ -1002,13 +1000,13 @@
                     icon = document.createElement('span');
                     icon.className = 'dbx-grid-page-size-icon';
                     icon.innerHTML = '<i class="bi bi-list-ol"></i>';
-                    icon.setAttribute('title', text.rowsPerPage);
+                    icon.setAttribute('data-dbx-tooltip', text.rowsPerPage);
                     icon.setAttribute('aria-hidden', 'true');
 
                     controls.insertBefore(icon, sizeSelect);
                 }
 
-                sizeSelect.setAttribute('title', text.rowsPerPage);
+                sizeSelect.setAttribute('data-dbx-tooltip', text.rowsPerPage);
                 sizeSelect.setAttribute('aria-label', text.rowsPerPage);
 
                 const currentPageSize = table._dbxPageSizeState || (table.getPageSize ? table.getPageSize() : '');
@@ -1095,7 +1093,7 @@
                     const page = String(btn.textContent || '').trim();
                     if (/^\d+$/.test(page)) {
                         const label = text.showPage.replace('{page}', page);
-                        btn.setAttribute('title', label);
+                        btn.setAttribute('data-dbx-tooltip', label);
                         btn.setAttribute('aria-label', label);
                     }
                     return;
@@ -1103,7 +1101,7 @@
 
                 btn.dataset.dbxPageType = type;
                 btn.innerHTML = defs[type].html;
-                btn.setAttribute('title', defs[type].label);
+                btn.setAttribute('data-dbx-tooltip', defs[type].label);
                 btn.setAttribute('aria-label', defs[type].label);
             });
         },
@@ -1748,7 +1746,7 @@
                         btnShow.style.height = '25px';
                         btnShow.style.padding = '2px 6px';
                         btnShow.style.lineHeight = '1';
-                        btnShow.title = 'Anzeigen';
+                        btnShow.dataset.dbxTooltip = 'Anzeigen';
                         btnShow.innerHTML = '<i class="bi bi-eye"></i>';
 
                         btnShow.addEventListener('click', function(e) {
@@ -1792,7 +1790,7 @@
                         btnEdit.style.height = '25px';
                         btnEdit.style.padding = '2px 6px';
                         btnEdit.style.lineHeight = '1';
-                        btnEdit.title = dbx.translate({
+                        btnEdit.dataset.dbxTooltip = dbx.translate({
                             de: 'Bearbeiten',
                             en: 'Edit',
                             es: 'Editar'
@@ -1953,7 +1951,7 @@
                             const div = document.createElement('div');
                             div.className = 'dbx-grid-cell-truncate';
                             div.textContent = shortText.replace(/\s+/g, ' ').trim();
-                            div.title = text;
+                            div.dataset.dbxTooltip = text;
                             return div;
                         }
 

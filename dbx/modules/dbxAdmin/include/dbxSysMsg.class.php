@@ -77,7 +77,7 @@ class dbxSysMsg {
    }
 
    private function sys_msg_level_config(): string {
-      return $this->normalize_sys_msg_level(dbx()->get_config('dbx', 'sys_msg_level', 'all'));
+      return $this->normalize_sys_msg_level(dbx()->get_cfg('dbx', 'sys_msg_level', 'all'));
    }
 
    private function sys_msg_level_options(string $current, $texts): string {
@@ -97,13 +97,13 @@ class dbxSysMsg {
    }
 
    private function set_sys_msg_level_config(string $level): bool {
-      $config = dbx()->get_config('dbx');
+      $config = dbx()->get_cfg('dbx');
       if (!is_array($config)) {
          $config = array();
       }
 
       $config['sys_msg_level'] = $this->normalize_sys_msg_level($level);
-      return (int) dbx()->set_config('dbx', $config) > 0;
+      return (int) dbx()->set_cfg('dbx', $config) > 0;
    }
 
    private function sys_msg_level_control(): string {

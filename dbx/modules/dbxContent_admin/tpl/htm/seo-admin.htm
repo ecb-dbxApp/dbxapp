@@ -19,16 +19,16 @@
 
  <div class="dbx-seo-form-wrap" data-seo-form-wrap>
   {seo_form}
-  <div class="dbx-cms-system-field dbx-cms-system-field-seo_image mt-3">
-   <label class="dbx-cms-field dbx-cms-field-seo_image_id">{label_og_image}</label>
+  <div class="dbx-seo-media-field mt-3">
+   <span class="dbx-form-field__label">{label_og_image}</span>
    <figure class="dbx-cms-seo-preview" data-seo-preview>
     <div class="dbx-cms-seo-preview-empty">{og_empty}</div>
    </figure>
    <div class="dbx-cms-seo-actions">
-    <button type="button" class="btn btn-outline-primary btn-sm" data-seo-action="assign-media" title="{og_select_title}">
+    <button type="button" class="btn btn-outline-primary btn-sm" data-seo-action="assign-media" data-dbx-tooltip="{og_select_title}">
      <i class="bi bi-image"></i><span>{og_select}</span>
     </button>
-    <button type="button" class="btn btn-outline-secondary btn-sm" data-seo-action="clear-media" title="{og_remove_title}">
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-seo-action="clear-media" data-dbx-tooltip="{og_remove_title}">
      <i class="bi bi-x-lg"></i><span>{og_remove}</span>
     </button>
    </div>

@@ -1,3 +1,4 @@
+/* Eigenständige Systembasis dieses Designs. */
 /* =========================================================
    DBX ADMIN SURFACE
    Bootstrap-Komponenten innerhalb .c-admin
@@ -167,10 +168,10 @@
     padding: 0;
 }
 
-.c-admin .dbx-admin-dashboard-work.card .dbx-module-bar,
+.c-admin .dbx-admin-dashboard-work.card .dbx-bar--module,
 .c-admin .dbx-admin-dashboard-work.card > .dbx-panel > .dbx-bar,
 .c-admin .dbx-admin-dashboard-work.card > .dbxForm_wrapper > .dbx-bar,
-.c-admin .dbx-admin-dashboard-work.card > .dbxForm_wrapper > .dbx-module-bar {
+.c-admin .dbx-admin-dashboard-work.card > .dbxForm_wrapper > .dbx-bar--module {
     flex: 0 0 auto;
     margin: 0;
     border-left: 0;
@@ -185,9 +186,6 @@
 .c-admin .dbx-admin-dashboard-work.card .dbx-panel-body {
     flex: 1 1 auto;
     min-height: 0;
-    padding: 1.15rem 1.25rem 1.35rem;
-    background:
-        linear-gradient(180deg, var(--dbx-panel-inner-bg-top, #fff), var(--dbx-panel-inner-bg-bottom, #f7faff));
 }
 
 @media (max-width: 1199.98px) {

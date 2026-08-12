@@ -69,7 +69,7 @@
         btn.dataset.value = option.value;
         btn.dataset.side = side;
         btn.textContent = optionText(option);
-        btn.title = optionText(option);
+        btn.dataset.dbxTooltip = optionText(option);
         btn.addEventListener("click", () => move(option.value, side));
         return btn;
     }
@@ -271,7 +271,7 @@
                 chip.type = "button";
                 chip.className = "dbx-select1-chip";
                 chip.dataset.value = value;
-                chip.title = "Abwählen";
+                chip.dataset.dbxTooltip = "Abwählen";
                 chip.innerHTML = `<span>${optionText(option)}</span><i class="bi bi-x-lg" aria-hidden="true"></i>`;
                 chip.addEventListener("click", () => {
                     toggleSelect1Value(select, value, false);
@@ -399,7 +399,7 @@
                 input.dataset.dbxPasswordVisible = show ? "1" : "0";
                 button.setAttribute("aria-pressed", show ? "true" : "false");
                 button.setAttribute("aria-label", show ? "Passwort verbergen" : "Passwort anzeigen");
-                button.setAttribute("title", show ? "Passwort verbergen" : "Passwort anzeigen");
+                button.setAttribute("data-dbx-tooltip", show ? "Passwort verbergen" : "Passwort anzeigen");
 
                 if (icon) {
                     icon.classList.toggle("bi-eye", !show);

@@ -28,11 +28,11 @@ class dbxHelp_content {
     ];
 
     $base     =dbx()->get_base_url();
-    $praxis   =dbx()->get_config('myOrderLDT','praxis');
-    $path_pat =dbx()->get_config('myOrderLDT','import_pat');
-    $exe_medi =dbx()->get_config('myOrderLDT','medisoft');
-    $path_medi=dbx()->get_config('myOrderLDT','path_medisoft');
-    $version  =dbx()->get_config('dbx', 'version');
+    $praxis   =dbx()->get_cfg('myOrderLDT','praxis');
+    $path_pat =dbx()->get_cfg('myOrderLDT','import_pat');
+    $exe_medi =dbx()->get_cfg('myOrderLDT','medisoft');
+    $path_medi=dbx()->get_cfg('myOrderLDT','path_medisoft');
+    $version  =dbx()->get_cfg('dbx', 'version');
 
     // HTML-String für Bootstrap-Tabelle erstellen
     $html = '<div class="table-responsive">';

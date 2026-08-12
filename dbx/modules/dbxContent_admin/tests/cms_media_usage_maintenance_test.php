@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/include/dbxContentMediaUsageMaintenance.class.php';
+require_once dirname(__DIR__, 3) . '/include/tests/dbxModuleSourceBundle.php';
 
 use dbx\dbxContent_admin\dbxContentMediaUsageMaintenance;
 
@@ -73,19 +74,37 @@ $assert(isset($plan['insert'][$heroKey]), 'A missing hero usage must be rebuilt 
 $assert(!isset($plan['insert'][$inlineKey]), 'An existing inline usage must not be inserted twice.');
 
 $base = dirname(__DIR__, 4);
-$cmsSource = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/include/dbxContent_cms.class.php');
-$cmsJs = (string)file_get_contents($base . '/dbx/js/lib/cms.js');
+$cmsSource = dbx_test_module_source_bundle($base . '/dbx/modules/dbxContent_admin/include/dbxContent_cms.class.php');
+$cmsJs = (string)file_get_contents($base . '/dbx/js/lib/cms.js')
+   . (string)file_get_contents($base . '/dbx/js/lib/cms-media.js');
 $assert(
    str_contains($cmsSource, "array('type' => 'usage_reconcile')")
       && str_contains($cmsSource, "array('type' => 'media_record_purge')")
+      && str_contains($cmsSource, "array('type' => 'folder_sort_normalize')")
       && str_contains($cmsSource, 'cleanup_invalid_structured_media_references'),
-   'The maintenance process must schedule usage reconciliation, invalid media purging and structured reference cleanup.'
+   'The maintenance process must schedule usage reconciliation, invalid media purging, folder sorting and structured reference cleanup.'
+);
+$assert(
+   str_contains($cmsSource, 'private function normalize_content_folder_sorters($db): array')
+      && str_contains($cmsSource, "sprintf('%04d', \$position)")
+      && str_contains($cmsSource, 'dbxContentLngSync::accessibleLngs()')
+      && str_contains($cmsSource, '$db->rollback($dd)'),
+   'Folder sorting must normalize every language per parent in atomic 10-step values.'
 );
 $assert(
    str_contains($cmsJs, 'Medien und Nutzung pruefen')
       && str_contains($cmsJs, 'Analyse &amp; Reparatur starten')
+      && str_contains($cmsJs, 'Ordner je Parent auf 10er-Sortierwerte normalisiert')
       && str_contains($cmsJs, 'Nachweislich ungueltige und deaktivierte Datenbankeintraege'),
    'The destructive maintenance workflow must be explained and confirmed in the UI.'
+);
+$assert(
+   str_contains($cmsJs, 'id: "cms-delete-media-" + id')
+      && str_contains($cmsJs, 'callerEl: source')
+      && str_contains($cmsJs, 'Das Loeschen ist nur moeglich, wenn das Medium nicht mehr verwendet wird.')
+      && str_contains($cmsJs, '.then(deleted => deleted ? openMediaBrowser')
+      && str_contains($cmsJs, '.catch(() => null);'),
+   'Single media deletion must be confirmed and must not hide a rejected deletion by reopening the browser.'
 );
 foreach (array('dbxapp', 'dbxdocs', 'flowers', 'steal') as $design) {
    $css = (string)file_get_contents($base . '/dbx/design/' . $design . '/css/c-cms.css');

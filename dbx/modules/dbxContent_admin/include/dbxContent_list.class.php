@@ -20,7 +20,7 @@ class dbxReport_Content extends \dbxReport {
     $db=dbx()->get_system_obj('dbxDB');
     $root = dbx()->get_modul_var('tree_root',0);
     $lng  = dbx()->get_system_var('dbx_lng','de');
-    $tab  = function_exists('dbx_lng_name') ? dbx_lng_name('content_folder', $lng) : ('content_folder_' . $lng);
+    $tab  = dbx()->lng_name('content_folder', $lng);
 
 
     $folders=$db->select($tab,'','id,parent_id');
@@ -166,8 +166,8 @@ Class dbxContent_list {
      $db  = dbx()->get_system_obj('dbxDB');
      $lng = dbx()->get_modul_var('lng','de');
 
-     $tab_content=dbx_lng_name('content', $lng);
-     $tab_folder = dbx_lng_name('content_folder', $lng);
+     $tab_content=dbx()->lng_name('content', $lng);
+     $tab_folder = dbx()->lng_name('content_folder', $lng);
 
      $data_folder=$db->select($tab_folder);
 
@@ -238,8 +238,8 @@ Class dbxContent_list {
       $lng = dbx()->get_modul_var('lng','de');
       $rid = dbx()->get_modul_var('rid',0,'int'); 
 
-      $tab_content=dbx_lng_name('content', $lng);
-      $tab_folder = dbx_lng_name('content_folder', $lng);
+      $tab_content=dbx()->lng_name('content', $lng);
+      $tab_folder = dbx()->lng_name('content_folder', $lng);
       $tab_groups = 'dbxUser_groups';
 
 
@@ -262,8 +262,8 @@ Class dbxContent_list {
       }    
 
 
-      $tab_content=dbx_lng_name('content', $lng);
-      $tab_folder = dbx_lng_name('content_folder', $lng);
+      $tab_content=dbx()->lng_name('content', $lng);
+      $tab_folder = dbx()->lng_name('content_folder', $lng);
       $tab_groups = 'dbxUser_groups';
 
       $folders=array(); $groups=array();
@@ -337,13 +337,18 @@ Class dbxContent_list {
 
       // get all selections and order
       $rgroup='';
-      $rwhere=$oReport->get_sel('dbx_rwhere','');
-      $rrows =$oReport->get_sel('dbx_rrows',10);
-      $rpos  =$oReport->get_sel('dbx_rpos',0);
-      $rsort =$oReport->get_sel('dbx_rsort','id');
-      $rdesc =$oReport->get_sel('dbx_rdesc','ASC');
+      $rwhere=$oReport->get_fld_val('dbx_rwhere','','varchar|trim');
+      $rrows =$oReport->get_fld_val('dbx_rrows',10,'int|min=1|max=1000');
+      $rpos  =$oReport->get_fld_val('dbx_rpos',0,'int|min=0');
+      $rsort =$oReport->get_fld_val('dbx_rsort','id','parameter');
+      $rdesc =strtoupper((string)$oReport->get_fld_val('dbx_rdesc','ASC','parameter'));
+      if (!in_array($rdesc, array('ASC', 'DESC'), true)) $rdesc = 'ASC';
       // Custom select
-      if ($rwhere) $rwhere="title  LIKE '%$rwhere%' ";
+      if ($rwhere) {
+         $server = $oDB->get_dd_server($tab_content);
+         $needle = $oDB->escape_like($rwhere, $server);
+         $rwhere = "title LIKE '%$needle%'";
+      }
       // get db-Data
       $flds2=$flds;  // folder ist nicht in flds, da folder_name (generic)
       $flds2['folder']='folder';
@@ -368,8 +373,8 @@ Class dbxContent_list {
 
      $lng = dbx()->get_system_var('dbx_lng','de');
 
-     $tab_content=dbx_lng_name('content', $lng);
-     $tab_folder = dbx_lng_name('content_folder', $lng);
+     $tab_content=dbx()->lng_name('content', $lng);
+     $tab_folder = dbx()->lng_name('content_folder', $lng);
 
      $folder =dbx()->get_modul_var('fid',0,'int');
 
@@ -414,7 +419,7 @@ Class dbxContent_list {
      $db  = dbx()->get_system_obj('dbxDB');
      $lng = dbx()->get_modul_var('lng','de'); // sysvar ?
 
-     $tab_content=dbx_lng_name('content', $lng);
+     $tab_content=dbx()->lng_name('content', $lng);
      $folder=dbx()->get_modul_var('fid',-1,'int');
      if ($folder < 0) return 'no access';
 
@@ -462,8 +467,8 @@ Class dbxContent_list {
 
      $lng = dbx()->get_system_var('dbx_lng','de'); // sysvar ?
 
-     $tab_content=dbx_lng_name('content', $lng);
-     $tab_folder = dbx_lng_name('content_folder', $lng);
+     $tab_content=dbx()->lng_name('content', $lng);
+     $tab_folder = dbx()->lng_name('content_folder', $lng);
 
      $root  =dbx()->get_modul_var('fid',0,'int');
      $folder=dbx()->get_system_var('tree_folder',0);
@@ -514,8 +519,8 @@ Class dbxContent_list {
        $db  = dbx()->get_system_obj('dbxDB');
        $lng = dbx()->get_modul_var('lng','de');
 
-       $tab_content=dbx_lng_name('content', $lng);
-       $tab_folder = dbx_lng_name('content_folder', $lng);
+       $tab_content=dbx()->lng_name('content', $lng);
+       $tab_folder = dbx()->lng_name('content_folder', $lng);
 
        $data['id']=0;
        $data['folder']=$rid;
@@ -535,7 +540,7 @@ Class dbxContent_list {
      if ($rid) { // folder id
        $db  = dbx()->get_system_obj('dbxDB');
        $lng = dbx()->get_modul_var('lng','de');
-       $tab_content=dbx_lng_name('content', $lng);
+       $tab_content=dbx()->lng_name('content', $lng);
 
        $ok=$db->delete($tab_content,$rid,1);
        $error=$db->_error;

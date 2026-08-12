@@ -24,10 +24,10 @@ $result = \dbx\dbxContent\dbxContentContextHelpProvision::provisionAll($db);
 echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . PHP_EOL;
 
 if (empty($result['errors'])) {
-    $config = dbx()->get_config('dbxContent');
+    $config = dbx()->get_cfg('dbxContent');
     if (!is_array($config)) {
         $config = array();
     }
     $config['context_help_provision_version'] = 6;
-    dbx()->set_config('dbxContent', $config);
+    dbx()->set_cfg('dbxContent', $config);
 }

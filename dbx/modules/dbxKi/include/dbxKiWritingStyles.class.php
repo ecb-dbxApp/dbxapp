@@ -15,7 +15,7 @@ class dbxKiWritingStyles {
    }
 
    public static function all(): array {
-      $config = dbx()->get_config('dbxKi');
+      $config = dbx()->get_cfg('dbxKi');
       $stored = array();
       if (is_array($config) && !empty($config[self::CONFIG_KEY])) {
          $raw = $config[self::CONFIG_KEY];
@@ -37,21 +37,21 @@ class dbxKiWritingStyles {
       if (!$normalized) {
          throw new \InvalidArgumentException('Mindestens ein gueltiger Schreibstil erforderlich.');
       }
-      $config = dbx()->get_config('dbxKi');
+      $config = dbx()->get_cfg('dbxKi');
       if (!is_array($config)) {
          $config = array();
       }
       $config[self::CONFIG_KEY] = json_encode($normalized, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-      dbx()->set_config('dbxKi', $config);
+      dbx()->set_cfg('dbxKi', $config);
    }
 
    public static function resetToDefaults(): void {
-      $config = dbx()->get_config('dbxKi');
+      $config = dbx()->get_cfg('dbxKi');
       if (!is_array($config)) {
          $config = array();
       }
       unset($config[self::CONFIG_KEY]);
-      dbx()->set_config('dbxKi', $config);
+      dbx()->set_cfg('dbxKi', $config);
    }
 
    public static function prompt(string $key): string {

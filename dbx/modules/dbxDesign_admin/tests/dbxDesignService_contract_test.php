@@ -19,14 +19,14 @@ class dbxDesignServiceTestApi {
       return str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
    }
 
-   public function get_config(string $module, string $key = '', $default = 'undef') {
+   public function get_cfg(string $module, string $key = '', $default = 'undef') {
       if ($key === '') {
          return $this->config[$module] ?? $default;
       }
       return $this->config[$module][$key] ?? $default;
    }
 
-   public function set_config(string $module, array $config): void {
+   public function set_cfg(string $module, array $config): void {
       $this->config[$module] = $config;
    }
 }
@@ -55,7 +55,7 @@ $source = $tmp . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR . 'design' . 
 foreach (array('htm', 'css', 'js', 'img') as $sub) {
    mkdir($source . DIRECTORY_SEPARATOR . $sub, 0777, true);
 }
-file_put_contents($source . '/htm/default.htm', '<html><head><title>{dbx:title}</title><link href="{dbx:skin_css}"></head><body class="{dbx:skin_class}" data-dbx-design="{dbx:design}">[dbx:content]<script src="dbx/js/lib/core.js?design={dbx:design}"></script></body></html>');
+file_put_contents($source . '/htm/default.htm', '<html><head><title>{dbx:title}</title><link href="{dbx:skin_css}"></head><body class="{dbx:skin_class}" data-dbx-design="{dbx:design}">[dbx:content]<script src="dbx/js/lib/core.js?design={dbx:design}"></script>{dbx:module_assets}</body></html>');
 file_put_contents($source . '/css/colors.css', ':root{--dbx-primary:#123456}');
 file_put_contents($source . '/css/base.css', '.source{background:url("../img/a.png")}');
 file_put_contents($source . '/css/theme.css', '.card{}');

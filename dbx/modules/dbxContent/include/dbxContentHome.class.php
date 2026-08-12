@@ -10,7 +10,7 @@ class dbxContentHome {
    }
 
    public static function masterCid(): int {
-      $cid = dbx()->get_config('dbxHome', 'cid');
+      $cid = dbx()->get_cfg('dbxHome', 'cid');
       if ($cid === 'undef' || $cid === '' || $cid === null) {
          return 0;
       }
@@ -19,12 +19,7 @@ class dbxContentHome {
    }
 
    public static function currentLng(): string {
-      if (function_exists('dbx_lng_current')) {
-         return dbx_lng_current();
-      }
-
-      $lng = strtolower(trim((string) dbx()->get_system_var('dbx_lng', dbxContentLngSync::masterLng())));
-      return $lng !== '' ? $lng : dbxContentLngSync::masterLng();
+      return dbx()->lng_current();
    }
 
    /**
@@ -59,9 +54,6 @@ class dbxContentHome {
       }
 
       $lngUid = trim((string) ($masterRow['lng_uid'] ?? ''));
-      if ($lngUid === '') {
-         $lngUid = dbxContentLngSync::ensureRecordUid($db, $masterDd, $masterCid, 'p');
-      }
       if ($lngUid === '') {
          return 0;
       }
