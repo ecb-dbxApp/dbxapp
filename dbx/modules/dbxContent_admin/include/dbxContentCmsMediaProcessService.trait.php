@@ -887,10 +887,7 @@ trait dbxContentCmsMediaProcessServiceTrait {
 
 
    private function append_url_params($url, $params = array()) {
-      foreach ($params as $key => $value) {
-         $url .= (strpos($url, '?') === false ? '?' : '&') . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
-      return $url;
+      return dbx()->append_url_params((string)$url, $params);
    }
 
 

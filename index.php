@@ -51,7 +51,7 @@ if (!defined('dbxSystem')) {
    define('dbxSystem', 'dbxWebApp');
 }
 if (!defined('dbxRunAsAdmin')) {
-   define('dbxRunAsAdmin', 1);
+   define('dbxRunAsAdmin', 0);
 }
 
 /**

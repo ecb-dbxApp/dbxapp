@@ -2597,10 +2597,6 @@
         return input && input.files && input.files.length ? Array.from(input.files) : [];
     }
 
-    function selectedUploadFile(form) {
-        const files = selectedUploadFiles(form);
-        return files.length ? files[0] : null;
-    }
 
     function setUploadFiles(form, files) {
         const input = qs(form, 'input[type="file"][name="file"]');
@@ -2613,9 +2609,6 @@
         return true;
     }
 
-    function setUploadFile(form, file) {
-        return setUploadFiles(form, file ? [file] : []);
-    }
 
     function updateUploadLabel(form) {
         const label = qs(form, "[data-cms-upload-label]");
@@ -3907,15 +3900,6 @@
         return cfgList.find(item => item.lib === LIB) || {};
     }
 
-    function editorDropTarget(root, target) {
-        const surface = editorSurface(root);
-        if (!surface) return null;
-        let el = target && target.nodeType === 1 ? target : target?.parentElement;
-        if (!el || !surface.contains(el)) return surface;
-        const selector = ".dbx-cms-marker,p,h1,h2,h3,h4,ul,ol,blockquote,figure,table,img,hr";
-        const block = el.closest ? el.closest(selector) : null;
-        return block && surface.contains(block) ? block : surface;
-    }
 
     function clearEditorDropMarks(root) {
         const surface = editorSurface(root);
@@ -4756,11 +4740,6 @@
         return Array.from(host.children || []).find(child => child.tagName === "IMG") || null;
     }
 
-    function contextLinkTarget(root, target) {
-        const surface = editorSurface(root);
-        const link = closestElement(target, "a");
-        return link && surface && surface.contains(link) ? link : null;
-    }
 
     function contextTableCell(root, target) {
         const surface = editorSurface(root);
@@ -4785,97 +4764,8 @@
         return false;
     }
 
-    function alignContextImage(root, img, mode) {
-        if (!img) return false;
-        const media = closestElement(img, ".dbx-cms-inline-media");
-        const target = media && editorSurface(root)?.contains(media) ? media : img;
-        [img, target].forEach(el => {
-            if (!el) return;
-            el.style.float = "";
-            el.style.marginLeft = "";
-            el.style.marginRight = "";
-            el.style.display = "";
-        });
-        if (mode === "left") {
-            target.style.float = "left";
-            target.style.marginRight = "1.5rem";
-        } else if (mode === "right") {
-            target.style.float = "right";
-            target.style.marginLeft = "1.5rem";
-        } else if (mode === "center") {
-            target.style.display = "block";
-            target.style.marginLeft = "auto";
-            target.style.marginRight = "auto";
-        }
-        syncEditorAfterContextAction(root);
-        return true;
-    }
 
-    function openEditorLinkDialog(root, targetNode) {
-        const instance = getEditorInstance(root);
-        if (!instance) return false;
-        if (targetNode) selectEditorNode(root, targetNode);
-        if (instance.execCommand) {
-            instance.execCommand("openLinkDialog");
-            return true;
-        }
-        return false;
-    }
 
-    function removeContextLink(root, link) {
-        if (!link || !link.parentNode) return false;
-        while (link.firstChild) link.parentNode.insertBefore(link.firstChild, link);
-        link.remove();
-        syncEditorAfterContextAction(root);
-        return true;
-    }
-
-    function tableApi(root) {
-        const instance = getEditorInstance(root);
-        if (!instance || !instance.getInstance) return null;
-        try {
-            return instance.getInstance("Table", instance.o);
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function runTableContextAction(root, cell, action) {
-        const table = contextTableTarget(root, cell);
-        const api = tableApi(root);
-        if (!table || !cell || !api) return false;
-        const row = cell.parentElement;
-        switch (action) {
-            case "row-before":
-                api.appendRow(table, row, false);
-                break;
-            case "row-after":
-                api.appendRow(table, row, true);
-                break;
-            case "row-delete":
-                api.removeRow(table, row.rowIndex);
-                break;
-            case "column-before":
-                api.appendColumn(table, cell, false);
-                break;
-            case "column-after":
-                api.appendColumn(table, cell, true);
-                break;
-            case "column-delete":
-                api.removeColumn(table, cell.cellIndex);
-                break;
-            case "cell-empty":
-                cell.innerHTML = "<br>";
-                break;
-            case "table-delete":
-                table.remove();
-                break;
-            default:
-                return false;
-        }
-        syncEditorAfterContextAction(root);
-        return true;
-    }
 
     function contextMenuButton(label, icon, action, disabled) {
         const btn = document.createElement("button");

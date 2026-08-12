@@ -106,13 +106,10 @@ class dbxContent_seo {
 
    private function base_url($action, $params = array()) {
       $url = '?dbx_modul=dbxContent_admin&dbx_run1=' . rawurlencode((string)$action);
-      foreach ($params as $key => $value) {
-         $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
       if (in_array((string)$action, array('seo_save', 'cms_media', 'cms_upload', 'cms_external_video'), true)) {
-         $url .= '&dbx_token=' . rawurlencode(dbx()->action_token(self::ACTION_TOKEN_SCOPE));
+         $params['dbx_token'] = dbx()->action_token(self::ACTION_TOKEN_SCOPE);
       }
-      return $url;
+      return dbx()->append_url_params($url, $params);
    }
 
    private function check_action_token(string $action): bool {
@@ -139,12 +136,7 @@ class dbxContent_seo {
    }
 
    private function request_json() {
-      $raw = file_get_contents('php://input');
-      if (!is_string($raw) || trim($raw) === '') {
-         return $_POST;
-      }
-      $data = json_decode($raw, true);
-      return is_array($data) ? $data : $_POST;
+      return dbx()->get_json_request(true);
    }
 
    private function meta_robots_values() {

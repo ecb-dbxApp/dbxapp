@@ -71,14 +71,6 @@ class dbxPerformanceTimer {
       return $this->performance_level() !== 'off';
    }
 
-   private function is_db_section(string $section): bool {
-      return $section === 'db-total'
-         || $section === 'db-select'
-         || $section === 'db-save'
-         || substr($section, 0, 10) === 'db-select-'
-         || substr($section, 0, 8) === 'db-save-'
-         || substr($section, 0, 9) === 'db-query-';
-   }
 
    private function is_main_section(string $section): bool {
       return in_array($section, array('system', 'js-total', 'db-total'), true);

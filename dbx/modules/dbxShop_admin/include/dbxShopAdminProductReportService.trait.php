@@ -59,14 +59,6 @@ trait dbxShopAdminProductReportServiceTrait {
 
 
 
-   private function optionsHtml(array $options, string $selected): string {
-      $html = '';
-      foreach ($options as $value => $label) {
-         $value = (string)$value;
-         $html .= '<option value="' . $this->h($value) . '"' . ($value === $selected ? ' selected' : '') . '>' . $this->h($label) . '</option>';
-      }
-      return $html;
-   }
 
 
 
@@ -104,16 +96,6 @@ trait dbxShopAdminProductReportServiceTrait {
 
 
 
-   private function taxClassOptions(string $selected): string {
-      $options = array();
-      foreach ($this->taxRatesConfig() as $key => $rate) {
-         if (!is_array($rate)) continue;
-         $label = trim((string)($rate['title'] ?? $key));
-         $value = number_format((float)($rate['rate'] ?? 0), 2, ',', '.');
-         $options[$key] = $label . ' (' . $value . '%)';
-      }
-      return $this->optionsHtml($options, $selected !== '' ? $selected : (string)($this->shopConfig()['default_tax_class'] ?? 'mwst1'));
-   }
 
 
 
@@ -539,10 +521,7 @@ trait dbxShopAdminProductReportServiceTrait {
 
       $url = function(string $do, array $params = array()) use ($baseAction): string {
          $query = $baseAction . '&dbx_do=' . rawurlencode($do);
-         foreach ($params as $key => $value) {
-            $query .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-         }
-         return $this->h($query);
+         return $this->h(dbx()->append_url_params($query, $params));
       };
 
       $actions = '<option value="">' . $this->h($texts->get_fd_message('bulk_action_placeholder')) . '</option>'

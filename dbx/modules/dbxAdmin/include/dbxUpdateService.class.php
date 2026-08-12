@@ -427,7 +427,7 @@ class dbxUpdateService
                continue;
             }
             if ($this->isProtectedPath($relative)) {
-               throw new RuntimeException('Das Update-Paket enthält lokale Laufzeitdaten: ' . $relative);
+               throw new RuntimeException('Das Update-Paket enthält eine geschützte lokale Datei: ' . $relative);
             }
 
             $caseKey = strtolower($relative);
@@ -921,11 +921,17 @@ class dbxUpdateService
       return $relative === '.env'
          || $relative === '.env.local'
          || str_starts_with($relative, '.git/')
+         || str_starts_with($relative, 'docs/')
          || str_starts_with($relative, 'files/')
          || str_starts_with($relative, 'dbx/files/')
+         || str_starts_with($relative, 'dbx/modules/myX/')
+         || str_starts_with($relative, 'dbx/modules/dbxDocs/')
+         || str_starts_with($relative, 'dbx/modules/dbxMenu/tpl/htm/')
+         || str_starts_with($relative, 'dbx/design/dbxdocs/')
          || preg_match('#/db/#i', '/' . $relative)
          || preg_match('#/(?:cache|tmp|work|backup|backups|_backup|\.backup|uploads)/#i', '/' . $relative)
-         || in_array($base, array('config.local.php'), true)
+         || in_array($base, array('config.local.php', 'Doxyfile'), true)
+         || $extension === 'md'
          || in_array($extension, array(
             'db3', 'sqlite', 'sqlite3', 'log', 'tmp', 'bak', 'backup',
             'pem', 'key', 'p12', 'pfx',

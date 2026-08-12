@@ -4,28 +4,6 @@ dbx()->get_system_obj( 'dbxReport', 'use' );
 
 
 class dbxReport_Tables extends \dbxReport {
-    private function check_create_dd( $dd ) {
-        $retval='error';
-        $oDD = dbx()->get_system_obj( 'dbxDD' );
-        $dd_file=dbx()->os_path(dbx()->get_base_dir().'dbx/modules/dbx/dd/'.$dd.'.dd.php');
-        if ( !file_exists( $dd_file ) ) {
-            $oDD->create_dd( $dd );
-            $retval = 'create';
-        } else {
-            $retval = '<span class="red">not exist</span>';
-            $exist  = $dd->get_table_exist($dd);
-            if ($exist) $retval = 'exist';
-            if ($exist) {
-                $change = $dd->update_dd( $dd );
-                if ($change) {
-                    $retval.=' change';
-                } else {
-                    $retval.=' ok'; 
-                }
-            }
-        }
-        return $retval;
-    }
 
 
     /**
@@ -213,9 +191,6 @@ Class dbxServer extends \dbxObj {
         return $this->serverTexts;
     }
 
-    private function run_maction($act,$sel) {
-        return 1;
-    }
 
     private function browser_server() {
         $uid     = dbx()->user();

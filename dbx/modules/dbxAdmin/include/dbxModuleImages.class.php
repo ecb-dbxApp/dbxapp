@@ -810,25 +810,6 @@ class dbxModuleImages {
       return $rows;
    }
 
-   private function renameForModul(string $modul, string $filename): ?string {
-      $filename = $this->sanitizeFilename($filename);
-      if ($filename === '' || !$this->fileExists($filename)) {
-         return null;
-      }
-
-      $targetName = $this->suggestFilename($modul, $filename);
-      if ($targetName === $filename) {
-         return $filename;
-      }
-
-      $source = $this->absPath($filename);
-      $dest = $this->absPath($targetName);
-      if ($source === '' || $dest === '' || !@rename($source, $dest)) {
-         return $this->copyFromMediaRel($modul, $this->relPath($filename), $targetName);
-      }
-
-      return $targetName;
-   }
 
    private function fileBelongsToModul(string $modul, string $filename): bool {
       $modul = $this->sanitizeModul($modul);

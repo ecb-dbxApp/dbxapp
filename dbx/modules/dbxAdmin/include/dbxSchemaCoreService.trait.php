@@ -319,9 +319,7 @@ trait dbxSchemaCoreServiceTrait {
     * @return array
     */
    private function request_json() {
-      $raw = file_get_contents('php://input');
-      $data = $raw ? json_decode($raw, true) : array();
-      return is_array($data) ? $data : array();
+      return dbx()->get_json_request();
    }
 
 
@@ -337,12 +335,6 @@ trait dbxSchemaCoreServiceTrait {
       if (!$url) {
          return '';
       }
-
-      foreach ($params as $key => $value) {
-         $url .= (strpos($url, '?') === false ? '?' : '&')
-              . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-      }
-
-      return $url;
+      return dbx()->append_url_params((string)$url, $params);
    }
 }

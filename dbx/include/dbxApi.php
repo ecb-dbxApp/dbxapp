@@ -633,6 +633,16 @@ class dbxApi {
       return $this->get_system_obj('dbxRequest')->request($varname, $default, $rules);
    }
 
+   /** Liefert den zentral eingelesenen JSON-Requestbody. */
+   public function get_json_request(bool $postFallback = false): array {
+      return $this->get_system_obj('dbxRequest')->json($postFallback);
+   }
+
+   /** Hängt Query-Parameter über den zentralen URL-Normalisierer an. */
+   public function append_url_params(string $url, array $params): string {
+      return (string)$this->get_system_obj('dbxWebApp')->append_route_params($url, $params);
+   }
+
    /**
     * Laedt die Konfiguration eines Moduls.
     *
@@ -776,24 +786,6 @@ class dbxApi {
       return $value;
    }
 
-   /**
-    * Liest Modul-Defaults aus cfg/config.php (ohne Session-Cache).
-    *
-    * @param string $modul Modulname.
-    * @return array
-    */
-   private function read_module_config_defaults(string $modul): array {
-      if ($modul === 'dbx') {
-         $dir_file = $this->os_path($this->get_base_dir() . 'dbx/modules/dbx/cfg/config.php');
-      } else {
-         $dir_file = $this->os_path($this->get_base_dir() . "dbx/modules/$modul/cfg/config.php");
-      }
-      if (!is_file($dir_file) || !is_readable($dir_file)) {
-         return array();
-      }
-
-      return $this->read_config_file($dir_file);
-   }
 
    /**
     * Liest eine dbXapp-Konfigurationsdatei isoliert ein.
@@ -2394,6 +2386,54 @@ class dbxApi {
          if (file_exists($modul_class_file)) $retval=true;
        }
        return $retval;
+   }
+
+   /**
+    * Liefert alle verwendbaren Designs aus einem request-lokalen Katalog.
+    *
+    * @return array<string,array{name:string,title:string,dir:string,meta:array,managed:bool}>
+    */
+   public function get_design_catalog(bool $refresh = false): array {
+      static $catalog = null;
+      if (is_array($catalog) && !$refresh) {
+         return $catalog;
+      }
+
+      $catalog = array();
+      $root = rtrim($this->os_path($this->get_base_dir() . 'dbx/design'), '/\\');
+      foreach (glob($root . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: array() as $dir) {
+         $name = basename($dir);
+         if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_-]{1,62}$/', $name)
+             || !is_file($dir . DIRECTORY_SEPARATOR . 'htm' . DIRECTORY_SEPARATOR . 'default.htm')) {
+            continue;
+         }
+
+         $metaFile = $dir . DIRECTORY_SEPARATOR . 'design.json';
+         $meta = array();
+         if (is_file($metaFile)) {
+            $decoded = json_decode((string)file_get_contents($metaFile), true);
+            $meta = is_array($decoded) ? $decoded : array();
+         }
+         $title = trim((string)($meta['title'] ?? ''));
+         if ($title === '') {
+            $title = strtolower($name) === 'dbxapp'
+               ? 'dbXapp'
+               : ucfirst(str_replace(array('-', '_'), ' ', $name));
+         }
+
+         $catalog[$name] = array(
+            'name' => $name,
+            'title' => $title,
+            'dir' => $dir,
+            'meta' => $meta,
+            'managed' => is_file($metaFile),
+         );
+      }
+
+      uasort($catalog, static function(array $a, array $b): int {
+         return strnatcasecmp($a['title'], $b['title']);
+      });
+      return $catalog;
    }
 
    /**

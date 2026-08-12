@@ -185,27 +185,7 @@ Class dbxModules {
       ));
    }
 
-   private function buildInstallHelpHtml(array $record): string {
-      if (empty($record['install_url'])) {
-         return '';
-      }
 
-      $modul = dbx()->esc((string)($record['install_modul'] ?? ''));
-      $url = dbx()->esc((string)$record['install_url']);
-      $title = dbx()->esc((string)($record['title'] ?? ''));
-
-      return '<h4>Installation</h4>'
-         . '<p>Dieses Modul stellt einen Installationsdialog bereit (<code>' . $modul . '</code>).</p>'
-         . '<p><a class="btn btn-sm btn-outline-secondary dbx-win" href="' . $url . '" data-url="' . $url . '" data-title="Installation: ' . $title . '">'
-         . '<i class="bi bi-database-gear"></i> Installation starten</a></p>';
-   }
-
-   private function formatRunCases(array $runCases): string {
-      if (!$runCases) {
-         return 'Keine Run-Aktionen erkannt';
-      }
-      return implode(', ', array_map('strval', $runCases));
-   }
 
    private function prepareModuleRecord(array $record): array {
       return $record;
@@ -575,12 +555,7 @@ Class dbxModules {
    }
 
    private function readJsonBody(): array {
-      $raw = file_get_contents('php://input');
-      if (!is_string($raw) || $raw === '') {
-         return array();
-      }
-      $data = json_decode($raw, true);
-      return is_array($data) ? $data : array();
+      return dbx()->get_json_request();
    }
 
    private function modul_avatar() {

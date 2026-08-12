@@ -14,54 +14,18 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 trait dbxShopAdminProductFormServiceTrait {
 
 
-   private function cardTemplateOptions(string $selected): string {
-      return $this->optionsHtml(array(
-         'product-card-default' => 'Standardkarte',
-         'product-card-compact' => 'Kompaktkarte',
-      ), $selected);
-   }
 
 
 
-   private function detailTemplateOptions(string $selected): string {
-      return $this->optionsHtml(array(
-         'product-detail-default' => 'Standarddetail',
-         'product-detail-technical' => 'Technische Ansicht',
-      ), $selected);
-   }
 
 
 
-   private function galleryTemplateOptions(string $selected): string {
-      return $this->optionsHtml(array(
-         'image-gallery' => 'Bild Gallery',
-         'file-gallery' => 'Datei Gallery',
-      ), $selected);
-   }
 
 
 
-   private function galleryOverflowOptions(string $selected): string {
-      return $this->optionsHtml(array(
-         'grid' => 'Grid',
-         'slider' => 'Slider',
-         'scroll' => 'Scroll',
-         'laufband' => 'Laufband',
-         'tutorial' => 'Tutorial',
-      ), $selected);
-   }
 
 
 
-   private function galleryClickOptions(string $selected): string {
-      return $this->optionsHtml(array(
-         'lightbox' => 'Lightbox',
-         'none' => 'Kein Klick',
-         'newtab' => 'Neuer Tab',
-         'viewerjs' => 'ViewerJS',
-         'photoswipe' => 'PhotoSwipe',
-      ), $selected);
-   }
 
 
 

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Architekturvertrag fuer dbxApp 4.2 ohne Altinstallations-Migration.
+ * Architekturvertrag fuer dbxApp 4.3 mit 4.2 als Update-Basis.
  *
  * Konfigurationen gelten exakt so, wie sie in config.php und
  * config.local.php stehen. Action-Tokens verwenden nur noch den aktuellen
@@ -29,8 +29,8 @@ foreach ($forbidden as $needle => $message) {
 
 $version = trim((string)file_get_contents($root . '/VERSION'));
 $baseline = trim((string)file_get_contents($root . '/UPDATE_BASELINE'));
-if ($version !== '4.2.0' || $baseline !== '4.2.0') {
-    fwrite(STDERR, "FAIL: VERSION und UPDATE_BASELINE muessen mit 4.2.0 beginnen.\n");
+if ($version !== '4.3.0' || $baseline !== '4.2.0') {
+    fwrite(STDERR, "FAIL: VERSION muss 4.3.0 und UPDATE_BASELINE muss 4.2.0 sein.\n");
     exit(1);
 }
 
@@ -43,7 +43,7 @@ foreach (array(
     "version_compare(\$stable, \$this->updateBaseline(), '<')",
 ) as $contract) {
     if (!str_contains($updater, $contract)) {
-        fwrite(STDERR, "FAIL: 4.2-Updatevertrag fehlt: $contract\n");
+        fwrite(STDERR, "FAIL: 4.3-Updatevertrag mit 4.2-Basis fehlt: $contract\n");
         exit(1);
     }
 }
@@ -59,4 +59,4 @@ foreach (array(
     }
 }
 
-echo "OK dbxApp 4.2 baseline without pre-version migration paths\n";
+echo "OK dbxApp 4.3 updates installations from the 4.2 baseline\n";

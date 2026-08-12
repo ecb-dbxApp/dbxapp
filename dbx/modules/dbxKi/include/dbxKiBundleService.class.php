@@ -30,13 +30,20 @@ class dbxKiBundleService {
 
    private function moduleUrl(string $run1, array $params = array()): string {
       $url = '?dbx_modul=dbxKi&dbx_run1=' . rawurlencode($run1);
-      foreach ($params as $key => $value) {
-         if ($value === null || $value === '') {
-            continue;
-         }
-         $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
+      $params = array_filter($params, static fn($value): bool => $value !== null && $value !== '');
+      return $this->appendUrlParams($url, $params);
+   }
+
+   /** Zentraler Laufzeithelfer mit kleinem Fallback für isolierte Servicetests. */
+   private function appendUrlParams(string $url, array $params): string {
+      if (!$params) {
+         return $url;
       }
-      return $url;
+      if (function_exists('dbx')) {
+         return \dbx()->append_url_params($url, $params);
+      }
+      return $url . (str_contains($url, '?') ? '&' : '?')
+         . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
    }
 
    private function esc($value): string {
@@ -1223,14 +1230,8 @@ class dbxKiBundleService {
       );
 
       $append = function(string $url, array $params): string {
-         foreach ($params as $key => $value) {
-            if ($value === null || $value === '') {
-               continue;
-            }
-            $url .= (strpos($url, '?') === false ? '?' : '&')
-               . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-         }
-         return $url;
+         $params = array_filter($params, static fn($value): bool => $value !== null && $value !== '');
+         return $this->appendUrlParams($url, $params);
       };
 
       $targetId = 'dbx_ki_bundle_' . substr(md5($token), 0, 12);

@@ -160,7 +160,7 @@ function update_db_assert(bool $condition, string $message): void
 
 $root = sys_get_temp_dir() . '/dbx-update-db-adapter-' . bin2hex(random_bytes(5));
 try {
-    [$manifest] = update_db_stage($root, '4.2.1', "<?php echo 'new';\n");
+    [$manifest] = update_db_stage($root, '4.3.0', "<?php echo 'new';\n");
     $adapter = new UpdateDatabaseAdapterStub();
     $service = new dbxUpdateService($root, '', 21600, $adapter);
     $service->install();
@@ -180,7 +180,7 @@ try {
 
 $root = sys_get_temp_dir() . '/dbx-update-db-failure-' . bin2hex(random_bytes(5));
 try {
-    update_db_stage($root, '4.2.1', "<?php echo 'new';\n");
+    update_db_stage($root, '4.3.0', "<?php echo 'new';\n");
     $adapter = new UpdateDatabaseAdapterStub();
     $adapter->failApply = true;
     $service = new dbxUpdateService($root, '', 21600, $adapter);

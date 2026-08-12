@@ -513,11 +513,7 @@ trait dbxShopServiceRouteServiceTrait {
 
    public function channelWebhook(): string {
       $channelKey = (string)dbx()->get_modul_var('channel', '', 'parameter');
-      $raw = (string)file_get_contents('php://input');
-      $payload = json_decode($raw, true);
-      if (!is_array($payload)) {
-         $payload = $_POST;
-      }
+      $payload = dbx()->get_json_request(true);
 
       try {
          $channel = $this->repo()->channelByKey($channelKey);

@@ -540,18 +540,6 @@ class dbxContentRenderer {
       $db->update(dbxContentLng::ddContent(), array('hits' => $hits + 1), (int)$rec['id'], 0, 1, 1, 0);
    }
 
-   private function get_content_tpl_from_folder($folder = 0) {
-      $folder = (int)$folder;
-      $db = dbx()->get_system_obj('dbxDB');
-      while ($folder > 0) {
-         $rec = $this->folder_row($db, $folder);
-         if (!is_array($rec) || (int)($rec['id'] ?? 0) <= 0) break;
-         $tpl = trim((string)($rec['template'] ?? ''));
-         if ($tpl !== '') return $tpl;
-         $folder = (int)($rec['parent_id'] ?? 0);
-      }
-      return 'c-content';
-   }
 
    private function content_template_exists($template) {
       $template = trim((string)$template);

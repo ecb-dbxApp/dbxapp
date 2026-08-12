@@ -20,14 +20,6 @@ use dbx\dbxContent\dbxContent_permalink;
 trait dbxContentCmsMediaFolderServiceTrait {
 
 
-   private function media_dir_has_content($dir) {
-      if (!is_dir($dir) || !is_readable($dir)) return false;
-      $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS));
-      foreach ($it as $item) {
-         if ($item->isFile()) return true;
-      }
-      return false;
-   }
 
 
 
@@ -47,13 +39,6 @@ trait dbxContentCmsMediaFolderServiceTrait {
 
 
 
-   private function media_folder_is_listable($folder) {
-      $folder = $this->canonical_media_folder($folder);
-      if ($folder === '' || $folder === 'module') return false;
-      if ($this->is_reserved_media_folder($folder)) return false;
-      $dir = $this->cms_media_dir($folder);
-      return is_dir($dir) && is_readable($dir);
-   }
 
 
 

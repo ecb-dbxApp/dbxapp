@@ -733,11 +733,7 @@ class dbxEdit_fd
                '&modul=' . rawurlencode($modul) .
                '&fd=' . rawurlencode($fd);
 
-        foreach ((array)$extra as $key => $value) {
-            $url .= '&' . rawurlencode((string)$key) . '=' . rawurlencode((string)$value);
-        }
-
-        return $url;
+        return dbx()->append_url_params($url, (array)$extra);
     }
 
     private function get_system_var($name, $default = '')

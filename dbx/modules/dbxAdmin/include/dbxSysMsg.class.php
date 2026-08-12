@@ -294,11 +294,7 @@ class dbxSysMsg {
 
       $uid = (int) dbx()->user('id');
 
-      $raw  = file_get_contents('php://input');
-      $data = json_decode((string) $raw, true);
-      if (!is_array($data)) {
-         $data = $_POST;
-      }
+      $data = dbx()->get_json_request(true);
 
       $entries = array();
       if (isset($data['entries']) && is_array($data['entries'])) {

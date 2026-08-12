@@ -52,20 +52,20 @@ class dbxDesignService {
     */
    public function listDesigns(): array {
       $out = array();
-      foreach (glob($this->designRoot() . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: array() as $dir) {
-         $name = basename($dir);
-         if (!$this->isValidName($name) || !is_file($dir . DIRECTORY_SEPARATOR . 'htm' . DIRECTORY_SEPARATOR . 'default.htm')) {
+      foreach (dbx()->get_design_catalog() as $name => $catalogEntry) {
+         if (!$this->isValidName($name)) {
             continue;
          }
-         $meta = $this->readMetadata($name);
+         $dir = (string)$catalogEntry['dir'];
+         $meta = (array)$catalogEntry['meta'];
          $validation = $this->validateDesignDirectory($dir, false);
          $out[$name] = array(
             'name' => $name,
-            'title' => trim((string)($meta['title'] ?? '')) ?: ($name === 'dbxapp' ? 'dbXapp' : ucfirst(str_replace(array('-', '_'), ' ', $name))),
+            'title' => (string)$catalogEntry['title'],
             'description' => (string)($meta['description'] ?? ''),
             'source_design' => (string)($meta['source_design'] ?? ''),
             'layout' => (string)($meta['layout'] ?? $this->detectLayout($dir)),
-            'managed' => is_file($dir . DIRECTORY_SEPARATOR . 'design.json'),
+            'managed' => (bool)$catalogEntry['managed'],
             'valid' => empty($validation['errors']),
             'warnings' => $validation['warnings'],
          );

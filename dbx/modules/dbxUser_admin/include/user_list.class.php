@@ -28,17 +28,14 @@ Class user_list {
    }
 
    private function base_url($run2, $params = array()) {
-      $url = '?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=' . rawurlencode((string) $run2);
-      foreach ($params as $key => $value) {
-         $url .= '&' . rawurlencode((string) $key) . '=' . rawurlencode((string) $value);
-      }
-      return $url;
+      return dbx()->append_url_params(
+         '?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=' . rawurlencode((string)$run2),
+         $params
+      );
    }
 
    private function request_json() {
-      $raw = file_get_contents('php://input');
-      $data = $raw ? json_decode($raw, true) : array();
-      return is_array($data) ? $data : array();
+      return dbx()->get_json_request();
    }
 
    private function avatar_file($file) {

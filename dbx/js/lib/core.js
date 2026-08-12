@@ -969,26 +969,6 @@
             }
         }
 
-        function requestHasAjaxFlag(url, body) {
-            const targetUrl = String(url || "");
-            if (/[?&]dbx_ajax=1(?:&|$)/.test(targetUrl)) {
-                return true;
-            }
-
-            if (body instanceof URLSearchParams && body.get("dbx_ajax") === "1") {
-                return true;
-            }
-
-            if (body instanceof FormData && body.get("dbx_ajax") === "1") {
-                return true;
-            }
-
-            if (typeof body === "string" && /(?:^|&)dbx_ajax=1(?:&|$)/.test(body)) {
-                return true;
-            }
-
-            return false;
-        }
 
         function shouldTrackAjaxRuntime(url, body, options) {
             if (options && (

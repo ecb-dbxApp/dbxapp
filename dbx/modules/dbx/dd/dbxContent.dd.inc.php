@@ -360,7 +360,11 @@ $field['length']='96';
 $field['default']='';
 $field['label']='menu_title';
 $field['rules']='varchar|max=96';
-$field['tooltip']='Short optional label for navigation and menus.';
+$field['tooltip']=match ($__dbx_lng_dd) {
+   'de' => 'Kurze, optionale Bezeichnung fuer Navigation und Menues.',
+   'es' => 'Etiqueta breve y opcional para la navegacion y los menus.',
+   default => 'Short optional label for navigation and menus.',
+};
 $field['errormsg']='';
 $field['placeholder']='';
 $field['convert']='';

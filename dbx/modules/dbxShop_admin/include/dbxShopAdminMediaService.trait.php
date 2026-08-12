@@ -24,50 +24,9 @@ trait dbxShopAdminMediaServiceTrait {
 
 
 
-   private function safeFileName(string $name): string {
-      $name = strtolower(trim($name));
-      $name = preg_replace('~[^a-z0-9._-]+~', '-', $name);
-      $name = trim((string)$name, '-.');
-      return $name !== '' ? $name : 'shop-image';
-   }
 
 
 
-   private function handleMediaUpload(): string {
-      if (!$this->posted('upload_media')) {
-         return '';
-      }
-      if (empty($_FILES['shop_image']['tmp_name']) || !is_uploaded_file($_FILES['shop_image']['tmp_name'])) {
-         return '<div class="alert alert-warning m-3">Keine Datei ausgewaehlt.</div>';
-      }
-      $original = (string)($_FILES['shop_image']['name'] ?? 'shop-image');
-      $ext = strtolower(pathinfo($original, PATHINFO_EXTENSION));
-      $allowed = array('jpg','jpeg','png','gif','webp','svg');
-      if (!in_array($ext, $allowed, true)) {
-         return '<div class="alert alert-danger m-3">Dieser Bildtyp ist fuer Shop-Medien nicht erlaubt.</div>';
-      }
-
-      $base = $this->safeFileName(pathinfo($original, PATHINFO_FILENAME));
-      $name = $base . '.' . $ext;
-      $target = $this->shopMediaDir(true) . '/' . $name;
-      $i = 2;
-      while (is_file($target)) {
-         $name = $base . '-' . $i . '.' . $ext;
-         $target = $this->shopMediaDir() . '/' . $name;
-         $i++;
-      }
-      if (!move_uploaded_file($_FILES['shop_image']['tmp_name'], $target)) {
-         return '<div class="alert alert-danger m-3">Upload konnte nicht gespeichert werden.</div>';
-      }
-
-      $rel = 'files/shop/img/' . $name;
-      $productId = (int)($_POST['product_id'] ?? 0);
-      $groupId = (int)($_POST['group_id'] ?? 0);
-      if ($productId > 0 || $groupId > 0) {
-         $this->repo()->saveImage($productId, $groupId, $rel, (string)($_POST['title'] ?? $base), (string)($_POST['alt'] ?? $base), !empty($_POST['is_primary']) ? 1 : 0, (int)($_POST['sorter'] ?? 100));
-      }
-      return '<div class="alert alert-success m-3">Bild wurde hochgeladen: ' . $this->h($name) . '</div>';
-   }
 
 
 

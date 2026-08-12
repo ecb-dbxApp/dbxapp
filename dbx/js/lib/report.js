@@ -531,15 +531,6 @@
         });
     }
 
-    function appendActionParam(url, name, value) {
-        try {
-            const parsed = new URL(url || window.location.href, window.location.href);
-            parsed.searchParams.set(name, value);
-            return parsed.toString();
-        } catch (err) {
-            return url || window.location.href;
-        }
-    }
 
     function runFooterAction(root, picker) {
         if (!root || !picker || !picker.value) {

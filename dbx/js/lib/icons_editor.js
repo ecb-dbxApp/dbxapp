@@ -1501,18 +1501,6 @@
                 };
             }
 
-            function getMarkerOffset(kind) {
-
-                kind = (kind || 'tpl').toLowerCase();
-
-                if (kind === 'fd') return 28;
-                if (kind === 'dd') return 56;
-                if (kind === 'class') return 84;
-                if (kind === 'sysclass') return 112;
-                if (kind === 'config') return 140;
-
-                return 0;
-            }
 
             function getFileIcon(path) {
 
