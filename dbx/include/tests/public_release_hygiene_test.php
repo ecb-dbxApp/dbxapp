@@ -15,7 +15,7 @@ if (!file_exists($root . '/.git') || !is_file($root . '/RELEASE_PROCESS.md')) {
     exit(0);
 }
 
-if (is_dir($root . '/.git') && function_exists('proc_open')) {
+if (file_exists($root . '/.git') && function_exists('proc_open')) {
     $process = proc_open(
         array('git', '-C', $root, 'ls-files', '--cached', '--others', '--exclude-standard', '-z'),
         array(0 => array('pipe', 'r'), 1 => array('pipe', 'w'), 2 => array('pipe', 'w')),
