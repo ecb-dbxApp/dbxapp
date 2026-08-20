@@ -10,7 +10,7 @@ $paths = array();
 // lokale Daten oder erzeugte Referenzen. Nur ein echter Git-Arbeitsbaum mit
 // Release-Prozess ist der kontrollierte öffentliche Quellspiegel. Installierte
 // Pakete wurden bereits per SHA-256 und .dbx-release-files.json verifiziert.
-if (!is_dir($root . '/.git') || !is_file($root . '/RELEASE_PROCESS.md')) {
+if (!file_exists($root . '/.git') || !is_file($root . '/RELEASE_PROCESS.md')) {
     echo "OK public release hygiene: no public source worktree detected.\n";
     exit(0);
 }
@@ -81,8 +81,13 @@ foreach (array_unique($paths) as $relative) {
     }
     $base = basename($relative);
     $extension = strtolower(pathinfo($relative, PATHINFO_EXTENSION));
+    $public_marketplace_key = $extension === 'pem'
+        && preg_match('#^dbx/marketplace/keys/[A-Za-z0-9._-]+\.pem$#', $relative) === 1
+        && str_contains((string)file_get_contents($absolute), '-----BEGIN PUBLIC KEY-----')
+        && openssl_pkey_get_public((string)file_get_contents($absolute)) !== false;
     if (in_array($base, array('.env', '.env.local', 'config.local.php'), true)
-        || in_array($extension, array('db3', 'sqlite', 'sqlite3', 'log', 'pem', 'key', 'p12', 'pfx'), true)
+        || (in_array($extension, array('db3', 'sqlite', 'sqlite3', 'log', 'pem', 'key', 'p12', 'pfx'), true)
+            && !$public_marketplace_key)
         || preg_match('#/(?:backup|_backup|\.backup|work)/#i', '/' . $relative)
     ) {
         $failures[] = 'Nicht veröffentlichbare Datei: ' . $relative;
