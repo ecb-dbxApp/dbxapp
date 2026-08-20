@@ -34,7 +34,7 @@ class dbxSelfTestController
         return dbx()->get_json_request();
     }
 
-    private function requireToken(string $action): void
+    private function require_token(string $action): void
     {
         $token = (string)dbx()->get_modul_var('dbx_token', '', 'varchar|max=128');
         if (dbx()->check_action_token(self::TOKEN_SCOPE, $token)) {
@@ -57,33 +57,30 @@ class dbxSelfTestController
      * zeigt den zuletzt bekannten Status; die Ausfuehrung selbst laeuft
      * client-seitig ueber die JSON-Aktionen dieses Controllers.
      */
-    private function dashboard(int $clearedCount = -1): string
+    private function dashboard(int $cleared_count = -1): string
     {
         dbx()->set_system_var('dbx_title', 'System-Selbsttest');
 
         $runner = $this->runner();
         $catalog = $runner->catalog('full');
         $latest = $runner->history(1)[0] ?? null;
-        $run = $latest ? $runner->loadRun((string)($latest['id'] ?? '')) : null;
+        $run = $latest ? $runner->load_run((string)($latest['id'] ?? '')) : null;
 
-        $lastResults = array();
+        $last_results = array();
         foreach ((array)($run['results'] ?? array()) as $result) {
             if (is_array($result) && (string)($result['test_id'] ?? '') !== '') {
-                $lastResults[(string)$result['test_id']] = $result;
+                $last_results[(string)$result['test_id']] = $result;
             }
         }
 
         $report = dbx()->get_system_obj('dbxReport');
         $report->init('selftest-dashboard', 'dbxSelfTest|selftest-dashboard');
-        $report->_fd = 'dbxSelfTest|rpt-selftest-summary';
-        $report->_dd = '';
-        $report->_mode = 'table';
-        $report->_action = $this->url('dashboard');
-        $report->_pages = true;
-        $report->_but_pagination = 7;
-        $report->_create_row_select = true;
-        $report->_create_row_edit = false;
-        $report->_create_row_delete = false;
+        $report
+            ->set_data_source('', 'dbxSelfTest|rpt-selftest-summary')
+            ->set_mode('table')
+            ->set_action($this->url('dashboard'))
+            ->set_pagination(true, 7)
+            ->set_table_actions(array('select'));
         $report->load_fd_messages();
         $report->add_module_bar(
             'dbxSelfTest',
@@ -104,29 +101,29 @@ class dbxSelfTestController
         $status = (string)$report->get_fld_val('dbx_rstatus', 'all', 'parameter|max=24');
         $sort = (string)$report->get_fld_val('dbx_rsort', 'status', 'parameter|max=24');
         $direction = strtoupper((string)$report->get_fld_val('dbx_rdesc', 'ASC', 'parameter'));
-        $pageSize = max(25, min(500, (int)$report->get_fld_val('dbx_rrows', 200, 'int')));
+        $page_size = max(25, min(500, (int)$report->get_fld_val('dbx_rrows', 200, 'int')));
         $position = max(0, (int)$report->get_fld_val('dbx_rpos', 0, 'int'));
 
-        $allowedSort = array('name', 'category', 'status', 'duration_ms');
-        if (!in_array($sort, $allowedSort, true)) {
+        $allowed_sort = array('name', 'category', 'status', 'duration_ms');
+        if (!in_array($sort, $allowed_sort, true)) {
             $sort = 'status';
         }
         if (!in_array($direction, array('ASC', 'DESC'), true)) {
             $direction = 'ASC';
         }
-        $allowedStatus = array('all', 'passed', 'failed', 'skipped');
-        if (!in_array($status, $allowedStatus, true)) {
+        $allowed_status = array('all', 'passed', 'failed', 'skipped');
+        if (!in_array($status, $allowed_status, true)) {
             $status = 'all';
         }
 
-        $allRows = array();
+        $all_rows = array();
         foreach ($catalog as $test) {
             $id = (string)($test['id'] ?? '');
             if ($id === '') {
                 continue;
             }
-            $known = $lastResults[$id] ?? null;
-            $allRows[] = array(
+            $known = $last_results[$id] ?? null;
+            $all_rows[] = array(
                 'id' => $id,
                 'name' => (string)($test['name'] ?? $id),
                 'category' => (string)($test['category'] ?? ''),
@@ -139,11 +136,11 @@ class dbxSelfTestController
             );
         }
 
-        $filteredRows = $allRows;
+        $filtered_rows = $all_rows;
         if ($search !== '') {
             $needle = mb_strtolower($search);
-            $filteredRows = array_values(array_filter(
-                $filteredRows,
+            $filtered_rows = array_values(array_filter(
+                $filtered_rows,
                 static function (array $row) use ($needle): bool {
                     return str_contains(mb_strtolower($row['name']), $needle)
                         || str_contains(mb_strtolower($row['category']), $needle)
@@ -152,12 +149,12 @@ class dbxSelfTestController
             ));
         }
         if ($status !== 'all') {
-            $filteredRows = array_values(array_filter(
-                $filteredRows,
+            $filtered_rows = array_values(array_filter(
+                $filtered_rows,
                 static fn(array $row): bool => $row['status'] === $status
             ));
         }
-        usort($filteredRows, static function (array $a, array $b) use ($sort, $direction): int {
+        usort($filtered_rows, static function (array $a, array $b) use ($sort, $direction): int {
             $cmp = $a[$sort] <=> $b[$sort];
             return $direction === 'DESC' ? -$cmp : $cmp;
         });
@@ -166,37 +163,37 @@ class dbxSelfTestController
         $passed = (int)($totals['passed'] ?? 0);
         $failed = (int)($totals['failed'] ?? 0);
         $skipped = (int)($totals['skipped'] ?? 0);
-        $finishedAt = (string)($run['finished_at'] ?? ($run['started_at'] ?? ''));
+        $finished_at = (string)($run['finished_at'] ?? ($run['started_at'] ?? ''));
         $tpl = dbx()->get_system_obj('dbxTPL');
 
         if (!$run) {
-            $summaryLine = $report->get_fd_message('no_run');
-            $summaryClass = 'alert-secondary';
-            $summaryIcon = 'bi-info-circle';
+            $summary_line = $report->get_fd_message('no_run');
+            $summary_class = 'alert-secondary';
+            $summary_icon = 'bi-info-circle';
         } else {
-            $summaryLine = $report->format_fd_message(
+            $summary_line = $report->format_fd_message(
                 $skipped > 0 ? 'summary_line_with_skipped' : 'summary_line',
                 array(
-                    'date' => $report->php_datetime_usr($finishedAt),
+                    'date' => $report->php_datetime_usr($finished_at),
                     'passed' => (string)$passed,
                     'failed' => (string)$failed,
                     'skipped' => (string)$skipped,
                 )
             );
-            $summaryClass = $failed > 0 ? 'alert-danger' : 'alert-success';
-            $summaryIcon = $failed > 0 ? 'bi-exclamation-triangle' : 'bi-check-circle';
+            $summary_class = $failed > 0 ? 'alert-danger' : 'alert-success';
+            $summary_icon = $failed > 0 ? 'bi-exclamation-triangle' : 'bi-check-circle';
         }
-        if ($clearedCount >= 0) {
+        if ($cleared_count >= 0) {
             $report->_msg_success = $report->format_fd_message(
                 'clear_history_success',
-                array('count' => (string)$clearedCount)
+                array('count' => (string)$cleared_count)
             );
-        } elseif ($filteredRows === array()) {
+        } elseif ($filtered_rows === array()) {
             $report->_msg_info = $report->get_fd_message('empty_result');
         }
-        $report->add_rep('summary_line', $summaryLine);
-        $report->add_rep('summary_class', $summaryClass);
-        $report->add_rep('summary_icon', $summaryIcon);
+        $report->add_rep('summary_line', $summary_line);
+        $report->add_rep('summary_class', $summary_class);
+        $report->add_rep('summary_icon', $summary_icon);
         $report->add_rep(
             'clear_history_button',
             $latest ? $tpl->get_tpl('dbxSelfTest|selftest-clear-history-button', array(
@@ -208,35 +205,35 @@ class dbxSelfTestController
             )) : ''
         );
 
-        $rows = array_slice($filteredRows, $position, $pageSize);
+        $rows = array_slice($filtered_rows, $position, $page_size);
         foreach ($rows as &$row) {
-            $tooltipHtml = '<strong>' . $this->h($row['name']) . '</strong>';
+            $tooltip_html = '<strong>' . $this->h($row['name']) . '</strong>';
             if ($row['description'] !== '') {
-                $tooltipHtml .= '<br><small>' . $this->h($row['description']) . '</small>';
+                $tooltip_html .= '<br><small>' . $this->h($row['description']) . '</small>';
             }
-            $statusLabel = $report->get_fd_message('status_' . $row['status'], $row['status']);
-            $statusClass = $row['status'] === 'passed'
+            $status_label = $report->get_fd_message('status_' . $row['status'], $row['status']);
+            $status_class = $row['status'] === 'passed'
                 ? 'text-bg-success'
                 : ($row['status'] === 'failed' ? 'text-bg-danger' : 'text-bg-secondary');
 
             $row['name'] = $tpl->get_tpl('dbxSelfTest|selftest-run-name', array(
                 'name' => $row['name'],
-                'tooltip_html' => $tooltipHtml,
+                'tooltip_html' => $tooltip_html,
                 'relative_path' => $row['relative_path'],
                 'execution' => $row['execution'],
                 'test_path' => $row['relative_path'],
                 'timeout' => (string)$row['timeout'],
             ));
-            $badgeHtml = $tpl->get_tpl('dbxSelfTest|selftest-status-badge', array(
-                'class' => $statusClass,
-                'label' => $statusLabel,
+            $badge_html = $tpl->get_tpl('dbxSelfTest|selftest-status-badge', array(
+                'class' => $status_class,
+                'label' => $status_label,
             ));
-            $row['status'] = '<span data-selftest-status-for="' . $this->h($row['id']) . '">' . $badgeHtml . '</span>';
-            $durationText = $row['duration_ms'] > 0
+            $row['status'] = '<span data-selftest-status-for="' . $this->h($row['id']) . '">' . $badge_html . '</span>';
+            $duration_text = $row['duration_ms'] > 0
                 ? number_format($row['duration_ms'], 0, ',', '.') . ' ms'
                 : '–';
             $row['duration_ms'] = '<span data-selftest-duration-for="' . $this->h($row['id']) . '">'
-                . $this->h($durationText) . '</span>';
+                . $this->h($duration_text) . '</span>';
         }
         unset($row);
 
@@ -251,24 +248,24 @@ class dbxSelfTestController
             'status' => 'html',
             'duration_ms' => 'html',
         );
-        $report->_rrows = $pageSize;
+        $report->_rrows = $page_size;
         $report->_rpos = $position;
-        $report->_count_all = count($allRows);
-        $report->_rcount = count($filteredRows);
+        $report->_count_all = count($all_rows);
+        $report->_rcount = count($filtered_rows);
         $report->_rdata = $rows;
 
         return $report->run();
     }
 
-    private function apiStart(): void
+    private function api_start(): void
     {
-        $this->requireToken('api_start');
+        $this->require_token('api_start');
         $data = $this->payload();
         $profile = ($data['profile'] ?? '') === 'quick' ? 'quick' : 'full';
         $ids = is_array($data['test_ids'] ?? null) ? array_slice($data['test_ids'], 0, 500) : array();
         $mode = count($ids) === 1 ? 'single' : ($ids !== array() ? 'selection' : 'complete');
         try {
-            $run = $this->runner()->startRun($profile, $ids, $mode);
+            $run = $this->runner()->start_run($profile, $ids, $mode);
             $this->json(array('ok' => 1, 'run' => $run));
         } catch (\Throwable $e) {
             http_response_code(400);
@@ -276,19 +273,19 @@ class dbxSelfTestController
         }
     }
 
-    private function apiExecute(): void
+    private function api_execute(): void
     {
-        $this->requireToken('api_execute');
+        $this->require_token('api_execute');
         // Umfangreiche Systempruefungen (insbesondere php -l ueber das ganze
         // Projekt) duerfen nicht am normalen Web-Request-Limit abbrechen.
         @set_time_limit(360);
         $data = $this->payload();
         try {
-            $result = $this->runner()->executeRunTest(
+            $result = $this->runner()->execute_run_test(
                 (string)($data['run_id'] ?? ''),
                 (string)($data['test_id'] ?? '')
             );
-            $run = $this->runner()->loadRun((string)($data['run_id'] ?? ''));
+            $run = $this->runner()->load_run((string)($data['run_id'] ?? ''));
             $this->json(array('ok' => 1, 'result' => $result, 'run' => $run));
         } catch (\Throwable $e) {
             http_response_code(400);
@@ -296,12 +293,12 @@ class dbxSelfTestController
         }
     }
 
-    private function apiFinish(): void
+    private function api_finish(): void
     {
-        $this->requireToken('api_finish');
+        $this->require_token('api_finish');
         $data = $this->payload();
         try {
-            $run = $this->runner()->finishRun(
+            $run = $this->runner()->finish_run(
                 (string)($data['run_id'] ?? ''),
                 !empty($data['aborted'])
             );
@@ -312,17 +309,17 @@ class dbxSelfTestController
         }
     }
 
-    private function apiBrowserResult(): void
+    private function api_browser_result(): void
     {
-        $this->requireToken('api_browser_result');
+        $this->require_token('api_browser_result');
         $data = $this->payload();
         try {
-            $result = $this->runner()->recordBrowserTestResult(
+            $result = $this->runner()->record_browser_test_result(
                 (string)($data['run_id'] ?? ''),
                 (string)($data['test_id'] ?? ''),
                 is_array($data['result'] ?? null) ? $data['result'] : array()
             );
-            $run = $this->runner()->loadRun((string)($data['run_id'] ?? ''));
+            $run = $this->runner()->load_run((string)($data['run_id'] ?? ''));
             $this->json(array('ok' => 1, 'result' => $result, 'run' => $run));
         } catch (\Throwable $e) {
             http_response_code(400);
@@ -333,7 +330,7 @@ class dbxSelfTestController
     private function download(): void
     {
         $id = (string)dbx()->get_modul_var('run_id', '', 'parameter|max=40');
-        $path = $this->runner()->runLogPath($id);
+        $path = $this->runner()->run_log_path($id);
         if ($path === null) {
             http_response_code(404);
             echo 'Testprotokoll nicht gefunden.';
@@ -351,19 +348,19 @@ class dbxSelfTestController
         $action = (string)dbx()->get_modul_var('dbx_run1', 'dashboard', 'parameter');
         switch ($action) {
             case 'clear_history':
-                $this->requireToken('clear_history');
-                return $this->dashboard($this->runner()->clearHistory());
+                $this->require_token('clear_history');
+                return $this->dashboard($this->runner()->clear_history());
             case 'api_start':
-                $this->apiStart();
+                $this->api_start();
                 break;
             case 'api_execute':
-                $this->apiExecute();
+                $this->api_execute();
                 break;
             case 'api_finish':
-                $this->apiFinish();
+                $this->api_finish();
                 break;
             case 'api_browser_result':
-                $this->apiBrowserResult();
+                $this->api_browser_result();
                 break;
             case 'download':
                 $this->download();

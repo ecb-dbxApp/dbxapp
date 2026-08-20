@@ -21,13 +21,13 @@ $dashboard = dbx_test_module_source_bundle(
 $controller = (string)file_get_contents(
    $module . '/include/dbxUpdate.class.php'
 );
-$service = (string)file_get_contents(
-   $module . '/include/dbxUpdateService.class.php'
+$manager = (string)file_get_contents(
+   dirname(__DIR__, 3) . '/include/dbxPackageManager.class.php'
 );
 $hero = (string)file_get_contents(
    $module . '/tpl/htm/admin-dashboard-hero.htm'
 );
-$updateCard = (string)file_get_contents(
+$update_card = (string)file_get_contents(
    $module . '/tpl/htm/admin-dashboard-update-status.htm'
 );
 $actions = (string)file_get_contents(
@@ -39,39 +39,39 @@ $css = (string)file_get_contents(
 
 foreach (array(
    'public static function configured(): self',
-   'public function status(): array',
-   'This method performs file reads only.',
+   'public function local_status(): array',
+   'Netzwerkfreier Kurzstatus',
 ) as $part) {
    dashboard_update_assert(
-      str_contains($service, $part),
-      'Zentraler Update-Servicevertrag fehlt: ' . $part
+      str_contains($manager, $part),
+      'Zentraler Paketmanager-Vertrag fehlt: ' . $part
    );
 }
 
 dashboard_update_assert(
-   str_contains($controller, 'dbxUpdateService::configured()'),
+   str_contains($controller, 'dbxPackageManager::configured()'),
    'Update-Controller verwendet nicht die zentrale Konfiguration.'
 );
 dashboard_update_assert(
-   str_contains($dashboard, 'dbxUpdateService::configured()->status()'),
+   str_contains($dashboard, 'dbxPackageManager::configured()->local_status()'),
    'Dashboard liest nicht den zentralen lokalen Update-Status.'
 );
 
-$statusMethodStart = strpos($dashboard, 'private function update_status(): array');
-$stateMethodStart = strpos($dashboard, 'private function update_state(array $status): array');
+$status_method_start = strpos($dashboard, 'private function update_status(): array');
+$state_method_start = strpos($dashboard, 'private function update_state(array $status): array');
 dashboard_update_assert(
-   $statusMethodStart !== false && $stateMethodStart !== false,
+   $status_method_start !== false && $state_method_start !== false,
    'Dashboard-Statusmethoden fehlen.'
 );
-$statusMethod = substr(
+$status_method = substr(
    $dashboard,
-   $statusMethodStart,
-   $stateMethodStart - $statusMethodStart
+   $status_method_start,
+   $state_method_start - $status_method_start
 );
 dashboard_update_assert(
-   !str_contains($statusMethod, '->check(')
-      && !str_contains($statusMethod, '->prepare(')
-      && !str_contains($statusMethod, 'file_get_contents('),
+   !str_contains($status_method, '->check(')
+      && !str_contains($status_method, '->prepare(')
+      && !str_contains($status_method, 'file_get_contents('),
    'Dashboard darf weder Netzwerkprüfung noch eigene Statusdateien verwenden.'
 );
 
@@ -105,7 +105,7 @@ foreach (array(
    'dbx_run1=update',
 ) as $part) {
    dashboard_update_assert(
-      str_contains($updateCard, $part),
+      str_contains($update_card, $part),
       'Update-Status-Templatevertrag fehlt: ' . $part
    );
 }
@@ -121,19 +121,19 @@ foreach (array(
    );
 }
 
-$loadMessages = static function (string $file): array {
+$load_messages = static function (string $file): array {
    $messages = array();
    $fields = array();
    include $file;
    return $messages;
 };
 
-$messageSets = array();
+$message_sets = array();
 foreach (array('de' => '', 'en' => '_en', 'es' => '_es') as $language => $suffix) {
-   $messageSets[$language] = $loadMessages(
+   $message_sets[$language] = $load_messages(
       $module . '/fd/admin-dashboard-status' . $suffix . '.fd.php'
    );
-   $dashboardTemplate = (string)file_get_contents(
+   $dashboard_template = (string)file_get_contents(
       $module . '/tpl/htm/admin-dashboard' . $suffix . '.htm'
    );
    foreach (array(
@@ -143,19 +143,19 @@ foreach (array('de' => '', 'en' => '_en', 'es' => '_es') as $language => $suffix
       'dbx_run1=update',
    ) as $part) {
       dashboard_update_assert(
-         str_contains($dashboardTemplate, $part),
+         str_contains($dashboard_template, $part),
          'Update-Navigation fehlt für ' . $language . ': ' . $part
       );
    }
 }
 
-$referenceKeys = array_keys($messageSets['de']);
-sort($referenceKeys);
-foreach ($messageSets as $language => $messages) {
+$reference_keys = array_keys($message_sets['de']);
+sort($reference_keys);
+foreach ($message_sets as $language => $messages) {
    $keys = array_keys($messages);
    sort($keys);
    dashboard_update_assert(
-      $keys === $referenceKeys,
+      $keys === $reference_keys,
       'Dashboard-FD-Schlüssel weichen für ' . $language . ' ab.'
    );
    foreach (array(

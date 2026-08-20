@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_db_title'] = 'DB Sync';
 $messages['bar_db_subtitle'] = 'Administrar tablas y registros';
 $messages['bar_dd_title'] = 'DD Sync';

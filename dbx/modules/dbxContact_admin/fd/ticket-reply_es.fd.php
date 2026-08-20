@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_title'] = 'Respuesta o nota interna';
 $messages['bar_subtitle'] = 'El historial completo permanece asociado al ticket';
 $messages['form_info'] = 'Las respuestas públicas pueden enviarse por correo electrónico. Las notas internas solo son visibles en la administración.';

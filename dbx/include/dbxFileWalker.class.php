@@ -1,8 +1,8 @@
 <?php
 
-
-
-
+/**
+ * Durchläuft Dateibestände schrittweise und verwaltet den Laufzeitfortschritt.
+ */
 class dbxFileWalker extends dbxObj {
 
 

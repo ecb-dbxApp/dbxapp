@@ -68,21 +68,21 @@ trait dbxSchemaDdFieldServiceTrait {
    private function delete_dd_file($modul, $dd) {
       $file = $this->dd_file_path($modul, $dd);
       $base = dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/' . $modul . '/dd/');
-      $realBase = realpath($base);
-      $realFile = realpath($file);
+      $real_base = realpath($base);
+      $real_file = realpath($file);
 
-      if (!$realBase || !$realFile || !str_starts_with(str_replace('\\', '/', $realFile), rtrim(str_replace('\\', '/', $realBase), '/') . '/')) {
+      if (!$real_base || !$real_file || !str_starts_with(str_replace('\\', '/', $real_file), rtrim(str_replace('\\', '/', $real_base), '/') . '/')) {
          return 0;
       }
 
-      if (!is_file($realFile)) {
+      if (!is_file($real_file)) {
          return 0;
       }
 
-      $ok = @unlink($realFile) ? 1 : 0;
+      $ok = @unlink($real_file) ? 1 : 0;
       if ($ok) {
-         $oDD = dbx()->get_system_obj('dbxDD');
-         $oDD->clear_dd_cache($modul . '|' . $dd);
+         $o_dd = dbx()->get_system_obj('dbxDD');
+         $o_dd->clear_dd_cache($modul . '|' . $dd);
       }
 
       return $ok;
@@ -98,23 +98,23 @@ trait dbxSchemaDdFieldServiceTrait {
     * @param string $server Eingabeparameter fuer diese Methode.
     * @return array
     */
-   private function merge_auto_dd_fields($oldFields, $dbFields, $server = '') {
-      $oldByName = array();
-      foreach ((array)$oldFields as $field) {
+   private function merge_auto_dd_fields($old_fields, $db_fields, $server = '') {
+      $old_by_name = array();
+      foreach ((array)$old_fields as $field) {
          $name = strtolower((string)($field['name'] ?? ''));
          if ($name !== '') {
-            $oldByName[$name] = $field;
+            $old_by_name[$name] = $field;
          }
       }
 
-      $oDD = dbx()->get_system_obj('dbxDD');
-      $dbType = $server ? $oDD->get_db_type($server) : '';
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      $db_type = $server ? $o_dd->get_db_type($server) : '';
 
       $fields = array();
-      foreach ((array)$dbFields as $field) {
+      foreach ((array)$db_fields as $field) {
          $name = strtolower((string)($field['name'] ?? ''));
-         if ($name !== '' && isset($oldByName[$name])) {
-            $field = $oDD->merge_dd_field_with_db_field($oldByName[$name], $field, $dbType);
+         if ($name !== '' && isset($old_by_name[$name])) {
+            $field = $o_dd->merge_dd_field_with_db_field($old_by_name[$name], $field, $db_type);
          }
 
          $fields[] = $field;
@@ -133,28 +133,28 @@ trait dbxSchemaDdFieldServiceTrait {
     * @return string
     */
    private function ensure_db_view_dd($server, $table) {
-      $oDD = dbx()->get_system_obj('dbxDD');
-      if (!$server || !$table || !$oDD->get_table_exist($server, $table)) {
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      if (!$server || !$table || !$o_dd->get_table_exist($server, $table)) {
          return '';
       }
 
-      $ddName = $this->db_view_dd_name($server, $table);
-      $ddRef  = 'dbx|' . $ddName;
-      $old    = file_exists($this->dd_file_path('dbx', $ddName)) ? $oDD->get_dd_model($ddRef) : array();
+      $dd_name = $this->db_view_dd_name($server, $table);
+      $dd_ref  = 'dbx|' . $dd_name;
+      $old    = file_exists($this->dd_file_path('dbx', $dd_name)) ? $o_dd->get_dd_model($dd_ref) : array();
 
-      $tableMeta = is_array($old['table'] ?? null) ? $old['table'] : array();
-      $tableMeta['server'] = $server;
-      $tableMeta['table']  = $table;
-      $tableMeta['datadic'] = $ddName;
+      $table_meta = is_array($old['table'] ?? null) ? $old['table'] : array();
+      $table_meta['server'] = $server;
+      $table_meta['table']  = $table;
+      $table_meta['datadic'] = $dd_name;
 
-      $fields  = $this->merge_auto_dd_fields($old['fields'] ?? array(), $oDD->get_db_fields($server, $table), $server);
-      $indexes = $oDD->get_db_indexes($server, $table);
+      $fields  = $this->merge_auto_dd_fields($old['fields'] ?? array(), $o_dd->get_db_fields($server, $table), $server);
+      $indexes = $o_dd->get_db_indexes($server, $table);
 
       if (!$fields) {
          return '';
       }
 
-      return $oDD->save_dd('dbx', $ddName, $tableMeta, $fields, $indexes) ? $ddRef : '';
+      return $o_dd->save_dd('dbx', $dd_name, $table_meta, $fields, $indexes) ? $dd_ref : '';
    }
 
 
@@ -191,8 +191,8 @@ trait dbxSchemaDdFieldServiceTrait {
     * @return array
     */
    private function dd_field_grid_keys() {
-      $oDD = dbx()->get_system_obj('dbxDD');
-      return $oDD->dd_field_schema_keys();
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      return $o_dd->dd_field_schema_keys();
    }
 
 
@@ -289,8 +289,8 @@ trait dbxSchemaDdFieldServiceTrait {
          return array();
       }
 
-      $oDD = dbx()->get_system_obj('dbxDD');
-      return $oDD->get_dd_model($this->dd_ref($modul, $dd));
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      return $o_dd->get_dd_model($this->dd_ref($modul, $dd));
    }
 
 
@@ -305,8 +305,8 @@ trait dbxSchemaDdFieldServiceTrait {
     * @return bool
     */
    private function save_dd_field_model($modul, $dd, $model, $fields) {
-      $oDD = dbx()->get_system_obj('dbxDD');
-      return $oDD->save_dd($modul, $dd, $model['table'] ?? array(), array_values($fields), $model['indexes'] ?? array());
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      return $o_dd->save_dd($modul, $dd, $model['table'] ?? array(), array_values($fields), $model['indexes'] ?? array());
    }
 
 
@@ -387,26 +387,26 @@ trait dbxSchemaDdFieldServiceTrait {
          return '<div class="alert alert-danger">DD nicht gefunden.</div>';
       }
 
-      $baseParams = array(
+      $base_params = array(
          'modul' => $modul,
          'dd'    => $dd,
       );
 
-      $oReport = dbx()->get_system_obj('dbxReport');
-      $oReport->init('report-dd-fields-grid', 'schema-fields-grid');
-      $oReport->_mode = 'tabulurator';
-      $oReport->_rrows = 620;
-      $oReport->_grid_id = 'dd_fields_' . substr(md5($modul . '|' . $dd), 0, 10);
-      $oReport->_grid_cols = $this->dd_field_grid_cols();
-      $oReport->_grid_layout = 'fitDataStretch';
-      $oReport->_grid_read_url   = $this->build_url('dd', 'fields_read', $baseParams);
-      $oReport->_grid_save_url   = $this->build_url('dd', 'fields_save', $baseParams);
-      $oReport->_grid_insert_url = $this->build_url('dd', 'fields_insert', $baseParams);
-      $oReport->_grid_delete_url = $this->build_url('dd', 'fields_delete', $baseParams);
-      $oReport->add_rep('bar_title', 'DD-Felder: ' . $modul . '|' . $dd);
-      $oReport->add_rep('bar_subtitle', $this->path_rel($this->dd_file_path($modul, $dd)));
+      $o_report = dbx()->get_system_obj('dbxReport');
+      $o_report->init('report-dd-fields-grid', 'schema-fields-grid');
+      $o_report->set_mode('tabulator');
+      $o_report->_rrows = 620;
+      $o_report->_grid_id = 'dd_fields_' . substr(md5($modul . '|' . $dd), 0, 10);
+      $o_report->_grid_cols = $this->dd_field_grid_cols();
+      $o_report->_grid_layout = 'fitDataStretch';
+      $o_report->_grid_read_url   = $this->build_url('dd', 'fields_read', $base_params);
+      $o_report->_grid_save_url   = $this->build_url('dd', 'fields_save', $base_params);
+      $o_report->_grid_insert_url = $this->build_url('dd', 'fields_insert', $base_params);
+      $o_report->_grid_delete_url = $this->build_url('dd', 'fields_delete', $base_params);
+      $o_report->add_rep('bar_title', 'DD-Felder: ' . $modul . '|' . $dd);
+      $o_report->add_rep('bar_subtitle', $this->path_rel($this->dd_file_path($modul, $dd)));
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
 
@@ -497,8 +497,8 @@ trait dbxSchemaDdFieldServiceTrait {
          $name = 'new_field_' . $i;
       }
 
-      $oDD = dbx()->get_system_obj('dbxDD');
-      $field = $oDD->normalize_dd_field(array(
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      $field = $o_dd->normalize_dd_field(array(
          'name'   => $name,
          'type'   => 'varchar',
          'length' => '255',

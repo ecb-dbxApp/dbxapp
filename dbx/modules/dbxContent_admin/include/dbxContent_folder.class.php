@@ -1,232 +1,20 @@
 <?php
 namespace dbx\dbxContent_admin;
 dbx()->get_system_obj('dbxReport','use');
+require_once __DIR__ . '/dbxReport_Folder.class.php';
 
-
-class dbxReport_Folder extends \dbxReport {
-    public $_folders = array(); // speed up
-    public $_groups  = array(); // speed up
-
-    private function get_parent_folder_name($id) {
-       $folders=$this->_folders;
-       $folder = "(0) -root-";
-       if ($id) {
-          $folder_name='-?-';
-          if (isset($folders[$id])) $folder_name=$folders[$id];
-          $folder = "($id) $folder_name";
-       }
-       return $folder;
-    }
-
-    private function get_group_name($dat_groups) {
-       $groups=$this->_groups;
-       $groups_name=''; $gid=0;
-       $dat_groups = explode(',',$dat_groups);
-       //dbx_debug("DAT-Groups=",$dat_groups);
-       foreach ($dat_groups as $no => $gid) {
-          //dbx_debug("Group ID=($gid)");
-          if (isset($groups[$gid])) {
-            $groups_name.='[('.$gid.') '.$groups[$gid].'] ';
-          } else {
-            if ($gid) $groups_name.='('.$gid.') -?- ';
-          }
-       }
-       return $groups_name;
-    }
-
-
-
-    public function run_body($content) {
-        $record =$this->_record;
-        if (isset($record['parent_id']))  $record['parent_id']  =$this->get_parent_folder_name($record['parent_id']);
-        //if (isset($record['group_read'])) $record['group_read'] =$this->get_group_name($record['group_read']);
-        $this->_record=$record;
-        return $content;
-    }
-}
-
-
-
-
-class dbxFolder_edit extends \dbxObj {
-
-
-  Public $oValidator;
-  Public $oTPL;
-
-
-  public function __construct() {
-     $this->oValidator=dbx()->get_system_obj('dbxValidator');
-     $this->oTPL      =dbx()->get_system_obj('dbxTPL');
-  }
-
-  function make_select_data($data,$id,$name,$parent='') {
-     $select_data=array();
-     $select_data[0]='/ ';
-     if (is_array($data)) {
-      foreach ($data as $no => $record) {
-         if (is_array($record)) {
-            if ( isset($record[$id]) && isset($record[$name]) ) {
-               $xid=$record[$id];
-               $xna=$record[$name];
-               if ($parent && isset($record[$parent])) {
-                 $pid=$record[$parent];
-                 if ($pid==$xid) $pid=0;
-                 if ($pid) {
-                   while ($pid > 0) {
-                     foreach ($data as $no2 => $rec2) {
-                       if ($rec2[$id]==$pid) {
-                          $xna=$rec2[$name].' -> '.$xna;
-                          $pid=$rec2[$parent];
-                          break;
-                       } // == $pid
-                     } //foreach
-                   } // while $pid > 0
-                 } // $pid
-               } // parent
-               $xna='/ -> '.$xna;
-               $select_data[$xid]=$xna;
-            } // isset $id && $name
-         } else {
-            // ?
-         }
-      }
-    }
-    return $select_data;
-  }
-
-  function get_select_tpl($modul) {
-     $pfx='c-';
-     $select_data=array();
-     $folder=$this->oTPL->get_tpl_dir('dbxContent').'htm/';
-
-     dbx()->debug("folder=($folder)");
-
-     $folder_files=array_diff(scandir($folder), array('..', '.'));
-     foreach ($folder_files as $no => $filename) {
-        $id=substr($filename, 0 , (strrpos($filename, ".")));
-        dbx()->debug("folder-files=($filename) id=($id)");
-
-        $na=$id;
-        if ($pfx) {
-          if (substr($na, 0, strlen($pfx)) != $pfx) $id=0;
-        }
-        if ($id) $select_data[$id]=$na;
-     }
-     //dbx_debug("Directory=($folder)",$folder_files);
-
-     return $select_data;
-   }
-
-
-
-
-
-
-
-  public function run() {
-     $content=''; $ok=false;
-     $uid = dbx()->user();
-     $rid = dbx()->get_modul_var('rid',0,'int');;
-     //dbx_debug("#EDIT-Folder=($rid) uid=($uid)");
-
-     if ($uid) {
-       //dbx()->set_system_var('dbx_page','admin');
-       $db  = dbx()->get_system_obj('dbxDB');
-       $lng = dbx()->get_system_var('dbx_lng','de');
-
-       $dd_content = dbx()->lng_name('content', $lng);
-       $dd_folder = dbx()->lng_name('content_folder', $lng);
-
-
-       $data         =$db->select1($dd_folder,$rid);
-       $data_folder  =$db->select($dd_folder);
-       $data_folder  =$this->make_select_data($data_folder,'id','name','parent_id');
-       $data_template=$this->get_select_tpl('dbxContent','c-');
-
-       $options_groups=array();
-       $user_groups=$db->select('dbxUser_groups','active = 1','*','name');
-       foreach ($user_groups as $no => $record) {
-         $id    =$record['name'];
-         $group =$record['description'];
-         $options_groups[$id]=$group;
-       }
-
-
-
-       $oForm=dbx()->get_system_obj('dbxForm');
-       $oForm->init('dbxContent_folder_edit','form-folder');
-       $oForm->_data  = $data;
-       $oForm->_action='?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=edit_folder&dbx_target=dbx_target_{i}&rid='.$rid; // fid 'new' or record.id
-
-       $oForm->add_fld('id'        ,'text-label'           ,rules: 'int'              ,label: 'ID');
-       $oForm->add_fld('name'      ,'text-label'           ,rules: 'parameter|min=1'  ,label: 'Ordner', errormsg: 'Bezeichnung vom Ordner. Keine Sonderzeichen erlaubt.'); // #+
-       $oForm->add_fld('parent_id' ,'select-single-label'  ,rules: 'array|int'        ,label: 'Unterordener von'  ,options: $data_folder);
-       $oForm->add_fld('template'  ,'select-single-label'  ,rules: 'parameter'        ,label: 'Template'          ,options: $data_template );
-       $oForm->add_fld('group_read','multi-select-label'   ,rules: 'array|parameter'  ,label: 'Zugriff Gruppen'   ,options: $options_groups);                                      // #+
-
-       //dbx_debug("#EDIT-Folder=(data)",$data);
-
-
-       if ($oForm->submit()) {
-         //dbx_debug("#FORM-SUBMIT#");
-         if (!$oForm->errors()) {      // submit && no errors // we ignore warnings
-            //dbx_debug("#FORM-No-Errors");
-            $change=$oForm->changed();
-            if ($change) {
-              //dbx_debug("#Form-Change");
-              $ok=$oForm->save_post($dd_folder,$rid);
-              if ( $ok) $oForm->_msg_success   = 'Daten gespeichert';
-              if (!$ok) $oForm->_msg_success   = 'Daten konnten nicht gespeichert werden';
-            } else {
-              //dbx_debug("#Form-NO-Change");
-              $oForm->_msg_success   = 'Keine Änderung';
-            }
-         } else {
-            $flds='';
-            $errors=$oForm->_errors;
-            foreach ($errors as $fld => $msg) {
-                $flds.=$fld.' ';
-              // code...
-            }
-            $oForm->_msg_error = "Prüfen sie bitte ihre Eingaben ($flds)";
-
-         }
-       }
-
-
-       $content= $oForm->run();
-     }
-
-     return $content;
-  } // run()
-
-
-} // class
-
-
-
-
-
-
-
-
-
-
-
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+require_once __DIR__ . '/dbxFolder_edit.class.php';
 Class dbxContent_folder {
 
-  public $oTPL;
+  public $o_tpl;
 
   public function __construct() {
-     $this->oTPL = dbx()->get_system_obj('dbxTPL');
+     $this->o_tpl = dbx()->get_system_obj('dbxTPL');
   }
 
   function get_select_tpl($modul,$pfx='') {
      $select_data=array();
-     $folder=$this->oTPL->get_tpl_dir($modul);
+     $folder=$this->o_tpl->get_tpl_dir($modul);
      $folder_files=array_diff(scandir($folder), array('..', '.'));
      foreach ($folder_files as $no => $filename) {
         $id=substr($filename, 0 , (strrpos($filename, ".")));
@@ -248,8 +36,8 @@ Class dbxContent_folder {
 
       //return 'folder-flat';
 
-      $oReport = new dbxReport_Folder;
-      $oDB     = dbx()->get_system_obj('dbxDB');
+      $o_report = new dbxReport_Folder;
+      $o_db     = dbx()->get_system_obj('dbxDB');
       $lng     = dbx()->get_modul_var('lng','de');
 
       $dd_content = dbx()->lng_name('content', $lng);
@@ -259,14 +47,14 @@ Class dbxContent_folder {
       $rid=dbx()->get_modul_var('rid',0,'int');
       $do =dbx()->get_modul_var('dbx_run3');
 
-      if ($do == 'row_delete' && $rid) $oDB->delete($dd_folder,$rid);
+      if ($do == 'row_delete' && $rid) $o_db->delete($dd_folder,$rid);
    
       if ($do == 'row_edit' ) return $this->folder_edit($rid);
       if ($do == 'multi_delete') {
-         $ids=$oReport->get_post('Report-content_select','','array|int');
+         $ids=$o_report->get_post('Report-content_select','','array|int');
          if (is_array($ids)) {
             foreach ($ids as $no => $rid) {
-               $ok=$oDB->delete($dd_folder,$rid);
+               $ok=$o_db->delete($dd_folder,$rid);
             }
          }
       }
@@ -274,19 +62,19 @@ Class dbxContent_folder {
 
 
       $folders=array(); $groups=array();
-      $data_folder=$oDB->select($dd_folder);
+      $data_folder=$o_db->select($dd_folder);
       foreach ($data_folder as $no => $record) {
          $id          =$record['id'];
          $folders[$id]=$record['name'];
       }
-      $data_groups=$oDB->select($dd_groups);
+      $data_groups=$o_db->select($dd_groups);
       foreach ($data_groups as $no => $record) {
          $id          =$record['id'];
          $groups[$id] =$record['name'];
       }
 
-      $oReport->_folders =$folders; // speed up
-      $oReport->_groups = $groups;   // speed up
+      $o_report->_folders =$folders; // speed up
+      $o_report->_groups = $groups;   // speed up
 
 
 
@@ -302,61 +90,65 @@ Class dbxContent_folder {
       $data['dbx_rrows']= 100;
       $data['dbx_rsort']='id';
 
-      $oReport->init('report-folder-flat');
-      $oReport->_data=$data;
+      $o_report->init('report-folder-flat', 'report-folder-flat');
+      $o_report->set_data($data);
 
-      $oReport->_action='?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=list_folder'; // set_action() cid 'new' or record.id
-      $oReport->_options_rsort = $options_rsort;
-      $oReport->_but_pagination   =9;
-      $oReport->_create_row_select=1;
-      $oReport->_create_row_edit  =1;
-      $oReport->_create_row_delete=1;
-      $oReport->_tabel_tpls['tpl_row_edit']   = 'table_row_modal-edit';
-      $oReport->_tabel_tpls['tpl_row_delete'] = 'modul|confirm_row_delete_folder';
-      $oReport->_confirm_delete='modul|confirm-delete-methode';
-      $oReport->_msg_info ='';
+      $o_report->set_action('?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=list_folder');
+      $o_report->_options_rsort = $options_rsort;
+      $o_report->_but_pagination   =9;
+      $o_report->set_table_actions(array(
+         'select',
+         'edit' => array('window' => true),
+         'delete',
+      ));
+      $o_report->set_table_tpl('tpl_row_delete', 'modul|confirm_row_delete_folder');
+      $o_report->_confirm_delete='modul|confirm-delete-methode';
+      $o_report->_msg_info ='';
 
 
       $add['dbx_get']='?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=new_folder';
       $add['label']='Neuer Content Ordner';
       $add['title']='Neuer Content Ordner';
-      $oReport->add_obj('add_folder','button-modal1',$add);
+      $o_report->add_obj('add_folder','button-modal1',$add);
 
-      $oReport->add_action('rows_delete'    ,'action_button_delete'    ,'&dbx_run2=multi_delete');
-      $oReport->add_action('rows_activate'  ,'action_button_activate'  ,'&dbx_run2=multi_activate');
-      $oReport->add_action('rows_deactivate','action_button_deactivate','&dbx_run2=multi_deactivate');
+      $o_report->add_action('rows_delete'    ,'action_button_delete'    ,'&dbx_run2=multi_delete');
+      $o_report->add_action('rows_activate'  ,'action_button_activate'  ,'&dbx_run2=multi_activate');
+      $o_report->add_action('rows_deactivate','action_button_deactivate','&dbx_run2=multi_deactivate');
 
-      $work=$oReport->get_fld_val('dbx_run2','','parameter');
-      $rid =$oReport->get_fld_val('rid',0,'int|min=0');
+      $work=$o_report->get_fld_val('dbx_run2','','parameter');
+      $rid =$o_report->get_fld_val('rid',0,'int|min=0');
 
 
-      if($oReport->submit()) {
-        if(!$oReport->errors()) {      // submit && no errors
-           $work=$oReport->get_post('dbx_run2');
-           $oReport->_msg_success   = '';
+      if($o_report->submit()) {
+        if(!$o_report->errors()) {      // submit && no errors
+           $work=$o_report->get_post('dbx_run2');
+           $o_report->_msg_success   = '';
         } else {
-           $oReport->_msg_err = 'Prüfen sie bitte ihre Eingaben';
+           $o_report->_msg_err = 'Prüfen sie bitte ihre Eingaben';
         }
       } 
 
       // get all selections and order
       $rgroup='';
-      $rwhere=$oReport->get_fld_val('dbx_rwhere','','varchar|trim');
-      $rrows =$oReport->get_fld_val('dbx_rrows',10,'int|min=1|max=1000');
-      $rpos  =$oReport->get_fld_val('dbx_rpos',0,'int|min=0');
-      $rsort =$oReport->get_fld_val('dbx_rsort','id','parameter');
-      $rdesc =strtoupper((string)$oReport->get_fld_val('dbx_rdesc','ASC','parameter'));
+      $rwhere=$o_report->get_fld_val('dbx_rwhere','','varchar|trim');
+      $rrows =$o_report->get_fld_val('dbx_rrows',10,'int|min=1|max=1000');
+      $rpos  =$o_report->get_fld_val('dbx_rpos',0,'int|min=0');
+      $rsort =$o_report->get_fld_val('dbx_rsort','id','parameter');
+      $rdesc =strtoupper((string)$o_report->get_fld_val('dbx_rdesc','ASC','parameter'));
       if (!in_array($rdesc, array('ASC', 'DESC'), true)) $rdesc = 'ASC';
 
       if ($rwhere) {
-         $server = $oDB->get_dd_server($dd_folder);
-         $needle = $oDB->escape_like($rwhere, $server);
+         $server = $o_db->get_dd_server($dd_folder);
+         $needle = $o_db->escape_like($rwhere, $server);
          $rwhere = "name LIKE '$needle%'";
       }
-      $oReport->_rcount=$oDB->count($dd_folder,$rwhere);
-      $oReport->_rdata =$oDB->select($dd_folder,$rwhere,$flds,$rsort,$rdesc,$rgroup,$rrows,$rpos);
+      $o_report->set_report_counts(
+         $o_db->count($dd_folder, $rwhere),
+         $o_db->count($dd_folder)
+      );
+      $o_report->_rdata =$o_db->select($dd_folder,$rwhere,$flds,$rsort,$rdesc,$rgroup,$rrows,$rpos);
 
-      $content=$oReport->run(1,$flds,'table');
+      $content=$o_report->run(1,$flds,'table');
 
    
 

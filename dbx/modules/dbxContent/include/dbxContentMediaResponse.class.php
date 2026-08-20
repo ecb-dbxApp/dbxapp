@@ -23,8 +23,8 @@ class dbxContentMediaResponse {
             $this->fail(404, $mid);
          }
 
-         $relKey = $thumb && !empty($row['thumb_file_path']) ? 'thumb_file_path' : 'file_path';
-         $rel = $this->safe_relative_path((string)($row[$relKey] ?? ''));
+         $rel_key = $thumb && !empty($row['thumb_file_path']) ? 'thumb_file_path' : 'file_path';
+         $rel = $this->safe_relative_path((string)($row[$rel_key] ?? ''));
          if ($rel === null) {
             http_response_code(403);
             exit;
@@ -33,16 +33,16 @@ class dbxContentMediaResponse {
          $root = dbx()->os_path(rtrim(dbx()->get_file_dir(), '/\\') . '/');
          $base = realpath($root);
          $real = $this->readable_file($base, $root, $rel);
-         $servedThumb = $thumb && $relKey === 'thumb_file_path';
+         $served_thumb = $thumb && $rel_key === 'thumb_file_path';
 
-         if ($real === null && $servedThumb && !empty($row['file_path'])) {
-            $fallbackRel = $this->safe_relative_path((string)$row['file_path']);
-            if ($fallbackRel !== null) {
-               $fallbackReal = $this->readable_file($base, $root, $fallbackRel);
-               if ($fallbackReal !== null) {
-                  $real = $fallbackReal;
-                  $rel = $fallbackRel;
-                  $servedThumb = false;
+         if ($real === null && $served_thumb && !empty($row['file_path'])) {
+            $fallback_rel = $this->safe_relative_path((string)$row['file_path']);
+            if ($fallback_rel !== null) {
+               $fallback_real = $this->readable_file($base, $root, $fallback_rel);
+               if ($fallback_real !== null) {
+                  $real = $fallback_real;
+                  $rel = $fallback_rel;
+                  $served_thumb = false;
                }
             }
          }
@@ -51,17 +51,17 @@ class dbxContentMediaResponse {
             $this->fail(404, $mid, $rel);
          }
 
-         $mime = $servedThumb ? '' : trim((string)($row['mime'] ?? ''));
+         $mime = $served_thumb ? '' : trim((string)($row['mime'] ?? ''));
          if ($mime === '') {
             $detected = function_exists('mime_content_type') ? mime_content_type($real) : '';
             $mime = $detected ?: 'application/octet-stream';
          }
 
-         $fileName = trim((string)($row['file_name'] ?? ''));
-         if ($fileName === '') $fileName = basename($real);
-         $this->stream_file($real, $mime, $fileName);
+         $file_name = trim((string)($row['file_name'] ?? ''));
+         if ($file_name === '') $file_name = basename($real);
+         $this->stream_file($real, $mime, $file_name);
       } catch (\Throwable $e) {
-         dbx()->write_php_error_log(get_class($e), $e->getMessage(), $e->getFile(), $e->getLine());
+         dbx()->get_system_obj('dbxRuntime')->write_php_error_log(get_class($e), $e->getMessage(), $e->getFile(), $e->getLine());
          http_response_code(500);
          exit;
       }
@@ -92,13 +92,13 @@ class dbxContentMediaResponse {
       $real = realpath(dbx()->os_path($root . $rel));
       if (!$real || !is_file($real) || !is_readable($real)) return null;
 
-      $basePath = rtrim(str_replace('\\', '/', (string)$base), '/') . '/';
-      $realPath = str_replace('\\', '/', $real);
-      if (!str_starts_with($realPath, $basePath)) return null;
+      $base_path = rtrim(str_replace('\\', '/', (string)$base), '/') . '/';
+      $real_path = str_replace('\\', '/', $real);
+      if (!str_starts_with($real_path, $base_path)) return null;
       return $real;
    }
 
-   private function stream_file(string $file, string $mime, string $fileName): void {
+   private function stream_file(string $file, string $mime, string $file_name): void {
       while (ob_get_level() > 0) {
          if (!@ob_end_clean()) break;
       }
@@ -107,13 +107,13 @@ class dbxContentMediaResponse {
       $size = (int)filesize($file);
       $mtime = (int)(filemtime($file) ?: time());
       $etag = '"' . md5($file . '|' . $size . '|' . $mtime) . '"';
-      $lastModified = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
-      $ifNoneMatch = trim((string)($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''));
-      $ifModifiedSince = trim((string)($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? ''));
-      if ($ifNoneMatch === $etag || ($ifModifiedSince !== '' && strtotime($ifModifiedSince) >= $mtime)) {
+      $last_modified = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
+      $if_none_match = trim((string)($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''));
+      $if_modified_since = trim((string)($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? ''));
+      if ($if_none_match === $etag || ($if_modified_since !== '' && strtotime($if_modified_since) >= $mtime)) {
          http_response_code(304);
          header('ETag: ' . $etag);
-         header('Last-Modified: ' . $lastModified);
+         header('Last-Modified: ' . $last_modified);
          header('Cache-Control: private, no-cache');
          exit;
       }
@@ -137,13 +137,13 @@ class dbxContentMediaResponse {
          }
       }
 
-      $fileName = str_replace('"', '', basename($fileName));
+      $file_name = str_replace('"', '', basename($file_name));
       header('Content-Type: ' . $mime);
       header('Content-Length: ' . max(0, $end - $start + 1));
-      header('Content-Disposition: inline; filename="' . $fileName . '"');
+      header('Content-Disposition: inline; filename="' . $file_name . '"');
       header('Accept-Ranges: bytes');
       header('ETag: ' . $etag);
-      header('Last-Modified: ' . $lastModified);
+      header('Last-Modified: ' . $last_modified);
       header('Cache-Control: private, no-cache');
       header('X-Content-Type-Options: nosniff');
 

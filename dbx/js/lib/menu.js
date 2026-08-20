@@ -221,7 +221,7 @@
         if (configured === '0') return false;
 
         const element = $menu[0];
-        if (element.closest('aside, [data-dbx-menu-position="left"], .dbx-sidebar, .fleurop-sidebar, .dbxdocs-sidebar')) {
+        if (element.closest('aside, [data-dbx-menu-position="left"], .dbx-sidebar, .fleurop-sidebar')) {
             return true;
         }
 

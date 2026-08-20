@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['bar_title'] = 'Widerrufe';
 $messages['bar_subtitle'] = 'Widerrufe und Retouren aus dem Shop';
 $messages['report_info'] = 'Eingegangene Widerrufe suchen und bearbeiten.';

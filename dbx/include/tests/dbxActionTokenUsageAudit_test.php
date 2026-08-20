@@ -1,7 +1,7 @@
 <?php
 
 $root = dirname(__DIR__, 2);
-$modulesRoot = $root . '/modules';
+$modules_root = $root . '/modules';
 
 $fail = static function (string $message, int $code): void {
    fwrite(STDERR, "FAIL: $message\n");
@@ -15,7 +15,7 @@ $fail = static function (string $message, int $code): void {
  * transportieren komplexe JSON-/Workflow-Kommandos. Darum bleiben Erzeugung
  * und Pruefung ihres fachlichen Scopes vorerst im jeweiligen Dienst.
  */
-$manualScopeAllowlist = array(
+$manual_scope_allowlist = array(
    'dbxAdmin/include/dbxUser.class.php' =>
       'verify, lock, unlock und reset_password mit RID',
    'dbxContent_admin/include/dbxContentCmsCoreService.trait.php' =>
@@ -42,9 +42,17 @@ $manualScopeAllowlist = array(
       'JSON-Testorchestrierung mit eigenem, admininternem Aktionsscope',
    'dbxShop_admin/include/dbxShopAdmin.class.php' =>
       'Shop-Sammel-, Medien-, Installations- und Statusaktionen',
+   'dbxShop_admin/include/dbxShopAdminDashboardService.trait.php' =>
+      'Installations-, Konfigurations- und Importaktionen des Shop-Dashboards',
+   'dbxShop_admin/include/dbxShopAdminOrderService.trait.php' =>
+      'Status-, Mail-, Rechnungs- und Loeschaktionen fuer Bestellungen',
    'dbxShop_admin/include/dbxShopAdminProductActionService.trait.php' =>
       'Produkt-Medienaktionen erzeugen den bestehenden CMS-Scope fuer den gemeinsamen Medienendpunkt',
+   'dbxShop_admin/include/dbxShopAdminProductReportService.trait.php' =>
+      'Baumverschiebungen und Sammelaktionen des Produktreports',
    'dbxWorkflow/include/dbxWorkflowEngine.class.php' =>
+      'Workflow-Start und instanzgebundene Prozesskommandos',
+   'dbxWorkflow/include/dbxWorkflowRuntimeTrait.trait.php' =>
       'Workflow-Start und instanzgebundene Prozesskommandos',
    'dbxWorkflow_admin/include/dbxWorkflowAdmin.class.php' =>
       'Erzeugung instanzgebundener Workflow-Fortsetzungslinks',
@@ -52,7 +60,7 @@ $manualScopeAllowlist = array(
 
 $calls = array('action_token', 'check_action_token');
 $iterator = new RecursiveIteratorIterator(
-   new RecursiveDirectoryIterator($modulesRoot, FilesystemIterator::SKIP_DOTS)
+   new RecursiveDirectoryIterator($modules_root, FilesystemIterator::SKIP_DOTS)
 );
 
 foreach ($iterator as $file) {
@@ -65,7 +73,7 @@ foreach ($iterator as $file) {
       continue;
    }
 
-   $relative = ltrim(substr($path, strlen(str_replace('\\', '/', $modulesRoot))), '/');
+   $relative = ltrim(substr($path, strlen(str_replace('\\', '/', $modules_root))), '/');
    $source = (string)file_get_contents($file->getPathname());
    $tokens = token_get_all($source);
    $found = array();
@@ -80,7 +88,7 @@ foreach ($iterator as $file) {
       }
    }
 
-   if ($found && !isset($manualScopeAllowlist[$relative])) {
+   if ($found && !isset($manual_scope_allowlist[$relative])) {
       $fail(
          'Nicht dokumentierte manuelle Action-Token-Logik in ' . $relative
          . ': ' . implode(', ', array_keys($found)),
@@ -98,19 +106,19 @@ foreach ($iterator as $file) {
    }
 }
 
-foreach ($manualScopeAllowlist as $relative => $reason) {
-   $file = $modulesRoot . '/' . $relative;
+foreach ($manual_scope_allowlist as $relative => $reason) {
+   $file = $modules_root . '/' . $relative;
    if (!is_file($file)) {
       $fail('Dokumentierte Token-Ausnahme fehlt: ' . $relative, 3);
    }
 }
 
-$formSource = (string)file_get_contents($root . '/include/dbxForm.class.php');
-if (strpos($formSource, 'substr($secure') !== false
-    || strpos($formSource, 'substr($posted') !== false) {
+$form_source = (string)file_get_contents($root . '/include/dbxForm.class.php');
+if (strpos($form_source, 'substr($secure') !== false
+    || strpos($form_source, 'substr($posted') !== false) {
    $fail('dbxForm protokolliert weiterhin Teile eines Security-Tokens.', 4);
 }
 
 echo 'OK dbx action token usage audit ('
-   . count($manualScopeAllowlist)
+   . count($manual_scope_allowlist)
    . " documented exceptions)\n";

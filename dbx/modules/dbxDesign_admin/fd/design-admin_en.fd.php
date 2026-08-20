@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['list_title'] = 'Design Studio';
 $messages['list_subtitle'] = 'Personalize, create and edit designs with AI';
 $messages['action_ai_design'] = 'AI design';

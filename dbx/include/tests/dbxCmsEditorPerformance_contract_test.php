@@ -1,7 +1,10 @@
 <?php
 
 $base = dirname(__DIR__, 2);
-$source = (string)file_get_contents($base . '/js/lib/cms.js');
+$source = (string)file_get_contents($base . '/modules/dbxContent_admin/js/cms.js')
+    . (string)file_get_contents($base . '/modules/dbxContent_admin/js/cms-context.js')
+    . (string)file_get_contents($base . '/modules/dbxContent_admin/js/cms-components.js')
+    . (string)file_get_contents($base . '/modules/dbxContent_admin/js/cms-editor.js');
 $template = (string)file_get_contents($base . '/modules/dbxContent_admin/tpl/htm/cms-admin.htm');
 $failures = array();
 
@@ -95,16 +98,16 @@ $assert(
         && str_contains($source, 'root.__dbxCmsStickyResizeObserver = new ResizeObserver'),
     'CMS windows still inherit the unrelated app-header sticky offset.'
 );
-$cmsCss = (string)file_get_contents($base . '/design/dbxapp/css/c-cms.css');
+$cms_css = (string)file_get_contents($base . '/design/dbxapp/css/c-cms.css');
 $assert(
-    str_contains($cmsCss, '.dbx-window-body .dbx-panel.dbx-cms.dbxReport')
-        && str_contains($cmsCss, 'overflow-x: clip'),
+    str_contains($cms_css, '.dbx-window-body .dbx-panel.dbx-cms.dbxReport')
+        && str_contains($cms_css, 'overflow-x: clip'),
     'CMS windows can still create an unnecessary horizontal scrollbar.'
 );
 $assert(
-    str_contains($cmsCss, '.dbx-cms-media-browser-window:not(.dbx-window-mobile-fullscreen)')
-        && str_contains($cmsCss, 'position: fixed !important')
-        && str_contains($cmsCss, 'transform: translate(-50%, -50%) !important'),
+    str_contains($cms_css, '.dbx-cms-media-browser-window:not(.dbx-window-mobile-fullscreen)')
+        && str_contains($cms_css, 'position: fixed !important')
+        && str_contains($cms_css, 'transform: translate(-50%, -50%) !important'),
     'The media browser can still be positioned outside the viewport after editor scrolling.'
 );
 $assert(
@@ -120,15 +123,15 @@ $assert(
         && str_contains($template, 'data-dbx-cms-critical="{i}"'),
     'CMS markup can still become visible before its critical styles are ready.'
 );
-$assetVersion = '{dbx:asset_version}';
+$asset_version = '{dbx:asset_version}';
 $assert(
-    str_contains($template, 'rel="preload" href="dbx/js/lib/cms.js?v=' . $assetVersion . '" as="script" fetchpriority="high"')
-        && str_contains($template, 'rel="preload" href="dbx/js/lib/cms-page.js?v=' . $assetVersion . '" as="script" fetchpriority="high"')
-        && str_contains($template, 'rel="preload" href="dbx/vendor/jodit/jodit.fat.min.js?v=' . $assetVersion . '" as="script" fetchpriority="high"')
-        && str_contains($template, 'rel="stylesheet" href="dbx/vendor/jodit/jodit.fat.min.css?v=' . $assetVersion . '" fetchpriority="high" data-dbx-cms-critical="{i}"')
-        && str_contains($template, 'rel="stylesheet" href="dbx/design/{dbx:design}/css/c-cms.css?v=' . $assetVersion . '" fetchpriority="high" data-dbx-cms-critical="{i}"')
-        && str_contains($template, 'rel="stylesheet" href="dbx/design/{dbx:design}/css/c-form.css?v=' . $assetVersion . '" fetchpriority="high" data-dbx-cms-critical="{i}"')
-        && str_contains($template, 'rel="stylesheet" href="dbx/design/{dbx:design}/css/c-grid.css?v=' . $assetVersion . '" fetchpriority="high" data-dbx-cms-critical="{i}"'),
+    str_contains($template, 'rel="preload" href="dbx/modules/dbxContent_admin/js/cms.js?v=' . $asset_version . '" as="script" fetchpriority="high"')
+        && str_contains($template, 'rel="preload" href="dbx/modules/dbxContent_admin/js/cms-page.js?v=' . $asset_version . '" as="script" fetchpriority="high"')
+        && str_contains($template, 'rel="preload" href="dbx/vendor/jodit/jodit.fat.min.js?v=' . $asset_version . '" as="script" fetchpriority="high"')
+        && str_contains($template, 'rel="stylesheet" href="dbx/vendor/jodit/jodit.fat.min.css?v=' . $asset_version . '" fetchpriority="high" data-dbx-cms-critical="{i}"')
+        && str_contains($template, 'rel="stylesheet" href="dbx/design/{dbx:design}/css/c-cms.css?v=' . $asset_version . '" fetchpriority="high" data-dbx-cms-critical="{i}"')
+        && str_contains($template, 'rel="stylesheet" href="dbx/design/{dbx:design}/css/c-form.css?v=' . $asset_version . '" fetchpriority="high" data-dbx-cms-critical="{i}"')
+        && str_contains($template, 'rel="stylesheet" href="dbx/design/{dbx:design}/css/c-grid.css?v=' . $asset_version . '" fetchpriority="high" data-dbx-cms-critical="{i}"'),
     'CMS/editor styles are not render-blocking high-priority stylesheets.'
 );
 $assert(

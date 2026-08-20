@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Module wizard';
 $messages['bar_subtitle'] = 'Structure, DD, form, report and AI task';
 $messages['action_create'] = 'Create';

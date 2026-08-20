@@ -1,6 +1,8 @@
 <?php
 namespace dbx\dbxAdmin;
 
+require_once __DIR__ . '/dbxSystemMessageConfig.class.php';
+
 require_once dbx()->get_base_dir() . 'dbx/include/dbxForm.class.php';
 
 class dbxSysMsg {
@@ -40,11 +42,11 @@ class dbxSysMsg {
       return file_exists($file) ? 'error' : 'deleted';
    }
 
-   private function create_error_log_info($oReport) {
+   private function create_error_log_info($o_report) {
       $file = $this->get_error_log_file();
 
       if (!file_exists($file)) {
-         $oReport->add_obj('error_log', 'dbxAdmin|sysmsg-error-log-empty');
+         $o_report->add_obj('error_log', 'dbxAdmin|sysmsg-error-log-empty');
          return;
       }
 
@@ -64,20 +66,7 @@ class dbxSysMsg {
          ),
       );
 
-      $oReport->add_obj('error_log', 'dbxAdmin|sysmsg-error-log-box', $data);
-   }
-
-   private function normalize_sys_msg_level($level): string {
-      $level = strtolower(trim((string) $level));
-      if ($level === 'warn') {
-         $level = 'warning';
-      }
-
-      return in_array($level, array('error', 'warning', 'all'), true) ? $level : 'all';
-   }
-
-   private function sys_msg_level_config(): string {
-      return $this->normalize_sys_msg_level(dbx()->get_cfg('dbx', 'sys_msg_level', 'all'));
+      $o_report->add_obj('error_log', 'dbxAdmin|sysmsg-error-log-box', $data);
    }
 
    private function sys_msg_level_options(string $current, $texts): string {
@@ -96,77 +85,67 @@ class dbxSysMsg {
       return $html;
    }
 
-   private function set_sys_msg_level_config(string $level): bool {
-      $config = dbx()->get_cfg('dbx');
-      if (!is_array($config)) {
-         $config = array();
-      }
-
-      $config['sys_msg_level'] = $this->normalize_sys_msg_level($level);
-      return (int) dbx()->set_cfg('dbx', $config) > 0;
-   }
-
    private function sys_msg_level_control(): string {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-sysmsg-level-control', 'admin-dashboard-sysmsg-level-control');
-      $oForm->_fd = 'dbxAdmin|rpt-sysmsg-selection';
-      $oForm->load_fd_messages();
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=sysmsg_level_save';
-      $oForm->_msg_info = '';
-      $current = $this->sys_msg_level_config();
-      $oForm->add_rep('action', dbx()->esc($oForm->_action));
-      $oForm->add_rep('sys_msg_level_save_base', dbx()->esc($oForm->_action));
-      $oForm->add_rep(
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-sysmsg-level-control', 'admin-dashboard-sysmsg-level-control');
+      $o_form->set_field_definition('dbxAdmin|rpt-sysmsg-selection');
+      $o_form->load_fd_messages();
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=sysmsg_level_save');
+      $o_form->_msg_info = '';
+      $current = dbxSystemMessageConfig::current();
+      $o_form->add_rep('action', dbx()->esc($o_form->get_action()));
+      $o_form->add_rep('sys_msg_level_save_base', dbx()->esc($o_form->get_action()));
+      $o_form->add_rep(
          'sys_msg_level_options',
-         $this->sys_msg_level_options($current, $oForm)
+         $this->sys_msg_level_options($current, $o_form)
       );
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 
    private function report_sysmsg() {
       $dd      = 'dbxSysMsg';
       $db      = dbx()->get_system_obj('dbxDB');
-      $oReport = dbx()->get_system_obj('dbxReport');
+      $o_report = dbx()->get_system_obj('dbxReport');
 
-      $oReport->init('report-sysmsg');
-      $oReport->_fd = 'dbxAdmin|rpt-sysmsg-selection';
-      $oReport->load_fd_messages();
-      $oReport->_dd = $dd;
-      $oReport->add_rep('report_shell_class', 'dbx-admin-dashboard-panel dbx-admin-dashboard-sysmsg-report');
+      $o_report->init('report-sysmsg');
+      $o_report->set_field_definition('dbxAdmin|rpt-sysmsg-selection');
+      $o_report->load_fd_messages();
+      $o_report->set_data_definition($dd);
+      $o_report->add_rep('report_shell_class', 'dbx-admin-dashboard-panel dbx-admin-dashboard-sysmsg-report');
 
       $work = dbx()->get_modul_var('dbx_do', '', 'parameter');
       $rid  = dbx()->get_modul_var('rid', 0, 'int');
 
       if ($work == 'row_delete' && $rid) {
-         $ok = $oReport->del_selected($rid);
+         $ok = $o_report->del_selected($rid);
          $ok = $db->delete($dd, $rid);
 
          if ($ok) {
-            $oReport->_msg_success = $oReport->get_fd_message(
+            $o_report->_msg_success = $o_report->get_fd_message(
                'row_delete_success'
             );
          } else {
-            $oReport->_msg_error = $oReport->get_fd_message(
+            $o_report->_msg_error = $o_report->get_fd_message(
                'row_delete_error'
             );
          }
       }
 
       if ($work == 'multi_delete') {
-         $result = $oReport->delete_multi_selected_records($dd);
-         $oReport->apply_multi_delete_result($result);
+         $result = $o_report->delete_multi_selected_records($dd);
+         $o_report->apply_multi_delete_result($result);
       }
 
       if ($work == 'delete_tab') {
          $ok = $db->delete_tab($dd);
          dbx()->debug("##delete tab dd=($dd) ok=($ok)");
          if ($ok) {
-            $oReport->_msg_success = $oReport->get_fd_message(
+            $o_report->_msg_success = $o_report->get_fd_message(
                'delete_tab_success'
             );
          } else {
-            $oReport->_msg_error = $oReport->get_fd_message(
+            $o_report->_msg_error = $o_report->get_fd_message(
                'delete_tab_error'
             );
          }
@@ -176,67 +155,67 @@ class dbxSysMsg {
          $result = $this->delete_error_log();
 
          if ($result === 'empty') {
-            $oReport->_msg_success = $oReport->get_fd_message(
+            $o_report->_msg_success = $o_report->get_fd_message(
                'error_log_empty'
             );
          } elseif ($result === 'deleted') {
-            $oReport->_msg_success = $oReport->get_fd_message(
+            $o_report->_msg_success = $o_report->get_fd_message(
                'error_log_deleted'
             );
          } else {
-            $oReport->_msg_error = $oReport->get_fd_message(
+            $o_report->_msg_error = $o_report->get_fd_message(
                'error_log_delete_error'
             );
          }
       }
 
       $flds['id']          = 'ID';
-      $flds['create_date'] = $oReport->get_fd_message('column_created');
-      $flds['level']       = $oReport->get_fd_message('column_level');
-      $flds['status']      = $oReport->get_fd_message('column_status');
-      $flds['about']       = $oReport->get_fd_message('column_context');
-      $flds['modul']       = $oReport->get_fd_message('column_module');
-      $flds['action']      = $oReport->get_fd_message('column_action');
-      $flds['work']        = $oReport->get_fd_message('column_process');
+      $flds['create_date'] = $o_report->get_fd_message('column_created');
+      $flds['level']       = $o_report->get_fd_message('column_level');
+      $flds['status']      = $o_report->get_fd_message('column_status');
+      $flds['about']       = $o_report->get_fd_message('column_context');
+      $flds['modul']       = $o_report->get_fd_message('column_module');
+      $flds['action']      = $o_report->get_fd_message('column_action');
+      $flds['work']        = $o_report->get_fd_message('column_process');
       $flds['rid']         = 'RID';
-      $flds['xuser']       = $oReport->get_fd_message('column_user');
-      $flds['message']     = $oReport->get_fd_message('column_message');
+      $flds['xuser']       = $o_report->get_fd_message('column_user');
+      $flds['message']     = $o_report->get_fd_message('column_message');
 
       $rformat['create_date'] = 'php-datetime-usr';
-      $oReport->_rpt_format   = $rformat;
+      $o_report->_rpt_format   = $rformat;
 
-      $oReport->_action            = '?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=list_sysmsg';
-      $oReport->_pages             = true;
-      $oReport->_create_row_select = true;
-      $oReport->_create_row_edit   = false;
-      $oReport->_create_row_delete = true;
-      $oReport->_create_sel_flds   = true;
-      $oReport->_but_pagination    = 5;
+      $o_report->set_action('?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=list_sysmsg');
+      $o_report->_pages             = true;
+      $o_report->_create_row_select = true;
+      $o_report->_create_row_edit   = false;
+      $o_report->_create_row_delete = true;
+      $o_report->_create_sel_flds   = true;
+      $o_report->_but_pagination    = 5;
 
-      $oReport->enable_delete_tab($dd);
+      $o_report->enable_delete_tab($dd);
 
-      $oReport->add_action('rows_delete'   , 'action_button_delete'  , '&dbx_do=multi_delete');
+      $o_report->add_action('rows_delete'   , 'action_button_delete'  , '&dbx_do=multi_delete');
 
-      $oReport->create_selection_fields('dbxAdmin|rpt-sysmsg-selection');
-      $this->create_error_log_info($oReport);
+      $o_report->create_selection_fields('dbxAdmin|rpt-sysmsg-selection');
+      $this->create_error_log_info($o_report);
 
-      if ($work != 'delete_tab' && $work != 'delete_error_log' && $work != 'multi_delete' && $work != 'row_delete' && $oReport->submit()) {
-         if (!$oReport->errors()) {
-            $oReport->_msg_success = '';
+      if ($work != 'delete_tab' && $work != 'delete_error_log' && $work != 'multi_delete' && $work != 'row_delete' && $o_report->submit()) {
+         if (!$o_report->errors()) {
+            $o_report->_msg_success = '';
          } else {
-            $oReport->_msg_error = $oReport->get_fd_message(
+            $o_report->_msg_error = $o_report->get_fd_message(
                'validation_error'
             );
          }
       }
 
-      $rwhere = $oReport->get_fld_val('dbx_rwhere' , ''           , 'sqlsearch|max=64');
-      $rstatus= $oReport->get_fld_val('dbx_rstatus', 'all'        , 'parameter');
-      $rrows  = $oReport->get_fld_val('dbx_rrows'  , 15           , 'int');
-      $rpos   = $oReport->get_fld_val('dbx_rpos'   , 0            , 'int');
-      $rsort  = $oReport->get_fld_val('dbx_rsort'  , 'create_date', 'parameter');
-      $rdesc  = $oReport->get_fld_val('dbx_rdesc'  , 'DESC'       , 'parameter');
-      $select = $oReport->get_fld_val('dbx_rselect', 0            , 'int');
+      $rwhere = $o_report->get_fld_val('dbx_rwhere' , ''           , 'sqlsearch|max=64');
+      $rstatus= $o_report->get_fld_val('dbx_rstatus', 'all'        , 'parameter');
+      $rrows  = $o_report->get_fld_val('dbx_rrows'  , 15           , 'int');
+      $rpos   = $o_report->get_fld_val('dbx_rpos'   , 0            , 'int');
+      $rsort  = $o_report->get_fld_val('dbx_rsort'  , 'create_date', 'parameter');
+      $rdesc  = $o_report->get_fld_val('dbx_rdesc'  , 'DESC'       , 'parameter');
+      $select = $o_report->get_fld_val('dbx_rselect', 0            , 'int');
       $rgroup = '';
 
       if ($rwhere != '') {
@@ -263,17 +242,17 @@ class dbxSysMsg {
             $rwhere = $db->normalize_where($dd, $rwhere);
          }
 
-         $rwhere = $oReport->add_rwhere_select($rwhere);
+         $rwhere = $o_report->add_rwhere_select($rwhere);
       }
 
-      $oReport->_rflds     = $flds;
-      $oReport->_rrows     = $rrows;
-      $oReport->_rpos      = $rpos;
-      $oReport->_count_all = $db->count($dd);
-      $oReport->_rcount    = $db->count($dd, $rwhere);
-      $oReport->_rdata     = $db->select($dd, $rwhere, $flds, $rsort, $rdesc, $rgroup, $rrows, $rpos);
+      $o_report->_rflds     = $flds;
+      $o_report->_rrows     = $rrows;
+      $o_report->_rpos      = $rpos;
+      $o_report->_count_all = $db->count($dd);
+      $o_report->_rcount    = $db->count($dd, $rwhere);
+      $o_report->_rdata     = $db->select($dd, $rwhere, $flds, $rsort, $rdesc, $rgroup, $rrows, $rpos);
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
    private function process_sys_msg_level_action(): string {
@@ -281,7 +260,7 @@ class dbxSysMsg {
       if ($level === null || $level === '') {
          $level = $_POST['sys_msg_level'] ?? 'all';
       }
-      $this->set_sys_msg_level_config((string) $level);
+      dbxSystemMessageConfig::save((string)$level);
       return $this->sys_msg_level_control();
    }
 

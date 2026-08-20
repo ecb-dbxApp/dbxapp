@@ -15,29 +15,29 @@ class dbxSelfTestRunner
     public const LOG_VERSION = 1;
     private const ACTIVE_RUN_GRACE_SECONDS = 600;
 
-    private string $baseDir;
-    private string $logDir;
-    private ?array $catalogCache = null;
-    private ?string $phpCliBinaryCache = null;
-    private int $maxOutputBytes = 131072;
+    private string $base_dir;
+    private string $log_dir;
+    private ?array $catalog_cache = null;
+    private ?string $php_cli_binary_cache = null;
+    private int $max_output_bytes = 131072;
 
-    public function __construct(?string $baseDir = null, ?string $logDir = null)
+    public function __construct(?string $base_dir = null, ?string $log_dir = null)
     {
-        $root = $baseDir ?: dirname(__DIR__, 4);
+        $root = $base_dir ?: dirname(__DIR__, 4);
         $real = realpath($root);
-        $this->baseDir = rtrim(str_replace('\\', '/', $real !== false ? $real : $root), '/');
-        $this->logDir = $logDir ?: $this->baseDir . '/files/sys/selftest';
-        $this->ensureDirectory($this->logDir);
+        $this->base_dir = rtrim(str_replace('\\', '/', $real !== false ? $real : $root), '/');
+        $this->log_dir = $log_dir ?: $this->base_dir . '/files/sys/selftest';
+        $this->ensure_directory($this->log_dir);
     }
 
-    public function baseDir(): string
+    public function base_dir(): string
     {
-        return $this->baseDir;
+        return $this->base_dir;
     }
 
-    public function logDir(): string
+    public function log_dir(): string
     {
-        return $this->logDir;
+        return $this->log_dir;
     }
 
     /**
@@ -45,27 +45,27 @@ class dbxSelfTestRunner
      */
     public function catalog(string $profile = 'full'): array
     {
-        if ($this->catalogCache === null) {
-            $tests = $this->builtinCatalog();
-            $tests = array_merge($tests, $this->discoverFileTests());
+        if ($this->catalog_cache === null) {
+            $tests = $this->builtin_catalog();
+            $tests = array_merge($tests, $this->discover_file_tests());
             usort($tests, static function (array $a, array $b): int {
                 return [$a['category'], $a['name']] <=> [$b['category'], $b['name']];
             });
-            $this->catalogCache = $tests;
+            $this->catalog_cache = $tests;
         }
 
-        $profile = $this->normalizeProfile($profile);
+        $profile = $this->normalize_profile($profile);
         if ($profile === 'full') {
-            return $this->catalogCache;
+            return $this->catalog_cache;
         }
 
         return array_values(array_filter(
-            $this->catalogCache,
+            $this->catalog_cache,
             static fn(array $test): bool => ($test['tier'] ?? 'full') === 'quick'
         ));
     }
 
-    public function catalogById(): array
+    public function catalog_by_id(): array
     {
         $out = array();
         foreach ($this->catalog('full') as $test) {
@@ -77,16 +77,16 @@ class dbxSelfTestRunner
     /**
      * Startet einen protokollierten Lauf. Ohne IDs wird das Profil verwendet.
      */
-    public function startRun(string $profile = 'full', array $testIds = array(), string $mode = 'complete'): array
+    public function start_run(string $profile = 'full', array $test_ids = array(), string $mode = 'complete'): array
     {
-        $profile = $this->normalizeProfile($profile);
-        $catalog = $this->catalogById();
-        if ($testIds === array()) {
-            $testIds = array_column($this->catalog($profile), 'id');
+        $profile = $this->normalize_profile($profile);
+        $catalog = $this->catalog_by_id();
+        if ($test_ids === array()) {
+            $test_ids = array_column($this->catalog($profile), 'id');
         }
 
         $selected = array();
-        foreach ($testIds as $id) {
+        foreach ($test_ids as $id) {
             $id = (string)$id;
             if (isset($catalog[$id]) && !in_array($id, $selected, true)) {
                 $selected[] = $id;
@@ -118,76 +118,76 @@ class dbxSelfTestRunner
                 'host' => (string)($_SERVER['HTTP_HOST'] ?? gethostname() ?: ''),
             ),
         );
-        $this->writeRun($run);
+        $this->write_run($run);
         return $run;
     }
 
     /**
-     * Fuehrt genau einen zum Lauf gehoerenden Test aus und protokolliert ihn.
+     * Führt genau einen zum Lauf gehoerenden Test aus und protokolliert ihn.
      */
-    public function executeRunTest(string $runId, string $testId): array
+    public function execute_run_test(string $run_id, string $test_id): array
     {
-        $run = $this->loadRun($runId);
+        $run = $this->load_run($run_id);
         if (!$run) {
             throw new \RuntimeException('Testlauf wurde nicht gefunden.');
         }
         if (($run['status'] ?? '') !== 'running') {
             throw new \RuntimeException('Testlauf ist bereits abgeschlossen.');
         }
-        if (!in_array($testId, $run['test_ids'] ?? array(), true)) {
+        if (!in_array($test_id, $run['test_ids'] ?? array(), true)) {
             throw new \RuntimeException('Test gehoert nicht zu diesem Lauf.');
         }
 
         foreach ($run['results'] ?? array() as $existing) {
-            if (($existing['test_id'] ?? '') === $testId) {
+            if (($existing['test_id'] ?? '') === $test_id) {
                 return $existing;
             }
         }
 
-        $catalog = $this->catalogById();
-        if (!isset($catalog[$testId])) {
+        $catalog = $this->catalog_by_id();
+        if (!isset($catalog[$test_id])) {
             throw new \RuntimeException('Test ist nicht mehr im Katalog vorhanden.');
         }
 
-        $run['current_test_id'] = $testId;
-        $this->writeRun($run);
-        $result = $this->executeTest($catalog[$testId]);
+        $run['current_test_id'] = $test_id;
+        $this->write_run($run);
+        $result = $this->execute_test($catalog[$test_id]);
 
-        $run = $this->loadRun($runId) ?: $run;
+        $run = $this->load_run($run_id) ?: $run;
         $run['results'][] = $result;
         $run['current_test_id'] = null;
-        $run['totals'] = $this->calculateTotals($run);
-        $run['duration_ms'] = $this->durationSince((string)$run['started_at']);
-        $this->writeRun($run);
+        $run['totals'] = $this->calculate_totals($run);
+        $run['duration_ms'] = $this->duration_since((string)$run['started_at']);
+        $this->write_run($run);
         return $result;
     }
 
     /**
-     * Uebernimmt das Ergebnis eines im Admin-Browser isoliert ausgefuehrten
+     * Übernimmt das Ergebnis eines im Admin-Browser isoliert ausgefuehrten
      * JavaScript-Tests. Testmetadaten und Laufzuordnung bleiben serverseitig.
      */
-    public function recordBrowserTestResult(string $runId, string $testId, array $payload): array
+    public function record_browser_test_result(string $run_id, string $test_id, array $payload): array
     {
-        $run = $this->loadRun($runId);
+        $run = $this->load_run($run_id);
         if (!$run || ($run['status'] ?? '') !== 'running') {
             throw new \RuntimeException('Aktiver Testlauf wurde nicht gefunden.');
         }
-        if (!in_array($testId, $run['test_ids'] ?? array(), true)) {
+        if (!in_array($test_id, $run['test_ids'] ?? array(), true)) {
             throw new \RuntimeException('Test gehoert nicht zu diesem Lauf.');
         }
         foreach ($run['results'] ?? array() as $existing) {
-            if (($existing['test_id'] ?? '') === $testId) {
+            if (($existing['test_id'] ?? '') === $test_id) {
                 return $existing;
             }
         }
-        $catalog = $this->catalogById();
-        $test = $catalog[$testId] ?? null;
+        $catalog = $this->catalog_by_id();
+        $test = $catalog[$test_id] ?? null;
         if (!is_array($test) || ($test['type'] ?? '') !== 'js') {
             throw new \RuntimeException('Nur JavaScript-Tests duerfen Browserergebnisse melden.');
         }
 
         $status = ($payload['status'] ?? '') === 'passed' ? 'passed' : 'failed';
-        $output = $this->cleanOutput((string)($payload['output'] ?? ''));
+        $output = $this->clean_output((string)($payload['output'] ?? ''));
         $duration = max(0, min(3600000, (int)($payload['duration_ms'] ?? 0)));
         $now = $this->now();
         $result = array(
@@ -202,28 +202,28 @@ class dbxSelfTestRunner
             'duration_ms' => $duration,
             'started_at' => (string)($payload['started_at'] ?? $now),
             'finished_at' => $now,
-            'summary' => $this->resultSummary($status, $output, ''),
+            'summary' => $this->result_summary($status, $output, ''),
             'output' => $output,
             'relative_path' => (string)$test['relative_path'],
         );
         $run['results'][] = $result;
         $run['current_test_id'] = null;
-        $run['totals'] = $this->calculateTotals($run);
-        $run['duration_ms'] = $this->durationSince((string)$run['started_at']);
-        $this->writeRun($run);
+        $run['totals'] = $this->calculate_totals($run);
+        $run['duration_ms'] = $this->duration_since((string)$run['started_at']);
+        $this->write_run($run);
         return $result;
     }
 
-    public function finishRun(string $runId, bool $aborted = false): array
+    public function finish_run(string $run_id, bool $aborted = false): array
     {
-        $run = $this->loadRun($runId);
+        $run = $this->load_run($run_id);
         if (!$run) {
             throw new \RuntimeException('Testlauf wurde nicht gefunden.');
         }
         $run['current_test_id'] = null;
-        $run['totals'] = $this->calculateTotals($run);
+        $run['totals'] = $this->calculate_totals($run);
         $run['finished_at'] = $this->now();
-        $run['duration_ms'] = $this->durationBetween((string)$run['started_at'], (string)$run['finished_at']);
+        $run['duration_ms'] = $this->duration_between((string)$run['started_at'], (string)$run['finished_at']);
         if ($aborted || (int)$run['totals']['completed'] < (int)$run['totals']['total']) {
             $run['status'] = 'aborted';
         } elseif ((int)$run['totals']['failed'] > 0) {
@@ -231,31 +231,31 @@ class dbxSelfTestRunner
         } else {
             $run['status'] = 'passed';
         }
-        $this->writeRun($run);
+        $this->write_run($run);
         return $run;
     }
 
     /**
      * Synchroner Einstieg fuer CLI und CI.
      */
-    public function runProfile(string $profile = 'full', array $testIds = array(), ?callable $onResult = null): array
+    public function run_profile(string $profile = 'full', array $test_ids = array(), ?callable $on_result = null): array
     {
-        $run = $this->startRun($profile, $testIds, 'cli');
+        $run = $this->start_run($profile, $test_ids, 'cli');
         foreach ($run['test_ids'] as $id) {
-            $result = $this->executeRunTest((string)$run['id'], (string)$id);
-            if ($onResult) {
-                $onResult($result, $this->loadRun((string)$run['id']));
+            $result = $this->execute_run_test((string)$run['id'], (string)$id);
+            if ($on_result) {
+                $on_result($result, $this->load_run((string)$run['id']));
             }
         }
-        return $this->finishRun((string)$run['id']);
+        return $this->finish_run((string)$run['id']);
     }
 
-    public function loadRun(string $runId): ?array
+    public function load_run(string $run_id): ?array
     {
-        if (!$this->validRunId($runId)) {
+        if (!$this->valid_run_id($run_id)) {
             return null;
         }
-        $path = $this->runPath($runId);
+        $path = $this->run_path($run_id);
         if (!is_file($path)) {
             return null;
         }
@@ -273,11 +273,11 @@ class dbxSelfTestRunner
 
     public function history(int $limit = 20): array
     {
-        $files = glob($this->logDir . '/*.json') ?: array();
+        $files = glob($this->log_dir . '/*.json') ?: array();
         usort($files, static fn(string $a, string $b): int => (filemtime($b) ?: 0) <=> (filemtime($a) ?: 0));
         $items = array();
         foreach (array_slice($files, 0, max(1, min(100, $limit))) as $file) {
-            $run = $this->loadRun(pathinfo($file, PATHINFO_FILENAME));
+            $run = $this->load_run(pathinfo($file, PATHINFO_FILENAME));
             if (!$run) {
                 continue;
             }
@@ -299,12 +299,12 @@ class dbxSelfTestRunner
      *
      * @return int Anzahl der tatsaechlich geloeschten Protokolldateien.
      */
-    public function clearHistory(): int
+    public function clear_history(): int
     {
-        $files = glob($this->logDir . '/*.json') ?: array();
+        $files = glob($this->log_dir . '/*.json') ?: array();
         $deleted = 0;
         foreach ($files as $file) {
-            $run = $this->loadRun(pathinfo($file, PATHINFO_FILENAME));
+            $run = $this->load_run(pathinfo($file, PATHINFO_FILENAME));
             $status = (string)($run['status'] ?? '');
             $modified = (int)(filemtime($file) ?: 0);
             $active = $status === 'running' && $modified >= time() - self::ACTIVE_RUN_GRACE_SECONDS;
@@ -318,24 +318,24 @@ class dbxSelfTestRunner
         return $deleted;
     }
 
-    public function runLogPath(string $runId): ?string
+    public function run_log_path(string $run_id): ?string
     {
-        $path = $this->validRunId($runId) ? $this->runPath($runId) : '';
+        $path = $this->valid_run_id($run_id) ? $this->run_path($run_id) : '';
         return $path !== '' && is_file($path) ? $path : null;
     }
 
-    private function builtinCatalog(): array
+    private function builtin_catalog(): array
     {
         return array(
-            $this->builtin('environment', 'Laufzeitumgebung', 'Prueft PHP-Version, Erweiterungen und Prozessausfuehrung.', 'quick', 15),
-            $this->builtin('filesystem', 'Dateisystem und Schutzregeln', 'Prueft notwendige Verzeichnisse, Schreibrechte und private Dateischutzregeln.', 'quick', 15),
-            $this->builtin('modules', 'Modul-Einstiegspunkte', 'Prueft Hauptklassen, Namespaces und Konfiguration aller Module.', 'quick', 30),
+            $this->builtin('environment', 'Laufzeitumgebung', 'Prüft PHP-Version, Erweiterungen und Prozessausfuehrung.', 'quick', 15),
+            $this->builtin('filesystem', 'Dateisystem und Schutzregeln', 'Prüft notwendige Verzeichnisse, Schreibrechte und private Dateischutzregeln.', 'quick', 15),
+            $this->builtin('modules', 'Modul-Einstiegspunkte', 'Prüft Hauptklassen, Namespaces und Konfiguration aller Module.', 'quick', 30),
             $this->builtin('conflict_markers', 'Ungelöste Konfliktmarker', 'Sucht nach nicht aufgeloesten Git-Konflikten in Quell- und Konfigurationsdateien.', 'quick', 30),
-            $this->builtin('page_cache', 'Gastseiten-Cache Integrität', 'Prueft Generationen, veraltete HTML-Dateien und liegengebliebene Schreibdateien.', 'quick', 30),
+            $this->builtin('page_cache', 'Gastseiten-Cache Integrität', 'Prüft Generationen, veraltete HTML-Dateien und liegengebliebene Schreibdateien.', 'quick', 30),
             $this->builtin('php_syntax', 'PHP-Syntax Gesamtsystem', 'Parst alle eigenen PHP-Dateien ohne sie auszufuehren.', 'full', 300),
-            $this->builtin('js_syntax', 'JavaScript-Syntax Gesamtsystem', 'Prueft alle eigenen JavaScript-Dateien mit Node.js; ohne Node.js laufen Browser-Tests weiterhin im Web-Dashboard.', 'full', 300),
+            $this->builtin('js_syntax', 'JavaScript-Syntax Gesamtsystem', 'Prüft alle eigenen JavaScript-Dateien mit Node.js; ohne Node.js laufen Browser-Tests weiterhin im Web-Dashboard.', 'full', 300),
             $this->builtin('composer_validate', 'Composer-Konfiguration', 'Validiert dbx/composer.json im Strict-Modus.', 'full', 60),
-            $this->builtin('composer_audit', 'Composer-Sicherheitsaudit', 'Prueft produktive Composer-Abhaengigkeiten auf bekannte Schwachstellen.', 'full', 120),
+            $this->builtin('composer_audit', 'Composer-Sicherheitsaudit', 'Prüft produktive Composer-Abhaengigkeiten auf bekannte Schwachstellen.', 'full', 120),
         );
     }
 
@@ -354,10 +354,10 @@ class dbxSelfTestRunner
         );
     }
 
-    private function discoverFileTests(): array
+    private function discover_file_tests(): array
     {
         $tests = array();
-        $root = $this->baseDir . '/dbx';
+        $root = $this->base_dir . '/dbx';
         if (!is_dir($root)) {
             return $tests;
         }
@@ -377,17 +377,17 @@ class dbxSelfTestRunner
             if ($type === '') {
                 continue;
             }
-            $relative = ltrim(substr($path, strlen($this->baseDir)), '/');
-            $module = $this->moduleFromPath($relative);
-            $metadata = $this->testMetadata($relative, $type);
+            $relative = ltrim(substr($path, strlen($this->base_dir)), '/');
+            $module = $this->module_from_path($relative);
+            $metadata = $this->test_metadata($relative, $type);
             $tier = (string)$metadata['tier'];
-            $testName = (string)preg_replace('/_test\.(?:php|js)$/i', '', $name);
+            $test_name = (string)preg_replace('/_test\.(?:php|js)$/i', '', $name);
             $tests[] = array(
                 'id' => $type . '.' . substr(hash('sha256', $relative), 0, 20),
-                'name' => $testName,
+                'name' => $test_name,
                 'description' => trim((string)($metadata['description'] ?? '')) !== ''
                     ? trim((string)$metadata['description'])
-                    : $this->fileTestDescription($testName, $path),
+                    : $this->file_test_description($test_name, $path),
                 'type' => $type,
                 'execution' => $type === 'js' ? 'browser' : 'server',
                 'category' => $module,
@@ -408,7 +408,7 @@ class dbxSelfTestRunner
      * test-metadata.php überschreiben, aber kein UI-Eintrag bleibt ohne
      * Aussage darüber, welche Art von Verhalten geprüft wird.
      */
-    private function fileTestDescription(string $testName, string $path = ''): string
+    private function file_test_description(string $test_name, string $path = ''): string
     {
         // Ein einleitender Test-Kommentar ist die präziseste Dokumentation und
         // wird deshalb direkt im Dashboard als Tooltip verwendet. Annotationen
@@ -442,29 +442,29 @@ class dbxSelfTestRunner
             }
         }
 
-        $label = preg_replace('/(?<=[a-z0-9])(?=[A-Z])/', ' ', $testName);
+        $label = preg_replace('/(?<=[a-z0-9])(?=[A-Z])/', ' ', $test_name);
         $label = str_replace(array('_', '-'), ' ', (string)$label);
         $label = trim((string)preg_replace('/\s+/', ' ', (string)$label));
         $label = preg_replace('/\bcontract\b/i', '', $label);
         $label = trim((string)preg_replace('/\s+/', ' ', (string)$label));
 
-        if (preg_match('/security|sicherheit/i', $testName)) {
+        if (preg_match('/security|sicherheit/i', $test_name)) {
             return 'Prüft die Sicherheitsregeln und unzulässigen Zugriffe für ' . $label . '.';
         }
-        if (preg_match('/performance/i', $testName)) {
+        if (preg_match('/performance/i', $test_name)) {
             return 'Prüft die Performance-Grenzen und vermeidet Regressionen bei ' . $label . '.';
         }
-        if (preg_match('/integration|roundtrip/i', $testName)) {
+        if (preg_match('/integration|roundtrip/i', $test_name)) {
             return 'Prüft das Zusammenspiel der beteiligten Komponenten für ' . $label . '.';
         }
-        if (preg_match('/contract/i', $testName)) {
+        if (preg_match('/contract/i', $test_name)) {
             return 'Prüft den verbindlichen technischen Vertrag für ' . $label . '.';
         }
         return 'Prüft die vorgesehene Funktionalität von ' . $label . '.';
     }
 
     /** @return array{tier:string,timeout:int,isolation:string,resources:array} */
-    private function testMetadata(string $relative, string $type): array
+    private function test_metadata(string $relative, string $type): array
     {
         static $config = null;
         if ($config === null) {
@@ -491,7 +491,7 @@ class dbxSelfTestRunner
         return $metadata;
     }
 
-    private function moduleFromPath(string $relative): string
+    private function module_from_path(string $relative): string
     {
         if (preg_match('~^dbx/modules/([^/]+)/~', $relative, $match)) {
             return (string)$match[1];
@@ -499,17 +499,17 @@ class dbxSelfTestRunner
         return 'Core';
     }
 
-    private function executeTest(array $test): array
+    private function execute_test(array $test): array
     {
         $started = microtime(true);
-        $startedAt = $this->now();
+        $started_at = $this->now();
         if (($test['type'] ?? '') === 'system') {
-            $raw = $this->executeBuiltin((string)$test['handler'], (int)$test['timeout']);
+            $raw = $this->execute_builtin((string)$test['handler'], (int)$test['timeout']);
         } else {
-            $raw = $this->executeFileTest($test);
+            $raw = $this->execute_file_test($test);
         }
-        $finishedAt = $this->now();
-        $output = $this->cleanOutput((string)($raw['output'] ?? ''));
+        $finished_at = $this->now();
+        $output = $this->clean_output((string)($raw['output'] ?? ''));
         $status = (string)($raw['status'] ?? ((int)($raw['exit_code'] ?? 1) === 0 ? 'passed' : 'failed'));
         if (!in_array($status, array('passed', 'failed', 'skipped'), true)) {
             $status = 'failed';
@@ -523,24 +523,24 @@ class dbxSelfTestRunner
             'exit_code' => isset($raw['exit_code']) ? (int)$raw['exit_code'] : null,
             'timed_out' => !empty($raw['timed_out']),
             'duration_ms' => (int)round((microtime(true) - $started) * 1000),
-            'started_at' => $startedAt,
-            'finished_at' => $finishedAt,
-            'summary' => $this->resultSummary($status, $output, (string)($raw['summary'] ?? '')),
+            'started_at' => $started_at,
+            'finished_at' => $finished_at,
+            'summary' => $this->result_summary($status, $output, (string)($raw['summary'] ?? '')),
             'output' => $output,
             'relative_path' => (string)($test['relative_path'] ?? ''),
         );
     }
 
-    private function executeFileTest(array $test): array
+    private function execute_file_test(array $test): array
     {
         $relative = (string)($test['relative_path'] ?? '');
-        $path = $this->safeProjectFile($relative);
+        $path = $this->safe_project_file($relative);
         if ($path === null || !is_file($path)) {
             return array('status' => 'failed', 'exit_code' => 2, 'output' => 'Testdatei fehlt: ' . $relative);
         }
         $type = (string)($test['type'] ?? '');
         if ($type === 'php') {
-            $php = $this->resolvePhpCliBinary();
+            $php = $this->resolve_php_cli_binary();
             if ($php === null) {
                 return array(
                     'status' => 'failed',
@@ -550,7 +550,7 @@ class dbxSelfTestRunner
             }
             $command = array($php, $path);
         } elseif ($type === 'js') {
-            $node = $this->resolveExecutable('node');
+            $node = $this->resolve_executable('node');
             if ($node === null) {
                 return array(
                     'status' => 'skipped',
@@ -562,26 +562,26 @@ class dbxSelfTestRunner
         } else {
             return array('status' => 'failed', 'exit_code' => 2, 'output' => 'Unbekannter Testtyp.');
         }
-        return $this->runProcess($command, $this->baseDir, (int)($test['timeout'] ?? 90));
+        return $this->run_process($command, $this->base_dir, (int)($test['timeout'] ?? 90));
     }
 
-    private function executeBuiltin(string $handler, int $timeout): array
+    private function execute_builtin(string $handler, int $timeout): array
     {
         return match ($handler) {
-            'environment' => $this->checkEnvironment(),
-            'filesystem' => $this->checkFilesystem(),
-            'modules' => $this->checkModules(),
-            'conflict_markers' => $this->checkConflictMarkers(),
-            'page_cache' => $this->checkPageCache(),
-            'php_syntax' => $this->checkPhpSyntax($timeout),
-            'js_syntax' => $this->checkJavaScriptSyntax($timeout),
-            'composer_validate' => $this->runComposer(array('validate', '--strict', '--no-check-publish'), $timeout),
-            'composer_audit' => $this->runComposer(array('audit', '--no-dev'), $timeout),
+            'environment' => $this->check_environment(),
+            'filesystem' => $this->check_filesystem(),
+            'modules' => $this->check_modules(),
+            'conflict_markers' => $this->check_conflict_markers(),
+            'page_cache' => $this->check_page_cache(),
+            'php_syntax' => $this->check_php_syntax($timeout),
+            'js_syntax' => $this->check_java_script_syntax($timeout),
+            'composer_validate' => $this->run_composer(array('validate', '--strict', '--no-check-publish'), $timeout),
+            'composer_audit' => $this->run_composer(array('audit', '--no-dev'), $timeout),
             default => array('status' => 'failed', 'exit_code' => 2, 'output' => 'Unbekannter Systemtest: ' . $handler),
         };
     }
 
-    private function checkEnvironment(): array
+    private function check_environment(): array
     {
         $errors = array();
         if (version_compare(PHP_VERSION, '8.2.0', '<')) {
@@ -595,27 +595,27 @@ class dbxSelfTestRunner
         if (!function_exists('proc_open')) {
             $errors[] = 'proc_open ist deaktiviert; isolierte Tests sind nicht moeglich.';
         }
-        $phpCli = $this->resolvePhpCliBinary();
-        if ($phpCli === null) {
+        $php_cli = $this->resolve_php_cli_binary();
+        if ($php_cli === null) {
             $errors[] = 'PHP-CLI wurde nicht gefunden; serverseitige Einzeltests sind nicht moeglich.';
         }
-        $node = $this->resolveExecutable('node');
+        $node = $this->resolve_executable('node');
         $lines = array(
             'PHP ' . PHP_VERSION . ' (' . PHP_SAPI . ')',
-            'PHP-CLI: ' . ($phpCli ?? 'nicht gefunden'),
+            'PHP-CLI: ' . ($php_cli ?? 'nicht gefunden'),
             'Betriebssystem: ' . PHP_OS_FAMILY,
             'Speicherlimit: ' . (string)ini_get('memory_limit'),
             'Node.js: ' . ($node !== null ? 'verfuegbar (optional)' : 'nicht installiert; Browser-Adapter aktiv'),
         );
-        return $this->checkResult($errors, $lines);
+        return $this->check_result($errors, $lines);
     }
 
-    private function checkFilesystem(): array
+    private function check_filesystem(): array
     {
         $errors = array();
         $lines = array();
         foreach (array('dbx/modules', 'files/sys', 'files/temp') as $relative) {
-            $path = $this->baseDir . '/' . $relative;
+            $path = $this->base_dir . '/' . $relative;
             if (!is_dir($path)) {
                 $parent = dirname($path);
                 if (str_starts_with($relative, 'files/')
@@ -633,21 +633,27 @@ class dbxSelfTestRunner
                 $errors[] = 'Laufzeitverzeichnis ist nicht schreibbar: ' . $relative;
             }
         }
-        $htaccess = @file_get_contents($this->baseDir . '/.htaccess');
+        $htaccess = @file_get_contents($this->base_dir . '/.htaccess');
         if (!is_string($htaccess) || !str_contains($htaccess, 'sqlite3') || !str_contains($htaccess, 'files/(media|sys|temp)')) {
             $errors[] = '.htaccess schuetzt private Laufzeit- oder Datenbankdateien nicht vollstaendig.';
         } else {
             $lines[] = '.htaccess: private Dateien werden gesperrt';
         }
-        return $this->checkResult($errors, $lines);
+        return $this->check_result($errors, $lines);
     }
 
-    private function checkModules(): array
+    private function check_modules(): array
     {
         $errors = array();
         $count = 0;
-        foreach (glob($this->baseDir . '/dbx/modules/*', GLOB_ONLYDIR) ?: array() as $dir) {
+        foreach (glob($this->base_dir . '/dbx/modules/*', GLOB_ONLYDIR) ?: array() as $dir) {
             $module = basename($dir);
+            // Nur gueltige Modulkennungen sind lauffaehige Module. Temporär
+            // deaktivierte Verzeichnisse wie "-myModule" gehoeren weder zur
+            // Registry noch in die Einstiegspunktpruefung.
+            if (!preg_match('/^[A-Za-z][A-Za-z0-9_]{1,62}$/', $module)) {
+                continue;
+            }
             $entry = $dir . '/' . $module . '.class.php';
             $config = $dir . '/cfg/config.php';
             if (!is_file($entry)) {
@@ -666,24 +672,24 @@ class dbxSelfTestRunner
             }
             $count++;
         }
-        return $this->checkResult($errors, array($count . ' Module geprueft.'));
+        return $this->check_result($errors, array($count . ' Module geprueft.'));
     }
 
-    private function checkConflictMarkers(): array
+    private function check_conflict_markers(): array
     {
         $errors = array();
         $checked = 0;
-        foreach ($this->projectFiles(array('php', 'js', 'css', 'htm', 'html', 'json', 'md', 'cfx', 'cfg')) as $file) {
+        foreach ($this->project_files(array('php', 'js', 'css', 'htm', 'html', 'json', 'md', 'cfx', 'cfg')) as $file) {
             $checked++;
             $handle = @fopen($file, 'rb');
             if (!$handle) {
                 continue;
             }
-            $lineNo = 0;
+            $line_no = 0;
             while (($line = fgets($handle)) !== false) {
-                $lineNo++;
+                $line_no++;
                 if (preg_match('/^(<<<<<<< |=======\s*$|>>>>>>> )/', rtrim($line, "\r\n"))) {
-                    $errors[] = $this->relativePath($file) . ':' . $lineNo;
+                    $errors[] = $this->relative_path($file) . ':' . $line_no;
                     if (count($errors) >= 50) {
                         break 2;
                     }
@@ -691,14 +697,14 @@ class dbxSelfTestRunner
             }
             fclose($handle);
         }
-        return $this->checkResult($errors, array($checked . ' Dateien geprueft.'));
+        return $this->check_result($errors, array($checked . ' Dateien geprueft.'));
     }
 
-    private function checkPageCache(): array
+    private function check_page_cache(): array
     {
-        $dir = $this->baseDir . '/files/cache/content/full-page';
+        $dir = $this->base_dir . '/files/cache/content/full-page';
         if (!is_dir($dir)) {
-            return $this->checkResult(array(), array('Noch kein Gastseiten-Cache vorhanden.'));
+            return $this->check_result(array(), array('Noch kein Gastseiten-Cache vorhanden.'));
         }
         $generation = trim((string)@file_get_contents($dir . '/.generation'));
         $errors = array();
@@ -718,15 +724,15 @@ class dbxSelfTestRunner
                 if (count($errors) >= 25) break;
             }
         }
-        return $this->checkResult($errors, array(count($files) . ' aktuelle Gastseiten in genau einer Generation.'));
+        return $this->check_result($errors, array(count($files) . ' aktuelle Gastseiten in genau einer Generation.'));
     }
 
-    private function checkPhpSyntax(int $timeout): array
+    private function check_php_syntax(int $timeout): array
     {
         $errors = array();
         $checked = 0;
         $deadline = microtime(true) + max(30, $timeout);
-        foreach ($this->projectFiles(array('php')) as $file) {
+        foreach ($this->project_files(array('php')) as $file) {
             // PHP-Generatorvorlagen enthalten absichtlich noch nicht ersetzte
             // Platzhalter oder Fragmente und sind keine direkt ladbaren Dateien.
             if (str_contains(str_replace('\\', '/', $file), '/tpl/php/')) {
@@ -743,7 +749,7 @@ class dbxSelfTestRunner
             $checked++;
             $source = @file_get_contents($file);
             if ($source === false) {
-                $errors[] = $this->relativePath($file) . "\nDatei konnte nicht gelesen werden.";
+                $errors[] = $this->relative_path($file) . "\nDatei konnte nicht gelesen werden.";
                 continue;
             }
             try {
@@ -752,18 +758,18 @@ class dbxSelfTestRunner
                 // Windows hunderte kostspielige PHP-CLI-Prozessstarts.
                 token_get_all($source, TOKEN_PARSE);
             } catch (\ParseError $exception) {
-                $errors[] = $this->relativePath($file) . "\n" . $exception->getMessage();
+                $errors[] = $this->relative_path($file) . "\n" . $exception->getMessage();
                 if (count($errors) >= 25) {
                     break;
                 }
             }
         }
-        return $this->checkResult($errors, array($checked . ' PHP-Dateien ohne Syntaxfehler.'));
+        return $this->check_result($errors, array($checked . ' PHP-Dateien ohne Syntaxfehler.'));
     }
 
-    private function checkJavaScriptSyntax(int $timeout): array
+    private function check_java_script_syntax(int $timeout): array
     {
-        $node = $this->resolveExecutable('node');
+        $node = $this->resolve_executable('node');
         if ($node === null) {
             return array(
                 'status' => 'skipped',
@@ -774,7 +780,7 @@ class dbxSelfTestRunner
         $errors = array();
         $checked = 0;
         $deadline = microtime(true) + max(30, $timeout);
-        foreach ($this->projectFiles(array('js')) as $file) {
+        foreach ($this->project_files(array('js')) as $file) {
             if (microtime(true) >= $deadline) {
                 return array(
                     'status' => 'failed',
@@ -784,36 +790,36 @@ class dbxSelfTestRunner
                 );
             }
             $checked++;
-            $result = $this->runProcess(array($node, '--check', $file), $this->baseDir, 20);
+            $result = $this->run_process(array($node, '--check', $file), $this->base_dir, 20);
             if ((int)($result['exit_code'] ?? 1) !== 0) {
-                $errors[] = $this->relativePath($file) . "\n" . trim((string)($result['output'] ?? ''));
+                $errors[] = $this->relative_path($file) . "\n" . trim((string)($result['output'] ?? ''));
                 if (count($errors) >= 25) {
                     break;
                 }
             }
         }
-        return $this->checkResult($errors, array($checked . ' JavaScript-Dateien ohne Syntaxfehler.'));
+        return $this->check_result($errors, array($checked . ' JavaScript-Dateien ohne Syntaxfehler.'));
     }
 
-    private function runComposer(array $arguments, int $timeout): array
+    private function run_composer(array $arguments, int $timeout): array
     {
-        $composer = $this->resolveComposerCommand();
+        $composer = $this->resolve_composer_command();
         if ($composer === null) {
             return array('status' => 'failed', 'exit_code' => 127, 'output' => 'Composer wurde nicht gefunden.');
         }
-        return $this->runProcess(array_merge($composer, $arguments), $this->baseDir . '/dbx', $timeout);
+        return $this->run_process(array_merge($composer, $arguments), $this->base_dir . '/dbx', $timeout);
     }
 
-    private function resolveComposerCommand(): ?array
+    private function resolve_composer_command(): ?array
     {
-        $candidate = $this->resolveExecutable('composer');
+        $candidate = $this->resolve_executable('composer');
         if ($candidate === null) {
             return null;
         }
         if (preg_match('/\.bat$/i', $candidate)) {
             $phar = dirname($candidate) . DIRECTORY_SEPARATOR . 'composer.phar';
             if (is_file($phar)) {
-                $php = $this->resolvePhpCliBinary();
+                $php = $this->resolve_php_cli_binary();
                 return $php !== null ? array($php, $phar) : null;
             }
         }
@@ -825,10 +831,10 @@ class dbxSelfTestRunner
      * Windows. Starting it as if it were PHP-CLI makes every web test fail.
      * Resolve a real CLI interpreter independently from the current SAPI.
      */
-    private function resolvePhpCliBinary(): ?string
+    private function resolve_php_cli_binary(): ?string
     {
-        if ($this->phpCliBinaryCache !== null) {
-            return $this->phpCliBinaryCache !== '' ? $this->phpCliBinaryCache : null;
+        if ($this->php_cli_binary_cache !== null) {
+            return $this->php_cli_binary_cache !== '' ? $this->php_cli_binary_cache : null;
         }
 
         $executable = PHP_OS_FAMILY === 'Windows' ? 'php.exe' : 'php';
@@ -849,7 +855,7 @@ class dbxSelfTestRunner
         }
 
         // XAMPP and similar layouts: <root>/htdocs/project + <root>/php/php.exe.
-        $directory = $this->baseDir;
+        $directory = $this->base_dir;
         for ($level = 0; $level < 4; $level++) {
             $candidates[] = $directory . DIRECTORY_SEPARATOR . 'php' . DIRECTORY_SEPARATOR . $executable;
             $parent = dirname($directory);
@@ -858,22 +864,22 @@ class dbxSelfTestRunner
             }
             $directory = $parent;
         }
-        $fromPath = $this->resolveExecutable('php');
-        if ($fromPath !== null) {
-            $candidates[] = $fromPath;
+        $from_path = $this->resolve_executable('php');
+        if ($from_path !== null) {
+            $candidates[] = $from_path;
         }
 
         foreach (array_unique($candidates) as $candidate) {
             if (is_file($candidate) && (PHP_OS_FAMILY === 'Windows' || is_executable($candidate))) {
-                $this->phpCliBinaryCache = $candidate;
+                $this->php_cli_binary_cache = $candidate;
                 return $candidate;
             }
         }
-        $this->phpCliBinaryCache = '';
+        $this->php_cli_binary_cache = '';
         return null;
     }
 
-    private function runProcess(array $command, string $cwd, int $timeout): array
+    private function run_process(array $command, string $cwd, int $timeout): array
     {
         if (!function_exists('proc_open')) {
             return array('status' => 'failed', 'exit_code' => 127, 'output' => 'proc_open ist nicht verfuegbar.');
@@ -899,18 +905,18 @@ class dbxSelfTestRunner
         stream_set_blocking($pipes[2], false);
         $started = microtime(true);
         $output = '';
-        $timedOut = false;
-        $lastExit = -1;
+        $timed_out = false;
+        $last_exit = -1;
         while (true) {
-            $this->appendOutput($output, (string)stream_get_contents($pipes[1]));
-            $this->appendOutput($output, (string)stream_get_contents($pipes[2]));
+            $this->append_output($output, (string)stream_get_contents($pipes[1]));
+            $this->append_output($output, (string)stream_get_contents($pipes[2]));
             $status = proc_get_status($process);
             if (!$status['running']) {
-                $lastExit = (int)$status['exitcode'];
+                $last_exit = (int)$status['exitcode'];
                 break;
             }
             if ((microtime(true) - $started) > max(1, $timeout)) {
-                $timedOut = true;
+                $timed_out = true;
                 @proc_terminate($process);
                 usleep(100000);
                 $status = proc_get_status($process);
@@ -921,41 +927,41 @@ class dbxSelfTestRunner
             }
             usleep(20000);
         }
-        $this->appendOutput($output, (string)stream_get_contents($pipes[1]));
-        $this->appendOutput($output, (string)stream_get_contents($pipes[2]));
+        $this->append_output($output, (string)stream_get_contents($pipes[1]));
+        $this->append_output($output, (string)stream_get_contents($pipes[2]));
         fclose($pipes[1]);
         fclose($pipes[2]);
-        $closedExit = proc_close($process);
-        $exitCode = $timedOut ? 124 : ($lastExit >= 0 ? $lastExit : (int)$closedExit);
+        $closed_exit = proc_close($process);
+        $exit_code = $timed_out ? 124 : ($last_exit >= 0 ? $last_exit : (int)$closed_exit);
         return array(
-            'status' => $exitCode === 0 ? 'passed' : 'failed',
-            'exit_code' => $exitCode,
-            'timed_out' => $timedOut,
+            'status' => $exit_code === 0 ? 'passed' : 'failed',
+            'exit_code' => $exit_code,
+            'timed_out' => $timed_out,
             'output' => $output,
         );
     }
 
-    private function appendOutput(string &$output, string $chunk): void
+    private function append_output(string &$output, string $chunk): void
     {
         if ($chunk === '') {
             return;
         }
         $output .= $chunk;
-        if (strlen($output) > $this->maxOutputBytes) {
-            $half = intdiv($this->maxOutputBytes, 2);
+        if (strlen($output) > $this->max_output_bytes) {
+            $half = intdiv($this->max_output_bytes, 2);
             $output = substr($output, 0, $half)
                 . "\n... Ausgabe gekuerzt ...\n"
                 . substr($output, -$half);
         }
     }
 
-    private function projectFiles(array $extensions): array
+    private function project_files(array $extensions): array
     {
         $extensions = array_fill_keys(array_map('strtolower', $extensions), true);
         $files = array();
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveCallbackFilterIterator(
-                new \RecursiveDirectoryIterator($this->baseDir, \FilesystemIterator::SKIP_DOTS),
+                new \RecursiveDirectoryIterator($this->base_dir, \FilesystemIterator::SKIP_DOTS),
                 function (\SplFileInfo $current): bool {
                     if (!$current->isDir()) {
                         return true;
@@ -979,13 +985,13 @@ class dbxSelfTestRunner
         return $files;
     }
 
-    private function resolveExecutable(string $name): ?string
+    private function resolve_executable(string $name): ?string
     {
-        $pathValue = (string)getenv('PATH');
+        $path_value = (string)getenv('PATH');
         $extensions = PHP_OS_FAMILY === 'Windows'
             ? array('.exe', '.bat', '.cmd', '')
             : array('');
-        foreach (explode(PATH_SEPARATOR, $pathValue) as $directory) {
+        foreach (explode(PATH_SEPARATOR, $path_value) as $directory) {
             $directory = trim($directory, " \t\n\r\0\x0B\"");
             if ($directory === '') {
                 continue;
@@ -1000,7 +1006,7 @@ class dbxSelfTestRunner
         return null;
     }
 
-    private function checkResult(array $errors, array $successLines): array
+    private function check_result(array $errors, array $success_lines): array
     {
         if ($errors !== array()) {
             return array(
@@ -1012,11 +1018,11 @@ class dbxSelfTestRunner
         return array(
             'status' => 'passed',
             'exit_code' => 0,
-            'output' => "PASS\n" . implode("\n", $successLines),
+            'output' => "PASS\n" . implode("\n", $success_lines),
         );
     }
 
-    private function calculateTotals(array $run): array
+    private function calculate_totals(array $run): array
     {
         $totals = $this->totals(count($run['test_ids'] ?? array()));
         foreach ($run['results'] ?? array() as $result) {
@@ -1046,7 +1052,7 @@ class dbxSelfTestRunner
         );
     }
 
-    private function resultSummary(string $status, string $output, string $explicit): string
+    private function result_summary(string $status, string $output, string $explicit): string
     {
         if ($explicit !== '') {
             return $explicit;
@@ -1070,61 +1076,61 @@ class dbxSelfTestRunner
             : substr($value, 0, $length);
     }
 
-    private function cleanOutput(string $output): string
+    private function clean_output(string $output): string
     {
         $output = preg_replace('/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -\/]*[@-~])/', '', $output) ?? $output;
         $output = str_replace("\0", '', $output);
-        if (strlen($output) > $this->maxOutputBytes) {
-            $output = substr($output, 0, $this->maxOutputBytes) . "\n... Ausgabe gekuerzt ...";
+        if (strlen($output) > $this->max_output_bytes) {
+            $output = substr($output, 0, $this->max_output_bytes) . "\n... Ausgabe gekuerzt ...";
         }
         return trim($output);
     }
 
-    private function safeProjectFile(string $relative): ?string
+    private function safe_project_file(string $relative): ?string
     {
         if ($relative === '' || str_contains($relative, "\0") || str_contains($relative, '..')) {
             return null;
         }
-        $candidate = realpath($this->baseDir . '/' . ltrim(str_replace('\\', '/', $relative), '/'));
+        $candidate = realpath($this->base_dir . '/' . ltrim(str_replace('\\', '/', $relative), '/'));
         if ($candidate === false) {
             return null;
         }
         $normalized = str_replace('\\', '/', $candidate);
-        return str_starts_with($normalized . '/', $this->baseDir . '/') ? $normalized : null;
+        return str_starts_with($normalized . '/', $this->base_dir . '/') ? $normalized : null;
     }
 
-    private function relativePath(string $file): string
+    private function relative_path(string $file): string
     {
         $file = str_replace('\\', '/', $file);
-        return str_starts_with($file, $this->baseDir . '/') ? substr($file, strlen($this->baseDir) + 1) : $file;
+        return str_starts_with($file, $this->base_dir . '/') ? substr($file, strlen($this->base_dir) + 1) : $file;
     }
 
-    private function normalizeProfile(string $profile): string
+    private function normalize_profile(string $profile): string
     {
         return $profile === 'quick' ? 'quick' : 'full';
     }
 
-    private function validRunId(string $runId): bool
+    private function valid_run_id(string $run_id): bool
     {
-        return preg_match('/^[0-9]{8}-[0-9]{6}-[a-f0-9]{10}$/', $runId) === 1;
+        return preg_match('/^[0-9]{8}-[0-9]{6}-[a-f0-9]{10}$/', $run_id) === 1;
     }
 
-    private function runPath(string $runId): string
+    private function run_path(string $run_id): string
     {
-        return rtrim($this->logDir, '/\\') . DIRECTORY_SEPARATOR . $runId . '.json';
+        return rtrim($this->log_dir, '/\\') . DIRECTORY_SEPARATOR . $run_id . '.json';
     }
 
-    private function writeRun(array $run): void
+    private function write_run(array $run): void
     {
         $id = (string)($run['id'] ?? '');
-        if (!$this->validRunId($id)) {
+        if (!$this->valid_run_id($id)) {
             throw new \RuntimeException('Ungueltige Testlauf-ID.');
         }
         $json = json_encode($run, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if (!is_string($json)) {
             throw new \RuntimeException('Testprotokoll konnte nicht serialisiert werden.');
         }
-        $handle = @fopen($this->runPath($id), 'c+b');
+        $handle = @fopen($this->run_path($id), 'c+b');
         if (!$handle) {
             throw new \RuntimeException('Testprotokoll konnte nicht geoeffnet werden.');
         }
@@ -1140,7 +1146,7 @@ class dbxSelfTestRunner
         fclose($handle);
     }
 
-    private function ensureDirectory(string $directory): void
+    private function ensure_directory(string $directory): void
     {
         if (!is_dir($directory) && !@mkdir($directory, 0775, true) && !is_dir($directory)) {
             throw new \RuntimeException('Self-Test-Protokollverzeichnis konnte nicht angelegt werden.');
@@ -1152,13 +1158,13 @@ class dbxSelfTestRunner
         return gmdate('Y-m-d\TH:i:s\Z');
     }
 
-    private function durationSince(string $started): int
+    private function duration_since(string $started): int
     {
         $time = strtotime($started);
         return $time === false ? 0 : max(0, (int)round((microtime(true) - $time) * 1000));
     }
 
-    private function durationBetween(string $started, string $finished): int
+    private function duration_between(string $started, string $finished): int
     {
         $a = strtotime($started);
         $b = strtotime($finished);

@@ -33,7 +33,7 @@ class WorkflowDefinitionDbStub {
 }
 
 class WorkflowDefinitionModuleStub {
-   public function enrichDefinition(array $definition, array $values = array()): array {
+   public function enrich_definition(array $definition, array $values = array()): array {
       return $definition;
    }
 }
@@ -90,7 +90,7 @@ function workflow_test_assert($condition, string $message): void {
    exit(1);
 }
 
-$originalNeed = array(
+$original_need = array(
    'key' => 'customer',
    'label' => 'Kunde',
    'kind' => 'input',
@@ -109,7 +109,7 @@ $originalNeed = array(
    'future_extension' => array('keep' => true),
 );
 
-$baseDefinition = array(
+$base_definition = array(
    'workflow_key' => 'customer_flow',
    'title' => 'Kundenablauf',
    'result' => 'Kunde bearbeitet',
@@ -117,7 +117,7 @@ $baseDefinition = array(
    'schema_version' => 3,
    'custom_root' => array('owner_module' => 'dbxContact'),
    'bind_ref' => 'dbxContact|customer_flow',
-   'needs' => array($originalNeed),
+   'needs' => array($original_need),
    'checks' => array(array(
       'key' => 'customer',
       'severity' => 'blocking',
@@ -132,7 +132,7 @@ $baseDefinition = array(
 $_POST = array(
    'workflow_step_present' => array(0 => '1'),
    'workflow_step_active' => array(0 => '1'),
-   'workflow_step_original' => array(0 => json_encode($originalNeed, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)),
+   'workflow_step_original' => array(0 => json_encode($original_need, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)),
    'workflow_step_action_contract' => array(0 => '1'),
    // Die Checkbox-Reihenfolge entspricht der UI, nicht der Definition. Der
    // Merge muss die bestehende Reihenfolge create/select dennoch erhalten.
@@ -154,7 +154,7 @@ $_POST = array(
    'workflow_step_depends_value' => array(0 => ''),
    'workflow_step_options' => array(0 => ''),
    'workflow_step_complete_label' => array(0 => 'Kunde wurde im Fachformular gespeichert.'),
-   'workflow_step_source' => array(0 => json_encode($originalNeed['source'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)),
+   'workflow_step_source' => array(0 => json_encode($original_need['source'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)),
    'workflow_step_bind' => array(0 => ''),
    'workflow_step_module_links' => array(0 => ''),
    'workflow_finish_label' => 'Kunde abschließen',
@@ -169,7 +169,7 @@ $form = new WorkflowRoundTripFormStub(array(
 ));
 $admin = new \dbx\dbxWorkflow_admin\dbxWorkflowAdmin();
 $merge = new ReflectionMethod($admin, 'workflow_definition_from_post');
-$definition = $merge->invoke($admin, $form, $baseDefinition);
+$definition = $merge->invoke($admin, $form, $base_definition);
 $need = $definition['needs'][0];
 
 workflow_test_assert(($definition['schema_version'] ?? null) === 3, 'Unbekanntes Top-Level-Feld wurde entfernt.');
@@ -194,20 +194,20 @@ $_POST['workflow_step_label'][0] = 'Neue Notiz';
 $_POST['workflow_step_key'][0] = 'new_note';
 $_POST['workflow_step_complete_label'][0] = '';
 $_POST['workflow_step_source'][0] = '';
-$newDefinition = $merge->invoke($admin, $form, $baseDefinition);
-$newNeed = $newDefinition['needs'][0];
-workflow_test_assert(!isset($newNeed['future_extension']), 'Ein neuer Schritt hat Erweiterungen der wiederverwendeten alten Zeile geerbt.');
-workflow_test_assert(!isset($newNeed['source']), 'Ein neuer Schritt hat die Datenquelle der wiederverwendeten alten Zeile geerbt.');
-workflow_test_assert(($newNeed['actions'] ?? array()) === array('form'), 'Aktionen eines neuen Schritts wurden nicht sauber initialisiert.');
+$new_definition = $merge->invoke($admin, $form, $base_definition);
+$new_need = $new_definition['needs'][0];
+workflow_test_assert(!isset($new_need['future_extension']), 'Ein neuer Schritt hat Erweiterungen der wiederverwendeten alten Zeile geerbt.');
+workflow_test_assert(!isset($new_need['source']), 'Ein neuer Schritt hat die Datenquelle der wiederverwendeten alten Zeile geerbt.');
+workflow_test_assert(($new_need['actions'] ?? array()) === array('form'), 'Aktionen eines neuen Schritts wurden nicht sauber initialisiert.');
 
 // Falls das transportierte Original-JSON beschädigt wird, dient der stabile
 // Ursprungsindex als serverseitiger Fallback. Leere neue Zeilen besitzen ihn
 // absichtlich nicht.
 $_POST['workflow_step_original'][0] = '{ungueltig';
 $_POST['workflow_step_original_index'][0] = '0';
-$fallbackDefinition = $merge->invoke($admin, $form, $baseDefinition);
-$fallbackNeed = $fallbackDefinition['needs'][0];
-workflow_test_assert(($fallbackNeed['future_extension']['keep'] ?? false) === true, 'Serverseitiger Round-Trip-Fallback hat Need-Erweiterungen verloren.');
+$fallback_definition = $merge->invoke($admin, $form, $base_definition);
+$fallback_need = $fallback_definition['needs'][0];
+workflow_test_assert(($fallback_need['future_extension']['keep'] ?? false) === true, 'Serverseitiger Round-Trip-Fallback hat Need-Erweiterungen verloren.');
 
 $engine = new \dbx\dbxWorkflow\dbxWorkflowEngine();
 $normalized = $engine->normalize_definition(array(

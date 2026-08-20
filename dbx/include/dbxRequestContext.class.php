@@ -19,7 +19,7 @@ final class dbxRequestContext
     /** Nach Modulinstanz und Modulname isolierte Laufzeitwerte. */
     private array $modules = array();
 
-    public function hasSystem(string $name): bool
+    public function has_system(string $name): bool
     {
         return array_key_exists($name, $this->system);
     }
@@ -29,12 +29,12 @@ final class dbxRequestContext
         return $this->system[$name] ?? $default;
     }
 
-    public function setSystem(string $name, mixed $value): void
+    public function set_system(string $name, mixed $value): void
     {
         $this->system[$name] = $value;
     }
 
-    public function hasModule(int|string $instance, string $module, string $name): bool
+    public function has_module(int|string $instance, string $module, string $name): bool
     {
         return array_key_exists($name, $this->modules[$instance][$module] ?? array());
     }
@@ -44,19 +44,19 @@ final class dbxRequestContext
         return $this->modules[$instance][$module][$name] ?? $default;
     }
 
-    public function setModule(int|string $instance, string $module, string $name, mixed $value): void
+    public function set_module(int|string $instance, string $module, string $name, mixed $value): void
     {
         $this->modules[$instance][$module][$name] = $value;
     }
 
     /** @return array<string,mixed> */
-    public function systemSnapshot(): array
+    public function system_snapshot(): array
     {
         return $this->system;
     }
 
     /** @param array $snapshot Zuvor mit systemSnapshot() gesicherte Systemwerte. */
-    public function restoreSystem(array $snapshot): void
+    public function restore_system(array $snapshot): void
     {
         $this->system = $snapshot;
     }

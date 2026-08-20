@@ -1,0 +1,9 @@
+{
+  "name": "barcode.php",
+  "upstream": "Kreative Software",
+  "version": "2018",
+  "license": "MIT",
+  "source": "src/dbxBarcode.php",
+  "adapter": "../../include/dbxBarcode.class.php",
+  "mode": "isolated-adapted-source"
+}

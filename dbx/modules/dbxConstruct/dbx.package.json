@@ -1,0 +1,34 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxConstruct",
+    "type": "module",
+    "name": "dbxConstruct",
+    "title": "dbxConstruct",
+    "description": "Werkzeuge zum strukturierten Erstellen und Erweitern dbxApp-konformer Module.",
+    "descriptions": {
+        "de": "Werkzeuge zum strukturierten Erstellen und Erweitern dbxApp-konformer Module.",
+        "en": "Tools for creating and extending well-structured dbxApp modules.",
+        "es": "Herramientas para crear y ampliar módulos dbxApp bien estructurados."
+    },
+    "icon": "bi-hammer",
+    "image": "dbx/modules/dbxConstruct/tpl/img/dbxConstruct.png",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": []
+    },
+    "permissions": [],
+    "migrations": [],
+    "files": []
+}

@@ -14,6 +14,8 @@ class dbxTPLDesignSlotsTestApi {
    public function get_skin(): string { return 'blau'; }
    public function get_skin_css(): string { return 'skin-blau.css'; }
    public function get_skin_class(): string { return 'skin-blau'; }
+   public function get_system_obj(string $class): object { return $this; }
+   public function get_assets(string $type): array { return array(); }
    public function os_path(string $path): string { return str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path); }
    public function register_editor_file(string $kind, string $file): void { $this->registered[] = array($kind, $file); }
 

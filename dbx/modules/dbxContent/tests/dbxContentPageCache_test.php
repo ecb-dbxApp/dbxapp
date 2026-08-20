@@ -3,27 +3,28 @@
 class dbxContentPageCacheTestApi {
    public array $system = array();
    public array $request = array();
+   public array $session = array();
    public array $config = array(
       'cache_content' => 1,
       'default_design_user' => 'dbxapp',
    );
-   public int $effectiveUser = 0;
-   public bool $demoMode = false;
-   private string $fileDir;
-   private string $baseDir;
+   public int $effective_user = 0;
+   public bool $demo_mode = false;
+   private string $file_dir;
+   private string $base_dir;
 
-   public function __construct(string $fileDir) {
-      $this->fileDir = rtrim($fileDir, '/\\') . DIRECTORY_SEPARATOR;
-      $this->baseDir = $this->fileDir . 'app' . DIRECTORY_SEPARATOR;
+   public function __construct(string $file_dir) {
+      $this->file_dir = rtrim($file_dir, '/\\') . DIRECTORY_SEPARATOR;
+      $this->base_dir = $this->file_dir . 'app' . DIRECTORY_SEPARATOR;
       $this->writeConfigFile();
    }
 
    public function get_file_dir(): string {
-      return $this->fileDir;
+      return $this->file_dir;
    }
 
    public function get_base_dir(): string {
-      return $this->baseDir;
+      return $this->base_dir;
    }
 
    public function get_base_url(): string {
@@ -51,7 +52,7 @@ class dbxContentPageCacheTestApi {
    }
 
    private function writeConfigFile(): void {
-      $dir = $this->baseDir . 'dbx' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR
+      $dir = $this->base_dir . 'dbx' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR
          . 'dbx' . DIRECTORY_SEPARATOR . 'cfg';
       if (!is_dir($dir)) {
          mkdir($dir, 0755, true);
@@ -76,6 +77,14 @@ class dbxContentPageCacheTestApi {
       $this->system[$key] = $value;
    }
 
+   public function get_session_var(string $key, $default = null, string $section = 'sys', string $module = 'modul') {
+      return $this->session[$module][$section][$key] ?? $default;
+   }
+
+   public function set_session_var(string $key, $value, string $section = 'sys', string $module = 'modul'): void {
+      $this->session[$module][$section][$key] = $value;
+   }
+
    public function normalize_skin(string $skin): string {
       $skin = strtolower(trim($skin));
       return preg_match('/^[a-z0-9_-]+$/', $skin) ? $skin : 'blau';
@@ -85,23 +94,27 @@ class dbxContentPageCacheTestApi {
       return in_array($design, array('dbxapp', 'flowers'), true);
    }
 
+   public function get_system_obj(string $class): object {
+      return $this;
+   }
+
    public function user(): int {
-      return $this->effectiveUser;
+      return $this->effective_user;
    }
 
    public function is_demo_mode(): bool {
-      return $this->demoMode;
+      return $this->demo_mode;
    }
 }
 
-$testRoot = rtrim(sys_get_temp_dir(), '/\\') . DIRECTORY_SEPARATOR
+$test_root = rtrim(sys_get_temp_dir(), '/\\') . DIRECTORY_SEPARATOR
    . 'dbx-page-cache-test-' . getmypid() . '-' . bin2hex(random_bytes(4));
-if (!mkdir($testRoot, 0755, true) && !is_dir($testRoot)) {
+if (!mkdir($test_root, 0755, true) && !is_dir($test_root)) {
    fwrite(STDERR, "FAIL: Testverzeichnis konnte nicht erstellt werden.\n");
    exit(1);
 }
 
-$deleteTree = static function (string $path) use (&$deleteTree): void {
+$delete_tree = static function (string $path) use (&$delete_tree): void {
    $resolved = realpath($path);
    if ($resolved === false || !str_starts_with(basename($resolved), 'dbx-page-cache-test-')) {
       return;
@@ -116,13 +129,13 @@ $deleteTree = static function (string $path) use (&$deleteTree): void {
    @rmdir($resolved);
 };
 
-$fail = static function (string $message, int $code = 2) use ($deleteTree, $testRoot): void {
-   $deleteTree($testRoot);
+$fail = static function (string $message, int $code = 2) use ($delete_tree, $test_root): void {
+   $delete_tree($test_root);
    fwrite(STDERR, "FAIL: $message\n");
    exit($code);
 };
 
-$GLOBALS['dbxContentPageCacheTestApi'] = new dbxContentPageCacheTestApi($testRoot);
+$GLOBALS['dbxContentPageCacheTestApi'] = new dbxContentPageCacheTestApi($test_root);
 function dbx(): dbxContentPageCacheTestApi {
    return $GLOBALS['dbxContentPageCacheTestApi'];
 }
@@ -151,167 +164,165 @@ $api->system = array(
    'dbx_base_url' => 'http://localhost/dbxapp/',
 );
 
-$slashPath = dbxContentPageCache::fullPagePath('abc/def', 'de', 'dbxapp', 'blau');
-$dashPath = dbxContentPageCache::fullPagePath('abc-def', 'de', 'dbxapp', 'blau');
-if ($slashPath === $dashPath) {
+$slash_path = dbxContentPageCache::full_page_path('abc/def', 'de', 'dbxapp', 'blau');
+$dash_path = dbxContentPageCache::full_page_path('abc-def', 'de', 'dbxapp', 'blau');
+if ($slash_path === $dash_path) {
    $fail('abc/def und abc-def kollidieren weiterhin im Dateinamen.');
 }
-if (!preg_match('/-[a-f0-9]{24}_de_dbxapp_blau_[a-f0-9]{16}_[a-f0-9]{24}_v3\.htm$/', basename($slashPath))) {
+if (!preg_match('/-[a-f0-9]{24}_de_dbxapp_blau_[a-f0-9]{16}_[a-f0-9]{24}_v3\.htm$/', basename($slash_path))) {
    $fail('Der V3-Dateiname enthaelt nicht alle erwarteten Hash-/Variantenanteile.');
 }
 
 $_SERVER['HTTP_HOST'] = 'dbxapp.de';
-$publicHostPath = dbxContentPageCache::fullPagePath('abc/def', 'de', 'dbxapp', 'blau');
+$public_host_path = dbxContentPageCache::full_page_path('abc/def', 'de', 'dbxapp', 'blau');
 $_SERVER['HTTP_HOST'] = 'localhost';
-if ($publicHostPath === $slashPath) {
+if ($public_host_path === $slash_path) {
    $fail('Caches verschiedener Hosts verwenden denselben Dateinamen.');
 }
 
-$legacyV2 = dirname($slashPath) . DIRECTORY_SEPARATOR . 'legacy_de_dbxapp_blau_v2.htm';
-file_put_contents($legacyV2, '<!doctype html><html></html>');
-dbxContentPageCache::ensureDirs();
-if (is_file($legacyV2)) {
+$legacy_v2 = dirname($slash_path) . DIRECTORY_SEPARATOR . 'legacy_de_dbxapp_blau_v2.htm';
+file_put_contents($legacy_v2, '<!doctype html><html></html>');
+dbxContentPageCache::ensure_dirs();
+if (is_file($legacy_v2)) {
    $fail('Unsichere V2-Datei wurde nicht entfernt.');
 }
 
-$staleV3 = preg_replace(
+$stale_v3 = preg_replace(
    '/_[a-f0-9]{24}_v3\.htm$/',
    '_000000000000000000000000_v3.htm',
-   $slashPath
+   $slash_path
 );
-if (!is_string($staleV3) || $staleV3 === $slashPath) {
+if (!is_string($stale_v3) || $stale_v3 === $slash_path) {
    $fail('Testdatei einer alten Cache-Generation konnte nicht abgeleitet werden.');
 }
-file_put_contents($staleV3, '<!doctype html><html></html>');
-if (dbxContentPageCache::purgeStaleFullPages() !== 1 || is_file($staleV3)) {
+file_put_contents($stale_v3, '<!doctype html><html></html>');
+if (dbxContentPageCache::purge_stale_full_pages() !== 1 || is_file($stale_v3)) {
    $fail('V3-Datei einer alten Cache-Generation wurde nicht bereinigt.');
 }
 
-if (!dbxContentPageCache::prepareFullPageRequest()) {
+if (!dbxContentPageCache::prepare_full_page_request()) {
    $fail('Gueltiger Gast-Permalink wurde nicht fuer den Cache vorbereitet.');
 }
 $api->system['dbx_content_permalink_request'] = 1;
 $api->system['dbx_content_route_cid'] = 51;
 $api->system['dbx_master_modul'] = 'dbxContent';
-if (!dbxContentPageCache::attachResolvedContentRoute()) {
+if (!dbxContentPageCache::attach_resolved_content_route()) {
    $fail('Aufgeloeste Content-Route wurde nicht an den Cache gebunden.');
 }
 
 $html = "<!doctype html><html><head><base href=\"http://localhost/dbxapp/\"/></head><body>Unveraendert: &amp; <script>window.x = '<tag>';</script></body></html>";
 http_response_code(200);
-if (!dbxContentPageCache::writeFullPage($html)) {
+if (!dbxContentPageCache::write_full_page($html)) {
    $fail('Vollstaendige Gastseite wurde nicht atomar gespeichert.');
 }
-if (dbxContentPageCache::readFullPage() !== $html) {
+if (dbxContentPageCache::read_full_page() !== $html) {
    $fail('Cache-Lesen veraendert oder escaped die gespeicherten Bytes.');
 }
 
-$baseCheckedPath = (string)$api->system['dbx_full_page_cache_path'];
-$wrongBaseHtml = str_replace(
+$base_checked_path = (string)$api->system['dbx_full_page_cache_path'];
+$wrong_base_html = str_replace(
    'http://localhost/dbxapp/',
    'https://dbxapp.de/',
    $html
 );
-file_put_contents($baseCheckedPath, $wrongBaseHtml);
-if (dbxContentPageCache::readFullPage() !== null || is_file($baseCheckedPath)) {
+file_put_contents($base_checked_path, $wrong_base_html);
+if (dbxContentPageCache::read_full_page() !== null || is_file($base_checked_path)) {
    $fail('Cache-Datei mit falschem base href wurde gelesen oder nicht geloescht.');
 }
-if (dbxContentPageCache::writeFullPage($wrongBaseHtml)) {
+if (dbxContentPageCache::write_full_page($wrong_base_html)) {
    $fail('HTML mit falschem base href wurde erneut in den Cache geschrieben.');
 }
-if (!dbxContentPageCache::writeFullPage($html) || dbxContentPageCache::readFullPage() !== $html) {
+if (!dbxContentPageCache::write_full_page($html) || dbxContentPageCache::read_full_page() !== $html) {
    $fail('Nach ungueltigem base href wurde die korrekte Seite nicht neu gecacht.');
 }
 
-$oldPath = (string)$api->system['dbx_full_page_cache_path'];
-$oldGeneration = (string)$api->system['dbx_full_page_cache_generation'];
-dbxContentPageCache::invalidateAllFullPages();
-if (dbxContentPageCache::writeFullPage($html)) {
+$old_path = (string)$api->system['dbx_full_page_cache_path'];
+$old_generation = (string)$api->system['dbx_full_page_cache_generation'];
+dbxContentPageCache::invalidate_all_full_pages();
+if (dbxContentPageCache::write_full_page($html)) {
    $fail('Ein vor der Invalidierung gestarteter Request konnte veraltetes HTML nachschreiben.');
 }
 
-if (!dbxContentPageCache::prepareFullPageRequest()) {
+if (!dbxContentPageCache::prepare_full_page_request()) {
    $fail('Cache konnte nach Generationwechsel nicht neu vorbereitet werden.');
 }
 $api->system['dbx_content_permalink_request'] = 1;
 $api->system['dbx_content_route_cid'] = 51;
 $api->system['dbx_master_modul'] = 'dbxContent';
-dbxContentPageCache::attachResolvedContentRoute();
-$newPath = (string)$api->system['dbx_full_page_cache_path'];
-$newGeneration = (string)$api->system['dbx_full_page_cache_generation'];
-if ($oldPath === $newPath || $oldGeneration === $newGeneration) {
+dbxContentPageCache::attach_resolved_content_route();
+$new_path = (string)$api->system['dbx_full_page_cache_path'];
+$new_generation = (string)$api->system['dbx_full_page_cache_generation'];
+if ($old_path === $new_path || $old_generation === $new_generation) {
    $fail('Invalidierung hat die Cache-Generation nicht gewechselt.');
 }
-if (!dbxContentPageCache::writeFullPage($html)) {
+if (!dbxContentPageCache::write_full_page($html)) {
    $fail('Neue Cache-Generation konnte nicht geschrieben werden.');
 }
 
-if (!dbxContentPageCache::setConfigEnabled(false)) {
+if (!dbxContentPageCache::set_config_enabled(false)) {
    $fail('Cache-Konfiguration konnte im Test nicht ausgeschaltet werden.');
 }
-if (!is_file($newPath) || dbxContentPageCache::readFullPage() !== $html) {
+if (!is_file($new_path) || dbxContentPageCache::read_full_page() !== $html) {
    $fail('Ausschalten des Cache-Schreibens hat einen vorhandenen Treffer entfernt oder deaktiviert.');
 }
-if (dbxContentPageCache::isWriteEnabled()) {
+if (dbxContentPageCache::is_write_enabled()) {
    $fail('Ausgeschaltetes Cache-Schreiben wird weiterhin als aktiv gemeldet.');
 }
-if (dbxContentPageCache::writeFullPage(str_replace('Unveraendert', 'Neu', $html))) {
+if (dbxContentPageCache::write_full_page(str_replace('Unveraendert', 'Neu', $html))) {
    $fail('Bei ausgeschaltetem Cache-Schreiben wurde eine Seite gespeichert.');
 }
-if ((string)file_get_contents($newPath) !== $html) {
+if ((string)file_get_contents($new_path) !== $html) {
    $fail('Vorhandene Cache-Datei wurde bei ausgeschaltetem Schreiben veraendert.');
 }
-$afterTogglePath = dbxContentPageCache::fullPagePath('abc/def', 'de', 'dbxapp', 'blau');
-if ($afterTogglePath !== $newPath) {
+$after_toggle_path = dbxContentPageCache::full_page_path('abc/def', 'de', 'dbxapp', 'blau');
+if ($after_toggle_path !== $new_path) {
    $fail('Ausschalten des Cache-Schreibens hat die bestehende Generation gewechselt.');
 }
 
 // Fachliche Aenderungen invalidieren auch bei pausiertem Schreiben weiterhin
 // vorhandene Treffer. Danach bleibt der MISS live und wird nicht gespeichert.
-dbxContentPageCache::invalidateAllFullPages();
-if (is_file($newPath)) {
+dbxContentPageCache::invalidate_all_full_pages();
+if (is_file($new_path)) {
    $fail('Inhaltsinvalidierung hat bei pausiertem Schreiben eine alte Seite behalten.');
 }
-$afterInvalidationPath = dbxContentPageCache::fullPagePath('abc/def', 'de', 'dbxapp', 'blau');
-if ($afterInvalidationPath === $newPath) {
+$after_invalidation_path = dbxContentPageCache::full_page_path('abc/def', 'de', 'dbxapp', 'blau');
+if ($after_invalidation_path === $new_path) {
    $fail('Inhaltsinvalidierung hat die Generation bei pausiertem Schreiben nicht gewechselt.');
 }
-if (!dbxContentPageCache::prepareFullPageRequest()) {
+if (!dbxContentPageCache::prepare_full_page_request()) {
    $fail('Lesepfad konnte bei pausiertem Schreiben nicht vorbereitet werden.');
 }
 $api->system['dbx_content_permalink_request'] = 1;
 $api->system['dbx_content_route_cid'] = 51;
 $api->system['dbx_master_modul'] = 'dbxContent';
-dbxContentPageCache::attachResolvedContentRoute();
-if (dbxContentPageCache::readFullPage() !== null || dbxContentPageCache::writeFullPage($html)) {
+dbxContentPageCache::attach_resolved_content_route();
+if (dbxContentPageCache::read_full_page() !== null || dbxContentPageCache::write_full_page($html)) {
    $fail('Cache-MISS wurde bei pausiertem Schreiben nicht ausschliesslich live behandelt.');
 }
 
-if (!dbxContentPageCache::setConfigEnabled(true) || !dbxContentPageCache::isWriteEnabled()) {
+if (!dbxContentPageCache::set_config_enabled(true) || !dbxContentPageCache::is_write_enabled()) {
    $fail('Cache-Schreiben konnte nicht wieder eingeschaltet werden.');
 }
 
-$api->effectiveUser = 1;
-if (dbxContentPageCache::isEnabled()) {
+$api->effective_user = 1;
+if (dbxContentPageCache::is_enabled()) {
    $fail('Effektiver Admin-/Bypass-Benutzer wird als Gast behandelt.');
 }
-$api->effectiveUser = 7;
-$_SESSION['dbx']['current_user']['id'] = '7';
-if (dbxContentPageCache::isEnabled()) {
+$api->effective_user = 7;
+if (dbxContentPageCache::is_enabled()) {
    $fail('Numerische Benutzer-ID als String wird als Gast behandelt.');
 }
-$api->effectiveUser = 0;
-$_SESSION['dbx']['current_user']['id'] = 0;
-$_SESSION['dbxShop_cart'] = array(12 => 2);
-if (dbxContentPageCache::isEnabled()) {
+$api->effective_user = 0;
+$api->set_session_var('cart', array(12 => 2), 'state', 'dbxShop');
+if (dbxContentPageCache::is_enabled()) {
    $fail('Gast mit Warenkorb wuerde weiterhin einen gemeinsamen Cache verwenden.');
 }
-$_SESSION['dbxShop_cart'] = array();
+$api->set_session_var('cart', array(), 'state', 'dbxShop');
 
-$api->demoMode = true;
-if (dbxContentPageCache::prepareFullPageRequest()) {
+$api->demo_mode = true;
+if (dbxContentPageCache::prepare_full_page_request()) {
    $fail('Eine Demo-Seite wurde fuer den Gastseiten-Cache vorbereitet.');
 }
 
-$deleteTree($testRoot);
+$delete_tree($test_root);
 echo "OK dbxContent full-page cache\n";

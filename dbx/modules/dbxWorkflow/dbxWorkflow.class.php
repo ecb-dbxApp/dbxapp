@@ -1,6 +1,9 @@
 <?php
 namespace dbx\dbxWorkflow;
 
+/**
+ * Öffentlicher Modul-Controller zum Auflisten, Starten und Fortsetzen von Workflows.
+ */
 class dbxWorkflow {
 
    public function run() {

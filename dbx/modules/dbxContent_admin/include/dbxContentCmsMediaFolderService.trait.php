@@ -43,13 +43,13 @@ trait dbxContentCmsMediaFolderServiceTrait {
 
 
    private function collect_custom_media_root_folders(array &$folders) {
-      $mediaRoot = rtrim(dbx()->get_file_dir(), '/\\') . '/media/';
-      $mediaRoot = dbx()->os_path($mediaRoot);
-      if (!is_dir($mediaRoot) || !is_readable($mediaRoot)) return;
+      $media_root = rtrim(dbx()->get_file_dir(), '/\\') . '/media/';
+      $media_root = dbx()->os_path($media_root);
+      if (!is_dir($media_root) || !is_readable($media_root)) return;
       $skip = array('.', '..', '_thumbs', 'img', 'video', 'videos', 'youtube', 'external', 'file', 'module');
       $skip = array_merge($skip, $this->media_slots());
-      $root_norm = str_replace('\\', '/', rtrim($mediaRoot, '/\\')) . '/';
-      $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($mediaRoot, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
+      $root_norm = str_replace('\\', '/', rtrim($media_root, '/\\')) . '/';
+      $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($media_root, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
       foreach ($it as $item) {
          if (!$item->isDir()) continue;
          $path = str_replace('\\', '/', $item->getPathname());
@@ -237,13 +237,13 @@ trait dbxContentCmsMediaFolderServiceTrait {
       );
       if (is_array($used) && isset($used[0])) return true;
 
-      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
-         $contentDd = dbxContentLng::ddContent((string)$lng);
-         $folderDd = dbxContentLng::ddFolder((string)$lng);
-         if ($db->count($contentDd, 'hero_image_id = ' . $id . ' OR seo_image_id = ' . $id) > 0 || $db->count($folderDd, 'hero_image_id = ' . $id) > 0) {
+      foreach (dbxContentLngSync::accessible_lngs() as $lng) {
+         $content_dd = dbxContentLng::dd_content((string)$lng);
+         $folder_dd = dbxContentLng::dd_folder((string)$lng);
+         if ($db->count($content_dd, 'hero_image_id = ' . $id . ' OR seo_image_id = ' . $id) > 0 || $db->count($folder_dd, 'hero_image_id = ' . $id) > 0) {
             return true;
          }
-         $pages = $db->select($contentDd, '', 'content', 'id', 'ASC', '', 0, 0, 0);
+         $pages = $db->select($content_dd, '', 'content', 'id', 'ASC', '', 0, 0, 0);
          foreach (is_array($pages) ? $pages : array() as $page) {
             $content = (string)($page['content'] ?? '');
             if (preg_match('/data-cms-media-id=["\']?' . $id . '(?:["\'\s>]|$)/i', $content)

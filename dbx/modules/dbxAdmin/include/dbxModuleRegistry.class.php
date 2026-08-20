@@ -6,22 +6,22 @@ namespace dbx\dbxAdmin;
  */
 class dbxModuleRegistry {
 
-   private $modulesRoot = '';
-   private $groupLabels = null;
-   private $inspectCache = array();
+   private $modules_root = '';
+   private $group_labels = null;
+   private $inspect_cache = array();
    private $images = null;
 
    public function __construct() {
-      $this->modulesRoot = dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/');
+      $this->modules_root = dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/');
    }
 
-   public function listModuleNames(): array {
+   public function list_module_names(): array {
       $names = array();
-      if (!is_dir($this->modulesRoot)) {
+      if (!is_dir($this->modules_root)) {
          return $names;
       }
 
-      $dh = opendir($this->modulesRoot);
+      $dh = opendir($this->modules_root);
       if (!$dh) {
          return $names;
       }
@@ -30,7 +30,7 @@ class dbxModuleRegistry {
          if ($file === '.' || $file === '..' || $file === 'tpl') {
             continue;
          }
-         $path = $this->modulesRoot . $file;
+         $path = $this->modules_root . $file;
          if (!is_dir($path)) {
             continue;
          }
@@ -49,47 +49,47 @@ class dbxModuleRegistry {
 
    public function inspect(string $modul): array {
       $modul = trim($modul);
-      if (isset($this->inspectCache[$modul])) {
-         return $this->inspectCache[$modul];
+      if (isset($this->inspect_cache[$modul])) {
+         return $this->inspect_cache[$modul];
       }
 
-      $base = $this->modulesRoot . $modul . DIRECTORY_SEPARATOR;
+      $base = $this->modules_root . $modul . DIRECTORY_SEPARATOR;
       $config = dbx()->get_cfg($modul);
       if (!is_array($config)) {
          $config = array();
       }
 
-      $runs = $this->scanRuns($modul);
-      $defaultRun1 = (string)($runs['default_run1'] ?? 'run');
-      $defaultRun2 = (string)($runs['default_run2'] ?? '');
-      $install = $this->detectInstall($modul);
+      $runs = $this->scan_runs($modul);
+      $default_run1 = (string)($runs['default_run1'] ?? 'run');
+      $default_run2 = (string)($runs['default_run2'] ?? '');
+      $install = $this->detect_install($modul);
       $images = $this->images();
-      $graphic = $images->moduleSymbol($modul);
-      $imageItems = $images->imageItems($modul);
-      $ddList = $this->detectDdUsage($modul);
-      $ddItems = $this->buildDdItems($ddList);
-      $ddCount = count($ddList);
-      $description = $this->detectDescription($modul, $base, $ddList);
-      $groups = $this->normalizeGroups($config['groups'] ?? '*');
-      $active = $this->isActive($config);
+      $graphic = $images->module_symbol($modul);
+      $image_items = $images->image_items($modul);
+      $dd_list = $this->detect_dd_usage($modul);
+      $dd_items = $this->build_dd_items($dd_list);
+      $dd_count = count($dd_list);
+      $description = $this->detect_description($modul, $base, $dd_list);
+      $groups = $this->normalize_groups($config['groups'] ?? '*');
+      $active = $this->is_active($config);
       $version = trim((string)($config['version'] ?? ''));
 
-      $previewModul = $modul;
-      $previewRun1 = $defaultRun1;
-      $previewRun2 = $defaultRun2;
+      $preview_modul = $modul;
+      $preview_run1 = $default_run1;
+      $preview_run2 = $default_run2;
       if ($modul === 'dbxHome') {
-         $previewRun1 = '';
-         $previewRun2 = '';
+         $preview_run1 = '';
+         $preview_run2 = '';
       }
 
-      $previewUrl = $this->buildModulUrl($previewModul, $previewRun1, $previewRun2);
-      $installUrl = $install['url'] ?? '';
-      $configUrl = $this->configEditUrl($modul);
-      $accessUrl = '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_access&dbx_run3=edit&xmodul=' . rawurlencode($modul);
-      $helpUrl = '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_help&xmodul=' . rawurlencode($modul);
-      $avatarUrl = '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_avatar&xmodul=' . rawurlencode($modul);
+      $preview_url = $this->build_modul_url($preview_modul, $preview_run1, $preview_run2);
+      $install_url = $install['url'] ?? '';
+      $config_url = $this->config_edit_url($modul);
+      $access_url = '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_access&dbx_run3=edit&xmodul=' . rawurlencode($modul);
+      $help_url = '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_help&xmodul=' . rawurlencode($modul);
+      $avatar_url = '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_avatar&xmodul=' . rawurlencode($modul);
 
-      $this->inspectCache[$modul] = array(
+      $this->inspect_cache[$modul] = array(
          'xmodul'          => $modul,
          'title'           => $modul,
          'description'     => $description,
@@ -98,23 +98,23 @@ class dbxModuleRegistry {
          'active_label'    => $active ? 'Aktiv' : 'Inaktiv',
          'active_class'    => $active ? 'success' : 'secondary',
          'groups'          => $groups,
-         'groups_text'     => $this->groupsText($groups),
-         'dd_list'         => $ddList,
-         'dd_items'        => $ddItems,
-         'dd_count'        => $ddCount,
+         'groups_text'     => $this->groups_text($groups),
+         'dd_list'         => $dd_list,
+         'dd_items'        => $dd_items,
+         'dd_count'        => $dd_count,
          'dd_select_id'    => 'dbx_mod_dd_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $modul),
          'dd_select_size'  => 6,
-         'default_run1'    => $defaultRun1,
-         'default_run2'    => $defaultRun2,
-         'default_call'    => $this->formatDefaultCall($modul, $defaultRun1, $defaultRun2),
-         'preview_url'     => $previewUrl,
-         'install_url'     => $installUrl,
+         'default_run1'    => $default_run1,
+         'default_run2'    => $default_run2,
+         'default_call'    => $this->format_default_call($modul, $default_run1, $default_run2),
+         'preview_url'     => $preview_url,
+         'install_url'     => $install_url,
          'has_install'     => !empty($install['url']) ? '1' : '0',
          'install_modul'   => (string)($install['modul'] ?? ''),
-         'config_url'      => $configUrl,
-         'access_url'      => $accessUrl,
-         'help_url'        => $helpUrl,
-         'avatar_url'      => $avatarUrl,
+         'config_url'      => $config_url,
+         'access_url'      => $access_url,
+         'help_url'        => $help_url,
+         'avatar_url'      => $avatar_url,
          'images_url'      => '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images&xmodul=' . rawurlencode($modul),
          'images_add_url'    => '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_add',
          'images_upload_url' => '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_upload',
@@ -129,22 +129,22 @@ class dbxModuleRegistry {
          'access_save_url'   => '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_access_save',
          'active_toggle_url' => '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_active_toggle',
          'delete_url'        => '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_delete',
-         'can_delete'        => $this->canDeleteModule($modul) ? '1' : '0',
+         'can_delete'        => $this->can_delete_module($modul) ? '1' : '0',
          'graphic_url'     => (string)($graphic['url'] ?? ''),
          'graphic_alt'     => (string)($graphic['alt'] ?? $modul),
          'graphic_badge'   => (string)($graphic['badge'] ?? ''),
-         'placeholder_url' => $this->moduleImageEmptyPlaceholderUrl(),
-         'placeholder_alt' => $this->moduleImageEmptyPlaceholderAlt(),
+         'placeholder_url' => $this->module_image_empty_placeholder_url(),
+         'placeholder_alt' => $this->module_image_empty_placeholder_alt(),
          'module_images'   => array_values(array_map(function ($item) {
             return (string)($item['file'] ?? '');
-         }, $imageItems)),
-         'image_items'     => $imageItems,
-         'image_count_cfg' => count($imageItems),
+         }, $image_items)),
+         'image_items'     => $image_items,
+         'image_count_cfg' => count($image_items),
          'has_class'       => is_file($base . $modul . '.class.php') ? '1' : '0',
          'run_cases'       => (array)($runs['run1'] ?? array()),
          'uses_run2'       => !empty($runs['uses_run2']) ? '1' : '0',
       );
-      return $this->inspectCache[$modul];
+      return $this->inspect_cache[$modul];
    }
 
    private function images(): dbxModuleImages {
@@ -157,43 +157,43 @@ class dbxModuleRegistry {
       return $this->images;
    }
 
-   public function ddEditUrl(string $modul, string $dd): string {
+   public function dd_edit_url(string $modul, string $dd): string {
       return '?dbx_modul=dbxAdmin&dbx_run1=edit_dd&modul=' . rawurlencode($modul) . '&dd=' . rawurlencode($dd);
    }
 
-   public function buildDdItems(array $ddList): array {
+   public function build_dd_items(array $dd_list): array {
       $items = array();
-      foreach ($ddList as $ddRef) {
-         $parts = explode('|', (string)$ddRef, 2);
+      foreach ($dd_list as $dd_ref) {
+         $parts = explode('|', (string)$dd_ref, 2);
          $m = trim((string)($parts[0] ?? ''));
          $d = trim((string)($parts[1] ?? ''));
          if ($m === '' || $d === '') {
             continue;
          }
          $items[] = array(
-            'ref'         => $ddRef,
+            'ref'         => $dd_ref,
             'modul'       => $m,
             'dd'          => $d,
             'label'       => $d,
             'modul_label' => $m,
-            'edit_url'    => $this->ddEditUrl($m, $d),
+            'edit_url'    => $this->dd_edit_url($m, $d),
             'edit_title'  => 'DD bearbeiten: ' . $m . '/' . $d,
          );
       }
       return $items;
    }
 
-   public function inspectAll(): array {
+   public function inspect_all(): array {
       $rows = array();
-      foreach ($this->listModuleNames() as $modul) {
+      foreach ($this->list_module_names() as $modul) {
          $rows[] = $this->inspect($modul);
       }
       return $rows;
    }
 
-   public function groupOptions(): array {
-      if (is_array($this->groupLabels)) {
-         return $this->groupLabels;
+   public function group_options(): array {
+      if (is_array($this->group_labels)) {
+         return $this->group_labels;
       }
 
       $options = array(
@@ -204,9 +204,9 @@ class dbxModuleRegistry {
       );
 
       $db = dbx()->get_system_obj('dbxDB');
-      $userGroups = $db->select('dbxUser_groups', 'active = 1');
-      if (is_array($userGroups)) {
-         foreach ($userGroups as $record) {
+      $user_groups = $db->select('dbxUser_groups', 'active = 1');
+      if (is_array($user_groups)) {
+         foreach ($user_groups as $record) {
             $id = trim((string)($record['name'] ?? ''));
             if ($id === '') {
                continue;
@@ -215,16 +215,16 @@ class dbxModuleRegistry {
          }
       }
 
-      $this->groupLabels = $options;
-      return $this->groupLabels;
+      $this->group_labels = $options;
+      return $this->group_labels;
    }
 
-   private function groupsText(array $groups): string {
+   private function groups_text(array $groups): string {
       if (!$groups) {
          return '—';
       }
 
-      $labels = $this->groupOptions();
+      $labels = $this->group_options();
       $parts = array();
       foreach ($groups as $group) {
          $parts[] = $labels[$group] ?? $group;
@@ -233,7 +233,7 @@ class dbxModuleRegistry {
       return implode(', ', $parts);
    }
 
-   private function normalizeGroups($groups): array {
+   private function normalize_groups($groups): array {
       if (is_array($groups)) {
          $out = array();
          foreach ($groups as $value) {
@@ -258,7 +258,7 @@ class dbxModuleRegistry {
       return array_values(array_unique($parts));
    }
 
-   private function isActive(array $config): bool {
+   private function is_active(array $config): bool {
       if (isset($config['activ'])) {
          return (string)$config['activ'] === '1';
       }
@@ -268,7 +268,7 @@ class dbxModuleRegistry {
       return true;
    }
 
-   private function configEditUrl(string $modul): string {
+   private function config_edit_url(string $modul): string {
       if ($modul === 'dbx') {
          return '?dbx_modul=dbxAdmin&dbx_run1=config&dbx_run2=edit&xmodul=dbx';
       }
@@ -277,8 +277,8 @@ class dbxModuleRegistry {
       return '?dbx_modul=dbxEditor&dbx_run1=edit&file=' . rawurlencode($file);
    }
 
-   private function moduleClassFiles(string $modul): array {
-      $base = $this->modulesRoot . $modul . DIRECTORY_SEPARATOR;
+   private function module_class_files(string $modul): array {
+      $base = $this->modules_root . $modul . DIRECTORY_SEPARATOR;
       $files = array();
       $main = $base . $modul . '.class.php';
       if (is_file($main)) {
@@ -295,37 +295,37 @@ class dbxModuleRegistry {
       return $files;
    }
 
-   public function scanRunsPublic(string $modul): array {
-      return $this->scanRuns($modul);
+   public function scan_runs_public(string $modul): array {
+      return $this->scan_runs($modul);
    }
 
-   private function scanRuns(string $modul): array {
+   private function scan_runs(string $modul): array {
       $run1 = array();
-      $defaultRun1 = '';
-      $defaultRun2 = '';
-      $usesRun2 = false;
+      $default_run1 = '';
+      $default_run2 = '';
+      $uses_run2 = false;
 
-      foreach ($this->moduleClassFiles($modul) as $file) {
+      foreach ($this->module_class_files($modul) as $file) {
          $src = @file_get_contents($file);
          if (!is_string($src) || $src === '') {
             continue;
          }
 
          if (preg_match("/get_modul_var\s*\(\s*['\"]dbx_run2['\"]/", $src)) {
-            $usesRun2 = true;
+            $uses_run2 = true;
          }
 
-         if ($defaultRun1 === '' && preg_match("/get_modul_var\s*\(\s*['\"]dbx_run1['\"][^,]*,\s*['\"]([^'\"]+)['\"]/", $src, $match)) {
+         if ($default_run1 === '' && preg_match("/get_modul_var\s*\(\s*['\"]dbx_run1['\"][^,]*,\s*['\"]([^'\"]+)['\"]/", $src, $match)) {
             $candidate = trim((string)$match[1]);
             if ($candidate !== '' && $candidate !== 'parameter') {
-               $defaultRun1 = $candidate;
+               $default_run1 = $candidate;
             }
          }
 
-         if ($defaultRun2 === '' && preg_match("/get_modul_var\s*\(\s*['\"]dbx_run2['\"][^,]*,\s*['\"]([^'\"]+)['\"]/", $src, $match)) {
+         if ($default_run2 === '' && preg_match("/get_modul_var\s*\(\s*['\"]dbx_run2['\"][^,]*,\s*['\"]([^'\"]+)['\"]/", $src, $match)) {
             $candidate = trim((string)$match[1]);
             if ($candidate !== '' && $candidate !== 'parameter') {
-               $defaultRun2 = $candidate;
+               $default_run2 = $candidate;
             }
          }
 
@@ -349,34 +349,34 @@ class dbxModuleRegistry {
          }
       }
 
-      if ($defaultRun1 === '') {
+      if ($default_run1 === '') {
          $keys = array_keys($run1);
-         $defaultRun1 = $keys ? (string)$keys[0] : 'run';
+         $default_run1 = $keys ? (string)$keys[0] : 'run';
       }
 
       if ($modul === 'dbxAdmin' && isset($run1['run'])) {
-         $defaultRun1 = 'run';
+         $default_run1 = 'run';
       }
       if ($modul === 'dbxHome') {
-         $defaultRun1 = '';
+         $default_run1 = '';
       }
 
       return array(
          'run1'          => array_keys($run1),
-         'default_run1'  => $defaultRun1,
-         'default_run2'  => $defaultRun2,
-         'uses_run2'     => $usesRun2,
+         'default_run1'  => $default_run1,
+         'default_run2'  => $default_run2,
+         'uses_run2'     => $uses_run2,
       );
    }
 
-   private function detectInstall(string $modul): array {
+   private function detect_install(string $modul): array {
       $candidates = array($modul);
       if (substr($modul, -6) !== '_admin') {
          $candidates[] = $modul . '_admin';
       }
 
       foreach ($candidates as $candidate) {
-         foreach ($this->moduleClassFiles($candidate) as $file) {
+         foreach ($this->module_class_files($candidate) as $file) {
             $src = @file_get_contents($file);
             if (!is_string($src) || $src === '') {
                continue;
@@ -388,7 +388,7 @@ class dbxModuleRegistry {
 
             return array(
                'modul' => $candidate,
-               'url'   => $this->buildModulUrl($candidate, 'install'),
+               'url'   => $this->build_modul_url($candidate, 'install'),
             );
          }
       }
@@ -396,21 +396,21 @@ class dbxModuleRegistry {
       return array();
    }
 
-   private function detectDdUsage(string $modul): array {
+   private function detect_dd_usage(string $modul): array {
       $found = array();
 
-      $ddDir = $this->modulesRoot . $modul . DIRECTORY_SEPARATOR . 'dd' . DIRECTORY_SEPARATOR;
-      if (is_dir($ddDir)) {
-         foreach (glob($ddDir . '*.dd.php') ?: array() as $file) {
+      $dd_dir = $this->modules_root . $modul . DIRECTORY_SEPARATOR . 'dd' . DIRECTORY_SEPARATOR;
+      if (is_dir($dd_dir)) {
+         foreach (glob($dd_dir . '*.dd.php') ?: array() as $file) {
             $name = basename($file, '.dd.php');
             if ($name === '' || $name === 'new' || str_starts_with($name, '.')) {
                continue;
             }
-            $this->registerDdRef($found, $modul, $name);
+            $this->register_dd_ref($found, $modul, $name);
          }
       }
 
-      foreach ($this->moduleClassFiles($modul) as $file) {
+      foreach ($this->module_class_files($modul) as $file) {
          $src = @file_get_contents($file);
          if (!is_string($src) || $src === '') {
             continue;
@@ -418,19 +418,19 @@ class dbxModuleRegistry {
 
          if (preg_match_all("/['\"]" . preg_quote($modul, '/') . "\|([a-zA-Z][a-zA-Z0-9_]*)['\"]/", $src, $matches)) {
             foreach ($matches[1] as $dd) {
-               $this->registerDdRef($found, $modul, $dd);
+               $this->register_dd_ref($found, $modul, $dd);
             }
          }
 
          if (preg_match_all("/_dd\s*=\s*['\"]([a-zA-Z][a-zA-Z0-9_]*(?:\|[a-zA-Z][a-zA-Z0-9_]*)?)['\"]/", $src, $matches)) {
-            foreach ($matches[1] as $ddRef) {
-               $this->registerDdRefString($found, $modul, $ddRef);
+            foreach ($matches[1] as $dd_ref) {
+               $this->register_dd_ref_string($found, $modul, $dd_ref);
             }
          }
 
          if (preg_match_all("/load_dd\s*\(\s*['\"]([a-zA-Z][a-zA-Z0-9_]*(?:\|[a-zA-Z][a-zA-Z0-9_]*)?)['\"]/", $src, $matches)) {
-            foreach ($matches[1] as $ddRef) {
-               $this->registerDdRefString($found, $modul, $ddRef);
+            foreach ($matches[1] as $dd_ref) {
+               $this->register_dd_ref_string($found, $modul, $dd_ref);
             }
          }
       }
@@ -440,41 +440,41 @@ class dbxModuleRegistry {
       return $list;
    }
 
-   private function isValidIdent(string $name): bool {
+   private function is_valid_ident(string $name): bool {
       return (bool)preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $name);
    }
 
-   private function ddFileExists(string $modul, string $dd): bool {
-      $path = $this->modulesRoot . $modul . DIRECTORY_SEPARATOR . 'dd' . DIRECTORY_SEPARATOR . $dd . '.dd.php';
+   private function dd_file_exists(string $modul, string $dd): bool {
+      $path = $this->modules_root . $modul . DIRECTORY_SEPARATOR . 'dd' . DIRECTORY_SEPARATOR . $dd . '.dd.php';
       return is_file($path);
    }
 
-   private function registerDdRef(array &$found, string $modul, string $dd): void {
+   private function register_dd_ref(array &$found, string $modul, string $dd): void {
       $modul = trim($modul);
       $dd = trim($dd);
-      if (!$this->isValidIdent($modul) || !$this->isValidIdent($dd)) {
+      if (!$this->is_valid_ident($modul) || !$this->is_valid_ident($dd)) {
          return;
       }
-      if (!$this->ddFileExists($modul, $dd)) {
+      if (!$this->dd_file_exists($modul, $dd)) {
          return;
       }
       $found[$modul . '|' . $dd] = true;
    }
 
-   private function registerDdRefString(array &$found, string $modul, string $ddRef): void {
-      $ddRef = trim($ddRef);
-      if ($ddRef === '') {
+   private function register_dd_ref_string(array &$found, string $modul, string $dd_ref): void {
+      $dd_ref = trim($dd_ref);
+      if ($dd_ref === '') {
          return;
       }
-      if (strpos($ddRef, '|') !== false) {
-         $parts = explode('|', $ddRef, 2);
-         $this->registerDdRef($found, $parts[0], $parts[1]);
+      if (strpos($dd_ref, '|') !== false) {
+         $parts = explode('|', $dd_ref, 2);
+         $this->register_dd_ref($found, $parts[0], $parts[1]);
          return;
       }
-      $this->registerDdRef($found, $modul, $ddRef);
+      $this->register_dd_ref($found, $modul, $dd_ref);
    }
 
-   private function detectDescription(string $modul, string $base, array $ddList = array()): string {
+   private function detect_description(string $modul, string $base, array $dd_list = array()): string {
       $candidates = array(
          $base . 'cfg' . DIRECTORY_SEPARATOR . 'about.txt',
          $base . 'cfg' . DIRECTORY_SEPARATOR . 'help.txt',
@@ -486,23 +486,23 @@ class dbxModuleRegistry {
          if (!is_file($file)) {
             continue;
          }
-         $text = $this->readLeadComment($file);
+         $text = $this->read_lead_comment($file);
          if ($text !== '') {
-            return $this->trimDescription($text);
+            return $this->trim_description($text);
          }
       }
 
-      $runs = $this->scanRuns($modul);
+      $runs = $this->scan_runs($modul);
       $parts = array();
-      $parts[] = 'Standardaufruf: ' . $this->formatDefaultCall($modul, (string)($runs['default_run1'] ?? 'run'), (string)($runs['default_run2'] ?? ''));
-      if ($ddList) {
-         $parts[] = count($ddList) . ' DataDic-Datei(en)';
+      $parts[] = 'Standardaufruf: ' . $this->format_default_call($modul, (string)($runs['default_run1'] ?? 'run'), (string)($runs['default_run2'] ?? ''));
+      if ($dd_list) {
+         $parts[] = count($dd_list) . ' DataDic-Datei(en)';
       }
 
       return implode(' · ', $parts);
    }
 
-   private function readLeadComment(string $file): string {
+   private function read_lead_comment(string $file): string {
       $src = @file_get_contents($file);
       if (!is_string($src) || $src === '') {
          return '';
@@ -513,16 +513,16 @@ class dbxModuleRegistry {
       }
 
       if (preg_match('/\A\s*\/\*\*(.*?)\*\//s', $src, $match)) {
-         return $this->cleanCommentBlock($match[1]);
+         return $this->clean_comment_block($match[1]);
       }
       if (preg_match('/\A\s*\/\*(.*?)\*\//s', $src, $match)) {
-         return $this->cleanCommentBlock($match[1]);
+         return $this->clean_comment_block($match[1]);
       }
 
       return '';
    }
 
-   private function cleanCommentBlock(string $text): string {
+   private function clean_comment_block(string $text): string {
       $lines = preg_split('/\R/', $text);
       $out = array();
       foreach ($lines as $line) {
@@ -536,7 +536,7 @@ class dbxModuleRegistry {
       return trim(implode(' ', $out));
    }
 
-   private function trimDescription(string $text): string {
+   private function trim_description(string $text): string {
       $text = preg_replace('/\s+/', ' ', trim($text));
       if (strlen($text) > 320) {
          $text = substr($text, 0, 317) . '…';
@@ -544,11 +544,11 @@ class dbxModuleRegistry {
       return $text;
    }
 
-   public function placeholderGraphic(string $modul, string $run1 = '', string $run2 = ''): array {
-      return $this->resolveModGraphic($modul, $run1, $run2);
+   public function placeholder_graphic(string $modul, string $run1 = '', string $run2 = ''): array {
+      return $this->resolve_mod_graphic($modul, $run1, $run2);
    }
 
-   public function moduleImageEmptyPlaceholderUrl(): string {
+   public function module_image_empty_placeholder_url(): string {
       static $cache = array();
       $dir = dbx()->get_base_dir() . 'dbx/modules/dbxAdmin/tpl/img/';
       $lng = dbx()->lng_current();
@@ -589,7 +589,7 @@ class dbxModuleRegistry {
       return $cache[$lng];
    }
 
-   public function moduleImageEmptyPlaceholderAlt(): string {
+   public function module_image_empty_placeholder_alt(): string {
       static $cache = array();
       $lng = dbx()->lng_current();
       if (isset($cache[$lng])) {
@@ -607,9 +607,9 @@ class dbxModuleRegistry {
       return $cache[$lng];
    }
 
-   private function resolveModGraphic(string $modul, string $run1, string $run2): array {
-      $urlBase = dbx()->get_base_url() . 'dbx/modules/' . rawurlencode($modul) . '/';
-      $modDir = $this->modulesRoot . $modul . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'mod' . DIRECTORY_SEPARATOR;
+   private function resolve_mod_graphic(string $modul, string $run1, string $run2): array {
+      $url_base = dbx()->get_base_url() . 'dbx/modules/' . rawurlencode($modul) . '/';
+      $mod_dir = $this->modules_root . $modul . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'mod' . DIRECTORY_SEPARATOR;
 
       $candidates = array();
       if ($run1 !== '' && $run2 !== '') {
@@ -620,32 +620,32 @@ class dbxModuleRegistry {
       }
       $candidates[] = $modul . '.svg';
 
-      if (is_dir($modDir)) {
+      if (is_dir($mod_dir)) {
          foreach ($candidates as $name) {
-            if (is_file($modDir . $name)) {
+            if (is_file($mod_dir . $name)) {
                return array(
-                  'url'   => $urlBase . 'tpl/mod/' . rawurlencode($name),
+                  'url'   => $url_base . 'tpl/mod/' . rawurlencode($name),
                   'alt'   => $modul . ' ' . $run1,
                   'badge' => $name,
                );
             }
          }
 
-         $any = glob($modDir . '*.svg');
+         $any = glob($mod_dir . '*.svg');
          if (is_array($any) && isset($any[0]) && is_file($any[0])) {
             $name = basename($any[0]);
             return array(
-               'url'   => $urlBase . 'tpl/mod/' . rawurlencode($name),
+               'url'   => $url_base . 'tpl/mod/' . rawurlencode($name),
                'alt'   => $modul,
                'badge' => $name,
             );
          }
       }
 
-      $imgPath = $this->modulesRoot . $modul . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'modul.gif';
-      if (is_file($imgPath)) {
+      $img_path = $this->modules_root . $modul . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'modul.gif';
+      if (is_file($img_path)) {
          return array(
-            'url'   => $urlBase . 'tpl/img/modul.gif',
+            'url'   => $url_base . 'tpl/img/modul.gif',
             'alt'   => $modul,
             'badge' => 'modul.gif',
          );
@@ -658,11 +658,11 @@ class dbxModuleRegistry {
       );
    }
 
-   public function modulUrl(string $modul, string $run1 = '', string $run2 = ''): string {
-      return $this->buildModulUrl($modul, $run1, $run2);
+   public function modul_url(string $modul, string $run1 = '', string $run2 = ''): string {
+      return $this->build_modul_url($modul, $run1, $run2);
    }
 
-   public function canDeleteModule(string $modul): bool {
+   public function can_delete_module(string $modul): bool {
       $modul = trim($modul);
       if ($modul === '' || !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $modul)) {
          return false;
@@ -671,11 +671,11 @@ class dbxModuleRegistry {
       if (in_array($modul, $protected, true)) {
          return false;
       }
-      $dir = $this->modulesRoot . $modul;
+      $dir = $this->modules_root . $modul;
       return is_dir($dir);
    }
 
-   private function buildModulUrl(string $modul, string $run1 = '', string $run2 = ''): string {
+   private function build_modul_url(string $modul, string $run1 = '', string $run2 = ''): string {
       $url = '?dbx_modul=' . rawurlencode($modul);
       if ($run1 !== '') {
          $url .= '&dbx_run1=' . rawurlencode($run1);
@@ -686,7 +686,7 @@ class dbxModuleRegistry {
       return $url;
    }
 
-   private function formatDefaultCall(string $modul, string $run1, string $run2): string {
+   private function format_default_call(string $modul, string $run1, string $run2): string {
       $parts = array('dbx_modul=' . $modul);
       if ($run1 !== '') {
          $parts[] = 'dbx_run1=' . $run1;
@@ -697,16 +697,16 @@ class dbxModuleRegistry {
       return implode('&', $parts);
    }
 
-   public function moduleHelpPath(string $modul): string {
+   public function module_help_path(string $modul): string {
       $modul = trim($modul);
       if ($modul === '') {
          return '';
       }
-      $path = $this->modulesRoot . $modul . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm' . DIRECTORY_SEPARATOR . 'modul-help.htm';
+      $path = $this->modules_root . $modul . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'help' . DIRECTORY_SEPARATOR . 'modul.htm';
       return is_file($path) ? $path : '';
    }
 
-   public function formHelpPath(string $modul, string $form): string {
+   public function form_help_path(string $modul, string $form): string {
       $modul = trim($modul);
       $form = strtolower(trim($form));
       if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $modul) || $form === '') {
@@ -716,35 +716,35 @@ class dbxModuleRegistry {
       if ($form === '') {
          return '';
       }
-      $path = $this->modulesRoot . $modul . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm'
-         . DIRECTORY_SEPARATOR . 'form-help-' . $form . '.htm';
+      $path = $this->modules_root . $modul . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'help'
+         . DIRECTORY_SEPARATOR . 'form-' . $form . '.htm';
       return is_file($path) ? $path : '';
    }
 
-   public function renderModuleHelp(string $modul, array $data = array()): string {
+   public function render_module_help(string $modul, array $data = array()): string {
       $modul = trim($modul);
       if ($modul === '') {
          return '';
       }
 
       $tpl = dbx()->get_system_obj('dbxTPL');
-      if ($this->moduleHelpPath($modul) === '') {
+      if ($this->module_help_path($modul) === '') {
          if (!isset($data['modul'])) {
             $data['modul'] = dbx()->esc($modul);
          }
          return $tpl->get_tpl('dbxAdmin|modul-help-fallback', $data);
       }
 
-      return $tpl->get_tpl($modul . '|modul-help', $data);
+      return $tpl->get_help_tpl($modul, 'modul', $data);
    }
 
-   public function renderFormHelp(string $modul, string $form, array $data = array()): string {
-      $path = $this->formHelpPath($modul, $form);
+   public function render_form_help(string $modul, string $form, array $data = array()): string {
+      $path = $this->form_help_path($modul, $form);
       if ($path === '') {
-         return $this->renderModuleHelp($modul, $data);
+         return $this->render_module_help($modul, $data);
       }
 
       $name = basename($path, '.htm');
-      return dbx()->get_system_obj('dbxTPL')->get_tpl($modul . '|' . $name, $data);
+      return dbx()->get_system_obj('dbxTPL')->get_help_tpl($modul, $name, $data);
    }
 }

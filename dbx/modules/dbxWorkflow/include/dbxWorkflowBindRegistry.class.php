@@ -1,28 +1,24 @@
 <?php
 namespace dbx\dbxWorkflow;
 
+require_once __DIR__ . '/dbxWorkflowValue.class.php';
+
+/**
+ * Verwaltet die Bindungen zwischen Workflow-Schritten, Modulen und DD-Feldern.
+ */
 class dbxWorkflowBindRegistry {
 
-   private $ddBind = 'dbxWorkflow|workflowModuleBind';
+   private $dd_bind = 'dbxWorkflow|workflowModuleBind';
 
    private function db() {
       return dbx()->get_system_obj('dbxDB');
-   }
-
-   private function read_json($value, $default = array()) {
-      $value = trim((string)$value);
-      if ($value === '') {
-         return $default;
-      }
-      $data = json_decode($value, true);
-      return is_array($data) ? $data : $default;
    }
 
    private function write_json($value) {
       return json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
    }
 
-   public function listModuleDds($modul) {
+   public function list_module_dds($modul) {
       $modul = trim((string)$modul);
       if ($modul === '') {
          return array();
@@ -49,7 +45,7 @@ class dbxWorkflowBindRegistry {
       return $out;
    }
 
-   public function detectContextTpl($modul) {
+   public function detect_context_tpl($modul) {
       $modul = trim((string)$modul);
       $path = dbx()->os_path(dbx()->get_base_dir() . "dbx/modules/$modul/tpl/htm/");
       if (!is_dir($path)) {
@@ -65,9 +61,9 @@ class dbxWorkflowBindRegistry {
       return '';
    }
 
-   public function ddFields($ddRef) {
-      $oDD = dbx()->get_system_obj('dbxDD');
-      $model = $oDD->get_dd_model($ddRef);
+   public function dd_fields($dd_ref) {
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      $model = $o_dd->get_dd_model($dd_ref);
       if (!$model) {
          return array();
       }
@@ -84,38 +80,38 @@ class dbxWorkflowBindRegistry {
       return $fields;
    }
 
-   public function guessRecordNeedKey($ddRef) {
-      $parts = explode('|', $ddRef);
+   public function guess_record_need_key($dd_ref) {
+      $parts = explode('|', $dd_ref);
       $dd = (string)($parts[1] ?? 'record');
       $key = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $dd));
       return trim(preg_replace('/[^a-z0-9_]+/', '_', $key), '_');
    }
 
-   public function generateBindSkeleton($modul, $ddRef, $bindKey = '') {
+   public function generate_bind_skeleton($modul, $dd_ref, $bind_key = '') {
       $modul = trim((string)$modul);
-      $ddRef = trim((string)$ddRef);
-      if ($modul === '' || $ddRef === '') {
+      $dd_ref = trim((string)$dd_ref);
+      if ($modul === '' || $dd_ref === '') {
          return array();
       }
 
-      $fields = $this->ddFields($ddRef);
-      $recordNeed = $this->guessRecordNeedKey($ddRef);
-      $contextTpl = $this->detectContextTpl($modul);
-      $bindKey = trim((string)$bindKey);
-      if ($bindKey === '') {
-         $bindKey = $recordNeed;
+      $fields = $this->dd_fields($dd_ref);
+      $record_need = $this->guess_record_need_key($dd_ref);
+      $context_tpl = $this->detect_context_tpl($modul);
+      $bind_key = trim((string)$bind_key);
+      if ($bind_key === '') {
+         $bind_key = $record_need;
       }
 
-      $contextFields = array('rid' => 'id');
-      $summaryCandidates = array('subject', 'name', 'email', 'phone', 'message', 'title', 'label');
-      foreach ($summaryCandidates as $name) {
+      $context_fields = array('rid' => 'id');
+      $summary_candidates = array('subject', 'name', 'email', 'phone', 'message', 'title', 'label');
+      foreach ($summary_candidates as $name) {
          if (isset($fields[$name])) {
-            $contextFields[$name] = $name;
+            $context_fields[$name] = $name;
          }
       }
 
       $needs = array(
-         $recordNeed => array(
+         $record_need => array(
             'type' => 'dd_select',
             'where' => array('trash' => 0),
             'label' => '#{id}',
@@ -128,47 +124,47 @@ class dbxWorkflowBindRegistry {
          $needs['status'] = array('type' => 'dd_field_options', 'field' => 'status');
       }
 
-      $finishMap = array();
+      $finish_map = array();
       if (isset($fields['status'])) {
-         $finishMap['status'] = 'status';
+         $finish_map['status'] = 'status';
       }
       if (isset($fields['reply_text'])) {
          $needs['reply_text'] = array('type' => 'dd_field_value', 'field' => 'reply_text');
-         $finishMap['reply_text'] = 'reply_text';
+         $finish_map['reply_text'] = 'reply_text';
       }
       if (isset($fields['reply_date'])) {
-         $finishMap['reply_date'] = '@now';
+         $finish_map['reply_date'] = '@now';
       }
       if (isset($fields['reply_uid'])) {
-         $finishMap['reply_uid'] = '@uid';
+         $finish_map['reply_uid'] = '@uid';
       }
 
       $bind = array(
          'modul' => $modul,
          'record' => array(
-            'dd' => $ddRef,
-            'id_need' => $recordNeed,
+            'dd' => $dd_ref,
+            'id_need' => $record_need,
             'prefill_rid' => true,
          ),
          'needs' => $needs,
          'finish' => array(
             'type' => 'dd_update',
-            'map' => $finishMap,
+            'map' => $finish_map,
          ),
       );
 
-      if ($contextTpl !== '') {
+      if ($context_tpl !== '') {
          $bind['context'] = array(
-            'tpl' => $contextTpl,
-            'hide_on_need' => $recordNeed,
-            'fields' => $contextFields,
+            'tpl' => $context_tpl,
+            'hide_on_need' => $record_need,
+            'fields' => $context_fields,
          );
       }
 
       if (isset($fields['email']) && isset($fields['reply_text'])) {
-         $mailTpl = $modul . '|mail-contact-reply';
-         $mailFile = dbx()->os_path(dbx()->get_base_dir() . "dbx/modules/$modul/tpl/htm/mail-contact-reply.htm");
-         if (file_exists($mailFile)) {
+         $mail_tpl = $modul . '|mail-contact-reply';
+         $mail_file = dbx()->os_path(dbx()->get_base_dir() . "dbx/modules/$modul/tpl/htm/mail-contact-reply.htm");
+         if (file_exists($mail_file)) {
             $bind['needs']['send_mail'] = array(
                'type' => 'static_select',
                'show_if_config' => array('modul' => $modul, 'key' => 'mail_on_reply', 'has' => 'mail'),
@@ -184,7 +180,7 @@ class dbxWorkflowBindRegistry {
                'mode_key' => 'mail_on_reply',
                'to_field' => 'email',
                'subject_tpl' => 'Antwort: {subject}',
-               'body_tpl' => $mailTpl,
+               'body_tpl' => $mail_tpl,
                'body_vars' => array(
                   'subject' => 'subject',
                   'reply_text' => '@need:reply_text',
@@ -199,16 +195,16 @@ class dbxWorkflowBindRegistry {
 
       return array(
          'modul' => $modul,
-         'bind_key' => $bindKey,
-         'title' => 'Workflow fuer ' . $modul . ' / ' . $ddRef,
+         'bind_key' => $bind_key,
+         'title' => 'Workflow fuer ' . $modul . ' / ' . $dd_ref,
          'description' => 'Automatisch aus DD/TPL erzeugtes Binding. Bitte Needs und Finish pruefen.',
          'bind_json' => $this->write_json($bind),
          'active' => 1,
       );
    }
 
-   public function contactReplyBind() {
-      $bind = $this->read_json($this->generateBindSkeleton('dbxContact', 'dbxContact|contactRequest', 'contact_reply')['bind_json'] ?? '', array());
+   public function contact_reply_bind() {
+      $bind = dbxWorkflowValue::read_json($this->generate_bind_skeleton('dbxContact', 'dbxContact|contactRequest', 'contact_reply')['bind_json'] ?? '', array());
 
       $bind['record'] = array(
          'dd' => 'dbxContact|contactRequest',
@@ -223,7 +219,7 @@ class dbxWorkflowBindRegistry {
          'order_field' => 'create_date',
          'order_dir' => 'DESC',
       );
-      unset($bind['needs'][$this->guessRecordNeedKey('dbxContact|contactRequest')]);
+      unset($bind['needs'][$this->guess_record_need_key('dbxContact|contactRequest')]);
 
       $bind['needs']['status'] = array('type' => 'dd_field_options', 'field' => 'status');
       $bind['needs']['customer_reply'] = array('type' => 'dd_field_value', 'field' => 'reply_text');
@@ -249,26 +245,26 @@ class dbxWorkflowBindRegistry {
       );
    }
 
-   public function seedBind(array $record) {
+   public function seed_bind(array $record) {
       $db = $this->db();
       $modul = (string)($record['modul'] ?? '');
-      $bindKey = (string)($record['bind_key'] ?? '');
-      if ($modul === '' || $bindKey === '') {
+      $bind_key = (string)($record['bind_key'] ?? '');
+      if ($modul === '' || $bind_key === '') {
          return 0;
       }
 
-      $rows = $db->select($this->ddBind, array('modul' => $modul, 'bind_key' => $bindKey), array('id'), 'id', 'DESC', '', 1, 0, 0);
+      $rows = $db->select($this->dd_bind, array('modul' => $modul, 'bind_key' => $bind_key), array('id'), 'id', 'DESC', '', 1, 0, 0);
       if (isset($rows[0]['id'])) {
          // Mitgelieferte Bindings sind nur Startwerte. Nach der ersten
          // Installation liegt die fachliche Pflege bei dbxWorkflow_admin.
          return (int)$rows[0]['id'];
       }
 
-      return (int)$db->insert($this->ddBind, $record, 0, 1, 1, 1);
+      return (int)$db->insert($this->dd_bind, $record, 0, 1, 1, 1);
    }
 
-   public function seedDefaultBinds() {
-      return $this->seedBind($this->contactReplyBind());
+   public function seed_default_binds() {
+      return $this->seed_bind($this->contact_reply_bind());
    }
 }
 ?>

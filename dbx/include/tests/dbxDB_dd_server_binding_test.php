@@ -23,11 +23,11 @@ require_once $root . '/dbx/include/dbxDB.class.php';
 class dbxDBBindingContractTest extends dbxDB
 {
     /** Test bindings keyed by the complete DD reference. */
-    public array $testBindings = array();
+    public array $test_bindings = array();
 
     protected function get_dd_server_bindings(): array
     {
-        return $this->testBindings;
+        return $this->test_bindings;
     }
 
     protected function is_valid_dd_server_binding(string $server): bool
@@ -50,7 +50,7 @@ function binding_assert(bool $condition, string $message): void
 }
 
 $db = new dbxDBBindingContractTest();
-$db->testBindings = array(
+$db->test_bindings = array(
     'dbx|dbxUser' => 'mysqlUsers',
     'dbx|dbxUser_groups' => 'dbxUser.db3',
 );
@@ -69,7 +69,7 @@ binding_assert(
     'dbxUser_groups wurde nicht unabhaengig auf DB3 gebunden.'
 );
 
-$db->testBindings = array(
+$db->test_bindings = array(
     'DBX|DBXUSER' => 'mysqlUsers',
 );
 binding_assert(

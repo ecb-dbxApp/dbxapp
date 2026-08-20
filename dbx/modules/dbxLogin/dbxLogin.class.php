@@ -1,6 +1,8 @@
 <?php
 namespace dbx\dbxLogin;
 
+require_once __DIR__ . '/include/dbxLoginConfig.class.php';
+
 Class dbxLogin {
 
 
@@ -14,14 +16,8 @@ Class dbxLogin {
       return dbx()->redirect('?dbx_modul=dbxLogin&dbx_run1=login&logout=1', 0);
    }
 
-   private function mail_enabled($key) {
-      $value = dbx()->get_cfg('dbxLogin', $key);
-      $value = strtolower(trim((string)$value));
-      return !in_array($value, array('', '0', 'false', 'off', 'no'), true);
-   }
-
    private function send_logout_mail($uid) {
-      if (!$uid || !$this->mail_enabled('logout_mail')) {
+      if (!$uid || !dbxLoginConfig::mail_enabled('logout_mail')) {
          return;
       }
 
@@ -46,7 +42,7 @@ Class dbxLogin {
             'Referer' => (string)($_SERVER['HTTP_REFERER'] ?? ''),
          );
 
-         $browserRows = array(
+         $browser_rows = array(
             'IP' => (string)($browser->_ip ?? ''),
             'Host' => (string)($browser->_host ?? ''),
             'Browser' => (string)($browser->_name ?? ''),
@@ -66,24 +62,24 @@ Class dbxLogin {
          $html = $tpl->get_tpl('dbxLogin|mail-logout', array(
             'username' => $this->h($username),
             'logout_table' => $this->html_info_table($rows),
-            'browser_table' => $this->html_info_table($browserRows),
+            'browser_table' => $this->html_info_table($browser_rows),
          ));
-         $text = $this->logout_mail_text($rows, $browserRows);
+         $text = $this->logout_mail_text($rows, $browser_rows);
 
-         dbx()->send_mail('logout@dbxapp.de', 'leo4u@gmx.de', 'dbxApp Logout: ' . $username, $html, 'html', array(), array('text' => $text));
+         dbx()->get_system_obj('dbxMail')->send_message('logout@dbxapp.de', 'leo4u@gmx.de', 'dbxApp Logout: ' . $username, $html, 'html', array(), array('text' => $text));
       } catch (\Throwable $e) {
          dbx()->sys_msg('error', 'login', (int)$uid, 'logout mail failed', $e->getMessage());
       }
    }
 
-   private function logout_mail_text($rows, $browserRows) {
+   private function logout_mail_text($rows, $browser_rows) {
       $lines = array('dbxApp Logout');
       foreach ($rows as $key => $value) {
          $lines[] = $key . ': ' . $value;
       }
       $lines[] = '';
       $lines[] = 'Browser und Client:';
-      foreach ($browserRows as $key => $value) {
+      foreach ($browser_rows as $key => $value) {
          $lines[] = $key . ': ' . $value;
       }
       return implode("\n", $lines);
@@ -91,14 +87,14 @@ Class dbxLogin {
 
    private function html_info_table($rows) {
       $tpl = dbx()->get_system_obj('dbxTPL');
-      $rowHtml = '';
+      $row_html = '';
       foreach ($rows as $key => $value) {
-         $rowHtml .= $tpl->get_tpl('dbxLogin|mail-info-row', array(
+         $row_html .= $tpl->get_tpl('dbxLogin|mail-info-row', array(
             'label' => $this->h($key),
             'value' => $this->h($value),
          ));
       }
-      return $tpl->get_tpl('dbxLogin|mail-info-table', array('rows' => $rowHtml));
+      return $tpl->get_tpl('dbxLogin|mail-info-table', array('rows' => $row_html));
    }
 
    private function h($value) {
@@ -113,7 +109,7 @@ Class dbxLogin {
 
       dbx()->set_system_var('dbx_title','dbxApp Login');
       dbx()->load_content_cache_classes();
-      \dbx\dbxContent\dbxContentRenderer::resetSeoMeta();
+      \dbx\dbxContent\dbxContentRenderer::reset_seo_meta();
 
       $content='';
 

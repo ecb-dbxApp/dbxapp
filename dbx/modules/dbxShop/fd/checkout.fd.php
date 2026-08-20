@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['page_title'] = 'Kasse';
 $messages['bar_title'] = 'Bestellung abschließen';
 $messages['page_subtitle'] = 'Kundendaten prüfen und den Demo-Bestellablauf testen.';
@@ -53,7 +50,7 @@ $messages['thanks_title'] = 'Danke';
 $messages['saved_snapshot_subtitle'] = 'Die Bestellung wurde als Snapshot gespeichert.';
 $messages['payment_note'] = 'Zahlungshinweis';
 
-$addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -74,19 +71,19 @@ $addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (
    $fields[]=$field;
 };
 
-$addField('customer_name','varchar','Name','*|min=2|max=180','text-label',array('placeholder'=>'Ihr Name'));
-$addField('customer_email','varchar','E-Mail','email|max=180','text-label',array('placeholder'=>'name@example.org'));
-$addField('customer_phone','varchar','Telefon','*|max=80','text-label',array('placeholder'=>'+49 30 123456'));
-$addField('shipping_address','mediumtext','Lieferadresse','*|min=8|max=2000','textarea-label',array('data'=>'rows=4','placeholder'=>"Name\nStrasse und Hausnummer\nPLZ Ort\nLand"));
-$addField('note','mediumtext','Hinweis','*|max=2000','textarea-label',array('data'=>'rows=4','placeholder'=>'Optionaler Hinweis zur Bestellung'));
-$addField('checkout_request_id','varchar','','parameter|max=64','hidden');
+$add_field('customer_name','varchar','Name','*|min=2|max=180','text-label',array('placeholder'=>'Ihr Name'));
+$add_field('customer_email','varchar','E-Mail','email|max=180','text-label',array('placeholder'=>'name@example.org'));
+$add_field('customer_phone','varchar','Telefon','*|max=80','text-label',array('placeholder'=>'+49 30 123456'));
+$add_field('shipping_address','mediumtext','Lieferadresse','*|min=8|max=2000','textarea-label',array('data'=>'rows=4','placeholder'=>"Name\nStrasse und Hausnummer\nPLZ Ort\nLand"));
+$add_field('note','mediumtext','Hinweis','*|max=2000','textarea-label',array('data'=>'rows=4','placeholder'=>'Optionaler Hinweis zur Bestellung'));
+$add_field('checkout_request_id','varchar','','parameter|max=64','hidden');
 
 $cfg = array();
 if (function_exists('dbx')) {
-   $rawCfg = dbx()->get_cfg('dbxShop');
-   $cfg = is_array($rawCfg) ? $rawCfg : array();
+   $raw_cfg = dbx()->get_cfg('dbxShop');
+   $cfg = is_array($raw_cfg) ? $raw_cfg : array();
 }
-$cfgBool = function(string $key, bool $default = false) use ($cfg): bool {
+$cfg_bool = function(string $key, bool $default = false) use ($cfg): bool {
    if (!array_key_exists($key, $cfg)) {
       return $default;
    }
@@ -94,34 +91,34 @@ $cfgBool = function(string $key, bool $default = false) use ($cfg): bool {
    if (is_bool($value)) return $value;
    return in_array(strtolower(trim((string)$value)), array('1', 'true', 'yes', 'on'), true);
 };
-$paymentOptions = array();
-if ($cfgBool('payment_bank_transfer_enabled', true)) {
-   $paymentOptions['bank_transfer'] = 'Vorkasse / Ueberweisung';
+$payment_options = array();
+if ($cfg_bool('payment_bank_transfer_enabled', true)) {
+   $payment_options['bank_transfer'] = 'Vorkasse / Ueberweisung';
 }
-if ($cfgBool('payment_invoice_enabled', false)) {
-   $paymentOptions['invoice'] = 'Rechnung';
+if ($cfg_bool('payment_invoice_enabled', false)) {
+   $payment_options['invoice'] = 'Rechnung';
 }
 if (
-   $cfgBool('payment_paypal_enabled', false)
+   $cfg_bool('payment_paypal_enabled', false)
    && trim((string)($cfg['payment_paypal_client_id'] ?? '')) !== ''
    && trim((string)($cfg['payment_paypal_client_secret'] ?? '')) !== ''
 ) {
-   $paymentOptions['paypal'] = 'PayPal';
+   $payment_options['paypal'] = 'PayPal';
 }
 if (
-   $cfgBool('payment_amazon_pay_enabled', false)
+   $cfg_bool('payment_amazon_pay_enabled', false)
    && trim((string)($cfg['payment_amazon_pay_merchant_id'] ?? '')) !== ''
    && trim((string)($cfg['payment_amazon_pay_store_id'] ?? '')) !== ''
    && trim((string)($cfg['payment_amazon_pay_public_key_id'] ?? '')) !== ''
    && trim((string)($cfg['payment_amazon_pay_private_key'] ?? '')) !== ''
 ) {
-   $paymentOptions['amazon_pay'] = 'Amazon Pay';
+   $payment_options['amazon_pay'] = 'Amazon Pay';
 }
-$optionString = '';
-foreach ($paymentOptions as $value => $label) {
-   $optionString .= ($optionString !== '' ? '&' : '') . $value . '=' . $label;
+$option_string = '';
+foreach ($payment_options as $value => $label) {
+   $option_string .= ($option_string !== '' ? '&' : '') . $value . '=' . $label;
 }
-$addField('payment_method','varchar','Zahlungsart','parameter','select-single-label',array('options'=>$optionString,'default'=>array_key_first($paymentOptions) ?: ''));
-$addField('accept_legal','int','Ich habe die <a href="?dbx_modul=dbxShop&amp;dbx_run1=legal" target="_blank" rel="noopener">Rechtstexte, AGB, Zahlungs- und Versandhinweise</a> gelesen und akzeptiere sie.','int','dbxShop|shop-checkout-check');
-$addField('accept_withdrawal','int','Ich habe die <a href="?dbx_modul=dbxShop&amp;dbx_run1=withdrawal" target="_blank" rel="noopener">Widerrufsbelehrung</a> gelesen.','int','dbxShop|shop-checkout-check');
+$add_field('payment_method','varchar','Zahlungsart','parameter','select-single-label',array('options'=>$option_string,'default'=>array_key_first($payment_options) ?: ''));
+$add_field('accept_legal','int','Ich habe die <a href="?dbx_modul=dbxShop&amp;dbx_run1=legal" target="_blank" rel="noopener">Rechtstexte, AGB, Zahlungs- und Versandhinweise</a> gelesen und akzeptiere sie.','int','dbxShop|shop-checkout-check');
+$add_field('accept_withdrawal','int','Ich habe die <a href="?dbx_modul=dbxShop&amp;dbx_run1=withdrawal" target="_blank" rel="noopener">Widerrufsbelehrung</a> gelesen.','int','dbxShop|shop-checkout-check');
 ?>

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Verwaltet mehrstufige, sitzungsübergreifende Prozesse und Teilantworten.
+ */
 class dbxProcess extends dbxObj {
 
   protected $_process_remember_modul = 'dbxProcess';
@@ -15,9 +18,9 @@ class dbxProcess extends dbxObj {
 
 
   public function add_norep($content) {
-    $oTPL = dbx()->get_system_obj('dbxTPL');
-    if (is_object($oTPL) && method_exists($oTPL, 'cleanup_optional_placeholders')) {
-      $content = $oTPL->cleanup_optional_placeholders((string)$content);
+    $o_tpl = dbx()->get_system_obj('dbxTPL');
+    if (is_object($o_tpl) && method_exists($o_tpl, 'cleanup_optional_placeholders')) {
+      $content = $o_tpl->cleanup_optional_placeholders((string)$content);
     }
 
     if (isset($_SESSION['dbx']['norep'])) {
@@ -41,10 +44,10 @@ class dbxProcess extends dbxObj {
   }
 
   public function init_job($key, $title = '', $tasks = array(), $meta = array()) {
-    $jobKey = $this->job_key($key);
+    $job_key = $this->job_key($key);
     $state = is_array($meta) ? $meta : array();
 
-    $state['proc_key']     = $jobKey;
+    $state['proc_key']     = $job_key;
     $state['title']        = $title;
     $state['tasks']        = is_array($tasks) ? array_values($tasks) : array();
     $state['status']       = $state['status']       ?? 'running';
@@ -56,7 +59,7 @@ class dbxProcess extends dbxObj {
     $state['started_at']   = $state['started_at']   ?? date('Y-m-d H:i:s');
     $state['updated_at']   = date('Y-m-d H:i:s');
 
-    $this->set_job($jobKey, $state);
+    $this->set_job($job_key, $state);
     return $state;
   }
 
@@ -70,10 +73,10 @@ class dbxProcess extends dbxObj {
       $state = array();
     }
 
-    $jobKey = $this->job_key($key);
-    $state['proc_key'] = $state['proc_key'] ?? $jobKey;
+    $job_key = $this->job_key($key);
+    $state['proc_key'] = $state['proc_key'] ?? $job_key;
     $state['updated_at'] = date('Y-m-d H:i:s');
-    dbx()->set_remember_var($jobKey, $state, $this->_process_remember_modul);
+    dbx()->set_remember_var($job_key, $state, $this->_process_remember_modul);
     return $state;
   }
 
@@ -82,13 +85,13 @@ class dbxProcess extends dbxObj {
   }
 
   public function control_job($key, $cmd) {
-    $jobKey = $this->job_key($key);
+    $job_key = $this->job_key($key);
     $cmd = strtolower(trim((string)$cmd));
 
     if ($cmd == 'restart') {
-      $this->clear_job($jobKey);
+      $this->clear_job($job_key);
       return array(
-        'proc_key' => $jobKey,
+        'proc_key' => $job_key,
         'status' => 'reset',
         'message' => 'process restarted',
         'percent' => 0,
@@ -97,10 +100,10 @@ class dbxProcess extends dbxObj {
       );
     }
 
-    $state = $this->get_job($jobKey);
+    $state = $this->get_job($job_key);
     if (!$state) {
       $state = array(
-        'proc_key' => $jobKey,
+        'proc_key' => $job_key,
         'status' => 'new',
         'message' => 'no active state',
         'percent' => 0,
@@ -124,14 +127,14 @@ class dbxProcess extends dbxObj {
       $state['message'] = 'process canceled';
     }
 
-    return $this->set_job($jobKey, $state);
+    return $this->set_job($job_key, $state);
   }
 
 
   public function fast_response($response,$interpreter=1) {
     if ($interpreter) {
-       $oInterpreter=dbx()->get_system_obj("dbxInterpreter");
-       $response=$oInterpreter->run($response);
+       $o_interpreter=dbx()->get_system_obj("dbxInterpreter");
+       $response=$o_interpreter->run($response);
        $response=$this->add_norep($response);
     }
     echo '<br><br><br>'.$response;

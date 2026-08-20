@@ -3,7 +3,7 @@
   <h3 class="h6"><i class="bi bi-upload"></i> Import AI response</h3>
   <p class="small text-muted">ZIP with unchanged contract, <code>answer.json</code> and <code>result/design/</code>. Nothing has changed yet.</p>
   <form method="post" action="{action}" enctype="multipart/form-data" class="dbxAjax" data-target="dbxForm_{i}">
-   <div class="form_msg {msg_class}">{obj:form_msg}</div>
+   <div class="form_msg {msg_class}">{form:message}</div>
    <input class="form-control form-control-sm mb-2" type="file" name="design_zip" accept=".zip" required>
    <button class="btn btn-outline-primary btn-sm" type="submit"><i class="bi bi-search"></i> Check ZIP</button>
    [dbx:form]

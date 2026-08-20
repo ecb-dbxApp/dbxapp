@@ -3,7 +3,7 @@ namespace dbx\dbxShop;
 
 trait dbxShopServiceCheckoutServiceTrait {
 
-   private function absoluteShopUrl(string $run, array $params = array()): string {
+   private function absolute_shop_url(string $run, array $params = array()): string {
       $query = array_merge(array(
          'dbx_modul' => 'dbxShop',
          'dbx_run1' => $run,
@@ -11,26 +11,26 @@ trait dbxShopServiceCheckoutServiceTrait {
       return dbx()->get_base_url() . '?' . http_build_query($query, '', '&');
    }
 
-   private function checkoutPaymentOptions(): array {
-      $cfg = $this->shopConfig();
+   private function checkout_payment_options(): array {
+      $cfg = $this->shop_config();
       $texts = $this->texts('dbxShop|checkout');
       $options = array();
-      if ($this->settingsBool($cfg, 'payment_bank_transfer_enabled', true)) {
+      if ($this->settings_bool($cfg, 'payment_bank_transfer_enabled', true)) {
          $options['bank_transfer'] = $texts->get_fd_message('payment_bank_transfer');
       }
-      if ($this->settingsBool($cfg, 'payment_invoice_enabled', false)) {
+      if ($this->settings_bool($cfg, 'payment_invoice_enabled', false)) {
          $options['invoice'] = $texts->get_fd_message('payment_invoice');
       }
-      if ($this->settingsBool($cfg, 'payment_paypal_enabled', false) && $this->paypal()->isConfigured()) {
+      if ($this->settings_bool($cfg, 'payment_paypal_enabled', false) && $this->paypal()->is_configured()) {
          $options['paypal'] = 'PayPal';
       }
-      if ($this->settingsBool($cfg, 'payment_amazon_pay_enabled', false) && $this->amazonPay()->isConfigured()) {
+      if ($this->settings_bool($cfg, 'payment_amazon_pay_enabled', false) && $this->amazon_pay()->is_configured()) {
          $options['amazon_pay'] = 'Amazon Pay';
       }
       return $options;
    }
 
-   private function paymentMethodLabels(): array {
+   private function payment_method_labels(): array {
       $texts = $this->texts('dbxShop|checkout');
       return array(
          'bank_transfer' => $texts->get_fd_message('payment_bank_transfer'),
@@ -40,21 +40,21 @@ trait dbxShopServiceCheckoutServiceTrait {
       );
    }
 
-   private function paymentProviderLabel(string $provider): string {
-      $labels = $this->paymentMethodLabels();
+   private function payment_provider_label(string $provider): string {
+      $labels = $this->payment_method_labels();
       $texts = $this->texts('dbxShop|shop-orders');
-      $channelLabels = array(
+      $channel_labels = array(
          'shop' => $texts->get_fd_message('provider_shop'),
          'amazon' => $texts->get_fd_message('provider_amazon'),
          'ebay' => $texts->get_fd_message('provider_ebay'),
          'kleinanzeigen' => $texts->get_fd_message('provider_kleinanzeigen'),
          'mobile' => $texts->get_fd_message('provider_mobile'),
       );
-      return $labels[$provider] ?? $channelLabels[$provider] ?? $provider;
+      return $labels[$provider] ?? $channel_labels[$provider] ?? $provider;
    }
 
-   private function paymentInstructions(string $method, array $order = array()): string {
-      $cfg = $this->shopConfig();
+   private function payment_instructions(string $method, array $order = array()): string {
+      $cfg = $this->shop_config();
       $texts = $this->texts('dbxShop|checkout');
       if ($method === 'bank_transfer') {
          $lines = array();
@@ -92,7 +92,7 @@ trait dbxShopServiceCheckoutServiceTrait {
       return '';
    }
 
-   private function checkoutPaymentHelp(array $options): string {
+   private function checkout_payment_help(array $options): string {
       $texts = $this->texts('dbxShop|checkout');
       if ($options === array()) {
          return '<div class="alert alert-warning mb-0">' . $this->h($texts->get_fd_message('payment_none_help')) . '</div>';
@@ -117,7 +117,7 @@ trait dbxShopServiceCheckoutServiceTrait {
       return '<div class="dbx-shop-payment-method-help">' . implode('', $parts) . '</div>';
    }
 
-   private function checkoutTableHtml(string $rows, float $sum): string {
+   private function checkout_table_html(string $rows, float $sum): string {
       $texts = $this->texts('dbxShop|checkout');
       return '<div class="dbx-shop-cart table-responsive">'
          . '<table class="table table-sm align-middle">'
@@ -132,17 +132,17 @@ trait dbxShopServiceCheckoutServiceTrait {
          . '</table></div>';
    }
 
-   private function legalSnapshotsForOrder(): array {
-      $cfg = $this->shopConfig();
-      if (!$this->settingsBool($cfg, 'legal_snapshot_enabled', true)) {
+   private function legal_snapshots_for_order(): array {
+      $cfg = $this->shop_config();
+      if (!$this->settings_bool($cfg, 'legal_snapshot_enabled', true)) {
          return array('', '');
       }
-      $db = $this->contentDb();
+      $db = $this->content_db();
       if (!is_object($db)) {
          return array('', '');
       }
-      $pages = $this->ensureShopLegalPages();
-      $dd = \dbx\dbxContent\dbxContentLng::ddContent();
+      $pages = $this->ensure_shop_legal_pages();
+      $dd = \dbx\dbxContent\dbxContentLng::dd_content();
       $snapshot = function(string $key) use ($db, $pages, $dd): string {
          $cid = (int)($pages[$key] ?? 0);
          if ($cid <= 0) {
@@ -163,18 +163,17 @@ trait dbxShopServiceCheckoutServiceTrait {
       return array($snapshot('legal'), $snapshot('withdrawal'));
    }
 
-   private function orderSuccessPage(array $order, string $paymentMethod): string {
-      $this->startSession();
-      $_SESSION['dbxShop_last_order_no'] = (string)($order['order_no'] ?? '');
+   private function order_success_page(array $order, string $payment_method): string {
+      dbxShopSessionState::set_last_order_no((string)($order['order_no'] ?? ''));
       $texts = $this->texts('dbxShop|checkout');
-      $methodLabels = $this->paymentMethodLabels();
-      $instructions = trim($this->paymentInstructions($paymentMethod, $order));
+      $method_labels = $this->payment_method_labels();
+      $instructions = trim($this->payment_instructions($payment_method, $order));
       $body = '<section class="dbx-shop-order-success">'
          . '<div class="dbx-shop-order-success-icon"><i class="bi bi-check2-circle"></i></div>'
          . '<h2>' . $this->h($texts->get_fd_message('order_saved_title')) . '</h2>'
          . '<p>' . $this->h($texts->get_fd_message('order_number_text')) . ' <strong>' . $this->h($order['order_no'] ?? '') . '</strong>.</p>'
          . '<dl>'
-         . '<dt>' . $this->h($texts->get_fd_message('payment_method_label')) . '</dt><dd>' . $this->h($methodLabels[$paymentMethod] ?? $paymentMethod) . '</dd>'
+         . '<dt>' . $this->h($texts->get_fd_message('payment_method_label')) . '</dt><dd>' . $this->h($method_labels[$payment_method] ?? $payment_method) . '</dd>'
          . '<dt>' . $this->h($texts->get_fd_message('status_label')) . '</dt><dd>' . $this->h($texts->get_fd_message('order_waiting')) . '</dd>'
          . '<dt>' . $this->h($texts->get_fd_message('total_label')) . '</dt><dd>' . $this->money($order['total_gross'] ?? 0) . '</dd>'
          . '</dl>'

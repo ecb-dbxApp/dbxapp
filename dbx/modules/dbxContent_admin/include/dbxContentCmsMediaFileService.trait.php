@@ -33,14 +33,6 @@ trait dbxContentCmsMediaFileServiceTrait {
 
 
 
-   private function external_video_thumb_url($row) {
-      $provider = strtolower(trim((string)($row['provider'] ?? '')));
-      $provider_id = trim((string)($row['provider_id'] ?? ''));
-      if ($provider === 'youtube' && preg_match('~^[A-Za-z0-9_-]{11}$~', $provider_id)) {
-         return 'https://img.youtube.com/vi/' . $provider_id . '/hqdefault.jpg';
-      }
-      return '';
-   }
 
 
 
@@ -467,7 +459,7 @@ trait dbxContentCmsMediaFileServiceTrait {
       $files = array();
       $root = dbx()->os_path(rtrim(dbx()->get_file_dir(), '/\\') . '/media/_thumbs/');
       if (!is_dir($root) || !is_readable($root)) return $files;
-      $rootNormalized = str_replace('\\', '/', rtrim($root, '/\\')) . '/';
+      $root_normalized = str_replace('\\', '/', rtrim($root, '/\\')) . '/';
       $it = new \RecursiveIteratorIterator(
          new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS),
          \RecursiveIteratorIterator::LEAVES_ONLY
@@ -475,8 +467,8 @@ trait dbxContentCmsMediaFileServiceTrait {
       foreach ($it as $file) {
          if (!$file->isFile() || !$file->isReadable()) continue;
          $path = str_replace('\\', '/', $file->getPathname());
-         if (strpos($path, $rootNormalized) !== 0) continue;
-         $rel = 'media/_thumbs/' . ltrim(substr($path, strlen($rootNormalized)), '/');
+         if (strpos($path, $root_normalized) !== 0) continue;
+         $rel = 'media/_thumbs/' . ltrim(substr($path, strlen($root_normalized)), '/');
          $files[$rel] = array('rel' => $rel, 'file' => $file->getPathname());
       }
       return $files;

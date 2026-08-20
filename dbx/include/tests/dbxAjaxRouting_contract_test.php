@@ -10,11 +10,16 @@ $read = static function (string $file): string {
     return is_file($file) ? (string)file_get_contents($file) : '';
 };
 
-$ajaxFile = str_replace('\\', '/', (string)realpath($base . '/js/lib/ajax.js'));
-$openWinFile = str_replace('\\', '/', (string)realpath($base . '/js/lib/openWin.js'));
-$ajax = $read($ajaxFile);
+$ajax_file = str_replace('\\', '/', (string)realpath($base . '/js/lib/ajax.js'));
+$open_win_file = str_replace('\\', '/', (string)realpath($base . '/js/lib/openWin.js'));
+$ajax = $read($ajax_file);
 $grid = $read($base . '/js/lib/grid.js');
-$jstree = $read($base . '/js/lib/dbxJstree.js');
+$grid_state = $read($base . '/js/lib/grid-state.js');
+$grid_export = $read($base . '/js/lib/grid-export.js');
+$grid_transport = $read($base . '/js/lib/grid-transport.js');
+$grid_columns = $read($base . '/js/lib/grid-columns.js');
+$grid_ui = $read($base . '/js/lib/grid-ui.js');
+$jstree = $read($base . '/add_ons/dbxJstree/dbxJstree.js');
 
 $assert(
     str_contains($ajax, 'if (mode === "auto") return "auto";')
@@ -24,10 +29,24 @@ $assert(
     'ajax.js bietet keinen zentralen Auto-Response- und Abbruchvertrag fuer Systembibliotheken.'
 );
 $assert(
-    str_contains($grid, 'dbx.ajax.request({')
-        && str_contains($grid, "mode: 'text'")
-        && !str_contains($grid, 'XMLHttpRequest')
-        && !str_contains($grid, 'fetch('),
+    str_contains($grid, "['js','lib','grid-state.js']")
+        && str_contains($grid, "['js','lib','grid-export.js']")
+        && str_contains($grid_state, 'Object.assign(feature, {')
+        && str_contains($grid_state, '_tableHasPendingEdits(table)')
+        && str_contains($grid_export, '_ensureExcelExportDeps(table, done)')
+        && str_contains($grid_export, '_ensurePdfExportDeps(table, done)')
+        && str_contains($grid_transport, '_dbxRequest(url, options = {})')
+        && str_contains($grid_columns, 'buildColumns(opt)')
+        && str_contains($grid_ui, 'bindToolbar(el, table, opt, uiState, root)')
+        && !str_contains($grid, '_loadRootScript(file, done)'),
+    'Grid-State und Export-Abhaengigkeiten sind nicht eigenstaendig gekapselt.'
+);
+$assert(
+    str_contains($grid_transport, 'dbx.ajax.request({')
+        && str_contains($grid_export, 'dbx.ajax.request({')
+        && str_contains($grid_export, "mode: 'text'")
+        && !str_contains($grid . $grid_state . $grid_export . $grid_transport . $grid_columns . $grid_ui, 'XMLHttpRequest')
+        && !str_contains($grid . $grid_state . $grid_export . $grid_transport . $grid_columns . $grid_ui, 'fetch('),
     'grid.js laedt Export-Abhaengigkeiten nicht ausschliesslich ueber ajax.js.'
 );
 $assert(
@@ -48,13 +67,13 @@ foreach ($iterator as $file) {
     if (!$file->isFile() || strtolower($file->getExtension()) !== 'js') continue;
     $path = str_replace('\\', '/', $file->getPathname());
     $source = $read($path);
-    if ($path !== $ajaxFile) {
+    if ($path !== $ajax_file) {
         $assert(
             !preg_match('/(?:\bfetch\s*\(|new\s+XMLHttpRequest\b|\$\.ajax\s*\(|\$\.get\s*\(|\$\.post\s*\()/m', $source),
             'Direkter Netzwerktransport ausserhalb ajax.js: ' . str_replace('\\', '/', substr($path, strlen($base) + 1))
         );
     }
-    if ($path !== $openWinFile) {
+    if ($path !== $open_win_file) {
         $assert(
             !preg_match('/\bwindow\.open\s*\(/m', $source),
             'Direktes Browserfenster ausserhalb openWin.js: ' . str_replace('\\', '/', substr($path, strlen($base) + 1))

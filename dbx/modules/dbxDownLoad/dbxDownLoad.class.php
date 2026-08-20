@@ -17,8 +17,8 @@ class dbxDownLoad {
 
    private function mail_from_param() {
       $from = trim((string)$this->config('mail_from'));
-      $fromName = trim((string)$this->config('mail_from_name'));
-      return ($from !== '') ? array('email' => $from, 'name' => $fromName) : '';
+      $from_name = trim((string)$this->config('mail_from_name'));
+      return ($from !== '') ? array('email' => $from, 'name' => $from_name) : '';
    }
 
    private function mail_options(array $extra = array()) {
@@ -110,9 +110,9 @@ class dbxDownLoad {
    private function build_form() {
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('download-link', 'download-form');
-      $form->_fd = 'dbxDownLoad|download-link';
+      $form->set_field_definition('dbxDownLoad|download-link');
       $form->load_fd_messages();
-      $form->_action = '?dbx_modul=dbxDownLoad&dbx_run1=send_link';
+      $form->set_action('?dbx_modul=dbxDownLoad&dbx_run1=send_link');
       $form->_try_reset = 6;
       $form->_try_max = 5;
       $form->_try_msg = $form->get_fd_message('try_limit');
@@ -120,7 +120,7 @@ class dbxDownLoad {
       $form->set_msg_error($form->get_fd_message('validation_error'));
       $form->set_msg_ok($form->get_fd_message('send_success'));
       // Den von dbxForm erzeugten Security-Wert beibehalten.
-      $form->_data = array_merge($form->_data, array(
+      $form->merge_data(array(
          'name' => trim((string)($_POST['name'] ?? $_REQUEST['name'] ?? '')),
          'email' => trim((string)($_POST['email'] ?? $_REQUEST['email'] ?? '')),
       ));
@@ -174,13 +174,13 @@ class dbxDownLoad {
          );
 
          $ok = $db->insert('dbxContact|contactRequest', $values, 0, 1, 1, 1);
-         $ticketId = $ok > 0 ? (int)$db->get_insert_id() : 0;
+         $ticket_id = $ok > 0 ? (int)$db->get_insert_id() : 0;
 
-         if ($ticketId > 0) {
+         if ($ticket_id > 0) {
             try {
                dbx()->get_include_obj('dbxContactTicket', 'dbxContact');
                if (class_exists('\\dbx\\dbxContact\\dbxContactTicket')) {
-                  \dbx\dbxContact\dbxContactTicket::addMessage($db, $ticketId, array(
+                  \dbx\dbxContact\dbxContactTicket::add_message($db, $ticket_id, array(
                      'author_uid' => (int)dbx()->user(),
                      'author_type' => 'requester',
                      'message_type' => 'request',
@@ -188,14 +188,14 @@ class dbxDownLoad {
                      'body' => $message,
                      'status_to' => 'open',
                   ));
-                  \dbx\dbxContact\dbxContactTicket::touch($db, $ticketId);
+                  \dbx\dbxContact\dbxContactTicket::touch($db, $ticket_id);
                }
             } catch (\Throwable $e) {
                dbx()->sys_msg('warning', 'dbxDownLoad', 'contact_request', 'Kontakt-Nachricht konnte nicht ergaenzt werden', $e->getMessage());
             }
          }
 
-         return $ticketId;
+         return $ticket_id;
       } catch (\Throwable $e) {
          dbx()->sys_msg('error', 'dbxDownLoad', 'contact_request', 'Demo-Kontaktanfrage konnte nicht gespeichert werden', $e->getMessage());
          return 0;
@@ -217,20 +217,20 @@ class dbxDownLoad {
       $email = trim((string)$form->get_post_data('email', '', 'email|min=6|max=180'));
       $subject = trim((string)$this->config('mail_subject', 'Ihr dbxapp Demo-Download'));
 
-      $spamReason = $this->spam_reason($name, $email, $subject);
-      if ($spamReason !== '') {
+      $spam_reason = $this->spam_reason($name, $email, $subject);
+      if ($spam_reason !== '') {
          $form->set_msg_error($form->get_fd_message('spam_error'));
          $form->add_fld_error(
             'name',
             $form->get_fd_message('spam_field_error')
          );
-         dbx()->sys_msg('security', 'dbxDownLoad', 'spam_guard', 'Demo-Link blockiert', $spamReason . ' email=' . $email);
+         dbx()->sys_msg('security', 'dbxDownLoad', 'spam_guard', 'Demo-Link blockiert', $spam_reason . ' email=' . $email);
          return $form->run();
       }
 
       $token = $this->create_token($name, $email);
       $url = $this->module_url(array('dbx_run1' => 'download', 'token' => $token));
-      $contactId = $this->save_demo_contact_request($name, $email);
+      $contact_id = $this->save_demo_contact_request($name, $email);
       $html = $this->tpl('mail-download-link', array(
          'name' => $this->h($name),
          'download_url' => $this->h($url),
@@ -240,7 +240,7 @@ class dbxDownLoad {
          . "hier ist Ihr dbxapp Demo-Download:\n" . $url . "\n\n"
          . "Der Link ist " . (int)$this->config('download_ttl_hours', 48) . " Stunden gueltig.\n";
 
-      $ok = dbx()->send_mail($this->mail_from_param(), $email, $subject, $html, 'html', array(), $this->mail_options(array('text' => $text)));
+      $ok = dbx()->get_system_obj('dbxMail')->send_message($this->mail_from_param(), $email, $subject, $html, 'html', array(), $this->mail_options(array('text' => $text)));
       if (!$ok) {
          dbx()->sys_msg('error', 'dbxDownLoad', 'send_link', 'Download-Mail konnte nicht gesendet werden', $email);
          $form->set_msg_error($form->get_fd_message('mail_error'));
@@ -251,7 +251,7 @@ class dbxDownLoad {
          return $form->run();
       }
 
-      dbx()->sys_msg('info', 'dbxDownLoad', 'send_link', 'Download-Link versendet', $email . ' contact=' . $contactId);
+      dbx()->sys_msg('info', 'dbxDownLoad', 'send_link', 'Download-Link versendet', $email . ' contact=' . $contact_id);
       $form->set_msg_ok($form->format_fd_message(
          'sent_to',
          array('email' => $this->h($email))

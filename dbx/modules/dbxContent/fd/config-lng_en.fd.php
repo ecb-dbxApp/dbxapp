@@ -1,15 +1,10 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
+$lng_options = 'de=German (DE)&en=English (EN)&es=Espanol (ES)&fr=Francais (FR)&it=Italiano (IT)';
 
+$provider_options = 'copy=Copy text (default)&none=Leave empty&deepl=DeepL API&openai=OpenAI API&custom=Customs (translate.php)';
 
-$lngOptions = 'de=German (DE)&en=English (EN)&es=Espanol (ES)&fr=Francais (FR)&it=Italiano (IT)';
-
-$providerOptions = 'copy=Copy text (default)&none=Leave empty&deepl=DeepL API&openai=OpenAI API&custom=Customs (translate.php)';
-
-$modelOptions = 'gpt-4o-mini=gpt-4o-mini (fast)&gpt-4o=gpt-4o (quality)&gpt-4.1-mini=gpt-4.1-mini';
+$model_options = 'gpt-4o-mini=gpt-4o-mini (fast)&gpt-4o=gpt-4o (quality)&gpt-4.1-mini=gpt-4.1-mini';
 
 $field = array();
 $field['name'] = 'default_lng';
@@ -21,7 +16,7 @@ $field['rules'] = '*';
 $field['tooltip'] = 'Control language of the CMS: structure, commission, auto-sync and master revision. Corresponds default_lng in the system-config (dbx).';
 $field['errormsg'] = 'Please select a valid master language.';
 $field['placeholder'] = 'de';
-$field['options'] = $lngOptions;
+$field['options'] = $lng_options;
 $field['tpl'] = 'select-single-label';
 $fields[] = $field;
 
@@ -35,8 +30,8 @@ $field['rules'] = '*';
 $field['tooltip'] = 'All languages for CMS tree, language badges and UI switching. The master language must be included. Stored as accessible_lng in dbx.';
 $field['errormsg'] = 'Select at least one language.';
 $field['placeholder'] = 'de, en, es';
-$field['options'] = $lngOptions;
-$field['tpl'] = 'select-multible-label';
+$field['options'] = $lng_options;
+$field['tpl'] = 'select-multiple-label';
 $fields[] = $field;
 
 $field = array();
@@ -63,7 +58,7 @@ $field['rules'] = '*';
 $field['tooltip'] = 'copy = master text. none = target text empty. deepl/openai = API translation. custom = own translate.php in the module.';
 $field['errormsg'] = 'Please choose a provider.';
 $field['placeholder'] = 'copy';
-$field['options'] = $providerOptions;
+$field['options'] = $provider_options;
 $field['tpl'] = 'select-single-label';
 $fields[] = $field;
 
@@ -105,6 +100,6 @@ $field['rules'] = '';
 $field['tooltip'] = 'Only for providers openai. Model ID for chat completions (e.g. gpt-4o-mini for fast translations).';
 $field['errormsg'] = '';
 $field['placeholder'] = 'gpt-4o-mini';
-$field['options'] = $modelOptions;
+$field['options'] = $model_options;
 $field['tpl'] = 'select-single-label';
 $fields[] = $field;

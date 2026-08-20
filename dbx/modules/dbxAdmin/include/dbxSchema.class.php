@@ -14,7 +14,7 @@ require_once __DIR__ . '/dbxSchemaTransferService.trait.php';
 require_once __DIR__ . '/dbxSchemaBatchService.trait.php';
 
 /**
- * DBX schema administration.
+ * @brief Verwaltet Datenbankschemata und Schemaabgleiche in der Administration.
  *
  * Diese Klasse stellt die DBX-Admin-Werkzeuge fuer DDs, Datenbanken,
  * Tabellen, Felddefinitionen, Mapping, Synchronisation, Transfer,
@@ -28,7 +28,7 @@ require_once __DIR__ . '/dbxSchemaBatchService.trait.php';
  * - DB-Server ohne Tabellen bleiben sichtbar.
  * - DB-zu-DD-Suche verwendet durchgaengig dieselbe Alias-Logik.
  *
- * @package dbx\dbxAdmin
+ * @package dbx::dbxAdmin
  */
 class dbxSchema extends \dbxObj {
 
@@ -42,7 +42,7 @@ class dbxSchema extends \dbxObj {
    use dbxSchemaTransferServiceTrait;
    use dbxSchemaBatchServiceTrait;
 
-   private $schemaTexts;
+   private $schema_texts;
 
    /**
     * Zentraler Einstiegspunkt des dbxSchema-Moduls.

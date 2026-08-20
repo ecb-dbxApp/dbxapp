@@ -1,11 +1,16 @@
 <?php
+require_once __DIR__ . '/dbxWebAppActionPolicy.trait.php';
+require_once __DIR__ . '/dbxWebAppRedirect.trait.php';
+require_once __DIR__ . '/dbxWebAppResources.trait.php';
+require_once __DIR__ . '/dbxWebAppRouting.trait.php';
+require_once __DIR__ . '/dbxWebAppPresentation.trait.php';
 /**
  * @file dbxWebApp.class.php
  * Request-, Routing-, Design- und Ausgabevorbereitung des dbXapp-Frontcontrollers.
  */
 
 /**
- * Bereitet den aktuellen HTTP-Request fuer dbXapp vor.
+ * @brief Bereitet Request, Routing, Design und Ausgabe des dbxapp-Frontcontrollers vor.
  *
  * Die Klasse ist kein Router im SPA-Sinn. Sie normalisiert den klassischen
  * PHP-Request fuer den Single Entry Point `index.php`:
@@ -24,6 +29,12 @@
  * ```
  */
 class dbxWebApp {
+
+  use dbxWebAppActionPolicyTrait;
+  use dbxWebAppRedirectTrait;
+  use dbxWebAppResourcesTrait;
+  use dbxWebAppRoutingTrait;
+  use dbxWebAppPresentationTrait;
 
   /** MIME-Typen statischer Ressourcen, die dbxMissing ueberwachen soll. */
   private const RESOURCE_MIME_TYPES = array(
@@ -133,7 +144,7 @@ class dbxWebApp {
    * Ein Report kann fuer jede Zeile action_url() aufrufen. Deshalb darf die
    * Modulkonfiguration nicht fuer jede URL erneut geladen und signiert werden.
    */
-  private $actionRouteCache = array();
+  private $action_route_cache = array();
 
 
     /**
@@ -296,10 +307,10 @@ function parse_route_url($url) {
   $url = trim(str_replace('&amp;', '&', (string) $url));
 
   $fragment = '';
-  $hashPos = strpos($url, '#');
-  if ($hashPos !== false) {
-     $fragment = substr($url, $hashPos);
-     $url = substr($url, 0, $hashPos);
+  $hash_pos = strpos($url, '#');
+  if ($hash_pos !== false) {
+     $fragment = substr($url, $hash_pos);
+     $url = substr($url, 0, $hash_pos);
   }
 
   $path = $url;
@@ -317,17 +328,17 @@ function parse_route_url($url) {
      );
   }
 
-  $delimPos = false;
+  $delim_pos = false;
   foreach (array('?', '&') as $delimiter) {
      $pos = strpos($url, $delimiter);
-     if ($pos !== false && ($delimPos === false || $pos < $delimPos)) {
-        $delimPos = $pos;
+     if ($pos !== false && ($delim_pos === false || $pos < $delim_pos)) {
+        $delim_pos = $pos;
      }
   }
 
-  if ($delimPos !== false) {
-     $path = substr($url, 0, $delimPos);
-     $query = substr($url, $delimPos + 1);
+  if ($delim_pos !== false) {
+     $path = substr($url, 0, $delim_pos);
+     $query = substr($url, $delim_pos + 1);
      if ($query !== '') {
         parse_str($query, $params);
      }
@@ -403,481 +414,20 @@ function parse_route_url($url) {
      return $this->build_route_url($route['permalink'], $route['params'], $route['fragment']);
   }
 
-  /**
-   * Ergaenzt fehlende Routenwerte aus dem aktuellen Requestkontext.
-   *
-   * Relative Action-Suffixe wie `&dbx_do=row_delete` erhalten so denselben
-   * Modul-/Run-Kontext wie eine vollstaendige URL. Bei einem explizit anderen
-   * Zielmodul werden keine Run-Werte des aktuellen Moduls uebernommen.
-   *
-   * @param array $params URL-/Requestparameter.
-   * @return array Effektive Parameter.
-   */
-  private function effective_action_params(array $params): array {
-     $currentModul = trim((string)dbx()->get_system_var('dbx_modul', '', 'parameter'));
-     $modul = trim((string)($params['dbx_modul'] ?? ''));
 
-     if ($modul === '') {
-        $modul = $currentModul;
-        if ($modul !== '') {
-           $params['dbx_modul'] = $modul;
-        }
-     }
 
-     if ($modul === $currentModul || $currentModul === '') {
-        foreach (array('dbx_run1', 'dbx_run2', 'dbx_run3') as $key) {
-           if (!array_key_exists($key, $params) || (string)$params[$key] === '') {
-              $value = dbx()->get_system_var($key, '', 'parameter');
-              if ((string)$value !== '') {
-                 $params[$key] = $value;
-              }
-           }
-        }
-     }
 
-     return $params;
-  }
 
-  /**
-   * Normalisiert Werte fuer den kanonischen Action-Scope.
-   *
-   * @param mixed $value Skalarer oder verschachtelter Binding-Wert.
-   * @return mixed JSON-stabiler Wert.
-   */
-  private function normalize_action_scope_value($value) {
-     if (!is_array($value)) {
-        if ($value === null) {
-           return '';
-        }
-        if (is_bool($value)) {
-           return $value ? '1' : '0';
-        }
-        return (string)$value;
-     }
 
-     $normalized = array();
-     foreach ($value as $key => $item) {
-        $normalized[(string)$key] = $this->normalize_action_scope_value($item);
-     }
-     ksort($normalized, SORT_STRING);
-     return $normalized;
-  }
 
-  /**
-   * Loest Binding-Definitionen gegen die effektiven URL-Parameter auf.
-   *
-   * Numerische Eintraege benennen einen Parameter (`['rid']`), assoziative
-   * Eintraege koennen einen bereits bekannten Wert direkt binden
-   * (`['rid' => 17]`).
-   *
-   * @param array $bindings Binding-Definition.
-   * @param array $params Effektive Parameter.
-   * @return array Aufgeloeste Bindings.
-   */
-  private function resolve_action_bindings(array $bindings, array $params): array {
-     $resolved = array();
 
-     foreach ($bindings as $key => $value) {
-        if (is_int($key)) {
-           $name = trim((string)$value);
-           if ($name === '') {
-              continue;
-           }
-           $resolved[$name] = $params[$name] ?? '';
-           continue;
-        }
 
-        $name = trim((string)$key);
-        if ($name !== '') {
-           $resolved[$name] = $value;
-        }
-     }
 
-     ksort($resolved, SORT_STRING);
-     return $resolved;
-  }
 
-  /**
-   * Baut den kanonischen Scope einer Link-Aktion.
-   *
-   * Der Scope bindet Modul, Run-Kontext, Aktionsname und deklarierte IDs.
-   * Transportparameter wie Ajax, Fensterziel oder das Token selbst sind
-   * absichtlich nicht enthalten. Dadurch funktioniert derselbe Link als
-   * normaler GET und als Ajax-POST innerhalb eines Reports.
-   *
-   * @param string $url Ziel-URL.
-   * @param string $action Kanonischer Aktionsname.
-   * @param array $bindings Parameterliste oder konkrete Binding-Werte.
-   * @return string Kompakter Scope fuer dbxApi::action_token().
-   */
-  public function action_scope_for_url($url, $action, $bindings = array()): string {
-     $route = $this->parse_route_url((string)$url);
-     $params = $this->effective_action_params((array)($route['params'] ?? array()));
-     return $this->action_scope_from_params($params, (string)$action, (array)$bindings);
-  }
 
-  /**
-   * Interne Scope-Erzeugung aus bereits normalisierten Requestparametern.
-   *
-   * @param array $params Effektive Parameter.
-   * @param string $action Kanonischer Aktionsname.
-   * @param array $bindings Binding-Definition.
-   * @return string
-   */
-  private function action_scope_from_params(array $params, string $action, array $bindings): string {
-     $params = $this->effective_action_params($params);
-     $route = array();
-     foreach (array('dbx_modul', 'dbx_run1', 'dbx_run2', 'dbx_run3') as $key) {
-        $route[$key] = $this->normalize_action_scope_value($params[$key] ?? '');
-     }
 
-     $payload = array(
-        'version' => '1',
-        'action' => trim($action),
-        'route' => $route,
-        'bind' => $this->normalize_action_scope_value(
-           $this->resolve_action_bindings($bindings, $params)
-        ),
-     );
 
-     $json = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-     if (!is_string($json)) {
-        $json = serialize($payload);
-     }
 
-     return 'route-v1:' . hash('sha256', $json);
-  }
-
-  /**
-   * Prueft eine einzelne Match-Definition gegen Routenparameter.
-   *
-   * Ein Arraywert bedeutet "einer dieser Werte"; `*` verlangt nur, dass der
-   * Parameter vorhanden und nicht leer ist.
-   *
-   * @param array $match Match-Definition.
-   * @param array $params Effektive Parameter.
-   * @return bool
-   */
-  private function action_route_matches(array $match, array $params): bool {
-     foreach ($match as $key => $expected) {
-        $actual = $params[(string)$key] ?? '';
-        $allowed = is_array($expected) ? $expected : array($expected);
-        $matched = false;
-
-        foreach ($allowed as $candidate) {
-           if ((string)$candidate === '*') {
-              $matched = (string)$actual !== '';
-           } elseif ((string)$actual === (string)$candidate) {
-              $matched = true;
-           }
-
-           if ($matched) {
-              break;
-           }
-        }
-
-        if (!$matched) {
-           return false;
-        }
-     }
-
-     return true;
-  }
-
-  /**
-   * Ermittelt eine optionale Policy fuer ungewoehnliche Legacy-Aktionen.
-   *
-   * Konfigurationsformat:
-   *
-   * ```php
-   * $config['action_routes']['job_cancel'] = array(
-   *    'match' => array('dbx_run1' => 'control', 'dbx_do' => 'cancel'),
-   *    'bind'  => array('job_id'),
-   * );
-   * ```
-   *
-   * `delete`/`save` plus `rid` und dbxReport-Standardaktionen benoetigen
-   * diese Kompatibilitaetskonfiguration nicht.
-   *
-   * @param array $params Effektive Parameter.
-   * @return array Leeres Array oder Policy.
-   */
-  private function configured_action_policy(array $params): array {
-     $modul = trim((string)($params['dbx_modul'] ?? ''));
-     if ($modul === '') {
-        return array();
-     }
-
-     if (!array_key_exists($modul, $this->actionRouteCache)) {
-        $routes = dbx()->get_cfg($modul, 'action_routes', array());
-        $this->actionRouteCache[$modul] = is_array($routes) ? $routes : array();
-     }
-
-     $routes = $this->actionRouteCache[$modul];
-     if (!is_array($routes)) {
-        return array();
-     }
-
-     foreach ($routes as $name => $definition) {
-        if (!is_array($definition)
-            || (array_key_exists('enabled', $definition) && !$definition['enabled'])) {
-           continue;
-        }
-
-        $match = $definition['match'] ?? array();
-        if (!is_array($match) || !$match || !$this->action_route_matches($match, $params)) {
-           continue;
-        }
-
-        $policyName = trim((string)($definition['action'] ?? $name));
-        if ($policyName === '') {
-           $policyName = 'action';
-        }
-
-        return array(
-           'source' => 'module',
-           'action' => $modul . '.' . $policyName,
-           'bind' => is_array($definition['bind'] ?? null)
-              ? array_values($definition['bind'])
-              : array(),
-           'match' => $match,
-        );
-     }
-
-     return array();
-  }
-
-  /**
-   * Ermittelt eine systemweit bekannte dbxReport-Policy.
-   *
-   * @param array $params Effektive Parameter.
-   * @return array Leeres Array oder Policy.
-   */
-  private function report_action_policy(array $params): array {
-     foreach (array('dbx_do', 'dbx_run3', 'dbx_run2') as $parameter) {
-        $code = strtolower(trim((string)($params[$parameter] ?? '')));
-        if ($code === '' || !isset(self::REPORT_ACTION_POLICIES[$code])) {
-           continue;
-        }
-
-        $definition = self::REPORT_ACTION_POLICIES[$code];
-        return array(
-           'source' => 'dbxReport',
-           'action' => (string)$definition['action'],
-           'bind' => (array)$definition['bind'],
-           'match' => array($parameter => $code),
-        );
-     }
-
-     return array();
-  }
-
-  /**
-   * Erkennt mutierende Standardaktionen direkt aus der dbx-URL.
-   *
-   * `delete` oder `save` werden nur zusammen mit einer nicht leeren `rid`
-   * als Mutation behandelt. Die RID wird automatisch an den Token-Scope
-   * gebunden. Damit benötigen normale Navigation und neue Formulare keine
-   * zusätzliche Modulkonfiguration.
-   *
-   * @param array $params Effektive Parameter.
-   * @return array Leeres Array oder automatisch erkannte Policy.
-   */
-  private function automatic_rid_action_policy(array $params): array {
-     if (trim((string)($params['rid'] ?? '')) === '') {
-        return array();
-     }
-
-     foreach (array('dbx_do', 'dbx_run3', 'dbx_run2', 'dbx_run1') as $parameter) {
-        $code = strtolower(trim((string)($params[$parameter] ?? '')));
-        if ($code === '') {
-           continue;
-        }
-
-        $parts = preg_split('/[^a-z0-9]+/', $code, -1, PREG_SPLIT_NO_EMPTY);
-        foreach (self::AUTOMATIC_RID_ACTIONS as $keyword => $action) {
-           if (!in_array($keyword, is_array($parts) ? $parts : array(), true)) {
-              continue;
-           }
-
-           return array(
-              'source' => 'automatic',
-              'action' => $action,
-              'bind' => array('rid'),
-              'match' => array(
-                 $parameter => $code,
-                 'rid' => '*',
-              ),
-           );
-        }
-     }
-
-     return array();
-  }
-
-  /**
-   * Erkennt die schreibenden JSON-Endpunkte des dbxReport-Grid-Modus.
-   *
-   * Der Marker wird aus der eigentlichen Route abgeleitet und ist deshalb
-   * nicht durch Weglassen eines zusaetzlichen Queryparameters umgehbar.
-   * Gueltige Konventionen sind `*_grid_<aktion>` sowie die historischen
-   * dbxSchema-Endpunkte `data_<aktion>` und `fields_<aktion>`.
-   *
-   * @param array $params Effektive URL-/Requestparameter.
-   * @return array Leeres Array oder Grid-Policy.
-   */
-  private function automatic_grid_action_policy(array $params): array {
-     $actions = array('save', 'insert', 'delete', 'sort', 'sync');
-     $contextBindings = array('rid', 'id', 'cid', 'iid', 'modul', 'dd', 'fd', 'xmodul');
-
-     foreach (array('dbx_run3', 'dbx_run2', 'dbx_run1') as $parameter) {
-        $code = strtolower(trim((string)($params[$parameter] ?? '')));
-        if ($code === '') {
-           continue;
-        }
-
-        $parts = preg_split('/[^a-z0-9]+/', $code, -1, PREG_SPLIT_NO_EMPTY);
-        $parts = is_array($parts) ? $parts : array();
-        $gridLike = in_array('grid', $parts, true)
-           || (isset($parts[0]) && in_array($parts[0], array('data', 'fields'), true));
-        if (!$gridLike) {
-           continue;
-        }
-
-        foreach ($actions as $action) {
-           if (!in_array($action, $parts, true)) {
-              continue;
-           }
-
-           $bindings = array();
-           foreach ($contextBindings as $binding) {
-              if (array_key_exists($binding, $params)
-                  && trim((string)$params[$binding]) !== '') {
-                 $bindings[] = $binding;
-              }
-           }
-
-           return array(
-              'source' => 'dbxReport',
-              'action' => 'dbxReport.grid_' . $action,
-              'bind' => $bindings,
-              'match' => array($parameter => $code),
-           );
-        }
-     }
-
-     return array();
-  }
-
-  /**
-   * Loest die gueltige Action-Policy fuer einen Parametersatz auf.
-   *
-   * Explizite Moduldefinitionen haben Vorrang vor den kompatiblen
-   * dbxReport-Standardregeln. Danach werden `delete` und `save` zusammen mit
-   * `rid` automatisch erkannt. Ungewoehnliche Alt-Routen koennen weiterhin
-   * ueber `action_routes` beschrieben werden.
-   *
-   * @param array $params URL-/Requestparameter.
-   * @return array Leeres Array oder vollstaendige Policy inklusive Scope.
-   */
-  private function resolve_action_policy(array $params): array {
-     $params = $this->effective_action_params($params);
-     $policy = $this->configured_action_policy($params);
-     if (!$policy) {
-        $policy = $this->report_action_policy($params);
-     }
-     if (!$policy) {
-        $policy = $this->automatic_grid_action_policy($params);
-     }
-     if (!$policy) {
-        $policy = $this->automatic_rid_action_policy($params);
-     }
-     if (!$policy) {
-        return array();
-     }
-
-     $policy['bindings'] = $this->resolve_action_bindings((array)$policy['bind'], $params);
-     $policy['scope'] = $this->action_scope_from_params(
-        $params,
-        (string)$policy['action'],
-        (array)$policy['bindings']
-     );
-     $policy['params'] = $params;
-     return $policy;
-  }
-
-  /**
-   * Liefert die Action-Policy einer URL.
-   *
-   * Reine Navigation ergibt ein leeres Array und wird von
-   * dbxApi::action_url() unveraendert zurueckgegeben.
-   *
-   * @param string $url Zu pruefende URL.
-   * @return array
-   */
-  public function action_policy_for_url($url): array {
-     $route = $this->parse_route_url((string)$url);
-     return $this->resolve_action_policy((array)($route['params'] ?? array()));
-  }
-
-  /**
-   * Sammelt den aktuellen Request mit derselben GET-/POST-Prioritaet wie dbxRequest.
-   *
-   * @return array
-   */
-  private function current_action_request_params(): array {
-     $params = is_array($_GET ?? null) ? $_GET : array();
-     if (is_array($_POST ?? null)) {
-        $params = array_replace($params, $_POST);
-     }
-
-     foreach (array('dbx_modul', 'dbx_run1', 'dbx_run2', 'dbx_run3') as $key) {
-        $value = dbx()->get_system_var($key, '', 'parameter');
-        if ((string)$value !== '') {
-           $params[$key] = $value;
-        }
-     }
-
-     return $this->effective_action_params($params);
-  }
-
-  /**
-   * Liefert die automatisch erkannte Policy des aktuellen Requests.
-   *
-   * @return array
-   */
-  public function current_action_policy(): array {
-     return $this->resolve_action_policy($this->current_action_request_params());
-  }
-
-  /**
-   * Prueft den Action-Token des aktuellen Requests ohne Modulcode auszufuehren.
-   *
-   * Requests ohne Action-Policy sind normale Navigation bzw. normale
-   * dbxForm-POSTs und gelten hier als gueltig. Deren eigener Formularschutz
-   * wird weiterhin ausschliesslich von dbxForm ausgewertet.
-   *
-   * @param array $policy Optional bereits ermittelte Policy.
-   * @return bool
-   */
-  public function current_action_request_is_valid(array $policy = array()): bool {
-     if (!$policy) {
-        $policy = $this->current_action_policy();
-     }
-     if (!$policy) {
-        return true;
-     }
-
-     $token = '';
-     if (isset($_GET['dbx_token'])) {
-        $token = (string)$_GET['dbx_token'];
-     }
-     if (isset($_POST['dbx_token'])) {
-        $token = (string)$_POST['dbx_token'];
-     }
-
-     return dbx()->check_action_token((string)($policy['scope'] ?? ''), $token);
-  }
 
   /**
    * Prefix fuer Template-Links wie {self}dbx_design=desktop.
@@ -906,26 +456,39 @@ function parse_route_url($url) {
    * @param string $baseUri
    * @return string
    */
-  function get_request_route_string($baseUri = '') {
-     $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-     if ($requestUri === '') {
+  function get_request_route_string($base_uri = '') {
+     $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+     if ($request_uri === '') {
         return '';
      }
 
-     if ($baseUri === '') {
-        $baseUri = $this->get_base_uri();
+     if ($base_uri === '') {
+        $base_uri = $this->get_base_uri();
      }
 
-     $path = parse_url($requestUri, PHP_URL_PATH) ?? '';
+     $path = parse_url($request_uri, PHP_URL_PATH) ?? '';
      $path = str_replace('\\', '/', $path);
-     $baseUri = str_replace('\\', '/', $baseUri);
+     $base_uri = str_replace('\\', '/', $base_uri);
 
-     if ($baseUri !== '/' && $baseUri !== '' && strpos($path, $baseUri) === 0) {
-        $path = substr($path, strlen($baseUri));
+     if ($base_uri !== '/' && $base_uri !== '' && strpos($path, $base_uri) === 0) {
+        $path = substr($path, strlen($base_uri));
      }
 
      $route = ltrim($path, '/');
-     $query = parse_url($requestUri, PHP_URL_QUERY);
+     $query = parse_url($request_uri, PHP_URL_QUERY);
+
+     // Optionaler, dauerhafter Sprachpfad fuer oeffentliche Websites. Die
+     // eigentliche dbxapp-Route bleibt unveraendert; die Sprache wird wie ein
+     // normaler Requestparameter an den bestehenden Sprachmechanismus gegeben.
+     // Installationen aktivieren dies bewusst per language_path_prefix.
+     if ((int)dbx()->get_cfg('dbx', 'language_path_prefix', 0) === 1
+         && preg_match('#^(de|en|es)(?:/(.*))?$#i', $route, $language_match) === 1) {
+        $route = trim((string)($language_match[2] ?? ''), '/');
+        $language_query = 'dbx_lng=' . rawurlencode(strtolower((string)$language_match[1]));
+        $query = $query !== null && $query !== ''
+           ? $language_query . '&' . $query
+           : $language_query;
+     }
 
      if ($query !== null && $query !== '') {
         if ($route === '') {
@@ -1117,7 +680,7 @@ function get_self_url($permalink,$unwanted) {
    *
    * @return void
    */
-  function setRequestUriToGet() {
+  function set_request_uri_to_get() {
     $route = $this->parse_route_url($this->get_request_route_string($this->get_base_uri()));
     if (!empty($route['params'])) {
        $_GET = array_merge($_GET, $route['params']);
@@ -1234,138 +797,13 @@ function get_self_url($permalink,$unwanted) {
 
   }
 
-  /**
-   * Ermittelt das 301-Ziel fuer den historischen Startseiten-Permalink.
-   *
-   * `home` bleibt intern der Permalink des konfigurierten Content-Datensatzes,
-   * ist extern aber nur ein Alias der Basis-URL. Explizite Modul- und
-   * Aktionsrouten werden nicht umgedeutet.
-   *
-   * @return string Kanonische Basis-URL oder leer, wenn kein Redirect gilt.
-   */
-  public function canonical_home_redirect_target(): string {
-    $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
-    if ($method !== 'GET' && $method !== 'HEAD') {
-      return '';
-    }
 
-    $permalink = strtolower(trim(
-      str_replace('\\', '/', (string)dbx()->get_system_var('dbx_permalink', '')),
-      '/'
-    ));
-    if ($permalink !== 'home') {
-      return '';
-    }
 
-    $routeKeys = array(
-      'dbx_modul',
-      'dbx_run1',
-      'dbx_run2',
-      'dbx_action',
-      'dbx_ajax',
-      'dbx_window',
-      'cid',
-      'dbx_cid',
-    );
-    foreach ($routeKeys as $key) {
-      if (trim((string)dbx()->get_request_var($key, '', '*')) !== '') {
-        return '';
-      }
-    }
 
-    return rtrim((string)dbx()->get_base_url(), '/') . '/';
-  }
-
-  /**
-   * Sendet den kanonischen Startseiten-Redirect, sofern er fuer den Request gilt.
-   *
-   * @return bool true, wenn eine Redirect-Response gesetzt wurde.
-   */
-  public function apply_canonical_home_redirect(): bool {
-    $target = $this->canonical_home_redirect_target();
-    if ($target === '' || headers_sent()) {
-      return false;
-    }
-
-    header('Location: ' . $target, true, 301);
-    return true;
-  }
-
-  /**
-   * Liefert das Ziel einer sprachabhängigen Content-Weiterleitung.
-   *
-   * Die Weiterleitungen werden redaktionell im Modul dbxContent gepflegt.
-   * Erlaubt sind ausschließlich die Basis-URL oder gültige interne
-   * Flat-Permalinks. Explizite Modul- und Aktionsrouten bleiben unberührt.
-   *
-   * @return string Absolute Ziel-URL oder leer.
-   */
-  public function content_permalink_redirect_target(): string {
-    $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
-    if ($method !== 'GET' && $method !== 'HEAD') {
-      return '';
-    }
-
-    foreach (array(
-      'dbx_modul', 'dbx_run1', 'dbx_run2', 'dbx_run3', 'dbx_action',
-      'dbx_do', 'action', 'dbx_ajax', 'dbx_window', 'cid', 'dbx_cid',
-    ) as $key) {
-      if (trim((string)dbx()->get_request_var($key, '', '*')) !== '') {
-        return '';
-      }
-    }
-
-    $permalink = strtolower(trim(
-      str_replace('\\', '/', (string)dbx()->get_system_var('dbx_permalink', '')),
-      '/'
-    ));
-    if ($permalink === '' || $permalink === 'home') {
-      return '';
-    }
-
-    $lng = strtolower(trim((string)dbx()->get_system_var('dbx_lng', 'de')));
-    if (!preg_match('/^[a-z]{2,3}$/', $lng)) {
-      return '';
-    }
-
-    $redirects = dbx()->get_cfg('dbxContent', 'permalink_redirects', array());
-    $redirects = is_array($redirects) && is_array($redirects[$lng] ?? null)
-      ? $redirects[$lng]
-      : array();
-    if (!array_key_exists($permalink, $redirects)) {
-      return '';
-    }
-
-    $target = strtolower(trim((string)$redirects[$permalink]));
-    if ($target === '' || $target === '/') {
-      return rtrim((string)dbx()->get_base_url(), '/') . '/';
-    }
-    $target = trim($target, '/');
-    if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $target)) {
-      return '';
-    }
-
-    return rtrim((string)dbx()->get_base_url(), '/') . '/' . $target;
-  }
-
-  /**
-   * Sendet eine konfigurierte permanente Content-Weiterleitung.
-   *
-   * @return bool true, wenn die Redirect-Response gesetzt wurde.
-   */
-  public function apply_content_permalink_redirect(): bool {
-    $target = $this->content_permalink_redirect_target();
-    if ($target === '' || headers_sent()) {
-      return false;
-    }
-
-    header('Location: ' . $target, true, 301);
-    return true;
-  }
 
 
   /**
-   * Prueft, ob eine Dateiendung als direkt auslieferbare Ressource gilt.
+   * Prüft, ob eine Dateiendung als direkt auslieferbare Ressource gilt.
    *
    * @param string $ext Dateiendung ohne Punkt.
    * @return int 1 = Ressource, 0 = keine Ressource.
@@ -1375,128 +813,11 @@ function get_self_url($permalink,$unwanted) {
      return isset(self::RESOURCE_MIME_TYPES[$ext]) ? 1 : 0;
   }
 
-  /** Ermittelt die Dateiendung aus dem dekodierten Ressourcenpfad. */
-  private function get_resource_extension($permalink): string {
-     $path = str_replace('\\', '/', rawurldecode((string)$permalink));
-     return strtolower((string)pathinfo($path, PATHINFO_EXTENSION));
-  }
 
-  /** Dynamische Systemrouten duerfen nicht als fehlende Dateien gelten. */
-  private function is_dynamic_file_route($permalink): bool {
-     $route = strtolower(trim(str_replace('\\', '/', rawurldecode((string)$permalink)), '/'));
-     return in_array($route, self::DYNAMIC_FILE_ROUTES, true);
-  }
 
-  /**
-   * Nur von der eigenen Website ausgelöste Ressourcenfehler gehören in die
-   * Qualitätskontrolle. Direkte Requests ohne Referer sind fast immer Bots,
-   * Scanner oder Browser-Probes (z. B. swagger.json, ads.txt und RSC-Dateien).
-   * `www.` wird dabei als Alias derselben Website behandelt.
-   */
-  private function has_internal_resource_referer(): bool {
-    $referer = trim((string)($_SERVER['HTTP_REFERER'] ?? ''));
-    if ($referer === '') {
-      return false;
-    }
 
-    $refererHost = (string)(parse_url($referer, PHP_URL_HOST) ?? '');
-    $requestAuthority = trim((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
-    $requestHost = (string)(parse_url('http://' . $requestAuthority, PHP_URL_HOST) ?? '');
 
-    $normalize = static function (string $host): string {
-      $host = rtrim(strtolower(trim($host)), '.');
-      return str_starts_with($host, 'www.') ? substr($host, 4) : $host;
-    };
 
-    $refererHost = $normalize($refererHost);
-    $requestHost = $normalize($requestHost);
-    return $refererHost !== '' && $requestHost !== '' && hash_equals($requestHost, $refererHost);
-  }
-
-  /**
-   * Loest einen Permalink sicher auf eine lokale Ressourcendatei auf.
-   *
-   * Sicherheitsregel:
-   * Der finale Realpath muss innerhalb des dbXapp-Basisverzeichnisses liegen.
-   *
-   * @param string $permalink Angefragter Ressourcenpfad.
-   * @return string Absoluter Dateipfad oder leerer String.
-   */
-  private function get_resource_file($permalink) {
-    $path = str_replace('\\', '/', rawurldecode((string) $permalink));
-    $path = ltrim($path, '/');
-
-    if ($path === '' || strpos($path, "\0") !== false) {
-      return '';
-    }
-
-    $parts = explode('/', $path);
-    foreach ($parts as $part) {
-      if ($part === '..') {
-        return '';
-      }
-    }
-
-    // Safari und einige Crawler fragen diese Standardnamen auch ohne expliziten
-    // Link ab. Das vorhandene Favicon ist die kanonische lokale Quelle.
-    if (preg_match('/^apple-touch-icon(?:-precomposed)?(?:-\d+x\d+)?\.png$/i', $path)) {
-      $path = 'favicon.png';
-      $parts = array($path);
-    }
-
-    $base = realpath(dbx()->get_base_dir());
-    if (!$base) {
-      return '';
-    }
-
-    $file = realpath($base . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $parts));
-    if (!$file || !is_file($file)) {
-      return '';
-    }
-
-    $baseCheck = rtrim(str_replace('\\', '/', strtolower($base)), '/') . '/';
-    $fileCheck = str_replace('\\', '/', strtolower($file));
-
-    if (strpos($fileCheck, $baseCheck) !== 0) {
-      return '';
-    }
-
-    return $file;
-  }
-
-  /**
-   * Liefert den passenden Content-Type fuer statische Ressourcen.
-   *
-   * @param string $ext Dateiendung.
-   * @return string MIME-Type.
-   */
-  private function get_resource_mime($ext) {
-    $ext = strtolower(ltrim(trim((string)$ext), '.'));
-    return self::RESOURCE_MIME_TYPES[$ext] ?? 'application/octet-stream';
-  }
-
-  /**
-   * Sendet eine statische Ressource und beendet den Request.
-   *
-   * @param string $file Absoluter Dateipfad.
-   * @param string $ext Dateiendung.
-   * @return void
-   */
-  private function send_resource_file($file, $ext) {
-    if (headers_sent()) {
-      return;
-    }
-
-    header('Content-Type: ' . $this->get_resource_mime($ext));
-    header('X-Content-Type-Options: nosniff');
-    header('Cache-Control: public, max-age=3600');
-    header('Content-Length: ' . (string)filesize($file));
-
-    if (strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== 'HEAD') {
-      readfile($file);
-    }
-    exit;
-  }
 
 
 
@@ -1552,10 +873,10 @@ function get_self_url($permalink,$unwanted) {
       return false;
     }
 
-    $resourceFile = $this->get_resource_file($permalink);
-    if ($resourceFile) {
-      dbx()->debug("## resource exists, not missing ($permalink) file=($resourceFile)");
-      $this->send_resource_file($resourceFile, $ext);
+    $resource_file = $this->get_resource_file($permalink);
+    if ($resource_file) {
+      dbx()->debug("## resource exists, not missing ($permalink) file=($resource_file)");
+      $this->send_resource_file($resource_file, $ext);
       return false;
     }
 
@@ -1575,7 +896,7 @@ function get_self_url($permalink,$unwanted) {
   }
 
   /**
-   * Uebernimmt persistente UI-/Systemwerte aus Remember in den Request.
+   * Übernimmt persistente UI-/Systemwerte aus Remember in den Request.
    *
    * Betroffen sind Design, Edit-Modus, Sprache und Farbschema.
    *
@@ -1587,40 +908,21 @@ function get_self_url($permalink,$unwanted) {
     $design=dbx()->get_remember_var('dbx_design','user'   ,'dbx');
     $edit  =dbx()->get_remember_var('dbx_edit'  ,0        ,'dbx');
     $lng   =dbx()->get_remember_var('dbx_lng'   ,'de'     ,'dbx');
-    $defaultColor = dbx()->normalize_skin(
+    $presentation = dbx()->get_system_obj('dbxPresentation');
+    $default_color = $presentation->normalize_skin(
       (string)dbx()->get_cfg('dbx', 'default_color', 'blau'),
       (string)$design
     );
-    $color = dbx()->get_remember_var('dbx_color', $defaultColor, 'dbx');
-
-    // Der Dokumentationsmodus besitzt ein eigenes Design. Vor dem Wechsel
-    // merken wir deshalb das tatsaechliche Frontend-Design samt zugehoerigem
-    // Skin separat. Weitere Aufrufe innerhalb von dbxdocs duerfen diesen
-    // Ruecksprung nicht mit dbxdocs/hell ueberschreiben.
-    $requestedDesign = dbx()->get_request_var('dbx_design', null);
-    if (is_string($requestedDesign)
-        && strtolower(trim($requestedDesign)) === 'dbxdocs') {
-      $returnDesign = $this->normalize_documentation_return_design((string)$design);
-      if ($returnDesign !== 'dbxdocs') {
-        dbx()->set_remember_var('dbx_docs_return_design', $returnDesign, 'dbx');
-        dbx()->set_remember_var(
-          'dbx_docs_return_color',
-          dbx()->normalize_skin((string)$color, $returnDesign),
-          'dbx'
-        );
-        dbx()->set_remember_var(
-          'dbx_docs_return_page',
-          $this->normalize_documentation_return_page((string)$page),
-          'dbx'
-        );
-      }
-    }
+    $color = dbx()->get_remember_var('dbx_color', $default_color, 'dbx');
 
     $page  =dbx()->get_request_var('dbx_page'  ,$page);
     $design=dbx()->get_request_var('dbx_design',$design);
-    $edit  =dbx()->get_request_var('dbx_edit'  ,$edit);
+    $edit  =max(0, min(9, (int)dbx()->get_request_var('dbx_edit', $edit, 'int')));
+    if (!dbx()->has_group('admin')) {
+      $edit = 0;
+    }
     $lng   =dbx()->get_request_var('dbx_lng'   ,$lng);
-    $color = dbx()->normalize_skin(
+    $color = $presentation->normalize_skin(
       (string)dbx()->get_request_var('dbx_color', $color),
       (string)$design
     );
@@ -1631,13 +933,8 @@ function get_self_url($permalink,$unwanted) {
       $design = 'flowers';
     }
    
-    // Die Layoutseite gehört zum Designzustand. Ohne Remember-State konnte
-    // der Rückweg aus dbxdocs zwar Design und Skin umschalten, anschließend
-    // aber erneut das Dokumentationslayout auswählen.
-    if (strtolower(trim((string)$design)) !== 'dbxdocs') {
-      $page = $this->normalize_documentation_return_page((string)$page);
-      dbx()->set_remember_var('dbx_page', $page, 'dbx');
-    }
+    $page = $this->normalize_layout_page((string)$page);
+    dbx()->set_remember_var('dbx_page', $page, 'dbx');
     dbx()->set_remember_var('dbx_design',$design,'dbx');
     dbx()->set_remember_var('dbx_edit'  ,$edit  ,'dbx');  
     dbx()->set_remember_var('dbx_lng'   ,$lng   ,'dbx');  
@@ -1648,607 +945,18 @@ function get_self_url($permalink,$unwanted) {
     dbx()->set_system_var('dbx_lng'   , $lng);
     dbx()->set_system_var('dbx_color' , $color);
     dbx()->set_system_var('dbx_page'  , $page);
-    dbx()->set_system_var('dbx_docs_return_url', $this->documentation_return_url());
     dbx()->set_system_var('dbx_last_editor_tpl_paths', array());
 
   }
 
-  /**
-   * Liefert den Content-Permalink-Modus.
-   *
-   * @return string `cms` oder `content`.
-   */
-  private function get_content_permalink_mode(): string {
-     return dbx()->get_content_permalink_mode();
-  }
 
-  /**
-   * Liefert den aktiven Content-Root aus Request oder Konfiguration.
-   *
-   * @return int Root-ID.
-   */
-  private function get_content_root(): int {
-     $requestRoot = dbx()->get_request_var('root', '', 'int');
 
-     if ($requestRoot !== '') {
-        return (int) $requestRoot;
-     }
 
-     $configRoot = dbx()->get_cfg('dbxContent', 'root');
-     if ($configRoot === 'undef' || $configRoot === '') {
-        return 0;
-     }
 
-     return (int) $configRoot;
-  }
 
-  /**
-   * Setzt Systemvariablen fuer eine Content-Route.
-   *
-   * @param int $cid Content-ID.
-   * @param string $source Debug-/Analysehinweis zur Quelle.
-   * @return void
-   */
-  private function set_content_route(int $cid, string $source = ''): void {
-     if ($cid <= 0) {
-        return;
-     }
 
-     $mode = $this->get_content_permalink_mode();
-     $root = $this->get_content_root();
 
-     dbx()->set_system_var('dbx_modul', 'dbxContent');
-     dbx()->set_system_var('dbx_cid', $cid);
-     dbx()->set_system_var('cid', $cid);
-     dbx()->set_system_var('dbx_content_route_cid', $cid);
-     $source = (string) $source;
-     $cacheableContentRoute = str_starts_with($source, 'permalink-');
-     dbx()->set_system_var('dbx_content_permalink_request', $cacheableContentRoute ? 1 : 0);
 
-     if ($mode === 'cms') {
-        dbx()->set_system_var('dbx_run1', 'cms');
-        dbx()->set_system_var('dbx_run2', 'show');
-        dbx()->set_system_var('root', $root);
-     } else {
-        dbx()->set_system_var('dbx_run1', 'show');
-     }
-
-     $this->apply_docs_page_layout($cid, 'dbxContent', 'show', $source);
-
-     dbx()->debug("#PERMALINK set dbxContent mode=($mode) root=($root) cid=($cid) source=($source)");
-  }
-
-  /**
-   * Liefert den sicheren Ruecksprung aus der Dokumentation zur Website.
-   *
-   * Design und Skin stammen ausschliesslich aus validiertem Remember-State.
-   * Ein manipuliertes oder inzwischen entferntes Design faellt auf das
-   * konfigurierte Benutzerdesign zurueck.
-   */
-  public function documentation_return_url(): string {
-    $config = dbx()->get_cfg('dbx');
-    $defaultDesign = (string)($config['default_design_user'] ?? 'dbxapp');
-    $design = $this->normalize_documentation_return_design((string)dbx()->get_remember_var(
-      'dbx_docs_return_design',
-      $defaultDesign,
-      'dbx'
-    ));
-    if ($design === 'dbxdocs') {
-      $design = $this->normalize_documentation_return_design($defaultDesign);
-    }
-    $skin = dbx()->normalize_skin(
-      (string)dbx()->get_remember_var('dbx_docs_return_color', '', 'dbx'),
-      $design
-    );
-    $page = $this->normalize_documentation_return_page((string)dbx()->get_remember_var(
-      'dbx_docs_return_page',
-      'default',
-      'dbx'
-    ));
-
-    return $this->append_route_params(
-      rtrim((string)dbx()->get_base_url(), '/') . '/',
-      array('dbx_design' => $design, 'dbx_color' => $skin, 'dbx_page' => $page)
-    );
-  }
-
-  /** Normalisiert die Layoutseite für den Rücksprung aus der Dokumentation. */
-  private function normalize_documentation_return_page(string $page): string {
-    $page = trim($page);
-    if ($page === '' || !preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/', $page)) {
-      return 'default';
-    }
-    return $page;
-  }
-
-  /**
-   * Normalisiert ein Ruecksprungdesign ohne unsichere Verzeichniswerte.
-   */
-  private function normalize_documentation_return_design(string $design): string {
-    $config = dbx()->get_cfg('dbx');
-    $design = trim($design);
-    $key = strtolower($design);
-    if ($key === 'user') {
-      $design = (string)($config['default_design_user'] ?? 'dbxapp');
-    } elseif ($key === 'admin') {
-      $design = (string)($config['default_design_admin'] ?? 'dbxapp');
-    } elseif ($key === 'fleurop') {
-      $design = 'flowers';
-    }
-
-    if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/', $design)
-        || !dbx()->is_design($design)) {
-      $design = (string)($config['default_design_user'] ?? 'dbxapp');
-    }
-    if (!dbx()->is_design($design)) {
-      $design = 'dbxapp';
-    }
-
-    return $design;
-  }
-
-  /** Wählt im dbxdocs-Design das serverseitige dbx_page des Bereichs. */
-  private function apply_docs_page_layout(
-     int $cid = 0,
-     string $module = '',
-     string $action = '',
-     string $source = ''
-  ): void {
-     $design = strtolower(trim((string)dbx()->get_system_var('dbx_design', '')));
-     if ($design === '' || $design === 'user') {
-        $design = strtolower(trim((string)dbx()->get_cfg('dbx', 'default_design_user', 'dbxapp')));
-     }
-     if ($design !== 'dbxdocs') {
-        return;
-     }
-
-     try {
-        $resolver = dbx()->get_include_obj('dbxDocsPageResolver', 'dbxDocs');
-        if (!is_object($resolver)) {
-           return;
-        }
-        $page = $cid > 0 && method_exists($resolver, 'forContent')
-           ? $resolver->forContent($cid, (string)dbx()->get_system_var('dbx_lng', 'de'), $source)
-           : (method_exists($resolver, 'forModule') ? $resolver->forModule($module, $action) : '');
-        $page = strtolower(trim((string)$page));
-        if (preg_match('/^[a-z0-9_-]+$/', $page) === 1) {
-           dbx()->set_system_var('dbx_page', $page);
-        }
-     } catch (\Throwable $exception) {
-        dbx()->debug('#dbxdocs page resolver failed', $exception->getMessage());
-     }
-  }
-
-  /**
-   * Liefert die Content-ID fuer die Startseite aus dbxHome.
-   *
-   * @return int Content-ID oder 0.
-   */
-  private function get_home_content_cid(): int {
-     $this->load_content_cache_classes();
-
-     return \dbx\dbxContent\dbxContentHome::resolveCid();
-  }
-
-  /**
-   * Laedt die Content-Cache-Klassen einmalig.
-   *
-   * @return void
-   */
-  private function load_content_cache_classes(): void {
-     dbx()->load_content_cache_classes();
-  }
-
-  /**
-   * Loest Permalink, Home, Admin und explizite Modulrouten auf.
-   *
-   * Reihenfolge:
-   * - explizite `dbx_modul`/`dbx_run1` Route gewinnt
-   * - `cid`/`dbx_cid` kann direkt Content setzen
-   * - Home-Route nutzt dbxHome-Konfiguration
-   * - `admin` schaltet auf dbxAdmin
-   * - sonst live im Modul dbxContent aufloesen
-   * - unbekannte Permalinks mit HTTP 404 auf der konfigurierten Home-Seite zeigen
-   *
-   * @return void
-   */
-  public function check_perma() {
-     $cid=0; $home=0;
-     $permalink= dbx()->get_system_var('dbx_permalink');
-     dbx()->set_system_var('dbx_content_permalink_request', 0);
-     dbx()->set_system_var('dbx_content_route_cid', 0);
-     dbx()->debug("check perma ($permalink)");
-
-     if ($permalink =='undef') $permalink='';
-     if ($permalink =='/')     $permalink='';
-  
-
-     $lng=dbx()->get_system_var('dbx_lng','de');
-  
-     $modul      = dbx()->get_request_var('dbx_modul');
-     $action     = dbx()->get_request_var('dbx_run1');
-     $hasExplicitRoute = ($modul !== '' && $action !== '');
-
-      if ($hasExplicitRoute) {
-        dbx()->set_system_var('dbx_modul', $modul);
-        dbx()->set_system_var('dbx_run1', $action);
-        dbx()->set_system_var('dbx_run2', dbx()->get_request_var('dbx_run2', '', 'parameter'));
-        dbx()->set_system_var('root', dbx()->get_request_var('root', '', 'int'));
-      }
-
-      $requestCid = (int) dbx()->get_request_var('cid', 0, 'int');
-      if (!$requestCid) $requestCid = (int) dbx()->get_request_var('dbx_cid', 0, 'int');
-
-      if ($hasExplicitRoute) {
-        dbx()->set_system_var('dbx_cid', $requestCid);
-        dbx()->set_system_var('cid', $requestCid);
-        $this->apply_docs_page_layout($requestCid, (string)$modul, (string)$action, 'explicit-route');
-        return;
-      }
-
-      if ($requestCid > 0 && (!$modul || !$action || $modul === 'dbxHome')) {
-        $this->set_content_route($requestCid, 'request-cid');
-        return;
-      }
-
-      if (!$permalink  && !$modul) $home=1;
-      if ( $modul=='dbxHome')      $home=1;
-      if ($permalink === 'home' && !$modul) $home=1;
-
-
-     if ($home) {
-      $homeCid = $this->get_home_content_cid();
-      if ($homeCid > 0) {
-        $homeSource = 'dbxHome-config';
-        if ($permalink === 'home') {
-          $homeSource = 'permalink-home';
-        } elseif (!$modul) {
-          $homeSource = 'permalink-root';
-        }
-        $this->set_content_route($homeCid, $homeSource);
-        return;
-      }
-      dbx()->set_system_var('dbx_modul' ,'dbxContent');
-      dbx()->set_system_var('dbx_run1','show');
-      dbx()->set_system_var('dbx_run2','');
-      dbx()->set_system_var('dbx_cid', 0);
-      dbx()->set_system_var('cid', 0);
-      dbx()->set_system_var('dbx_design','user');
-      return;
-     }
-
-     if ($permalink =='admin') {
-      dbx()->set_system_var('dbx_modul','dbxAdmin');
-      dbx()->set_system_var('dbx_run1','run');
-      dbx()->set_system_var('dbx_design','admin');
-      return;
-    }
-
-     if ($permalink === 'sitemap.xml' || $permalink === 'sitemap') {
-      dbx()->set_system_var('dbx_modul', 'dbxContent');
-      dbx()->set_system_var('dbx_run1', 'sitemap');
-      return;
-     }
-
-     if ($permalink === 'robots.txt') {
-      dbx()->set_system_var('dbx_modul', 'dbxContent');
-      dbx()->set_system_var('dbx_run1', 'robots');
-      return;
-     } 
-
-
-
-
-     $check_perma=dbx()->get_cfg('dbx','permalink');
-     if ($permalink > ' ' && $check_perma) {
-       //$permalink=strtolower($permalink);
-       dbx()->debug("##Permalink## ($permalink) Lng=($lng) check content#");
-       $permalink=trim((string)$permalink, '/');
-
-       $this->load_content_cache_classes();
-       $resolved = \dbx\dbxContent\dbxContentPermalinkIndex::resolve($permalink, $lng);
-       if (!is_array($resolved) || (int)($resolved['activ'] ?? 0) !== 1) {
-          // Sprachspezifische Permalinks tragen ihre Sprache bereits eindeutig
-          // in der Content-Tabelle. Dadurch bleiben saubere URLs ohne
-          // dbx_lng-Query auch fuer Suchmaschinen direkt erreichbar.
-          $accessibleLngs = dbx()->accessible_lngs();
-          foreach ($accessibleLngs as $candidateLng) {
-             $candidateLng = strtolower(trim((string)$candidateLng));
-             if ($candidateLng === '' || $candidateLng === $lng) {
-                continue;
-             }
-             $candidate = \dbx\dbxContent\dbxContentPermalinkIndex::resolve(
-                $permalink,
-                $candidateLng
-             );
-             if (!is_array($candidate) || (int)($candidate['activ'] ?? 0) !== 1) {
-                continue;
-             }
-
-             $lng = $candidateLng;
-             $resolved = $candidate;
-             dbx()->set_remember_var('dbx_lng', $lng, 'dbx');
-             dbx()->set_system_var('dbx_lng', $lng);
-             dbx()->debug("##Permalink## Sprache aus sauberer URL erkannt: ($lng)");
-             break;
-          }
-       }
-       if (is_array($resolved) && (int)($resolved['activ'] ?? 0) === 1) {
-          $cid = (int)($resolved['cid'] ?? 0);
-          if ($cid > 0) {
-             $this->set_content_route($cid, 'permalink-content');
-             return;
-          }
-       }
-
-       // Die Home-Seite bleibt als kompatible Darstellung erhalten. Der
-       // angeforderte Permalink darf dabei weder umgeschrieben noch als
-       // erfolgreicher Inhalt (Soft-404) ausgeliefert/gecached werden.
-       $homeCid = $this->get_home_content_cid();
-       if ($homeCid > 0) {
-         http_response_code(404);
-         dbx()->set_system_var('dbx_content_not_found', 1);
-         $this->set_content_route($homeCid, 'permalink-home-fallback');
-         dbx()->debug("#PERMALINK not found -> HTTP 404 with /home content permalink=($permalink) cid=($homeCid)");
-         return;
-       }
-
-       http_response_code(404);
-       dbx()->set_system_var('dbx_content_not_found', 1);
-       dbx()->set_system_var('dbx_modul', 'dbxContent');
-       dbx()->set_system_var('dbx_run1', 'show');
-       dbx()->set_system_var('dbx_run2', '');
-       dbx()->set_system_var('dbx_cid', 0);
-       dbx()->set_system_var('cid', 0);
-       dbx()->debug("#PERMALINK not found and no /home content configured permalink=($permalink)");
-       return;
-      }
-  }
-  
-  /**
-   * Prueft das aktive Modul und setzt bei fehlendem Modul dbxHome.
-   *
-   * @return void
-   */
-  public function check_modul() {
-      $modul=dbx()->get_system_var('dbx_modul');
-      if (!dbx()->is_modul($modul)) $modul='dbxHome';
-      dbx()->set_system_var('dbx_modul',$modul);
-  }
-
-
-  /**
-   * Bestimmt das aktive Design fuer den Request.
-   *
-   * Admin-Module duerfen ins Admin-Design wechseln, normale Benutzer bleiben
-   * im User-Design. Installations-/Intro-Zustaende koennen das Zielmodul und
-   * Design explizit umschalten.
-   *
-   * @return void
-   */
-  public function check_design() {
-    $admin =dbx()->can('admin');
-    $config=dbx()->get_cfg('dbx');
-    $user_default = (string)($config['default_design_user'] ?? 'dbxapp');
-    $admin_default= (string)($config['default_design_admin'] ?? 'dbxapp');
-    $construct    = (int)($config['construct'] ?? 0);
-    $install      = (int)($config['install'] ?? 1);
-    $intro        = (int) ($config['intro'] ?? 0);
-    $ok           = (int) ($config['ok'] ?? 0);
-
-    $design        = dbx()->get_remember_var('dbx_design',$user_default,'dbx');
-    if (strtolower(trim((string)$design)) === 'fleurop') {
-      $design = 'flowers';
-      dbx()->set_remember_var('dbx_design', $design, 'dbx');
-    }
-    //$page          = dbx()->get_remember_var('dbx_page' , 'default'    ,'dbx');
-    $page          = dbx()->get_system_var('dbx_page' , 'default');
-    $modul         = dbx()->get_system_var('dbx_modul'); 
-    $admin_modul   = $this->is_admin_route_module((string)$modul)
-      || $this->is_admin_only_module((string)$modul);
-    
-    
-    if (!dbx()->is_design($design)) {
-       $design='user';
-    } else {
-      if (!$admin && $design=='admin') $design='user';
-      if ( $admin && $admin_modul)     $design='admin';
-    }
-
-
-    $ajax = (int) dbx()->get_system_var('dbx_ajax', 0, 'int');
-    if ($intro && $ok && !$ajax) {
-        $introShown = (int) dbx()->get_session_var('intro_shown', 0, 'ui', 'dbx');
-        $requestModul = trim((string) dbx()->get_request_var('dbx_modul', '', 'parameter'));
-        if (!$introShown && $requestModul === '') {
-          $design = $user_default;
-          $modul  = 'dbxHome';
-          $page   = 'intro';
-          dbx()->set_session_var('intro_shown', 1, 'ui', 'dbx');
-        }
-    }
-
-    if (!$modul) {
-        $design=$user_default;
-        $modul='dbxHome';
-        $page='home';
-        $action='run';
-    }
-
-    if ($install || !$ok) {
-      dbx()->set_system_var('dbx_install', 1);
-      $modul = 'dbxSetup';
-      // Der Installer verwendet bewusst ein festes, datenbankunabhaengiges
-      // Design. So kann eine defekte oder noch nicht konfigurierte
-      // Kundendesign-Auswahl den Erststart nicht blockieren.
-      $design = 'dbxapp';
-      $page   = 'install';
-      dbx()->set_system_var('dbx_run1', 'install');
-    }
-
-    if ($design=='admin') $design=$admin_default;
-    if ($design=='user')  $design=$user_default;
-
-    dbx()->set_system_var('dbx_modul'  ,$modul);
-    dbx()->set_system_var('dbx_design' ,$design);
-    dbx()->set_system_var('dbx_page'   ,$page);
-    $ajax=dbx()->get_system_var('dbx_ajax',0);
-        
-    //dbx_debug("##->check-design##=($design) Modul=($modul)Page=($page) Intro($intro) Ajax=($ajax)");                           
-}
-
-
-  /**
-   * Erkennt Systemrouten, die zwingend im konfigurierten Admin-Design laufen.
-   *
-   * Das zentrale Modul heißt historisch `dbxAdmin` und trägt deshalb – anders
-   * als die fachlichen Verwaltungsvarianten (`*_admin`) – kein Suffix. Eine
-   * zentrale Erkennung verhindert, dass ein Wechsel aus einem Frontend- oder
-   * Dokumentationsdesign die Admin-Oberfläche im falschen Design rendert.
-   */
-  public function is_admin_route_module(string $modul): bool {
-    $modul = strtolower(trim($modul));
-    return $modul === 'dbxadmin' || str_ends_with($modul, '_admin');
-  }
-
-  /**
-   * Erkennt Module, deren Konfiguration ausschließlich die Gruppe `admin`
-   * zulässt. Das deckt bewusst Module wie dbxSelfTest ab, die Teil der
-   * Administration sind, aber aus historischen Gründen kein `_admin`-Suffix
-   * besitzen.
-   */
-  public function is_admin_only_module(string $modul): bool {
-    $modul = trim($modul);
-    if ($modul === '') return false;
-    $groups = dbx()->get_cfg($modul, 'groups');
-    if (is_string($groups)) {
-      $groups = preg_split('/\s*,\s*/', strtolower(trim($groups)), -1, PREG_SPLIT_NO_EMPTY);
-    }
-    if (!is_array($groups)) return false;
-    $groups = array_values(array_unique(array_map(
-      static fn($group): string => strtolower(trim((string)$group)),
-      $groups
-    )));
-    return $groups === array('admin');
-  }
-
-
-  /**
-   * Prueft und speichert die aktive Sprache.
-   *
-   * @return void
-   */
-  public function check_lng() {
-    $config=dbx()->get_cfg('dbx');
-    $lng_default   =$config['default_lng'];
-    $lng_accessible=$config['accessible_lng'];
-    $lng=dbx()->get_system_var('dbx_lng',dbx()->get_remember_var('dbx_lng',$lng_default,'dbx'));
-    if ($lng != $lng_default) {
-      $ok=0;
-      if (!is_array($lng_accessible)) $lng_accessible = explode(",", $lng_accessible);
-      foreach ($lng_accessible as $no => $val) {
-        if ($lng == $val) $ok=1;               
-      }
-      if (!$ok) $lng=$lng_default;
-    }
-    dbx()->set_remember_var('dbx_lng',$lng,'dbx');
-    dbx()->set_system_var('dbx_lng', $lng);
-  }
-
-  /**
-   * Wendet die globale dbx/translate.php auf Inhalt an.
-   *
-   * @param string $content Inhalt.
-   * @param string $lng Sprache; leer nutzt aktive Sprache.
-   * @return string Uebersetzter Inhalt.
-   */
-  public function translate($content,$lng=''){
-    if (!$lng) $lng=dbx()->get_system_var('dbx_lng','de');
-    $dir_file=dbx()->get_base_dir().'dbx/translate.php';
-    if (file_exists($dir_file)) {
-        include $dir_file;
-    }
-    return $content;
-  }
-
-
-
-
-  /**
-   * Ersetzt `[dbx:add_css]` durch im Request gesammelte CSS-Fragmente.
-   *
-   * @param string $content Ausgabeinhalt.
-   * @return string Inhalt mit eingesetztem CSS.
-   */
-  public function del_add_css($content) {
-    $css_content='';
-    if (isset($_SESSION['dbx']['add_css'])) {
-      $xcss=$_SESSION['dbx']['add_css'];
-      if (is_array($xcss)) {
-        foreach ($xcss as $no => $css) {  $css_content.=$css."\n"; }
-      }
-    }
-    $content = (str_replace('[dbx:add_css]',$css_content,$content));
-    return $content;
-  }
-
-   /**
-    * Ersetzt `[dbx:add_js]` durch im Request gesammelte JS-Fragmente.
-    *
-    * @param string $content Ausgabeinhalt.
-    * @return string Inhalt mit eingesetztem JavaScript.
-    */
-   public function del_add_js($content) {
-      $js_content='';
-      if (isset($_SESSION['dbx']['add_js'])) {
-        $xjs=$_SESSION['dbx']['add_js'];
-        if (is_array($xjs)) {
-          foreach ($xjs as $no => $js) {  $js_content.=$js."\n";         }
-        }
-      }
-      $content = (str_replace('[dbx:add_js]',$js_content,$content));
-      return $content;
-   }
-
-
-
-   /**
-    * Fuehrt den zentralen Ausgabe-Filter aus.
-    *
-    * @param string $content Ausgabeinhalt.
-    * @return string Gefilterter Inhalt.
-    */
-   public function out_filter($content) {
-       include dbx()->get_base_dir().'dbx/out_filter.php';
-       return $content;
-    }
-
-
-   /**
-    * Setzt geschuetzte norep-Platzhalter am Ende wieder ein.
-    *
-    * @param string $content Ausgabeinhalt mit `[norep_*]`-Markern.
-    * @return string Inhalt mit wieder eingesetzten Fragmenten.
-    */
-   public function add_norep($content) {
-      $oTPL = dbx()->get_system_obj('dbxTPL');
-      if (is_object($oTPL) && method_exists($oTPL, 'cleanup_optional_placeholders')) {
-        $content = $oTPL->cleanup_optional_placeholders((string)$content);
-      }
-
-      if (isset($_SESSION['dbx']['norep'])) {
-        $xnorep=$_SESSION['dbx']['norep'];
-        if (is_array($xnorep)) {
-          for($i=0; $i < 2; $i++) { // noreps can include noraps
-            foreach ($xnorep as $id => $norep) {
-              $xid= '['.$id.']';
-              $content = str_replace($xid,$norep,$content);
-            }
-          }
-        }
-      }
-      return $content;
-   }
 
 
    function get_session_rec($fld,$default='') {
@@ -2275,18 +983,18 @@ function get_self_url($permalink,$unwanted) {
 
     if (!$ajax)  {
         if ($window) $page='_window';
-        $oTPL=dbx()->get_system_obj('dbxTPL');
-        $content=$oTPL->get_design_tpl($design,$page,$lng,'htm',1);
+        $o_tpl=dbx()->get_system_obj('dbxTPL');
+        $content=$o_tpl->get_design_tpl($design,$page,$lng,'htm',1);
 
         if (dbx()->is_admin_bypass_active()) {
-          $admin_bypass_alert=$oTPL->get_tpl('dbx|alert-warning', array(
+          $admin_bypass_alert=$o_tpl->get_tpl('dbx|alert-warning', array(
             'msg' => 'Admin Bypass ist aktiv'
           ));
           $modul_content=$admin_bypass_alert.'<br>'.$modul_content;
         }
 
         if (dbx()->is_demo_mode()) {
-          $demo_alert=$oTPL->get_tpl('dbx|alert-warning', array(
+          $demo_alert=$o_tpl->get_tpl('dbx|alert-warning', array(
             'msg' => 'Demo-Modus: Nur Ansicht. Änderungen sind gesperrt und Geheimnisse werden als ****** angezeigt.'
           ));
           $modul_content=$demo_alert.'<br>'.$modul_content;
@@ -2296,9 +1004,9 @@ function get_self_url($permalink,$unwanted) {
         if (dbx()->is_demo_mode()) {
           $content=(string)preg_replace('/<body\b/i', '<body data-dbx-demo-mode="read-only"', $content, 1);
           if (stripos($content, 'dbx/js/lib/demoMode.js') === false) {
-            $demoModeFile = dirname(__DIR__) . '/js/lib/demoMode.js';
-            $demoModeRevision = is_file($demoModeFile) ? (string) filemtime($demoModeFile) : '0';
-            $script='<script src="dbx/js/lib/demoMode.js?v=' . rawurlencode(dbx()->get_version() . '-' . $demoModeRevision) . '"></script>';
+            $demo_mode_file = dirname(__DIR__) . '/js/lib/demoMode.js';
+            $demo_mode_revision = is_file($demo_mode_file) ? (string) filemtime($demo_mode_file) : '0';
+            $script='<script src="dbx/js/lib/demoMode.js?v=' . rawurlencode(dbx()->get_version() . '-' . $demo_mode_revision) . '"></script>';
             $content=(string)preg_replace('/<\/body>/i', $script.'</body>', $content, 1);
           }
         }
@@ -2370,60 +1078,6 @@ function get_self_url($permalink,$unwanted) {
   }
 
 
-
-
-  /**
-   * Baut die zentrale Ablehnung fuer einen ungueltigen Action-Request.
-   *
-   * Der Modulcode wird in diesem Fall nicht ausgefuehrt. Die Meldung enthaelt
-   * bewusst niemals den uebergebenen Token. HTML-Ausgaben verwenden dbxTPL;
-   * API-Aufrufe erhalten eine kleine JSON-Fehlerstruktur.
-   *
-   * @param array $policy Erkannte Action-Policy.
-   * @return string Antwortinhalt.
-   */
-  private function reject_action_request(array $policy): string {
-    http_response_code(403);
-
-    $action = (string)($policy['action'] ?? 'action');
-    $params = (array)($policy['params'] ?? array());
-    $modul = (string)($params['dbx_modul'] ?? dbx()->get_system_var('dbx_modul', '', 'parameter'));
-
-    try {
-      dbx()->sys_msg(
-        'security',
-        'Action-Token abgewiesen',
-        $action,
-        'ungueltiger oder fehlender dbx_token',
-        array(
-          'modul' => $modul,
-          'bindings' => (array)($policy['bindings'] ?? array()),
-          'source' => (string)($policy['source'] ?? ''),
-        )
-      );
-    } catch (Throwable $e) {
-      dbx()->debug('Action-Token-Ablehnung konnte nicht protokolliert werden: ' . $e->getMessage());
-    }
-
-    $message = 'Die Aktion wurde aus Sicherheitsgründen nicht ausgeführt. Bitte laden Sie die Ausgangsseite neu und verwenden Sie den dort angebotenen Aktionslink.';
-    $api = (int)dbx()->get_system_var('dbx_api', 0, 'int') === 1;
-
-    if ($api) {
-      if (!headers_sent()) {
-        header('Content-Type: application/json; charset=UTF-8');
-      }
-      return (string)json_encode(array(
-        'ok' => false,
-        'status' => 403,
-        'error' => 'invalid_action_token',
-        'message' => $message,
-      ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    }
-
-    $tpl = dbx()->get_system_obj('dbxTPL');
-    return $tpl->get_tpl('dbx|alert-warning', array('msg' => $message));
-  }
-
    // - - - - - - - - - - - - - - - - - - - - -
 
    function run() {
@@ -2453,7 +1107,7 @@ function get_self_url($permalink,$unwanted) {
       
 
       if ($modul) {
-        $access=dbx()->can_modul($modul);
+        $access=dbx()->has_module_access($modul);
         if (!$access) {
             $perma=dbx()->get_system_var('dbx_permalink');
             if ( $perma && !$uid) dbx()->set_remember_var('dbx_redir_after_login',$perma,'dbx');
@@ -2468,11 +1122,11 @@ function get_self_url($permalink,$unwanted) {
           dbx()->set_system_var('dbx_activ_modul'  , $modul);  // use 4 session
           dbx()->set_system_var('dbx_activ_action' ,$action);  // use 4 session
 
-          $actionPolicy = $this->current_action_policy();
-          if ($actionPolicy && !$this->current_action_request_is_valid($actionPolicy)) {
-            $content = $this->reject_action_request($actionPolicy);
+          $action_policy = $this->current_action_policy();
+          if ($action_policy && !$this->current_action_request_is_valid($action_policy)) {
+            $content = $this->reject_action_request($action_policy);
           } else {
-            $dbxModul=dbx()->get_modul_obj($modul);
+            $dbx_modul=dbx()->get_modul_obj($modul);
             $mid=dbx()->get_system_var('dbx_activ_modul_id',0,'*');
 
             dbx()->set_system_var('dbx_activ_modul_id',$mid);
@@ -2484,7 +1138,7 @@ function get_self_url($permalink,$unwanted) {
             if ($cid) dbx()->set_modul_var('cid', $cid);
             if ($root !== '') dbx()->set_modul_var('root', $root);
 
-            $content=dbx()->run_owner($dbxModul);
+            $content=dbx()->run_owner($dbx_modul);
           }
 
 

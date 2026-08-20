@@ -14,8 +14,8 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 trait dbxShopAdminContentServiceTrait {
 
 
-   private function legalPage(): string {
-      return $this->shopLegalCmsPage(
+   private function legal_page(): string {
+      return $this->shop_legal_cms_page(
          'legal',
          'Rechtstexte',
          'Diese Seite kommt aus dem CMS über den stabilen Permalink /shop-rechtstexte. Inhalte wie Anbieterkennzeichnung, AGB, Zahlung, Versand und Datenschutz-Hinweise werden dort gepflegt.',

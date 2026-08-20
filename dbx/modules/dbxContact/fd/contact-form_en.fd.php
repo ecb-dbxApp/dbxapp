@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Contact form';
 $messages['bar_subtitle'] = 'Send us a message';
 $messages['request_success'] = 'Your contact request was sent successfully.';

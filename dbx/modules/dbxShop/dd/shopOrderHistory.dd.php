@@ -16,7 +16,7 @@ $table['update']='admin';
 $table['delete']='admin';
 $table['read_owner']='owner,admin';
 
-$addField = function($name, $type, $index, $length, $default, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $index, $length, $default, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -38,16 +38,16 @@ $addField = function($name, $type, $index, $length, $default, $label, $rules, $t
    $fields[]=$field;
 };
 
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('create_date','datetime','MUL','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
-$addField('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
-$addField('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
-$addField('update_uid','int','','11','0','Aktualisiert von','int','hidden');
-$addField('owner','int','','11','0','Owner','int','hidden');
-$addField('trash','int','MUL','1','0','Trash','int','hidden');
-$addField('order_id','int','MUL','11','0','Bestellung','int','text-label');
-$addField('event_type','varchar','MUL','40','note','Ereignis','parameter|max=40','text-label');
-$addField('old_value','varchar','','255','','Alter Wert','*|max=255','text-label');
-$addField('new_value','varchar','','255','','Neuer Wert','*|max=255','text-label');
-$addField('message','mediumtext','','-1','','Nachricht','*|max=3000','textarea-label',array('data'=>'rows=3'));
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('create_date','datetime','MUL','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
+$add_field('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
+$add_field('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
+$add_field('update_uid','int','','11','0','Aktualisiert von','int','hidden');
+$add_field('owner','int','','11','0','Owner','int','hidden');
+$add_field('trash','int','MUL','1','0','Trash','int','hidden');
+$add_field('order_id','int','MUL','11','0','Bestellung','int','text-label');
+$add_field('event_type','varchar','MUL','40','note','Ereignis','parameter|max=40','text-label');
+$add_field('old_value','varchar','','255','','Alter Wert','*|max=255','text-label');
+$add_field('new_value','varchar','','255','','Neuer Wert','*|max=255','text-label');
+$add_field('message','mediumtext','','-1','','Nachricht','*|max=3000','textarea-label',array('data'=>'rows=3'));
 ?>

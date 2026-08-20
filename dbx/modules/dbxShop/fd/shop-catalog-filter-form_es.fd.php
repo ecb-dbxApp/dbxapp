@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_title'] = 'Filtros del catálogo';
 $messages['attributes_heading'] = 'Propiedades';
 $messages['demo_title'] = 'Tienda de demostración – sin compra real';

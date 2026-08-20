@@ -1,36 +1,50 @@
-<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-admin-update">
+<div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-package-center" data-dbx="lib=adminUpdate|module=dbxAdmin">
  <form action="{action}" method="post" class="dbxAjax" data-target="dbx_target_{i}" id="dbxForm_{i}">
-  [tpl=dbx|module-bar]
-  <style>
-  .dbx-admin-update .dbx-update-body{padding:1rem}.dbx-admin-update .dbx-update-intro{max-width:920px;color:var(--dbx-text-muted,#64748b)}
-  .dbx-admin-update .dbx-update-status{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:.75rem;margin:1rem 0}
-  .dbx-admin-update .dbx-update-metric{padding:1rem;border:1px solid rgba(100,116,139,.22);border-radius:.85rem;background:var(--dbx-bg-panel,#fff);box-shadow:0 8px 22px rgba(15,23,42,.06)}
-  .dbx-admin-update .dbx-update-metric span{display:block;font-size:.75rem;color:var(--dbx-text-muted,#64748b);text-transform:uppercase;letter-spacing:.04em}.dbx-admin-update .dbx-update-metric strong{display:block;margin-top:.25rem;font-size:1.08rem;overflow-wrap:anywhere}
-  .dbx-admin-update .dbx-update-state{padding:.8rem 1rem;border-radius:.75rem;background:rgba(34,197,94,.1);color:#166534;font-weight:700}.dbx-admin-update .dbx-update-state.is-update{background:rgba(245,158,11,.14);color:#92400e}.dbx-admin-update .dbx-update-state.is-ready{background:rgba(37,99,235,.12);color:#1d4ed8}
-  .dbx-admin-update .dbx-update-actions{display:flex;flex-wrap:wrap;gap:.65rem;margin:1rem 0}.dbx-admin-update .dbx-update-notes{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}.dbx-admin-update .dbx-update-note{padding:1rem;border:1px solid rgba(100,116,139,.2);border-radius:.85rem;background:color-mix(in srgb,var(--dbx-bg-panel,#fff) 94%,var(--dbx-primary,#2563eb))}.dbx-admin-update .dbx-update-note h3{font-size:1rem;margin:0 0 .45rem}.dbx-admin-update .dbx-update-note p{margin:0;color:var(--dbx-text-muted,#64748b)}
-  @media(max-width:900px){.dbx-admin-update .dbx-update-status{grid-template-columns:1fr 1fr}}@media(max-width:560px){.dbx-admin-update .dbx-update-status,.dbx-admin-update .dbx-update-notes{grid-template-columns:1fr}}
-  </style>
-  <div class="dbx-update-body">
-   <div class="form_msg {msg_class} mb-3">{obj:form_msg}</div>
-   <p class="dbx-update-intro">{intro}</p>
-   <div class="dbx-update-status">
-    <div class="dbx-update-metric"><span>{current_label}</span><strong>{current_version}</strong></div>
-    <div class="dbx-update-metric"><span>{available_label}</span><strong>{available_version}</strong></div>
-    <div class="dbx-update-metric"><span>{staged_label}</span><strong>{staged_version}</strong></div>
-    <div class="dbx-update-metric"><span>{checked_label}</span><strong>{checked_at}</strong></div>
+  {form:bar}
+  <div class="dbx-package-body">
+   {form:message}
+   <p class="dbx-package-intro">{intro}</p>
+   <div class="dbx-package-metrics">
+    <div><span>{kernel_label}</span><strong>{kernel_version}</strong></div>
+    <div><span>{installed_label}</span><strong>{installed_count}</strong></div>
+    <div><span>{updates_label}</span><strong>{updates_count}</strong></div>
+    <div><span>{staged_label}</span><strong>{staged_count}</strong></div>
    </div>
-   <div class="dbx-update-state {status_class}"><i class="bi bi-shield-check"></i> {status_text}</div>
    [dbx:form]
-   <div class="dbx-update-actions">
-    <button class="btn btn-primary {start_class}" type="submit" name="update_operation" value="start"><i class="bi bi-cloud-arrow-down"></i> {start_label}</button>
-    <button class="btn btn-primary dbxConfirm {decision_class}" type="submit" name="update_operation" value="install" {install_disabled} data-confirm-title="{install_confirm_title}" data-confirm="{install_confirm}" data-confirm-hint="<small>{install_confirm_hint}</small>" data-confirm-buttons="yesno"><i class="bi bi-arrow-repeat"></i> {install_label}</button>
-    <button class="btn btn-outline-danger {decision_class}" type="submit" name="update_operation" value="stop" {stop_disabled}><i class="bi bi-stop-circle"></i> {stop_label}</button>
-    <button class="btn btn-outline-danger dbxConfirm" type="submit" name="update_operation" value="rollback" {rollback_disabled} data-confirm-title="{rollback_confirm_title}" data-confirm="{rollback_confirm}" data-confirm-hint="<small>{rollback_confirm_hint}</small>" data-confirm-buttons="yesno"><i class="bi bi-arrow-counterclockwise"></i> {rollback_label}</button>
+   <div class="dbx-package-actions">
+    <button class="btn btn-outline-primary" type="submit" name="update_operation" value="catalog_refresh"><i class="bi bi-arrow-clockwise"></i> {catalog_refresh_label}</button>
+    <button class="btn btn-primary" type="submit" name="update_operation" value="package_prepare" {prepare_disabled}><i class="bi bi-cloud-arrow-down"></i> {prepare_label}</button>
+    <button class="btn btn-success dbxConfirm" type="submit" name="update_operation" value="package_install" {install_disabled} data-confirm="{install_confirm}" data-confirm-buttons="yesno"><i class="bi bi-check2-circle"></i> {install_label}</button>
+    <button class="btn btn-outline-danger" type="submit" name="update_operation" value="package_stop" {stop_disabled}><i class="bi bi-stop-circle"></i> {stop_label}</button>
+    <button class="btn btn-outline-danger dbxConfirm" type="submit" name="update_operation" value="package_rollback" {rollback_disabled} data-confirm="{rollback_confirm}" data-confirm-buttons="yesno"><i class="bi bi-arrow-counterclockwise"></i> {rollback_label}</button>
    </div>
-   <div class="dbx-update-notes">
-    <article class="dbx-update-note"><h3><i class="bi bi-shield-lock"></i> {security_title}</h3><p>{security_text}</p></article>
-    <article class="dbx-update-note"><h3><i class="bi bi-database-check"></i> {database_title}</h3><p>{database_text}</p></article>
+   <nav class="dbx-package-nav" aria-label="Paketbereiche">
+    <a href="{action}#package-kernel"><i class="bi bi-cpu"></i> {nav_kernel}</a>
+    <a href="{action}#package-modules"><i class="bi bi-boxes"></i> {nav_modules}</a>
+    <a href="{action}#package-designs"><i class="bi bi-palette"></i> {nav_designs}</a>
+    <a href="{action}#package-marketplace"><i class="bi bi-shop"></i> {nav_marketplace}</a>
+   </nav>
+   <section id="package-kernel" class="dbx-package-section"><h2><i class="bi bi-cpu"></i> {nav_kernel}</h2><div class="dbx-market-grid">{kernel_html}</div></section>
+   <section id="package-modules" class="dbx-package-section"><h2><i class="bi bi-boxes"></i> {nav_modules}</h2><div class="dbx-market-grid">{modules_html}</div></section>
+   <section id="package-designs" class="dbx-package-section"><h2><i class="bi bi-palette"></i> {nav_designs}</h2><div class="dbx-market-grid">{designs_html}</div></section>
+   <section id="package-marketplace" class="dbx-package-section"><h2><i class="bi bi-shop"></i> {nav_marketplace}</h2>{marketplace_html}</section>
+   <div class="dbx-package-notes">
+    <article><h3><i class="bi bi-shield-lock"></i> {security_title}</h3><p>{security_text}</p></article>
+    <article><h3><i class="bi bi-building-check"></i> {vendor_title}</h3><p>{vendor_text}</p></article>
    </div>
   </div>
+  {form:footer}
  </form>
 </div>
+<style>
+.dbx-package-body{padding:1rem}.dbx-package-intro{max-width:980px;color:var(--dbx-text-muted,#64748b)}
+.dbx-package-metrics{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:.75rem;margin:1rem 0}.dbx-package-metrics>div,.dbx-market-card,.dbx-package-notes article{border:1px solid color-mix(in srgb,var(--dbx-primary,#2563eb) 18%,transparent);border-radius:.9rem;background:var(--dbx-bg-panel,#fff);box-shadow:0 8px 22px rgba(15,23,42,.06)}.dbx-package-metrics>div{padding:1rem}.dbx-package-metrics span{display:block;font-size:.75rem;text-transform:uppercase;color:var(--dbx-text-muted,#64748b)}.dbx-package-metrics strong{font-size:1.15rem}
+.dbx-package-actions,.dbx-package-nav{display:flex;flex-wrap:wrap;gap:.65rem;margin:1rem 0}.dbx-package-nav{position:sticky;top:.5rem;z-index:3;padding:.65rem;border-radius:.8rem;background:color-mix(in srgb,var(--dbx-bg-panel,#fff) 92%,var(--dbx-primary,#2563eb));box-shadow:0 8px 24px rgba(15,23,42,.1)}.dbx-package-nav a{padding:.55rem .8rem;border-radius:.65rem;text-decoration:none;font-weight:700}.dbx-package-nav a:hover{background:var(--dbx-primary,#2563eb);color:#fff}
+.dbx-package-section{padding-top:1rem;scroll-margin-top:5rem}.dbx-package-section>h2{font-size:1.15rem;margin:0 0 .75rem}.dbx-market-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:.85rem}.dbx-market-card{padding:1rem;min-width:0}.dbx-market-card.is-actionable{border-color:var(--dbx-primary,#2563eb)}.dbx-market-card.is-drift{border-color:#dc2626}.dbx-market-card-head{display:flex;justify-content:space-between;gap:.75rem}.dbx-market-card h3{font-size:1rem;margin:0}.dbx-market-card code{font-size:.72rem;overflow-wrap:anywhere}.dbx-market-actions{display:flex;flex-direction:column;align-items:flex-end;gap:.45rem}.dbx-market-select{white-space:nowrap;font-weight:700}.dbx-market-actions .btn{white-space:nowrap}.dbx-market-badges{margin:.65rem 0}.dbx-market-description{min-height:2.5rem;color:var(--dbx-text-muted,#64748b)}.dbx-market-version{font-size:.9rem}.dbx-market-permissions{margin-top:.65rem;font-size:.78rem;color:var(--dbx-text-muted,#64748b);overflow-wrap:anywhere}.dbx-market-empty{padding:1rem;border:1px dashed color-mix(in srgb,var(--dbx-primary,#2563eb) 30%,transparent);border-radius:.8rem}.dbx-market-vendor>h3{font-size:1rem;margin:1rem 0 .65rem}
+.dbx-market-identity{display:flex;align-items:center;gap:.75rem;min-width:0}.dbx-market-icon,.dbx-market-image{width:52px;height:52px;flex:0 0 52px;border-radius:.8rem}.dbx-market-icon{display:grid;place-items:center;background:color-mix(in srgb,var(--dbx-primary,#2563eb) 14%,var(--dbx-bg-panel,#fff));color:var(--dbx-primary,#2563eb);font-size:1.45rem}.dbx-market-image{object-fit:cover;border:1px solid color-mix(in srgb,var(--dbx-primary,#2563eb) 20%,transparent)}
+.dbx-package-lazy{grid-column:1/-1;min-height:5rem;display:grid;place-items:center}.dbx-package-loader{display:flex;align-items:center;justify-content:center;gap:.55rem;width:100%;min-height:5rem;padding:1rem;border:1px dashed color-mix(in srgb,var(--dbx-primary,#2563eb) 35%,transparent);border-radius:.8rem;color:var(--dbx-primary,#2563eb);font-weight:700;text-decoration:none;background:color-mix(in srgb,var(--dbx-bg-panel,#fff) 96%,var(--dbx-primary,#2563eb))}.dbx-package-loader:hover{border-style:solid;background:color-mix(in srgb,var(--dbx-bg-panel,#fff) 90%,var(--dbx-primary,#2563eb))}
+.dbx-package-lazy[data-dbx-package-state="loaded"]{display:contents}
+.dbx-package-loader.is-error{color:#b91c1c;border-color:#ef4444;background:color-mix(in srgb,var(--dbx-bg-panel,#fff) 92%,#ef4444)}
+.dbx-package-notes{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.25rem}.dbx-package-notes article{padding:1rem}.dbx-package-notes h3{font-size:1rem}.dbx-package-notes p{margin:0;color:var(--dbx-text-muted,#64748b)}
+@media(max-width:800px){.dbx-package-metrics{grid-template-columns:1fr 1fr}.dbx-package-notes{grid-template-columns:1fr}.dbx-package-nav{position:static}}@media(max-width:480px){.dbx-package-metrics{grid-template-columns:1fr}.dbx-package-actions .btn{width:100%}.dbx-market-grid{grid-template-columns:1fr}}
+</style>

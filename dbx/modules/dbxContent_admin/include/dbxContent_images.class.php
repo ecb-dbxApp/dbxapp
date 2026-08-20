@@ -68,7 +68,7 @@ Class dbxContent_images {
       }
 
 
-      $oForm = dbx()->get_system_obj('dbxForm');
+      $o_form = dbx()->get_system_obj('dbxForm');
       $db    = dbx()->get_system_obj('dbxDB');
       //$path  = dbx()->get_base_dir().'dbx/modules/dbxContent/img/';
       //$url   = dbx()->get_base_url().'dbx/modules/dbxContent/img/';
@@ -86,52 +86,51 @@ Class dbxContent_images {
       if (!is_array($data)) { return "Content ID ($rid) nicht gefunden"; }
 
 
-      $oForm->init('dbxContent_image_'.$iid,'form-images');
-      $oForm->_data  =$data;
-      $oForm->_action="?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=images&rid=$rid&iid=$iid"; // set_action() rid 'new' or record.id
-      if (!$rid) $oForm->_tpl='form-images_wait';
+      $o_form->init('dbxContent_image_'.$iid,'form-images');
+      $o_form->set_data($data);
+      $o_form->set_action("?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=images&rid=$rid&iid=$iid");
+      if (!$rid) $o_form->set_template('form-images_wait');
 
       if ($rid) {
-        $oForm->add_fld('img_alt_'.$iid,'text-label'    ,rules: 'words',label: 'Kurtz Beschreibung');  //#+
-        $oForm->add_fld('img_des_'.$iid,'textarea-label',rules: 'words',label: 'Beschreibung');        //#+
+        $o_form->add_fld('img_alt_'.$iid,'text-label'    ,rules: 'words',label: 'Kurtz Beschreibung');  //#+
+        $o_form->add_fld('img_des_'.$iid,'textarea-label',rules: 'words',label: 'Beschreibung');        //#+
       }
 
 
-      $submit=$oForm->submit();
+      $submit=$o_form->submit();
       if ($submit) {
         $img_file=dbx()->get_modul_var($obs_key,'no-img.png','filename-img');
 
         dbx()->debug("##GEt val=($obs_key) for=($img_key) val=($img_file)");
 
         if ($img_file) {
-           $oForm->_post[$img_key]=$img_file;
-           $ok=$oForm->save_post($tab_content,$rid);
-           if ($ok) $oForm->_msg_success="Bild: ($img_file)";
-           //$oForm->_data[$img_key]=$img_file;
+           $o_form->set_post_value($img_key, $img_file);
+           $ok=$o_form->save_post($tab_content,$rid);
+           if ($ok) $o_form->_msg_success="Bild: ($img_file)";
         } else {
-           $oForm->add_fld_error($obs_key,'x');
+           $o_form->add_fld_error($obs_key,'x');
            $imgag_file=dbx()->get_request_var($obs_key,0,'*');
-           $oForm->_msg_error="Kein Bild: ($img_file)";
+           $o_form->_msg_error="Kein Bild: ($img_file)";
         }
       }
       //dbx_debug("FORM submit=($submit)",$_GET,$_POST);
 
       if (!empty($_FILES) ) {
-        $oUpload=dbx()->get_system_obj('dbxUpload');  // https://github.com/verot/class.upload.php
-        $oUpload->upload($_FILES['upload_file']);
-        $oUpload->allowed            = array('image/*');
-        $oUpload->file_overwrite     = true;
+        $o_upload=dbx()->get_system_obj('dbxUpload');  // https://github.com/verot/class.upload.php
+        $o_upload->upload($_FILES['upload_file']);
+        $o_upload->allowed            = array('image/*');
+        $o_upload->file_overwrite     = true;
         //$oUpload->file_new_name_body = 'avatar';
-        $oUpload->image_resize       = true;
-        $oUpload->image_ratio_crop   = true;
-        $oUpload->image_x            = 1280;
-        $oUpload->image_y            = 800;
+        $o_upload->image_resize       = true;
+        $o_upload->image_ratio_crop   = true;
+        $o_upload->image_x            = 1280;
+        $o_upload->image_y            = 800;
 
         //$oUpload->image_ratio_y      = true;
-        $oUpload->process($path);
-        if ($oUpload->processed) {
-          $img=$oUpload->file_dst_pathname;
-          $uploaded_name = $oUpload->file_dst_name;
+        $o_upload->process($path);
+        if ($o_upload->processed) {
+          $img=$o_upload->file_dst_pathname;
+          $uploaded_name = $o_upload->file_dst_name;
           $webp_name = $this->convert_image_to_webp($img);
           if ($webp_name !== '') {
             $uploaded_name = $webp_name;
@@ -139,31 +138,31 @@ Class dbxContent_images {
           $field_values['id']=$rid;
           $field_values[$img_key]=$uploaded_name;
 
-          $ok=$oForm->save_post($tab_content,$rid,$field_values);
+          $ok=$o_form->save_post($tab_content,$rid,$field_values);
 
           //$ok=$db->save($tab_content,$field_values,$rid);
           if ($ok) {
             $data[$img_key]=$uploaded_name;
             $url_img_ext=$url.$uploaded_name;
             $img_src    =$uploaded_name;
-            $oForm->set_msg_ok("Bild Datei erfolgreich hochgeladen.");
+            $o_form->set_msg_ok("Bild Datei erfolgreich hochgeladen.");
           }
         } else {
-          $content= 'error : ' . $oUpload->error;
-          $oForm->set_msg_error("Bild Datei nicht hochgeladen.");
+          $content= 'error : ' . $o_upload->error;
+          $o_form->set_msg_error("Bild Datei nicht hochgeladen.");
         }
-        $oUpload->clean();
+        $o_upload->clean();
   		} else {
         // Update Data if Filebrauser select Img
 
       }
 
-      $oForm->_msg_info= 'Bild ('.$iid.')';
+      $o_form->_msg_info= 'Bild ('.$iid.')';
 
 
 
-      $oForm->_data=$this->check_data($iid,$oForm->_data);
-      $img_src=$oForm->_data[$img_key];
+      $o_form->set_data($this->check_data($iid, $o_form->get_data()));
+      $img_src=$o_form->get_data($img_key);
       $url_img_ext=$url.$img_src;
 
 
@@ -183,8 +182,8 @@ Class dbxContent_images {
 
 
 
-      $oForm->add_rep('rid',$rid);
-      $oForm->add_rep('iid',$iid);
+      $o_form->add_rep('rid',$rid);
+      $o_form->add_rep('iid',$iid);
 
 
 
@@ -196,11 +195,11 @@ Class dbxContent_images {
         $observ['value']  =  $rid; //  $img_src
         $observ['old']    =  $rid;
 
-        $oForm->add_obj('img_wait','modul|img_wait',"src=$url_img_ext");
-        $oForm->add_obj('msg','alert-warning','msg=Ein Content Bild kann erst nach dem Speichern der Systemdaten vom Content gewählt werden.');
-        $oForm->add_obj($observer,'observer',$observ);
+        $o_form->add_obj('img_wait','modul|img_wait',"src=$url_img_ext");
+        $o_form->add_obj('msg','alert-warning','msg=Ein Content Bild kann erst nach dem Speichern der Systemdaten vom Content gewählt werden.');
+        $o_form->add_obj($observer,'observer',$observ);
 
-        $oForm->add_js_observe($observer,11500);   // watch rid from content->sysdata
+        $o_form->add_js_observe($observer,11500);   // watch rid from content->sysdata
       }
 
       if ($rid) {
@@ -213,17 +212,17 @@ Class dbxContent_images {
 
         dbx()->debug("## images.class add_observer=($observer)",$observ);
 
-        $oForm->add_obj($observer,'dbx|observer',$observ);
+        $o_form->add_obj($observer,'dbx|observer',$observ);
 
-        $oForm->add_obj($img_key,'image-upload',$img_data);
+        $o_form->add_obj($img_key,'image-upload',$img_data);
         //$oForm->add_obj('content-modal','modal1b',$modal1);
-        $oForm->add_obj('button-modal' ,'button-modal1b',$modal1);
-        $oForm->add_obj('button-submit','button-submit','label=Save');
+        $o_form->add_obj('button-modal' ,'button-modal1b',$modal1);
+        $o_form->add_obj('button-submit','button-submit','label=Save');
 
-        $oForm->add_js_observe($observer,1500);   // watch Filebrauser select img
+        $o_form->add_js_observe($observer,1500);   // watch Filebrauser select img
         //$oForm->add_js("dbxUploadImg('#uploader_img_{i}_$iid');");
 
-        $oForm->add_js_call("uploader_img_{i}_$iid",'upload');
+        $o_form->add_js_call("uploader_img_{i}_$iid",'upload');
 
 
       }
@@ -239,7 +238,7 @@ Class dbxContent_images {
 
 
 
-      $content=$oForm->run();
+      $content=$o_form->run();
 
 
       return $content;

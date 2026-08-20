@@ -1,10 +1,10 @@
 <div class="dbx-panel dbx-ki-briefing-styles" data-dbx="lib=confirm|class=dbxConfirm|bind=button">
- [tpl=dbx|module-bar]
+ {form:bar}
  <div class="container py-4" style="max-width: 960px;">
   <p class="text-muted small">Schreibstile werden in KI-Auftraegen als Ton-Vorgabe eingefuegt. Standardwerte liegen in <code>cfg/writing_styles.php</code>; gespeicherte Werte ueberschreiben diese in der Modul-Config.</p>
 
   <form method="post" action="{save_url}">
-   {obj:form_msg}
+   {form:message}
    <div class="table-responsive">
     <table class="table table-sm align-middle">
      <thead>
@@ -31,7 +31,8 @@
     </button>
    </div>
    [dbx:form]
-  </form>
+   {form:footer}
+ </form>
 
   <template id="dbx-ki-style-row-tpl">
    <tr>

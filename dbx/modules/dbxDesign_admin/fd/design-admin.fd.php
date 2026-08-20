@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['list_title'] = 'Design Studio';
 $messages['list_subtitle'] = 'Personalisieren, neu erstellen und mit KI bearbeiten';
 $messages['action_ai_design'] = 'KI-Design';

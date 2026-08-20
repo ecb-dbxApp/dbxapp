@@ -3,7 +3,7 @@ namespace dbx\dbxShop;
 
 trait dbxShopServiceOrderPageServiceTrait {
 
-   private function publicOrderCard(array $order): string {
+   private function public_order_card(array $order): string {
       $texts = $this->texts('dbxShop|shop-orders');
       $items = '';
       foreach ((array)($order['items'] ?? array()) as $item) {
@@ -12,7 +12,7 @@ trait dbxShopServiceOrderPageServiceTrait {
       if ($items === '') {
          $items = '<li><span>' . $this->h($texts->get_fd_message('no_items')) . '</span><strong></strong></li>';
       }
-      $statusLabels = array(
+      $status_labels = array(
          'new' => $texts->get_fd_message('status_new'),
          'payment_pending' => $texts->get_fd_message('status_payment_pending'),
          'paid' => $texts->get_fd_message('status_paid'),
@@ -21,14 +21,14 @@ trait dbxShopServiceOrderPageServiceTrait {
          'done' => $texts->get_fd_message('status_done'),
          'cancelled' => $texts->get_fd_message('status_cancelled'),
       );
-      $shippingLabels = array(
+      $shipping_labels = array(
          'open' => $texts->get_fd_message('shipping_open'),
          'ready' => $texts->get_fd_message('shipping_ready'),
          'shipped' => $texts->get_fd_message('shipping_shipped'),
          'delivered' => $texts->get_fd_message('shipping_delivered'),
          'returned' => $texts->get_fd_message('shipping_returned'),
       );
-      $withdrawalLabels = array(
+      $withdrawal_labels = array(
          'new' => $texts->get_fd_message('withdrawal_new'),
          'processing' => $texts->get_fd_message('withdrawal_processing'),
          'accepted' => $texts->get_fd_message('withdrawal_accepted'),
@@ -36,7 +36,7 @@ trait dbxShopServiceOrderPageServiceTrait {
          'refunded' => $texts->get_fd_message('withdrawal_refunded'),
          'closed' => $texts->get_fd_message('withdrawal_closed'),
       );
-      $historyLabels = array(
+      $history_labels = array(
          'created' => $texts->get_fd_message('history_created'),
          'status' => $texts->get_fd_message('history_status'),
          'payment_status' => $texts->get_fd_message('history_payment_status'),
@@ -50,39 +50,39 @@ trait dbxShopServiceOrderPageServiceTrait {
          'stock_release' => $texts->get_fd_message('history_stock_release'),
          'invoice_pdf' => $texts->get_fd_message('history_invoice_pdf'),
       );
-      $paymentStatus = (string)($order['payment_status'] ?? '');
-      $paymentStatusLabel = $texts->get_fd_message('payment_status_' . $paymentStatus, $paymentStatus);
+      $payment_status = (string)($order['payment_status'] ?? '');
+      $payment_status_label = $texts->get_fd_message('payment_status_' . $payment_status, $payment_status);
       $invoice = trim((string)($order['invoice_no'] ?? ''));
-      $trackingNo = trim((string)($order['tracking_no'] ?? ''));
-      $trackingUrl = trim((string)($order['tracking_url'] ?? ''));
+      $tracking_no = trim((string)($order['tracking_no'] ?? ''));
+      $tracking_url = trim((string)($order['tracking_url'] ?? ''));
       $channel = (string)($order['channel_key'] ?? 'shop');
       $extra = '';
-      $extra .= '<span>' . $this->h($texts->get_fd_message('origin')) . ': ' . $this->h($this->paymentProviderLabel($channel)) . '</span>';
+      $extra .= '<span>' . $this->h($texts->get_fd_message('origin')) . ': ' . $this->h($this->payment_provider_label($channel)) . '</span>';
       if ($invoice !== '') {
          $extra .= '<span>' . $this->h($texts->get_fd_message('invoice')) . ': ' . $this->h($invoice) . '</span>';
       }
       $extra .= '<span>' . $this->h($texts->get_fd_message('shipping')) . ': '
-         . $this->h($shippingLabels[(string)($order['shipping_status'] ?? 'open')] ?? (string)($order['shipping_status'] ?? 'open')) . '</span>';
-      if ($trackingNo !== '') {
-         $trackingText = $this->h($texts->get_fd_message('tracking')) . ': ' . $this->h($trackingNo);
-         $extra .= $trackingUrl !== ''
-            ? '<span><a href="' . $this->h($trackingUrl) . '" target="_blank" rel="noopener">' . $trackingText . '</a></span>'
-            : '<span>' . $trackingText . '</span>';
+         . $this->h($shipping_labels[(string)($order['shipping_status'] ?? 'open')] ?? (string)($order['shipping_status'] ?? 'open')) . '</span>';
+      if ($tracking_no !== '') {
+         $tracking_text = $this->h($texts->get_fd_message('tracking')) . ': ' . $this->h($tracking_no);
+         $extra .= $tracking_url !== ''
+            ? '<span><a href="' . $this->h($tracking_url) . '" target="_blank" rel="noopener">' . $tracking_text . '</a></span>'
+            : '<span>' . $tracking_text . '</span>';
       }
-      $withdrawalsHtml = '';
+      $withdrawals_html = '';
       foreach ((array)($order['withdrawals'] ?? array()) as $withdrawal) {
          $status = (string)($withdrawal['status'] ?? 'new');
          $created = trim((string)($withdrawal['create_date'] ?? ''));
-         $withdrawalsHtml .= '<li><span><strong>' . $this->h($withdrawalLabels[$status] ?? $status) . '</strong>' . ($created !== '' ? '<small>' . $this->h($created) . '</small>' : '') . '</span></li>';
+         $withdrawals_html .= '<li><span><strong>' . $this->h($withdrawal_labels[$status] ?? $status) . '</strong>' . ($created !== '' ? '<small>' . $this->h($created) . '</small>' : '') . '</span></li>';
       }
-      if ($withdrawalsHtml !== '') {
-         $withdrawalsHtml = '<section class="dbx-shop-public-order-withdrawals"><h4><i class="bi bi-arrow-counterclockwise"></i> '
-            . $this->h($texts->get_fd_message('withdrawals')) . '</h4><ul>' . $withdrawalsHtml . '</ul></section>';
+      if ($withdrawals_html !== '') {
+         $withdrawals_html = '<section class="dbx-shop-public-order-withdrawals"><h4><i class="bi bi-arrow-counterclockwise"></i> '
+            . $this->h($texts->get_fd_message('withdrawals')) . '</h4><ul>' . $withdrawals_html . '</ul></section>';
       }
-      $historyHtml = '';
-      $historyCount = 0;
+      $history_html = '';
+      $history_count = 0;
       foreach ((array)($order['history'] ?? array()) as $history) {
-         if ($historyCount >= 6) {
+         if ($history_count >= 6) {
             break;
          }
          $type = (string)($history['event_type'] ?? '');
@@ -91,108 +91,106 @@ trait dbxShopServiceOrderPageServiceTrait {
          $old = trim((string)($history['old_value'] ?? ''));
          $new = trim((string)($history['new_value'] ?? ''));
          $detail = $message !== '' ? $message : trim($old . ($old !== '' && $new !== '' ? ' -> ' : '') . $new);
-         $historyHtml .= '<li><span><strong>' . $this->h($historyLabels[$type] ?? $type) . '</strong>' . ($detail !== '' ? '<small>' . $this->h($detail) . '</small>' : '') . '</span>' . ($created !== '' ? '<time>' . $this->h($created) . '</time>' : '') . '</li>';
-         $historyCount++;
+         $history_html .= '<li><span><strong>' . $this->h($history_labels[$type] ?? $type) . '</strong>' . ($detail !== '' ? '<small>' . $this->h($detail) . '</small>' : '') . '</span>' . ($created !== '' ? '<time>' . $this->h($created) . '</time>' : '') . '</li>';
+         $history_count++;
       }
-      if ($historyHtml !== '') {
-         $historyHtml = '<section class="dbx-shop-public-order-history"><h4><i class="bi bi-clock-history"></i> '
-            . $this->h($texts->get_fd_message('history')) . '</h4><ol>' . $historyHtml . '</ol></section>';
+      if ($history_html !== '') {
+         $history_html = '<section class="dbx-shop-public-order-history"><h4><i class="bi bi-clock-history"></i> '
+            . $this->h($texts->get_fd_message('history')) . '</h4><ol>' . $history_html . '</ol></section>';
       }
-      $instructions = trim($this->paymentInstructions((string)($order['payment_provider'] ?? ''), $order));
-      $invoiceLink = '';
-      $canInvoice = $invoice !== '' || in_array((string)($order['status'] ?? ''), array('paid', 'processing', 'shipped', 'done'), true);
-      if ($canInvoice) {
-         $invoiceLink = '<a class="btn btn-outline-primary btn-sm" href="?dbx_modul=dbxShop&amp;dbx_run1=invoice_pdf&amp;order_no=' . rawurlencode((string)($order['order_no'] ?? '')) . '" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> '
+      $instructions = trim($this->payment_instructions((string)($order['payment_provider'] ?? ''), $order));
+      $invoice_link = '';
+      $can_invoice = $invoice !== '' || in_array((string)($order['status'] ?? ''), array('paid', 'processing', 'shipped', 'done'), true);
+      if ($can_invoice) {
+         $invoice_link = '<a class="btn btn-outline-primary btn-sm" href="?dbx_modul=dbxShop&amp;dbx_run1=invoice_pdf&amp;order_no=' . rawurlencode((string)($order['order_no'] ?? '')) . '" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> '
             . $this->h($texts->get_fd_message('invoice')) . '</a>';
       }
       return '<article class="dbx-shop-public-order">'
-         . '<header><div><strong>' . $this->h($order['order_no'] ?? '') . '</strong><small>' . $this->h($order['create_date'] ?? '') . '</small></div><span class="badge text-bg-primary">' . $this->h($statusLabels[(string)($order['status'] ?? '')] ?? ($order['status'] ?? '')) . '</span></header>'
+         . '<header><div><strong>' . $this->h($order['order_no'] ?? '') . '</strong><small>' . $this->h($order['create_date'] ?? '') . '</small></div><span class="badge text-bg-primary">' . $this->h($status_labels[(string)($order['status'] ?? '')] ?? ($order['status'] ?? '')) . '</span></header>'
          . '<ul>' . $items . '</ul>'
          . '<footer><span>' . $this->h($texts->get_fd_message('payment')) . ': '
-         . $this->h($this->paymentProviderLabel((string)($order['payment_provider'] ?? ''))) . ' / '
-         . $this->h($paymentStatusLabel) . '</span><strong>' . $this->money($order['total_gross'] ?? 0) . '</strong></footer>'
+         . $this->h($this->payment_provider_label((string)($order['payment_provider'] ?? ''))) . ' / '
+         . $this->h($payment_status_label) . '</span><strong>' . $this->money($order['total_gross'] ?? 0) . '</strong></footer>'
          . ($extra !== '' ? '<div class="dbx-shop-public-order-extra">' . $extra . '</div>' : '')
          . ($instructions !== '' && in_array((string)($order['payment_status'] ?? ''), array('open', 'created', 'pending'), true)
             ? '<div class="alert alert-info py-2 my-2"><strong>' . $this->h($texts->get_fd_message('payment_note')) . '</strong><br>' . nl2br($this->h($instructions)) . '</div>'
             : '')
-         . $withdrawalsHtml
-         . $historyHtml
-         . '<div class="dbx-shop-public-order-actions">' . $invoiceLink
+         . $withdrawals_html
+         . $history_html
+         . '<div class="dbx-shop-public-order-actions">' . $invoice_link
          . '<a class="btn btn-outline-secondary btn-sm" href="?dbx_modul=dbxShop&amp;dbx_run1=withdrawal"><i class="bi bi-arrow-counterclockwise"></i> '
          . $this->h($texts->get_fd_message('withdrawal')) . '</a></div>'
          . '</article>';
    }
 
-   private function startPayPalForOrder(array $order): string {
-      $returnUrl = $this->absoluteShopUrl('paypal_return', array('order_no' => (string)$order['order_no']));
-      $cancelUrl = $this->absoluteShopUrl('paypal_cancel', array('order_no' => (string)$order['order_no']));
-      $paypalOrder = $this->readJsonArray($order['payment_payload'] ?? '');
-      $paypalId = (string)($order['payment_reference'] ?? '');
-      $approvalUrl = $paypalId !== '' ? $this->paypal()->approvalUrl($paypalOrder) : '';
-      if ($paypalId === '' || $approvalUrl === '') {
-         $paypalOrder = $this->paypal()->createOrder($order, $returnUrl, $cancelUrl);
+   private function start_pay_pal_for_order(array $order): string {
+      $return_url = $this->absolute_shop_url('paypal_return', array('order_no' => (string)$order['order_no']));
+      $cancel_url = $this->absolute_shop_url('paypal_cancel', array('order_no' => (string)$order['order_no']));
+      $paypal_order = $this->read_json_array($order['payment_payload'] ?? '');
+      $paypal_id = (string)($order['payment_reference'] ?? '');
+      $approval_url = $paypal_id !== '' ? $this->paypal()->approval_url($paypal_order) : '';
+      if ($paypal_id === '' || $approval_url === '') {
+         $paypal_order = $this->paypal()->create_order($order, $return_url, $cancel_url);
       }
-      $paypalId = (string)($paypalOrder['id'] ?? '');
-      if ($paypalId === ''
-         || !$this->repo()->updateOrderPayment((int)$order['id'], 'paypal', 'created', $paypalId, $paypalOrder)) {
+      $paypal_id = (string)($paypal_order['id'] ?? '');
+      if ($paypal_id === ''
+         || !$this->repo()->update_order_payment((int)$order['id'], 'paypal', 'created', $paypal_id, $paypal_order)) {
          throw new \RuntimeException('PayPal-Zahlungsreferenz konnte nicht sicher gespeichert werden.');
       }
-      $approvalUrl = $this->paypal()->approvalUrl($paypalOrder);
-      if ($approvalUrl === '') {
+      $approval_url = $this->paypal()->approval_url($paypal_order);
+      if ($approval_url === '') {
          throw new \RuntimeException('PayPal hat keinen Freigabe-Link geliefert.');
       }
       if (!headers_sent()) {
-         header('Location: ' . $approvalUrl, true, 302);
+         header('Location: ' . $approval_url, true, 302);
          exit;
       }
-      return '<a class="btn btn-primary" href="' . $this->h($approvalUrl) . '">Weiter zu PayPal</a>';
+      return '<a class="btn btn-primary" href="' . $this->h($approval_url) . '">Weiter zu PayPal</a>';
    }
 
-   private function startAmazonPayForOrder(array $order): string {
-      $returnUrl = $this->absoluteShopUrl('amazon_pay_return', array('order_no' => (string)$order['order_no']));
-      $cancelUrl = $this->absoluteShopUrl('amazon_pay_cancel', array('order_no' => (string)$order['order_no']));
-      $checkoutSession = $this->readJsonArray($order['payment_payload'] ?? '');
-      $checkoutSessionId = (string)($order['payment_reference'] ?? '');
-      $redirectUrl = $checkoutSessionId !== '' ? $this->amazonPay()->redirectUrl($checkoutSession) : '';
-      if ($checkoutSessionId === '' || $redirectUrl === '') {
-         $checkoutSession = $this->amazonPay()->createCheckoutSession($order, $returnUrl, $cancelUrl);
+   private function start_amazon_pay_for_order(array $order): string {
+      $return_url = $this->absolute_shop_url('amazon_pay_return', array('order_no' => (string)$order['order_no']));
+      $cancel_url = $this->absolute_shop_url('amazon_pay_cancel', array('order_no' => (string)$order['order_no']));
+      $checkout_session = $this->read_json_array($order['payment_payload'] ?? '');
+      $checkout_session_id = (string)($order['payment_reference'] ?? '');
+      $redirect_url = $checkout_session_id !== '' ? $this->amazon_pay()->redirect_url($checkout_session) : '';
+      if ($checkout_session_id === '' || $redirect_url === '') {
+         $checkout_session = $this->amazon_pay()->create_checkout_session($order, $return_url, $cancel_url);
       }
-      $checkoutSessionId = (string)($checkoutSession['checkoutSessionId'] ?? $checkoutSession['id'] ?? '');
-      if ($checkoutSessionId === ''
-         || !$this->repo()->updateOrderPayment((int)$order['id'], 'amazon_pay', 'created', $checkoutSessionId, $checkoutSession)) {
+      $checkout_session_id = (string)($checkout_session['checkoutSessionId'] ?? $checkout_session['id'] ?? '');
+      if ($checkout_session_id === ''
+         || !$this->repo()->update_order_payment((int)$order['id'], 'amazon_pay', 'created', $checkout_session_id, $checkout_session)) {
          throw new \RuntimeException('Amazon-Pay-Referenz konnte nicht sicher gespeichert werden.');
       }
-      $redirectUrl = $this->amazonPay()->redirectUrl($checkoutSession);
-      if ($redirectUrl === '') {
+      $redirect_url = $this->amazon_pay()->redirect_url($checkout_session);
+      if ($redirect_url === '') {
          throw new \RuntimeException('Amazon Pay hat keinen Redirect-Link geliefert.');
       }
       if (!headers_sent()) {
-         header('Location: ' . $redirectUrl, true, 302);
+         header('Location: ' . $redirect_url, true, 302);
          exit;
       }
-      return '<a class="btn btn-primary" href="' . $this->h($redirectUrl) . '">Weiter zu Amazon Pay</a>';
+      return '<a class="btn btn-primary" href="' . $this->h($redirect_url) . '">Weiter zu Amazon Pay</a>';
    }
 
-   private function continueCheckoutOrder(array $order, string $paymentMethod): string {
-      $storedMethod = trim((string)($order['payment_provider'] ?? ''));
-      if ($storedMethod !== '') $paymentMethod = $storedMethod;
-      if ($paymentMethod === 'paypal') {
-         return $this->startPayPalForOrder($order);
+   private function continue_checkout_order(array $order, string $payment_method): string {
+      $stored_method = trim((string)($order['payment_provider'] ?? ''));
+      if ($stored_method !== '') $payment_method = $stored_method;
+      if ($payment_method === 'paypal') {
+         return $this->start_pay_pal_for_order($order);
       }
-      if ($paymentMethod === 'amazon_pay') {
-         return $this->startAmazonPayForOrder($order);
+      if ($payment_method === 'amazon_pay') {
+         return $this->start_amazon_pay_for_order($order);
       }
 
-      $this->sendOrderMails($order);
-      $this->startSession();
-      $_SESSION['dbxShop_cart'] = array();
-      return $this->orderSuccessPage($order, $paymentMethod);
+      $this->send_order_mails($order);
+      dbxShopSessionState::clear_cart();
+      return $this->order_success_page($order, $payment_method);
    }
 
-   private function orderIsPublicAccessible(array $order): bool {
-      $this->startSession();
-      $orderNo = (string)($order['order_no'] ?? '');
-      if ($orderNo !== '' && $orderNo === (string)($_SESSION['dbxShop_last_order_no'] ?? '')) {
+   private function order_is_public_accessible(array $order): bool {
+      $order_no = (string)($order['order_no'] ?? '');
+      if ($order_no !== '' && $order_no === dbxShopSessionState::last_order_no()) {
          return true;
       }
       $uid = function_exists('dbx') ? (int)dbx()->user() : 0;

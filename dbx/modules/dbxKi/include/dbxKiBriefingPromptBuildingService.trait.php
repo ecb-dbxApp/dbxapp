@@ -7,36 +7,36 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 
 trait dbxKiBriefingPromptBuildingServiceTrait {
 
-   private function buildStartMd(string $recipe, string $taskLabel, bool $heroAssets, string $contextHint, string $contentTemplate = ''): string {
-      if ($contentTemplate === '') {
-         $contentTemplate = $heroAssets ? self::CONTENT_TEMPLATE_DEFAULT : 'parent';
+   private function build_start_md(string $recipe, string $task_label, bool $hero_assets, string $context_hint, string $content_template = ''): string {
+      if ($content_template === '') {
+         $content_template = $hero_assets ? self::CONTENT_TEMPLATE_DEFAULT : 'parent';
       }
-      $zipExtra = $heroAssets
-         ? "- `assets/hero.jpg` (" . $this->heroImageSpecText() . ")\n"
+      $zip_extra = $hero_assets
+         ? "- `assets/hero.jpg` (" . $this->hero_image_spec_text() . ")\n"
          : '';
-      $assetsShort = $heroAssets
-         ? '**Ja:** genau `assets/hero.jpg` — ' . $this->heroImageSpecText() . '. `asset_ref` = `hero.jpg` (nicht aendern).'
+      $assets_short = $hero_assets
+         ? '**Ja:** genau `assets/hero.jpg` — ' . $this->hero_image_spec_text() . '. `asset_ref` = `hero.jpg` (nicht aendern).'
          : '**Nein.** Keinen `assets/` Ordner anlegen.';
-      return $this->renderTemplateFile('ki-start.md', array(
-         'task_label' => $taskLabel,
+      return $this->render_template_file('ki-start.md', array(
+         'task_label' => $task_label,
          'recipe' => $recipe,
-         'zip_extra' => $zipExtra,
-         'assets_short' => $assetsShort,
-         'context_hint' => $contextHint,
-         'content_layout_short' => $this->contentMarkersGuideShort($contentTemplate),
+         'zip_extra' => $zip_extra,
+         'assets_short' => $assets_short,
+         'context_hint' => $context_hint,
+         'content_layout_short' => $this->content_markers_guide_short($content_template),
       ));
    }
 
-   private function bundleRulesForRecipe(string $recipe, bool $withHero = false, string $contentTemplate = ''): array {
+   private function bundle_rules_for_recipe(string $recipe, bool $with_hero = false, string $content_template = ''): array {
       $actions = array();
       switch ($recipe) {
          case 'page.create.v1':
-            $actions = $withHero
+            $actions = $with_hero
                ? array('media.create_base64', 'page.create', 'media.assign')
                : array('page.create');
             break;
          case 'page.update.v1':
-            $actions = $withHero
+            $actions = $with_hero
                ? array('page.hero_replace_image', 'page.hero_create_image', 'media.create_base64', 'page.update', 'media.assign')
                : array('page.update');
             break;
@@ -50,16 +50,16 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
          'refs' => '$ref:{step_id}.{field}',
          'asset_ref' => 'Dateiname relativ zu assets/, z.B. hero.jpg',
          'forbidden' => array('*.delete', 'data_base64'),
-         'content' => $this->contentRulesForBriefing($contentTemplate, $withHero),
+         'content' => $this->content_rules_for_briefing($content_template, $with_hero),
       );
    }
 
-   private function contentRulesForBriefing(string $contentTemplate, bool $withHero): array {
-      if ($contentTemplate === '') {
-         $contentTemplate = $withHero ? self::CONTENT_TEMPLATE_DEFAULT : 'parent';
+   private function content_rules_for_briefing(string $content_template, bool $with_hero): array {
+      if ($content_template === '') {
+         $content_template = $with_hero ? self::CONTENT_TEMPLATE_DEFAULT : 'parent';
       }
-      $slots = $this->analyzeTemplateSlots($contentTemplate);
-      $markers = $this->contentMarkersMeta($slots);
+      $slots = $this->analyze_template_slots($content_template);
+      $markers = $this->content_markers_meta($slots);
       $rules = array(
          'format' => 'HTML in page.create/page.update content oder translation.content',
          'marker_type' => 'hr',
@@ -81,18 +81,18 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
          'inline_images' => 'CMS-Medien nie als files/media/... in img src setzen. Nach media.create_* inline_src oder inline_img verwenden: index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid={id} plus data-cms-media-id.',
          'package_pages' => 'Paket-Detailseiten (dbxapp-paket-*) per page.update mit patch.package_product_image=true auf home-package-* Produktbild umstellen. page.get liefert package_hint.',
       );
-      $rules['template'] = $contentTemplate;
+      $rules['template'] = $content_template;
       $rules['template_slots'] = $slots;
       return $rules;
    }
 
-   private function sanitizeEmbeddedPolicy(string $policy): string {
+   private function sanitize_embedded_policy(string $policy): string {
       $policy = strtolower(trim($policy));
       return in_array($policy, array('modify', 'preserve', 'reorder', 'remove'), true) ? $policy : 'preserve';
    }
 
-   private function embeddedPolicyText(string $policy, string $notes): string {
-      $policy = $this->sanitizeEmbeddedPolicy($policy);
+   private function embedded_policy_text(string $policy, string $notes): string {
+      $policy = $this->sanitize_embedded_policy($policy);
       $notes = trim($notes);
       $lines = array(
          'Standard: Bestehende eingebettete Medien, Videos und `[modul=...]...[/modul]`-Aufrufe exakt beibehalten.',
@@ -113,7 +113,7 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
       return implode("\n", $lines);
    }
 
-   private function moduleCallsFromContent(string $content): array {
+   private function module_calls_from_content(string $content): array {
       $calls = array();
       if (preg_match_all('/\[modul=([A-Za-z0-9_]+)\]([\s\S]*?)\[\/modul\]/i', $content, $m, PREG_SET_ORDER)) {
          foreach ($m as $idx => $match) {
@@ -128,7 +128,7 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
       return $calls;
    }
 
-   private function inlineMediaIdsFromContent(string $content): array {
+   private function inline_media_ids_from_content(string $content): array {
       $ids = array();
       if (preg_match_all('/data-cms-media-id=["\']?([0-9]+)/i', $content, $m)) {
          foreach ($m[1] as $id) {
@@ -143,28 +143,28 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
       return array_values(array_filter($ids));
    }
 
-   private function mediaContextForPage(int $pageId, string $content): array {
+   private function media_context_for_page(int $page_id, string $content): array {
       $db = dbx()->get_system_obj('dbxDB');
-      $mediaIds = $this->inlineMediaIdsFromContent($content);
-      $usageRows = $db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . (int) $pageId . ' AND active = 1'), '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
-      if (!is_array($usageRows)) {
-         $usageRows = array();
+      $media_ids = $this->inline_media_ids_from_content($content);
+      $usage_rows = $db->select('dbxMediaUsage', dbxContentMediaUsageScope::with_language('content_id = ' . (int) $page_id . ' AND active = 1'), '*', 'slot,sorter,id', 'ASC', '', 0, 0, 0);
+      if (!is_array($usage_rows)) {
+         $usage_rows = array();
       }
-      foreach ($usageRows as $usage) {
+      foreach ($usage_rows as $usage) {
          $id = (int) ($usage['media_id'] ?? 0);
          if ($id > 0) {
-            $mediaIds[$id] = $id;
+            $media_ids[$id] = $id;
          }
       }
 
       $rows = array();
-      foreach (array_values(array_unique($mediaIds)) as $id) {
+      foreach (array_values(array_unique($media_ids)) as $id) {
          $media = $db->select1('dbxMedia', (int) $id);
          if (!is_array($media)) {
             $rows[] = array('id' => (int) $id, 'missing' => 1);
             continue;
          }
-         $usage = array_values(array_filter($usageRows, function ($row) use ($id) {
+         $usage = array_values(array_filter($usage_rows, function ($row) use ($id) {
             return (int) ($row['media_id'] ?? 0) === (int) $id;
          }));
          $rows[] = array(
@@ -176,17 +176,17 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
             'slots' => array_values(array_unique(array_map(function ($row) {
                return (string) ($row['slot'] ?? '');
             }, $usage))),
-            'inline_reference' => in_array((int) $id, $this->inlineMediaIdsFromContent($content), true) ? 1 : 0,
+            'inline_reference' => in_array((int) $id, $this->inline_media_ids_from_content($content), true) ? 1 : 0,
          );
       }
       return $rows;
    }
 
-   private function renderedTextForPage(string $lng, int $pageId): string {
+   private function rendered_text_for_page(string $lng, int $page_id): string {
       try {
          $renderer = dbx()->get_include_obj('dbxContentRenderer', 'dbxContent');
-         $html = $this->withContentLng($lng, function () use ($renderer, $pageId) {
-            return $renderer->render($pageId);
+         $html = $this->with_content_lng($lng, function () use ($renderer, $page_id) {
+            return $renderer->render($page_id);
          });
          return $this->truncate(strip_tags((string) $html), 12000);
       } catch (\Throwable $e) {
@@ -194,16 +194,16 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
       }
    }
 
-   private function pageContextForKi(string $lng, array $page): array {
-      $pageId = (int) ($page['id'] ?? 0);
+   private function page_context_for_ki(string $lng, array $page): array {
+      $page_id = (int) ($page['id'] ?? 0);
       $content = (string) ($page['content'] ?? '');
       return array(
-         'render_reference' => '[modul=dbxContent]dbx_run1=show&cid=' . $pageId . '[/modul]',
-         'folder_label' => $this->folderLabel($lng, (int) ($page['folder'] ?? 0)),
+         'render_reference' => '[modul=dbxContent]dbx_run1=show&cid=' . $page_id . '[/modul]',
+         'folder_label' => $this->folder_label($lng, (int) ($page['folder'] ?? 0)),
          'template' => (string) ($page['template'] ?? ''),
-         'rendered_text_excerpt' => $this->renderedTextForPage($lng, $pageId),
-         'embedded_media' => $this->mediaContextForPage($pageId, $content),
-         'module_calls' => $this->moduleCallsFromContent($content),
+         'rendered_text_excerpt' => $this->rendered_text_for_page($lng, $page_id),
+         'embedded_media' => $this->media_context_for_page($page_id, $content),
+         'module_calls' => $this->module_calls_from_content($content),
          'rules' => array(
             'default' => 'Preserve embedded media and module calls exactly unless the briefing explicitly allows reorder/remove.',
             'media_paths' => 'Do not rewrite existing media paths manually. Keep existing HTML/media references or use dbxKi media steps for new hero assets.',
@@ -211,7 +211,7 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
       );
    }
 
-   private function embeddedSummaryForPrompt(array $context): string {
+   private function embedded_summary_for_prompt(array $context): string {
       $media = is_array($context['embedded_media'] ?? null) ? $context['embedded_media'] : array();
       $modules = is_array($context['module_calls'] ?? null) ? $context['module_calls'] : array();
       $lines = array();
@@ -229,30 +229,30 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
       return implode("\n", $lines);
    }
 
-   private function renderPageContextHtml(string $lng, array $page): string {
-      $context = $this->pageContextForKi($lng, $page);
+   private function render_page_context_html(string $lng, array $page): string {
+      $context = $this->page_context_for_ki($lng, $page);
       $media = is_array($context['embedded_media'] ?? null) ? $context['embedded_media'] : array();
       $modules = is_array($context['module_calls'] ?? null) ? $context['module_calls'] : array();
-      $mediaHtml = '';
+      $media_html = '';
       foreach ($media as $row) {
          $title = trim((string) ($row['title'] ?? $row['file_name'] ?? ''));
          $slots = implode(', ', array_filter((array) ($row['slots'] ?? array())));
-         $mediaHtml .= '<li><code>#' . (int) ($row['id'] ?? 0) . '</code> '
+         $media_html .= '<li><code>#' . (int) ($row['id'] ?? 0) . '</code> '
             . $this->esc($title !== '' ? $title : 'Medium')
             . ($slots !== '' ? ' <span class="text-muted">(' . $this->esc($slots) . ')</span>' : '')
             . '</li>';
       }
-      if ($mediaHtml === '') {
-         $mediaHtml = '<li class="text-muted">Keine eingebetteten Medien erkannt.</li>';
+      if ($media_html === '') {
+         $media_html = '<li class="text-muted">Keine eingebetteten Medien erkannt.</li>';
       }
 
-      $moduleHtml = '';
+      $module_html = '';
       foreach ($modules as $call) {
-         $moduleHtml .= '<li><code>[modul=' . $this->esc($call['modul'] ?? '') . ']</code> '
+         $module_html .= '<li><code>[modul=' . $this->esc($call['modul'] ?? '') . ']</code> '
             . '<span class="text-muted">' . $this->esc($call['params'] ?? '') . '</span></li>';
       }
-      if ($moduleHtml === '') {
-         $moduleHtml = '<li class="text-muted">Keine Modul-Aufrufe erkannt.</li>';
+      if ($module_html === '') {
+         $module_html = '<li class="text-muted">Keine Modul-Aufrufe erkannt.</li>';
       }
 
       return $this->tpl()->get_tpl('dbxKi|ki-briefing-page-update-context', array(
@@ -263,17 +263,17 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
          'permalink' => $this->esc((string) ($page['permalink'] ?? '')),
          'media_count' => (string) count($media),
          'module_count' => (string) count($modules),
-         'media_items' => $mediaHtml,
-         'module_items' => $moduleHtml,
+         'media_items' => $media_html,
+         'module_items' => $module_html,
       ));
    }
 
-   private function createPlacementTitle(string $lng, int $folderId, int $afterPageId): string {
-      $folder = $folderId > 0 ? $this->folderLabel($lng, $folderId) : '';
-      if ($afterPageId > 0) {
+   private function create_placement_title(string $lng, int $folder_id, int $after_page_id): string {
+      $folder = $folder_id > 0 ? $this->folder_label($lng, $folder_id) : '';
+      if ($after_page_id > 0) {
          try {
-            $page = $this->loadPage($lng, $afterPageId);
-            return 'Unter #' . $afterPageId . ' ' . (string) ($page['title'] ?? '') . ' in ' . $folder;
+            $page = $this->load_page($lng, $after_page_id);
+            return 'Unter #' . $after_page_id . ' ' . (string) ($page['title'] ?? '') . ' in ' . $folder;
          } catch (\Throwable $e) {
             return $folder !== '' ? $folder : 'Zielposition waehlen';
          }
@@ -281,32 +281,32 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
       return $folder !== '' ? $folder . ' / am Ende' : 'Zielposition waehlen';
    }
 
-   private function renderCreatePlacementHtml(string $lng, int $folderId, int $afterPageId): string {
-      $folderLabel = $folderId > 0 ? $this->folderLabel($lng, $folderId) : '';
-      $pageTitle = '';
+   private function render_create_placement_html(string $lng, int $folder_id, int $after_page_id): string {
+      $folder_label = $folder_id > 0 ? $this->folder_label($lng, $folder_id) : '';
+      $page_title = '';
       $sorter = '';
-      if ($afterPageId > 0) {
+      if ($after_page_id > 0) {
          try {
-            $page = $this->loadPage($lng, $afterPageId);
-            $pageTitle = (string) ($page['title'] ?? '');
-            $folderId = (int) ($page['folder'] ?? $folderId);
-            $folderLabel = $this->folderLabel($lng, $folderId);
-            $sorter = $this->sorterAfterPage($lng, $afterPageId);
+            $page = $this->load_page($lng, $after_page_id);
+            $page_title = (string) ($page['title'] ?? '');
+            $folder_id = (int) ($page['folder'] ?? $folder_id);
+            $folder_label = $this->folder_label($lng, $folder_id);
+            $sorter = $this->sorter_after_page($lng, $after_page_id);
          } catch (\Throwable $e) {
-            $afterPageId = 0;
+            $after_page_id = 0;
          }
       }
       return $this->tpl()->get_tpl('dbxKi|ki-briefing-page-create-placement', array(
-         'folder_id' => $folderId > 0 ? (string) $folderId : '-',
-         'folder_label' => $this->esc($folderLabel !== '' ? $folderLabel : 'Noch kein Zielordner gewaehlt'),
-         'after_page_id' => $afterPageId > 0 ? (string) $afterPageId : '-',
-         'after_page_title' => $this->esc($pageTitle !== '' ? $pageTitle : 'Keine Seite als Sortieranker'),
+         'folder_id' => $folder_id > 0 ? (string) $folder_id : '-',
+         'folder_label' => $this->esc($folder_label !== '' ? $folder_label : 'Noch kein Zielordner gewaehlt'),
+         'after_page_id' => $after_page_id > 0 ? (string) $after_page_id : '-',
+         'after_page_title' => $this->esc($page_title !== '' ? $page_title : 'Keine Seite als Sortieranker'),
          'sorter' => $this->esc($sorter !== '' ? $sorter : 'automatisch am Ende'),
       ));
    }
 
-   private function zipStructureCreate(bool $heroEnabled): string {
-      if ($heroEnabled) {
+   private function zip_structure_create(bool $hero_enabled): string {
+      if ($hero_enabled) {
          return "antwort.zip\n"
             . "├── auftrag.contract.json  (unveraendert aus dem Auftrag kopieren)\n"
             . "├── answer.json\n"
@@ -320,8 +320,8 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
          . "└── README.md";
    }
 
-   private function zipStructureUpdate(bool $heroChange): string {
-      if ($heroChange) {
+   private function zip_structure_update(bool $hero_change): string {
+      if ($hero_change) {
          return "antwort.zip\n"
             . "├── auftrag.contract.json  (unveraendert aus dem Auftrag kopieren)\n"
             . "├── answer.json\n"
@@ -335,11 +335,11 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
          . "└── README.md";
    }
 
-   private function assetsRulesCreate(bool $heroEnabled, string $heroBrief): string {
-      if ($heroEnabled) {
-         $brief = $heroBrief !== '' ? $heroBrief : 'passend zum Seitenthema';
+   private function assets_rules_create(bool $hero_enabled, string $hero_brief): string {
+      if ($hero_enabled) {
+         $brief = $hero_brief !== '' ? $hero_brief : 'passend zum Seitenthema';
          return "**Hero-Bild ist vorgesehen** (`briefing.hero.enabled = true`):\n\n"
-            . "1. Lege **genau eine** Datei an: `assets/hero.jpg` (" . $this->heroImageSpecText() . ").\n"
+            . "1. Lege **genau eine** Datei an: `assets/hero.jpg` (" . $this->hero_image_spec_text() . ").\n"
             . "2. Motiv: " . $brief . "\n"
             . "3. Den Alt-Text nur im vorgesehenen Feld `hero.alt` in `answer.json` eintragen.\n"
             . "4. Hero-Medienordner bleibt `img/hero`.\n"
@@ -352,11 +352,11 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
          . "3. Nicht ueber Bilder nachdenken; direkt Text/HTML in `content` schreiben.";
    }
 
-   private function assetsRulesUpdate(bool $heroChange, string $heroBrief): string {
-      if ($heroChange) {
-         $brief = $heroBrief !== '' ? $heroBrief : 'passend zur Seite';
+   private function assets_rules_update(bool $hero_change, string $hero_brief): string {
+      if ($hero_change) {
+         $brief = $hero_brief !== '' ? $hero_brief : 'passend zur Seite';
          return "**Neues Hero-Bild** (`hero` in change_fields):\n\n"
-            . "1. Lege `assets/hero.jpg` an (" . $this->heroImageSpecText() . "). Motiv: " . $brief . "\n"
+            . "1. Lege `assets/hero.jpg` an (" . $this->hero_image_spec_text() . "). Motiv: " . $brief . "\n"
             . "2. Fuer ein wirklich neues Hero-Bild: neue Medienverknuepfung in `img/hero` setzen.\n"
             . "3. Fuer eine reine Aenderung des bestehenden Hero-Bildes: nur die bestehende Hero-Datei ersetzen, keine neue Verknuepfung.\n"
             . "4. `asset_ref` bleibt `hero.jpg`. Kein `data_base64`. Keine weiteren Assets.";
@@ -366,15 +366,15 @@ trait dbxKiBriefingPromptBuildingServiceTrait {
          . "2. Nur die vorgesehenen Felder in `answer.json` ausfuellen.";
    }
 
-   private function assetsReadmeHero(string $heroBrief): string {
+   private function assets_readme_hero(string $hero_brief): string {
       return "KI: Lege hier die Datei hero.jpg ab.\n\n"
          . "Pfad in der Antwort-ZIP: assets/hero.jpg\n"
-         . "Groesse: " . $this->heroImageSpecText() . "\n"
+         . "Groesse: " . $this->hero_image_spec_text() . "\n"
          . "Der Dateiname ist im signierten Auftrag fest vorgegeben.\n"
-         . "Motiv: " . ($heroBrief !== '' ? $heroBrief : 'passend zum Seitenthema') . "\n";
+         . "Motiv: " . ($hero_brief !== '' ? $hero_brief : 'passend zum Seitenthema') . "\n";
    }
 
-   private function renderTemplateFile(string $basename, array $vars): string {
+   private function render_template_file(string $basename, array $vars): string {
       $path = dirname(__DIR__) . '/tpl/briefing/' . $basename;
       if (!is_file($path)) {
          return '';

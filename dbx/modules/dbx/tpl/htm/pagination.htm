@@ -1,18 +1,13 @@
 <div class="dbx_pagination">
-  <div class="dbx_pagination_info" aria-label="Report Werte">
-    <span class="dbx_pagination_info_item">Gesamt <strong data-report-count="total">{pagination:count_all}</strong></span>
-    <span class="dbx_pagination_info_item">Selektiert <strong data-report-count="filtered-total">{pagination:count_selected}</strong></span>
-    <span class="dbx_pagination_info_item">Ausgewählt <strong data-report-count="selected-total">{pagination:count_checked}</strong></span>
-  </div>
-  <nav aria-label="Pagination">
+  <nav aria-label="{ui:pagination}">
     <ul class="pagination">
       <li class="page-item">
-        <a class="page-link dbxAjax" href="{href_first}" aria-label="First">
+        <a class="page-link dbxAjax" href="{href_first}" aria-label="{ui:first}">
           <span aria-hidden="true">|&laquo;</span>
         </a>
       </li>
       <li class="page-item">
-        <a class="page-link dbxAjax" href="{href_prev}" aria-label="Prev">
+        <a class="page-link dbxAjax" href="{href_prev}" aria-label="{ui:previous}">
           <span aria-hidden="true">&lt;</span>
         </a>
       </li>
@@ -20,12 +15,12 @@
       <li class="page-item {active}" {current}><a class="page-link dbxAjax" {p_active} href="{href_page}">{p}</a></li>
       <hr class="dbx_split">
       <li class="page-item">
-        <a class="page-link dbxAjax" href="{href_next}" aria-label="Next">
+        <a class="page-link dbxAjax" href="{href_next}" aria-label="{ui:next}">
           <span aria-hidden="true">&gt;</span>
         </a>
       </li>
       <li class="page-item">
-        <a class="page-link dbxAjax" href="{href_last}" aria-label="Last">
+        <a class="page-link dbxAjax" href="{href_last}" aria-label="{ui:last}">
           <span aria-hidden="true">&raquo;|</span>
         </a>
       </li>

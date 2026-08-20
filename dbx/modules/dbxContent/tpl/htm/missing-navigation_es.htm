@@ -1,0 +1,20 @@
+<section class="container py-4 dbx-content-missing-navigation">
+  <div class="alert alert-warning shadow-sm" role="status">
+    <span class="text-uppercase small fw-semibold">Aviso</span>
+    <h1 class="h2 mt-2">No se encontró la página solicitada</h1>
+    <p>No existe contenido para <code>{requested_permalink}</code>. Seleccione una página disponible en el resumen.</p>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-primary" href="{home_url}">Ir a la página de inicio</a>
+      <a class="btn btn-outline-primary" href="{sitemap_url}">Mapa del sitio XML</a>
+    </div>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2 class="h4 mb-0">Resumen de páginas</h2>
+      <span class="badge text-bg-primary">{page_count}</span>
+    </div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush">{page_rows}</ul>
+    </div>
+  </div>
+</section>

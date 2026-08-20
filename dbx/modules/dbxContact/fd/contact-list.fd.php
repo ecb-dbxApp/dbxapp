@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['login_required'] = 'Bitte melden Sie sich an, um Ihre Kontaktanfragen zu sehen.';
 $messages['bar_title'] = 'Meine Anfragen';
 $messages['bar_subtitle'] = 'Status, Antworten und Verlauf Ihrer Tickets';

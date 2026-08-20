@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Stellt Datumsberechnungen unter Berücksichtigung arbeitsfreier Tage bereit.
+ */
 class dbxDateTime {
 
     public $holidays=array();
@@ -16,10 +19,10 @@ class dbxDateTime {
     }
 
 
-    function get_NextWorkingDay(DateTime $date): DateTime {
+    function get_next_working_day(DateTime $date): DateTime {
         // Feiertage in ein Array von DateTime-Objekten umwandeln
         $holiday      = $this->holidays;
-        $holidayDates = array_map(function($holiday) {
+        $holiday_dates = array_map(function($holiday) {
             return new DateTime($holiday);
         }, $holidays);
     
@@ -30,7 +33,7 @@ class dbxDateTime {
             // Prüfen, ob der Tag ein Wochenende oder ein Feiertag ist
         } while (in_array($date->format('N'), ['6', '7']) || in_array($date->format('Y-m-d'), array_map(function($holiday) {
             return $holiday->format('Y-m-d');
-        }, $holidayDates)));
+        }, $holiday_dates)));
     
         return $date;
     }

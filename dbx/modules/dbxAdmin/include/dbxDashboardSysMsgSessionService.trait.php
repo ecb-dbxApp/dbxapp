@@ -1,20 +1,9 @@
 <?php
 namespace dbx\dbxAdmin;
 
+require_once __DIR__ . '/dbxSystemMessageConfig.class.php';
+
 trait dbxDashboardSysMsgSessionServiceTrait {
-
-   private function normalize_sys_msg_level($level): string {
-      $level = strtolower(trim((string) $level));
-      if ($level === 'warn') {
-         $level = 'warning';
-      }
-
-      return in_array($level, array('error', 'warning', 'all'), true) ? $level : 'all';
-   }
-
-   private function sys_msg_level_config(): string {
-      return $this->normalize_sys_msg_level(dbx()->get_cfg('dbx', 'sys_msg_level', 'all'));
-   }
 
    private function sys_msg_level_options(string $current): string {
       $options = array(
@@ -32,16 +21,6 @@ trait dbxDashboardSysMsgSessionServiceTrait {
       return $html;
    }
 
-   private function set_sys_msg_level_config(string $level): bool {
-      $config = dbx()->get_cfg('dbx');
-      if (!is_array($config)) {
-         $config = array();
-      }
-
-      $config['sys_msg_level'] = $this->normalize_sys_msg_level($level);
-      return (int) dbx()->set_cfg('dbx', $config) > 0;
-   }
-
    private function process_sys_msg_level_action(): bool {
       $run2 = dbx()->get_modul_var('dbx_run2', '', 'parameter');
       if ($run2 !== 'sysmsg_level_save') {
@@ -53,11 +32,11 @@ trait dbxDashboardSysMsgSessionServiceTrait {
          $level = $_POST['sys_msg_level'] ?? 'all';
       }
 
-      return $this->set_sys_msg_level_config((string) $level);
+      return dbxSystemMessageConfig::save((string)$level);
    }
 
    private function sys_msg_level_control_data(): array {
-      $level = $this->sys_msg_level_config();
+      $level = dbxSystemMessageConfig::current();
       $states = array(
          'all' => array(
             'tone'  => 'on',
@@ -91,39 +70,39 @@ trait dbxDashboardSysMsgSessionServiceTrait {
    }
 
    private function sys_msg_level_control(): string {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-sysmsg-control', 'admin-dashboard-sysmsg-control');
-      $oForm->set_form_help_enabled(false);
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=sysmsg_level_save';
-      $oForm->_msg_info = '';
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-sysmsg-control', 'admin-dashboard-sysmsg-control');
+      $o_form->set_form_help_enabled(false);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=sysmsg_level_save');
+      $o_form->_msg_info = '';
 
       foreach ($this->sys_msg_level_control_data() as $key => $value) {
-         $oForm->add_rep($key, $value);
+         $o_form->add_rep($key, $value);
       }
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 
    private function sysmsg_panel_body_html(): string {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-sysmsg-body', 'admin-dashboard-sysmsg-body');
-      $oForm->set_form_help_enabled(false);
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run';
-      $oForm->_msg_info = '';
-      $oForm->add_rep('sysmsg_control', $this->sys_msg_level_control());
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-sysmsg-body', 'admin-dashboard-sysmsg-body');
+      $o_form->set_form_help_enabled(false);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run');
+      $o_form->_msg_info = '';
+      $o_form->add_rep('sysmsg_control', $this->sys_msg_level_control());
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 
    private function sysmsg_panel() {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-sysmsg-panel', 'admin-dashboard-sysmsg-panel');
-      $oForm->set_form_help_enabled(false);
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run';
-      $oForm->_msg_info = '';
-      $oForm->add_rep('sysmsg_body', $this->sysmsg_panel_body_html());
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-sysmsg-panel', 'admin-dashboard-sysmsg-panel');
+      $o_form->set_form_help_enabled(false);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run');
+      $o_form->_msg_info = '';
+      $o_form->add_rep('sysmsg_body', $this->sysmsg_panel_body_html());
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 
    private function session_db_enabled_config(): bool {
@@ -167,38 +146,38 @@ trait dbxDashboardSysMsgSessionServiceTrait {
    }
 
    private function session_panel_control_html(): string {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-session-control', 'admin-dashboard-session-control');
-      $oForm->set_form_help_enabled(false);
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run';
-      $oForm->_msg_info = '';
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-session-control', 'admin-dashboard-session-control');
+      $o_form->set_form_help_enabled(false);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run');
+      $o_form->_msg_info = '';
 
       foreach ($this->session_panel_body_data() as $key => $value) {
-         $oForm->add_rep($key, $value);
+         $o_form->add_rep($key, $value);
       }
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 
    private function session_panel_body_html(): string {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-session-body', 'admin-dashboard-session-body');
-      $oForm->set_form_help_enabled(false);
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run';
-      $oForm->_msg_info = '';
-      $oForm->add_rep('session_control', $this->session_panel_control_html());
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-session-body', 'admin-dashboard-session-body');
+      $o_form->set_form_help_enabled(false);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run');
+      $o_form->_msg_info = '';
+      $o_form->add_rep('session_control', $this->session_panel_control_html());
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 
    private function session_panel() {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-session-panel', 'admin-dashboard-session-panel');
-      $oForm->set_form_help_enabled(false);
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run';
-      $oForm->_msg_info = '';
-      $oForm->add_rep('session_body', $this->session_panel_body_html());
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-session-panel', 'admin-dashboard-session-panel');
+      $o_form->set_form_help_enabled(false);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run');
+      $o_form->_msg_info = '';
+      $o_form->add_rep('session_body', $this->session_panel_body_html());
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 }

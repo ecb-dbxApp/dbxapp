@@ -27,7 +27,7 @@ final class InstallationDbStub
     public array $rows = array();
     public array $inserted = array();
     public array $updated = array();
-    private int $nextId = 1;
+    private int $next_id = 1;
 
     public function get_dd_server_binding_info(string $dd): array
     {
@@ -43,7 +43,7 @@ final class InstallationDbStub
         string $dd,
         array $where,
         array $columns,
-        int $verifyAccess
+        int $verify_access
     ): array {
         foreach ($this->rows[$dd] ?? array() as $row) {
             $match = true;
@@ -63,12 +63,12 @@ final class InstallationDbStub
     public function insert(
         string $dd,
         array $values,
-        int $verifyAccess,
-        int $verifyFields,
-        int $verifyValues,
+        int $verify_access,
+        int $verify_fields,
+        int $verify_values,
         int $trace
     ): int {
-        $values['id'] = $this->nextId++;
+        $values['id'] = $this->next_id++;
         $this->rows[$dd][] = $values;
         $this->inserted[] = array('dd' => $dd, 'values' => $values);
         return (int)$values['id'];
@@ -78,9 +78,9 @@ final class InstallationDbStub
         string $dd,
         array $values,
         int $id,
-        int $verifyAccess,
-        int $verifyFields,
-        int $verifyValues,
+        int $verify_access,
+        int $verify_fields,
+        int $verify_values,
         int $trace
     ): int {
         foreach ($this->rows[$dd] ?? array() as $index => $row) {
@@ -103,7 +103,7 @@ final class InstallationDdStub
 {
     public array $calls = array();
     public array $transfers = array();
-    public bool $allTablesExist = false;
+    public bool $all_tables_exist = false;
 
     public function sync_dd_to_db(string $module, string $dd, string $mode): array
     {
@@ -116,26 +116,26 @@ final class InstallationDdStub
 
     public function get_table_exist(string $server, string $table): bool
     {
-        return $this->allTablesExist || $table === 'dbx_user';
+        return $this->all_tables_exist || $table === 'dbx_user';
     }
 
     public function transfer_table(
-        string $sourceServer,
-        string $sourceTable,
-        string $targetServer,
-        string $targetTable,
+        string $source_server,
+        string $source_table,
+        string $target_server,
+        string $target_table,
         string $mode,
-        int $createTarget,
-        int $truncateTarget
+        int $create_target,
+        int $truncate_target
     ): array {
         $this->transfers[] = array(
-            $sourceServer,
-            $sourceTable,
-            $targetServer,
-            $targetTable,
+            $source_server,
+            $source_table,
+            $target_server,
+            $target_table,
             $mode,
-            $createTarget,
-            $truncateTarget,
+            $create_target,
+            $truncate_target,
         );
         return array(
             'status' => $mode === 'reset' ? 'reset' : 'finished',
@@ -155,40 +155,40 @@ $db = new InstallationDbStub();
 $dd = new InstallationDdStub();
 $service = new dbxInstallationService($db, $dd);
 
-$catalog = $service->discoverDDs(array('dbx'));
+$catalog = $service->discover_dds(array('dbx'));
 installation_assert(count($catalog) >= 10, 'Core-DD-Katalog ist unvollstaendig.');
 installation_assert(
     in_array('dbx|dbxUser', array_column($catalog, 'dd'), true),
     'dbxUser fehlt im Installationskatalog.'
 );
-$userDefinition = array_values(array_filter(
+$user_definition = array_values(array_filter(
     $catalog,
     static fn(array $record): bool => $record['dd'] === 'dbx|dbxUser'
 ))[0] ?? array();
 installation_assert(
-    ($userDefinition['declared_server'] ?? '') === 'dbx|dbxUser.db3'
-        && ($userDefinition['table'] ?? '') === 'dbx_user',
+    ($user_definition['declared_server'] ?? '') === 'dbx|dbxUser.db3'
+        && ($user_definition['table'] ?? '') === 'dbx_user',
     'Deklarierter DD-Quellspeicher wird nicht erkannt.'
 );
 
-$schema = $service->provisionSchema(array('dbx'));
+$schema = $service->provision_schema(array('dbx'));
 installation_assert($schema['ok'] === true, 'DD-Provisionierung meldet einen Fehler.');
 installation_assert(
     $schema['finished'] === $schema['total'],
     'Nicht alle DDs wurden provisioniert.'
 );
 
-$dd->allTablesExist = true;
-$verification = $service->verifyBundledSchema(array('dbx'));
+$dd->all_tables_exist = true;
+$verification = $service->verify_bundled_schema(array('dbx'));
 installation_assert(
     $verification['ok'] === true
         && $verification['verified'] === $verification['total']
         && count($dd->calls) === $schema['total'] * 2,
     'Lesende DB3-Prüfung darf keine zusätzliche Schema-Synchronisierung auslösen.'
 );
-$dd->allTablesExist = false;
+$dd->all_tables_exist = false;
 
-$transfer = $service->transferDeclaredDataToServer('dbxApp', array('dbx'));
+$transfer = $service->transfer_declared_data_to_server('dbxApp', array('dbx'));
 installation_assert(
     $transfer['ok'] === true
         && $transfer['transferred'] === 1
@@ -198,44 +198,44 @@ installation_assert(
     'Optionale DD-Datenübertragung ist nicht deterministisch.'
 );
 
-$groups = $service->seedCoreGroups();
+$groups = $service->seed_core_groups();
 installation_assert(
     $groups['created'] === array('guest', 'member', 'admin'),
     'Core-Gruppen wurden nicht deterministisch angelegt.'
 );
-$groupsAgain = $service->seedCoreGroups();
+$groups_again = $service->seed_core_groups();
 installation_assert(
-    $groupsAgain['created'] === array()
-        && $groupsAgain['existing'] === array('guest', 'member', 'admin'),
+    $groups_again['created'] === array()
+        && $groups_again['existing'] === array('guest', 'member', 'admin'),
     'Core-Seed ist nicht idempotent.'
 );
 
-$admin = $service->createAdmin(
+$admin = $service->create_admin(
     'Test-Passwort-2026!',
     'admin@example.test',
     'de'
 );
 installation_assert($admin['created'] === true, 'Admin wurde nicht angelegt.');
-$adminRows = array_values(array_filter(
+$admin_rows = array_values(array_filter(
     $db->inserted,
     static fn(array $entry): bool => $entry['dd'] === 'dbx|dbxUser'
 ));
-installation_assert(count($adminRows) === 1, 'Admin wurde mehrfach geschrieben.');
+installation_assert(count($admin_rows) === 1, 'Admin wurde mehrfach geschrieben.');
 installation_assert(
     password_verify(
         'Test-Passwort-2026!',
-        (string)$adminRows[0]['values']['pass']
+        (string)$admin_rows[0]['values']['pass']
     ),
     'Admin-Passwort wurde nicht mit password_hash gespeichert.'
 );
 
-$adminAgain = $service->createAdmin(
+$admin_again = $service->create_admin(
     'Anderes-Passwort-2026!',
     'other@example.test',
     'en'
 );
 installation_assert(
-    $adminAgain['created'] === false
+    $admin_again['created'] === false
         && count(array_filter(
             $db->inserted,
             static fn(array $entry): bool => $entry['dd'] === 'dbx|dbxUser'
@@ -243,43 +243,43 @@ installation_assert(
     'Vorhandener Admin wurde bei erneutem Seed veraendert.'
 );
 
-$initialDb = new InstallationDbStub();
-$initialDd = new InstallationDdStub();
-$initialService = new dbxInstallationService($initialDb, $initialDd);
-$missingAdmin = $initialService->ensureInitialAdmin(
+$initial_db = new InstallationDbStub();
+$initial_dd = new InstallationDdStub();
+$initial_service = new dbxInstallationService($initial_db, $initial_dd);
+$missing_admin = $initial_service->ensure_initial_admin(
     false,
     'de',
     'Admin-2026!'
 );
 installation_assert(
-    $missingAdmin['exists'] === false
-        && $missingAdmin['created'] === false
-        && $missingAdmin['reset'] === false
-        && count($initialDb->inserted) === 0,
+    $missing_admin['exists'] === false
+        && $missing_admin['created'] === false
+        && $missing_admin['reset'] === false
+        && count($initial_db->inserted) === 0,
     'Ohne ausdrückliches Sicherstellen darf ein fehlender Admin nicht geschrieben werden.'
 );
-$initialAdmin = $initialService->ensureInitialAdmin(
+$initial_admin = $initial_service->ensure_initial_admin(
     true,
     'de',
     'Admin-2026!'
 );
-$initialRows = array_values(array_filter(
-    $initialDb->inserted,
+$initial_rows = array_values(array_filter(
+    $initial_db->inserted,
     static fn(array $entry): bool => $entry['dd'] === 'dbx|dbxUser'
 ));
 installation_assert(
-    $initialAdmin['exists'] === true
-        && $initialAdmin['created'] === true
-        && $initialAdmin['reset'] === true
-        && $initialAdmin['default_password'] === false
-        && $initialAdmin['password_reset_required'] === false
-        && count($initialRows) === 1
-        && password_verify('Admin-2026!', (string)$initialRows[0]['values']['pass']),
+    $initial_admin['exists'] === true
+        && $initial_admin['created'] === true
+        && $initial_admin['reset'] === true
+        && $initial_admin['default_password'] === false
+        && $initial_admin['password_reset_required'] === false
+        && count($initial_rows) === 1
+        && password_verify('Admin-2026!', (string)$initial_rows[0]['values']['pass']),
     'Ein leeres SQL-Ziel benötigt den in der Installation gewählten Administratorzugang.'
 );
 
-$existingDb = new InstallationDbStub();
-$existingDb->rows['dbx|dbxUser'][] = array(
+$existing_db = new InstallationDbStub();
+$existing_db->rows['dbx|dbxUser'][] = array(
     'id' => 17,
     'uname' => 'admin',
     'pass' => password_hash('Individuell-2026!', PASSWORD_DEFAULT),
@@ -293,32 +293,32 @@ $existingDb->rows['dbx|dbxUser'][] = array(
         'password_changed_at' => '2026-01-01T00:00:00+00:00',
     )),
 );
-$existingService = new dbxInstallationService(
-    $existingDb,
+$existing_service = new dbxInstallationService(
+    $existing_db,
     new InstallationDdStub()
 );
-$resetAdmin = $existingService->ensureInitialAdmin(
+$reset_admin = $existing_service->ensure_initial_admin(
     true,
     'de',
     'Neues-Admin-2026!'
 );
-$resetRow = $existingDb->rows['dbx|dbxUser'][0];
-$resetSettings = json_decode((string)$resetRow['settings'], true);
+$reset_row = $existing_db->rows['dbx|dbxUser'][0];
+$reset_settings = json_decode((string)$reset_row['settings'], true);
 installation_assert(
-    $resetAdmin['exists'] === true
-        && $resetAdmin['created'] === false
-        && $resetAdmin['reset'] === true
-        && $resetAdmin['default_password'] === false
-        && $resetAdmin['password_reset_required'] === false
-        && password_verify('Neues-Admin-2026!', (string)$resetRow['pass'])
-        && $resetRow['email'] === 'existing@example.test'
-        && $resetRow['roles'] === 'admin'
-        && (int)$resetRow['status'] === 1
-        && (int)$resetRow['is_confirm'] === 1
-        && ($resetSettings['dashboard_layout'] ?? '') === 'compact'
-        && !empty($resetSettings['password_changed_at'])
-        && !isset($resetSettings['password_reset_required'])
-        && count($existingDb->updated) === 1,
+    $reset_admin['exists'] === true
+        && $reset_admin['created'] === false
+        && $reset_admin['reset'] === true
+        && $reset_admin['default_password'] === false
+        && $reset_admin['password_reset_required'] === false
+        && password_verify('Neues-Admin-2026!', (string)$reset_row['pass'])
+        && $reset_row['email'] === 'existing@example.test'
+        && $reset_row['roles'] === 'admin'
+        && (int)$reset_row['status'] === 1
+        && (int)$reset_row['is_confirm'] === 1
+        && ($reset_settings['dashboard_layout'] ?? '') === 'compact'
+        && !empty($reset_settings['password_changed_at'])
+        && !isset($reset_settings['password_reset_required'])
+        && count($existing_db->updated) === 1,
     'Ein vorhandener Admin muss das in der Installation gewählte persönliche Passwort erhalten.'
 );
 

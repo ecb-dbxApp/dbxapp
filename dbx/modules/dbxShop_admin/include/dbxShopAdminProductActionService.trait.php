@@ -14,12 +14,12 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 trait dbxShopAdminProductActionServiceTrait {
 
 
-   private function productChannelExportStatusHtml(array $productChannel, $texts): string {
-      $status = trim((string)($productChannel['export_status'] ?? ''));
-      $message = trim((string)($productChannel['export_message'] ?? ''));
-      $listing = trim((string)($productChannel['external_listing_id'] ?? ''));
-      $offer = trim((string)($productChannel['external_offer_id'] ?? ''));
-      $date = trim((string)($productChannel['last_export_date'] ?? ''));
+   private function product_channel_export_status_html(array $product_channel, $texts): string {
+      $status = trim((string)($product_channel['export_status'] ?? ''));
+      $message = trim((string)($product_channel['export_message'] ?? ''));
+      $listing = trim((string)($product_channel['external_listing_id'] ?? ''));
+      $offer = trim((string)($product_channel['external_offer_id'] ?? ''));
+      $date = trim((string)($product_channel['last_export_date'] ?? ''));
       $html = '<div class="d-flex flex-wrap gap-2 align-items-center">';
       $html .= '<span class="badge text-bg-' . ($status === 'failed' ? 'danger' : ($status !== '' ? 'info' : 'secondary')) . '">' . $this->h($status !== '' ? $status : $texts->get_fd_message('mapping_not_exported')) . '</span>';
       if ($date !== '') $html .= '<span class="text-muted small">' . $this->h($date) . '</span>';
@@ -56,13 +56,13 @@ trait dbxShopAdminProductActionServiceTrait {
 
       switch ($action) {
          case 'save_channel_mapping':
-            $productId = max(0, (int)($_POST['product_id'] ?? 0));
-            $channelKey = trim((string)($_POST['channel_key_ref'] ?? ''));
-            if ($productId <= 0 || !preg_match('/^[A-Za-z0-9_-]+$/', $channelKey)) {
+            $product_id = max(0, (int)($_POST['product_id'] ?? 0));
+            $channel_key = trim((string)($_POST['channel_key_ref'] ?? ''));
+            if ($product_id <= 0 || !preg_match('/^[A-Za-z0-9_-]+$/', $channel_key)) {
                return false;
             }
             $contract = array(
-               'fid' => 'shop-product-channel-mapping-' . $productId . '-' . $channelKey,
+               'fid' => 'shop-product-channel-mapping-' . $product_id . '-' . $channel_key,
                'fd' => 'dbxShop|shop-product-channel',
                'fields' => array('active', 'channel_sku', 'price_gross', 'shipping_gross', 'external_listing_id', 'external_offer_id'),
             );
@@ -89,9 +89,9 @@ trait dbxShopAdminProductActionServiceTrait {
             break;
 
          case 'save_product_attributes':
-            $productId = max(0, (int)($_POST['product_id'] ?? 0));
-            if ($productId <= 0) return false;
-            $contract = array('fid' => 'shop-product-attributes-' . $productId, 'fd' => '', 'fields' => array());
+            $product_id = max(0, (int)($_POST['product_id'] ?? 0));
+            if ($product_id <= 0) return false;
+            $contract = array('fid' => 'shop-product-attributes-' . $product_id, 'fd' => '', 'fields' => array());
             break;
 
          case 'save_shipping_group':
@@ -144,7 +144,7 @@ trait dbxShopAdminProductActionServiceTrait {
       $form = new \dbxForm();
       $form->init((string)$contract['fid']);
       if ((string)($contract['fd'] ?? '') !== '') {
-         $form->_fd = (string)$contract['fd'];
+         $form->set_field_definition((string)$contract['fd']);
       }
       if (!empty($contract['all_fields'])) {
          $form->add_flds();
@@ -159,7 +159,7 @@ trait dbxShopAdminProductActionServiceTrait {
       }
 
       if (!$form->submit()) {
-         $this->postedFormError = 'Die Sicherheitsprüfung des Formulars ist fehlgeschlagen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.';
+         $this->posted_form_error = 'Die Sicherheitsprüfung des Formulars ist fehlgeschlagen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.';
          dbx()->sys_msg(
             'security',
             'dbxShop_admin',
@@ -171,7 +171,7 @@ trait dbxShopAdminProductActionServiceTrait {
       }
 
       if ($form->errors()) {
-         $this->postedFormError = 'Bitte prüfen Sie die markierten beziehungsweise erforderlichen Eingaben.';
+         $this->posted_form_error = 'Bitte prüfen Sie die markierten beziehungsweise erforderlichen Eingaben.';
          dbx()->sys_msg(
             'security',
             'dbxShop_admin',
@@ -185,7 +185,7 @@ trait dbxShopAdminProductActionServiceTrait {
       if ($action === 'save_product_attributes') {
          foreach ((array)($_POST['attr_value'] ?? array()) as $value) {
             if (is_array($value) || mb_strlen((string)$value) > 255) {
-               $this->postedFormError = 'Ein Attributwert ist ungültig oder länger als 255 Zeichen.';
+               $this->posted_form_error = 'Ein Attributwert ist ungültig oder länger als 255 Zeichen.';
                return false;
             }
          }
@@ -196,7 +196,7 @@ trait dbxShopAdminProductActionServiceTrait {
 
 
 
-   private function cmsEndpoint(string $run1, array $params = array(), bool $mutating = false): string {
+   private function cms_endpoint(string $run1, array $params = array(), bool $mutating = false): string {
       $url = '?dbx_modul=dbxContent_admin&dbx_run1=' . rawurlencode($run1);
       if ($mutating) {
          $params['dbx_token'] = dbx()->action_token('dbxContent_admin.actions');
@@ -206,20 +206,20 @@ trait dbxShopAdminProductActionServiceTrait {
 
 
 
-   private function shopEndpoint(string $run1, array $params = array(), bool $mutating = false): string {
+   private function shop_endpoint(string $run1, array $params = array(), bool $mutating = false): string {
       $url = dbx()->append_url_params('?dbx_modul=dbxShop_admin&dbx_run1=' . rawurlencode($run1), $params);
-      return $mutating ? $this->actionUrl($url) : $url;
+      return $mutating ? $this->action_url($url) : $url;
    }
 
 
 
-   private function readJsonPayload(): array {
+   private function read_json_payload(): array {
       return dbx()->get_json_request(true);
    }
 
 
 
-   private function ensureCmsShopMediaFolder(): void {
+   private function ensure_cms_shop_media_folder(): void {
       $dir = rtrim((string)dbx()->get_file_dir(), '/\\') . '/media/img/shop';
       if (!is_dir($dir)) {
          @mkdir($dir, 0775, true);
@@ -228,7 +228,7 @@ trait dbxShopAdminProductActionServiceTrait {
 
 
 
-   private function jsonExit(array $data): string {
+   private function json_exit(array $data): string {
       if (!headers_sent()) {
          header('Content-Type: application/json; charset=utf-8');
       }
@@ -238,72 +238,72 @@ trait dbxShopAdminProductActionServiceTrait {
 
 
 
-   private function assignMedia(): string {
-      if (!$this->checkActionToken('assign_media')) {
-         return $this->jsonExit(array('ok' => 0, 'msg' => $this->postedFormError));
+   private function assign_media(): string {
+      if (!$this->check_action_token('assign_media')) {
+         return $this->json_exit(array('ok' => 0, 'msg' => $this->posted_form_error));
       }
-      $payload = $this->readJsonPayload();
-      $productId = (int)($payload['product_id'] ?? 0);
-      $groupId = (int)($payload['group_id'] ?? 0);
-      $mediaId = (int)($payload['media_id'] ?? $payload['id'] ?? 0);
-      if ($mediaId <= 0 || ($productId <= 0 && $groupId <= 0)) {
-         return $this->jsonExit(array('ok' => 0, 'msg' => 'Bitte Artikel oder Artikelgruppe und ein Medium auswaehlen.'));
+      $payload = $this->read_json_payload();
+      $product_id = (int)($payload['product_id'] ?? 0);
+      $group_id = (int)($payload['group_id'] ?? 0);
+      $media_id = (int)($payload['media_id'] ?? $payload['id'] ?? 0);
+      if ($media_id <= 0 || ($product_id <= 0 && $group_id <= 0)) {
+         return $this->json_exit(array('ok' => 0, 'msg' => 'Bitte Artikel oder Artikelgruppe und ein Medium auswaehlen.'));
       }
 
-      $row = $this->repo()->saveMediaImage(
-         $productId,
-         $groupId,
-         $mediaId,
+      $row = $this->repo()->save_media_image(
+         $product_id,
+         $group_id,
+         $media_id,
          (string)($payload['title'] ?? ''),
          (string)($payload['alt'] ?? $payload['title'] ?? ''),
          !empty($payload['is_primary']) ? 1 : 0,
          (int)($payload['sorter'] ?? 100)
       );
       if (!$row) {
-         return $this->jsonExit(array('ok' => 0, 'msg' => 'Bild konnte nicht zugeordnet werden.'));
+         return $this->json_exit(array('ok' => 0, 'msg' => 'Bild konnte nicht zugeordnet werden.'));
       }
-      $this->syncShopMediaUsage();
-      return $this->jsonExit(array(
+      $this->sync_shop_media_usage();
+      return $this->json_exit(array(
          'ok' => 1,
          'image' => $row,
-         'url' => $this->mediaItemUrl($row, true),
+         'url' => \dbx\dbxShop\dbxShopMediaUrl::item($row, true),
       ));
    }
 
 
 
-   private function productTreeMove(): string {
-      if (!$this->checkActionToken('product_tree_move')) {
-         return $this->jsonExit(array('ok' => 0, 'msg' => $this->postedFormError));
+   private function product_tree_move(): string {
+      if (!$this->check_action_token('product_tree_move')) {
+         return $this->json_exit(array('ok' => 0, 'msg' => $this->posted_form_error));
       }
-      $this->ensureSeed();
-      $payload = $this->readJsonPayload();
+      $this->ensure_seed();
+      $payload = $this->read_json_payload();
       $type = (string)($payload['type'] ?? '');
-      $targetGroupId = (int)($payload['target_group_id'] ?? 0);
+      $target_group_id = (int)($payload['target_group_id'] ?? 0);
 
       if ($type === 'product') {
-         $productId = (int)($payload['product_id'] ?? 0);
-         if ($productId <= 0 || $targetGroupId <= 0) {
-            return $this->jsonExit(array('ok' => 0, 'msg' => 'Artikel und Zielgruppe sind erforderlich.'));
+         $product_id = (int)($payload['product_id'] ?? 0);
+         if ($product_id <= 0 || $target_group_id <= 0) {
+            return $this->json_exit(array('ok' => 0, 'msg' => 'Artikel und Zielgruppe sind erforderlich.'));
          }
-         $count = $this->repo()->setProductGroupForProducts(array($productId), $targetGroupId);
+         $count = $this->repo()->set_product_group_for_products(array($product_id), $target_group_id);
          if ($count <= 0) {
-            return $this->jsonExit(array('ok' => 0, 'msg' => 'Artikel konnte nicht verschoben werden.'));
+            return $this->json_exit(array('ok' => 0, 'msg' => 'Artikel konnte nicht verschoben werden.'));
          }
-         return $this->jsonExit(array('ok' => 1, 'msg' => 'Artikelgruppe wurde zugeordnet.'));
+         return $this->json_exit(array('ok' => 1, 'msg' => 'Artikelgruppe wurde zugeordnet.'));
       }
 
       if ($type === 'group') {
-         $groupId = (int)($payload['group_id'] ?? 0);
-         if ($groupId <= 0) {
-            return $this->jsonExit(array('ok' => 0, 'msg' => 'Artikelgruppe ist erforderlich.'));
+         $group_id = (int)($payload['group_id'] ?? 0);
+         if ($group_id <= 0) {
+            return $this->json_exit(array('ok' => 0, 'msg' => 'Artikelgruppe ist erforderlich.'));
          }
-         if (!$this->repo()->moveProductGroupParent($groupId, $targetGroupId)) {
-            return $this->jsonExit(array('ok' => 0, 'msg' => 'Artikelgruppe konnte nicht verschoben werden. Pruefen Sie, ob dadurch ein Kreis entstehen wuerde.'));
+         if (!$this->repo()->move_product_group_parent($group_id, $target_group_id)) {
+            return $this->json_exit(array('ok' => 0, 'msg' => 'Artikelgruppe konnte nicht verschoben werden. Pruefen Sie, ob dadurch ein Kreis entstehen wuerde.'));
          }
-         return $this->jsonExit(array('ok' => 1, 'msg' => 'Artikelgruppe wurde verschoben.'));
+         return $this->json_exit(array('ok' => 1, 'msg' => 'Artikelgruppe wurde verschoben.'));
       }
 
-      return $this->jsonExit(array('ok' => 0, 'msg' => 'Unbekannte Drag-Drop-Aktion.'));
+      return $this->json_exit(array('ok' => 0, 'msg' => 'Unbekannte Drag-Drop-Aktion.'));
    }
 }

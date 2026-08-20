@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'DD server bindings';
 $messages['bar_subtitle'] = 'Select DB3 and SQL servers independently for every DD';
 $messages['intro'] = 'Only differing targets are stored locally. Without a local binding the server declared by the DD remains active.';

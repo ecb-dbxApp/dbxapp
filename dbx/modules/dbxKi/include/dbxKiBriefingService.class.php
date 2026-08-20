@@ -8,6 +8,7 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
 require_once __DIR__ . '/dbxKiWritingStyles.class.php';
 require_once __DIR__ . '/dbxKiContractService.class.php';
+require_once __DIR__ . '/dbxKiValue.class.php';
 
 require_once __DIR__ . '/dbxKiBriefingCoreService.trait.php';
 require_once __DIR__ . '/dbxKiBriefingTemplateService.trait.php';

@@ -2,10 +2,7 @@
 
 $messages = array(
    'form_title' => 'Funktionaler Kern-Selbsttest',
-   'form_info' => 'Prueft DD-, FD-, Formular- und Datenfluss gemeinsam.',
-   'save_success' => 'Daten wurden gespeichert',
-   'save_succeass' => 'Daten wurden gespeichert',
-   'save_error' => 'Daten konnten nicht gespeichert werden',
+   'form_info' => 'Prüft DD-, FD-, Formular- und Datenfluss gemeinsam.',
    'report_title' => 'Kontrollierter Komponentenreport',
    'column_probe_key' => 'Pruefschluessel',
    'column_label' => 'Bezeichnung',

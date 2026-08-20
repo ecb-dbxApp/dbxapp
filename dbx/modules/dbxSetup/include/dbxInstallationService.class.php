@@ -40,13 +40,13 @@ class dbxInstallationService
      *   table:string
      * }>
      */
-    public function discoverDDs(array $modules = array()): array
+    public function discover_dds(array $modules = array()): array
     {
-        $moduleFilter = array();
+        $module_filter = array();
         foreach ($modules as $module) {
             $module = trim((string)$module);
             if ($module !== '') {
-                $moduleFilter[strtolower($module)] = true;
+                $module_filter[strtolower($module)] = true;
             }
         }
 
@@ -65,13 +65,13 @@ class dbxInstallationService
             if ($name === '' || str_starts_with($name, '.')) {
                 continue;
             }
-            if ($moduleFilter !== array()
-                && !isset($moduleFilter[strtolower($module)])
+            if ($module_filter !== array()
+                && !isset($module_filter[strtolower($module)])
             ) {
                 continue;
             }
 
-            $definition = $this->readDDTableDefinition($file);
+            $definition = $this->read_d_d_table_definition($file);
             $records[$module . '|' . $name] = array(
                 'module' => $module,
                 'name' => $name,
@@ -83,9 +83,9 @@ class dbxInstallationService
         }
 
         uksort($records, static function (string $left, string $right): int {
-            $leftCore = str_starts_with($left, 'dbx|') ? 0 : 1;
-            $rightCore = str_starts_with($right, 'dbx|') ? 0 : 1;
-            return $leftCore <=> $rightCore ?: strcasecmp($left, $right);
+            $left_core = str_starts_with($left, 'dbx|') ? 0 : 1;
+            $right_core = str_starts_with($right, 'dbx|') ? 0 : 1;
+            return $left_core <=> $right_core ?: strcasecmp($left, $right);
         });
 
         return array_values($records);
@@ -96,19 +96,19 @@ class dbxInstallationService
      * Scope. Installationscode muss dadurch keine Servernamen oder
      * Tabellennamen duplizieren.
      */
-    private function readDDTableDefinition(string $file): array
+    private function read_d_d_table_definition(string $file): array
     {
         if (!is_file($file) || !is_readable($file)) {
             return array();
         }
 
-        $definition = (static function (string $ddFile): array {
+        $definition = (static function (string $dd_file): array {
             $table = array();
             $fields = array();
             $indexes = array();
             $field = array();
             $index = array();
-            include $ddFile;
+            include $dd_file;
             return is_array($table) ? $table : array();
         })($file);
 
@@ -121,7 +121,7 @@ class dbxInstallationService
      * Die Methode schreibt nur den lokalen, releasegeschuetzten Binding-Teil.
      * Einzelne Bindungen koennen danach weiter unabhaengig angepasst werden.
      */
-    public function bindAllToServer(string $server, array $modules = array()): array
+    public function bind_all_to_server(string $server, array $modules = array()): array
     {
         $server = trim($server);
         if ($server === '') {
@@ -129,7 +129,7 @@ class dbxInstallationService
         }
 
         $bindings = array();
-        foreach ($this->discoverDDs($modules) as $record) {
+        foreach ($this->discover_dds($modules) as $record) {
             $bindings[$record['dd']] = $server;
         }
 
@@ -147,11 +147,11 @@ class dbxInstallationService
      *
      * @return array{ok:bool,total:int,finished:int,results:array,errors:array}
      */
-    public function provisionSchema(array $modules = array()): array
+    public function provision_schema(array $modules = array()): array
     {
         $results = array();
         $errors = array();
-        $records = $this->discoverDDs($modules);
+        $records = $this->discover_dds($modules);
 
         foreach ($records as $record) {
             $binding = $this->db->get_dd_server_binding_info($record['dd']);
@@ -208,13 +208,13 @@ class dbxInstallationService
      *
      * @return array{ok:bool,total:int,verified:int,results:array,errors:array}
      */
-    public function verifyBundledSchema(array $modules = array()): array
+    public function verify_bundled_schema(array $modules = array()): array
     {
         if (!method_exists($this->dd, 'get_table_exist')) {
             throw new RuntimeException('Die lesende DD-Strukturprüfung steht nicht zur Verfügung.');
         }
 
-        $records = $this->discoverDDs($modules);
+        $records = $this->discover_dds($modules);
         $results = array();
         $errors = array();
         $verified = 0;
@@ -264,12 +264,12 @@ class dbxInstallationService
      *
      * @return array{ok:bool,total:int,transferred:int,skipped:int,results:array,errors:array}
      */
-    public function transferDeclaredDataToServer(
-        string $targetServer,
+    public function transfer_declared_data_to_server(
+        string $target_server,
         array $modules = array()
     ): array {
-        $targetServer = trim($targetServer);
-        if ($targetServer === '') {
+        $target_server = trim($target_server);
+        if ($target_server === '') {
             throw new RuntimeException('Der Zielserver für die Datenübertragung fehlt.');
         }
         if (!method_exists($this->dd, 'get_table_exist')
@@ -282,21 +282,21 @@ class dbxInstallationService
         $errors = array();
         $transferred = 0;
         $skipped = 0;
-        $records = $this->discoverDDs($modules);
+        $records = $this->discover_dds($modules);
 
         foreach ($records as $record) {
-            $ddRef = (string)$record['dd'];
-            $sourceServer = trim((string)($record['declared_server'] ?? ''));
+            $dd_ref = (string)$record['dd'];
+            $source_server = trim((string)($record['declared_server'] ?? ''));
             $table = trim((string)($record['table'] ?? ''));
-            if ($sourceServer === ''
+            if ($source_server === ''
                 || $table === ''
-                || strcasecmp($sourceServer, $targetServer) === 0
-                || !$this->dd->get_table_exist($sourceServer, $table)
+                || strcasecmp($source_server, $target_server) === 0
+                || !$this->dd->get_table_exist($source_server, $table)
             ) {
-                $results[$ddRef] = array(
+                $results[$dd_ref] = array(
                     'status' => 'skipped',
-                    'source' => $sourceServer,
-                    'target' => $targetServer,
+                    'source' => $source_server,
+                    'target' => $target_server,
                     'table' => $table,
                 );
                 $skipped++;
@@ -304,9 +304,9 @@ class dbxInstallationService
             }
 
             $this->dd->transfer_table(
-                $sourceServer,
+                $source_server,
                 $table,
-                $targetServer,
+                $target_server,
                 $table,
                 'reset',
                 0,
@@ -315,9 +315,9 @@ class dbxInstallationService
             $state = array();
             for ($step = 0; $step < 100000; $step++) {
                 $state = $this->dd->transfer_table(
-                    $sourceServer,
+                    $source_server,
                     $table,
-                    $targetServer,
+                    $target_server,
                     $table,
                     'step',
                     0,
@@ -333,17 +333,17 @@ class dbxInstallationService
             }
 
             $status = (string)($state['status'] ?? 'error');
-            $results[$ddRef] = array(
+            $results[$dd_ref] = array(
                 'status' => $status,
-                'source' => $sourceServer,
-                'target' => $targetServer,
+                'source' => $source_server,
+                'target' => $target_server,
                 'table' => $table,
                 'message' => (string)($state['message'] ?? ''),
             );
             if ($status === 'finished') {
                 $transferred++;
             } else {
-                $errors[] = $ddRef . ': '
+                $errors[] = $dd_ref . ': '
                     . (string)($state['message'] ?? 'Datenübertragung fehlgeschlagen');
             }
         }
@@ -362,7 +362,7 @@ class dbxInstallationService
      * Legt die verbindlichen Core-Gruppen an, ohne bestehende Werte zu
      * ueberschreiben.
      */
-    public function seedCoreGroups(): array
+    public function seed_core_groups(): array
     {
         $groups = array(
             'guest' => 'Nicht angemeldete Benutzer',
@@ -412,7 +412,7 @@ class dbxInstallationService
      *   password_reset_required:bool,created:bool,reset:bool
      * }
      */
-    public function inspectInitialAdmin(): array
+    public function inspect_initial_admin(): array
     {
         $existing = $this->db->select1(
             'dbx|dbxUser',
@@ -456,18 +456,18 @@ class dbxInstallationService
      * aktualisiert. Der optionale Reset-Schalter bleibt für spätere
      * administrative Passwortwechsel verfügbar.
      */
-    public function ensureInitialAdmin(
-        bool $createIfMissing,
+    public function ensure_initial_admin(
+        bool $create_if_missing,
         string $language,
         string $password,
-        bool $passwordResetRequired = false
+        bool $password_reset_required = false
     ): array {
         if (strlen($password) < 6 || strlen($password) > 128) {
             throw new RuntimeException('Das Admin-Passwort muss zwischen 6 und 128 Zeichen lang sein.');
         }
 
-        $status = $this->inspectInitialAdmin();
-        if (!$status['exists'] && !$createIfMissing) {
+        $status = $this->inspect_initial_admin();
+        if (!$status['exists'] && !$create_if_missing) {
             return $status;
         }
 
@@ -485,7 +485,7 @@ class dbxInstallationService
                     'status' => 1,
                     'is_confirm' => 1,
                     'settings' => json_encode(
-                        $passwordResetRequired
+                        $password_reset_required
                             ? array('password_reset_required' => 1)
                             : array('password_changed_at' => date(DATE_ATOM)),
                         JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
@@ -500,7 +500,7 @@ class dbxInstallationService
                 throw new RuntimeException('Der initiale Admin-Benutzer konnte nicht angelegt werden.');
             }
 
-            $status = $this->inspectInitialAdmin();
+            $status = $this->inspect_initial_admin();
             $status['created'] = true;
             $status['reset'] = true;
             return $status;
@@ -514,7 +514,7 @@ class dbxInstallationService
         );
         $settings = json_decode((string)($existing['settings'] ?? ''), true);
         $settings = is_array($settings) ? $settings : array();
-        if ($passwordResetRequired) {
+        if ($password_reset_required) {
             $settings['password_reset_required'] = 1;
             unset($settings['password_changed_at']);
         } else {
@@ -544,7 +544,7 @@ class dbxInstallationService
             throw new RuntimeException('Der vorhandene Admin-Benutzer konnte nicht auf den Installationsstandard zurückgesetzt werden.');
         }
 
-        $status = $this->inspectInitialAdmin();
+        $status = $this->inspect_initial_admin();
         $status['reset'] = true;
         return $status;
     }
@@ -555,7 +555,7 @@ class dbxInstallationService
      * Ein vorhandener Admin wird weder veraendert noch mit einem neuen
      * Passwort versehen.
      */
-    public function createAdmin(
+    public function create_admin(
         string $password,
         string $email,
         string $language = 'de'

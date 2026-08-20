@@ -1,12 +1,8 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
-
 require dirname(__DIR__) . '/dd/shopProductChannel.dd.php';
 
-$fdLabels = array(
+$fd_labels = array(
     'product_id' => 'Product',
     'active' => 'Active',
     'price_gross' => 'Channel gross price',
@@ -19,12 +15,12 @@ $fdLabels = array(
     'last_export_date' => 'Last export',
     'note' => 'Note',
 );
-foreach ($fields as &$fdField) {
-    if (isset($fdLabels[$fdField['name']])) {
-        $fdField['label'] = $fdLabels[$fdField['name']];
+foreach ($fields as &$fd_field) {
+    if (isset($fd_labels[$fd_field['name']])) {
+        $fd_field['label'] = $fd_labels[$fd_field['name']];
     }
 }
-unset($fdField, $fdLabels);
+unset($fd_field, $fd_labels);
 
 $messages['mapping_title'] = 'Channel mapping';
 $messages['mapping_missing'] = 'The product or channel is missing.';

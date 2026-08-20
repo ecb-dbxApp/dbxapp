@@ -1,12 +1,9 @@
 <?php
 $fields = array();
 $messages = array(
-   'save_success' => 'Los datos se guardaron',
-   'save_succeass' => 'Los datos se guardaron',
-   'save_error' => 'Los datos no se pudieron guardar',
 );
 
-$addComponentField = function ($name, $label, $use) use (&$fields) {
+$add_component_field = function ($name, $label, $use) use (&$fields) {
    $field = array();
    $field['name'] = $name;
    $field['type'] = 'int';
@@ -27,12 +24,12 @@ $addComponentField = function ($name, $label, $use) use (&$fields) {
    $fields[] = $field;
 };
 
-$addComponentField('comp_alert', 'Aviso', 'Caja breve de aviso, información o éxito.');
-$addComponentField('comp_card', 'Tarjetas', 'Teasers, cajas de servicios o mosaicos de paquetes/funciones.');
-$addComponentField('comp_list_group', 'Lista', 'Listas compactas de beneficios, pasos o funciones.');
-$addComponentField('comp_badges', 'Insignias', 'Estado, categorías, pequeños destacados.');
-$addComponentField('comp_buttons', 'Botones', 'Enlaces CTA sin JavaScript propio.');
-$addComponentField('comp_table', 'Tabla', 'Comparativas o resúmenes de precios/datos.');
-$addComponentField('comp_accordion', 'Acordeón', 'FAQ o secciones de detalle desplegables.');
-$addComponentField('comp_tabs', 'Pestañas', 'Vistas alternativas del mismo contenido.');
+$add_component_field('comp_alert', 'Aviso', 'Caja breve de aviso, información o éxito.');
+$add_component_field('comp_card', 'Tarjetas', 'Teasers, cajas de servicios o mosaicos de paquetes/funciones.');
+$add_component_field('comp_list_group', 'Lista', 'Listas compactas de beneficios, pasos o funciones.');
+$add_component_field('comp_badges', 'Insignias', 'Estado, categorías, pequeños destacados.');
+$add_component_field('comp_buttons', 'Botones', 'Enlaces CTA sin JavaScript propio.');
+$add_component_field('comp_table', 'Tabla', 'Comparativas o resúmenes de precios/datos.');
+$add_component_field('comp_accordion', 'Acordeón', 'FAQ o secciones de detalle desplegables.');
+$add_component_field('comp_tabs', 'Pestañas', 'Vistas alternativas del mismo contenido.');
 ?>

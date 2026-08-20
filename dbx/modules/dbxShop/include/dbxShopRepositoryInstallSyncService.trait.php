@@ -3,11 +3,11 @@ namespace dbx\dbxShop;
 
 trait dbxShopRepositoryInstallSyncServiceTrait {
 
-   private function syncDdToDb(string $dd): bool {
-      $oDD = dbx()->get_system_obj('dbxDD');
-      $oDD->sync_dd_to_db('dbxShop', $dd, 'reset');
+   private function sync_dd_to_db(string $dd): bool {
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      $o_dd->sync_dd_to_db('dbxShop', $dd, 'reset');
       for ($i = 0; $i < 40; $i++) {
-         $state = $oDD->sync_dd_to_db('dbxShop', $dd, 'apply');
+         $state = $o_dd->sync_dd_to_db('dbxShop', $dd, 'apply');
          $status = (string)($state['status'] ?? '');
          if ($status === 'finished') {
             return true;
@@ -21,7 +21,7 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
 
 
 
-   private function syncShopSchemaFromDd(): bool {
+   private function sync_shop_schema_from_dd(): bool {
       static $done = false;
       if ($done) {
          return false;
@@ -52,7 +52,7 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
          'shopOrderHistory',
          'shopWithdrawal',
       ) as $dd) {
-         if (!$this->syncDdToDb($dd)) {
+         if (!$this->sync_dd_to_db($dd)) {
             throw new \RuntimeException('dbxShop-DD konnte nicht mit der Datenbank synchronisiert werden: ' . $dd);
          }
       }
@@ -66,48 +66,48 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
    }
 
    /**
-    * Fuehrt die explizite Schema- und Defaultpflege aus.
+    * Führt die explizite Schema- und Defaultpflege aus.
     *
     * Alle Repository-Methoden duerfen install() weiterhin einheitlich
     * aufrufen. Ohne $maintenance ist die Methode absichtlich schreibfrei.
     * Nur die geschuetzte Admin-Installation ruft install(true) auf.
     */
    public function install(bool $maintenance = false): void {
-      static $maintenanceDone = false;
-      if (!$maintenance || $maintenanceDone) {
+      static $maintenance_done = false;
+      if (!$maintenance || $maintenance_done) {
          return;
       }
 
-      $this->syncShopSchemaFromDd();
-      $this->syncChannelDefaults();
-      $this->syncPrimaryProductGroups();
-      $this->syncSingleGroupImages();
-      $this->clearRequestCache();
-      $maintenanceDone = true;
+      $this->sync_shop_schema_from_dd();
+      $this->sync_channel_defaults();
+      $this->sync_primary_product_groups();
+      $this->sync_single_group_images();
+      $this->clear_request_cache();
+      $maintenance_done = true;
    }
 
-   private function syncPrimaryProductGroups(): void {
+   private function sync_primary_product_groups(): void {
       $rows = $this->db()->select($this->dd('shopProduct'), 'trash = 0 AND (product_group_id IS NULL OR product_group_id <= 0)', 'id', '', 'ASC', '', 0, 0, 0);
       foreach ((is_array($rows) ? $rows : array()) as $row) {
-         $productId = (int)($row['id'] ?? 0);
-         if ($productId <= 0) continue;
-         $maps = $this->db()->select($this->dd('shopProductGroupMap'), 'product_id = ' . $productId, '*', 'is_primary DESC', 'ASC', '', 0, 1, 0);
+         $product_id = (int)($row['id'] ?? 0);
+         if ($product_id <= 0) continue;
+         $maps = $this->db()->select($this->dd('shopProductGroupMap'), 'product_id = ' . $product_id, '*', 'is_primary DESC', 'ASC', '', 0, 1, 0);
          $map = is_array($maps) && isset($maps[0]) ? $maps[0] : array();
-         $groupId = (int)($map['group_id'] ?? 0);
-         if ($groupId > 0) {
-            $this->db()->update($this->dd('shopProduct'), array('product_group_id' => $groupId), 'id = ' . $productId, 0);
+         $group_id = (int)($map['group_id'] ?? 0);
+         if ($group_id > 0) {
+            $this->db()->update($this->dd('shopProduct'), array('product_group_id' => $group_id), 'id = ' . $product_id, 0);
          }
       }
    }
 
-   private function syncSingleGroupImages(): void {
+   private function sync_single_group_images(): void {
       $groups = $this->db()->select($this->dd('shopProductGroup'), 'trash = 0', 'id', '', 'ASC', '', 0, 0, 0);
       foreach ((is_array($groups) ? $groups : array()) as $group) {
-         $groupId = (int)($group['id'] ?? 0);
-         if ($groupId <= 0) continue;
+         $group_id = (int)($group['id'] ?? 0);
+         if ($group_id <= 0) continue;
          $rows = $this->db()->select(
             $this->dd('shopProductImage'),
-            'trash = 0 AND active = 1 AND product_id = 0 AND group_id = ' . $groupId,
+            'trash = 0 AND active = 1 AND product_id = 0 AND group_id = ' . $group_id,
             '*',
             'is_primary DESC, sorter ASC, title ASC',
             'ASC',
@@ -131,7 +131,7 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
    }
 
 
-   private function syncChannelDefaults(): void {
+   private function sync_channel_defaults(): void {
       $channels = array(
          array('shop', 'Shop', 'Eigener Shop ohne externe API.', 'shop', 'internal', 1, 0, '', '', '', '', 10),
          array('amazon', 'Amazon', 'Amazon Marketplace Integration fuer Artikel-Export und spaeteren Order-Import.', 'amazon', 'api', 1, 1, 'https://sellingpartnerapi-eu.amazon.com', 'A1PA6795UKMFR9', 'ORDER_CHANGE', "Listings Items\nOrders\nNotifications", 20),
@@ -140,7 +140,7 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
          array('mobile', 'mobile.de', 'mobile.de Channel fuer Fahrzeug- oder Angebotsdaten ueber Seller API und Lead API.', 'mobile', 'api', 1, 1, 'https://services.mobile.de/seller-api', '', 'lead-api', "seller-api\nbasic-auth\nlead-api", 50),
       );
       foreach ($channels as $c) {
-         $existing = $this->db()->select1($this->dd('shopChannel'), 'channel_key = ' . $this->sqlValue($c[0]), '*', 0);
+         $existing = $this->db()->select1($this->dd('shopChannel'), 'channel_key = ' . $this->sql_value($c[0]), '*', 0);
          $existing = is_array($existing) ? $existing : array();
          $values = array(
             'channel_key' => $c[0],
@@ -157,26 +157,26 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
             'active' => array_key_exists('active', $existing) ? (int)$existing['active'] : 1,
             'sorter' => array_key_exists('sorter', $existing) ? (int)$existing['sorter'] : $c[11],
          );
-         $this->db()->save($this->dd('shopChannel'), $values, 'channel_key = ' . $this->sqlValue($c[0]), 0);
+         $this->db()->save($this->dd('shopChannel'), $values, 'channel_key = ' . $this->sql_value($c[0]), 0);
       }
-      $oldEbayScopes = 'https://api.ebay.com/oauth/api_scope/sell.inventory https://api.ebay.com/oauth/api_scope/sell.fulfillment https://api.ebay.com/oauth/api_scope/commerce.notification.subscription';
-      $newEbayScopes = "https://api.ebay.com/oauth/api_scope/sell.inventory\nhttps://api.ebay.com/oauth/api_scope/sell.fulfillment\nhttps://api.ebay.com/oauth/api_scope/commerce.notification.subscription";
+      $old_ebay_scopes = 'https://api.ebay.com/oauth/api_scope/sell.inventory https://api.ebay.com/oauth/api_scope/sell.fulfillment https://api.ebay.com/oauth/api_scope/commerce.notification.subscription';
+      $new_ebay_scopes = "https://api.ebay.com/oauth/api_scope/sell.inventory\nhttps://api.ebay.com/oauth/api_scope/sell.fulfillment\nhttps://api.ebay.com/oauth/api_scope/commerce.notification.subscription";
       $this->db()->update(
          $this->dd('shopChannel'),
-         array('api_scope' => $newEbayScopes),
-         'channel_key = ' . $this->sqlValue('ebay') . ' AND api_scope = ' . $this->sqlValue($oldEbayScopes),
+         array('api_scope' => $new_ebay_scopes),
+         'channel_key = ' . $this->sql_value('ebay') . ' AND api_scope = ' . $this->sql_value($old_ebay_scopes),
          0
       );
    }
 
 
 
-   private function seedDemoProductsWithDbxDb(): void {
+   private function seed_demo_products_with_dbx_db(): void {
       if ($this->db()->count($this->dd('shopProduct'), 'trash = 0') > 0) {
          return;
       }
 
-      $this->updateProductGroup(0, array(
+      $this->update_product_group(0, array(
          'group_key' => 'software',
          'title' => 'Software',
          'description' => 'Digitale dbXapp Pakete und Erweiterungen.',
@@ -194,7 +194,7 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
          'active' => 1,
          'sorter' => 10,
       ));
-      $this->updateProductGroup(0, array(
+      $this->update_product_group(0, array(
          'group_key' => 'service',
          'title' => 'Dienstleistungen',
          'description' => 'Installation, Wartung und Schulung.',
@@ -213,7 +213,7 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
          'sorter' => 20,
       ));
 
-      $this->updateShippingGroup(0, array(
+      $this->update_shipping_group(0, array(
          'group_key' => 'digital-free',
          'title' => 'Digital / kein Versand',
          'description' => 'Digitale Lieferung ohne Versandkosten.',
@@ -224,7 +224,7 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
          'active' => 1,
          'sorter' => 10,
       ));
-      $this->updateShippingGroup(0, array(
+      $this->update_shipping_group(0, array(
          'group_key' => 'service-remote',
          'title' => 'Service / Termin',
          'description' => 'Terminleistung ohne Paketversand.',
@@ -236,14 +236,14 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
          'sorter' => 20,
       ));
 
-      $this->updateChannelGroup(0, array(
+      $this->update_channel_group(0, array(
          'group_key' => 'software-shop',
          'title' => 'Software Shop-Artikel',
          'description' => 'Softwarepakete fuer Shop und Amazon.',
          'active' => 1,
          'sorter' => 20,
       ), array('shop', 'amazon'));
-      $this->updateChannelGroup(0, array(
+      $this->update_channel_group(0, array(
          'group_key' => 'service-local',
          'title' => 'Service lokal',
          'description' => 'Dienstleistungen fuer Shop und Kleinanzeigen.',
@@ -263,7 +263,7 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
                'slug' => $p[1],
                'title' => $p[2],
                'category' => $p[3],
-               'product_group_id' => $this->groupIdByKey($p[5]),
+               'product_group_id' => $this->group_id_by_key($p[5]),
                'product_type' => $p[4],
                'summary' => $p[8],
                'description' => $p[9],
@@ -280,50 +280,50 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
                'image_icon' => $p[14],
                'logo_variant' => '',
             ),
-            'sku = ' . $this->sqlValue($p[0]),
+            'sku = ' . $this->sql_value($p[0]),
             0
          );
-         $product = $this->productBySku($p[0], false);
-         $productId = (int)($product['id'] ?? 0);
-         if ($productId <= 0) continue;
-         $groupId = $this->groupIdByKey($p[5]);
-         if ($groupId > 0) {
-            $this->db()->save($this->dd('shopProductGroupMap'), array('product_id' => $productId, 'group_id' => $groupId, 'is_primary' => 1), 'product_id = ' . $productId . ' AND group_id = ' . $groupId, 0);
+         $product = $this->product_by_sku($p[0], false);
+         $product_id = (int)($product['id'] ?? 0);
+         if ($product_id <= 0) continue;
+         $group_id = $this->group_id_by_key($p[5]);
+         if ($group_id > 0) {
+            $this->db()->save($this->dd('shopProductGroupMap'), array('product_id' => $product_id, 'group_id' => $group_id, 'is_primary' => 1), 'product_id = ' . $product_id . ' AND group_id = ' . $group_id, 0);
          }
-         $shippingGroupId = $this->shippingGroupIdByKey($p[6]);
-         if ($shippingGroupId > 0) {
-            $this->db()->save($this->dd('shopProductShippingGroupMap'), array('product_id' => $productId, 'shipping_group_id' => $shippingGroupId, 'is_primary' => 1), 'product_id = ' . $productId . ' AND shipping_group_id = ' . $shippingGroupId, 0);
+         $shipping_group_id = $this->shipping_group_id_by_key($p[6]);
+         if ($shipping_group_id > 0) {
+            $this->db()->save($this->dd('shopProductShippingGroupMap'), array('product_id' => $product_id, 'shipping_group_id' => $shipping_group_id, 'is_primary' => 1), 'product_id = ' . $product_id . ' AND shipping_group_id = ' . $shipping_group_id, 0);
          }
-         $channelGroupId = $this->channelGroupIdByKey($p[7]);
-         if ($channelGroupId > 0) {
-            $this->db()->save($this->dd('shopProductChannelGroupMap'), array('product_id' => $productId, 'channel_group_id' => $channelGroupId, 'is_primary' => 1), 'product_id = ' . $productId . ' AND channel_group_id = ' . $channelGroupId, 0);
+         $channel_group_id = $this->channel_group_id_by_key($p[7]);
+         if ($channel_group_id > 0) {
+            $this->db()->save($this->dd('shopProductChannelGroupMap'), array('product_id' => $product_id, 'channel_group_id' => $channel_group_id, 'is_primary' => 1), 'product_id = ' . $product_id . ' AND channel_group_id = ' . $channel_group_id, 0);
          }
-         foreach ($p[15] as $channelKey) {
-            $this->db()->save($this->dd('shopProductChannel'), array('product_id' => $productId, 'channel_key' => $channelKey, 'active' => 1, 'channel_sku' => $p[0], 'price_gross' => -1, 'shipping_gross' => -1), 'product_id = ' . $productId . ' AND channel_key = ' . $this->sqlValue($channelKey), 0);
+         foreach ($p[15] as $channel_key) {
+            $this->db()->save($this->dd('shopProductChannel'), array('product_id' => $product_id, 'channel_key' => $channel_key, 'active' => 1, 'channel_sku' => $p[0], 'price_gross' => -1, 'shipping_gross' => -1), 'product_id = ' . $product_id . ' AND channel_key = ' . $this->sql_value($channel_key), 0);
          }
       }
 
-      $softwareGroupId = $this->groupIdByKey('software');
-      if ($softwareGroupId > 0) {
-         $this->saveImage(0, $softwareGroupId, 'files/shop/img/software-dashboard.svg', 'Software Dashboard', 'dbXapp Software Dashboard', 1, 10);
+      $software_group_id = $this->group_id_by_key('software');
+      if ($software_group_id > 0) {
+         $this->save_image(0, $software_group_id, 'files/shop/img/software-dashboard.svg', 'Software Dashboard', 'dbXapp Software Dashboard', 1, 10);
       }
-      $serviceGroupId = $this->groupIdByKey('service');
-      if ($serviceGroupId > 0) {
-         $this->saveImage(0, $serviceGroupId, 'files/shop/img/service-support.svg', 'Service und Schulung', 'dbXapp Installation, Wartung und Schulung', 1, 10);
+      $service_group_id = $this->group_id_by_key('service');
+      if ($service_group_id > 0) {
+         $this->save_image(0, $service_group_id, 'files/shop/img/service-support.svg', 'Service und Schulung', 'dbXapp Installation, Wartung und Schulung', 1, 10);
       }
    }
 
 
 
-   public function seedDemoProducts(): void {
+   public function seed_demo_products(): void {
       $this->install(true);
-      $this->seedDemoProductsWithDbxDb();
-      $this->clearRequestCache();
+      $this->seed_demo_products_with_dbx_db();
+      $this->clear_request_cache();
       return;
    }
 
    /** Schneller Seed-Check ohne Produktdekoration und N+1-Abfragen. */
-   public function needsDemoSeed(): bool {
+   public function needs_demo_seed(): bool {
       $this->install();
       return $this->db()->count($this->dd('shopProduct'), 'trash = 0') === 0
          || $this->db()->count($this->dd('shopShippingGroup'), 'trash = 0') === 0
@@ -331,28 +331,28 @@ trait dbxShopRepositoryInstallSyncServiceTrait {
          || $this->db()->count($this->dd('shopProductImage'), 'trash = 0') === 0;
    }
 
-   private function groupIdByKey(string $key): int {
-      $row = $this->db()->select1($this->dd('shopProductGroup'), 'group_key = ' . $this->sqlValue($key), 'id', 0);
+   private function group_id_by_key(string $key): int {
+      $row = $this->db()->select1($this->dd('shopProductGroup'), 'group_key = ' . $this->sql_value($key), 'id', 0);
       return (int)($row['id'] ?? 0);
    }
 
 
 
-   private function shippingGroupIdByKey(string $key): int {
-      $row = $this->db()->select1($this->dd('shopShippingGroup'), 'group_key = ' . $this->sqlValue($key), 'id', 0);
+   private function shipping_group_id_by_key(string $key): int {
+      $row = $this->db()->select1($this->dd('shopShippingGroup'), 'group_key = ' . $this->sql_value($key), 'id', 0);
       return (int)($row['id'] ?? 0);
    }
 
 
 
-   private function channelGroupIdByKey(string $key): int {
-      $row = $this->db()->select1($this->dd('shopChannelGroup'), 'group_key = ' . $this->sqlValue($key), 'id', 0);
+   private function channel_group_id_by_key(string $key): int {
+      $row = $this->db()->select1($this->dd('shopChannelGroup'), 'group_key = ' . $this->sql_value($key), 'id', 0);
       return (int)($row['id'] ?? 0);
    }
 
 
 
-   private function valueNum(string $value): ?float {
+   private function value_num(string $value): ?float {
       $clean = str_replace(',', '.', trim($value));
       return is_numeric($clean) ? (float)$clean : null;
    }

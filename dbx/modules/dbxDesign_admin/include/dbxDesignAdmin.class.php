@@ -10,11 +10,11 @@ namespace dbx\dbxDesign_admin;
 class dbxDesignAdmin {
 
    /** Dateibasierte Design-Domainlogik. */
-   private $designService;
+   private $design_service;
    private $texts;
 
    public function __construct() {
-      $this->designService = dbx()->get_include_obj('dbxDesignService', 'dbxDesign_admin');
+      $this->design_service = dbx()->get_include_obj('dbxDesignService', 'dbxDesign_admin');
    }
 
    private function url(string $run1 = 'list', array $params = array()): string {
@@ -33,16 +33,16 @@ class dbxDesignAdmin {
       dbx()->get_system_obj('dbxForm', 'use');
       $texts = new \dbxForm();
       $texts->init('design-admin-texts');
-      $texts->_fd = 'dbxDesign_admin|design-admin';
+      $texts->set_field_definition('dbxDesign_admin|design-admin');
       $texts->load_fd_messages();
       $texts->set_form_help_enabled(false);
       $this->texts = $texts;
       return $this->texts;
    }
 
-   private function designOptions(): array {
+   private function design_options(): array {
       $items = array();
-      foreach ($this->designService->listDesigns() as $name => $design) {
+      foreach ($this->design_service->list_designs() as $name => $design) {
          $items[$name] = $design['title'] . ' (' . $name . ')';
       }
       return $items;
@@ -51,18 +51,18 @@ class dbxDesignAdmin {
    /**
     * Rendert die Designübersicht aus den dateibasierten Design-Metadaten.
     */
-   public function renderList(): string {
+   public function render_list(): string {
       $texts = $this->texts();
       $cards = '';
       $config = dbx()->get_cfg('dbx');
-      $defaultUser = is_array($config) ? (string)($config['default_design_user'] ?? '') : '';
-      $defaultAdmin = is_array($config) ? (string)($config['default_design_admin'] ?? '') : '';
-      foreach ($this->designService->listDesigns() as $name => $design) {
+      $default_user = is_array($config) ? (string)($config['default_design_user'] ?? '') : '';
+      $default_admin = is_array($config) ? (string)($config['default_design_admin'] ?? '') : '';
+      foreach ($this->design_service->list_designs() as $name => $design) {
          $badges = '';
-         if ($name === $defaultUser) {
+         if ($name === $default_user) {
             $badges .= '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('badge_frontend_default')) . '</span>';
          }
-         if ($name === $defaultAdmin) {
+         if ($name === $default_admin) {
             $badges .= '<span class="badge text-bg-dark">' . $this->h($texts->get_fd_message('badge_admin_default')) . '</span>';
          }
          if (!empty($design['managed'])) {
@@ -110,21 +110,21 @@ class dbxDesignAdmin {
    /**
     * Zeigt und verarbeitet den dbxForm-basierten Design-Wizard.
     */
-   public function renderWizard(): string {
+   public function render_wizard(): string {
       $texts = $this->texts();
-      $source = $this->designService->normalizeName((string)dbx()->get_request_var('source_design', 'dbxapp', 'parameter'));
-      if (!isset($this->designService->listDesigns()[$source])) {
+      $source = $this->design_service->normalize_name((string)dbx()->get_request_var('source_design', 'dbxapp', 'parameter'));
+      if (!isset($this->design_service->list_designs()[$source])) {
          $source = 'dbxapp';
       }
-      $defaults = $this->designService->defaults($source);
+      $defaults = $this->design_service->defaults($source);
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('design-admin-wizard', 'design-wizard');
-      $form->_fd = 'dbxDesign_admin|design-admin';
+      $form->set_field_definition('dbxDesign_admin|design-admin');
       $form->load_fd_messages();
       $form->set_form_help_enabled(false);
-      $form->_action = $this->url('wizard');
+      $form->set_action($this->url('wizard'));
       $form->_msg_info = $texts->get_fd_message('wizard_info');
-      $form->_data = array_merge($form->_data, $defaults);
+      $form->merge_data($defaults);
 
       $form->add_rep('list_url', $this->h($this->url('list')));
       $form->add_rep('ki_url', $this->h('?dbx_modul=dbxKi&dbx_run1=briefing_design_edit&design=' . rawurlencode($source)));
@@ -144,7 +144,7 @@ class dbxDesignAdmin {
       ) as $key => $value) {
          $form->add_rep($key, $value);
       }
-      $form->add_fld('source_design', 'select-single-label', label: $texts->get_fd_message('label_source_design'), rules: 'parameter|max=63', options: $this->designOptions(), dd: '');
+      $form->add_fld('source_design', 'select-single-label', label: $texts->get_fd_message('label_source_design'), rules: 'parameter|max=63', options: $this->design_options(), dd: '');
       $form->add_fld('target_design', 'text-label', label: $texts->get_fd_message('label_target_design'), rules: 'parameter+_-|min=2|max=63', placeholder: $texts->get_fd_message('placeholder_target_design'), tooltip: $texts->get_fd_message('tooltip_target_design'), dd: '');
       $form->add_fld('title', 'text-label', label: $texts->get_fd_message('label_title'), rules: 'varchar|max=120', placeholder: $texts->get_fd_message('placeholder_title'), dd: '');
       $form->add_fld('description', 'textarea-label', label: $texts->get_fd_message('label_description'), rules: 'varchar|max=500', data: 'rows=2', dd: '');
@@ -196,14 +196,14 @@ class dbxDesignAdmin {
       $form->add_fld('legal_links', 'checkbox-label', label: $texts->get_fd_message('label_legal_links'), rules: 'int', dd: '');
       $form->add_fld('set_default', 'checkbox-label', label: $texts->get_fd_message('label_set_default'), rules: 'int', dd: '');
 
-      $resultHtml = '';
-      $hasPost = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST';
+      $result_html = '';
+      $has_post = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST';
       if ($form->submit()) {
-         $input = $this->collectFormInput($form);
+         $input = $this->collect_form_input($form);
          try {
-            $result = $this->designService->createFromWizard($input, is_array($_FILES['logo_file'] ?? null) ? $_FILES['logo_file'] : array());
+            $result = $this->design_service->create_from_wizard($input, is_array($_FILES['logo_file'] ?? null) ? $_FILES['logo_file'] : array());
             $form->_msg_success = $texts->get_fd_message('wizard_created');
-            $resultHtml = dbx()->get_system_obj('dbxTPL')->get_tpl('dbxDesign_admin|design-result', array(
+            $result_html = dbx()->get_system_obj('dbxTPL')->get_tpl('dbxDesign_admin|design-result', array(
                'title' => $this->h($input['title'] !== '' ? $input['title'] : $result['name']),
                'name' => $this->h($result['name']),
                'preview_url' => $this->h('?dbx_design=' . rawurlencode($result['name'])),
@@ -214,19 +214,19 @@ class dbxDesignAdmin {
          } catch (\Throwable $e) {
             $form->_msg_error = $e->getMessage();
          }
-      } elseif ($hasPost) {
+      } elseif ($has_post) {
          $form->_msg_error = $texts->get_fd_message('wizard_validation_error');
       }
 
-      return $form->run() . $resultHtml;
+      return $form->run() . $result_html;
    }
 
    /**
     * Sendet ein unverändertes ZIP-Backup eines Designs.
     */
-   public function sendDownload(): void {
-      $name = $this->designService->normalizeName((string)dbx()->get_request_var('design', '', 'parameter'));
-      $file = $this->designService->backupDesign($name);
+   public function send_download(): void {
+      $name = $this->design_service->normalize_name((string)dbx()->get_request_var('design', '', 'parameter'));
+      $file = $this->design_service->backup_design($name);
       header('Content-Type: application/zip');
       header('Content-Disposition: attachment; filename="dbx-design-' . $name . '-' . date('Ymd-His') . '.zip"');
       header('Content-Length: ' . filesize($file));
@@ -234,7 +234,7 @@ class dbxDesignAdmin {
       exit;
    }
 
-   private function collectFormInput($form): array {
+   private function collect_form_input($form): array {
       $rules = array(
          'source_design' => 'parameter|max=63',
          'target_design' => 'parameter+_-|min=2|max=63',
@@ -276,14 +276,14 @@ class dbxDesignAdmin {
       switch ($run1) {
          case 'wizard':
          case 'personalize':
-            return $this->renderWizard();
+            return $this->render_wizard();
          case 'download':
-            $this->sendDownload();
+            $this->send_download();
             return '';
          case 'list':
          case 'start':
          default:
-            return $this->renderList();
+            return $this->render_list();
       }
    }
 }

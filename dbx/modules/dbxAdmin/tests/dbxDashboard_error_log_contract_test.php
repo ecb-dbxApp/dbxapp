@@ -3,25 +3,25 @@
  * Architekturvertrag für die Fehlerprotokoll-Anzeige im Admin-Dashboard.
  */
 
-$moduleDir = dirname(__DIR__);
+$module_dir = dirname(__DIR__);
 require_once dirname(__DIR__, 3) . '/include/tests/dbxModuleSourceBundle.php';
 $dashboard = dbx_test_module_source_bundle(
-    $moduleDir . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxDashboard.class.php'
+    $module_dir . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxDashboard.class.php'
 );
-$sysMsg = (string)file_get_contents(
-    $moduleDir . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxSysMsg.class.php'
+$sys_msg = (string)file_get_contents(
+    $module_dir . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxSysMsg.class.php'
 );
 $template = (string)file_get_contents(
-    $moduleDir . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm'
+    $module_dir . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm'
     . DIRECTORY_SEPARATOR . 'admin-dashboard-error-log.htm'
 );
 $css = (string)file_get_contents(
-    $moduleDir . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'css'
+    $module_dir . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'css'
     . DIRECTORY_SEPARATOR . 'admin-dashboard.css'
 );
 
-$requiredDashboardParts = array(
-    "healthPercent = 0",
+$required_dashboard_parts = array(
+    "health_percent = 0",
     "'health_error_log'",
     "dbx()->action_url(",
     "dbx_do=delete_error_log&rid=error_log",
@@ -29,14 +29,14 @@ $requiredDashboardParts = array(
     "ENT_QUOTES | ENT_SUBSTITUTE",
     "admin-dashboard-status",
 );
-foreach ($requiredDashboardParts as $part) {
+foreach ($required_dashboard_parts as $part) {
     if (strpos($dashboard, $part) === false) {
         fwrite(STDERR, "Dashboard-Fehlerlog-Vertrag fehlt: {$part}\n");
         exit(1);
     }
 }
 
-$requiredServiceParts = array(
+$required_service_parts = array(
     "public function get_error_log_file(): string",
     "dbx()->get_file_dir() . 'dbxError.log'",
     "public function error_log_exists(): bool",
@@ -44,14 +44,14 @@ $requiredServiceParts = array(
     "@unlink(\$file)",
     "clearstatcache(true, \$file)",
 );
-foreach ($requiredServiceParts as $part) {
-    if (strpos($sysMsg, $part) === false) {
+foreach ($required_service_parts as $part) {
+    if (strpos($sys_msg, $part) === false) {
         fwrite(STDERR, "Zentraler Fehlerlog-Servicevertrag fehlt: {$part}\n");
         exit(1);
     }
 }
 
-if (strpos($sysMsg, "get_modul_var('file'") !== false) {
+if (strpos($sys_msg, "get_modul_var('file'") !== false) {
     fwrite(STDERR, "Der Fehlerlog-Pfad darf nicht aus Request-Daten stammen.\n");
     exit(1);
 }
@@ -82,26 +82,26 @@ foreach (array(
     }
 }
 
-$loadMessages = static function (string $file): array {
+$load_messages = static function (string $file): array {
     $messages = array();
     $fields = array();
     include $file;
     return $messages;
 };
 
-$fdDir = $moduleDir . DIRECTORY_SEPARATOR . 'fd' . DIRECTORY_SEPARATOR;
-$messageSets = array(
-    'de' => $loadMessages($fdDir . 'admin-dashboard-status.fd.php'),
-    'en' => $loadMessages($fdDir . 'admin-dashboard-status_en.fd.php'),
-    'es' => $loadMessages($fdDir . 'admin-dashboard-status_es.fd.php'),
+$fd_dir = $module_dir . DIRECTORY_SEPARATOR . 'fd' . DIRECTORY_SEPARATOR;
+$message_sets = array(
+    'de' => $load_messages($fd_dir . 'admin-dashboard-status.fd.php'),
+    'en' => $load_messages($fd_dir . 'admin-dashboard-status_en.fd.php'),
+    'es' => $load_messages($fd_dir . 'admin-dashboard-status_es.fd.php'),
 );
-$referenceKeys = array_keys($messageSets['de']);
-sort($referenceKeys);
+$reference_keys = array_keys($message_sets['de']);
+sort($reference_keys);
 
-foreach ($messageSets as $language => $messages) {
+foreach ($message_sets as $language => $messages) {
     $keys = array_keys($messages);
     sort($keys);
-    if ($keys !== $referenceKeys) {
+    if ($keys !== $reference_keys) {
         fwrite(STDERR, "FD-Schlüssel weichen für {$language} ab.\n");
         exit(1);
     }

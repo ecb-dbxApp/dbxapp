@@ -21,15 +21,15 @@ trait dbxContentCmsPageShellServiceTrait {
 
 
    private function render_cms() {
-      $oTPL = dbx()->get_system_obj('dbxTPL');
+      $o_tpl = dbx()->get_system_obj('dbxTPL');
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
       $texts = $this->cms_texts();
       // Der eigentliche Content-Baum wird ueber cms_tree erst auf Anforderung
       // geladen. Fuer die Kopfleiste reichen drei kleine COUNT-Abfragen.
-      $page_count = (int)$db->count(dbxContentLng::ddContent(), '');
-      $folder_count = (int)$db->count(dbxContentLng::ddFolder(), '');
-      $active_count = $db->count(dbxContentLng::ddContent(), 'activ = 1');
+      $page_count = (int)$db->count(dbxContentLng::dd_content(), '');
+      $folder_count = (int)$db->count(dbxContentLng::dd_folder(), '');
+      $active_count = $db->count(dbxContentLng::dd_content(), 'activ = 1');
       if ($page_count < 0) $page_count = 0;
       if ($folder_count < 0) $folder_count = 0;
       if ($active_count < 0) $active_count = 0;
@@ -106,8 +106,8 @@ trait dbxContentCmsPageShellServiceTrait {
          'lng_reset_sync_url' => dbx()->esc($this->base_url('cms_lng_reset_sync')),
          'lng_delete_preview_url' => dbx()->esc($this->base_url('cms_lng_delete_preview')),
           'current_lng' => dbxContentLng::current(),
-         'master_lng' => dbxContentLngSync::masterLng(),
-         'lng_bar' => dbxContentLngSync::renderLngBar(),
+         'master_lng' => dbxContentLngSync::master_lng(),
+         'lng_bar' => dbxContentLngSync::render_lng_bar(),
          'template_options' => $this->cms_options()->template_options(),
          'rights_options' => $this->cms_options()->rights_options(),
          'media_template_options' => $this->cms_options()->media_template_options(),
@@ -119,13 +119,13 @@ trait dbxContentCmsPageShellServiceTrait {
          'page_form' => $this->render_page_form(),
          'folder_form' => $this->render_folder_form(),
          'settings_form' => $this->render_settings_form(),
-         'media_browser_forms' => $this->media_forms()->renderTemplates(
+         'media_browser_forms' => $this->media_forms()->render_templates(
             $this->base_url('cms_upload'),
             'cms-media-upload',
             $this->base_url('cms_external_video'),
             'cms-external-video'
          ),
-         'dbx_search' => $oTPL->get_tpl('dbx|search', dbx()->search_defaults(array(
+         'dbx_search' => $o_tpl->get_tpl('dbx|search', dbx()->get_system_obj('dbxSearchDefaults')->build(array(
              'title' => $texts->get_fd_message('tree_search'),
             'extra_attrs' => 'data-cms-search',
             'data_role' => '',
@@ -133,7 +133,7 @@ trait dbxContentCmsPageShellServiceTrait {
       );
 
       $data = array_merge(
-         dbx()->get_include_obj('dbxAdminHelp', 'dbxAdmin')->vars('content'),
+         dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp')->vars('content'),
          $data
       );
       $data['bar_class'] = 'dbx-bar--module dbx-cms-head';
@@ -143,7 +143,7 @@ trait dbxContentCmsPageShellServiceTrait {
          $data['bar_subtitle'] = (string)$data['subtitle'];
       }
 
-      return $oTPL->get_tpl('dbxContent_admin|cms-admin', $data);
+      return $o_tpl->get_tpl('dbxContent_admin|cms-admin', $data);
    }
 
 
@@ -232,7 +232,7 @@ trait dbxContentCmsPageShellServiceTrait {
             $class_file = dbx()->os_path($path . DIRECTORY_SEPARATOR . $name . '.class.php');
             if (!is_file($class_file)) continue;
             $scan = $this->mod_scan_runs($name);
-            $count = $images->imageCount($name);
+            $count = $images->image_count($name);
             if ($count <= 0) {
                continue;
             }
@@ -269,7 +269,7 @@ trait dbxContentCmsPageShellServiceTrait {
          return;
       }
 
-      $out = $images->catalogForModul($modul);
+      $out = $images->catalog_for_modul($modul);
       $scan = $this->mod_scan_runs($modul);
 
       $this->cms_json_response(array(
@@ -293,23 +293,23 @@ trait dbxContentCmsPageShellServiceTrait {
       $type = trim((string) dbx()->get_modul_var('type', 'page'));
       $type = $type === 'folder' ? 'folder' : 'page';
       $id = (int) dbx()->get_modul_var('id', 0, 'int');
-      $lngUid = trim((string) dbx()->get_modul_var('lng_uid', ''));
+      $lng_uid = trim((string) dbx()->get_modul_var('lng_uid', ''));
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
 
-       if ($lngUid === '' && $id > 0) {
-          $dd = $type === 'folder' ? dbxContentLng::ddFolder() : dbxContentLng::ddContent();
-          $lngUid = dbxContentLngSync::recordUid($db, $dd, $id);
+       if ($lng_uid === '' && $id > 0) {
+          $dd = $type === 'folder' ? dbxContentLng::dd_folder() : dbxContentLng::dd_content();
+          $lng_uid = dbxContentLngSync::record_uid($db, $dd, $id);
        }
 
-      $coverage = dbxContentLngSync::coverageForUid($db, $type, $lngUid);
+      $coverage = dbxContentLngSync::coverage_for_uid($db, $type, $lng_uid);
       $this->cms_json_response(array('ok' => 1, 'coverage' => $coverage));
    }
 
 
 
    private function lng_preview_json() {
-      if (!dbxContentLngSync::isMasterLng()) {
+      if (!dbxContentLngSync::is_master_lng()) {
          $this->cms_json_response(array('ok' => 0, 'msg' => 'Vorschau nur in der Master-Sprache moeglich.'));
       }
 
@@ -320,8 +320,8 @@ trait dbxContentCmsPageShellServiceTrait {
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
 
-      dbxContentTranslate::clearWarnings();
-      $preview = dbxContentLngSync::previewProvision($db, $type, $id, $lngs);
+      dbxContentTranslate::clear_warnings();
+      $preview = dbxContentLngSync::preview_provision($db, $type, $id, $lngs);
       $this->cms_json_response(array(
          'ok' => 1,
          'preview' => $preview,
@@ -333,7 +333,7 @@ trait dbxContentCmsPageShellServiceTrait {
 
 
    private function lng_provision_json() {
-      if (!dbxContentLngSync::isMasterLng()) {
+      if (!dbxContentLngSync::is_master_lng()) {
          $this->cms_json_response(array('ok' => 0, 'msg' => 'Uebertragung nur in der Master-Sprache moeglich.'));
       }
 
@@ -344,8 +344,8 @@ trait dbxContentCmsPageShellServiceTrait {
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
 
-      dbxContentTranslate::clearWarnings();
-      $result = dbxContentLngSync::provisionFromPreview($db, $type, $id, $items);
+      dbxContentTranslate::clear_warnings();
+      $result = dbxContentLngSync::provision_from_preview($db, $type, $id, $items);
       if ((int) ($result['ok'] ?? 0) === 1) {
          $result['media_copied'] = $this->apply_lng_provision_media($db, $type, $id, $result);
          $this->flush_menu_cache();
@@ -357,7 +357,7 @@ trait dbxContentCmsPageShellServiceTrait {
 
 
    private function lng_provision_tree_json() {
-      if (!dbxContentLngSync::isMasterLng()) {
+      if (!dbxContentLngSync::is_master_lng()) {
          $this->cms_json_response(array('ok' => 0, 'msg' => 'Unterbaum-Uebertragung nur in der Master-Sprache moeglich.'));
       }
 
@@ -370,21 +370,21 @@ trait dbxContentCmsPageShellServiceTrait {
 
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
-      dbxContentTranslate::clearWarnings();
-      $result = dbxContentLngSync::provisionFolderTree($db, $id, $lngs);
+      dbxContentTranslate::clear_warnings();
+      $result = dbxContentLngSync::provision_folder_tree($db, $id, $lngs);
       if ((int) ($result['ok'] ?? 0) === 1) {
-         $mediaCopied = 0;
-         foreach (is_array($result['pages'] ?? null) ? $result['pages'] : array() as $pageItem) {
-            if (!is_array($pageItem)) {
+         $media_copied = 0;
+         foreach (is_array($result['pages'] ?? null) ? $result['pages'] : array() as $page_item) {
+            if (!is_array($page_item)) {
                continue;
             }
-            $masterPageId = (int) ($pageItem['master_id'] ?? 0);
-            $prov = is_array($pageItem['result'] ?? null) ? $pageItem['result'] : array();
-            if ($masterPageId > 0) {
-               $mediaCopied += $this->apply_lng_provision_media($db, 'page', $masterPageId, $prov);
+            $master_page_id = (int) ($page_item['master_id'] ?? 0);
+            $prov = is_array($page_item['result'] ?? null) ? $page_item['result'] : array();
+            if ($master_page_id > 0) {
+               $media_copied += $this->apply_lng_provision_media($db, 'page', $master_page_id, $prov);
             }
          }
-         $result['media_copied'] = $mediaCopied;
+         $result['media_copied'] = $media_copied;
          $this->flush_menu_cache();
       }
       $result['translate_warnings'] = dbxContentTranslate::warnings();
@@ -394,7 +394,7 @@ trait dbxContentCmsPageShellServiceTrait {
 
 
    private function lng_reset_sync_json() {
-      if (!dbxContentLngSync::isMasterLng()) {
+      if (!dbxContentLngSync::is_master_lng()) {
          $this->cms_json_response(array('ok' => 0, 'msg' => 'Auto-Sync nur in der Master-Sprache setzbar.'));
       }
 
@@ -408,14 +408,14 @@ trait dbxContentCmsPageShellServiceTrait {
 
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
-      $result = dbxContentLngSync::resetSyncToAuto($db, $type, $id, $lngs);
+      $result = dbxContentLngSync::reset_sync_to_auto($db, $type, $id, $lngs);
       $this->cms_json_response(array('ok' => count($result['updated'] ?? array()) ? 1 : 0, 'result' => $result));
    }
 
 
 
    private function lng_delete_preview_json() {
-      if (!dbxContentLngSync::isMasterLng()) {
+      if (!dbxContentLngSync::is_master_lng()) {
          $this->cms_json_response(array('ok' => 0, 'msg' => 'Mehrsprachige Loesch-Vorschau nur in der Master-Sprache moeglich.'));
       }
 
@@ -428,7 +428,7 @@ trait dbxContentCmsPageShellServiceTrait {
 
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
-      $preview = dbxContentLngSync::previewDelete($db, $type, $id);
+      $preview = dbxContentLngSync::preview_delete($db, $type, $id);
       $this->cms_json_response(array('ok' => 1, 'preview' => $preview));
    }
 
@@ -440,11 +440,11 @@ trait dbxContentCmsPageShellServiceTrait {
       if (!is_array($raw) || !count($raw)) {
          return array($current);
       }
-      if (!dbxContentLngSync::isMasterLng()) {
+      if (!dbxContentLngSync::is_master_lng()) {
          return array($current);
       }
 
-      $allowed = dbxContentLngSync::accessibleLngs();
+      $allowed = dbxContentLngSync::accessible_lngs();
       $out = array();
       foreach ($raw as $lng) {
          $lng = strtolower(trim((string) $lng));
@@ -458,8 +458,8 @@ trait dbxContentCmsPageShellServiceTrait {
 
 
 
-   private function delete_page_in_lngs($db, int $id, array $deleteLngs): array {
-      return $this->persistence($db)->deletePage($id, $deleteLngs);
+   private function delete_page_in_lngs($db, int $id, array $delete_lngs): array {
+      return $this->persistence($db)->delete_page($id, $delete_lngs);
    }
 
 
@@ -512,13 +512,13 @@ trait dbxContentCmsPageShellServiceTrait {
          return array('ok' => 0, 'errors' => array('Medium wird noch verwendet.'));
       }
 
-      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
-         $contentDd = dbxContentLng::ddContent((string)$lng);
-         $folderDd = dbxContentLng::ddFolder((string)$lng);
-         if ($db->count($contentDd, 'hero_image_id = ' . $id) > 0 || $db->count($folderDd, 'hero_image_id = ' . $id) > 0) {
+      foreach (dbxContentLngSync::accessible_lngs() as $lng) {
+         $content_dd = dbxContentLng::dd_content((string)$lng);
+         $folder_dd = dbxContentLng::dd_folder((string)$lng);
+         if ($db->count($content_dd, 'hero_image_id = ' . $id) > 0 || $db->count($folder_dd, 'hero_image_id = ' . $id) > 0) {
             return array('ok' => 0, 'errors' => array('Medium wird noch verwendet.'));
          }
-         $pages = $db->select($contentDd, '', 'content', 'id', 'ASC', '', 0, 0, 0);
+         $pages = $db->select($content_dd, '', 'content', 'id', 'ASC', '', 0, 0, 0);
          foreach (is_array($pages) ? $pages : array() as $page) {
             if (preg_match('/data-cms-media-id=["\']?' . $id . '(?:["\'\s>]|$)/i', (string)($page['content'] ?? ''))) {
                return array('ok' => 0, 'errors' => array('Medium wird noch verwendet.'));

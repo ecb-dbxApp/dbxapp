@@ -42,40 +42,13 @@ class dbxContent_permalink {
     * Uebersetzt ausschliesslich alte, pfadartige CMS-Permalinks. Die Rueckgabe
     * dient als kompatibler Alias; gespeichert werden nur noch flache Werte.
     */
-   public static function canonicalFromLegacy($permalink): string {
+   public static function canonical_from_legacy($permalink): string {
       $legacy = strtolower(trim(str_replace('\\', '/', (string)$permalink), '/'));
       if ($legacy === '') {
          return '';
       }
 
-      // Die Dokumentation besitzt öffentlich einen eigenen URL-Bereich,
-      // während die CMS-Datensätze weiterhin ihre kurzen, eindeutigen Slugs
-      // behalten. Der Resolver entfernt genau einen kontrollierten Präfix.
-      if (str_starts_with($legacy, 'dokumentation/')) {
-         $documentationSlug = substr($legacy, strlen('dokumentation/'));
-         if (self::isDocumentationSlug($documentationSlug)) {
-            return $documentationSlug;
-         }
-      }
-
       $known = array(
-         'home/tutorial' => 'tutorials-dbxapp',
-         'home/tutorial/login-profil-passwort' => 'tutorial-login-profil-passwort',
-         'home/tutorial/admin-dashboard' => 'tutorial-admin-dashboard',
-         'home/tutorial/menue-benutzen' => 'tutorial-menue-benutzen',
-         'home/tutorial/frontpage-direkt-cms' => 'tutorial-frontpage-direkt-cms',
-         'home/tutorial/cms-content-tree' => 'tutorial-cms-content-tree',
-         'home/tutorial/cms-felder-editor' => 'tutorial-cms-felder-editor',
-         'home/tutorial/cms-medienverwendung' => 'tutorial-cms-medienverwendung',
-         'home/tutorial/medienbrowser' => 'tutorial-medienbrowser',
-         'home/tutorial/medienwartung-seo' => 'tutorial-medienwartung-seo',
-         'home/tutorial/dbxki-ki-cms' => 'tutorial-dbxki-ki-cms',
-         'home/tutorial/shop-admin' => 'tutorial-shop-admin',
-         'home/tutorial/shop-frontend' => 'tutorial-shop-frontend',
-         'home/tutorial/workflow-erstellen' => 'tutorial-workflow-erstellen',
-         'home/tutorial/workflow-nutzen' => 'tutorial-workflow-nutzen',
-         'home/tutorial/shop-dashboard' => 'tutorial-shop-dashboard',
-         'home/tutorial/cms-editor' => 'tutorial-cms-editor',
          'shop/help-channel-groups' => 'help-shop-channel-gruppen',
          'shop/help-channels' => 'help-shop-channels',
          'shop/help-channel-shop' => 'help-shop-channel-shop',
@@ -98,43 +71,8 @@ class dbxContent_permalink {
          'help/admin-dashboard' => 'help-dashboard-admin',
       );
 
-      // Eine fruehere Permalink-Migration ersetzte bei verschachtelten
-      // Tutorial-Links zuerst nur den Praefix "home/tutorial". Dadurch
-      // entstanden Zwischenwerte wie
-      // "tutorials-dbxapp/cms-medienverwendung". Diese Werte werden als
-      // kompatibler Alias auf denselben kanonischen Tutorial-Permalink
-      // aufgeloest. Neu gespeichert werden weiterhin ausschliesslich die
-      // flachen Werte aus $known.
-      if (strpos($legacy, 'tutorials-dbxapp/') === 0) {
-         $tutorialLegacy = 'home/tutorial/' . substr($legacy, strlen('tutorials-dbxapp/'));
-         if (isset($known[$tutorialLegacy])) {
-            return $known[$tutorialLegacy];
-         }
-      }
-
       if (isset($known[$legacy])) {
          return $known[$legacy];
-      }
-
-      if (strpos($legacy, 'outside/help/') === 0 || strpos($legacy, 'help/') === 0) {
-         $topicSlug = substr($legacy, strrpos($legacy, '/') + 1);
-         try {
-            if (function_exists('dbx')) {
-               $help = dbx()->get_include_obj('dbxAdminHelp', 'dbxAdmin');
-               if (is_object($help) && method_exists($help, 'topics')) {
-                  foreach ($help->topics() as $topic => $meta) {
-                     if (str_replace('_', '-', strtolower((string)$topic)) === $topicSlug) {
-                        $canonical = trim((string)($meta['permalink'] ?? ''));
-                        if (self::isValid($canonical)) {
-                           return $canonical;
-                        }
-                     }
-                  }
-               }
-            }
-         } catch (\Throwable $e) {
-            // Der generische flache Alias bleibt als sicherer Fallback.
-         }
       }
 
       return self::normalize($legacy);
@@ -143,26 +81,12 @@ class dbxContent_permalink {
    /**
     * Liefert den kanonischen öffentlichen Pfad eines CMS-Permalinks.
     */
-   public static function publicPath($permalink): string {
+   public static function public_path($permalink): string {
       $permalink = strtolower(trim(str_replace('\\', '/', (string)$permalink), '/'));
-      if ($permalink === 'dokumentation' || $permalink === 'tutorials-dbxapp') {
-         return 'dokumentation/';
-      }
-      if (self::isDocumentationSlug($permalink)) {
-         return 'dokumentation/' . $permalink;
-      }
       return $permalink;
    }
 
-   private static function isDocumentationSlug(string $permalink): bool {
-      return $permalink !== ''
-         && preg_match(
-            '/^(?:dokumentation|documentation|documentacion|tutorial)-[a-z0-9]+(?:-[a-z0-9]+)*$/',
-            $permalink
-         ) === 1;
-   }
-
-   public static function isValid($permalink): bool {
+   public static function is_valid($permalink): bool {
       $permalink = (string)$permalink;
       if ($permalink === '' || strlen($permalink) > 254) {
          return false;
@@ -177,7 +101,7 @@ class dbxContent_permalink {
    }
 
    public static function exists($db, string $content_dd, string $permalink, int $exclude_id = 0): bool {
-      if (!is_object($db) || $content_dd === '' || !self::isValid($permalink)) {
+      if (!is_object($db) || $content_dd === '' || !self::is_valid($permalink)) {
          return false;
       }
 

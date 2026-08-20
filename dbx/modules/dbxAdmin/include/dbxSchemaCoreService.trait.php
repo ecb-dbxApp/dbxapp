@@ -7,16 +7,16 @@ trait dbxSchemaCoreServiceTrait {
     * Stabiler sprachabhängiger Textkontext für alle Schema-Reports.
     */
    private function schema_texts() {
-      if ($this->schemaTexts) {
-         return $this->schemaTexts;
+      if ($this->schema_texts) {
+         return $this->schema_texts;
       }
       dbx()->get_system_obj('dbxForm', 'use');
       $texts = new \dbxForm();
       $texts->set_form_help_enabled(false);
-      $texts->_fd = 'dbxAdmin|schema-report';
+      $texts->set_field_definition('dbxAdmin|schema-report');
       $texts->load_fd_messages();
-      $this->schemaTexts = $texts;
-      return $this->schemaTexts;
+      $this->schema_texts = $texts;
+      return $this->schema_texts;
    }
 
 
@@ -157,11 +157,11 @@ trait dbxSchemaCoreServiceTrait {
     * @return string
     */
    private function openwin($url, $icon, $title, $width = 1200, $height = 780, $class = 'btn-inline') {
-      $titleEsc = $this->esc($title);
-      $urlEsc   = $this->esc($url);
+      $title_esc = $this->esc($title);
+      $url_esc   = $this->esc($url);
 
-      return '<a class="' . $class . ' dbx-win" href="' . $urlEsc . '" data-dbx-tooltip="' . $titleEsc . '" '
-           . 'data-url="' . $urlEsc . '" data-title="' . $titleEsc
+      return '<a class="' . $class . ' dbx-win" href="' . $url_esc . '" data-dbx-tooltip="' . $title_esc . '" '
+           . 'data-url="' . $url_esc . '" data-title="' . $title_esc
            . '" role="button"><i class="' . $this->esc($icon) . '"></i></a>';
    }
 
@@ -257,14 +257,14 @@ trait dbxSchemaCoreServiceTrait {
     * @return string
     */
    private function quote_db_ident($server, $name) {
-      $dbType = dbx()->get_system_obj('dbxDB')->get_db_type($server);
+      $db_type = dbx()->get_system_obj('dbxDB')->get_db_type($server);
       $name = str_replace(array('`', '"', ']'), '', (string)$name);
 
-      if ($dbType === 'mysql') {
+      if ($db_type === 'mysql') {
          return '`' . str_replace('`', '``', $name) . '`';
       }
 
-      if ($dbType === 'sqlsrv') {
+      if ($db_type === 'sqlsrv') {
          return '[' . str_replace(']', ']]', $name) . ']';
       }
 
@@ -293,8 +293,8 @@ trait dbxSchemaCoreServiceTrait {
          $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
       }
 
-      $oDB = dbx()->get_system_obj('dbxDB');
-      return "'" . $oDB->escape((string)$value, $server) . "'";
+      $o_db = dbx()->get_system_obj('dbxDB');
+      return "'" . $o_db->escape((string)$value, $server) . "'";
    }
 
 

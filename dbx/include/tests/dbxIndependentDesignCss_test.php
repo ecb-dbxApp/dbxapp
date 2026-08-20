@@ -4,22 +4,22 @@ declare(strict_types=1);
 /** Vertrag: Jedes Design liefert seine CSS-Systembasis ohne Fremddesign aus. */
 
 $root = dirname(__DIR__, 3);
-$designRoot = $root . '/dbx/design';
+$design_root = $root . '/dbx/design';
 $failures = array();
-$systemFiles = array(
+$system_files = array(
     'c-ace.css', 'c-admin.css', 'c-base.css', 'c-content-frame.css',
     'c-content.css', 'c-icons.css', 'c-icons_editor.css', 'c-openWin.css',
     'c-process.css', 'c-report.css', 'c-schema-mapping.css', 'c-viewport.css',
     'c-tooltip.css', 'colors.css', 'glass-3d.css', 'm-menu.css', 'theme.css',
 );
 
-if (is_dir($designRoot . '/shared')) {
+if (is_dir($design_root . '/shared')) {
     $failures[] = 'Der alte designübergreifende CSS-Ordner existiert noch.';
 }
 
-foreach (array('dbxapp', 'dbxdocs', 'flowers', 'steal') as $design) {
-    $cssDir = $designRoot . '/' . $design . '/css';
-    $sources = glob($cssDir . '/*.css') ?: array();
+foreach (array('dbxapp', 'flowers', 'steal') as $design) {
+    $css_dir = $design_root . '/' . $design . '/css';
+    $sources = glob($css_dir . '/*.css') ?: array();
     if (count($sources) < 20) {
         $failures[] = $design . ': CSS-Basis ist unvollständig.';
     }
@@ -41,13 +41,13 @@ foreach (array('dbxapp', 'dbxdocs', 'flowers', 'steal') as $design) {
         }
     }
 
-    $requiredFiles = $design === 'flowers'
+    $required_files = $design === 'flowers'
         ? array('base.css', 'components.css', 'c-cms.css', 'c-content.css', 'c-form.css', 'c-grid.css', 'c-menu.css', 'c-tooltip.css', 'theme.css')
-        : $systemFiles;
-    foreach ($requiredFiles as $name) {
-        $file = $cssDir . '/' . $name;
-        $minimumBytes = $design === 'flowers' ? 20 : 100;
-        if (!is_file($file) || filesize($file) < $minimumBytes) {
+        : $system_files;
+    foreach ($required_files as $name) {
+        $file = $css_dir . '/' . $name;
+        $minimum_bytes = $design === 'flowers' ? 20 : 100;
+        if (!is_file($file) || filesize($file) < $minimum_bytes) {
             $failures[] = $design . ': eigenständige Systemdatei fehlt oder ist leer: ' . $name;
         }
     }

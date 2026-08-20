@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-$source = (string)file_get_contents(dirname(__DIR__, 2) . '/js/lib/cms.js');
+$source = (string)file_get_contents(dirname(__DIR__, 2) . '/modules/dbxContent_admin/js/cms.js')
+    . (string)file_get_contents(dirname(__DIR__, 2) . '/modules/dbxContent_admin/js/cms-context.js')
+    . (string)file_get_contents(dirname(__DIR__, 2) . '/modules/dbxContent_admin/js/cms-components.js')
+    . (string)file_get_contents(dirname(__DIR__, 2) . '/modules/dbxContent_admin/js/cms-editor.js');
 $base = dirname(__DIR__, 2);
 
 $assert = static function (bool $condition, string $message): void {
@@ -123,7 +126,7 @@ $assert(
         && str_contains($source, 'refreshEditorCaretHint(root, state(root).editorContextPasteRange)'),
     'Die präzise Einfügeposition wird im Editor nicht sichtbar hervorgehoben.'
 );
-foreach (['dbxapp', 'dbxdocs', 'flowers', 'steal'] as $design) {
+foreach (['dbxapp', 'flowers', 'steal'] as $design) {
     $css = (string)file_get_contents($base . '/design/' . $design . '/css/c-cms.css');
     $assert(
         str_contains($css, '.is-dbx-cms-dragging')

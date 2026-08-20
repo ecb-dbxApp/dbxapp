@@ -23,12 +23,12 @@ class dbxFormCallbackDefaultsOwner
 
 $owner = new dbxFormCallbackDefaultsOwner();
 $form = $owner->createForm();
-$ownerProperty = (new ReflectionClass('dbxObj'))->getProperty(
+$owner_property = (new ReflectionClass('dbxObj'))->getProperty(
     '_callback_owner'
 );
-$ownerProperty->setAccessible(true);
+$owner_property->setAccessible(true);
 
-if ($ownerProperty->getValue($form) !== $owner) {
+if ($owner_property->getValue($form) !== $owner) {
     $fail('dbxForm uebernimmt den direkten Aufrufer nicht als Owner.', 1);
 }
 

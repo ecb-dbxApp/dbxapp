@@ -1,9 +1,9 @@
 <div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper">
  <form action="{action}" class="dbxAjax" method="post" name="export_csv" id="dbx_form_{i}">
-[tpl=dbx|module-bar]
+{form:bar}
   <div class="dbx-panel-body">
    <div class="row mb-3">
-    <div class="col">{obj:form_msg}</div>
+    <div class="col">{form:message}</div>
    </div>
    <div class="row mb-3">
     <div class="col">{obj:version}</div>
@@ -14,5 +14,6 @@
    </div>
   </div>
  </form>
+ {form:footer}
  [dbx:js]
 </div>

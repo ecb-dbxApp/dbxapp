@@ -18,6 +18,15 @@
  * ```
  */
 
+// Direkt gestartete CLI-Tests erhalten denselben isolierten Kontext wie der
+// zentrale SelfTest-Runner. So schreiben auch Einzel- und CI-Läufe niemals in
+// reale Systemmeldungs- oder Diagnosedatenbanken.
+$dbx_test_script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_FILENAME'] ?? ''));
+if (PHP_SAPI === 'cli' && preg_match('~/tests?/[^/]+$~', $dbx_test_script) === 1) {
+   putenv('DBX_SELFTEST=1');
+}
+unset($dbx_test_script);
+
 //global $dbxGlobalObj; $dbxGlobalVar;  $dbxCacheTPL;
 
 
@@ -178,7 +187,7 @@ class dbxObj {
   }
 
   /**
-   * Fuehrt einen Callback aus und gibt dessen Rueckgabewert zurueck.
+   * Führt einen Callback aus und gibt dessen Rueckgabewert zurueck.
    *
    * Falls kein Callback existiert oder nicht aufrufbar ist, bleibt der
    * Eingangswert unveraendert. Callback-Methoden erhalten immer
@@ -321,9 +330,9 @@ class dbxObj {
     if (!$process) $process=dbx()->get_session_var('dbx_process',0);
     //dbx_debug("#GET-PROCESS=($process)");
     if ($process) {
-      $oProcess=dbx()->get_system_obj('dbxProcess');
-      $next=$oProcess->run($process);
-      $pos =$oProcess->get_property('stepp');
+      $o_process=dbx()->get_system_obj('dbxProcess');
+      $next=$o_process->run($process);
+      $pos =$o_process->get_property('stepp');
     }
   
     //$content.="<br>Process=($process) Pos=($pos)<br>$next";

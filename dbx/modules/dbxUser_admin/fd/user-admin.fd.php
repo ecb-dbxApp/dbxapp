@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['action_save'] = 'Speichern';
 $messages['user_not_found'] = 'Benutzerprofil wurde nicht gefunden.';
 $messages['group_not_found'] = 'Benutzergruppe wurde nicht gefunden.';

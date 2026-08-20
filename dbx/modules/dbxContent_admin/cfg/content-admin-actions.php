@@ -18,7 +18,7 @@ return array(
     'sysdata' => $html('handle_sysdata'),
     'images' => $html('handle_images'),
     'ibrowser' => $html('handle_ibrowser'),
-    'iupload' => $html('handle_iupload'),
+    'iupload' => $html('handle_images'),
     'flat' => $html('handle_flat'),
     'tree' => $html('handle_tree'),
     'list_files' => $html('handle_list_files'),

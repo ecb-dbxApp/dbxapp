@@ -1,0 +1,41 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxShop",
+    "type": "module",
+    "name": "dbxShop",
+    "title": "dbxShop",
+    "description": "Shop-Laufzeit für Katalog, Warenkorb, Bestellungen und Zahlungsabläufe.",
+    "descriptions": {
+        "de": "Shop-Laufzeit für Katalog, Warenkorb, Bestellungen und Zahlungsabläufe.",
+        "en": "Shop runtime for catalogue, cart, orders and payment flows.",
+        "es": "Motor de tienda para catálogo, carrito, pedidos y pagos."
+    },
+    "icon": "bi-cart3",
+    "image": "",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": {
+            "dbxapp/module/dbxContent": "^4.4.0"
+        }
+    },
+    "permissions": [
+        "database",
+        "media",
+        "network",
+        "payment"
+    ],
+    "migrations": [],
+    "files": []
+}

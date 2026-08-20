@@ -1,20 +1,23 @@
 <?php
 namespace dbx\dbxShop;
 
+require_once __DIR__ . '/dbxShopSearch.class.php';
+require_once __DIR__ . '/dbxShopMediaUrl.class.php';
+
 trait dbxShopServiceCatalogServiceTrait {
 
-   private function ensureSeed(): void {
+   private function ensure_seed(): void {
       // Der oeffentliche GET-Pfad darf keine Demo- oder Wartungsdaten
       // anlegen. Seed und Migration werden im Admin explizit ausgefuehrt.
       $this->repo()->install();
    }
 
-   private function activeChannel(): string {
+   private function active_channel(): string {
       return 'shop';
    }
 
 
-   private function productHasChannel(array $product, string $channel): bool {
+   private function product_has_channel(array $product, string $channel): bool {
       foreach (($product['channels'] ?? array()) as $ch) {
          if ((string)($ch['channel_key'] ?? '') === $channel && (int)($ch['active'] ?? 0) === 1) {
             return true;
@@ -23,11 +26,11 @@ trait dbxShopServiceCatalogServiceTrait {
       return false;
    }
 
-   private function groupsHtml(array $product): string {
+   private function groups_html(array $product): string {
       $html = '';
       foreach (($product['groups'] ?? array()) as $group) {
-         $groupId = (int)($group['id'] ?? 0);
-         $href = $groupId > 0 ? '?dbx_modul=dbxShop&amp;dbx_run1=catalog&amp;group=' . $groupId : '';
+         $group_id = (int)($group['id'] ?? 0);
+         $href = $group_id > 0 ? '?dbx_modul=dbxShop&amp;dbx_run1=catalog&amp;group=' . $group_id : '';
          $label = $this->h($group['title'] ?? '');
          $html .= $href !== ''
             ? '<a class="dbx-shop-chip" href="' . $href . '">' . $label . '</a>'
@@ -36,26 +39,26 @@ trait dbxShopServiceCatalogServiceTrait {
       return $html;
    }
 
-   private function catalogGroupId(): int {
+   private function catalog_group_id(): int {
       return max(0, (int)dbx()->get_modul_var('group', 0, 'int'));
    }
 
-   private function groupImageUrl(array $group): string {
-      $image = $this->repo()->primaryImageForGroup((int)($group['id'] ?? 0));
+   private function group_image_url(array $group): string {
+      $image = $this->repo()->primary_image_for_group((int)($group['id'] ?? 0));
       if (is_array($image)) {
-         $url = $this->mediaItemUrl($image, true);
+         $url = dbxShopMediaUrl::item($image, true);
          if ($url !== '') {
             return $url;
          }
       }
-      return $this->mediaUrl('files/shop/img/software-dashboard.svg');
+      return dbxShopMediaUrl::path('files/shop/img/software-dashboard.svg');
    }
 
-   private function catalogGroupBreadcrumb(int $groupId): string {
-      if ($groupId <= 0) {
+   private function catalog_group_breadcrumb(int $group_id): string {
+      if ($group_id <= 0) {
          return '';
       }
-      $path = $this->repo()->groupPath($groupId);
+      $path = $this->repo()->group_path($group_id);
       if ($path === array()) {
          return '';
       }
@@ -67,7 +70,7 @@ trait dbxShopServiceCatalogServiceTrait {
       foreach ($path as $group) {
          $id = (int)($group['id'] ?? 0);
          $title = $this->h($group['title'] ?? '');
-         if ($id === $groupId) {
+         if ($id === $group_id) {
             $html .= '<span>' . $title . '</span>';
          } else {
             $html .= '<a href="?dbx_modul=dbxShop&amp;dbx_run1=catalog&amp;group=' . $id . '">' . $title . '</a>';
@@ -77,8 +80,8 @@ trait dbxShopServiceCatalogServiceTrait {
       return $html;
    }
 
-   private function catalogGroupNavigation(int $parentId): string {
-      $groups = $this->repo()->groupsByParent($parentId, true);
+   private function catalog_group_navigation(int $parent_id): string {
+      $groups = $this->repo()->groups_by_parent($parent_id, true);
       if ($groups === array()) {
          return '';
       }
@@ -93,7 +96,7 @@ trait dbxShopServiceCatalogServiceTrait {
          ));
          $description = trim((string)($group['description'] ?? ''));
          $html .= '<a class="dbx-shop-group-card" href="?dbx_modul=dbxShop&amp;dbx_run1=catalog&amp;group=' . $id . '">';
-         $html .= '<span class="dbx-shop-group-card-image"><img src="' . $this->h($this->groupImageUrl($group)) . '" alt="' . $this->h($title) . '" loading="lazy"></span>';
+         $html .= '<span class="dbx-shop-group-card-image"><img src="' . $this->h($this->group_image_url($group)) . '" alt="' . $this->h($title) . '" loading="lazy"></span>';
          $html .= '<span class="dbx-shop-group-card-body"><strong>' . $this->h($title) . '</strong>';
          if ($description !== '') {
             $html .= '<small>' . $this->h($description) . '</small>';
@@ -104,15 +107,15 @@ trait dbxShopServiceCatalogServiceTrait {
       return $html;
    }
 
-   private function productInCatalogGroup(array $product, int $groupId): bool {
-      if ($groupId <= 0) {
+   private function product_in_catalog_group(array $product, int $group_id): bool {
+      if ($group_id <= 0) {
          return true;
       }
-      if ((int)($product['product_group_id'] ?? 0) === $groupId) {
+      if ((int)($product['product_group_id'] ?? 0) === $group_id) {
          return true;
       }
       foreach (($product['groups'] ?? array()) as $group) {
-         if ((int)($group['id'] ?? 0) === $groupId) {
+         if ((int)($group['id'] ?? 0) === $group_id) {
             return true;
          }
       }
@@ -120,27 +123,8 @@ trait dbxShopServiceCatalogServiceTrait {
    }
 
 
-   private function normalizedText(string $value): string {
-      $value = strtolower($value);
-      $value = strtr($value, array('ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'ß' => 'ss'));
-      $value = preg_replace('~[^a-z0-9]+~', ' ', $value) ?: '';
-      return preg_replace('~\\s+~', ' ', trim($value)) ?: '';
-   }
 
-   private function attributeText(array $product): string {
-      $parts = array();
-      foreach (($product['attributes'] ?? array()) as $attribute) {
-         $value = trim((string)($attribute['display_value'] ?? $attribute['value_text'] ?? ''));
-         $parts[] = (string)($attribute['title'] ?? '');
-         $parts[] = (string)($attribute['attr_key'] ?? '');
-         if ($value !== '') {
-            $parts[] = $value;
-         }
-      }
-      return implode(' ', $parts);
-   }
-
-   private function groupText(array $product): string {
+   private function group_text(array $product): string {
       $parts = array();
       foreach (($product['groups'] ?? array()) as $group) {
          $parts[] = (string)($group['title'] ?? '');
@@ -151,125 +135,67 @@ trait dbxShopServiceCatalogServiceTrait {
       return implode(' ', $parts);
    }
 
-   private function searchTerms(string $query): array {
-      $terms = preg_split('~\\s+~', $this->normalizedText($query)) ?: array();
-      $stopWords = array_flip(array('der','die','das','den','dem','des','ein','eine','einer','einem','und','oder','mit','ohne','fuer','fur','von','im','in','am','an','auf','zu'));
-      $out = array();
-      foreach ($terms as $term) {
-         $term = trim($term);
-         if ($term === '' || isset($stopWords[$term])) {
-            continue;
-         }
-         if (strlen($term) < 2 && !ctype_digit($term)) {
-            continue;
-         }
-         $out[$term] = true;
-      }
-      return array_keys($out);
-   }
 
 
-   private function searchFieldScore(string $text, string $term, int $weight): int {
-      if ($text === '' || $term === '') {
-         return 0;
-      }
-      if ($text === $term) {
-         return $weight * 8;
-      }
-      $termLength = strlen($term);
-      $compactText = str_replace(' ', '', $text);
-      $compactTerm = str_replace(' ', '', $term);
-      if (strpos($text, $term) !== false || strpos($compactText, $compactTerm) !== false) {
-         return $weight * 5;
-      }
-      $best = 0;
-      foreach (preg_split('~\\s+~', $text) ?: array() as $token) {
-         $token = trim($token);
-         if ($token === '') {
-            continue;
-         }
-         if ($token === $term) {
-            $best = max($best, $weight * 6);
-            continue;
-         }
-         if ($termLength < 3) {
-            continue;
-         }
-         if (strlen($token) >= $termLength && strpos($token, $term) === 0) {
-            $best = max($best, $weight * 4);
-            continue;
-         }
-         if (
-            $termLength >= 4
-            && strlen($token) >= 4
-            && substr($token, 0, 3) === substr($term, 0, 3)
-            && abs(strlen($token) - $termLength) <= ($termLength >= 7 ? 2 : 1)
-            && levenshtein($token, $term) <= ($termLength >= 7 ? 2 : 1)
-         ) {
-            $best = max($best, $weight * 2);
-         }
-      }
-      return $best;
-   }
 
-   private function productSearchScore(array $product, string $query): int {
-      $terms = $this->searchTerms($query);
+   private function product_search_score(array $product, string $query): int {
+      $terms = dbxShopSearch::terms($query);
       if ($terms === array()) {
          return 1;
       }
 
-      $primary = $this->normalizedText(implode(' ', array(
+      $primary = dbxShopSearch::normalized_text(implode(' ', array(
          (string)($product['sku'] ?? ''),
          (string)($product['title'] ?? ''),
          (string)($product['category'] ?? ''),
          (string)($product['badge'] ?? ''),
          (string)($product['product_type'] ?? ''),
       )));
-      $secondary = $this->normalizedText(implode(' ', array(
+      $secondary = dbxShopSearch::normalized_text(implode(' ', array(
          (string)($product['summary'] ?? ''),
          (string)($product['description'] ?? ''),
       )));
-      $attributes = $this->normalizedText($this->attributeText($product));
-      $groups = $this->normalizedText($this->groupText($product));
+      $attributes = dbxShopSearch::normalized_text(dbxShopValue::attribute_text($product));
+      $groups = dbxShopSearch::normalized_text($this->group_text($product));
 
       $score = 0;
       $matched = 0;
-      $firstTermPrimaryScore = 0;
-      $termCount = count($terms);
+      $first_term_primary_score = 0;
+      $term_count = count($terms);
 
       foreach ($terms as $idx => $term) {
-         $primaryScore = $this->searchFieldScore($primary, $term, 10);
-         $termScore = max(
-            $primaryScore,
-            $this->searchFieldScore($attributes, $term, 7),
-            $this->searchFieldScore($secondary, $term, 4),
-            $this->searchFieldScore($groups, $term, 3)
+         $primary_score = dbxShopSearch::field_score($primary, $term, 10);
+         $term_score = max(
+            $primary_score,
+            dbxShopSearch::field_score($attributes, $term, 7),
+            dbxShopSearch::field_score($secondary, $term, 4),
+            dbxShopSearch::field_score($groups, $term, 3)
          );
 
          if ($idx === 0) {
-            $firstTermPrimaryScore = $primaryScore;
+            $first_term_primary_score = $primary_score;
          }
-         if ($termScore > 0) {
+         if ($term_score > 0) {
             $matched++;
-            $score += $termScore;
+            $score += $term_score;
          }
       }
 
       if ($matched === 0) {
          return 0;
       }
-      if ($termCount === 1) {
+      if ($term_count === 1) {
          return $score;
       }
 
-      if ($matched === $termCount || $firstTermPrimaryScore > 0 || $score >= 20) {
+      if ($matched === $term_count || $first_term_primary_score > 0 || $score >= 20) {
          return $score + ($matched * 3);
       }
 
       return 0;
    }
 
-   private function attributesInlineHtml(array $product, int $max = 4): string {
+   private function attributes_inline_html(array $product, int $max = 4): string {
       $html = '';
       $count = 0;
       foreach (($product['attributes'] ?? array()) as $attribute) {
@@ -282,7 +208,7 @@ trait dbxShopServiceCatalogServiceTrait {
       return $html !== '' ? '<div class="dbx-shop-attribute-row">' . $html . '</div>' : '';
    }
 
-   private function attributesTableHtml(array $product): string {
+   private function attributes_table_html(array $product): string {
       $texts = $this->texts('dbxShop|shop-catalog-filter-form');
       $rows = '';
       foreach (($product['attributes'] ?? array()) as $attribute) {
@@ -298,7 +224,7 @@ trait dbxShopServiceCatalogServiceTrait {
          . '</h4><table><tbody>' . $rows . '</tbody></table></div>';
    }
 
-   private function selectedAttributeFilters(): array {
+   private function selected_attribute_filters(): array {
       $raw = $_GET['attr'] ?? array();
       if (!is_array($raw)) {
          return array();
@@ -315,7 +241,7 @@ trait dbxShopServiceCatalogServiceTrait {
    }
 
 
-   private function productMatchesAttributeFilters(array $product, array $filters): bool {
+   private function product_matches_attribute_filters(array $product, array $filters): bool {
       if ($filters === array()) {
          return true;
       }
@@ -323,53 +249,53 @@ trait dbxShopServiceCatalogServiceTrait {
       foreach (($product['attributes'] ?? array()) as $attribute) {
          $id = (int)($attribute['id'] ?? 0);
          if ($id <= 0) continue;
-         $values[$id] = $this->normalizedText((string)($attribute['value_text'] ?? ''));
+         $values[$id] = dbxShopSearch::normalized_text((string)($attribute['value_text'] ?? ''));
       }
       foreach ($filters as $id => $value) {
-         if (!isset($values[$id]) || $values[$id] !== $this->normalizedText((string)$value)) {
+         if (!isset($values[$id]) || $values[$id] !== dbxShopSearch::normalized_text((string)$value)) {
             return false;
          }
       }
       return true;
    }
 
-   private function catalogFiltersHtml(string $channel, string $query, array $selected, int $groupId = 0): string {
+   private function catalog_filters_html(string $channel, string $query, array $selected, int $group_id = 0): string {
       $texts = $this->texts('dbxShop|shop-catalog-filter-form');
-      $filterFields = '';
-      foreach ($this->repo()->attributeFilterDefinitions() as $definition) {
+      $filter_fields = '';
+      foreach ($this->repo()->attribute_filter_definitions() as $definition) {
          $id = (int)($definition['id'] ?? 0);
          $values = $definition['values'] ?? array();
          if ($id <= 0 || !is_array($values) || $values === array()) continue;
          $label = trim((string)($definition['title'] ?? ''));
          $group = trim((string)($definition['group_title'] ?? ''));
-         $filterFields .= '<label><span>' . $this->h($group !== '' ? $group . ': ' . $label : $label) . '</span><select class="form-select form-select-sm" name="attr[' . $id . ']">';
-         $filterFields .= '<option value="">'
+         $filter_fields .= '<label><span>' . $this->h($group !== '' ? $group . ': ' . $label : $label) . '</span><select class="form-select form-select-sm" name="attr[' . $id . ']">';
+         $filter_fields .= '<option value="">'
             . $this->h($texts->get_fd_message('all_option'))
             . '</option>';
          foreach ($values as $value) {
-            $sel = isset($selected[$id]) && $this->normalizedText((string)$selected[$id]) === $this->normalizedText((string)$value) ? ' selected' : '';
-            $filterFields .= '<option value="' . $this->h($value) . '"' . $sel . '>' . $this->h($value) . '</option>';
+            $sel = isset($selected[$id]) && dbxShopSearch::normalized_text((string)$selected[$id]) === dbxShopSearch::normalized_text((string)$value) ? ' selected' : '';
+            $filter_fields .= '<option value="' . $this->h($value) . '"' . $sel . '>' . $this->h($value) . '</option>';
          }
-         $filterFields .= '</select></label>';
+         $filter_fields .= '</select></label>';
       }
-      $advancedFilters = '';
-      if ($filterFields !== '') {
+      $advanced_filters = '';
+      if ($filter_fields !== '') {
          $open = $selected !== array() ? ' open' : '';
-         $advancedFilters .= '<details class="dbx-shop-filter-advanced"' . $open . '>';
-         $advancedFilters .= '<summary><i class="bi bi-sliders"></i> '
+         $advanced_filters .= '<details class="dbx-shop-filter-advanced"' . $open . '>';
+         $advanced_filters .= '<summary><i class="bi bi-sliders"></i> '
             . $this->h($texts->get_fd_message('refine_filters'))
             . '</summary>';
-         $advancedFilters .= '<div class="dbx-shop-filter-row">' . $filterFields . '</div>';
-         $advancedFilters .= '</details>';
+         $advanced_filters .= '<div class="dbx-shop-filter-row">' . $filter_fields . '</div>';
+         $advanced_filters .= '</details>';
       }
 
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('shop-catalog-filter-form', 'shop-catalog-filter-form');
       $form->set_editor_class_file(__FILE__);
-      $form->_fd = 'dbxShop|shop-catalog-filter-form';
+      $form->set_field_definition('dbxShop|shop-catalog-filter-form');
       $form->load_fd_messages();
-      $form->_action = '?dbx_modul=dbxShop&dbx_run1=catalog';
-      $form->_data = array('q' => $query);
+      $form->set_action('?dbx_modul=dbxShop&dbx_run1=catalog');
+      $form->set_data(array('q' => $query));
       $form->_msg_info = '';
       $form->_msg_success = '';
       $form->_msg_error = '';
@@ -377,8 +303,8 @@ trait dbxShopServiceCatalogServiceTrait {
       $form->add_rep('bar_title', $texts->get_fd_message('bar_title'));
       $form->add_rep('frame_skip_form_wrap', '1');
       $form->add_fld('q');
-      $form->add_rep('advanced_filters', $advancedFilters);
-      $form->add_rep('group_hidden', $groupId > 0 ? '<input type="hidden" name="group" value="' . $groupId . '">' : '');
+      $form->add_rep('advanced_filters', $advanced_filters);
+      $form->add_rep('group_hidden', $group_id > 0 ? '<input type="hidden" name="group" value="' . $group_id . '">' : '');
       return $form->run();
    }
 
@@ -388,14 +314,14 @@ trait dbxShopServiceCatalogServiceTrait {
     * Teure Teilrenderer wie Galerie und dbxForm werden dadurch nicht fuer
     * unsichtbare Platzhalter einer Produktkarte ausgefuehrt.
     */
-   private function productTemplateData(
+   private function product_template_data(
       array $product,
       string $channel,
       bool $detail = false,
-      ?array $templateFields = null
+      ?array $template_fields = null
    ): array {
       $sku = (string)($product['sku'] ?? '');
-      $uses = static fn(string $field): bool => $templateFields === null || isset($templateFields[$field]);
+      $uses = static fn(string $field): bool => $template_fields === null || isset($template_fields[$field]);
       $data = array();
       if ($uses('sku')) $data['sku'] = $this->h($sku);
       if ($uses('title')) $data['title'] = $this->h($product['title'] ?? '');
@@ -403,23 +329,23 @@ trait dbxShopServiceCatalogServiceTrait {
       if ($uses('description')) {
          $data['description'] = $this->h($product['description'] ?? $product['summary'] ?? '');
       }
-      if ($uses('groups')) $data['groups'] = $this->groupsHtml($product);
+      if ($uses('groups')) $data['groups'] = $this->groups_html($product);
       if ($uses('channels')) $data['channels'] = '';
       if ($uses('attributes')) {
          $data['attributes'] = $detail
-            ? $this->attributesTableHtml($product)
-            : $this->attributesInlineHtml($product, 4);
+            ? $this->attributes_table_html($product)
+            : $this->attributes_inline_html($product, 4);
       }
       if ($uses('attributes_table')) {
-         $data['attributes_table'] = $this->attributesTableHtml($product);
+         $data['attributes_table'] = $this->attributes_table_html($product);
       }
-      if ($uses('gallery')) $data['gallery'] = $this->productGallery($product);
-      if ($uses('visual')) $data['visual'] = $this->productVisual($product);
+      if ($uses('gallery')) $data['gallery'] = $this->product_gallery($product);
+      if ($uses('visual')) $data['visual'] = $this->product_visual($product);
       if ($uses('price')) $data['price'] = $this->money($product['price_gross'] ?? 0);
-      if ($uses('tax_shipping')) $data['tax_shipping'] = $this->taxShippingHtml($product);
-      if ($uses('shipping_info')) $data['shipping_info'] = $this->shippingInfoHtml($product);
-      if ($uses('stock_info')) $data['stock_info'] = $this->stockInfoHtml($product);
-      if ($uses('buy_form')) $data['buy_form'] = $this->buyFormHtml($product);
+      if ($uses('tax_shipping')) $data['tax_shipping'] = $this->tax_shipping_html($product);
+      if ($uses('shipping_info')) $data['shipping_info'] = $this->shipping_info_html($product);
+      if ($uses('stock_info')) $data['stock_info'] = $this->stock_info_html($product);
+      if ($uses('buy_form')) $data['buy_form'] = $this->buy_form_html($product);
       if ($uses('detail_url')) {
          $data['detail_url'] = '?dbx_modul=dbxShop&amp;dbx_run1=product&amp;sku=' . rawurlencode($sku);
       }
@@ -428,152 +354,151 @@ trait dbxShopServiceCatalogServiceTrait {
          $data['cart_url'] = '?dbx_modul=dbxShop&amp;dbx_run1=cart&amp;sku=' . rawurlencode($sku);
       }
       if ($uses('card_class')) {
-         $data['card_class'] = $this->h($this->cssTemplateClass(
-            (string)$this->groupSetting($product, 'card_template', 'product-card-default')
+         $data['card_class'] = $this->h($this->css_template_class(
+            (string)$this->group_setting($product, 'card_template', 'product-card-default')
          ));
       }
       if ($uses('detail_class')) {
-         $data['detail_class'] = $this->h($this->cssTemplateClass(
-            (string)$this->groupSetting($product, 'detail_template', 'product-detail-default')
+         $data['detail_class'] = $this->h($this->css_template_class(
+            (string)$this->group_setting($product, 'detail_template', 'product-detail-default')
          ));
       }
       return $data;
    }
 
-   private function cssTemplateClass(string $template): string {
+   private function css_template_class(string $template): string {
       $template = preg_replace('~[^a-z0-9_-]+~i', '-', trim($template));
       return $template !== '' ? 'is-template-' . strtolower($template) : '';
    }
 
-   private function renderProductCard(array $product, string $channel): string {
-      $template = $this->templateName((string)$this->groupSetting($product, 'card_template', 'product-card-default'), 'product-card-default', 'product-card-');
-      if (!$this->shopTemplateExists($template)) {
+   private function render_product_card(array $product, string $channel): string {
+      $template = $this->template_name((string)$this->group_setting($product, 'card_template', 'product-card-default'), 'product-card-default', 'product-card-');
+      if (!$this->shop_template_exists($template)) {
          $template = 'product-card-default';
       }
       return $this->tpl()->get_tpl(
          'dbxShop|' . $template,
-         $this->productTemplateData($product, $channel, false, $this->shopTemplateFields($template))
+         $this->product_template_data($product, $channel, false, $this->shop_template_fields($template))
       );
    }
 
-   private function catalogReportHtml(array $products, string $channel, string $query, array $attributeFilters, int $groupId): string {
+   private function catalog_report_html(array $products, string $channel, string $query, array $attribute_filters, int $group_id, int $total_count): string {
       $report = dbx()->get_system_obj('dbxReport');
       $report->init('shop-catalog-report', 'dbxShop|shop-catalog-report');
-      $report->_fd = 'dbxShop|shop-catalog-filter-form';
+      $report->set_field_definition('dbxShop|shop-catalog-filter-form');
       $report->load_fd_messages();
       $report->set_editor_class_file(__FILE__);
-      $report->_mode = 'tpl';
+      $report->set_mode('tpl');
       $report->_pages = true;
       $report->_create_row_select = false;
       $report->_create_row_edit = false;
       $report->_create_row_delete = false;
       $report->_but_pagination = 7;
-      $rowsPerPage = max(6, min(48, (int)$report->get_fld_val('dbx_rrows', 12, 'int')));
+      $rows_per_page = max(6, min(48, (int)$report->get_fld_val('dbx_rrows', 12, 'int')));
       $position = max(0, (int)$report->get_fld_val('dbx_rpos', 0, 'int'));
-      $filteredCount = count($products);
-      if ($position >= $filteredCount && $filteredCount > 0) {
-         $position = max(0, (int)(floor(($filteredCount - 1) / $rowsPerPage) * $rowsPerPage));
+      $filtered_count = count($products);
+      if ($position >= $filtered_count && $filtered_count > 0) {
+         $position = max(0, (int)(floor(($filtered_count - 1) / $rows_per_page) * $rows_per_page));
       }
-      $visibleCandidates = array_slice($products, $position, $rowsPerPage);
-      $visible = $this->repo()->productsByIds(array_map(
+      $visible_candidates = array_slice($products, $position, $rows_per_page);
+      $visible = $this->repo()->products_by_ids(array_map(
          static fn($product) => (int)($product['id'] ?? 0),
-         $visibleCandidates
+         $visible_candidates
       ));
       $rows = array();
       foreach ($visible as $product) {
          $rows[] = array(
             'id' => (int)($product['id'] ?? 0),
-            'card' => $this->renderProductCard($product, $channel),
+            'card' => $this->render_product_card($product, $channel),
          );
       }
 
-      $queryParts = array(
+      $query_parts = array(
          'dbx_modul' => 'dbxShop',
          'dbx_run1' => 'catalog',
       );
       if ($query !== '') {
-         $queryParts['q'] = $query;
+         $query_parts['q'] = $query;
       }
-      if ($groupId > 0) {
-         $queryParts['group'] = $groupId;
+      if ($group_id > 0) {
+         $query_parts['group'] = $group_id;
       }
-      foreach ($attributeFilters as $id => $value) {
-         $queryParts['attr[' . (int)$id . ']'] = (string)$value;
+      foreach ($attribute_filters as $id => $value) {
+         $query_parts['attr[' . (int)$id . ']'] = (string)$value;
       }
-      $report->_action = '?' . http_build_query($queryParts, '', '&');
+      $report->set_action('?' . http_build_query($query_parts, '', '&'));
       $report->_rflds = array(
          'card' => $report->get_fd_message('column_products'),
       );
       $report->_rpt_format = array('card' => 'html');
-      $report->_rrows = $rowsPerPage;
+      $report->_rrows = $rows_per_page;
       $report->_rpos = $position;
-      $report->_count_all = $filteredCount;
-      $report->_rcount = $filteredCount;
+      $report->set_report_counts($filtered_count, $total_count);
       $report->_rdata = $rows;
       return $report->run();
    }
 
-   private function renderProductDetail(array $product, string $channel): string {
-      $template = $this->templateName((string)$this->groupSetting($product, 'detail_template', 'product-detail-default'), 'product-detail-default', 'product-detail-');
-      if (!$this->shopTemplateExists($template)) {
+   private function render_product_detail(array $product, string $channel): string {
+      $template = $this->template_name((string)$this->group_setting($product, 'detail_template', 'product-detail-default'), 'product-detail-default', 'product-detail-');
+      if (!$this->shop_template_exists($template)) {
          $template = 'product-detail-default';
       }
-      $data = $this->productTemplateData(
+      $data = $this->product_template_data(
          $product,
          $channel,
          true,
-         $this->shopTemplateFields($template)
+         $this->shop_template_fields($template)
       );
       return $this->tpl()->get_tpl('dbxShop|' . $template, $data);
    }
 
-   private function taxShippingHtml(array $product): string {
+   private function tax_shipping_html(array $product): string {
       $texts = $this->texts('dbxShop|shop-catalog-filter-form');
       $tax = $this->h(number_format((float)($product['effective_tax_rate'] ?? 0), 2, ',', '.'));
       $shipping = (float)($product['effective_shipping_gross'] ?? 0);
-      $shippingText = $shipping > 0
+      $shipping_text = $shipping > 0
          ? $this->money($shipping) . ' ' . $texts->get_fd_message('shipping_suffix')
          : $texts->get_fd_message('free_shipping');
-      $showTax = $this->settingsBool($this->shopConfig(), 'tax_display_enabled', true);
+      $show_tax = $this->settings_bool($this->shop_config(), 'tax_display_enabled', true);
       $parts = array();
-      if ($showTax) {
+      if ($show_tax) {
          $parts[] = $tax . '% ' . $texts->get_fd_message('tax_label');
       }
-      $parts[] = $this->h($shippingText);
+      $parts[] = $this->h($shipping_text);
       return '<small>' . implode(', ', $parts) . '</small>';
    }
 
-   private function shippingInfoHtml(array $product): string {
+   private function shipping_info_html(array $product): string {
       $texts = $this->texts('dbxShop|shop-catalog-filter-form');
-      $deliveryTime = trim((string)($product['effective_delivery_time'] ?? ''));
-      $shippingWay = trim((string)($product['effective_shipping_way'] ?? ''));
+      $delivery_time = trim((string)($product['effective_delivery_time'] ?? ''));
+      $shipping_way = trim((string)($product['effective_shipping_way'] ?? ''));
       $shipping = (float)($product['effective_shipping_gross'] ?? 0);
-      $shippingText = $shipping > 0
+      $shipping_text = $shipping > 0
          ? $this->money($shipping)
          : $texts->get_fd_message('free_shipping');
       $rows = '';
 
-      if ($deliveryTime !== '') {
+      if ($delivery_time !== '') {
          $rows .= '<div class="dbx-shop-shipping-info-row"><i class="bi bi-clock"></i><span>'
             . $this->h($texts->get_fd_message('delivery_time'))
-            . ': ' . $this->h($deliveryTime) . '</span></div>';
+            . ': ' . $this->h($delivery_time) . '</span></div>';
       }
-      if ($shippingWay !== '') {
+      if ($shipping_way !== '') {
          $rows .= '<div class="dbx-shop-shipping-info-row"><i class="bi bi-truck"></i><span>'
             . $this->h($texts->get_fd_message('shipping_method'))
-            . ': ' . $this->h($shippingWay) . '</span></div>';
+            . ': ' . $this->h($shipping_way) . '</span></div>';
       }
       $rows .= '<div class="dbx-shop-shipping-info-row"><i class="bi bi-box-seam"></i><span>'
          . $this->h($texts->get_fd_message('shipping_costs'))
-         . ': ' . $this->h($shippingText) . '</span></div>';
+         . ': ' . $this->h($shipping_text) . '</span></div>';
 
       return '<div class="dbx-shop-shipping-info">' . $rows . '</div>';
    }
 
-   private function stockInfoHtml(array $product): string {
+   private function stock_info_html(array $product): string {
       $texts = $this->texts('dbxShop|shop-catalog-filter-form');
-      $cfg = $this->shopConfig();
-      if (!$this->settingsBool($cfg, 'stock_enabled', false) || (string)($product['product_type'] ?? '') !== 'physical') {
+      $cfg = $this->shop_config();
+      if (!$this->settings_bool($cfg, 'stock_enabled', false) || (string)($product['product_type'] ?? '') !== 'physical') {
          return '';
       }
       $stock = (int)($product['stock'] ?? 0);
@@ -599,22 +524,22 @@ trait dbxShopServiceCatalogServiceTrait {
     * Dieselbe Factory wird beim Rendern und beim Ziel-POST benutzt. So ist
     * die Warenkorbmutation an die dbxForm-Tokenprüfung gebunden.
     */
-   private function buyForm(array $product): ?\dbxForm {
+   private function buy_form(array $product): ?\dbxForm {
       $sku = (string)($product['sku'] ?? '');
       if ($sku === '') {
          return null;
       }
-      $cfg = $this->shopConfig();
-      if ($this->settingsBool($cfg, 'stock_enabled', false) && (string)($product['product_type'] ?? '') === 'physical' && (int)($product['stock'] ?? 0) <= 0) {
+      $cfg = $this->shop_config();
+      if ($this->settings_bool($cfg, 'stock_enabled', false) && (string)($product['product_type'] ?? '') === 'physical' && (int)($product['stock'] ?? 0) <= 0) {
          return null;
       }
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('shop-buy-' . preg_replace('~[^a-z0-9_-]+~i', '-', strtolower($sku)), 'shop-buy-form');
-      $form->_fd = 'dbxShop|shop-cart';
+      $form->set_field_definition('dbxShop|shop-cart');
       $form->load_fd_messages();
       $form->set_editor_class_file(__FILE__);
-      $form->_action = '?dbx_modul=dbxShop&dbx_run1=cart&sku=' . rawurlencode($sku);
-      $form->_data = array_merge($form->_data, array('qty' => 1));
+      $form->set_action('?dbx_modul=dbxShop&dbx_run1=cart&sku=' . rawurlencode($sku));
+      $form->merge_data(array('qty' => 1));
       $form->_msg_info = '';
       $form->_msg_success = '';
       $form->_msg_error = '';
@@ -632,8 +557,8 @@ trait dbxShopServiceCatalogServiceTrait {
       return $form;
    }
 
-   private function buyFormHtml(array $product): string {
-      $form = $this->buyForm($product);
+   private function buy_form_html(array $product): string {
+      $form = $this->buy_form($product);
       if (!$form) {
          $texts = $this->texts('dbxShop|shop-cart');
          return '<a class="btn btn-outline-secondary" href="?dbx_modul=dbxShop&amp;dbx_run1=catalog"><i class="bi bi-arrow-left"></i> '

@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Hide request';
 $messages['validation_error'] = 'Please confirm that you want to hide the request.';
 $messages['delete_success'] = 'The request was removed from your view. The support history is retained.';

@@ -23,7 +23,7 @@ foreach (array($cms, $seo) as $source) {
    }
 }
 
-$cmsActions = array(
+$cms_actions = array(
    'cms_lng_provision', 'cms_lng_provision_tree', 'cms_lng_reset_sync',
    'cms_save', 'cms_new_page', 'cms_duplicate_page',
    'cms_new_folder', 'cms_save_folder', 'cms_delete_folder',
@@ -34,7 +34,7 @@ $cmsActions = array(
    'cms_edit_media', 'cms_set_media_slot', 'cms_assign_media',
    'cms_sort_media',
 );
-foreach ($cmsActions as $action) {
+foreach ($cms_actions as $action) {
    if (empty($manifest[$action]['token']) || empty($manifest[$action]['mutation'])) {
       $fail('Schreibende CMS-Aktion fehlt in der Tokenliste: ' . $action, 3);
    }
@@ -61,22 +61,22 @@ if (preg_match('/\b(?:PRAGMA|ALTER\s+TABLE|CREATE\s+(?:TABLE|INDEX))\b/i', $cms)
    $fail('Ein normaler Content-Request enthaelt weiterhin Laufzeit-DDL.', 6);
 }
 
-$pageMapSource = dbx_test_module_method_source($cms, 'media_usage_page_map');
-$contextSource = dbx_test_module_method_source($cms, 'media_usage_rows_for_context');
+$page_map_source = dbx_test_module_method_source($cms, 'media_usage_page_map');
+$context_source = dbx_test_module_method_source($cms, 'media_usage_rows_for_context');
 if (strpos($cms, 'private function rows_by_ids') === false
-   || substr_count($pageMapSource, 'rows_by_ids(') < 2
-   || substr_count($contextSource, 'rows_by_ids(') < 1
-   || strpos($pageMapSource, 'select1(') !== false
-   || strpos($contextSource, 'select1(') !== false) {
+   || substr_count($page_map_source, 'rows_by_ids(') < 2
+   || substr_count($context_source, 'rows_by_ids(') < 1
+   || strpos($page_map_source, 'select1(') !== false
+   || strpos($context_source, 'select1(') !== false) {
    $fail('Medien-, Seiten- oder Ordnerdaten werden wieder einzeln statt gebuendelt geladen.', 7);
 }
 
-$pageReadSource = dbx_test_module_method_source($cms, 'page_json');
+$page_read_source = dbx_test_module_method_source($cms, 'page_json');
 if (!empty($manifest['cms_page']['mutation'])
-   || strpos($pageReadSource, 'sync_inline_media_usage(') !== false
-   || strpos($pageReadSource, '->insert(') !== false
-   || strpos($pageReadSource, '->update(') !== false
-   || strpos($pageReadSource, '->delete(') !== false) {
+   || strpos($page_read_source, 'sync_inline_media_usage(') !== false
+   || strpos($page_read_source, '->insert(') !== false
+   || strpos($page_read_source, '->update(') !== false
+   || strpos($page_read_source, '->delete(') !== false) {
    $fail('Der lesende CMS-Seitenendpunkt fuehrt weiterhin Datenbankmutationen aus.', 8);
 }
 

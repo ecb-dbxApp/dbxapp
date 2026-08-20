@@ -29,15 +29,15 @@ trait dbxDashboardCoreServiceTrait {
    }
 
    private function default_admin_password_warning_html(
-      int $adminId,
+      int $admin_id,
       string $hash
    ): string {
-      if ($adminId <= 0 || $hash === '' || !password_verify('123456', $hash)) {
+      if ($admin_id <= 0 || $hash === '' || !password_verify('123456', $hash)) {
          return '';
       }
 
       $url = '?dbx_modul=dbxAdmin&amp;dbx_run1=user'
-         . '&amp;dbx_run2=edit_user&amp;rid=' . $adminId
+         . '&amp;dbx_run2=edit_user&amp;rid=' . $admin_id
          . '&amp;dbx_page=admin';
       return '<div class="alert alert-warning dbx-admin-dashboard-password-warning" role="alert">'
          . '<div class="dbx-admin-dashboard-password-warning-icon">'
@@ -67,18 +67,18 @@ trait dbxDashboardCoreServiceTrait {
       return max(0, min(100, (int) round(($value / $max) * 100)));
    }
 
-   private function health_reason_label(int $inventoryCount, int $existingCount, int $sysmsgRisk, int $missing): string {
+   private function health_reason_label(int $inventory_count, int $existing_count, int $sysmsg_risk, int $missing): string {
       $reasons = array();
 
       if ($missing > 0) {
          $reasons[] = 'Missing';
       }
 
-      if ($sysmsgRisk > 0) {
+      if ($sysmsg_risk > 0) {
          $reasons[] = 'SysMsg';
       }
 
-      if ($existingCount < $inventoryCount) {
+      if ($existing_count < $inventory_count) {
          $reasons[] = 'DB';
       }
 
@@ -97,19 +97,19 @@ trait dbxDashboardCoreServiceTrait {
          return;
       }
 
-      $sysMsg = dbx()->get_include_obj('dbxSysMsg');
-      $result = $sysMsg->delete_error_log();
+      $sys_msg = dbx()->get_include_obj('dbxSysMsg');
+      $result = $sys_msg->delete_error_log();
 
       if ($result === 'deleted') {
-         $this->dashboardMessageKey = 'error_log_deleted';
+         $this->dashboard_message_key = 'error_log_deleted';
       } elseif ($result === 'empty') {
-         $this->dashboardMessageKey = 'error_log_empty';
+         $this->dashboard_message_key = 'error_log_empty';
       } else {
-         $this->dashboardMessageKey = 'error_log_delete_error';
-         $this->dashboardMessageError = true;
+         $this->dashboard_message_key = 'error_log_delete_error';
+         $this->dashboard_message_error = true;
       }
 
-      $this->metricCache = array();
+      $this->metric_cache = array();
    }
 
    /**
@@ -119,12 +119,12 @@ trait dbxDashboardCoreServiceTrait {
     * ist hier zwingend, damit das Admin-Protokoll niemals Markup ausführt.
     */
    private function error_log_panel(\dbxForm $texts): string {
-      $sysMsg = dbx()->get_include_obj('dbxSysMsg');
-      if (!$sysMsg->error_log_exists()) {
+      $sys_msg = dbx()->get_include_obj('dbxSysMsg');
+      if (!$sys_msg->error_log_exists()) {
          return '';
       }
 
-      $file = $sysMsg->get_error_log_file();
+      $file = $sys_msg->get_error_log_file();
       $content = @file_get_contents($file);
       if ($content === false) {
          $content = $texts->get_fd_message('error_log_read_error');
@@ -172,12 +172,12 @@ trait dbxDashboardCoreServiceTrait {
 
       if ($bytes <= 0) {
          global $dbx_run_timer;
-         $startMemory = isset($dbx_run_timer['system']['start_memory']) && is_numeric($dbx_run_timer['system']['start_memory'])
+         $start_memory = isset($dbx_run_timer['system']['start_memory']) && is_numeric($dbx_run_timer['system']['start_memory'])
             ? (int) $dbx_run_timer['system']['start_memory']
             : 0;
 
-         if ($startMemory > 0) {
-            $bytes = max(0, (int) memory_get_peak_usage() - $startMemory);
+         if ($start_memory > 0) {
+            $bytes = max(0, (int) memory_get_peak_usage() - $start_memory);
          }
       }
 
@@ -207,10 +207,10 @@ trait dbxDashboardCoreServiceTrait {
       ));
    }
 
-   private function help_action(string $topic): string {
+   private function help_action(string $run1 = '', string $run2 = ''): string {
       try {
-         $help = dbx()->get_include_obj('dbxAdminHelp', 'dbxAdmin');
-         return (string) $help->button($topic);
+         $help = dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp');
+         return (string)$help->button('dbxAdmin', $run1, $run2);
       } catch (\Throwable $e) {
          return '';
       }
@@ -238,7 +238,7 @@ trait dbxDashboardCoreServiceTrait {
    private function card_bar($title, $icon, $subtitle = '', $action = '') {
       $tpl = dbx()->get_system_obj('dbxTPL');
 
-      return $tpl->get_tpl('dbx|component-bar', $this->card_bar_data($title, $icon, $subtitle, $action));
+      return $tpl->get_tpl('dbx|module-bar', $this->card_bar_data($title, $icon, $subtitle, $action));
    }
 
    private function safe_count($dd, $where = '') {
@@ -278,13 +278,13 @@ trait dbxDashboardCoreServiceTrait {
       return number_format($value / 1000, 3, ',', '.') . ' Sec';
    }
 
-   private function fmt_ms_precision($value, $precision = 3, $minSeconds = 0) {
+   private function fmt_ms_precision($value, $precision = 3, $min_seconds = 0) {
       $value = max(0, (float) $value);
       $precision = max(0, min(6, (int) $precision));
       $seconds = $value / 1000;
 
-      if ((float) $minSeconds > 0 && $seconds < (float) $minSeconds) {
-         $seconds = (float) $minSeconds;
+      if ((float) $min_seconds > 0 && $seconds < (float) $min_seconds) {
+         $seconds = (float) $min_seconds;
       }
 
       return number_format($seconds, $precision, ',', '.') . ' Sec';
@@ -310,9 +310,9 @@ trait dbxDashboardCoreServiceTrait {
 
       echo $html;
 
-      $oSession = dbx()->get_system_obj('dbxSession');
-      if (is_object($oSession) && method_exists($oSession, 'save_session')) {
-         $oSession->save_session();
+      $o_session = dbx()->get_system_obj('dbxSession');
+      if (is_object($o_session) && method_exists($o_session, 'save_session')) {
+         $o_session->save_session();
       }
 
       exit;
@@ -342,6 +342,10 @@ trait dbxDashboardCoreServiceTrait {
             return $this->activity_report($metrics);
          case 'database_report':
             return $this->database_report($metrics);
+         case 'change_log_panel':
+            return $this->change_log_panel();
+         case 'ui_defaults_panel':
+            return $this->ui_defaults_panel();
       }
 
       return null;

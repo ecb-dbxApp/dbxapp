@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['label_quantity'] = 'Anzahl';
 $messages['buy_form_title'] = 'Artikel bestellen';
 $messages['product'] = 'Artikel';

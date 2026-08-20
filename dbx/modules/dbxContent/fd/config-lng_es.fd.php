@@ -1,15 +1,10 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
+$lng_options = 'de=Alemán (DE)&en=Inglés (EN)&es=Español (ES)&fr=Francais (FR)&it=Italiano (IT)';
 
+$provider_options = 'copy=Copiar texto (predeterminado)&none=Dejar vacío&deepl=DeepL API&openai=OpenAI API&custom=Aduanas (translate.php)';
 
-$lngOptions = 'de=Alemán (DE)&en=Inglés (EN)&es=Español (ES)&fr=Francais (FR)&it=Italiano (IT)';
-
-$providerOptions = 'copy=Copiar texto (predeterminado)&none=Dejar vacío&deepl=DeepL API&openai=OpenAI API&custom=Aduanas (translate.php)';
-
-$modelOptions = 'gpt-4o-mini=gpt-4o-mini (rápido)&gpt-4o=gpt-4o (calidad)&gpt-4.1-mini=gpt-4.1-mini';
+$model_options = 'gpt-4o-mini=gpt-4o-mini (rápido)&gpt-4o=gpt-4o (calidad)&gpt-4.1-mini=gpt-4.1-mini';
 
 $field = array();
 $field['name'] = 'default_lng';
@@ -21,7 +16,7 @@ $field['rules'] = '*';
 $field['tooltip'] = 'Lenguaje de control del CMS: estructura, comisión, auto-sincronización y revisión maestra. Correspond default_lng en el sistema-config (dbx).';
 $field['errormsg'] = 'Por favor, seleccione un idioma maestro válido.';
 $field['placeholder'] = 'de';
-$field['options'] = $lngOptions;
+$field['options'] = $lng_options;
 $field['tpl'] = 'select-single-label';
 $fields[] = $field;
 
@@ -35,8 +30,8 @@ $field['rules'] = '*';
 $field['tooltip'] = 'Todos los idiomas para árbol CMS, insignias de idiomas y conmutación UI. El idioma maestro debe ser incluido. Almacenados accessible_lng dentro dbx.';
 $field['errormsg'] = 'Seleccione al menos un idioma.';
 $field['placeholder'] = 'de, en, es';
-$field['options'] = $lngOptions;
-$field['tpl'] = 'select-multible-label';
+$field['options'] = $lng_options;
+$field['tpl'] = 'select-multiple-label';
 $fields[] = $field;
 
 $field = array();
@@ -63,7 +58,7 @@ $field['rules'] = '*';
 $field['tooltip'] = 'copia = texto maestro. ninguno = texto objetivo vacío. profunda/openai = traducción de API. personal = propio translate.php en el módulo.';
 $field['errormsg'] = 'Por favor, elija un proveedor.';
 $field['placeholder'] = 'copy';
-$field['options'] = $providerOptions;
+$field['options'] = $provider_options;
 $field['tpl'] = 'select-single-label';
 $fields[] = $field;
 
@@ -105,6 +100,6 @@ $field['rules'] = '';
 $field['tooltip'] = 'Sólo para proveedores openai. ID modelo para las terminaciones de chat (por ejemplo, gpt-4o-mini para traducciones rápidas).';
 $field['errormsg'] = '';
 $field['placeholder'] = 'gpt-4o-mini';
-$field['options'] = $modelOptions;
+$field['options'] = $model_options;
 $field['tpl'] = 'select-single-label';
 $fields[] = $field;

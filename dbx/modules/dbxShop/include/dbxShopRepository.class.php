@@ -27,8 +27,8 @@ class dbxShopRepository {
    /**
     * Request-lokaler Cache fuer kleine, oft wiederverwendete Referenzlisten.
     *
-    * Ergaenzt den zentralen requestlokalen dbxDB-select1-Cache um fachliche
+    * Ergänzt den zentralen requestlokalen dbxDB-select1-Cache um fachliche
     * Referenzlisten, die nicht als identische Einzelsatzzugriffe entstehen.
     */
-   private array $requestCache = array();
+   private array $request_cache = array();
 }

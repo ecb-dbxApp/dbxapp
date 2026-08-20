@@ -15,7 +15,7 @@ $table['create']='admin';
 $table['update']='admin';
 $table['delete']='admin';
 
-$addField = function($name, $type, $index, $length, $default, $label, $rules, $tpl) use (&$fields) {
+$add_field = function($name, $type, $index, $length, $default, $label, $rules, $tpl) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -37,8 +37,8 @@ $addField = function($name, $type, $index, $length, $default, $label, $rules, $t
    $fields[]=$field;
 };
 
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('product_id','int','MUL','11','0','Produkt','int','text-label');
-$addField('group_id','int','MUL','11','0','Gruppe','int','text-label');
-$addField('is_primary','int','','1','0','Primaere Gruppe','int','checkbox-label');
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('product_id','int','MUL','11','0','Produkt','int','text-label');
+$add_field('group_id','int','MUL','11','0','Gruppe','int','text-label');
+$add_field('is_primary','int','','1','0','Primaere Gruppe','int','checkbox-label');
 ?>

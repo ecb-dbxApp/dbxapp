@@ -35,8 +35,8 @@ function installer_workflow_assert(bool $condition, string $message): void
 }
 
 $installer = new dbxInstall();
-$checks = $installer->systemChecks();
-$byId = array_column($checks, null, 'id');
+$checks = $installer->system_checks();
+$by_id = array_column($checks, null, 'id');
 foreach (array(
     'php',
     'ext-session',
@@ -47,12 +47,12 @@ foreach (array(
     'write-files',
     'write-tmp',
     'vendor',
-) as $requiredId) {
+) as $required_id) {
     installer_workflow_assert(
-        isset($byId[$requiredId])
-            && $byId[$requiredId]['required'] === true
-            && $byId[$requiredId]['status'] === 'ok',
-        'Notwendige Systemprüfung fehlt oder schlägt fehl: ' . $requiredId
+        isset($by_id[$required_id])
+            && $by_id[$required_id]['required'] === true
+            && $by_id[$required_id]['status'] === 'ok',
+        'Notwendige Systemprüfung fehlt oder schlägt fehl: ' . $required_id
     );
 }
 foreach (array(
@@ -62,10 +62,10 @@ foreach (array(
     'optional-pdo_sqlsrv',
     'https',
     'memory',
-) as $optionalId) {
+) as $optional_id) {
     installer_workflow_assert(
-        isset($byId[$optionalId]),
-        'Optionale Systemprüfung fehlt: ' . $optionalId
+        isset($by_id[$optional_id]),
+        'Optionale Systemprüfung fehlt: ' . $optional_id
     );
 }
 
@@ -81,17 +81,28 @@ $javascript = (string)file_get_contents(
 $utilities = (string)file_get_contents(
     $root . '/dbx/js/lib/utilities.js'
 );
-$openWin = (string)file_get_contents(
+$open_win = (string)file_get_contents(
     $root . '/dbx/js/lib/openWin.js'
 );
 $workflow = (string)file_get_contents(
     dirname(__DIR__) . '/include/dbxInstall.class.php'
 );
-$webApp = (string)file_get_contents(
+$web_app = (string)file_get_contents(
     $root . '/dbx/include/dbxWebApp.class.php'
 );
+$web_app_traits = glob($root . '/dbx/include/dbxWebApp*.trait.php') ?: array();
+foreach ($web_app_traits as $trait_file) {
+    $web_app .= "\n" . (string)file_get_contents($trait_file);
+}
 $api = (string)file_get_contents(
     $root . '/dbx/include/dbxApi.php'
+);
+$api_traits = glob($root . '/dbx/include/dbxApi*.trait.php') ?: array();
+foreach ($api_traits as $trait_file) {
+    $api .= "\n" . (string)file_get_contents($trait_file);
+}
+$pipeline = (string)file_get_contents(
+    $root . '/dbx/include/dbxRequestPipeline.class.php'
 );
 $mail = (string)file_get_contents(
     $root . '/dbx/include/dbxMail.class.php'
@@ -120,18 +131,18 @@ installer_workflow_assert(
     'Installationsdesign ist nicht responsiv oder nicht im dbxapp-Blue-Stil definiert.'
 );
 installer_workflow_assert(
-    str_contains($openWin, 'getViewportPageBounds()')
-        && str_contains($openWin, 'window.visualViewport')
-        && str_contains($openWin, 'bounds.top + (viewportHeight - height) / 2')
-        && str_contains($openWin, 'Math.max(bounds.top, bounds.bottom - height)')
-        && str_contains($openWin, 'this.clampWindowToViewport(windowData)'),
+    str_contains($open_win, 'getViewportPageBounds()')
+        && str_contains($open_win, 'window.visualViewport')
+        && str_contains($open_win, 'bounds.top + (viewportHeight - height) / 2')
+        && str_contains($open_win, 'Math.max(bounds.top, bounds.bottom - height)')
+        && str_contains($open_win, 'this.clampWindowToViewport(windowData)'),
     'openWin muss Installationshilfen vollständig innerhalb des sichtbaren Viewports öffnen.'
 );
 installer_workflow_assert(
     str_contains($workflow, 'data-install-storage-note="sqlite"')
         && str_contains($workflow, 'data-install-storage-note="mysql"')
         && str_contains($workflow, 'data-install-storage-note="configured"')
-        && str_contains($workflow, "value=\"' . \$this->h(\$checkAction) . '\"")
+        && str_contains($workflow, "value=\"' . \$this->h(\$check_action) . '\"")
         && str_contains($workflow, "'check_database'")
         && str_contains($workflow, "'check_mail'")
         && str_contains($workflow, 'Datenbank erneut prüfen')
@@ -152,7 +163,7 @@ installer_workflow_assert(
     'PDO und bestehende Datenbankziele benötigen eine verständliche Bestätigung mit DB3 als einfachem Standard.'
 );
 installer_workflow_assert(
-    str_contains($workflow, 'if (!$this->stayOnStep)')
+    str_contains($workflow, 'if (!$this->stay_on_step)')
         && str_contains($workflow, '$step === 3 && $action === \'check_database\'')
         && str_contains($workflow, '$step === 6 && $action === \'check_mail\'')
         && str_contains($workflow, 'mail_test_recipient')
@@ -170,10 +181,10 @@ foreach (array(
     'Administration',
     'E-Mail',
     'Prüfen & starten',
-) as $stepTitle) {
+) as $step_title) {
     installer_workflow_assert(
-        str_contains($workflow, $stepTitle),
-        'Installationsschritt fehlt: ' . $stepTitle
+        str_contains($workflow, $step_title),
+        'Installationsschritt fehlt: ' . $step_title
     );
 }
 installer_workflow_assert(
@@ -183,14 +194,14 @@ installer_workflow_assert(
     'Installationsabschluss ist nicht ausschließlich lokal/updatefest.'
 );
 installer_workflow_assert(
-    str_contains($webApp, 'if ($install || !$ok)')
-        && str_contains($webApp, "\$design = 'dbxapp'")
-        && str_contains($webApp, "\$page   = 'install'"),
+    str_contains($web_app, 'if ($install || !$ok)')
+        && str_contains($web_app, "\$design = 'dbxapp'")
+        && str_contains($web_app, "\$page   = 'install'"),
     'Installationsrouting reagiert nicht verbindlich auf install=1.'
 );
 installer_workflow_assert(
-    str_contains($api, 'if (!$installMode)')
-        && str_contains($api, 'check_perma()'),
+    str_contains($pipeline, 'if (!$install_mode)')
+        && str_contains($pipeline, 'check_perma()'),
     'Bootstrap trennt Installation und Datenbank-/Permalinkauflösung nicht.'
 );
 installer_workflow_assert(
@@ -203,7 +214,7 @@ installer_workflow_assert(
     'Leere Passwortfelder müssen vorhandene SQL- und Mail-Passwörter bewahren.'
 );
 installer_workflow_assert(
-    str_contains($workflow, '$installer->verifyBundledSchema()')
+    str_contains($workflow, '$installer->verify_bundled_schema()')
         && str_contains($workflow, "'read_only' => 1")
         && str_contains($workflow, 'es wurde nichts verändert')
         && str_contains($workflow, "\$this->actions(4, 'Weiter zur Administration')")
@@ -211,10 +222,10 @@ installer_workflow_assert(
     'Der ausgelieferte DB3-Standard muss ohne Schema- oder Datenmutation geprüft werden.'
 );
 installer_workflow_assert(
-    str_contains($workflow, '$this->installer()->ensureInitialAdmin(')
-        && str_contains($workflow, "\$this->postSecret('admin_password'")
-        && str_contains($workflow, "\$this->postSecret('admin_password_repeat'")
-        && str_contains($workflow, '$this->passwordCriteriaMissing(')
+    str_contains($workflow, '$this->installer()->ensure_initial_admin(')
+        && str_contains($workflow, "\$this->post_secret('admin_password'")
+        && str_contains($workflow, "\$this->post_secret('admin_password_repeat'")
+        && str_contains($workflow, '$this->password_criteria_missing(')
         && str_contains($workflow, 'bisherige Passwort des vorhandenen Benutzers')
         && str_contains($workflow, 'Persönlicher Administratorzugang')
         && str_contains($workflow, 'Administratorzugang speichern')
@@ -240,8 +251,8 @@ installer_workflow_assert(
     'Die E-Mail-Konfiguration muss kompakt gruppiert und nur bei externem Versand sichtbar sein.'
 );
 installer_workflow_assert(
-    str_contains($workflow, 'private function fieldTooltip(')
-        && str_contains($workflow, 'private function tooltipIcon(')
+    str_contains($workflow, 'private function field_tooltip(')
+        && str_contains($workflow, 'private function tooltip_icon(')
         && str_contains($workflow, 'data-dbx-tooltip=')
         && str_contains($style, '.dbx-install-tooltip'),
     'Installer-Eingabefelder benötigen zentrale, verständliche Tooltips.'
@@ -284,10 +295,10 @@ foreach (array(
     'mail_test_recipient',
     'mail_send_test',
     'confirm_install',
-) as $tooltipField) {
+) as $tooltip_field) {
     installer_workflow_assert(
-        str_contains($workflow, "'" . $tooltipField . "' => '"),
-        'Verständlicher Installer-Tooltip fehlt für: ' . $tooltipField
+        str_contains($workflow, "'" . $tooltip_field . "' => '"),
+        'Verständlicher Installer-Tooltip fehlt für: ' . $tooltip_field
     );
 }
 installer_workflow_assert(
@@ -306,11 +317,11 @@ installer_workflow_assert(
         && str_contains($workflow, "'sqlsrv' => 'pdo_sqlsrv'")
         && substr_count(
             $workflow,
-            '$db->can_connect_database_config($dbConfig, true)'
+            '$db->can_connect_database_config($db_config, true)'
         ) >= 2
         && str_contains(
             $workflow,
-            '$db->ensure_database_exists(self::SQL_SERVER, $dbConfig)'
+            '$db->ensure_database_exists(self::SQL_SERVER, $db_config)'
         ),
     'PDO-Migration darf erst nach erreichbarer oder erfolgreich angelegter Zieldatenbank starten.'
 );

@@ -17,8 +17,8 @@ $token = $form->create_fld(array(
    'verify' => 1,
 ), 7);
 
-$norepKey = trim((string)$token, '[]');
-$html = (string)($_SESSION['dbx']['norep'][$norepKey] ?? '');
+$norep_key = trim((string)$token, '[]');
+$html = (string)($_SESSION['dbx']['norep'][$norep_key] ?? '');
 if ($html === '') {
    fwrite(STDERR, "FAIL: dbxForm hat das Suchfeld nicht gerendert.\n");
    exit(1);

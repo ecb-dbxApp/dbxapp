@@ -2,6 +2,8 @@
 namespace dbx\dbxShop;
 
 require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
+require_once __DIR__ . '/dbxShopValue.class.php';
+require_once __DIR__ . '/dbxShopSessionState.class.php';
 
 require_once __DIR__ . '/dbxShopServiceCoreService.trait.php';
 require_once __DIR__ . '/dbxShopServiceContentPageService.trait.php';
@@ -25,5 +27,5 @@ class dbxShopService {
    use dbxShopServiceOrderPageServiceTrait;
    use dbxShopServiceRouteServiceTrait;
 
-   private array $textForms = array();
+   private array $text_forms = array();
 }

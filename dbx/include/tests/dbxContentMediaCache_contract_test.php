@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__, 3);
 
-$responseFile = $root . '/dbx/modules/dbxContent/include/dbxContentMediaResponse.class.php';
-$fallbackFile = $root . '/dbx/modules/dbxContent/dbxContent.class.php';
-$response = file_get_contents($responseFile);
-$fallback = file_get_contents($fallbackFile);
+$response_file = $root . '/dbx/modules/dbxContent/include/dbxContentMediaResponse.class.php';
+$fallback_file = $root . '/dbx/modules/dbxContent/dbxContent.class.php';
+$response = file_get_contents($response_file);
+$fallback = file_get_contents($fallback_file);
 
 if (!is_string($response) || !is_string($fallback)) {
     throw new RuntimeException('Die dbxContent-Medienklassen konnten nicht gelesen werden.');
@@ -14,7 +14,7 @@ if (!is_string($response) || !is_string($fallback)) {
 
 foreach (array(
     "header('ETag: ' . \$etag)",
-    "header('Last-Modified: ' . \$lastModified)",
+    "header('Last-Modified: ' . \$last_modified)",
     "header('Cache-Control: private, no-cache')",
     'HTTP_IF_NONE_MATCH',
     'HTTP_IF_MODIFIED_SINCE',

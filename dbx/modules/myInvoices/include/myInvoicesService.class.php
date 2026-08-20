@@ -15,8 +15,8 @@ class myInvoicesService
     private const FORM_FD = 'myInvoices|invoice-form';
     private const REPORT_FD = 'myInvoices|rpt-invoice-selection';
 
-    private int $invoicePageTotalCents = 0;
-    private int $itemTotalCents = 0;
+    private int $invoice_page_total_cents = 0;
+    private int $item_total_cents = 0;
 
     /**
      * Formatiert einen Centbetrag fuer die Rechnungsansicht.
@@ -53,44 +53,44 @@ class myInvoicesService
      */
     public function form(): string
     {
-        $ridValue = dbx()->get_modul_var(
+        $rid_value = dbx()->get_modul_var(
             'rid',
             'new',
             'parameter|max=24'
         );
-        $rid = $ridValue === 'new' ? 0 : (int)$ridValue;
-        $isNew = $rid <= 0;
+        $rid = $rid_value === 'new' ? 0 : (int)$rid_value;
+        $is_new = $rid <= 0;
 
         $form = dbx()->get_system_obj('dbxForm');
         $form->init('invoice-form', 'myInvoices|invoice-form');
-        $form->_dd = self::INVOICE_DD;
-        $form->_fd = self::FORM_FD;
+        $form->set_data_source(self::INVOICE_DD, self::FORM_FD);
         $form->load_fd_messages();
 
-        $data = $isNew
+        $data = $is_new
             ? array('status' => 'draft')
             : dbx()->get_system_obj('dbxDB')->select1(
                 self::INVOICE_DD,
                 array('id' => $rid)
             );
 
-        if (!$isNew && (int)($data['id'] ?? 0) <= 0) {
+        if (!$is_new && (int)($data['id'] ?? 0) <= 0) {
             return dbx()->get_system_obj('dbxTPL')->get_tpl(
                 'dbx|alert-warning',
                 array('msg' => $form->get_fd_message('not_found'))
             );
         }
 
-        $form->_data = is_array($data) ? $data : array();
-        $form->_rid = $rid;
-        $form->_action = $this->url('form', array(
-            'rid' => $isNew ? 'new' : $rid,
-        ));
+        $form
+            ->set_data(is_array($data) ? $data : array())
+            ->set_rid($rid)
+            ->set_action($this->url('form', array(
+                'rid' => $is_new ? 'new' : $rid,
+            )));
         $form->_msg_info = $form->get_fd_message('form_info');
         $form->add_rep(
             'form_title',
             $form->get_fd_message(
-                $isNew ? 'form_title_new' : 'form_title_edit'
+                $is_new ? 'form_title_new' : 'form_title_edit'
             )
         );
         $form->add_rep(
@@ -104,14 +104,14 @@ class myInvoicesService
             if (!$form->errors()) {
                 $ok = $form->save_post(
                     self::INVOICE_DD,
-                    $isNew ? 'new' : $rid
+                    $is_new ? 'new' : $rid
                 );
-                $savedRid = (int)$form->_rid;
-                if ($ok && $isNew && $savedRid > 0) {
-                    $form->_action = $this->url(
+                $saved_rid = $form->current_rid();
+                if ($ok && $is_new && $saved_rid > 0) {
+                    $form->set_action($this->url(
                         'form',
-                        array('rid' => $savedRid)
-                    );
+                        array('rid' => $saved_rid)
+                    ));
                     $form->add_rep(
                         'form_title',
                         $form->get_fd_message('form_title_edit')
@@ -147,14 +147,14 @@ class myInvoicesService
         }
 
         $id = (int)($record['id'] ?? 0);
-        $totalCents = (int)round(
+        $total_cents = (int)round(
             (float)($record['total_gross'] ?? 0) * 100
         );
 
-        $this->invoicePageTotalCents += $totalCents;
+        $this->invoice_page_total_cents += $total_cents;
         $report->add_rep(
             'invoice_report_total',
-            $this->euro($this->invoicePageTotalCents)
+            $this->euro($this->invoice_page_total_cents)
         );
         $record['action'] = dbx()->get_system_obj('dbxTPL')->get_tpl(
             'myInvoices|invoice-row-action',
@@ -182,7 +182,7 @@ class myInvoicesService
                 $status
             );
         }
-        $record['total_gross'] = $this->euro($totalCents);
+        $record['total_gross'] = $this->euro($total_cents);
         $record['positions_call'] =
             '[modul=myInvoices]dbx_run1=positions&invoice_id='
             . $id
@@ -212,14 +212,12 @@ class myInvoicesService
             'invoice-report',
             'myInvoices|invoice-report'
         );
-        $report->_dd = self::INVOICE_DD;
-        $report->_mode = 'table';
-        $report->_action = $this->url('report');
-        $report->_pages = true;
-        $report->_but_pagination = 7;
-        $report->_create_row_select = false;
-        $report->_create_row_edit = false;
-        $report->_create_row_delete = false;
+        $report
+            ->set_data_definition(self::INVOICE_DD)
+            ->set_mode('table')
+            ->set_action($this->url('report'))
+            ->set_pagination(true, 7)
+            ->set_table_actions(array());
         $report->add_rep('install_url', $this->url('install'));
         $report->create_selection_fields(self::REPORT_FD);
         $report->add_rep(
@@ -233,7 +231,7 @@ class myInvoicesService
             ? ''
             : $report->get_fd_message($error, $error);
 
-        $this->invoicePageTotalCents = 0;
+        $this->invoice_page_total_cents = 0;
 
         if ($report->submit() && $report->errors()) {
             $report->_msg_error = $report->get_fd_message('filter_error');
@@ -249,7 +247,7 @@ class myInvoicesService
             'all',
             'parameter|max=24'
         );
-        $pageSize = max(10, min(50, (int)$report->get_fld_val(
+        $page_size = max(10, min(50, (int)$report->get_fld_val(
             'dbx_rrows',
             20,
             'int'
@@ -270,14 +268,14 @@ class myInvoicesService
             'parameter'
         ));
 
-        $allowedSort = array(
+        $allowed_sort = array(
             'invoice_no',
             'invoice_date',
             'customer',
             'status',
             'total_gross',
         );
-        if (!in_array($sort, $allowedSort, true)) {
+        if (!in_array($sort, $allowed_sort, true)) {
             $sort = 'invoice_date';
         }
         if (!in_array($direction, array('ASC', 'DESC'), true)) {
@@ -311,7 +309,7 @@ class myInvoicesService
             $sort,
             $direction,
             '',
-            $pageSize,
+            $page_size,
             $position
         );
 
@@ -336,7 +334,7 @@ class myInvoicesService
             'invoice_date' => 'php-date-usr',
             'action' => 'html',
         );
-        $report->_rrows = $pageSize;
+        $report->_rrows = $page_size;
         $report->_rpos = $position;
         $report->_count_all = $db->count(self::INVOICE_DD);
         $report->_rcount = $db->count(self::INVOICE_DD, $where);
@@ -361,19 +359,19 @@ class myInvoicesService
         }
 
         $quantity = (float)($record['quantity'] ?? 0);
-        $unitPrice = (float)($record['unit_price'] ?? 0);
-        $sumCents = (int)round($quantity * $unitPrice * 100);
+        $unit_price = (float)($record['unit_price'] ?? 0);
+        $sum_cents = (int)round($quantity * $unit_price * 100);
 
-        $this->itemTotalCents += $sumCents;
+        $this->item_total_cents += $sum_cents;
         $report->add_rep(
             'report_total',
-            $this->euro($this->itemTotalCents)
+            $this->euro($this->item_total_cents)
         );
         $record['quantity'] = number_format($quantity, 2, ',', '.');
         $record['unit_price'] = $this->euro(
-            (int)round($unitPrice * 100)
+            (int)round($unit_price * 100)
         );
-        $record['sum'] = $this->euro($sumCents);
+        $record['sum'] = $this->euro($sum_cents);
 
         return $record;
     }
@@ -389,19 +387,19 @@ class myInvoicesService
      */
     public function positions(): string
     {
-        $invoiceId = (int)dbx()->get_modul_var(
+        $invoice_id = (int)dbx()->get_modul_var(
             'invoice_id',
             0,
             'int'
         );
-        if ($invoiceId <= 0) {
+        if ($invoice_id <= 0) {
             return '';
         }
 
         $db = dbx()->get_system_obj('dbxDB');
         $invoice = $db->select1(
             self::INVOICE_DD,
-            array('id' => $invoiceId),
+            array('id' => $invoice_id),
             array('id', 'invoice_no')
         );
         if ((int)($invoice['id'] ?? 0) <= 0) {
@@ -410,7 +408,7 @@ class myInvoicesService
 
         $rows = $db->select(
             self::ITEM_DD,
-            array('invoice_id' => $invoiceId),
+            array('invoice_id' => $invoice_id),
             array(
                 'position_no',
                 'article_no',
@@ -427,22 +425,20 @@ class myInvoicesService
             'invoice-items-report',
             'myInvoices|invoice-items-report'
         );
-        $report->_dd = self::ITEM_DD;
-        $report->_fd = self::REPORT_FD;
+        $report->set_data_source(self::ITEM_DD, self::REPORT_FD);
         $report->load_fd_messages();
-        $report->_mode = 'table';
-        $report->_pages = false;
-        $report->_create_row_select = false;
-        $report->_create_row_edit = false;
-        $report->_create_row_delete = false;
+        $report
+            ->set_mode('table')
+            ->set_pagination(false)
+            ->set_table_actions(array());
         $report->add_rep(
             'invoice_no',
             (string)$invoice['invoice_no']
         );
 
-        $this->itemTotalCents = 0;
+        $this->item_total_cents = 0;
 
-        $report->_rflds = array(
+        $report->set_report_fields(array(
             'position_no' => $report->get_fd_message(
                 'column_position_no'
             ),
@@ -455,12 +451,11 @@ class myInvoicesService
                 'column_unit_price'
             ),
             'sum' => $report->get_fd_message('column_total'),
-        );
-        $report->_rrows = is_array($rows) ? count($rows) : 0;
-        $report->_rpos = 0;
-        $report->_count_all = $report->_rrows;
-        $report->_rcount = $report->_rrows;
-        $report->_rdata = is_array($rows) ? $rows : array();
+        ));
+        $rows = is_array($rows) ? $rows : array();
+        $report
+            ->set_page_size(max(1, count($rows)))
+            ->set_report_result($rows, 0, count($rows));
 
         return $report->run();
     }
@@ -493,15 +488,15 @@ class myInvoicesService
             );
         }
 
-        $itemsDeleted = $db->delete(
+        $items_deleted = $db->delete(
             self::ITEM_DD,
             array('invoice_id' => $rid)
         );
-        $invoiceDeleted = in_array($itemsDeleted, array(0, 1), true)
+        $invoice_deleted = in_array($items_deleted, array(0, 1), true)
             ? $db->delete(self::INVOICE_DD, array('id' => $rid))
             : -2;
 
-        if ($invoiceDeleted !== 1
+        if ($invoice_deleted !== 1
             || $db->commit(self::INVOICE_DD) !== 1
         ) {
             $db->rollback(self::INVOICE_DD);
@@ -529,26 +524,23 @@ class myInvoicesService
             'myInvoices-install',
             'myInvoices|invoice-install'
         );
-        $form->_fd = 'myInvoices|invoice-install';
+        $form->set_field_definition('myInvoices|invoice-install');
         $form->load_fd_messages();
         $form->add_rep(
             'bar_title',
             $form->get_fd_message('bar_title')
         );
 
-        if (!dbx()->can('admin')) {
+        if (!dbx()->has_group('admin')) {
             return dbx()->get_system_obj('dbxTPL')->get_tpl(
                 'dbx|alert-warning',
                 array('msg' => $form->get_fd_message('admin_required'))
             );
         }
 
-        $form->_action = $this->url('install');
+        $form->set_action($this->url('install'));
         $form->_msg_info = $form->get_fd_message('install_info');
-        $form->_data = array_merge(
-            $form->_data,
-            array('install_demo' => 1)
-        );
+        $form->merge_data(array('install_demo' => 1));
         $form->add_rep('report_url', $this->url('report'));
         $form->add_fld(
             'install_demo',

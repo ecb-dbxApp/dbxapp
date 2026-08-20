@@ -9,57 +9,57 @@ class dbxShopChannelConnector {
          return array('ok' => true, 'message' => 'Interner Shop-Channel ist verfuegbar.');
       }
       if ($platform === 'ebay') {
-         return $this->testEbay($channel);
+         return $this->test_ebay($channel);
       }
       if ($platform === 'amazon') {
-         return $this->testAmazon($channel);
+         return $this->test_amazon($channel);
       }
       if ($platform === 'mobile') {
-         return $this->testMobile($channel);
+         return $this->test_mobile($channel);
       }
       if ($platform === 'kleinanzeigen') {
-         return $this->testKleinanzeigen($channel);
+         return $this->test_kleinanzeigen($channel);
       }
-      return $this->testGeneric($channel);
+      return $this->test_generic($channel);
    }
 
-   public function normalizeWebhookPayload(array $channel, array $payload): array {
+   public function normalize_webhook_payload(array $channel, array $payload): array {
       $platform = strtolower(trim((string)($channel['platform_type'] ?? $channel['channel_key'] ?? 'custom')));
       if ($platform === 'ebay') {
-         return $this->normalizeEbayPayload($payload);
+         return $this->normalize_ebay_payload($payload);
       }
       if ($platform === 'amazon') {
-         return $this->normalizeAmazonPayload($payload);
+         return $this->normalize_amazon_payload($payload);
       }
       if ($platform === 'mobile') {
-         return $this->normalizeMobilePayload($payload);
+         return $this->normalize_mobile_payload($payload);
       }
       return $payload;
    }
 
-   public function exportProduct(array $channel, array $product, array $productChannel = array()): array {
+   public function export_product(array $channel, array $product, array $product_channel = array()): array {
       $platform = strtolower(trim((string)($channel['platform_type'] ?? $channel['channel_key'] ?? 'custom')));
       if ($platform === 'shop') {
          return array(
             'ok' => true,
             'status' => 'ready',
             'message' => 'Interner Shop-Channel: kein externer Export notwendig.',
-            'payload' => $this->standardProductPayload($channel, $product, $productChannel),
+            'payload' => $this->standard_product_payload($channel, $product, $product_channel),
          );
       }
       if ($platform === 'ebay') {
-         return $this->exportEbayProduct($channel, $product, $productChannel);
+         return $this->export_ebay_product($channel, $product, $product_channel);
       }
       if ($platform === 'amazon') {
-         return $this->exportAmazonProduct($channel, $product, $productChannel);
+         return $this->export_amazon_product($channel, $product, $product_channel);
       }
       if ($platform === 'mobile') {
-         return $this->exportMobileProduct($channel, $product, $productChannel);
+         return $this->export_mobile_product($channel, $product, $product_channel);
       }
       if ($platform === 'kleinanzeigen') {
-         return $this->exportKleinanzeigenProduct($channel, $product, $productChannel);
+         return $this->export_kleinanzeigen_product($channel, $product, $product_channel);
       }
-      return $this->exportMiddlewareProduct($channel, $product, $productChannel, 'custom');
+      return $this->export_middleware_product($channel, $product, $product_channel, 'custom');
    }
 
    private function missing(array $channel, array $fields): array {
@@ -76,9 +76,9 @@ class dbxShopChannelConnector {
       return array_values(array_filter(array_map('trim', preg_split('/[\s,]+/', $value) ?: array())));
    }
 
-   private function baseUrl(array $channel, string $fallback): string {
-      $baseUrl = trim((string)($channel['api_base_url'] ?? ''));
-      return rtrim($baseUrl !== '' ? $baseUrl : $fallback, '/');
+   private function base_url(array $channel, string $fallback): string {
+      $base_url = trim((string)($channel['api_base_url'] ?? ''));
+      return rtrim($base_url !== '' ? $base_url : $fallback, '/');
    }
 
    private function curl(string $method, string $url, array $headers = array(), ?string $body = null, ?string $user = null, ?string $password = null): array {
@@ -108,7 +108,7 @@ class dbxShopChannelConnector {
       return array('status' => $status, 'raw' => (string)$raw, 'json' => is_array($json) ? $json : array());
    }
 
-   private function jsonRequest(string $method, string $url, array $headers, array $payload, ?string $user = null, ?string $password = null): array {
+   private function json_request(string $method, string $url, array $headers, array $payload, ?string $user = null, ?string $password = null): array {
       $headers[] = 'Content-Type: application/json';
       $body = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
       if ($body === false) {
@@ -117,21 +117,21 @@ class dbxShopChannelConnector {
       return $this->curl($method, $url, $headers, $body, $user, $password);
    }
 
-   private function productSku(array $product, array $productChannel): string {
-      $sku = trim((string)($productChannel['channel_sku'] ?? ''));
+   private function product_sku(array $product, array $product_channel): string {
+      $sku = trim((string)($product_channel['channel_sku'] ?? ''));
       if ($sku === '') {
          $sku = trim((string)($product['sku'] ?? ''));
       }
       return $sku;
    }
 
-   private function channelPrice(array $product, array $productChannel): float {
-      $price = (float)($productChannel['price_gross'] ?? -1);
+   private function channel_price(array $product, array $product_channel): float {
+      $price = (float)($product_channel['price_gross'] ?? -1);
       return $price >= 0 ? $price : (float)($product['price_gross'] ?? 0);
    }
 
-   private function channelShipping(array $product, array $productChannel): float {
-      $shipping = (float)($productChannel['shipping_gross'] ?? -1);
+   private function channel_shipping(array $product, array $product_channel): float {
+      $shipping = (float)($product_channel['shipping_gross'] ?? -1);
       return $shipping >= 0 ? $shipping : (float)($product['effective_shipping_gross'] ?? $product['shipping_gross'] ?? 0);
    }
 
@@ -148,13 +148,13 @@ class dbxShopChannelConnector {
       return $currency !== '' ? $currency : 'EUR';
    }
 
-   private function imageUrls(array $product): array {
+   private function image_urls(array $product): array {
       $base = function_exists('dbx') ? rtrim((string)dbx()->get_base_url(), '/') . '/' : '';
       $urls = array();
       foreach ((array)($product['images'] ?? array()) as $image) {
-         $mediaId = (int)($image['media_id'] ?? 0);
-         if ($mediaId > 0 && $base !== '') {
-            $urls[] = $base . 'index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid=' . $mediaId;
+         $media_id = (int)($image['media_id'] ?? 0);
+         if ($media_id > 0 && $base !== '') {
+            $urls[] = $base . 'index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid=' . $media_id;
             continue;
          }
          $path = trim(str_replace('\\', '/', (string)($image['image_path'] ?? '')));
@@ -182,8 +182,8 @@ class dbxShopChannelConnector {
       return $aspects;
    }
 
-   private function productChannelNoteData(array $productChannel): array {
-      $note = trim((string)($productChannel['note'] ?? ''));
+   private function product_channel_note_data(array $product_channel): array {
+      $note = trim((string)($product_channel['note'] ?? ''));
       if ($note === '') {
          return array();
       }
@@ -191,7 +191,7 @@ class dbxShopChannelConnector {
       return is_array($data) ? $data : array();
    }
 
-   private function productGroupChannelDefaults(string $platform, array $product): array {
+   private function product_group_channel_defaults(string $platform, array $product): array {
       $group = is_array(($product['groups'][0] ?? null)) ? $product['groups'][0] : array();
       if ($group === array()) {
          return array();
@@ -201,8 +201,8 @@ class dbxShopChannelConnector {
          return $category !== '' ? array('category_id' => $category) : array();
       }
       if ($platform === 'amazon') {
-         $productType = trim((string)($group['amazon_product_type'] ?? ''));
-         return $productType !== '' ? array('productType' => $productType) : array();
+         $product_type = trim((string)($group['amazon_product_type'] ?? ''));
+         return $product_type !== '' ? array('productType' => $product_type) : array();
       }
       if ($platform === 'kleinanzeigen') {
          $category = trim((string)($group['kleinanzeigen_category_id'] ?? ''));
@@ -215,11 +215,11 @@ class dbxShopChannelConnector {
       return array();
    }
 
-   private function mergeDefaults(array $defaults, array $values): array {
+   private function merge_defaults(array $defaults, array $values): array {
       foreach ($defaults as $key => $value) {
          if (is_array($value)) {
             $current = is_array($values[$key] ?? null) ? $values[$key] : array();
-            $values[$key] = $this->mergeDefaults($value, $current);
+            $values[$key] = $this->merge_defaults($value, $current);
             continue;
          }
          if (!array_key_exists($key, $values) || trim((string)$values[$key]) === '') {
@@ -229,28 +229,28 @@ class dbxShopChannelConnector {
       return $values;
    }
 
-   private function resolvedChannelNoteData(string $platform, array $product, array $productChannel): array {
-      return $this->mergeDefaults($this->productGroupChannelDefaults($platform, $product), $this->productChannelNoteData($productChannel));
+   private function resolved_channel_note_data(string $platform, array $product, array $product_channel): array {
+      return $this->merge_defaults($this->product_group_channel_defaults($platform, $product), $this->product_channel_note_data($product_channel));
    }
 
-   private function standardProductPayload(array $channel, array $product, array $productChannel): array {
-      $sku = $this->productSku($product, $productChannel);
+   private function standard_product_payload(array $channel, array $product, array $product_channel): array {
+      $sku = $this->product_sku($product, $product_channel);
       $platform = strtolower(trim((string)($channel['platform_type'] ?? $channel['channel_key'] ?? 'custom')));
-      $noteData = $this->resolvedChannelNoteData($platform, $product, $productChannel);
-      $categoryId = (string)($noteData['category_id'] ?? $noteData['mobile_vehicle']['category'] ?? $channel['category_id'] ?? '');
+      $note_data = $this->resolved_channel_note_data($platform, $product, $product_channel);
+      $category_id = (string)($note_data['category_id'] ?? $note_data['mobile_vehicle']['category'] ?? $channel['category_id'] ?? '');
       return array(
          'sku' => $sku,
          'title' => (string)($product['title'] ?? $sku),
          'summary' => (string)($product['summary'] ?? ''),
          'description' => (string)($product['description'] ?? $product['summary'] ?? ''),
-         'price_gross' => $this->channelPrice($product, $productChannel),
-         'shipping_gross' => $this->channelShipping($product, $productChannel),
+         'price_gross' => $this->channel_price($product, $product_channel),
+         'shipping_gross' => $this->channel_shipping($product, $product_channel),
          'currency' => $this->currency($product),
          'quantity' => $this->quantity($product),
          'product_type' => (string)($product['product_type'] ?? ''),
          'category' => (string)($product['category'] ?? ''),
-         'category_id' => $categoryId,
-         'images' => $this->imageUrls($product),
+         'category_id' => $category_id,
+         'images' => $this->image_urls($product),
          'attributes' => $this->aspects($product),
          'channel_key' => (string)($channel['channel_key'] ?? ''),
       );
@@ -263,7 +263,7 @@ class dbxShopChannelConnector {
       return substr($value, 0, $length);
    }
 
-   private function testEbay(array $channel): array {
+   private function test_ebay(array $channel): array {
       $missing = $this->missing($channel, array(
          'api_client_id' => 'Client-ID/App-ID',
          'api_client_secret' => 'Client-Secret/Cert-ID',
@@ -297,9 +297,9 @@ class dbxShopChannelConnector {
       try {
          $token = trim((string)($channel['api_access_token'] ?? ''));
          if ($token === '') {
-            $token = $this->ebayRefreshAccessToken($channel, $scopes);
+            $token = $this->ebay_refresh_access_token($channel, $scopes);
          }
-         $base = $this->baseUrl($channel, 'https://api.ebay.com');
+         $base = $this->base_url($channel, 'https://api.ebay.com');
          $result = $this->curl('GET', $base . '/sell/inventory/v1/inventory_item?limit=1', array(
             'Authorization: Bearer ' . $token,
             'Accept: application/json',
@@ -318,8 +318,8 @@ class dbxShopChannelConnector {
       }
    }
 
-   private function ebayRefreshAccessToken(array $channel, array $scopes): string {
-      $base = $this->baseUrl($channel, 'https://api.ebay.com');
+   private function ebay_refresh_access_token(array $channel, array $scopes): string {
+      $base = $this->base_url($channel, 'https://api.ebay.com');
       $body = http_build_query(array(
          'grant_type' => 'refresh_token',
          'refresh_token' => trim((string)($channel['api_refresh_token'] ?? '')),
@@ -335,30 +335,30 @@ class dbxShopChannelConnector {
       return (string)$result['json']['access_token'];
    }
 
-   private function ebayAccessToken(array $channel): string {
+   private function ebay_access_token(array $channel): string {
       $token = trim((string)($channel['api_access_token'] ?? ''));
       if ($token !== '') {
          return $token;
       }
-      return $this->ebayRefreshAccessToken($channel, $this->scopes((string)($channel['api_scope'] ?? '')));
+      return $this->ebay_refresh_access_token($channel, $this->scopes((string)($channel['api_scope'] ?? '')));
    }
 
-   private function exportEbayProduct(array $channel, array $product, array $productChannel): array {
-      $sku = $this->productSku($product, $productChannel);
-      $noteData = $this->resolvedChannelNoteData('ebay', $product, $productChannel);
-      $categoryId = trim((string)($noteData['category_id'] ?? $channel['category_id'] ?? ''));
-      $locationKey = trim((string)($channel['location_key'] ?? ''));
-      $paymentPolicyId = trim((string)($noteData['payment_policy_id'] ?? $channel['payment_policy_id'] ?? ''));
-      $fulfillmentPolicyId = trim((string)($noteData['fulfillment_policy_id'] ?? $channel['fulfillment_policy_id'] ?? ''));
-      $returnPolicyId = trim((string)($noteData['return_policy_id'] ?? $channel['return_policy_id'] ?? ''));
-      $checkChannel = array_replace($channel, array(
-         'category_id' => $categoryId,
-         'location_key' => $locationKey,
-         'payment_policy_id' => $paymentPolicyId,
-         'fulfillment_policy_id' => $fulfillmentPolicyId,
-         'return_policy_id' => $returnPolicyId,
+   private function export_ebay_product(array $channel, array $product, array $product_channel): array {
+      $sku = $this->product_sku($product, $product_channel);
+      $note_data = $this->resolved_channel_note_data('ebay', $product, $product_channel);
+      $category_id = trim((string)($note_data['category_id'] ?? $channel['category_id'] ?? ''));
+      $location_key = trim((string)($channel['location_key'] ?? ''));
+      $payment_policy_id = trim((string)($note_data['payment_policy_id'] ?? $channel['payment_policy_id'] ?? ''));
+      $fulfillment_policy_id = trim((string)($note_data['fulfillment_policy_id'] ?? $channel['fulfillment_policy_id'] ?? ''));
+      $return_policy_id = trim((string)($note_data['return_policy_id'] ?? $channel['return_policy_id'] ?? ''));
+      $check_channel = array_replace($channel, array(
+         'category_id' => $category_id,
+         'location_key' => $location_key,
+         'payment_policy_id' => $payment_policy_id,
+         'fulfillment_policy_id' => $fulfillment_policy_id,
+         'return_policy_id' => $return_policy_id,
       ));
-      $missing = $this->missing($checkChannel, array(
+      $missing = $this->missing($check_channel, array(
          'api_client_id' => 'Client-ID/App-ID',
          'api_client_secret' => 'Client-Secret/Cert-ID',
          'marketplace_id' => 'Marketplace-ID',
@@ -372,7 +372,7 @@ class dbxShopChannelConnector {
       if (trim((string)($channel['api_refresh_token'] ?? '')) === '' && trim((string)($channel['api_access_token'] ?? '')) === '') {
          $missing[] = 'Refresh-Token oder Access-Token';
       }
-      $images = $this->imageUrls($product);
+      $images = $this->image_urls($product);
       if ($images === array()) {
          $missing[] = 'mindestens ein oeffentlich erreichbares Artikelbild';
       }
@@ -381,27 +381,27 @@ class dbxShopChannelConnector {
             'ok' => false,
             'status' => 'failed',
             'message' => 'eBay-Export nicht moeglich: ' . implode(', ', array_unique($missing)) . '.',
-            'payload' => $this->standardProductPayload($channel, $product, $productChannel),
+            'payload' => $this->standard_product_payload($channel, $product, $product_channel),
          );
       }
 
       try {
-         $token = $this->ebayAccessToken($channel);
-         $base = $this->baseUrl($channel, 'https://api.ebay.com');
+         $token = $this->ebay_access_token($channel);
+         $base = $this->base_url($channel, 'https://api.ebay.com');
          $headers = array(
             'Authorization: Bearer ' . $token,
             'Accept: application/json',
             'Content-Language: de-DE',
          );
          $quantity = $this->quantity($product);
-         $price = number_format($this->channelPrice($product, $productChannel), 2, '.', '');
-         $shipping = $this->channelShipping($product, $productChannel);
+         $price = number_format($this->channel_price($product, $product_channel), 2, '.', '');
+         $shipping = $this->channel_shipping($product, $product_channel);
          $currency = $this->currency($product);
          $description = trim((string)($product['description'] ?? $product['summary'] ?? ''));
          if ($description === '') {
             $description = (string)($product['title'] ?? $sku);
          }
-         $inventoryPayload = array(
+         $inventory_payload = array(
             'availability' => array(
                'shipToLocationAvailability' => array('quantity' => max(0, $quantity)),
             ),
@@ -413,74 +413,74 @@ class dbxShopChannelConnector {
             ),
          );
          $aspects = $this->aspects($product);
-         if (is_array($noteData['aspects'] ?? null)) {
-            foreach ($noteData['aspects'] as $aspectName => $aspectValue) {
-               $aspectName = trim((string)$aspectName);
-               if ($aspectName === '') continue;
-               $values = is_array($aspectValue) ? $aspectValue : array($aspectValue);
+         if (is_array($note_data['aspects'] ?? null)) {
+            foreach ($note_data['aspects'] as $aspect_name => $aspect_value) {
+               $aspect_name = trim((string)$aspect_name);
+               if ($aspect_name === '') continue;
+               $values = is_array($aspect_value) ? $aspect_value : array($aspect_value);
                $values = array_values(array_filter(array_map('strval', $values), fn($v) => trim($v) !== ''));
                if ($values !== array()) {
-                  $aspects[$aspectName] = $values;
+                  $aspects[$aspect_name] = $values;
                }
             }
          }
          if ($aspects !== array()) {
-            $inventoryPayload['product']['aspects'] = $aspects;
+            $inventory_payload['product']['aspects'] = $aspects;
          }
-         if (trim((string)($noteData['condition'] ?? '')) !== '') {
-            $inventoryPayload['condition'] = trim((string)$noteData['condition']);
+         if (trim((string)($note_data['condition'] ?? '')) !== '') {
+            $inventory_payload['condition'] = trim((string)$note_data['condition']);
          }
-         $this->jsonRequest('PUT', $base . '/sell/inventory/v1/inventory_item/' . rawurlencode($sku), $headers, $inventoryPayload);
+         $this->json_request('PUT', $base . '/sell/inventory/v1/inventory_item/' . rawurlencode($sku), $headers, $inventory_payload);
 
-         $offerPayload = array(
+         $offer_payload = array(
             'sku' => $sku,
             'marketplaceId' => (string)$channel['marketplace_id'],
             'format' => 'FIXED_PRICE',
             'availableQuantity' => max(0, $quantity),
-            'categoryId' => $categoryId,
-            'merchantLocationKey' => $locationKey,
+            'categoryId' => $category_id,
+            'merchantLocationKey' => $location_key,
             'listingPolicies' => array(
-               'fulfillmentPolicyId' => $fulfillmentPolicyId,
-               'paymentPolicyId' => $paymentPolicyId,
-               'returnPolicyId' => $returnPolicyId,
+               'fulfillmentPolicyId' => $fulfillment_policy_id,
+               'paymentPolicyId' => $payment_policy_id,
+               'returnPolicyId' => $return_policy_id,
             ),
             'pricingSummary' => array(
                'price' => array('value' => $price, 'currency' => $currency),
             ),
          );
-         $offerPayload['listingDescription'] = $this->cut($description, 4000);
-         $offerId = trim((string)($productChannel['external_offer_id'] ?? ''));
-         if ($offerId !== '') {
-            $this->jsonRequest('PUT', $base . '/sell/inventory/v1/offer/' . rawurlencode($offerId), $headers, $offerPayload);
+         $offer_payload['listingDescription'] = $this->cut($description, 4000);
+         $offer_id = trim((string)($product_channel['external_offer_id'] ?? ''));
+         if ($offer_id !== '') {
+            $this->json_request('PUT', $base . '/sell/inventory/v1/offer/' . rawurlencode($offer_id), $headers, $offer_payload);
          } else {
-            $created = $this->jsonRequest('POST', $base . '/sell/inventory/v1/offer', $headers, $offerPayload);
-            $offerId = (string)($created['json']['offerId'] ?? $created['json']['offer']['offerId'] ?? '');
+            $created = $this->json_request('POST', $base . '/sell/inventory/v1/offer', $headers, $offer_payload);
+            $offer_id = (string)($created['json']['offerId'] ?? $created['json']['offer']['offerId'] ?? '');
          }
-         if ($offerId === '') {
+         if ($offer_id === '') {
             throw new \RuntimeException('eBay hat keine Offer-ID geliefert.');
          }
 
-         $published = $this->jsonRequest('POST', $base . '/sell/inventory/v1/offer/' . rawurlencode($offerId) . '/publish', $headers, array());
-         $listingId = (string)($published['json']['listingId'] ?? $published['json']['listing']['listingId'] ?? $productChannel['external_listing_id'] ?? '');
+         $published = $this->json_request('POST', $base . '/sell/inventory/v1/offer/' . rawurlencode($offer_id) . '/publish', $headers, array());
+         $listing_id = (string)($published['json']['listingId'] ?? $published['json']['listing']['listingId'] ?? $product_channel['external_listing_id'] ?? '');
          return array(
             'ok' => true,
             'status' => 'published',
-            'message' => 'eBay-Angebot wurde exportiert und veroeffentlicht' . ($listingId !== '' ? ' (Listing ' . $listingId . ')' : '') . '.',
-            'external_offer_id' => $offerId,
-            'external_listing_id' => $listingId,
-            'payload' => array('inventory' => $inventoryPayload, 'offer' => $offerPayload, 'publish' => $published['json']),
+            'message' => 'eBay-Angebot wurde exportiert und veroeffentlicht' . ($listing_id !== '' ? ' (Listing ' . $listing_id . ')' : '') . '.',
+            'external_offer_id' => $offer_id,
+            'external_listing_id' => $listing_id,
+            'payload' => array('inventory' => $inventory_payload, 'offer' => $offer_payload, 'publish' => $published['json']),
          );
       } catch (\Throwable $e) {
          return array(
             'ok' => false,
             'status' => 'failed',
             'message' => 'eBay-Export fehlgeschlagen: ' . $e->getMessage(),
-            'payload' => $this->standardProductPayload($channel, $product, $productChannel),
+            'payload' => $this->standard_product_payload($channel, $product, $product_channel),
          );
       }
    }
 
-   private function testAmazon(array $channel): array {
+   private function test_amazon(array $channel): array {
       $missing = $this->missing($channel, array(
          'api_client_id' => 'LWA Client-ID',
          'api_client_secret' => 'LWA Client-Secret',
@@ -493,10 +493,10 @@ class dbxShopChannelConnector {
       }
 
       try {
-         $token = $this->amazonAccessToken($channel);
-         $base = $this->baseUrl($channel, 'https://sellingpartnerapi-eu.amazon.com');
-         $createdAfter = gmdate('Y-m-d\TH:i:s\Z', time() - 86400 * 7);
-         $url = $base . '/orders/v0/orders?MarketplaceIds=' . rawurlencode((string)$channel['marketplace_id']) . '&CreatedAfter=' . rawurlencode($createdAfter);
+         $token = $this->amazon_access_token($channel);
+         $base = $this->base_url($channel, 'https://sellingpartnerapi-eu.amazon.com');
+         $created_after = gmdate('Y-m-d\TH:i:s\Z', time() - 86400 * 7);
+         $url = $base . '/orders/v0/orders?MarketplaceIds=' . rawurlencode((string)$channel['marketplace_id']) . '&CreatedAfter=' . rawurlencode($created_after);
          $result = $this->curl('GET', $url, array(
             'Accept: application/json',
             'x-amz-access-token: ' . $token,
@@ -513,7 +513,7 @@ class dbxShopChannelConnector {
       }
    }
 
-   private function amazonAccessToken(array $channel): string {
+   private function amazon_access_token(array $channel): string {
       $body = http_build_query(array(
          'grant_type' => 'refresh_token',
          'refresh_token' => trim((string)($channel['api_refresh_token'] ?? '')),
@@ -530,11 +530,11 @@ class dbxShopChannelConnector {
       return (string)$result['json']['access_token'];
    }
 
-   private function amazonProductType(array $channel, array $productChannel): string {
-      $note = $this->productChannelNoteData($productChannel);
-      $fromNote = trim((string)($note['productType'] ?? $note['product_type'] ?? ''));
-      if ($fromNote !== '') {
-         return $fromNote;
+   private function amazon_product_type(array $channel, array $product_channel): string {
+      $note = $this->product_channel_note_data($product_channel);
+      $from_note = trim((string)($note['productType'] ?? $note['product_type'] ?? ''));
+      if ($from_note !== '') {
+         return $from_note;
       }
       $category = trim((string)($channel['category_id'] ?? ''));
       if (stripos($category, 'productType:') === 0) {
@@ -546,18 +546,18 @@ class dbxShopChannelConnector {
       return strtoupper(trim($category));
    }
 
-   private function resolvedAmazonProductType(array $channel, array $product, array $productChannel): string {
-      $note = $this->resolvedChannelNoteData('amazon', $product, $productChannel);
-      $fromNote = trim((string)($note['productType'] ?? $note['product_type'] ?? ''));
-      if ($fromNote !== '') {
-         return $fromNote;
+   private function resolved_amazon_product_type(array $channel, array $product, array $product_channel): string {
+      $note = $this->resolved_channel_note_data('amazon', $product, $product_channel);
+      $from_note = trim((string)($note['productType'] ?? $note['product_type'] ?? ''));
+      if ($from_note !== '') {
+         return $from_note;
       }
-      return $this->amazonProductType($channel, $productChannel);
+      return $this->amazon_product_type($channel, $product_channel);
    }
 
-   private function exportAmazonProduct(array $channel, array $product, array $productChannel): array {
-      $sku = $this->productSku($product, $productChannel);
-      $productType = $this->resolvedAmazonProductType($channel, $product, $productChannel);
+   private function export_amazon_product(array $channel, array $product, array $product_channel): array {
+      $sku = $this->product_sku($product, $product_channel);
+      $product_type = $this->resolved_amazon_product_type($channel, $product, $product_channel);
       $missing = $this->missing($channel, array(
          'api_client_id' => 'LWA Client-ID',
          'api_client_secret' => 'LWA Client-Secret',
@@ -566,27 +566,27 @@ class dbxShopChannelConnector {
          'marketplace_id' => 'Marketplace-ID',
       ));
       if ($sku === '') $missing[] = 'Channel-SKU/Artikelnummer';
-      if ($productType === '') $missing[] = 'Amazon Product Type';
+      if ($product_type === '') $missing[] = 'Amazon Product Type';
       if ($missing !== array()) {
          return array(
             'ok' => false,
             'status' => 'failed',
             'message' => 'Amazon-Export nicht moeglich: ' . implode(', ', $missing) . '. Product Type und Pflichtattribute muessen zum Amazon-Schema passen.',
-            'payload' => $this->standardProductPayload($channel, $product, $productChannel),
+            'payload' => $this->standard_product_payload($channel, $product, $product_channel),
          );
       }
 
-      $noteData = $this->resolvedChannelNoteData('amazon', $product, $productChannel);
+      $note_data = $this->resolved_channel_note_data('amazon', $product, $product_channel);
       $quantity = $this->quantity($product);
       $currency = $this->currency($product);
-      $price = number_format($this->channelPrice($product, $productChannel), 2, '.', '');
-      $attributes = is_array($noteData['attributes'] ?? null) ? $noteData['attributes'] : array();
-      if (is_array($noteData['simple_attributes'] ?? null)) {
-         foreach ($noteData['simple_attributes'] as $attrKey => $attrValue) {
-            $attrKey = trim((string)$attrKey);
-            $attrValue = trim((string)$attrValue);
-            if ($attrKey !== '' && $attrValue !== '' && !isset($attributes[$attrKey])) {
-               $attributes[$attrKey] = array(array('value' => $attrValue, 'marketplace_id' => (string)$channel['marketplace_id']));
+      $price = number_format($this->channel_price($product, $product_channel), 2, '.', '');
+      $attributes = is_array($note_data['attributes'] ?? null) ? $note_data['attributes'] : array();
+      if (is_array($note_data['simple_attributes'] ?? null)) {
+         foreach ($note_data['simple_attributes'] as $attr_key => $attr_value) {
+            $attr_key = trim((string)$attr_key);
+            $attr_value = trim((string)$attr_value);
+            if ($attr_key !== '' && $attr_value !== '' && !isset($attributes[$attr_key])) {
+               $attributes[$attr_key] = array(array('value' => $attr_value, 'marketplace_id' => (string)$channel['marketplace_id']));
             }
          }
       }
@@ -606,21 +606,21 @@ class dbxShopChannelConnector {
             'marketplace_id' => (string)$channel['marketplace_id'],
          )),
       );
-      if ($this->imageUrls($product) !== array()) {
-         $attributes['main_product_image_locator'] = array(array('media_location' => $this->imageUrls($product)[0], 'marketplace_id' => (string)$channel['marketplace_id']));
+      if ($this->image_urls($product) !== array()) {
+         $attributes['main_product_image_locator'] = array(array('media_location' => $this->image_urls($product)[0], 'marketplace_id' => (string)$channel['marketplace_id']));
       }
       $payload = array(
-         'productType' => $productType,
-         'requirements' => (string)($noteData['requirements'] ?? 'LISTING'),
+         'productType' => $product_type,
+         'requirements' => (string)($note_data['requirements'] ?? 'LISTING'),
          'attributes' => $attributes,
       );
 
       try {
-         $token = $this->amazonAccessToken($channel);
-         $base = $this->baseUrl($channel, 'https://sellingpartnerapi-eu.amazon.com');
+         $token = $this->amazon_access_token($channel);
+         $base = $this->base_url($channel, 'https://sellingpartnerapi-eu.amazon.com');
          $url = $base . '/listings/2021-08-01/items/' . rawurlencode((string)$channel['seller_id']) . '/' . rawurlencode($sku)
             . '?marketplaceIds=' . rawurlencode((string)$channel['marketplace_id']) . '&issueLocale=de_DE';
-         $result = $this->jsonRequest('PUT', $url, array(
+         $result = $this->json_request('PUT', $url, array(
             'Accept: application/json',
             'x-amz-access-token: ' . $token,
          ), $payload);
@@ -642,7 +642,7 @@ class dbxShopChannelConnector {
       }
    }
 
-   private function testMobile(array $channel): array {
+   private function test_mobile(array $channel): array {
       $missing = $this->missing($channel, array(
          'api_username' => 'API-Benutzer',
          'api_password' => 'API-Passwort',
@@ -652,7 +652,7 @@ class dbxShopChannelConnector {
       }
 
       try {
-         $base = $this->baseUrl($channel, 'https://services.mobile.de');
+         $base = $this->base_url($channel, 'https://services.mobile.de');
          if (preg_match('~/seller-api$~', $base)) {
             $base = substr($base, 0, -11);
          }
@@ -671,7 +671,7 @@ class dbxShopChannelConnector {
       }
    }
 
-   private function testKleinanzeigen(array $channel): array {
+   private function test_kleinanzeigen(array $channel): array {
       $mode = strtolower((string)($channel['connection_mode'] ?? 'manual'));
       if ($mode === 'manual') {
          return array(
@@ -679,23 +679,23 @@ class dbxShopChannelConnector {
             'message' => 'Kleinanzeigen ist als manueller/Partner-Channel konfiguriert. Eine frei nutzbare Standard-API wird hier nicht vorausgesetzt.',
          );
       }
-      $baseUrl = trim((string)($channel['api_base_url'] ?? ''));
-      $hasCredentials = trim((string)($channel['api_client_id'] ?? $channel['api_username'] ?? '')) !== '';
-      if ($baseUrl === '' || !$hasCredentials) {
+      $base_url = trim((string)($channel['api_base_url'] ?? ''));
+      $has_credentials = trim((string)($channel['api_client_id'] ?? $channel['api_username'] ?? '')) !== '';
+      if ($base_url === '' || !$has_credentials) {
          return array(
             'ok' => false,
             'message' => 'Fuer Kleinanzeigen-API/Partnerbetrieb fehlen Middleware-URL und Zugangsdaten. Ohne vertraglich freigegebene Schnittstelle bitte Verbindung auf Manuell stellen.',
          );
       }
-      return $this->testGeneric($channel);
+      return $this->test_generic($channel);
    }
 
-   private function testGeneric(array $channel): array {
-      $baseUrl = trim((string)($channel['api_base_url'] ?? ''));
-      if ($baseUrl === '') {
+   private function test_generic(array $channel): array {
+      $base_url = trim((string)($channel['api_base_url'] ?? ''));
+      if ($base_url === '') {
          return array('ok' => false, 'message' => 'Keine API-Basis-URL hinterlegt.');
       }
-      if (!preg_match('~^https?://~i', $baseUrl)) {
+      if (!preg_match('~^https?://~i', $base_url)) {
          return array('ok' => false, 'message' => 'API-Basis-URL muss mit http:// oder https:// beginnen.');
       }
       try {
@@ -704,7 +704,7 @@ class dbxShopChannelConnector {
          if ($token !== '') {
             $headers[] = 'Authorization: Bearer ' . $token;
          }
-         $result = $this->curl('GET', $baseUrl, $headers);
+         $result = $this->curl('GET', $base_url, $headers);
          $ok = $result['status'] >= 200 && $result['status'] < 500;
          return array('ok' => $ok, 'message' => $ok ? 'API-URL erreichbar, HTTP ' . $result['status'] . '.' : 'API-URL nicht erreichbar, HTTP ' . $result['status'] . '.');
       } catch (\Throwable $e) {
@@ -712,82 +712,82 @@ class dbxShopChannelConnector {
       }
    }
 
-   private function exportMobileProduct(array $channel, array $product, array $productChannel): array {
-      $noteData = $this->resolvedChannelNoteData('mobile', $product, $productChannel);
-      $category = strtolower((string)($product['category'] ?? '') . ' ' . (string)($channel['category_id'] ?? '') . ' ' . (string)($noteData['mobile_vehicle']['category'] ?? '') . ' ' . (string)($product['product_type'] ?? ''));
-      $isVehicle = preg_match('~fahrzeug|vehicle|auto|car|motorbike|motorrad|commercial~i', $category) === 1;
-      $baseUrl = trim((string)($channel['api_base_url'] ?? ''));
-      if (!$isVehicle && !empty($noteData['mobile_vehicle'])) {
-         $isVehicle = true;
+   private function export_mobile_product(array $channel, array $product, array $product_channel): array {
+      $note_data = $this->resolved_channel_note_data('mobile', $product, $product_channel);
+      $category = strtolower((string)($product['category'] ?? '') . ' ' . (string)($channel['category_id'] ?? '') . ' ' . (string)($note_data['mobile_vehicle']['category'] ?? '') . ' ' . (string)($product['product_type'] ?? ''));
+      $is_vehicle = preg_match('~fahrzeug|vehicle|auto|car|motorbike|motorrad|commercial~i', $category) === 1;
+      $base_url = trim((string)($channel['api_base_url'] ?? ''));
+      if (!$is_vehicle && !empty($note_data['mobile_vehicle'])) {
+         $is_vehicle = true;
       }
-      if (!$isVehicle && stripos($baseUrl, 'services.mobile.de') !== false) {
+      if (!$is_vehicle && stripos($base_url, 'services.mobile.de') !== false) {
          return array(
             'ok' => false,
             'status' => 'failed',
             'message' => 'mobile.de exportiert nur Fahrzeuganzeigen. Dieser Artikel ist nicht als Fahrzeug markiert. Fuer nicht fahrzeugbezogene Daten bitte eine eigene Middleware-URL verwenden.',
-            'payload' => $this->standardProductPayload($channel, $product, $productChannel),
+            'payload' => $this->standard_product_payload($channel, $product, $product_channel),
          );
       }
-      if ($isVehicle && $baseUrl !== '' && stripos($baseUrl, 'services.mobile.de') !== false) {
-         $payload = $noteData['mobile_vehicle'] ?? $noteData;
+      if ($is_vehicle && $base_url !== '' && stripos($base_url, 'services.mobile.de') !== false) {
+         $payload = $note_data['mobile_vehicle'] ?? $note_data;
          if (!is_array($payload) || $payload === array()) {
             return array(
                'ok' => false,
                'status' => 'failed',
                'message' => 'mobile.de Fahrzeugdaten fehlen. Bitte im Channel-Hinweis JSON mit mobile.de Fahrzeugfeldern hinterlegen oder eine Middleware nutzen.',
-               'payload' => $this->standardProductPayload($channel, $product, $productChannel),
+               'payload' => $this->standard_product_payload($channel, $product, $product_channel),
             );
          }
          $payload += array(
-            'sellerInventoryKey' => $this->productSku($product, $productChannel),
-            'price' => array('consumerPriceGross' => $this->channelPrice($product, $productChannel), 'type' => 'FIXED'),
+            'sellerInventoryKey' => $this->product_sku($product, $product_channel),
+            'price' => array('consumerPriceGross' => $this->channel_price($product, $product_channel), 'type' => 'FIXED'),
          );
          try {
-            $base = $this->baseUrl($channel, 'https://services.mobile.de');
+            $base = $this->base_url($channel, 'https://services.mobile.de');
             if (preg_match('~/seller-api$~', $base)) {
                $base = substr($base, 0, -11);
             }
-            $sellerId = trim((string)($channel['account_id'] ?? $channel['seller_id'] ?? ''));
-            if ($sellerId === '') {
+            $seller_id = trim((string)($channel['account_id'] ?? $channel['seller_id'] ?? ''));
+            if ($seller_id === '') {
                throw new \RuntimeException('mobileSellerId/Account-ID fehlt.');
             }
-            $result = $this->jsonRequest('POST', $base . '/seller-api/sellers/' . rawurlencode($sellerId) . '/ads', array(
+            $result = $this->json_request('POST', $base . '/seller-api/sellers/' . rawurlencode($seller_id) . '/ads', array(
                'Accept: application/vnd.de.mobile.api+json',
             ), $payload, trim((string)($channel['api_username'] ?? '')), trim((string)($channel['api_password'] ?? '')));
-            $listingId = (string)($result['json']['adId'] ?? $result['json']['mobileAdId'] ?? $result['json']['id'] ?? $this->productSku($product, $productChannel));
+            $listing_id = (string)($result['json']['adId'] ?? $result['json']['mobileAdId'] ?? $result['json']['id'] ?? $this->product_sku($product, $product_channel));
             return array(
                'ok' => $result['status'] >= 200 && $result['status'] < 300,
                'status' => $result['status'] >= 200 && $result['status'] < 300 ? 'published' : 'failed',
                'message' => 'mobile.de Seller API antwortet mit HTTP ' . $result['status'] . '.',
-               'external_listing_id' => $listingId,
+               'external_listing_id' => $listing_id,
                'payload' => array('request' => $payload, 'response' => $result['json']),
             );
          } catch (\Throwable $e) {
             return array('ok' => false, 'status' => 'failed', 'message' => 'mobile.de-Export fehlgeschlagen: ' . $e->getMessage(), 'payload' => $payload);
          }
       }
-      return $this->exportMiddlewareProduct($channel, $product, $productChannel, 'mobile');
+      return $this->export_middleware_product($channel, $product, $product_channel, 'mobile');
    }
 
-   private function exportKleinanzeigenProduct(array $channel, array $product, array $productChannel): array {
-      $baseUrl = trim((string)($channel['api_base_url'] ?? ''));
-      if ($baseUrl === '' || stripos($baseUrl, 'freigegebener Schnittstelle') !== false || !preg_match('~^https?://~i', $baseUrl)) {
+   private function export_kleinanzeigen_product(array $channel, array $product, array $product_channel): array {
+      $base_url = trim((string)($channel['api_base_url'] ?? ''));
+      if ($base_url === '' || stripos($base_url, 'freigegebener Schnittstelle') !== false || !preg_match('~^https?://~i', $base_url)) {
          return array(
             'ok' => true,
             'status' => 'manual_ready',
             'message' => 'Kleinanzeigen ist wichtig, aber ohne freigegebene Partner-/Middleware-API wird kein automatischer Upload ausgefuehrt. Artikel ist fuer manuelle oder externe Uebergabe vorbereitet.',
-            'payload' => $this->standardProductPayload($channel, $product, $productChannel),
+            'payload' => $this->standard_product_payload($channel, $product, $product_channel),
          );
       }
-      return $this->exportMiddlewareProduct($channel, $product, $productChannel, 'kleinanzeigen');
+      return $this->export_middleware_product($channel, $product, $product_channel, 'kleinanzeigen');
    }
 
-   private function exportMiddlewareProduct(array $channel, array $product, array $productChannel, string $provider): array {
-      $baseUrl = trim((string)($channel['api_base_url'] ?? ''));
-      $payload = $this->standardProductPayload($channel, $product, $productChannel);
+   private function export_middleware_product(array $channel, array $product, array $product_channel, string $provider): array {
+      $base_url = trim((string)($channel['api_base_url'] ?? ''));
+      $payload = $this->standard_product_payload($channel, $product, $product_channel);
       $payload['provider'] = $provider;
-      $payload['channel_note'] = $this->resolvedChannelNoteData($provider, $product, $productChannel);
-      if ($baseUrl === '' || !preg_match('~^https?://~i', $baseUrl)) {
+      $payload['channel_note'] = $this->resolved_channel_note_data($provider, $product, $product_channel);
+      if ($base_url === '' || !preg_match('~^https?://~i', $base_url)) {
          return array('ok' => false, 'status' => 'failed', 'message' => 'Keine gueltige Middleware/API-URL fuer den Export hinterlegt.', 'payload' => $payload);
       }
       try {
@@ -798,13 +798,13 @@ class dbxShopChannelConnector {
          }
          $user = trim((string)($channel['api_username'] ?? ''));
          $password = trim((string)($channel['api_password'] ?? ''));
-         $result = $this->jsonRequest('POST', $baseUrl, $headers, $payload, $user !== '' ? $user : null, $user !== '' ? $password : null);
-         $listingId = (string)($result['json']['listing_id'] ?? $result['json']['ad_id'] ?? $result['json']['id'] ?? '');
+         $result = $this->json_request('POST', $base_url, $headers, $payload, $user !== '' ? $user : null, $user !== '' ? $password : null);
+         $listing_id = (string)($result['json']['listing_id'] ?? $result['json']['ad_id'] ?? $result['json']['id'] ?? '');
          return array(
             'ok' => $result['status'] >= 200 && $result['status'] < 300,
             'status' => $result['status'] >= 200 && $result['status'] < 300 ? 'exported' : 'failed',
             'message' => ucfirst($provider) . '-Middleware antwortet mit HTTP ' . $result['status'] . '.',
-            'external_listing_id' => $listingId,
+            'external_listing_id' => $listing_id,
             'payload' => array('request' => $payload, 'response' => $result['json']),
          );
       } catch (\Throwable $e) {
@@ -812,12 +812,12 @@ class dbxShopChannelConnector {
       }
    }
 
-   private function normalizeEbayPayload(array $payload): array {
+   private function normalize_ebay_payload(array $payload): array {
       $order = is_array($payload['order'] ?? null) ? $payload['order'] : $payload;
-      $externalId = (string)($order['orderId'] ?? $order['order_id'] ?? $order['external_order_id'] ?? $order['id'] ?? $payload['external_order_id'] ?? $payload['order_id'] ?? $payload['resourceId'] ?? '');
-      $lineItems = is_array($order['lineItems'] ?? null) ? $order['lineItems'] : (is_array($order['items'] ?? null) ? $order['items'] : array());
+      $external_id = (string)($order['orderId'] ?? $order['order_id'] ?? $order['external_order_id'] ?? $order['id'] ?? $payload['external_order_id'] ?? $payload['order_id'] ?? $payload['resourceId'] ?? '');
+      $line_items = is_array($order['lineItems'] ?? null) ? $order['lineItems'] : (is_array($order['items'] ?? null) ? $order['items'] : array());
       $items = array();
-      foreach ($lineItems as $item) {
+      foreach ($line_items as $item) {
          if (!is_array($item)) continue;
          $items[] = array(
             'sku' => (string)($item['sku'] ?? $item['legacyItemId'] ?? $item['itemId'] ?? ''),
@@ -827,29 +827,29 @@ class dbxShopChannelConnector {
             'shipping_gross' => (float)($item['deliveryCost']['shippingCost']['value'] ?? 0),
          );
       }
-      if ($externalId !== '') {
-         $payload['external_order_id'] = $externalId;
+      if ($external_id !== '') {
+         $payload['external_order_id'] = $external_id;
       }
       $payload['payment_status'] = (string)($order['orderPaymentStatus'] ?? $order['paymentSummary']['payments'][0]['paymentStatus'] ?? $payload['payment_status'] ?? 'completed');
       if ($items !== array()) $payload['items'] = $items;
       return $payload;
    }
 
-   private function normalizeAmazonPayload(array $payload): array {
+   private function normalize_amazon_payload(array $payload): array {
       $change = is_array($payload['OrderChangeNotification'] ?? null) ? $payload['OrderChangeNotification'] : array();
       $order = is_array($payload['Order'] ?? null) ? $payload['Order'] : $payload;
-      $externalId = (string)($payload['AmazonOrderId'] ?? $change['AmazonOrderId'] ?? $order['AmazonOrderId'] ?? $payload['external_order_id'] ?? $payload['order_id'] ?? '');
-      if ($externalId !== '') {
-         $payload['external_order_id'] = $externalId;
+      $external_id = (string)($payload['AmazonOrderId'] ?? $change['AmazonOrderId'] ?? $order['AmazonOrderId'] ?? $payload['external_order_id'] ?? $payload['order_id'] ?? '');
+      if ($external_id !== '') {
+         $payload['external_order_id'] = $external_id;
       }
       $payload['payment_status'] = (string)($payload['payment_status'] ?? $order['OrderStatus'] ?? 'pending');
       return $payload;
    }
 
-   private function normalizeMobilePayload(array $payload): array {
-      $externalId = (string)($payload['leadId'] ?? $payload['eventId'] ?? $payload['external_order_id'] ?? $payload['order_id'] ?? $payload['id'] ?? '');
-      if ($externalId !== '') {
-         $payload['external_order_id'] = $externalId;
+   private function normalize_mobile_payload(array $payload): array {
+      $external_id = (string)($payload['leadId'] ?? $payload['eventId'] ?? $payload['external_order_id'] ?? $payload['order_id'] ?? $payload['id'] ?? '');
+      if ($external_id !== '') {
+         $payload['external_order_id'] = $external_id;
       }
       $payload['payment_status'] = (string)($payload['payment_status'] ?? 'pending');
       return $payload;

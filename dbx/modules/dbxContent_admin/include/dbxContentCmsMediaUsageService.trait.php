@@ -1,6 +1,10 @@
 <?php
 namespace dbx\dbxContent_admin;
 
+use dbx\dbxContent\dbxContentMediaUrl;
+
+require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContentMediaUrl.class.php';
+
 use dbx\dbxContent\dbxContentHome;
 use dbx\dbxContent\dbxContentLng;
 use dbx\dbxContent\dbxContentLngSync;
@@ -35,7 +39,7 @@ trait dbxContentCmsMediaUsageServiceTrait {
       }
 
       foreach ($this->ordered_media_languages() as $lng) {
-         $content_rows = $db->select(dbxContentLng::ddContent($lng), '', 'id,folder,hero_image_id,seo_image_id,content', 'id');
+         $content_rows = $db->select(dbxContentLng::dd_content($lng), '', 'id,folder,hero_image_id,seo_image_id,content', 'id');
          foreach (is_array($content_rows) ? $content_rows : array() as $row) {
             if (!is_array($row)) continue;
             $content_id = (int)($row['id'] ?? 0);
@@ -56,7 +60,7 @@ trait dbxContentCmsMediaUsageServiceTrait {
                $map[$media_id][] = array('media_id' => $media_id, 'content_id' => $content_id, 'folder_id' => $folder_id, 'content_lng' => $lng, 'slot' => 'inline');
             }
          }
-         $folder_rows = $db->select(dbxContentLng::ddFolder($lng), '', 'id,hero_image_id', 'id');
+         $folder_rows = $db->select(dbxContentLng::dd_folder($lng), '', 'id,hero_image_id', 'id');
          foreach (is_array($folder_rows) ? $folder_rows : array() as $row) {
             $media_id = is_array($row) ? (int)($row['hero_image_id'] ?? 0) : 0;
             $folder_id = is_array($row) ? (int)($row['id'] ?? 0) : 0;
@@ -91,9 +95,9 @@ trait dbxContentCmsMediaUsageServiceTrait {
 
       $content_ids = array();
       $folder_ids = array();
-      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
+      foreach (dbxContentLngSync::accessible_lngs() as $lng) {
          try {
-            $content_rows = $db->select(dbxContentLng::ddContent((string)$lng), '', 'id', 'id', 'ASC', '', 0, 0, 0);
+            $content_rows = $db->select(dbxContentLng::dd_content((string)$lng), '', 'id', 'id', 'ASC', '', 0, 0, 0);
             if (is_array($content_rows)) {
                foreach ($content_rows as $row) {
                   $id = is_array($row) ? (int)($row['id'] ?? 0) : 0;
@@ -101,7 +105,7 @@ trait dbxContentCmsMediaUsageServiceTrait {
                }
             }
 
-            $folder_rows = $db->select(dbxContentLng::ddFolder((string)$lng), '', 'id', 'id', 'ASC', '', 0, 0, 0);
+            $folder_rows = $db->select(dbxContentLng::dd_folder((string)$lng), '', 'id', 'id', 'ASC', '', 0, 0, 0);
             if (is_array($folder_rows)) {
                foreach ($folder_rows as $row) {
                   $id = is_array($row) ? (int)($row['id'] ?? 0) : 0;
@@ -183,8 +187,8 @@ trait dbxContentCmsMediaUsageServiceTrait {
 
 
    private function ordered_media_languages(): array {
-      $languages = array_values(array_unique(array_map('strval', dbxContentLngSync::accessibleLngs())));
-      $current = strtolower(trim((string)dbx()->get_system_var('dbx_lng', dbxContentLngSync::masterLng())));
+      $languages = array_values(array_unique(array_map('strval', dbxContentLngSync::accessible_lngs())));
+      $current = strtolower(trim((string)dbx()->get_system_var('dbx_lng', dbxContentLngSync::master_lng())));
       $ordered = array();
       if ($current !== '' && in_array($current, $languages, true)) $ordered[] = $current;
       foreach ($languages as $language) {
@@ -199,7 +203,7 @@ trait dbxContentCmsMediaUsageServiceTrait {
    private function add_expected_media_usage(array &$expected, int $media_id, int $content_id, int $folder_id, string $slot, string $template = '', string $content_lng = '', string $caption = '', string $settings = ''): void {
       if ($media_id <= 0 || ($content_id <= 0 && $folder_id <= 0)) return;
       $content_lng = dbxContentMediaUsageScope::language($content_lng);
-      $key = dbxContentMediaUsageMaintenance::usageKey($media_id, $content_id, $folder_id, $slot, $content_lng);
+      $key = dbxContentMediaUsageMaintenance::usage_key($media_id, $content_id, $folder_id, $slot, $content_lng);
       if (!isset($expected[$key])) {
          $expected[$key] = array(
             'media_id' => $media_id,
@@ -245,7 +249,7 @@ trait dbxContentCmsMediaUsageServiceTrait {
       foreach ($this->ordered_media_languages() as $lng) {
          try {
             $pages = $db->select(
-               dbxContentLng::ddContent($lng),
+               dbxContentLng::dd_content($lng),
                '',
                'id,folder,hero_image_id,seo_image_id,content',
                'id',
@@ -282,7 +286,7 @@ trait dbxContentCmsMediaUsageServiceTrait {
             }
 
             $folders = $db->select(
-               dbxContentLng::ddFolder($lng),
+               dbxContentLng::dd_folder($lng),
                '',
                'id,hero_image_id',
                'id',
@@ -309,16 +313,16 @@ trait dbxContentCmsMediaUsageServiceTrait {
 
       $controlled_slots = array('hero', 'inline');
       try {
-         $master_lng = dbxContentMediaUsageScope::language(dbxContentLngSync::masterLng());
+         $master_lng = dbxContentMediaUsageScope::language(dbxContentLngSync::master_lng());
          $shop_page = $db->select1(
-            dbxContentLng::ddContent($master_lng),
+            dbxContentLng::dd_content($master_lng),
             array('permalink' => 'shop-medienverwendung'),
             'id,folder',
             0
          );
          if (!is_array($shop_page)) {
             $shop_page = $db->select1(
-               dbxContentLng::ddContent($master_lng),
+               dbxContentLng::dd_content($master_lng),
                array('permalink' => 'outside/shop-media-usage'),
                'id,folder',
                0
@@ -520,12 +524,12 @@ trait dbxContentCmsMediaUsageServiceTrait {
       $refs = 0;
       $pages = 0;
       $folders_count = 0;
-      $previous_lng = (string)dbx()->get_system_var('dbx_lng', dbxContentLngSync::masterLng());
+      $previous_lng = (string)dbx()->get_system_var('dbx_lng', dbxContentLngSync::master_lng());
 
       try {
          foreach ($this->ordered_media_languages() as $lng) {
             dbx()->set_system_var('dbx_lng', $lng);
-            $content_dd = dbxContentLng::ddContent($lng);
+            $content_dd = dbxContentLng::dd_content($lng);
             $page_rows = $db->select($content_dd, '', 'id,hero_image_id,seo_image_id', 'id', 'ASC', '', 0, 0, 0);
             foreach (is_array($page_rows) ? $page_rows : array() as $row) {
                if (!is_array($row)) continue;
@@ -544,7 +548,7 @@ trait dbxContentCmsMediaUsageServiceTrait {
                }
             }
 
-            $folder_dd = dbxContentLng::ddFolder($lng);
+            $folder_dd = dbxContentLng::dd_folder($lng);
             $folder_rows = $db->select($folder_dd, '', 'id,hero_image_id', 'id', 'ASC', '', 0, 0, 0);
             foreach (is_array($folder_rows) ? $folder_rows : array() as $row) {
                if (!is_array($row)) continue;
@@ -748,7 +752,7 @@ trait dbxContentCmsMediaUsageServiceTrait {
       $row['media_folder'] = $this->canonical_media_folder(trim((string)($row['media_folder'] ?? '')) ?: $this->media_folder_from_path((string)($row['file_path'] ?? ''), $row['media_type']));
       if ($row['media_type'] === 'external_video') {
          $row['url'] = (string)($row['embed_url'] ?? $row['external_url'] ?? '');
-         $row['thumb_url'] = $this->external_video_thumb_url($row);
+         $row['thumb_url'] = dbxContentMediaUrl::external_video_thumbnail($row);
       }
       return $row;
    }
@@ -775,7 +779,7 @@ trait dbxContentCmsMediaUsageServiceTrait {
       if ((int)$folder_id > 0) $where .= ' AND folder_id = ' . (int)$folder_id;
       if ((string)$slot !== '') $where .= " AND slot = '" . str_replace("'", "''", $this->valid_media_slot($slot)) . "'";
       if ((int)$content_id > 0 || (int)$folder_id > 0) {
-         $where = dbxContentMediaUsageScope::withLanguage($where, $content_lng);
+         $where = dbxContentMediaUsageScope::with_language($where, $content_lng);
       }
       return $where;
    }
@@ -799,28 +803,28 @@ trait dbxContentCmsMediaUsageServiceTrait {
       $slot = $this->valid_media_slot($slot);
       $content_lng = dbxContentMediaUsageScope::language($content_lng);
       if ($media_id <= 0 || ($content_id <= 0 && $folder_id <= 0)) return 0;
-      $existingWhere = 'media_id = ' . $media_id
+      $existing_where = 'media_id = ' . $media_id
          . ' AND content_id = ' . $content_id
          . ' AND folder_id = ' . $folder_id
          . " AND slot = '" . str_replace("'", "''", $slot) . "'";
-      $existingWhere = dbxContentMediaUsageScope::withLanguage($existingWhere, $content_lng);
-      $existing = $db->select($this->dd_media_usage, $existingWhere, '*', 'active DESC,id DESC', 'ASC', '', 1, 0, 0);
+      $existing_where = dbxContentMediaUsageScope::with_language($existing_where, $content_lng);
+      $existing = $db->select($this->dd_media_usage, $existing_where, '*', 'active DESC,id DESC', 'ASC', '', 1, 0, 0);
       if (is_array($existing) && isset($existing[0]['id']) && (int)($existing[0]['active'] ?? 0) === 1) {
          return (int)$existing[0]['id'];
       }
       if ($slot === 'hero') {
-         if ($content_id > 0) $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::withLanguage("content_id = " . $content_id . " AND slot = 'hero' AND active = 1", $content_lng), 0, 1, 1, 0);
-         elseif ($folder_id > 0) $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::withLanguage("folder_id = " . $folder_id . " AND slot = 'hero' AND active = 1", $content_lng), 0, 1, 1, 0);
+         if ($content_id > 0) $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::with_language("content_id = " . $content_id . " AND slot = 'hero' AND active = 1", $content_lng), 0, 1, 1, 0);
+         elseif ($folder_id > 0) $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::with_language("folder_id = " . $folder_id . " AND slot = 'hero' AND active = 1", $content_lng), 0, 1, 1, 0);
       }
       if (is_array($existing) && isset($existing[0]['id'])) {
-         $existingId = (int)$existing[0]['id'];
+         $existing_id = (int)$existing[0]['id'];
          $db->update($this->dd_media_usage, array(
             'active' => 1,
             'template' => $this->clean_text($template, 80),
             'caption' => $this->clean_text($caption, 0),
             'settings' => $this->clean_text($settings, 0),
-         ), $existingId, 0, 1, 1, 0);
-         return $existingId;
+         ), $existing_id, 0, 1, 1, 0);
+         return $existing_id;
       }
       return ($db->insert($this->dd_media_usage, array(
          'active' => 1,

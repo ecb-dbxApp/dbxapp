@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Workflow definitions';
 $messages['bar_subtitle'] = 'Manage workflow definitions';
 $messages['module_bindings'] = 'Module bindings';

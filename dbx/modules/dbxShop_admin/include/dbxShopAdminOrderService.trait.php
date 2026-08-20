@@ -14,7 +14,7 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 trait dbxShopAdminOrderServiceTrait {
 
 
-   private function orderStatusOptions($texts = null): array {
+   private function order_status_options($texts = null): array {
       return array(
          'new' => $texts ? $texts->get_fd_message('order_status_new', 'Neu') : 'Neu',
          'payment_pending' => $texts ? $texts->get_fd_message('order_status_payment_pending', 'Zahlung offen') : 'Zahlung offen',
@@ -28,7 +28,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function paymentStatusOptions($texts = null): array {
+   private function payment_status_options($texts = null): array {
       return array(
          'open' => $texts ? $texts->get_fd_message('payment_status_open', 'Offen') : 'Offen',
          'created' => $texts ? $texts->get_fd_message('payment_status_created', 'Erstellt') : 'Erstellt',
@@ -43,7 +43,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function shippingStatusOptions($texts = null): array {
+   private function shipping_status_options($texts = null): array {
       return array(
          'open' => $texts ? $texts->get_fd_message('shipping_status_open', 'Offen') : 'Offen',
          'ready' => $texts ? $texts->get_fd_message('shipping_status_ready', 'Bereit') : 'Bereit',
@@ -55,8 +55,8 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function orderStatusBadge(string $status, $texts = null): string {
-      $labels = $this->orderStatusOptions($texts);
+   private function order_status_badge(string $status, $texts = null): string {
+      $labels = $this->order_status_options($texts);
       $classes = array(
          'new' => 'text-bg-secondary',
          'payment_pending' => 'text-bg-warning',
@@ -71,8 +71,8 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function paymentStatusBadge(string $status, $texts = null): string {
-      $labels = $this->paymentStatusOptions($texts);
+   private function payment_status_badge(string $status, $texts = null): string {
+      $labels = $this->payment_status_options($texts);
       $classes = array(
          'open' => 'text-bg-secondary',
          'created' => 'text-bg-info',
@@ -88,8 +88,8 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function shippingStatusBadge(string $status, $texts = null): string {
-      $labels = $this->shippingStatusOptions($texts);
+   private function shipping_status_badge(string $status, $texts = null): string {
+      $labels = $this->shipping_status_options($texts);
       $classes = array(
          'open' => 'text-bg-secondary',
          'ready' => 'text-bg-info',
@@ -102,7 +102,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function channelLabel(string $channel): string {
+   private function channel_label(string $channel): string {
       $labels = array(
          'shop' => 'Shop',
          'web' => 'Web',
@@ -116,52 +116,50 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function paymentProviderLabel(string $provider, $texts = null): string {
+   private function payment_provider_label(string $provider, $texts = null): string {
       $labels = array(
          'bank_transfer' => $texts ? $texts->get_fd_message('payment_bank_transfer', 'Vorkasse / Überweisung') : 'Vorkasse / Überweisung',
          'invoice' => $texts ? $texts->get_fd_message('payment_invoice', 'Rechnung') : 'Rechnung',
          'paypal' => 'PayPal',
          'amazon_pay' => 'Amazon Pay',
       );
-      return $labels[$provider] ?? $this->channelLabel($provider);
+      return $labels[$provider] ?? $this->channel_label($provider);
    }
 
 
 
-   private function channelBadge(string $channel): string {
+   private function channel_badge(string $channel): string {
       $class = in_array($channel, array('shop', 'web', ''), true) ? 'text-bg-secondary' : 'text-bg-info';
-      $text = $channel === '' ? 'Shop' : $this->channelLabel($channel);
+      $text = $channel === '' ? 'Shop' : $this->channel_label($channel);
       return '<span class="badge ' . $class . '">' . $this->h($text) . '</span>';
    }
 
 
 
-   private function orderActions($texts = null): string {
-      $helpId = $this->ensureShopOrdersHelpPage();
-      $helpTitle = $texts
+   private function order_actions($texts = null): string {
+      $help_context = $this->shop_orders_help_context();
+      $help_title = $texts
          ? $texts->get_fd_message('help_orders', 'Hilfe: Bestellungen')
          : 'Hilfe: Bestellungen';
-      $helpLabel = $texts
+      $help_label = $texts
          ? $texts->get_fd_message('help_label', 'Hilfe')
          : 'Hilfe';
-      $helpButton = $helpId > 0
-         ? $this->openWinButton('?dbx_modul=dbxContent&dbx_run1=content&cid=' . $helpId, $helpTitle, '<i class="bi bi-question-circle"></i><span class="visually-hidden"> ' . $this->h($helpLabel) . '</span>', 'btn btn-outline-secondary btn-sm me-1', '72%', '82%')
-         : '';
-      return $helpButton;
+      $help_button = $this->help_button($help_context, $help_title, 'btn btn-outline-secondary btn-sm me-1', '72%', '82%');
+      return $help_button;
    }
 
 
 
-   private function handleOrderAction($report): void {
-      $deleteId = (int)dbx()->get_modul_var('delete_order', 0, 'int');
-      if ($deleteId <= 0) {
+   private function handle_order_action($report): void {
+      $delete_id = (int)dbx()->get_modul_var('delete_order', 0, 'int');
+      if ($delete_id <= 0) {
          return;
       }
-      if (!$this->checkActionToken('delete_order')) {
+      if (!$this->check_action_token('delete_order')) {
          $report->_msg_error = $report->get_fd_message('token_error');
          return;
       }
-      if ($this->repo()->deleteOrder($deleteId)) {
+      if ($this->repo()->delete_order($delete_id)) {
          $report->_msg_success = $report->get_fd_message('delete_success');
       } else {
          $report->_msg_error = $report->get_fd_message('delete_error');
@@ -172,41 +170,41 @@ trait dbxShopAdminOrderServiceTrait {
 
    public function order_report_next_record($report, $record) {
       $id = (int)($record['id'] ?? 0);
-      $orderNo = (string)($record['order_no'] ?? '');
+      $order_no = (string)($record['order_no'] ?? '');
       $created = (string)($record['create_date'] ?? '');
       $channel = (string)($record['channel_key'] ?? 'shop');
       $items = (array)($record['items'] ?? array());
-      $itemLines = '';
+      $item_lines = '';
       foreach ($items as $item) {
-         $itemLines .= '<div>' . (int)($item['qty'] ?? 0) . 'x <strong>' . $this->h($item['title'] ?? '') . '</strong> <code>' . $this->h($item['sku'] ?? '') . '</code></div>';
+         $item_lines .= '<div>' . (int)($item['qty'] ?? 0) . 'x <strong>' . $this->h($item['title'] ?? '') . '</strong> <code>' . $this->h($item['sku'] ?? '') . '</code></div>';
       }
-      if ($itemLines === '') {
-         $itemLines = '<span class="text-muted">'
+      if ($item_lines === '') {
+         $item_lines = '<span class="text-muted">'
             . $this->h($report->get_fd_message('no_items'))
             . '</span>';
       }
-      $detailUrl = '?dbx_modul=dbxShop_admin&dbx_run1=order_detail&id=' . $id;
-      $deleteUrl = $this->actionUrl('?dbx_modul=dbxShop_admin&dbx_run1=orders&delete_order=' . $id);
+      $detail_url = '?dbx_modul=dbxShop_admin&dbx_run1=order_detail&id=' . $id;
+      $delete_url = $this->action_url('?dbx_modul=dbxShop_admin&dbx_run1=orders&delete_order=' . $id);
 
-      $externalId = trim((string)($record['payment_reference'] ?? ''));
-      $sourceText = in_array($channel, array('', 'shop', 'web'), true)
+      $external_id = trim((string)($record['payment_reference'] ?? ''));
+      $source_text = in_array($channel, array('', 'shop', 'web'), true)
          ? $report->get_fd_message('source_shop_order')
          : $report->get_fd_message('source_channel_order');
-      $externalText = $externalId !== ''
-         ? '<small>' . $this->h($report->format_fd_message('external_reference', array('reference' => $externalId))) . '</small>'
+      $external_text = $external_id !== ''
+         ? '<small>' . $this->h($report->format_fd_message('external_reference', array('reference' => $external_id))) . '</small>'
          : '';
-      $record['order_view'] = '<div class="dbx-shop-order-main"><strong>' . $this->h($orderNo) . '</strong><small>' . $this->h($created) . '</small><span class="dbx-shop-order-source">' . $this->channelBadge($channel) . '<small>' . $this->h($sourceText) . '</small></span>' . $externalText . '</div>';
+      $record['order_view'] = '<div class="dbx-shop-order-main"><strong>' . $this->h($order_no) . '</strong><small>' . $this->h($created) . '</small><span class="dbx-shop-order-source">' . $this->channel_badge($channel) . '<small>' . $this->h($source_text) . '</small></span>' . $external_text . '</div>';
       $record['customer_view'] = '<div class="dbx-shop-order-customer"><strong>' . $this->h($record['customer_name'] ?? '') . '</strong><small>' . $this->h($record['customer_email'] ?? '') . '</small></div>';
-      $record['items_view'] = '<div class="dbx-shop-order-items-small">' . $itemLines . '</div>';
+      $record['items_view'] = '<div class="dbx-shop-order-items-small">' . $item_lines . '</div>';
       $record['status_view'] = '<div class="dbx-shop-order-status-stack">'
-         . '<span><small>' . $this->h($report->get_fd_message('label_order')) . '</small>' . $this->orderStatusBadge((string)($record['status'] ?? 'new'), $report) . '</span>'
-         . '<span><small>' . $this->h($report->get_fd_message('label_shipping')) . '</small>' . $this->shippingStatusBadge((string)($record['shipping_status'] ?? 'open'), $report) . '</span>'
+         . '<span><small>' . $this->h($report->get_fd_message('label_order')) . '</small>' . $this->order_status_badge((string)($record['status'] ?? 'new'), $report) . '</span>'
+         . '<span><small>' . $this->h($report->get_fd_message('label_shipping')) . '</small>' . $this->shipping_status_badge((string)($record['shipping_status'] ?? 'open'), $report) . '</span>'
          . '</div>';
-      $record['payment_view'] = '<div class="dbx-shop-order-payment">' . $this->paymentStatusBadge((string)($record['payment_status'] ?? 'open'), $report) . '<small>' . $this->h($this->paymentProviderLabel((string)($record['payment_provider'] ?? ''), $report)) . '</small><small>' . $this->h($record['payment_reference'] ?? '') . '</small></div>';
+      $record['payment_view'] = '<div class="dbx-shop-order-payment">' . $this->payment_status_badge((string)($record['payment_status'] ?? 'open'), $report) . '<small>' . $this->h($this->payment_provider_label((string)($record['payment_provider'] ?? ''), $report)) . '</small><small>' . $this->h($record['payment_reference'] ?? '') . '</small></div>';
       $record['total_view'] = $this->money($record['total_gross'] ?? 0);
       $record['actions_view'] = '<span class="dbx-shop-order-actions">'
-         . $this->openWinButton($detailUrl, $report->format_fd_message('action_edit_title', array('number' => $orderNo)), '<i class="bi bi-pencil-square"></i><span class="visually-hidden"> ' . $this->h($report->get_fd_message('action_edit')) . '</span>', 'btn btn-outline-primary btn-sm', '86%', '88%')
-         . '<a class="btn btn-outline-danger btn-sm dbxConfirm" href="' . $this->h($deleteUrl) . '" data-confirm-title="<i class=\'bi bi-trash\'></i> ' . $this->h($report->get_fd_message('delete_title')) . '" data-confirm="' . $this->h($report->get_fd_message('delete_question')) . '" data-confirm-hint="<small>' . $this->h($report->get_fd_message('delete_hint')) . '</small>" data-confirm-buttons="yesno" title="' . $this->h($report->get_fd_message('delete_title')) . '"><i class="bi bi-trash"></i><span class="visually-hidden"> ' . $this->h($report->get_fd_message('delete_label')) . '</span></a>'
+         . $this->open_win_button($detail_url, $report->format_fd_message('action_edit_title', array('number' => $order_no)), '<i class="bi bi-pencil-square"></i><span class="visually-hidden"> ' . $this->h($report->get_fd_message('action_edit')) . '</span>', 'btn btn-outline-primary btn-sm', '86%', '88%')
+         . '<a class="btn btn-outline-danger btn-sm dbxConfirm" href="' . $this->h($delete_url) . '" data-confirm-title="<i class=\'bi bi-trash\'></i> ' . $this->h($report->get_fd_message('delete_title')) . '" data-confirm="' . $this->h($report->get_fd_message('delete_question')) . '" data-confirm-hint="<small>' . $this->h($report->get_fd_message('delete_hint')) . '</small>" data-confirm-buttons="yesno" title="' . $this->h($report->get_fd_message('delete_title')) . '"><i class="bi bi-trash"></i><span class="visually-hidden"> ' . $this->h($report->get_fd_message('delete_label')) . '</span></a>'
          . '</span>';
       return $record;
    }
@@ -214,13 +212,13 @@ trait dbxShopAdminOrderServiceTrait {
 
 
    private function orders(): string {
-      $this->ensureSeed();
+      $this->ensure_seed();
       $report = dbx()->get_system_obj('dbxReport');
-      $report->init('shop-orders-report');
-      $report->_fd = 'dbxShop_admin|rpt-orders-selection';
+      $report->init('shop-orders-report', 'shop-orders-report');
+      $report->set_field_definition('dbxShop_admin|rpt-orders-selection');
       $report->load_fd_messages();
-      $report->_action = '?dbx_modul=dbxShop_admin&dbx_run1=orders';
-      $report->_mode = 'table';
+      $report->set_action('?dbx_modul=dbxShop_admin&dbx_run1=orders');
+      $report->set_mode('table');
       $report->_pages = true;
       $report->_create_sel_flds = true;
       $report->_but_pagination = 7;
@@ -236,8 +234,8 @@ trait dbxShopAdminOrderServiceTrait {
       $report->add_rep('bar_title_heading_attrs', '');
       $report->add_rep('bar_middle', '');
       $report->add_rep('bar_extra', '');
-      $report->add_rep('bar_actions', $this->orderActions($report));
-      $report->add_rep('shop_admin_style', $this->shopAdminStyle());
+      $report->add_rep('bar_actions', $this->order_actions($report));
+      $report->add_rep('shop_admin_style', $this->shop_admin_style());
       foreach (array(
          'order_view' => 'dbx-shop-col-order',
          'customer_view' => 'dbx-shop-col-customer',
@@ -247,18 +245,18 @@ trait dbxShopAdminOrderServiceTrait {
          'total_view' => 'dbx-shop-col-total',
          'actions_view' => 'dbx-shop-col-actions',
       ) as $field => $class) {
-         $report->set_class_haeder($field, $class);
+         $report->set_class_header($field, $class);
          $report->_class_body[$field] = $class;
       }
       $report->set_callback_owner($this);
       $report->set_callback('next_record', 'order_report_next_record');
       $report->create_selection_fields('dbxShop_admin|rpt-orders-selection');
-      $this->handleOrderAction($report);
+      $this->handle_order_action($report);
 
       $query = trim((string)$report->get_fld_val('dbx_rwhere', '', 'parameter|max=120'));
-      $requestedRowsPerPage = (int)$report->get_fld_val('dbx_rrows', 30, 'int');
-      $rowsPerPage = $requestedRowsPerPage === 0 ? 0 : max(10, min(100, $requestedRowsPerPage));
-      $position = $rowsPerPage === 0 ? 0 : max(0, (int)$report->get_fld_val('dbx_rpos', 0, 'int'));
+      $requested_rows_per_page = (int)$report->get_fld_val('dbx_rrows', 30, 'int');
+      $rows_per_page = $requested_rows_per_page === 0 ? 0 : max(10, min(100, $requested_rows_per_page));
+      $position = $rows_per_page === 0 ? 0 : max(0, (int)$report->get_fld_val('dbx_rpos', 0, 'int'));
       $sort = (string)$report->get_fld_val('dbx_rsort', 'create_date', 'parameter');
       $direction = strtoupper((string)$report->get_fld_val('dbx_rdesc', 'DESC', 'parameter')) === 'ASC' ? 'ASC' : 'DESC';
       $filters = array(
@@ -269,11 +267,11 @@ trait dbxShopAdminOrderServiceTrait {
          'channel_key' => trim((string)$report->get_fld_val('channel_key', '', 'parameter')),
       );
 
-      $filteredCount = $this->repo()->orderCount($filters);
-      if ($rowsPerPage > 0 && $position >= $filteredCount && $filteredCount > 0) {
-         $position = max(0, (int)(floor(($filteredCount - 1) / $rowsPerPage) * $rowsPerPage));
+      $filtered_count = $this->repo()->order_count($filters);
+      if ($rows_per_page > 0 && $position >= $filtered_count && $filtered_count > 0) {
+         $position = max(0, (int)(floor(($filtered_count - 1) / $rows_per_page) * $rows_per_page));
       }
-      $orders = $this->repo()->orders($filters, $rowsPerPage, $position, $sort, $direction);
+      $orders = $this->repo()->orders($filters, $rows_per_page, $position, $sort, $direction);
 
       $report->_rflds = array(
          'order_view' => $report->get_fd_message('column_order'),
@@ -293,14 +291,14 @@ trait dbxShopAdminOrderServiceTrait {
          'total_view' => 'html',
          'actions_view' => 'html',
       );
-      $report->_rrows = $rowsPerPage;
+      $report->_rrows = $rows_per_page;
       $report->_rpos = $position;
-      $report->_count_all = $this->repo()->orderCount(array());
-      $report->_rcount = $filteredCount;
+      $report->_count_all = $this->repo()->order_count(array());
+      $report->_rcount = $filtered_count;
       $report->_rdata = $orders;
 
       $content = $report->run();
-      if ($filteredCount === 0) {
+      if ($filtered_count === 0) {
          $content .= '<div class="alert alert-info mx-3">'
             . $this->h($report->get_fd_message('no_results'))
             . '</div>';
@@ -319,17 +317,17 @@ trait dbxShopAdminOrderServiceTrait {
       $record['message_view'] = '<div class="small">' . nl2br($this->h($record['reason'] ?? '')) . '</div>';
       $status = (string)($record['status'] ?? '');
       $badge = in_array($status, array('accepted', 'refunded', 'closed'), true) ? 'text-bg-success' : (in_array($status, array('rejected'), true) ? 'text-bg-danger' : 'text-bg-warning');
-      $statusLabel = $report->get_fd_message('status_' . $status, $status);
-      $record['status_view'] = '<span class="badge ' . $badge . '">' . $this->h($statusLabel) . '</span>';
+      $status_label = $report->get_fd_message('status_' . $status, $status);
+      $record['status_view'] = '<span class="badge ' . $badge . '">' . $this->h($status_label) . '</span>';
       $id = (int)($record['id'] ?? 0);
       $base = '?dbx_modul=dbxShop_admin&dbx_run1=returns&withdrawal_id=' . $id . '&withdrawal_status=';
       $record['actions_view'] =
          '<div class="btn-group btn-group-sm" role="group">'
-         . '<a class="btn btn-outline-secondary" href="' . $this->h($this->actionUrl($base . 'processing')) . '" title="' . $this->h($report->get_fd_message('action_processing')) . '"><i class="bi bi-hourglass-split"></i></a>'
-         . '<a class="btn btn-outline-success dbxConfirm" href="' . $this->h($this->actionUrl($base . 'accepted')) . '" data-confirm-title="' . $this->h($report->get_fd_message('action_accept_title')) . '" data-confirm="' . $this->h($report->get_fd_message('action_accept_question')) . '" data-confirm-buttons="yesno" title="' . $this->h($report->get_fd_message('action_accept')) . '"><i class="bi bi-check2"></i></a>'
-         . '<a class="btn btn-outline-primary dbxConfirm" href="' . $this->h($this->actionUrl($base . 'refunded')) . '" data-confirm-title="' . $this->h($report->get_fd_message('action_refund_title')) . '" data-confirm="' . $this->h($report->get_fd_message('action_refund_question')) . '" data-confirm-buttons="yesno" title="' . $this->h($report->get_fd_message('action_refunded')) . '"><i class="bi bi-cash-coin"></i></a>'
-         . '<a class="btn btn-outline-danger" href="' . $this->h($this->actionUrl($base . 'rejected')) . '" title="' . $this->h($report->get_fd_message('action_reject')) . '"><i class="bi bi-x-lg"></i></a>'
-         . '<a class="btn btn-outline-secondary" href="' . $this->h($this->actionUrl($base . 'closed')) . '" title="' . $this->h($report->get_fd_message('action_close')) . '"><i class="bi bi-archive"></i></a>'
+         . '<a class="btn btn-outline-secondary" href="' . $this->h($this->action_url($base . 'processing')) . '" title="' . $this->h($report->get_fd_message('action_processing')) . '"><i class="bi bi-hourglass-split"></i></a>'
+         . '<a class="btn btn-outline-success dbxConfirm" href="' . $this->h($this->action_url($base . 'accepted')) . '" data-confirm-title="' . $this->h($report->get_fd_message('action_accept_title')) . '" data-confirm="' . $this->h($report->get_fd_message('action_accept_question')) . '" data-confirm-buttons="yesno" title="' . $this->h($report->get_fd_message('action_accept')) . '"><i class="bi bi-check2"></i></a>'
+         . '<a class="btn btn-outline-primary dbxConfirm" href="' . $this->h($this->action_url($base . 'refunded')) . '" data-confirm-title="' . $this->h($report->get_fd_message('action_refund_title')) . '" data-confirm="' . $this->h($report->get_fd_message('action_refund_question')) . '" data-confirm-buttons="yesno" title="' . $this->h($report->get_fd_message('action_refunded')) . '"><i class="bi bi-cash-coin"></i></a>'
+         . '<a class="btn btn-outline-danger" href="' . $this->h($this->action_url($base . 'rejected')) . '" title="' . $this->h($report->get_fd_message('action_reject')) . '"><i class="bi bi-x-lg"></i></a>'
+         . '<a class="btn btn-outline-secondary" href="' . $this->h($this->action_url($base . 'closed')) . '" title="' . $this->h($report->get_fd_message('action_close')) . '"><i class="bi bi-archive"></i></a>'
          . '</div>';
       return $record;
    }
@@ -337,28 +335,28 @@ trait dbxShopAdminOrderServiceTrait {
 
 
    private function returns(): string {
-      $this->ensureSeed();
-      $withdrawalId = (int)dbx()->get_modul_var('withdrawal_id', 0, 'int');
-      $withdrawalStatus = (string)dbx()->get_modul_var('withdrawal_status', '', 'parameter');
-      if ($withdrawalId > 0 && $withdrawalStatus !== '') {
-         if ($this->checkActionToken('withdrawal_status')) {
-            $this->repo()->updateWithdrawalAdmin($withdrawalId, $withdrawalStatus);
+      $this->ensure_seed();
+      $withdrawal_id = (int)dbx()->get_modul_var('withdrawal_id', 0, 'int');
+      $withdrawal_status = (string)dbx()->get_modul_var('withdrawal_status', '', 'parameter');
+      if ($withdrawal_id > 0 && $withdrawal_status !== '') {
+         if ($this->check_action_token('withdrawal_status')) {
+            $this->repo()->update_withdrawal_admin($withdrawal_id, $withdrawal_status);
          }
       }
       $report = dbx()->get_system_obj('dbxReport');
-      $report->init('shop-orders-report');
-      $report->_fd = 'dbxShop_admin|rpt-withdrawals-selection';
+      $report->init('shop-orders-report', 'shop-orders-report');
+      $report->set_field_definition('dbxShop_admin|rpt-withdrawals-selection');
       $report->load_fd_messages();
-      $report->_action = '?dbx_modul=dbxShop_admin&dbx_run1=returns';
-      $report->_mode = 'table';
+      $report->set_action('?dbx_modul=dbxShop_admin&dbx_run1=returns');
+      $report->set_mode('table');
       $report->_pages = true;
       $report->_create_sel_flds = true;
       $report->_but_pagination = 7;
       $report->_fld_id = 'id';
       $report->_msg_info = $report->get_fd_message('report_info');
-      if ($this->postedFormError !== '') {
+      if ($this->posted_form_error !== '') {
          $report->_msg_error = $report->get_fd_message('token_error');
-         $this->postedFormError = '';
+         $this->posted_form_error = '';
       }
       $report->add_rep('bar_title', $report->get_fd_message('bar_title'));
       $report->add_rep('bar_icon', 'bi-arrow-counterclockwise');
@@ -370,31 +368,31 @@ trait dbxShopAdminOrderServiceTrait {
       $report->add_rep('bar_title_heading_attrs', '');
       $report->add_rep('bar_middle', '');
       $report->add_rep('bar_extra', '');
-      $shopService = dbx()->get_include_obj('dbxShopService', 'dbxShop');
-      $pages = is_object($shopService) && method_exists($shopService, 'ensureShopLegalPages') ? $shopService->ensureShopLegalPages() : array();
-      $withdrawalCid = (int)($pages['withdrawal'] ?? 0);
-      $cmsButton = $withdrawalCid > 0
-         ? $this->openWinButton('?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=' . $withdrawalCid, $report->get_fd_message('edit_legal_title'), '<i class="bi bi-pencil-square"></i><span class="visually-hidden"> ' . $this->h($report->get_fd_message('edit_cms')) . '</span>', 'btn btn-outline-primary btn-sm me-1', '94%', '92%')
+      $shop_service = dbx()->get_include_obj('dbxShopService', 'dbxShop');
+      $pages = is_object($shop_service) && method_exists($shop_service, 'ensureShopLegalPages') ? $shop_service->ensure_shop_legal_pages() : array();
+      $withdrawal_cid = (int)($pages['withdrawal'] ?? 0);
+      $cms_button = $withdrawal_cid > 0
+         ? $this->open_win_button('?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=' . $withdrawal_cid, $report->get_fd_message('edit_legal_title'), '<i class="bi bi-pencil-square"></i><span class="visually-hidden"> ' . $this->h($report->get_fd_message('edit_cms')) . '</span>', 'btn btn-outline-primary btn-sm me-1', '94%', '92%')
          : '';
       $report->add_rep('bar_actions',
-         $cmsButton
-         . $this->openWinButton('?dbx_modul=dbxShop&dbx_run1=withdrawal', $report->get_fd_message('view_page_title'), '<i class="bi bi-box-arrow-up-right"></i><span class="visually-hidden"> ' . $this->h($report->get_fd_message('shop_view')) . '</span>', 'btn btn-outline-primary btn-sm me-1', '82%', '86%')
+         $cms_button
+         . $this->open_win_button('?dbx_modul=dbxShop&dbx_run1=withdrawal', $report->get_fd_message('view_page_title'), '<i class="bi bi-box-arrow-up-right"></i><span class="visually-hidden"> ' . $this->h($report->get_fd_message('shop_view')) . '</span>', 'btn btn-outline-primary btn-sm me-1', '82%', '86%')
       );
-      $report->add_rep('shop_admin_style', $this->shopAdminStyle());
+      $report->add_rep('shop_admin_style', $this->shop_admin_style());
       $report->set_callback_owner($this);
       $report->set_callback('next_record', 'withdrawal_report_next_record');
       $report->create_selection_fields('dbxShop_admin|rpt-withdrawals-selection');
 
       $query = trim((string)$report->get_fld_val('dbx_rwhere', '', 'parameter|max=120'));
-      $rowsPerPage = (int)$report->get_fld_val('dbx_rrows', 30, 'int');
-      $rowsPerPage = $rowsPerPage === 0 ? 0 : max(10, min(100, $rowsPerPage));
-      $position = $rowsPerPage === 0 ? 0 : max(0, (int)$report->get_fld_val('dbx_rpos', 0, 'int'));
+      $rows_per_page = (int)$report->get_fld_val('dbx_rrows', 30, 'int');
+      $rows_per_page = $rows_per_page === 0 ? 0 : max(10, min(100, $rows_per_page));
+      $position = $rows_per_page === 0 ? 0 : max(0, (int)$report->get_fld_val('dbx_rpos', 0, 'int'));
       $filters = array(
          'query' => $query,
          'status' => trim((string)$report->get_fld_val('status', '', 'parameter')),
       );
-      $filteredCount = $this->repo()->withdrawalCount($filters);
-      $rows = $this->repo()->withdrawals($filters, $rowsPerPage, $position);
+      $filtered_count = $this->repo()->withdrawal_count($filters);
+      $rows = $this->repo()->withdrawals($filters, $rows_per_page, $position);
 
       $report->_rflds = array(
          'request_view' => $report->get_fd_message('column_withdrawal'),
@@ -410,14 +408,14 @@ trait dbxShopAdminOrderServiceTrait {
          'status_view' => 'html',
          'actions_view' => 'html',
       );
-      $report->_rrows = $rowsPerPage;
+      $report->_rrows = $rows_per_page;
       $report->_rpos = $position;
-      $report->_count_all = $this->repo()->withdrawalCount(array());
-      $report->_rcount = $filteredCount;
+      $report->_count_all = $this->repo()->withdrawal_count(array());
+      $report->_rcount = $filtered_count;
       $report->_rdata = $rows;
 
       $content = $report->run();
-      if ($filteredCount === 0) {
+      if ($filtered_count === 0) {
          $content .= '<div class="alert alert-info mx-3">'
             . $this->h($report->get_fd_message('no_results'))
             . '</div>';
@@ -427,14 +425,14 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function orderMetaHtml(array $order, $texts): string {
+   private function order_meta_html(array $order, $texts): string {
       $channel = (string)($order['channel_key'] ?? 'shop');
-      $source = $this->channelLabel($channel) . ' '
+      $source = $this->channel_label($channel) . ' '
          . (in_array($channel, array('shop', 'web', ''), true)
             ? $texts->get_fd_message('source_order_suffix')
             : $texts->get_fd_message('source_channel_order'));
-      $paymentStatuses = $this->paymentStatusOptions($texts);
-      $shippingStatuses = $this->shippingStatusOptions($texts);
+      $payment_statuses = $this->payment_status_options($texts);
+      $shipping_statuses = $this->shipping_status_options($texts);
       $rows = array(
          $texts->get_fd_message('meta_order_no') => $order['order_no'] ?? '',
          $texts->get_fd_message('meta_created') => $order['create_date'] ?? '',
@@ -443,14 +441,14 @@ trait dbxShopAdminOrderServiceTrait {
          $texts->get_fd_message('meta_shipping_address') => $order['shipping_address'] ?? '',
          $texts->get_fd_message('meta_source') => $source,
          $texts->get_fd_message('meta_external_order') => $order['payment_reference'] ?? '',
-         $texts->get_fd_message('meta_payment_method') => $this->paymentProviderLabel((string)($order['payment_provider'] ?? ''), $texts),
-         $texts->get_fd_message('meta_payment_status') => $paymentStatuses[(string)($order['payment_status'] ?? '')] ?? ($order['payment_status'] ?? ''),
+         $texts->get_fd_message('meta_payment_method') => $this->payment_provider_label((string)($order['payment_provider'] ?? ''), $texts),
+         $texts->get_fd_message('meta_payment_status') => $payment_statuses[(string)($order['payment_status'] ?? '')] ?? ($order['payment_status'] ?? ''),
          $texts->get_fd_message('meta_invoice_no') => $order['invoice_no'] ?? '',
          $texts->get_fd_message('meta_invoice_date') => $order['invoice_date'] ?? '',
          $texts->get_fd_message('meta_invoice_pdf') => trim((string)($order['invoice_pdf_path'] ?? '')) !== '' ? (string)$order['invoice_pdf_path'] : $texts->get_fd_message('not_generated'),
          $texts->get_fd_message('meta_stock_reserved') => !empty($order['stock_reserved']) ? $texts->get_fd_message('yes') : $texts->get_fd_message('no'),
          $texts->get_fd_message('meta_stock_released') => !empty($order['stock_released']) ? $texts->get_fd_message('yes') . ', ' . (string)($order['stock_released_date'] ?? '') : $texts->get_fd_message('no'),
-         $texts->get_fd_message('meta_shipping_status') => $shippingStatuses[(string)($order['shipping_status'] ?? '')] ?? ($order['shipping_status'] ?? ''),
+         $texts->get_fd_message('meta_shipping_status') => $shipping_statuses[(string)($order['shipping_status'] ?? '')] ?? ($order['shipping_status'] ?? ''),
          $texts->get_fd_message('meta_shipping_provider') => $order['shipping_provider'] ?? '',
          $texts->get_fd_message('meta_tracking_no') => $order['tracking_no'] ?? '',
          $texts->get_fd_message('meta_total') => $this->money($order['total_gross'] ?? 0),
@@ -465,7 +463,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function orderHistoryHtml(array $order, $texts): string {
+   private function order_history_html(array $order, $texts): string {
       $rows = (array)($order['history'] ?? array());
       if ($rows === array()) {
          return '<div class="text-muted small">' . $this->h($texts->get_fd_message('history_empty')) . '</div>';
@@ -489,7 +487,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function orderWithdrawalsHtml(array $order, $texts): string {
+   private function order_withdrawals_html(array $order, $texts): string {
       $rows = (array)($order['withdrawals'] ?? array());
       if ($rows === array()) {
          return '<div class="text-muted small">' . $this->h($texts->get_fd_message('withdrawals_empty')) . '</div>';
@@ -509,7 +507,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function orderItemsHtml(array $order, $texts): string {
+   private function order_items_html(array $order, $texts): string {
       $items = (array)($order['items'] ?? array());
       if ($items === array()) {
          return '<div class="text-muted small">' . $this->h($texts->get_fd_message('items_empty')) . '</div>';
@@ -533,7 +531,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function orderPayloadHtml(array $order, $texts): string {
+   private function order_payload_html(array $order, $texts): string {
       $blocks = array(
          $texts->get_fd_message('payload_payment') => trim((string)($order['payment_payload'] ?? '')),
          $texts->get_fd_message('payload_legal') => trim((string)($order['legal_snapshot'] ?? '')),
@@ -558,11 +556,11 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function statusMailChangesHtml(array $before, array $order): string {
+   private function status_mail_changes_html(array $before, array $order): string {
       $rows = array(
-         'Bestellstatus' => array($this->orderStatusOptions(), 'status'),
-         'Zahlungsstatus' => array($this->paymentStatusOptions(), 'payment_status'),
-         'Versandstatus' => array($this->shippingStatusOptions(), 'shipping_status'),
+         'Bestellstatus' => array($this->order_status_options(), 'status'),
+         'Zahlungsstatus' => array($this->payment_status_options(), 'payment_status'),
+         'Versandstatus' => array($this->shipping_status_options(), 'shipping_status'),
       );
       $html = '';
       foreach ($rows as $label => $cfg) {
@@ -576,9 +574,9 @@ trait dbxShopAdminOrderServiceTrait {
       }
       if ($html === '') {
          return '<dl>'
-            . '<dt>Bestellstatus</dt><dd>' . $this->h($this->orderStatusOptions()[(string)($order['status'] ?? '')] ?? (string)($order['status'] ?? '')) . '</dd>'
-            . '<dt>Zahlungsstatus</dt><dd>' . $this->h($this->paymentStatusOptions()[(string)($order['payment_status'] ?? '')] ?? (string)($order['payment_status'] ?? '')) . '</dd>'
-            . '<dt>Versandstatus</dt><dd>' . $this->h($this->shippingStatusOptions()[(string)($order['shipping_status'] ?? '')] ?? (string)($order['shipping_status'] ?? '')) . '</dd>'
+            . '<dt>Bestellstatus</dt><dd>' . $this->h($this->order_status_options()[(string)($order['status'] ?? '')] ?? (string)($order['status'] ?? '')) . '</dd>'
+            . '<dt>Zahlungsstatus</dt><dd>' . $this->h($this->payment_status_options()[(string)($order['payment_status'] ?? '')] ?? (string)($order['payment_status'] ?? '')) . '</dd>'
+            . '<dt>Versandstatus</dt><dd>' . $this->h($this->shipping_status_options()[(string)($order['shipping_status'] ?? '')] ?? (string)($order['shipping_status'] ?? '')) . '</dd>'
             . '</dl>';
       }
       return '<table border="0" cellpadding="6" cellspacing="0">'
@@ -588,10 +586,10 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function sendOrderStatusMail(array $before, array $order): array {
-      $cfg = $this->shopConfig();
+   private function send_order_status_mail(array $before, array $order): array {
+      $cfg = $this->shop_config();
       $from = trim((string)($cfg['mail_from'] ?? ''));
-      $fromName = trim((string)($cfg['mail_from_name'] ?? 'dbxShop'));
+      $from_name = trim((string)($cfg['mail_from_name'] ?? 'dbxShop'));
       $profile = trim((string)($cfg['mail_profile'] ?? ''));
       $to = trim((string)($order['customer_email'] ?? ''));
       if (filter_var($from, FILTER_VALIDATE_EMAIL) === false) {
@@ -601,31 +599,31 @@ trait dbxShopAdminOrderServiceTrait {
          return array(false, 'Kundenmail wurde nicht gesendet: Die Bestellung hat keine gueltige Kunden-E-Mail.');
       }
 
-      $orderNo = (string)($order['order_no'] ?? '');
-      $subject = 'Aktualisierung Ihrer Bestellung ' . $orderNo;
-      $trackingNo = trim((string)($order['tracking_no'] ?? ''));
-      $trackingUrl = trim((string)($order['tracking_url'] ?? ''));
-      $invoiceNo = trim((string)($order['invoice_no'] ?? ''));
+      $order_no = (string)($order['order_no'] ?? '');
+      $subject = 'Aktualisierung Ihrer Bestellung ' . $order_no;
+      $tracking_no = trim((string)($order['tracking_no'] ?? ''));
+      $tracking_url = trim((string)($order['tracking_url'] ?? ''));
+      $invoice_no = trim((string)($order['invoice_no'] ?? ''));
       $extra = '';
-      if ($trackingNo !== '') {
-         $extra .= '<p><strong>Trackingnummer:</strong> ' . $this->h($trackingNo) . '</p>';
+      if ($tracking_no !== '') {
+         $extra .= '<p><strong>Trackingnummer:</strong> ' . $this->h($tracking_no) . '</p>';
       }
-      if ($trackingUrl !== '') {
-         $extra .= '<p><a href="' . $this->h($trackingUrl) . '">Sendung verfolgen</a></p>';
+      if ($tracking_url !== '') {
+         $extra .= '<p><a href="' . $this->h($tracking_url) . '">Sendung verfolgen</a></p>';
       }
-      if ($invoiceNo !== '') {
-         $extra .= '<p><strong>Rechnung:</strong> ' . $this->h($invoiceNo) . '</p>';
+      if ($invoice_no !== '') {
+         $extra .= '<p><strong>Rechnung:</strong> ' . $this->h($invoice_no) . '</p>';
       }
       $html = '<h2>Ihre Bestellung wurde aktualisiert</h2>'
-         . '<p>Bestellnummer: <strong>' . $this->h($orderNo) . '</strong></p>'
-         . $this->statusMailChangesHtml($before, $order)
+         . '<p>Bestellnummer: <strong>' . $this->h($order_no) . '</strong></p>'
+         . $this->status_mail_changes_html($before, $order)
          . $extra
          . '<p>Viele Gruesse<br>Ihr Shop-Team</p>';
 
       try {
          $options = $profile !== '' ? array('mail_profile' => $profile) : array();
-         $sent = dbx()->send_mail(
-            array('email' => $from, 'name' => $fromName),
+         $sent = dbx()->get_system_obj('dbxMail')->send_message(
+            array('email' => $from, 'name' => $from_name),
             $to,
             $subject,
             $html,
@@ -642,7 +640,7 @@ trait dbxShopAdminOrderServiceTrait {
                   . ($reason !== '' ? ': ' . $reason : '.')
             );
          }
-         $this->repo()->addOrderHistory((int)($order['id'] ?? 0), 'customer_mail', '', $to, 'Statusbenachrichtigung wurde an den Kunden gesendet.');
+         $this->repo()->add_order_history((int)($order['id'] ?? 0), 'customer_mail', '', $to, 'Statusbenachrichtigung wurde an den Kunden gesendet.');
          return array(true, 'Kundenmail wurde gesendet.');
       } catch (\Throwable $e) {
          dbx()->sys_msg('error', 'dbxShop_admin', (string)($order['id'] ?? ''), 'order status mail failed', $e->getMessage());
@@ -652,7 +650,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function notifyCustomerHint(array $order, $texts): string {
+   private function notify_customer_hint(array $order, $texts): string {
       $email = trim((string)($order['customer_email'] ?? ''));
       return $email === ''
          ? $texts->get_fd_message('notify_no_email')
@@ -664,7 +662,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function orderQuickActionsHtml(array $order, $texts): string {
+   private function order_quick_actions_html(array $order, $texts): string {
       $id = (int)($order['id'] ?? 0);
       if ($id <= 0) {
          return '';
@@ -683,8 +681,8 @@ trait dbxShopAdminOrderServiceTrait {
          . '<strong>' . $this->h($texts->get_fd_message('quick_actions')) . '</strong><div class="dbx-shop-order-quick-action-buttons">';
       foreach ($actions as $action => $cfg) {
          [$icon, $label, $confirm] = $cfg;
-         $btnClass = in_array($action, array('cancel', 'refund'), true) ? 'btn-outline-danger' : 'btn-outline-primary';
-         $html .= '<a class="btn btn-sm ' . $btnClass . ' dbxConfirm" href="' . $this->h($this->actionUrl($base . rawurlencode($action))) . '"'
+         $btn_class = in_array($action, array('cancel', 'refund'), true) ? 'btn-outline-danger' : 'btn-outline-primary';
+         $html .= '<a class="btn btn-sm ' . $btn_class . ' dbxConfirm" href="' . $this->h($this->action_url($base . rawurlencode($action))) . '"'
             . ' data-confirm-title="<i class=\'bi ' . $this->h($icon) . '\'></i> ' . $this->h($label) . '"'
             . ' data-confirm="' . $this->h($confirm) . '"'
             . ' data-confirm-buttons="yesno"'
@@ -697,75 +695,71 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function orderDetailActions(int $id, $texts): string {
-      $helpId = $this->ensureShopOrdersHelpPage();
-      $helpButton = $helpId > 0
-         ? $this->openWinButton('?dbx_modul=dbxContent&dbx_run1=content&cid=' . $helpId, $texts->get_fd_message('help_orders'), '<i class="bi bi-question-circle"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('help_label')) . '</span>', 'btn btn-outline-secondary btn-sm ms-1', '72%', '82%')
-         : '';
-      $deleteUrl = $this->actionUrl('?dbx_modul=dbxShop_admin&dbx_run1=orders&delete_order=' . $id);
-      $mailUrl = $this->actionUrl('?dbx_modul=dbxShop_admin&dbx_run1=order_detail&dbx_run2=send_status_mail&id=' . $id);
-      $invoicePdfUrl = $this->actionUrl('?dbx_modul=dbxShop_admin&dbx_run1=order_invoice_pdf&id=' . $id);
+   private function order_detail_actions(int $id, $texts): string {
+      $help_button = $this->help_button($this->shop_orders_help_context(), $texts->get_fd_message('help_orders'), 'btn btn-outline-secondary btn-sm ms-1', '72%', '82%');
+      $delete_url = $this->action_url('?dbx_modul=dbxShop_admin&dbx_run1=orders&delete_order=' . $id);
+      $mail_url = $this->action_url('?dbx_modul=dbxShop_admin&dbx_run1=order_detail&dbx_run2=send_status_mail&id=' . $id);
+      $invoice_pdf_url = $this->action_url('?dbx_modul=dbxShop_admin&dbx_run1=order_invoice_pdf&id=' . $id);
       return '<button class="btn btn-primary btn-sm" type="submit" data-dbx-tooltip="' . $this->h($texts->get_fd_message('save_order_title')) . '"><i class="bi bi-save"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('save_label')) . '</span></button>'
-         . $this->openWinButton('?dbx_modul=dbxShop_admin&dbx_run1=order_invoice&id=' . $id, $texts->get_fd_message('invoice_view'), '<i class="bi bi-file-earmark-text"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('invoice_label')) . '</span>', 'btn btn-outline-primary btn-sm ms-1', '82%', '86%')
-         . '<a class="btn btn-outline-danger btn-sm ms-1" href="' . $this->h($invoicePdfUrl) . '" target="_blank" rel="noopener" title="' . $this->h($texts->get_fd_message('invoice_pdf_title')) . '"><i class="bi bi-file-earmark-pdf"></i><span class="visually-hidden"> PDF</span></a>'
-         . '<a class="btn btn-outline-primary btn-sm ms-1 dbxConfirm" href="' . $this->h($mailUrl) . '" data-confirm-title="<i class=\'bi bi-envelope\'></i> ' . $this->h($texts->get_fd_message('customer_mail_title')) . '" data-confirm="' . $this->h($texts->get_fd_message('customer_mail_question')) . '" data-confirm-buttons="yesno" title="' . $this->h($texts->get_fd_message('customer_mail_title')) . '"><i class="bi bi-envelope"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('customer_mail_label')) . '</span></a>'
-         . '<a class="btn btn-outline-danger btn-sm ms-1 dbxConfirm" href="' . $this->h($deleteUrl) . '" data-confirm-title="<i class=\'bi bi-trash\'></i> ' . $this->h($texts->get_fd_message('delete_title')) . '" data-confirm="' . $this->h($texts->get_fd_message('delete_question')) . '" data-confirm-buttons="yesno" title="' . $this->h($texts->get_fd_message('delete_title')) . '"><i class="bi bi-trash"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('delete_label')) . '</span></a>'
-         . $helpButton
-         . $this->openWinButton('?dbx_modul=dbxShop_admin&dbx_run1=orders', $texts->get_fd_message('order_list_title'), '<i class="bi bi-table"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('order_list_label')) . '</span>', 'btn btn-outline-secondary btn-sm ms-1', '92%', '88%');
+         . $this->open_win_button('?dbx_modul=dbxShop_admin&dbx_run1=order_invoice&id=' . $id, $texts->get_fd_message('invoice_view'), '<i class="bi bi-file-earmark-text"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('invoice_label')) . '</span>', 'btn btn-outline-primary btn-sm ms-1', '82%', '86%')
+         . '<a class="btn btn-outline-danger btn-sm ms-1" href="' . $this->h($invoice_pdf_url) . '" target="_blank" rel="noopener" title="' . $this->h($texts->get_fd_message('invoice_pdf_title')) . '"><i class="bi bi-file-earmark-pdf"></i><span class="visually-hidden"> PDF</span></a>'
+         . '<a class="btn btn-outline-primary btn-sm ms-1 dbxConfirm" href="' . $this->h($mail_url) . '" data-confirm-title="<i class=\'bi bi-envelope\'></i> ' . $this->h($texts->get_fd_message('customer_mail_title')) . '" data-confirm="' . $this->h($texts->get_fd_message('customer_mail_question')) . '" data-confirm-buttons="yesno" title="' . $this->h($texts->get_fd_message('customer_mail_title')) . '"><i class="bi bi-envelope"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('customer_mail_label')) . '</span></a>'
+         . '<a class="btn btn-outline-danger btn-sm ms-1 dbxConfirm" href="' . $this->h($delete_url) . '" data-confirm-title="<i class=\'bi bi-trash\'></i> ' . $this->h($texts->get_fd_message('delete_title')) . '" data-confirm="' . $this->h($texts->get_fd_message('delete_question')) . '" data-confirm-buttons="yesno" title="' . $this->h($texts->get_fd_message('delete_title')) . '"><i class="bi bi-trash"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('delete_label')) . '</span></a>'
+         . $help_button
+         . $this->open_win_button('?dbx_modul=dbxShop_admin&dbx_run1=orders', $texts->get_fd_message('order_list_title'), '<i class="bi bi-table"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('order_list_label')) . '</span>', 'btn btn-outline-secondary btn-sm ms-1', '92%', '88%');
    }
 
 
 
-   private function orderDetail(): string {
+   private function order_detail(): string {
       $id = (int)dbx()->get_modul_var('id', 0, 'int');
-      $order = $id > 0 ? $this->repo()->orderById($id) : null;
+      $order = $id > 0 ? $this->repo()->order_by_id($id) : null;
       if (!is_array($order)) {
-         return $this->frame('<div class="alert alert-warning m-3">Bestellung nicht gefunden.</div>', 'Bestellung bearbeiten', $this->orderActions());
+         return $this->frame('<div class="alert alert-warning m-3">Bestellung nicht gefunden.</div>', 'Bestellung bearbeiten', $this->order_actions());
       }
-      $quickMessage = '';
-      $quickError = '';
-      $quickAction = (string)dbx()->get_modul_var('order_action', '', 'parameter');
-      if ((string)dbx()->get_modul_var('dbx_run2', '', 'parameter') === 'quick_action' && $quickAction !== '') {
-         if (!$this->checkActionToken('order_quick_action')) {
-            $quickOk = false;
-            $quickMsg = $this->postedFormError;
+      $quick_message = '';
+      $quick_error = '';
+      $quick_action = (string)dbx()->get_modul_var('order_action', '', 'parameter');
+      if ((string)dbx()->get_modul_var('dbx_run2', '', 'parameter') === 'quick_action' && $quick_action !== '') {
+         if (!$this->check_action_token('order_quick_action')) {
+            $quick_ok = false;
+            $quick_msg = $this->posted_form_error;
          } else {
-            [$quickOk, $quickMsg] = $this->repo()->updateOrderQuickAction($id, $quickAction);
+            [$quick_ok, $quick_msg] = $this->repo()->update_order_quick_action($id, $quick_action);
          }
-         if ($quickOk) {
-            $quickMessage = $quickMsg;
-            $order = $this->repo()->orderById($id) ?: $order;
+         if ($quick_ok) {
+            $quick_message = $quick_msg;
+            $order = $this->repo()->order_by_id($id) ?: $order;
          } else {
-            $quickError = $quickMsg;
+            $quick_error = $quick_msg;
          }
       }
-      $mailMessage = '';
-      $mailError = '';
-      $sendStatusMail = (string)dbx()->get_modul_var('dbx_run2', '', 'parameter') === 'send_status_mail'
+      $mail_message = '';
+      $mail_error = '';
+      $send_status_mail = (string)dbx()->get_modul_var('dbx_run2', '', 'parameter') === 'send_status_mail'
          || (string)($_GET['dbx_run2'] ?? '') === 'send_status_mail';
-      if ($sendStatusMail) {
-         if (!$this->checkActionToken('send_status_mail')) {
-            $mailOk = false;
-            $mailMsg = $this->postedFormError;
+      if ($send_status_mail) {
+         if (!$this->check_action_token('send_status_mail')) {
+            $mail_ok = false;
+            $mail_msg = $this->posted_form_error;
          } else {
-            [$mailOk, $mailMsg] = $this->sendOrderStatusMail($order, $order);
+            [$mail_ok, $mail_msg] = $this->send_order_status_mail($order, $order);
          }
-         if ($mailOk) {
-            $mailMessage = $mailMsg;
-            $order = $this->repo()->orderById($id) ?: $order;
+         if ($mail_ok) {
+            $mail_message = $mail_msg;
+            $order = $this->repo()->order_by_id($id) ?: $order;
          } else {
-            $mailError = $mailMsg;
+            $mail_error = $mail_msg;
          }
       }
 
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('shop-order-form', 'shop-order-form');
-      $form->_dd = 'dbxShop|shopOrder';
-      $form->_fd = 'dbxShop_admin|rpt-orders-selection';
+      $form->set_data_source('dbxShop|shopOrder', 'dbxShop_admin|rpt-orders-selection');
       $form->load_fd_messages();
-      $form->_data = $order;
-      $form->_rid = $id;
-      $form->_action = '?dbx_modul=dbxShop_admin&dbx_run1=order_detail&id=' . $id;
+      $form->set_data($order);
+      $form->set_rid($id);
+      $form->set_action('?dbx_modul=dbxShop_admin&dbx_run1=order_detail&id=' . $id);
       $form->set_activ_id($id);
       $form->add_rep('bar_title', $form->get_fd_message('detail_title'));
       $form->add_rep('bar_icon', 'bi-receipt');
@@ -776,16 +770,16 @@ trait dbxShopAdminOrderServiceTrait {
       $form->add_rep('bar_title_heading_attrs', '');
       $form->add_rep('bar_middle', '');
       $form->add_rep('bar_actions_class', 'dbx-bar-actions');
-      $form->add_rep('bar_actions', $this->orderDetailActions($id, $form));
+      $form->add_rep('bar_actions', $this->order_detail_actions($id, $form));
       $form->add_rep('bar_extra', '');
-      $form->add_rep('shop_admin_style', $this->shopAdminStyle());
+      $form->add_rep('shop_admin_style', $this->shop_admin_style());
       $form->_msg_info = $form->get_fd_message('detail_info');
-      $form->add_fld('status', tpl: 'select-single-label', label: $form->get_fd_message('field_order_status'), options: $this->orderStatusOptions($form));
-      $form->add_fld('payment_status', tpl: 'select-single-label', label: $form->get_fd_message('field_payment_status'), options: $this->paymentStatusOptions($form));
+      $form->add_fld('status', tpl: 'select-single-label', label: $form->get_fd_message('field_order_status'), options: $this->order_status_options($form));
+      $form->add_fld('payment_status', tpl: 'select-single-label', label: $form->get_fd_message('field_payment_status'), options: $this->payment_status_options($form));
       $form->add_fld('payment_reference', tpl: 'text-label', label: $form->get_fd_message('field_payment_reference'), rules: '*|max=180', placeholder: 'PAYID-xxxx / Channel-Order-ID');
       $form->add_fld('invoice_no', tpl: 'text-label', label: $form->get_fd_message('field_invoice_no'), rules: '*|max=60', placeholder: 'R2026-00001');
       $form->add_fld('invoice_date', tpl: 'text-label', label: $form->get_fd_message('field_invoice_date'), rules: '*|date', placeholder: date('Y-m-d'));
-      $form->add_fld('shipping_status', tpl: 'select-single-label', label: $form->get_fd_message('field_shipping_status'), options: $this->shippingStatusOptions($form));
+      $form->add_fld('shipping_status', tpl: 'select-single-label', label: $form->get_fd_message('field_shipping_status'), options: $this->shipping_status_options($form));
       $form->add_fld('shipping_provider', tpl: 'text-label', label: $form->get_fd_message('field_shipping_provider'), rules: '*|max=120', placeholder: 'DHL, UPS');
       $form->add_fld('tracking_no', tpl: 'text-label', label: $form->get_fd_message('field_tracking_no'), rules: '*|max=180', placeholder: '00340434123456789012');
       $form->add_fld('tracking_url', tpl: 'text-label', label: $form->get_fd_message('field_tracking_url'), rules: '*|max=255', placeholder: 'https://...');
@@ -795,12 +789,12 @@ trait dbxShopAdminOrderServiceTrait {
 
       if ($form->submit()) {
          if (!$form->errors()) {
-            if ($this->repo()->updateOrderAdmin($id, $_POST)) {
+            if ($this->repo()->update_order_admin($id, $_POST)) {
                $form->_msg_success = $form->get_fd_message(
                   'order_save_success'
                );
-               $order = $this->repo()->orderById($id) ?: $order;
-               $form->_data = $order;
+               $order = $this->repo()->order_by_id($id) ?: $order;
+               $form->set_data($order);
             } else {
                $form->_msg_error = $form->get_fd_message(
                   'order_save_error'
@@ -813,40 +807,40 @@ trait dbxShopAdminOrderServiceTrait {
          }
       }
 
-      $actionMessage = $quickMessage !== '' ? $quickMessage : $mailMessage;
-      $actionError = $quickError !== '' ? $quickError : $mailError;
-      if ($actionMessage !== '' || $actionError !== '') {
+      $action_message = $quick_message !== '' ? $quick_message : $mail_message;
+      $action_error = $quick_error !== '' ? $quick_error : $mail_error;
+      if ($action_message !== '' || $action_error !== '') {
          $form->_form_submit = 1;
          $form->_msg_info = '';
-         if ($actionError !== '') {
-            $form->_msg_error = $actionError;
-            $form->add_fld_error('general', $actionError);
+         if ($action_error !== '') {
+            $form->_msg_error = $action_error;
+            $form->add_fld_error('general', $action_error);
          } else {
-            $form->_msg_success = $actionMessage;
+            $form->_msg_success = $action_message;
          }
       }
 
-      $form->add_rep('notify_customer_hint', $this->h($this->notifyCustomerHint($order, $form)));
-      $form->add_rep('order_quick_actions', $this->orderQuickActionsHtml($order, $form));
-      $form->add_obj('order_meta', 'obj-value', $this->orderMetaHtml($order, $form));
-      $form->add_obj('order_items', 'obj-value', $this->orderItemsHtml($order, $form));
-      $form->add_obj('order_payload', 'obj-value', $this->orderPayloadHtml($order, $form));
-      $form->add_obj('order_history', 'obj-value', $this->orderHistoryHtml($order, $form));
-      $form->add_obj('order_withdrawals', 'obj-value', $this->orderWithdrawalsHtml($order, $form));
+      $form->add_rep('notify_customer_hint', $this->h($this->notify_customer_hint($order, $form)));
+      $form->add_rep('order_quick_actions', $this->order_quick_actions_html($order, $form));
+      $form->add_obj('order_meta', 'obj-value', $this->order_meta_html($order, $form));
+      $form->add_obj('order_items', 'obj-value', $this->order_items_html($order, $form));
+      $form->add_obj('order_payload', 'obj-value', $this->order_payload_html($order, $form));
+      $form->add_obj('order_history', 'obj-value', $this->order_history_html($order, $form));
+      $form->add_obj('order_withdrawals', 'obj-value', $this->order_withdrawals_html($order, $form));
       return $form->run();
    }
 
 
 
-   private function orderInvoice(): string {
+   private function order_invoice(): string {
       $id = (int)dbx()->get_modul_var('id', 0, 'int');
-      $order = $id > 0 ? $this->repo()->orderById($id) : null;
+      $order = $id > 0 ? $this->repo()->order_by_id($id) : null;
       if (!is_array($order)) {
          return $this->frame('<div class="alert alert-warning m-3">Bestellung nicht gefunden.</div>', 'Rechnung');
       }
-      $invoiceNo = trim((string)($order['invoice_no'] ?? ''));
-      if ($invoiceNo === '') {
-         $invoiceNo = 'Entwurf';
+      $invoice_no = trim((string)($order['invoice_no'] ?? ''));
+      if ($invoice_no === '') {
+         $invoice_no = 'Entwurf';
       }
       $rows = '';
       foreach ((array)($order['items'] ?? array()) as $item) {
@@ -860,7 +854,7 @@ trait dbxShopAdminOrderServiceTrait {
          ));
       }
       $html = $this->tpl()->get_tpl('dbxShop_admin|order-invoice', array(
-         'invoice_no' => $this->h($invoiceNo),
+         'invoice_no' => $this->h($invoice_no),
          'invoice_date' => $this->h($order['invoice_date'] ?? date('Y-m-d')),
          'order_no' => $this->h($order['order_no'] ?? ''),
          'customer_name' => $this->h($order['customer_name'] ?? ''),
@@ -869,21 +863,21 @@ trait dbxShopAdminOrderServiceTrait {
          'rows' => $rows,
          'total_gross' => $this->money($order['total_gross'] ?? 0),
       ));
-      return $this->frame($html, 'Rechnung ' . $invoiceNo, '');
+      return $this->frame($html, 'Rechnung ' . $invoice_no, '');
    }
 
 
 
-   private function orderInvoicePdf(): string {
+   private function order_invoice_pdf(): string {
       $id = (int)dbx()->get_modul_var('id', 0, 'int');
-      if (!$this->checkActionToken('order_invoice_pdf')) {
-         return $this->frame('<div class="alert alert-danger m-3">' . $this->h($this->postedFormError) . '</div>', 'Rechnung');
+      if (!$this->check_action_token('order_invoice_pdf')) {
+         return $this->frame('<div class="alert alert-danger m-3">' . $this->h($this->posted_form_error) . '</div>', 'Rechnung');
       }
-      $order = $id > 0 ? $this->repo()->ensureOrderInvoicePdf($id) : null;
+      $order = $id > 0 ? $this->repo()->ensure_order_invoice_pdf($id) : null;
       if (!is_array($order)) {
          return $this->frame('<div class="alert alert-warning m-3">Rechnungs-PDF konnte nicht erzeugt werden.</div>', 'Rechnung');
       }
-      $file = $this->repo()->invoicePdfAbsolutePath($order);
+      $file = $this->repo()->invoice_pdf_absolute_path($order);
       if ($file === '') {
          return $this->frame('<div class="alert alert-warning m-3">Rechnungs-PDF ist nicht verfuegbar.</div>', 'Rechnung');
       }
@@ -898,35 +892,35 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function shopAdminCardForm(string $fid, string $dd, array $data, int $id, string $action, string $shopAction, string $saveAction, string $titleHtml, string $subtitle = '', string $cardClass = '') {
+   private function shop_admin_card_form(string $fid, string $dd, array $data, int $id, string $action, string $shop_action, string $save_action, string $title_html, string $subtitle = '', string $card_class = '') {
       $form = dbx()->get_system_obj('dbxForm');
       $form->init($fid, 'shop-admin-card-form');
-      $form->_dd = $dd;
-      $form->_fd = array(
+      $fd = array(
          'dbxShop|shopProductGroup' => 'dbxShop|shop-product-group',
          'dbxShop|shopAttributeDefinition' => 'dbxShop|shop-attribute-definition',
          'dbxShop|shopProductAttributeValue' => 'dbxShop|shop-product-attribute-value',
          'dbxShop|shopShippingGroup' => 'dbxShop|shop-shipping-group',
          'dbxShop|shopChannelGroup' => 'dbxShop|shop-channel-group',
       )[$dd] ?? '';
-      if ($form->_fd !== '') {
+      $form->set_data_source($dd, $fd);
+      if ($fd !== '') {
          $form->load_fd_messages();
       }
       $form->set_form_help_enabled(false);
-      $form->_data = $data + array('id' => $id);
-      $form->_rid = $id;
-      $form->_action = $action;
+      $form->set_data($data + array('id' => $id));
+      $form->set_rid($id);
+      $form->set_action($action);
       $form->set_activ_id($id);
       $form->add_rep('form_class', 'dbx-shop-admin-card-dbXForm');
       $form->add_rep('form_attrs', 'data-target="dbxForm_{i}" data-dbx="lib=confirm|class=dbxConfirm|bind=button"');
-      $form->add_rep('shop_action', $this->h($shopAction));
-      $form->add_rep('save_action', $this->h($saveAction));
+      $form->add_rep('shop_action', $this->h($shop_action));
+      $form->add_rep('save_action', $this->h($save_action));
       $form->add_rep('record_id', (string)$id);
       $form->add_rep('extra_hidden', '');
-      $form->add_rep('card_title', $titleHtml);
+      $form->add_rep('card_title', $title_html);
       $form->add_rep('card_subtitle', $this->h($subtitle));
       $form->add_rep('card_badges', '');
-      $form->add_rep('card_class', $this->h($cardClass));
+      $form->add_rep('card_class', $this->h($card_class));
       $form->add_rep('form_body', '');
       $form->add_rep('delete_button', '');
       $form->_msg_info = '';
@@ -935,7 +929,7 @@ trait dbxShopAdminOrderServiceTrait {
 
 
 
-   private function shopAdminCardDeleteButton(string $action, string $title, string $message): string {
+   private function shop_admin_card_delete_button(string $action, string $title, string $message): string {
       return '<button class="btn btn-outline-danger btn-sm dbxConfirm" name="shop_action" value="' . $this->h($action) . '" title="' . $this->h($title) . '" data-confirm-title="' . $this->h($title) . '" data-confirm="' . $this->h($message) . '" data-confirm-buttons="yesno"><i class="bi bi-trash"></i></button>';
    }
 }

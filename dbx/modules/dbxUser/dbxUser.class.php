@@ -3,10 +3,10 @@ namespace dbx\dbxUser;
 
 Class dbxUser {
 
-   Public $oTPL;
+   Public $o_tpl;
   
    public function __construct() {
-     $this->oTPL = dbx()->get_system_obj('dbxTPL');
+     $this->o_tpl = dbx()->get_system_obj('dbxTPL');
    }
 
    public function run($action='') {
@@ -42,6 +42,11 @@ Class dbxUser {
             $content=$obj->run();
             break;
 
+        case 'ui_settings':
+            $obj=dbx()->get_include_obj('dbxUserUiSettings');
+            $content=$obj->run();
+            break;
+
 
         case 'avatar_upload';
              //dbx()->set_modul_var($mid,'dbx_action_user','avatar_upload');
@@ -51,7 +56,7 @@ Class dbxUser {
 
 
          case 'profil_view';
-              $content=$this->oTPL->get_tpl('dbxUser|view-profil');
+              $content=$this->o_tpl->get_tpl('dbxUser|view-profil');
               break;
 
 

@@ -3,9 +3,6 @@
 $messages = array(
    'form_title' => 'Autoprueba funcional del núcleo',
    'form_info' => 'Comprueba conjuntamente DD, FD, formulario y flujo de datos.',
-   'save_success' => 'Los datos se guardaron',
-   'save_succeass' => 'Los datos se guardaron',
-   'save_error' => 'Los datos no se pudieron guardar',
    'report_title' => 'Informe controlado de componentes',
    'column_probe_key' => 'Clave de prueba',
    'column_label' => 'Nombre',

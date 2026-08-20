@@ -11,17 +11,17 @@ $assert = static function (bool $condition, string $message): void {
 };
 
 $assert(
-   str_contains($source, '$submitted = $oForm->submit();'),
+   str_contains($source, '$submitted = $o_form->submit();'),
    'Der Submit-Status wird nicht eindeutig erfasst.'
 );
 $assert(
    str_contains($source, "if (\$submitted && !\$ok)")
-      && str_contains($source, "\$oForm->set_fld_val('password', '');"),
+      && str_contains($source, "\$o_form->set_fld_val('password', '');"),
    'Ein fehlgeschlagenes Login darf das Passwort nicht erneut anzeigen.'
 );
 $assert(
-   strpos($source, "\$oForm->set_fld_val('password', '');")
-      < strpos($source, '$content= $oForm->run();'),
+   strpos($source, "\$o_form->set_fld_val('password', '');")
+      < strpos($source, '$content= $o_form->run();'),
    'Das Passwort wird erst nach dem Rendern geleert.'
 );
 

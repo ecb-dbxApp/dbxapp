@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['validation_error'] = 'Bitte Eingaben prüfen.';
 $messages['definition_not_found'] = 'Workflow-Definition nicht gefunden.';
 $messages['duplicate_workflow_key'] = 'Der Workflow Key existiert bereits.';
@@ -125,7 +122,7 @@ $messages['js_payment_hint'] = 'Wähle die Zahlungsfrist, die für diesen Vorgan
 $messages['js_payment_options'] = "sofort=Sofort fällig\n7_tage=7 Tage netto\n14_tage=14 Tage netto\n30_tage=30 Tage netto";
 
 
-$addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -146,11 +143,11 @@ $addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (
    $fields[]=$field;
 };
 
-$addField('workflow_key','varchar','Workflow Key','parameter|min=2|max=80','text-label',array('placeholder'=>'invoice_demo'));
-$addField('title','varchar','Name','*|min=2|max=160','text-label',array('placeholder'=>'Artikel bei eBay veroeffentlichen'));
-$addField('result_label','varchar','Ziel','*|min=2|max=160','text-label',array('placeholder'=>'Bestehender Artikel ist bei eBay veroeffentlicht'));
-$addField('description','mediumtext','Beschreibung','*|max=3000','textarea-label',array('data'=>'rows=2'));
-$addField('definition_json','mediumtext','Definition','*|min=2|max=20000','textarea-label',array('data'=>'rows=16'));
-$addField('active','int','Aktiv','int','checkbox-label',array('default'=>'1'));
+$add_field('workflow_key','varchar','Workflow Key','parameter|min=2|max=80','text-label',array('placeholder'=>'invoice_demo'));
+$add_field('title','varchar','Name','*|min=2|max=160','text-label',array('placeholder'=>'Artikel bei eBay veroeffentlichen'));
+$add_field('result_label','varchar','Ziel','*|min=2|max=160','text-label',array('placeholder'=>'Bestehender Artikel ist bei eBay veroeffentlicht'));
+$add_field('description','mediumtext','Beschreibung','*|max=3000','textarea-label',array('data'=>'rows=2'));
+$add_field('definition_json','mediumtext','Definition','*|min=2|max=20000','textarea-label',array('data'=>'rows=16'));
+$add_field('active','int','Aktiv','int','checkbox-label',array('default'=>'1'));
 
 ?>

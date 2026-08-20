@@ -8,7 +8,7 @@ Class dbxAdmin {
       $uid   =dbx()->user();
       $mid   =dbx()->get_system_var('dbx_modul_id');
       $modul =dbx()->get_system_var('dbx_modul');
-      $oTPL  =dbx()->get_system_obj('dbxTPL');
+      $o_tpl  =dbx()->get_system_obj('dbxTPL');
 
 
       $action=dbx()->get_modul_var('dbx_run1','run');
@@ -111,7 +111,7 @@ Class dbxAdmin {
         break;
 
         case 'help':
-          $obj=dbx()->get_include_obj('dbxContentContextHelp', 'dbxContent');
+          $obj=dbx()->get_include_obj('dbxModuleHelpWindow', 'dbxHelp');
           $content=is_object($obj) ? $obj->run() : '';
         break;
 
@@ -163,9 +163,9 @@ Class dbxAdmin {
 
 
         default:
-          $oTPL=dbx()->get_system_obj('dbxTPL');
+          $o_tpl=dbx()->get_system_obj('dbxTPL');
           $msg['msg']="Modul=($modul) Action=($action) is undef.";
-          $content=$oTPL->get_tpl('dbx|alert-warning',$msg);
+          $content=$o_tpl->get_tpl('dbx|alert-warning',$msg);
       }
 
 

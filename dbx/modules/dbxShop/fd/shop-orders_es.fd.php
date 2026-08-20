@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['page_title'] = 'Pedidos';
 $messages['page_subtitle'] = 'Sus pedidos guardados en la tienda.';
 $messages['empty_title'] = 'Todavía no hay pedidos';

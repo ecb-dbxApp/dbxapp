@@ -1,6 +1,6 @@
 <?php
 namespace dbx\dbxUser_admin;
-dbx()->use_system_class('dbxForm');
+dbx()->get_system_obj('dbxForm', 'use');
 require_once dirname(__DIR__, 3) . '/include/dbxPasswordPolicy.class.php';
 
 Class dbxUser_profil extends \dbxObj {
@@ -9,62 +9,62 @@ Class dbxUser_profil extends \dbxObj {
       $content = '';
       $texts = new \dbxForm();
       $texts->init('dbxUser_admin_profile_texts');
-      $texts->_fd = 'dbxUser_admin|user-admin';
+      $texts->set_field_definition('dbxUser_admin|user-admin');
       $texts->load_fd_messages();
       $texts->set_form_help_enabled(false);
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oDB   = dbx()->get_system_obj('dbxDB');
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_db   = dbx()->get_system_obj('dbxDB');
       $dd    = 'dbxUser';
       $uid   = (int) dbx()->user();
       $work  = dbx()->get_modul_var('dbx_run2', '', 'parameter');
 
-      $requestedRid = ($work === 'new_user') ? 0 : (int) dbx()->get_request_var('rid', $uid, 'int');
-      if ($requestedRid < 0) {
-         $requestedRid = $uid;
+      $requested_rid = ($work === 'new_user') ? 0 : (int) dbx()->get_request_var('rid', $uid, 'int');
+      if ($requested_rid < 0) {
+         $requested_rid = $uid;
       }
 
-      $oForm->init('form-profil');
-      $oForm->_fd = 'dbxUser_admin|user-admin';
-      $oForm->load_fd_messages();
-      $oForm->set_workflow_scope('admin-profil-' . (int) $requestedRid);
-      $rid = $requestedRid;
-      $oForm->_rid = (int) $rid;
-      $oForm->set_state_value('rid', (int) $rid);
+      $o_form->init('form-profil', 'form-profil');
+      $o_form->set_field_definition('dbxUser_admin|user-admin');
+      $o_form->load_fd_messages();
+      $o_form->set_workflow_scope('admin-profil-' . (int) $requested_rid);
+      $rid = $requested_rid;
+      $o_form->set_rid((int)$rid);
+      $o_form->set_state_value('rid', (int) $rid);
 
-      $data = $rid > 0 ? $oDB->select1($dd, $rid) : array('id' => 0);
+      $data = $rid > 0 ? $o_db->select1($dd, $rid) : array('id' => 0);
 
       if (!is_array($data)) {
          return '<div class="alert alert-warning">' . dbx()->esc($texts->get_fd_message('user_not_found')) . '</div>';
       }
-      $currentPasswordHash = (string)($data['pass'] ?? '');
+      $current_password_hash = (string)($data['pass'] ?? '');
       $data['pass'] = '';
       $data['pass_repeat'] = '';
-      $passwordMinLength = \dbxPasswordPolicy::minimumLength();
-      $oForm->add_rep('password_min_length', (string)$passwordMinLength);
-      $oForm->add_rep(
+      $password_min_length = \dbxPasswordPolicy::minimum_length();
+      $o_form->add_rep('password_min_length', (string)$password_min_length);
+      $o_form->add_rep(
          'password_length_recommendation',
-         $passwordMinLength < 12 ? ' · 12+ empfohlen' : ''
+         $password_min_length < 12 ? ' · 12+ empfohlen' : ''
       );
 
-      $actionUrl = $work === 'new_user'
+      $action_url = $work === 'new_user'
          ? '?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=new_user'
          : '?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=edit_profil&rid=' . $rid;
-      $oForm->_data      = $data;
-      $oForm->_msg_info  = $texts->get_fd_message('profile_info');
-      $oForm->_dd        = $dd;
-      $oForm->_action    = $actionUrl;
-      $oForm->add_rep('frame_skip_form_wrap', '1');
-      $oForm->add_rep('frame_panel_class', 'dbxForm_wrapper dbx-user-profile-form');
-      $oForm->add_rep('action_save', $texts->get_fd_message('action_save'));
-      $oForm->add_module_bar(
+      $o_form->set_data($data);
+      $o_form->_msg_info  = $texts->get_fd_message('profile_info');
+      $o_form->set_data_definition($dd);
+      $o_form->set_action($action_url);
+      $o_form->add_rep('frame_skip_form_wrap', '1');
+      $o_form->add_rep('frame_panel_class', 'dbxForm_wrapper dbx-user-profile-form');
+      $o_form->add_rep('action_save', $texts->get_fd_message('action_save'));
+      $o_form->add_module_bar(
          $texts->get_fd_message('profile_title'),
          'bi-person-badge',
          $texts->get_fd_message('profile_subtitle')
       );
-      $oForm->add_module_bar_form_actions(array(
+      $o_form->add_module_bar_form_actions(array(
          'save' => true,
          'reload' => true,
-         'reload_url' => $actionUrl,
+         'reload_url' => $action_url,
          'delete' => false,
       ));
 
@@ -108,8 +108,8 @@ Class dbxUser_profil extends \dbxObj {
          'Divers' => $texts->get_fd_message('salutation_diverse')
       );
 
-      $oForm->add_fld('uname'     ,'text-label', label: $texts->get_fd_message('label_username'));
-      $oForm->add_fld(
+      $o_form->add_fld('uname'     ,'text-label', label: $texts->get_fd_message('label_username'));
+      $o_form->add_fld(
          'pass',
          'password-label',
          label: $texts->get_fd_message('label_password_new'),
@@ -117,7 +117,7 @@ Class dbxUser_profil extends \dbxObj {
          placeholder: $texts->get_fd_message('password_unchanged_placeholder'),
          tooltip: 'Nur ausfüllen, wenn ein neues Passwort gesetzt werden soll.'
       );
-      $oForm->add_fld(
+      $o_form->add_fld(
          'pass_repeat',
          'password-label',
          label: $texts->get_fd_message('label_password_repeat'),
@@ -126,72 +126,72 @@ Class dbxUser_profil extends \dbxObj {
          tooltip: 'Das neue Passwort zur Kontrolle noch einmal eingeben.',
          dd: ''
       );
-      $oForm->add_fld('status'    ,'select-single-label', label: $texts->get_fd_message('label_status'), options: $options_status);
-      $oForm->add_fld('is_confirm','select-single-label', label: $texts->get_fd_message('label_confirmed_short'), options: $options_confirm);
-      $oForm->add_fld('roles'     ,'multi-select', label: $texts->get_fd_message('label_roles'), rules: 'array|parameter', class: 'dbxMultiSelect2', data: array('size' => 8));
+      $o_form->add_fld('status'    ,'select-single-label', label: $texts->get_fd_message('label_status'), options: $options_status);
+      $o_form->add_fld('is_confirm','select-single-label', label: $texts->get_fd_message('label_confirmed_short'), options: $options_confirm);
+      $o_form->add_fld('roles'     ,'multi-select', label: $texts->get_fd_message('label_roles'), rules: 'array|parameter', class: 'dbxMultiSelect2', data: array('size' => 8));
 
-      $oForm->add_fld('anrede'    ,'select-single-label', label: $texts->get_fd_message('label_salutation'), options: $options_anrede);
-      $oForm->add_fld('geschlecht','select-single-label', label: $texts->get_fd_message('label_gender'), options: $options_gender);
-      $oForm->add_fld('name'      ,'text-label', label: $texts->get_fd_message('label_first_name'));
-      $oForm->add_fld('name2'     ,'text-label', label: $texts->get_fd_message('label_last_name'));
-      $oForm->add_fld('geburtstag','date-label', label: $texts->get_fd_message('label_birthday'));
+      $o_form->add_fld('anrede'    ,'select-single-label', label: $texts->get_fd_message('label_salutation'), options: $options_anrede);
+      $o_form->add_fld('geschlecht','select-single-label', label: $texts->get_fd_message('label_gender'), options: $options_gender);
+      $o_form->add_fld('name'      ,'text-label', label: $texts->get_fd_message('label_first_name'));
+      $o_form->add_fld('name2'     ,'text-label', label: $texts->get_fd_message('label_last_name'));
+      $o_form->add_fld('geburtstag','date-label', label: $texts->get_fd_message('label_birthday'));
 
-      $oForm->add_fld('email'     ,'text-label', label: $texts->get_fd_message('label_email'));
-      $oForm->add_fld('emailbill' ,'text-label', label: $texts->get_fd_message('label_billing_email'));
-      $oForm->add_fld('telefon'   ,'text-label', label: $texts->get_fd_message('label_phone'));
-      $oForm->add_fld('handy'     ,'text-label', label: $texts->get_fd_message('label_mobile'));
-      $oForm->add_fld('fax'       ,'text-label', label: $texts->get_fd_message('label_fax'));
+      $o_form->add_fld('email'     ,'text-label', label: $texts->get_fd_message('label_email'));
+      $o_form->add_fld('emailbill' ,'text-label', label: $texts->get_fd_message('label_billing_email'));
+      $o_form->add_fld('telefon'   ,'text-label', label: $texts->get_fd_message('label_phone'));
+      $o_form->add_fld('handy'     ,'text-label', label: $texts->get_fd_message('label_mobile'));
+      $o_form->add_fld('fax'       ,'text-label', label: $texts->get_fd_message('label_fax'));
 
-      $oForm->add_fld('strasse'   ,'text-label', label: $texts->get_fd_message('label_street'));
-      $oForm->add_fld('land'      ,'select-single-label', label: $texts->get_fd_message('label_country'), options: $options_land);
-      $oForm->add_fld('plz'       ,'text-label', label: $texts->get_fd_message('label_zip'));
-      $oForm->add_fld('ort'       ,'text-label', label: $texts->get_fd_message('label_city'));
+      $o_form->add_fld('strasse'   ,'text-label', label: $texts->get_fd_message('label_street'));
+      $o_form->add_fld('land'      ,'select-single-label', label: $texts->get_fd_message('label_country'), options: $options_land);
+      $o_form->add_fld('plz'       ,'text-label', label: $texts->get_fd_message('label_zip'));
+      $o_form->add_fld('ort'       ,'text-label', label: $texts->get_fd_message('label_city'));
 
-      $oForm->add_fld('language'  ,'select-single-label', label: $texts->get_fd_message('label_language'), options: $options_language);
-      $oForm->add_fld('design'    ,'text-label', label: $texts->get_fd_message('label_design'));
-      $oForm->add_fld('color'     ,'text-label', label: $texts->get_fd_message('label_color'));
-      $oForm->add_fld('login_pid' ,'text-label', label: $texts->get_fd_message('label_login_page'));
-      $oForm->add_fld('logout_pid','text-label', label: $texts->get_fd_message('label_logout_page'));
+      $o_form->add_fld('language'  ,'select-single-label', label: $texts->get_fd_message('label_language'), options: $options_language);
+      $o_form->add_fld('design'    ,'text-label', label: $texts->get_fd_message('label_design'));
+      $o_form->add_fld('color'     ,'text-label', label: $texts->get_fd_message('label_color'));
+      $o_form->add_fld('login_pid' ,'text-label', label: $texts->get_fd_message('label_login_page'));
+      $o_form->add_fld('logout_pid','text-label', label: $texts->get_fd_message('label_logout_page'));
 
-      if($oForm->submit()) {
-         $pas = (string)$oForm->get_post_data('pass', '', '*');
-         $pasRepeat = (string)$oForm->get_post_data(
+      if($o_form->submit()) {
+         $pas = (string)$o_form->get_post_data('pass', '', '*');
+         $pas_repeat = (string)$o_form->get_post_data(
             'pass_repeat',
             '',
             '*'
          );
-         $passwordErrorMessage = '';
-         if ($pas !== '' || $pasRepeat !== '') {
-            $passwordErrors = \dbxPasswordPolicy::errors(
+         $password_error_message = '';
+         if ($pas !== '' || $pas_repeat !== '') {
+            $password_errors = \dbxPasswordPolicy::errors(
                $pas,
-               $pasRepeat,
-               $currentPasswordHash,
-               $passwordMinLength
+               $pas_repeat,
+               $current_password_hash,
+               $password_min_length
             );
-            if (isset($passwordErrors['password'])) {
-               $oForm->add_fld_error('pass', $passwordErrors['password']);
+            if (isset($password_errors['password'])) {
+               $o_form->add_fld_error('pass', $password_errors['password']);
             }
-            if (isset($passwordErrors['repeat'])) {
-               $oForm->add_fld_error(
+            if (isset($password_errors['repeat'])) {
+               $o_form->add_fld_error(
                   'pass_repeat',
-                  $passwordErrors['repeat']
+                  $password_errors['repeat']
                );
             }
-            $passwordErrorMessage = implode(
+            $password_error_message = implode(
                ' ',
-               array_values(array_unique($passwordErrors))
+               array_values(array_unique($password_errors))
             );
          }
-         if(!$oForm->errors()) {
-            $change = $oForm->changed();
+         if(!$o_form->errors()) {
+            $change = $o_form->changed();
             if ($change) {
-               $saveRid = (int) $rid;
+               $save_rid = (int) $rid;
 
                if ($pas !== '') {
-                  $oForm->_post['pass'] = password_hash(
+                  $o_form->set_post_value('pass', password_hash(
                      $pas,
                      PASSWORD_DEFAULT
-                  );
+                  ));
                   $settings = json_decode(
                      (string)($data['settings'] ?? ''),
                      true
@@ -199,47 +199,47 @@ Class dbxUser_profil extends \dbxObj {
                   $settings = is_array($settings) ? $settings : array();
                   unset($settings['password_reset_required']);
                   $settings['password_changed_at'] = date(DATE_ATOM);
-                  $oForm->_post['settings'] = json_encode(
+                  $o_form->set_post_value('settings', json_encode(
                      $settings,
                      JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-                  );
+                  ));
                } else {
-                  unset($oForm->_post['pass']);
+                  $o_form->unset_post_value('pass');
                }
-               unset($oForm->_post['pass_repeat']);
+               $o_form->unset_post_value('pass_repeat');
 
-               if ($saveRid > 0) {
-                  unset($oForm->_post['id']);
+               if ($save_rid > 0) {
+                  $o_form->unset_post_value('id');
                }
 
-               $ok = $oForm->save_post($dd, $saveRid);
+               $ok = $o_form->save_post($dd, $save_rid);
                if ($ok) {
-                  $rid = (int) $oForm->_rid;
-                  $oForm->_action = '?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=edit_profil&rid=' . $rid;
+                  $rid = $o_form->current_rid();
+                  $o_form->set_action('?dbx_modul=dbxUser_admin&dbx_run1=user&dbx_run2=edit_profil&rid=' . $rid);
                }
 
-               if ( $ok) $oForm->_msg_success = $texts->get_fd_message('user_saved');
-               if (!$ok) $oForm->_msg_error   = $texts->get_fd_message('user_save_error');
+               if ( $ok) $o_form->_msg_success = $texts->get_fd_message('user_saved');
+               if (!$ok) $o_form->_msg_error   = $texts->get_fd_message('user_save_error');
             } else {
-               $oForm->_msg_success = $texts->get_fd_message('no_change');
+               $o_form->_msg_success = $texts->get_fd_message('no_change');
             }
          } else {
             $err_flds = '';
-            foreach ($oForm->_errors as $key => $value) {
+            foreach ($o_form->_errors as $key => $value) {
                $err_flds .= $key . ' ';
             }
-            $oForm->_msg_error = $passwordErrorMessage !== ''
-               ? $passwordErrorMessage
+            $o_form->_msg_error = $password_error_message !== ''
+               ? $password_error_message
                : $texts->get_fd_message('check_input')
                   . ' (' . trim($err_flds) . ')';
          }
       }
 
-      $rid = $oForm->_data['id'] ?? $rid;
-      $oForm->add_obj('obs_rid', 'dbx|observe', 'name=usr_rid&value=' . (int) $rid);
-      $oForm->add_obj('avatar', 'obj-value', dbx()->get_include_obj('dbxUser_avatar')->run((int) $rid));
+      $rid = $o_form->get_data('id', $rid);
+      $o_form->add_obj('obs_rid', 'dbx|observe', 'name=usr_rid&value=' . (int) $rid);
+      $o_form->add_obj('avatar', 'obj-value', dbx()->get_include_obj('dbxUser_avatar')->run((int) $rid));
 
-      $content = $oForm->run();
+      $content = $o_form->run();
       return $content;
    }
 }

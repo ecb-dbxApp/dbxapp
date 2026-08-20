@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['validation_error'] = 'Please check your entries.';
 $messages['definition_not_found'] = 'Workflow definition not found.';
 $messages['duplicate_workflow_key'] = 'The workflow key already exists.';
@@ -125,7 +122,7 @@ $messages['js_payment_hint'] = 'Select the payment period that should apply to t
 $messages['js_payment_options'] = "due=Due immediately\n7_days=7 days net\n14_days=14 days net\n30_days=30 days net";
 
 
-$addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -146,11 +143,11 @@ $addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (
    $fields[]=$field;
 };
 
-$addField('workflow_key','varchar','Workflow Key','parameter|min=2|max=80','text-label',array('placeholder'=>'invoice_demo'));
-$addField('title','varchar','Name','*|min=2|max=160','text-label',array('placeholder'=>'Publish articles on eBay'));
-$addField('result_label','varchar','Goal','*|min=2|max=160','text-label',array('placeholder'=>'Existing article published on eBay'));
-$addField('description','mediumtext','Description','*|max=3000','textarea-label',array('data'=>'rows=2'));
-$addField('definition_json','mediumtext','Definition','*|min=2|max=20000','textarea-label',array('data'=>'rows=16'));
-$addField('active','int','Active','int','checkbox-label',array('default'=>'1'));
+$add_field('workflow_key','varchar','Workflow Key','parameter|min=2|max=80','text-label',array('placeholder'=>'invoice_demo'));
+$add_field('title','varchar','Name','*|min=2|max=160','text-label',array('placeholder'=>'Publish articles on eBay'));
+$add_field('result_label','varchar','Goal','*|min=2|max=160','text-label',array('placeholder'=>'Existing article published on eBay'));
+$add_field('description','mediumtext','Description','*|max=3000','textarea-label',array('data'=>'rows=2'));
+$add_field('definition_json','mediumtext','Definition','*|min=2|max=20000','textarea-label',array('data'=>'rows=16'));
+$add_field('active','int','Active','int','checkbox-label',array('default'=>'1'));
 
 ?>

@@ -168,7 +168,7 @@
             "select[data-dbx-multiselect]"
         ].join(","))).filter(select => {
             return !select.classList.contains("bsMultiSelect") &&
-                !select.classList.contains("sel-multible-line") &&
+                !select.classList.contains("sel-multiple-line") &&
                 !select.classList.contains("dbxSelect1") &&
                 !select.hasAttribute("data-dbx-select1");
         });

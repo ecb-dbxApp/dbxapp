@@ -1,12 +1,9 @@
 <?php
 $fields = array();
 $messages = array(
-   'save_success' => 'Data was saved',
-   'save_succeass' => 'Data was saved',
-   'save_error' => 'Data could not be saved',
 );
 
-$addComponentField = function ($name, $label, $use) use (&$fields) {
+$add_component_field = function ($name, $label, $use) use (&$fields) {
    $field = array();
    $field['name'] = $name;
    $field['type'] = 'int';
@@ -27,12 +24,12 @@ $addComponentField = function ($name, $label, $use) use (&$fields) {
    $fields[] = $field;
 };
 
-$addComponentField('comp_alert', 'Alert', 'Short hint, info or success box.');
-$addComponentField('comp_card', 'Cards', 'Teasers, feature boxes or package/feature tiles.');
-$addComponentField('comp_list_group', 'List group', 'Compact benefit, step or feature lists.');
-$addComponentField('comp_badges', 'Badges', 'Status, categories, small highlights.');
-$addComponentField('comp_buttons', 'Buttons', 'CTA links without custom JavaScript.');
-$addComponentField('comp_table', 'Table', 'Comparison or price/data overviews.');
-$addComponentField('comp_accordion', 'Accordion', 'FAQ or collapsible detail sections.');
-$addComponentField('comp_tabs', 'Tabs', 'Alternative views of the same content.');
+$add_component_field('comp_alert', 'Alert', 'Short hint, info or success box.');
+$add_component_field('comp_card', 'Cards', 'Teasers, feature boxes or package/feature tiles.');
+$add_component_field('comp_list_group', 'List group', 'Compact benefit, step or feature lists.');
+$add_component_field('comp_badges', 'Badges', 'Status, categories, small highlights.');
+$add_component_field('comp_buttons', 'Buttons', 'CTA links without custom JavaScript.');
+$add_component_field('comp_table', 'Table', 'Comparison or price/data overviews.');
+$add_component_field('comp_accordion', 'Accordion', 'FAQ or collapsible detail sections.');
+$add_component_field('comp_tabs', 'Tabs', 'Alternative views of the same content.');
 ?>

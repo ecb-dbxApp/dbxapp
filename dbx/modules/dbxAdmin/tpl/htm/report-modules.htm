@@ -4,35 +4,18 @@
      data-modimg-mediafolderdelete="{modimg_mediafolderdelete_url}" data-modimg-deletemedia="{modimg_deletemedia_url}"
      data-modimg-uploadmax="{modimg_uploadmax}" data-module-messages="{module_messages_json}">
  {media_browser_forms}
- [tpl=dbx|module-bar]
  <div class="dbx-panel-body">
-  <div class="mb-2">{obj:form_msg}</div>
+  <div class="mb-2">{report:message}</div>
   <form action="{action}" method="post" name="dbx_form_{i}" id="dbx_form_{i}" class="dbxAjax">
-   [dbx:form]
-   <div class="dbx-modules-toolbar row g-2 align-items-end mb-3">
-    <div class="col-12 col-md-3">{obj:dbx_rmodul}</div>
-    <div class="col-12 col-md-4">{obj:dbx_rwhere}</div>
-    <div class="col-6 col-md-2">{obj:dbx_rrows}</div>
-    <div class="col-6 col-md-auto">
-     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> {action_filter}</button>
-    </div>
-    <div class="col-12 col-md-auto ms-md-auto">
-     <div class="dbx-modules-toolbar-stats text-md-end">
-      <span class="badge rounded-pill text-bg-light border px-3 py-2">
-       <strong>{module_filtered_count}</strong> / {module_count} {modules_label}
-       <span class="text-muted mx-1">·</span>
-       <strong>{module_active_count}</strong> {active_count_label}
-      </span>
-     </div>
-    </div>
-   </div>
+   {report:bar}
    [dbx:pagination]
-   <div class="dbx-modules-list table-striped" data-dbx="lib=modulesAdmin|id=modules-admin">
+   <div class="dbx-modules-list table-striped" data-dbx="lib=modulesAdmin|module=dbxAdmin|id=modules-admin">
 <hr class="dbx_split">
     [rpt:row]
 <hr class="dbx_split">
    </div>
   </form>
  </div>
+ {report:footer}
  [dbx:js]
 </div>

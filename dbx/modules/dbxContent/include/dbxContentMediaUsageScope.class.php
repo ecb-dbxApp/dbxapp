@@ -24,25 +24,25 @@ final class dbxContentMediaUsageScope {
       return "content_lng = '" . str_replace("'", "''", self::language($lng)) . "'";
    }
 
-   public static function withLanguage(string $where = '', string $lng = ''): string {
+   public static function with_language(string $where = '', string $lng = ''): string {
       $scope = self::sql($lng);
       $where = trim($where);
       return $where === '' ? $scope : '(' . $where . ') AND ' . $scope;
    }
 
-   public static function content(int $contentId, string $lng = ''): string {
-      return self::withLanguage('content_id = ' . max(0, $contentId), $lng);
+   public static function content(int $content_id, string $lng = ''): string {
+      return self::with_language('content_id = ' . max(0, $content_id), $lng);
    }
 
-   public static function folder(int $folderId, string $lng = ''): string {
-      return self::withLanguage('folder_id = ' . max(0, $folderId), $lng);
+   public static function folder(int $folder_id, string $lng = ''): string {
+      return self::with_language('folder_id = ' . max(0, $folder_id), $lng);
    }
 
-   public static function targetKey(int $contentId, int $folderId, string $lng = ''): string {
+   public static function target_key(int $content_id, int $folder_id, string $lng = ''): string {
       $prefix = self::language($lng) . ':';
-      return $contentId > 0
-         ? $prefix . 'content:' . $contentId
-         : $prefix . 'folder:' . max(0, $folderId);
+      return $content_id > 0
+         ? $prefix . 'content:' . $content_id
+         : $prefix . 'folder:' . max(0, $folder_id);
    }
 }
 }

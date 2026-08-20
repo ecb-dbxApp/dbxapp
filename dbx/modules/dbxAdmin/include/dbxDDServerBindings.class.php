@@ -5,76 +5,76 @@ declare(strict_types=1);
 namespace dbx\dbxAdmin;
 
 /**
- * dbxForm-Oberflaeche fuer installationsbezogene Serverbindungen pro DD.
+ * @brief Formularoberfläche für installationsbezogene Serverbindungen je DD.
  */
 class dbxDDServerBindings
 {
     public function run(): string
     {
         dbx()->get_include_obj('dbxInstallationService', 'dbxSetup');
-        $installerClass = '\\dbx\\dbxSetup\\dbxInstallationService';
-        $installer = new $installerClass();
-        $catalog = $installer->discoverDDs();
+        $installer_class = '\\dbx\\dbxSetup\\dbxInstallationService';
+        $installer = new $installer_class();
+        $catalog = $installer->discover_dds();
         $db = dbx()->get_system_obj('dbxDB');
         $config = dbx()->get_cfg('dbx');
         $bindings = is_array($config['dd_server_bindings'] ?? null)
             ? $config['dd_server_bindings']
             : array();
 
-        $serverOptions = array();
-        foreach ((array)($config['db'] ?? array()) as $name => $serverConfig) {
-            if (is_array($serverConfig)
-                && $db->db_server_config_is_active((string)$name, $serverConfig)
+        $server_options = array();
+        foreach ((array)($config['db'] ?? array()) as $name => $server_config) {
+            if (is_array($server_config)
+                && $db->db_server_config_is_active((string)$name, $server_config)
             ) {
-                $type = strtoupper((string)($serverConfig['type'] ?? 'DB'));
-                $serverOptions[(string)$name] = (string)$name . ' · ' . $type;
+                $type = strtoupper((string)($server_config['type'] ?? 'DB'));
+                $server_options[(string)$name] = (string)$name . ' · ' . $type;
             }
         }
 
         $form = dbx()->get_system_obj('dbxForm');
         $form->init('admin-dd-server-bindings', 'dd-server-bindings');
-        $form->_fd = 'dbxAdmin|dd-server-bindings';
+        $form->set_field_definition('dbxAdmin|dd-server-bindings');
         $form->load_fd_messages();
-        $form->_action = '?dbx_modul=dbxAdmin&dbx_run1=dd_bindings&dbx_page=admin';
+        $form->set_action('?dbx_modul=dbxAdmin&dbx_run1=dd_bindings&dbx_page=admin');
         $form->_msg_info = $form->get_fd_message('intro');
-        $form->_data = array_merge($form->_data, array('binding_save' => 1));
+        $form->merge_data(array('binding_save' => 1));
         $form->add_fld('binding_save', 'dbx|hidden', rules: 'int', dd: '');
 
         $fields = array();
-        $allowedValues = array();
+        $allowed_values = array();
         foreach ($catalog as $record) {
-            $ddRef = (string)$record['dd'];
-            $info = $db->get_dd_server_binding_info($ddRef);
+            $dd_ref = (string)$record['dd'];
+            $info = $db->get_dd_server_binding_info($dd_ref);
             $declared = (string)($info['declared_server'] ?? '');
-            $field = 'binding_' . substr(hash('sha256', $ddRef), 0, 16);
-            $fields[$field] = $ddRef;
+            $field = 'binding_' . substr(hash('sha256', $dd_ref), 0, 16);
+            $fields[$field] = $dd_ref;
 
             $options = array(
                 '__default__' => $form->format_fd_message(
                     'dd_default',
                     array('server' => $declared)
                 ),
-            ) + $serverOptions;
+            ) + $server_options;
             if ($declared !== '' && !isset($options[$declared])) {
                 $options[$declared] = $declared . ' · DB3/DD';
             }
-            $current = (string)($bindings[$ddRef] ?? '__default__');
+            $current = (string)($bindings[$dd_ref] ?? '__default__');
             if ($current !== '__default__' && !isset($options[$current])) {
                 $options[$current] = $current . ' · ' . $form->get_fd_message('custom_binding');
             }
-            $allowedValues[$field] = array_fill_keys(array_keys($options), true);
+            $allowed_values[$field] = array_fill_keys(array_keys($options), true);
 
-            $form->_data[$field] = $current;
+            $form->set_data_value($field, $current);
             $form->add_fld(
                 $field,
                 'select-single-label',
-                label: $ddRef,
+                label: $dd_ref,
                 rules: 'parameter',
                 options: $options,
                 tooltip: $form->format_fd_message(
                     'binding_tooltip',
                     array(
-                        'table' => (string)$db->get_dd_table($ddRef),
+                        'table' => (string)$db->get_dd_table($dd_ref),
                         'server' => $declared,
                     )
                 ),
@@ -83,8 +83,8 @@ class dbxDDServerBindings
         }
 
         if ($form->submit() && !$form->errors()) {
-            $newBindings = array();
-            foreach ($fields as $field => $ddRef) {
+            $new_bindings = array();
+            foreach ($fields as $field => $dd_ref) {
                 $value = trim((string)$form->get_post_data(
                     $field,
                     '__default__',
@@ -93,30 +93,30 @@ class dbxDDServerBindings
                 if ($value === '__default__') {
                     continue;
                 }
-                if (!isset($allowedValues[$field][$value])) {
+                if (!isset($allowed_values[$field][$value])) {
                     $form->add_fld_error(
                         $field,
                         $form->get_fd_message('binding_invalid')
                     );
                     continue;
                 }
-                $newBindings[$ddRef] = $value;
+                $new_bindings[$dd_ref] = $value;
             }
-            ksort($newBindings);
+            ksort($new_bindings);
 
             if (!$form->errors()) {
                 if (!dbx()->set_local_config_section(
                     'dbx',
                     'dd_server_bindings',
-                    $newBindings
+                    $new_bindings
                 )) {
                     $form->set_error($form->get_fd_message('save_error'));
                 } else {
                     $form->_msg_success = $form->format_fd_message(
                         'save_success_count',
-                        array('count' => count($newBindings))
+                        array('count' => count($new_bindings))
                     );
-                    $bindings = $newBindings;
+                    $bindings = $new_bindings;
                 }
             }
         }

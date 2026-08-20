@@ -7,7 +7,7 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 
 trait dbxKiBriefingStylesAdminServiceTrait {
 
-   public function renderStylesAdmin(): string {
+   public function render_styles_admin(): string {
       $rows = '';
       foreach (dbxKiWritingStyles::all() as $key => $meta) {
          $rows .= '<tr>'
@@ -22,36 +22,36 @@ trait dbxKiBriefingStylesAdminServiceTrait {
          . '<td><textarea class="form-control form-control-sm" name="style_prompt[]" rows="2" placeholder="KI-Anweisung"></textarea></td>'
          . '</tr>';
 
-      $data = $this->withModuleBar(array(
-         'hub_url' => $this->esc($this->moduleUrl('briefing')),
-         'save_url' => $this->esc($this->moduleUrl('briefing_styles_save')),
+      $data = $this->with_module_bar(array(
+         'hub_url' => $this->esc($this->module_url('briefing')),
+         'save_url' => $this->esc($this->module_url('briefing_styles_save')),
          'style_rows' => $rows,
-      ), 'briefing_styles', $this->barBackHub());
+      ), 'briefing_styles', $this->bar_back_hub());
 
-      return $this->briefingForm(
+      return $this->briefing_form(
          'ki-briefing-styles',
          'ki-briefing-styles',
-         $this->moduleUrl('briefing_styles_save'),
+         $this->module_url('briefing_styles_save'),
          $data
       )->run();
    }
 
-   public function handleStylesSave(): string {
+   public function handle_styles_save(): string {
       try {
-         $form = $this->briefingForm(
+         $form = $this->briefing_form(
             'ki-briefing-styles',
             'ki-briefing-styles',
-            $this->moduleUrl('briefing_styles_save')
+            $this->module_url('briefing_styles_save')
          );
          if (!$form->submit()) {
             throw new \RuntimeException('Ungueltiger oder abgelaufener Formular-Token.');
          }
          if (dbx()->get_request_var('styles_action', 'save', 'parameter') === 'reset') {
-            dbxKiWritingStyles::resetToDefaults();
+            dbxKiWritingStyles::reset_to_defaults();
             dbx()->sys_msg('info', 'dbxKi', 'styles', 'Schreibstile', 'Standard wiederhergestellt');
-            return $this->renderStylesAdmin();
+            return $this->render_styles_admin();
          }
-         $styles = dbxKiWritingStyles::parseFormRows(
+         $styles = dbxKiWritingStyles::parse_form_rows(
             (array) dbx()->get_request_var('style_key', array(), '*'),
             (array) dbx()->get_request_var('style_label', array(), '*'),
             (array) dbx()->get_request_var('style_prompt', array(), '*')
@@ -61,14 +61,14 @@ trait dbxKiBriefingStylesAdminServiceTrait {
       } catch (\Throwable $e) {
          dbx()->sys_msg('error', 'dbxKi', 'styles', 'Speichern fehlgeschlagen', $e->getMessage());
       }
-      return $this->renderStylesAdmin();
+      return $this->render_styles_admin();
    }
 
-   public function handleStylesReset(): string {
+   public function handle_styles_reset(): string {
       // Rueckwaertskompatibler GET-Endpunkt ohne schreibende Wirkung. Das
       // Zuruecksetzen erfolgt nur noch als geschuetzter dbxForm-POST.
       dbx()->sys_msg('warning', 'dbxKi', 'styles', 'Schreibstile',
          'Standardwerte bitte ueber das geschuetzte Formular zuruecksetzen.');
-      return $this->renderStylesAdmin();
+      return $this->render_styles_admin();
    }
 }

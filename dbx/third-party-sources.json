@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "path": "dbx/add_ons/class-upload/src/dbxUpload.php",
+      "adapter": "dbx/include/dbxUpload.class.php",
+      "name": "class.upload.php",
+      "upstream": "Colin Verot",
+      "version": "2024-09-10",
+      "license": "GPL-2.0",
+      "mode": "isolated-adapted-source"
+    },
+    {
+      "path": "dbx/add_ons/barcode/src/dbxBarcode.php",
+      "adapter": "dbx/include/dbxBarcode.class.php",
+      "name": "barcode.php",
+      "upstream": "Kreative Software",
+      "version": "2018",
+      "license": "MIT",
+      "mode": "isolated-adapted-source"
+    },
+    {
+      "path": "dbx/add_ons/dbxJstree/dbxJstree.js",
+      "manifest": "dbx/add_ons/dbxJstree/assets/manifest.json",
+      "name": "dbxJstree",
+      "upstream": "jsTree 3.3.17",
+      "version": "1.0.0",
+      "license": "MIT",
+      "mode": "isolated-maintained-fork"
+    }
+  ]
+}

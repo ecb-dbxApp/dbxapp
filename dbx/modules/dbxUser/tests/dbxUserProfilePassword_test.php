@@ -13,27 +13,27 @@ function profile_password_assert(bool $condition, string $message): void
 }
 
 profile_password_assert(
-    dbxPasswordPolicy::minimumLength(4) === 6
-        && dbxPasswordPolicy::minimumLength(12) === 12
-        && dbxPasswordPolicy::minimumLength(999) === 128,
+    dbxPasswordPolicy::minimum_length(4) === 6
+        && dbxPasswordPolicy::minimum_length(12) === 12
+        && dbxPasswordPolicy::minimum_length(999) === 128,
     'Die zentrale Passwort-Mindestlänge wird nicht korrekt begrenzt.'
 );
 
-$weakErrors = dbxPasswordPolicy::errors('abc', 'xyz', '', 6);
+$weak_errors = dbxPasswordPolicy::errors('abc', 'xyz', '', 6);
 profile_password_assert(
-    str_contains((string)($weakErrors['password'] ?? ''), 'mindestens 6 Zeichen')
-        && str_contains((string)($weakErrors['password'] ?? ''), 'ein Großbuchstabe')
-        && str_contains((string)($weakErrors['password'] ?? ''), 'eine Zahl')
-        && str_contains((string)($weakErrors['password'] ?? ''), 'ein Sonderzeichen')
-        && isset($weakErrors['repeat']),
+    str_contains((string)($weak_errors['password'] ?? ''), 'mindestens 6 Zeichen')
+        && str_contains((string)($weak_errors['password'] ?? ''), 'ein Großbuchstabe')
+        && str_contains((string)($weak_errors['password'] ?? ''), 'eine Zahl')
+        && str_contains((string)($weak_errors['password'] ?? ''), 'ein Sonderzeichen')
+        && isset($weak_errors['repeat']),
     'Die Profilprüfung muss alle fehlenden Kriterien und Abweichungen nennen.'
 );
 
-$strongPassword = 'Ab1!xy';
+$strong_password = 'Ab1!xy';
 profile_password_assert(
     dbxPasswordPolicy::errors(
-        $strongPassword,
-        $strongPassword,
+        $strong_password,
+        $strong_password,
         '',
         6
     ) === array(),
@@ -41,32 +41,32 @@ profile_password_assert(
 );
 profile_password_assert(
     isset(dbxPasswordPolicy::errors(
-        $strongPassword,
-        $strongPassword,
-        password_hash($strongPassword, PASSWORD_DEFAULT),
+        $strong_password,
+        $strong_password,
+        password_hash($strong_password, PASSWORD_DEFAULT),
         6
     )['password']),
     'Das bisherige Passwort darf nicht unverändert erneut gespeichert werden.'
 );
 
-$profileSource = (string)file_get_contents(
+$profile_source = (string)file_get_contents(
     dirname(__DIR__) . '/include/dbxUser_profil.class.php'
 );
-$adminSource = (string)file_get_contents(
+$admin_source = (string)file_get_contents(
     $root . '/modules/dbxUser_admin/include/dbxUser_profil.class.php'
 );
-$profileTemplate = (string)file_get_contents(
+$profile_template = (string)file_get_contents(
     dirname(__DIR__) . '/tpl/htm/form-profil.htm'
 );
-$adminTemplate = (string)file_get_contents(
+$admin_template = (string)file_get_contents(
     $root . '/modules/dbxUser_admin/tpl/htm/form-profil.htm'
 );
 $utilities = (string)file_get_contents($root . '/js/lib/utilities.js');
-$formCss = (string)file_get_contents(
+$form_css = (string)file_get_contents(
     $root . '/design/dbxapp/css/c-form.css'
 );
 
-foreach (array($profileSource, $adminSource) as $source) {
+foreach (array($profile_source, $admin_source) as $source) {
     profile_password_assert(
         str_contains($source, '\\dbxPasswordPolicy::errors(')
             && str_contains($source, 'password_hash(')
@@ -76,13 +76,13 @@ foreach (array($profileSource, $adminSource) as $source) {
     );
 }
 profile_password_assert(
-    !str_contains($adminSource, 'md5($pas)')
-        && str_contains($adminSource, "'pass_repeat'")
-        && str_contains($adminSource, "'varchar|max=128'"),
+    !str_contains($admin_source, 'md5($pas)')
+        && str_contains($admin_source, "'pass_repeat'")
+        && str_contains($admin_source, "'varchar|max=128'"),
     'Das Admin-Profil muss Passwortwiederholung und moderne Hashes verwenden.'
 );
 
-foreach (array($profileTemplate, $adminTemplate) as $template) {
+foreach (array($profile_template, $admin_template) as $template) {
     profile_password_assert(
         str_contains($template, 'class="dbx-password-rules--compact"')
             && str_contains($template, 'data-dbx-password-rules')
@@ -97,7 +97,7 @@ foreach (array($profileTemplate, $adminTemplate) as $template) {
 profile_password_assert(
     str_contains($utilities, 'function initPasswordCriteria(')
         && str_contains($utilities, 'passwordRules:')
-        && str_contains($formCss, '.dbx-password-rules--compact'),
+        && str_contains($form_css, '.dbx-password-rules--compact'),
     'Die wiederverwendbare Live-Prüfung oder ihre kompakte Darstellung fehlt.'
 );
 

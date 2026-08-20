@@ -1,0 +1,40 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxUser_admin",
+    "type": "module",
+    "name": "dbxUser_admin",
+    "title": "dbxUser_admin",
+    "description": "Verwaltung von Benutzerkonten, Gruppen, Rollen und Zugriffsrechten.",
+    "descriptions": {
+        "de": "Verwaltung von Benutzerkonten, Gruppen, Rollen und Zugriffsrechten.",
+        "en": "Management of user accounts, groups, roles and access rights.",
+        "es": "Gestión de cuentas, grupos, roles y permisos de acceso."
+    },
+    "icon": "bi-people",
+    "image": "dbx/modules/dbxUser_admin/tpl/img/dbxUser_admin.png",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": {
+            "dbxapp/module/dbxUser": "^4.4.0"
+        }
+    },
+    "permissions": [
+        "administration",
+        "authentication",
+        "database"
+    ],
+    "migrations": [],
+    "files": []
+}

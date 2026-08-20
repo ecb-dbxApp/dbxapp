@@ -48,15 +48,15 @@ if ((int)($installed['ok'] ?? 0) !== 1) {
 }
 
 $db = dbx()->get_system_obj('dbxDB');
-$invoiceDd = 'myInvoices|invoice';
-$itemDd = 'myInvoices|invoiceItem';
+$invoice_dd = 'myInvoices|invoice';
+$item_dd = 'myInvoices|invoiceItem';
 
 $demo = $db->select1(
-    $invoiceDd,
+    $invoice_dd,
     array('invoice_no' => 'DBX-DEMO-1001')
 );
-$demoId = (int)($demo['id'] ?? 0);
-if ($demoId <= 0) {
+$demo_id = (int)($demo['id'] ?? 0);
+if ($demo_id <= 0) {
     $fail('Demo-Rechnung fehlt.', 2);
 }
 foreach (array(
@@ -65,18 +65,18 @@ foreach (array(
     'update_date',
     'update_uid',
     'owner',
-) as $systemField) {
-    if ((string)($demo[$systemField] ?? '') === '') {
+) as $system_field) {
+    if ((string)($demo[$system_field] ?? '') === '') {
         $fail(
-            'Automatisches dbxDB-Systemfeld fehlt: ' . $systemField,
+            'Automatisches dbxDB-Systemfeld fehlt: ' . $system_field,
             3
         );
     }
 }
 
 $items = $db->select(
-    $itemDd,
-    array('invoice_id' => $demoId),
+    $item_dd,
+    array('invoice_id' => $demo_id),
     '*',
     'position_no',
     'ASC'
@@ -85,15 +85,15 @@ if (!is_array($items) || count($items) !== 2) {
     $fail('Demo-Positionen sind nicht vollständig.', 4);
 }
 
-$calculatedCents = 0;
+$calculated_cents = 0;
 foreach ($items as $item) {
-    $calculatedCents += (int)round(
+    $calculated_cents += (int)round(
         (float)$item['quantity']
         * (float)$item['unit_price']
         * 100
     );
 }
-if ($calculatedCents !== 4730
+if ($calculated_cents !== 4730
     || (int)round((float)$demo['total_gross'] * 100) !== 4730
 ) {
     $fail('Snapshot und Positionssumme weichen ab.', 5);
@@ -103,8 +103,8 @@ $service = dbx()->get_include_obj(
     'myInvoicesService',
     'myInvoices'
 );
-dbx()->set_modul_var('invoice_id', $demoId);
-$positionsHtml = $service->positions();
+dbx()->set_modul_var('invoice_id', $demo_id);
+$positions_html = $service->positions();
 foreach (array(
     'Positionen zu Rechnung DBX-DEMO-1001',
     '39,80 EUR',
@@ -112,11 +112,11 @@ foreach (array(
     '47,30 EUR',
     'Endsumme der Positionen',
 ) as $expected) {
-    if (strpos($positionsHtml, $expected) === false) {
+    if (strpos($positions_html, $expected) === false) {
         $fail(
             'Positionsreport fehlt: ' . $expected
             . ' | HTML: ' . substr(
-                preg_replace('/\s+/', ' ', $positionsHtml),
+                preg_replace('/\s+/', ' ', $positions_html),
                 0,
                 500
             ),
@@ -125,7 +125,7 @@ foreach (array(
     }
 }
 
-$reportHtml = $service->report();
+$report_html = $service->report();
 foreach (array(
     'DBX-DEMO-1001',
     'Endsumme der angezeigten Rechnungen',
@@ -133,57 +133,57 @@ foreach (array(
     'dbxConfirm',
     'dbx_token=',
 ) as $expected) {
-    if (strpos($reportHtml, $expected) === false) {
+    if (strpos($report_html, $expected) === false) {
         $fail('Rechnungsreport fehlt: ' . $expected, 7);
     }
 }
 
-$webApp = dbx()->get_system_obj('dbxWebApp');
-$deleteUrl = dbx()->action_url(
-    '?dbx_modul=myInvoices&dbx_run1=delete&rid=' . $demoId
+$web_app = dbx()->get_system_obj('dbxWebApp');
+$delete_url = dbx()->action_url(
+    '?dbx_modul=myInvoices&dbx_run1=delete&rid=' . $demo_id
 );
-$deleteRoute = $webApp->action_policy_for_url($deleteUrl);
-parse_str((string)parse_url($deleteUrl, PHP_URL_QUERY), $deleteParams);
-$deleteToken = (string)($deleteParams['dbx_token'] ?? '');
+$delete_route = $web_app->action_policy_for_url($delete_url);
+parse_str((string)parse_url($delete_url, PHP_URL_QUERY), $delete_params);
+$delete_token = (string)($delete_params['dbx_token'] ?? '');
 
-if (!$deleteRoute
-    || (string)($deleteRoute['source'] ?? '') !== 'automatic'
-    || (string)($deleteRoute['action'] ?? '') !== 'dbxAction.delete'
-    || (string)($deleteRoute['bindings']['rid'] ?? '') !== (string)$demoId
+if (!$delete_route
+    || (string)($delete_route['source'] ?? '') !== 'automatic'
+    || (string)($delete_route['action'] ?? '') !== 'dbxAction.delete'
+    || (string)($delete_route['bindings']['rid'] ?? '') !== (string)$demo_id
     || !dbx()->check_action_token(
-        (string)($deleteRoute['scope'] ?? ''),
-        $deleteToken
+        (string)($delete_route['scope'] ?? ''),
+        $delete_token
     )
 ) {
     $fail('Zentrale Action-Policy akzeptiert gültige Route nicht.', 8);
 }
 
-$tamperedRoute = $webApp->action_policy_for_url(
-    '?dbx_modul=myInvoices&dbx_run1=delete&rid=' . ($demoId + 1)
+$tampered_route = $web_app->action_policy_for_url(
+    '?dbx_modul=myInvoices&dbx_run1=delete&rid=' . ($demo_id + 1)
 );
-if (!$tamperedRoute
+if (!$tampered_route
     || dbx()->check_action_token(
-        (string)($tamperedRoute['scope'] ?? ''),
-        $deleteToken
+        (string)($tampered_route['scope'] ?? ''),
+        $delete_token
     )
 ) {
     $fail('Zentrale Action-Policy bindet die Rechnungs-ID nicht.', 8);
 }
 
-$testNo = 'DBX-TEST-' . date('YmdHis') . '-' . random_int(1000, 9999);
-$inserted = $db->insert($invoiceDd, array(
-    'invoice_no' => $testNo,
+$test_no = 'DBX-TEST-' . date('YmdHis') . '-' . random_int(1000, 9999);
+$inserted = $db->insert($invoice_dd, array(
+    'invoice_no' => $test_no,
     'invoice_date' => '2026-07-20',
     'customer' => 'Transaktionstest',
     'status' => 'draft',
     'total_gross' => '10.00',
 ));
-$testId = (int)$db->_insert_id;
-if ($inserted !== 1 || $testId <= 0) {
+$test_id = (int)$db->_insert_id;
+if ($inserted !== 1 || $test_id <= 0) {
     $fail('Temporäre Rechnung konnte nicht angelegt werden.', 9);
 }
-$inserted = $db->insert($itemDd, array(
-    'invoice_id' => $testId,
+$inserted = $db->insert($item_dd, array(
+    'invoice_id' => $test_id,
     'position_no' => 10,
     'article_no' => 'TEST-ROLLBACK',
     'description' => 'Rollback-Position',
@@ -191,54 +191,61 @@ $inserted = $db->insert($itemDd, array(
     'unit_price' => '10.00',
 ));
 if ($inserted !== 1) {
-    $db->delete($invoiceDd, array('id' => $testId));
+    $db->delete($invoice_dd, array('id' => $test_id));
     $fail('Temporäre Position konnte nicht angelegt werden.', 10);
 }
 
-if ($db->begin($invoiceDd) !== 1) {
+if ($db->begin($invoice_dd) !== 1) {
     $fail('Rollback-Testtransaktion konnte nicht starten.', 11);
 }
-$firstDelete = $db->delete(
-    $itemDd,
-    array('invoice_id' => $testId)
+$first_delete = $db->delete(
+    $item_dd,
+    array('invoice_id' => $test_id)
 );
-$secondDelete = $db->delete(
-    $invoiceDd,
+$second_delete = $db->delete(
+    $invoice_dd,
     array('id' => -987654321)
 );
-if ($firstDelete !== 1 || $secondDelete !== 0) {
-    $db->rollback($invoiceDd);
+if ($first_delete !== 1 || $second_delete !== 0) {
+    $db->rollback($invoice_dd);
     $fail('Fehlerpfad der Löschtransaktion wurde nicht erreicht.', 12);
 }
-$db->rollback($invoiceDd);
+$db->rollback($invoice_dd);
 if ((int)$db->count(
-    $invoiceDd,
-    array('id' => $testId)
+    $invoice_dd,
+    array('id' => $test_id)
 ) !== 1
     || (int)$db->count(
-        $itemDd,
-        array('invoice_id' => $testId)
+        $item_dd,
+        array('invoice_id' => $test_id)
     ) !== 1
 ) {
     $fail('Rollback hat Kopf oder Position nicht wiederhergestellt.', 13);
 }
 
-dbx()->set_modul_var('rid', $testId);
-$deletedHtml = $service->delete();
-if ((int)$db->count(
-    $invoiceDd,
-    array('id' => $testId)
-) !== 0
-    || (int)$db->count(
-        $itemDd,
-        array('invoice_id' => $testId)
-    ) !== 0
+dbx()->set_modul_var('rid', $test_id);
+$deleted_html = $service->delete();
+$remaining_invoices = (int)$db->count(
+    $invoice_dd,
+    array('id' => $test_id)
+);
+$remaining_items = (int)$db->count(
+        $item_dd,
+        array('invoice_id' => $test_id)
+    );
+if ($remaining_invoices !== 0
+    || $remaining_items !== 0
     || strpos(
-        $deletedHtml,
+        $deleted_html,
         'Rechnung und Positionen wurden gelöscht'
     ) === false
 ) {
-    $fail('Gültige atomare Löschung ist fehlgeschlagen.', 14);
+    $fail(
+        'Gültige atomare Löschung ist fehlgeschlagen. Rechnungen='
+        . $remaining_invoices . ', Positionen=' . $remaining_items
+        . ', HTML=' . substr((string)preg_replace('/\s+/', ' ', $deleted_html), 0, 300),
+        14
+    );
 }
 
 echo "OK myInvoices runtime, sums, central policy precondition and rollback\n";

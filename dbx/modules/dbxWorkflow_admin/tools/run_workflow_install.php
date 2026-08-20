@@ -19,14 +19,14 @@ require $base . '/dbx/vendor/autoload.php';
 require_once $base . '/dbx/include/dbxKernel.php';
 
 $result = array('dds' => array(), 'seeded' => false, 'errors' => array());
-$oDD = dbx()->get_system_obj('dbxDD');
+$o_dd = dbx()->get_system_obj('dbxDD');
 
 foreach (array('workflowDefinition', 'workflowInstance', 'workflowStep', 'workflowModuleBind') as $dd) {
    try {
-      $oDD->sync_dd_to_db('dbxWorkflow', $dd, 'reset');
+      $o_dd->sync_dd_to_db('dbxWorkflow', $dd, 'reset');
       $status = '';
       for ($i = 0; $i < 80; $i++) {
-         $state = $oDD->sync_dd_to_db('dbxWorkflow', $dd, 'apply');
+         $state = $o_dd->sync_dd_to_db('dbxWorkflow', $dd, 'apply');
          $status = (string) ($state['status'] ?? '');
          if ($status === 'finished' || $status === 'error') break;
       }

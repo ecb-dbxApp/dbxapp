@@ -17,9 +17,9 @@ $assert = static function (bool $condition, string $message): void {
     }
 };
 
-$oldPost = $_POST;
-$oldGet = $_GET;
-$oldLanguage = (string)dbx()->get_system_var('dbx_lng', 'de');
+$old_post = $_POST;
+$old_get = $_GET;
+$old_language = (string)dbx()->get_system_var('dbx_lng', 'de');
 
 try {
     $_GET = [];
@@ -45,22 +45,22 @@ try {
     $assert(isset($all['email'], $all['title']), 'Gesamtliste der Formularergebnisse ist unvollstaendig');
 
     dbx()->set_system_var('dbx_lng', 'en');
-    $form->oValidator->setLanguage('');
+$form->o_validator->set_language('');
     $_POST = ['language_probe' => ''];
     $form->get_post('language_probe', '', 'required|email');
-    $languageResult = $form->get_validation_result('language_probe');
+    $language_result = $form->get_validation_result('language_probe');
     $assert(
-        ($languageResult['message'] ?? '') === 'Please fill in this field.',
+        ($language_result['message'] ?? '') === 'Please fill in this field.',
         'dbxForm verwendet nicht automatisch die aktive UI-Sprache'
     );
 
     $form->clear();
     $assert($form->get_validation_result() === [], 'Formular-Reset behaelt alte Validator-Ergebnisse');
 } finally {
-    $_POST = $oldPost;
-    $_GET = $oldGet;
-    dbx()->set_system_var('dbx_lng', $oldLanguage);
-    $form->oValidator->setLanguage('');
+    $_POST = $old_post;
+    $_GET = $old_get;
+    dbx()->set_system_var('dbx_lng', $old_language);
+$form->o_validator->set_language('');
 }
 
 echo "OK: dbxForm uebernimmt strukturierte Validator-Ergebnisse und opt-in-Normalisierung.\n";

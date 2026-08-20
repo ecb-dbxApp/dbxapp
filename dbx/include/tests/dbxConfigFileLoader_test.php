@@ -9,6 +9,7 @@ declare(strict_types=1);
 $root = dirname(__DIR__, 3);
 require_once $root . '/dbx/vendor/autoload.php';
 require_once dirname(__DIR__) . '/dbxKernel.php';
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
 
 $api = dbx();
 $method = new ReflectionMethod($api, 'read_config_file');
@@ -25,8 +26,8 @@ try {
         exit(1);
     }
 
-    $source = (string)file_get_contents(dirname(__DIR__) . '/dbxApi.php');
-    if (str_contains($source, 'eval($clean_code)') || !str_contains($source, 'include $__dbxConfigFile')) {
+    $source = dbx_test_module_source_bundle(dirname(__DIR__) . '/dbxApi.php');
+    if (str_contains($source, 'eval($clean_code)') || !str_contains($source, 'include $__dbx_config_file')) {
         fwrite(STDERR, "FAIL Config-Loader verwendet weiterhin eval oder keinen isolierten Include.\n");
         exit(1);
     }

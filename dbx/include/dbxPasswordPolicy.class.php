@@ -7,7 +7,23 @@ declare(strict_types=1);
  */
 final class dbxPasswordPolicy
 {
-    public static function minimumLength(?int $configured = null): int
+    /** Erzeugt ein kryptografisch zufälliges Passwort aus dem erlaubten Alphabet. */
+    public static function generate(int $length, string $special = '-_!'): string
+    {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' . $special;
+        if ($length < 1 || $alphabet === '') {
+            return '';
+        }
+
+        $password = '';
+        $last_index = strlen($alphabet) - 1;
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $alphabet[random_int(0, $last_index)];
+        }
+        return $password;
+    }
+
+    public static function minimum_length(?int $configured = null): int
     {
         if ($configured === null && function_exists('dbx')) {
             $configured = (int)dbx()->get_cfg(
@@ -23,17 +39,17 @@ final class dbxPasswordPolicy
     /**
      * @return string[]
      */
-    public static function missingCriteria(
+    public static function missing_criteria(
         string $password,
-        ?int $minimumLength = null
+        ?int $minimum_length = null
     ): array {
-        $minimumLength = self::minimumLength($minimumLength);
+        $minimum_length = self::minimum_length($minimum_length);
         $length = function_exists('mb_strlen')
             ? mb_strlen($password, 'UTF-8')
             : strlen($password);
         $missing = array();
-        if ($length < $minimumLength) {
-            $missing[] = 'mindestens ' . $minimumLength . ' Zeichen';
+        if ($length < $minimum_length) {
+            $missing[] = 'mindestens ' . $minimum_length . ' Zeichen';
         }
         if (preg_match('/[A-Z]/', $password) !== 1) {
             $missing[] = 'ein Großbuchstabe';
@@ -50,16 +66,16 @@ final class dbxPasswordPolicy
         return $missing;
     }
 
-    public static function missingMessage(
+    public static function missing_message(
         array $missing,
-        ?int $minimumLength = null
+        ?int $minimum_length = null
     ): string {
         if ($missing === array()) {
             return '';
         }
-        $minimumLength = self::minimumLength($minimumLength);
+        $minimum_length = self::minimum_length($minimum_length);
         return 'Noch nicht erfüllt: ' . implode(', ', $missing) . '.'
-            . ($minimumLength < 12
+            . ($minimum_length < 12
                 ? ' Empfohlen sind insgesamt 12 oder mehr Zeichen.'
                 : '');
     }
@@ -70,23 +86,23 @@ final class dbxPasswordPolicy
     public static function errors(
         string $password,
         string $repeat,
-        string $currentHash = '',
-        ?int $minimumLength = null
+        string $current_hash = '',
+        ?int $minimum_length = null
     ): array {
-        $minimumLength = self::minimumLength($minimumLength);
+        $minimum_length = self::minimum_length($minimum_length);
         $errors = array();
         if (!hash_equals($password, $repeat)) {
             $errors['repeat'] = 'Die beiden Passwörter stimmen nicht überein.';
         }
-        $missing = self::missingCriteria($password, $minimumLength);
+        $missing = self::missing_criteria($password, $minimum_length);
         if ($missing !== array()) {
-            $errors['password'] = self::missingMessage(
+            $errors['password'] = self::missing_message(
                 $missing,
-                $minimumLength
+                $minimum_length
             );
-        } elseif ($currentHash !== ''
-            && password_get_info($currentHash)['algoName'] !== 'unknown'
-            && password_verify($password, $currentHash)
+        } elseif ($current_hash !== ''
+            && password_get_info($current_hash)['algoName'] !== 'unknown'
+            && password_verify($password, $current_hash)
         ) {
             $errors['password'] = 'Das neue Passwort muss sich vom bisherigen Passwort unterscheiden.';
         }

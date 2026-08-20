@@ -2,29 +2,30 @@
 namespace dbx\dbxContent;
 
 require_once __DIR__ . '/dbxContentLng.class.php';
+require_once __DIR__ . '/dbxEarlyPageCache.class.php';
 
 class dbxContentPageCache {
 
-   private static bool $dirsReady = false;
+   private static bool $dirs_ready = false;
    private const FULL_PAGE_CACHE_VERSION = 'v3';
    private const FULL_PAGE_GENERATION_FILE = '.generation';
 
-   public static function isConfigEnabled(): bool {
-      $configFile = '';
+   public static function is_config_enabled(): bool {
+      $config_file = '';
       try {
-         $configFile = rtrim((string)dbx()->get_base_dir(), '/\\') . '/dbx/modules/dbx/cfg/config.php';
+         $config_file = rtrim((string)dbx()->get_base_dir(), '/\\') . '/dbx/modules/dbx/cfg/config.php';
       } catch (\Throwable $e) {
-         $configFile = dirname(__DIR__, 2) . '/dbx/cfg/config.php';
+         $config_file = dirname(__DIR__, 2) . '/dbx/cfg/config.php';
       }
-      if (is_file($configFile) && is_readable($configFile)) {
-         $readConfig = static function(string $path): array {
+      if (is_file($config_file) && is_readable($config_file)) {
+         $read_config = static function(string $path): array {
             $config = array();
             include $path;
             return is_array($config) ? $config : array();
          };
-         $fileConfig = $readConfig($configFile);
-         if (array_key_exists('cache_content', $fileConfig)) {
-            return (int)$fileConfig['cache_content'] === 1;
+         $file_config = $read_config($config_file);
+         if (array_key_exists('cache_content', $file_config)) {
+            return (int)$file_config['cache_content'] === 1;
          }
       }
 
@@ -36,7 +37,7 @@ class dbxContentPageCache {
       return (int) $enabled === 1;
    }
 
-   public static function setConfigEnabled(bool $enabled): bool {
+   public static function set_config_enabled(bool $enabled): bool {
       $config = dbx()->get_cfg('dbx');
       if (!is_array($config)) {
          $config = array();
@@ -49,13 +50,13 @@ class dbxContentPageCache {
    }
 
    /** Abwaertskompatibel: "aktiv" bezeichnet das Schreiben neuer Seiten. */
-   public static function isEnabled(): bool {
-      return self::isWriteEnabled();
+   public static function is_enabled(): bool {
+      return self::is_write_enabled();
    }
 
    /** Darf der aktuelle Request vorhandene Gastseiten aus dem Cache lesen? */
-   public static function isReadEnabled(): bool {
-      if (!self::isGuestSession() || self::hasPersonalizedGuestState()) {
+   public static function is_read_enabled(): bool {
+      if (!self::is_guest_session() || self::has_personalized_guest_state()) {
          return false;
       }
 
@@ -84,24 +85,24 @@ class dbxContentPageCache {
    }
 
    /** Darf der aktuelle Request eine neue Gastseite in den Cache schreiben? */
-   public static function isWriteEnabled(): bool {
-      return self::isReadEnabled() && self::isConfigEnabled();
+   public static function is_write_enabled(): bool {
+      return self::is_read_enabled() && self::is_config_enabled();
    }
 
    /** Nur der effektive Benutzerkontext entscheidet, nicht der rohe Session-Typ. */
-   private static function isGuestSession(): bool {
+   private static function is_guest_session(): bool {
       try {
          // user() beruecksichtigt auch dbxRunAsAdmin. Ohne diese Abfrage konnte
          // der Admin-Bypass als Gast HTML in den gemeinsamen Cache schreiben.
          return (int)dbx()->user() <= 0;
       } catch (\Throwable $e) {
-         return (int)($_SESSION['dbx']['current_user']['id'] ?? 0) <= 0;
+         return true;
       }
    }
 
    /** Sessionabhaengige Frontend-Werte duerfen nicht in den Gast-Cache gelangen. */
-   private static function hasPersonalizedGuestState(): bool {
-      $cart = $_SESSION['dbxShop_cart'] ?? array();
+   private static function has_personalized_guest_state(): bool {
+      $cart = dbx()->get_session_var('cart', array(), 'state', 'dbxShop');
       if (!is_array($cart)) {
          return false;
       }
@@ -115,7 +116,7 @@ class dbxContentPageCache {
       return false;
    }
 
-   public static function isContentRoute(): bool {
+   public static function is_content_route(): bool {
       if (dbx()->get_system_var('dbx_modul') !== 'dbxContent') {
          return false;
       }
@@ -124,8 +125,8 @@ class dbxContentPageCache {
       return $action === 'show';
    }
 
-   public static function isPermalinkPageRequest(): bool {
-      if (!self::isEnabled()) {
+   public static function is_permalink_page_request(): bool {
+      if (!self::is_enabled()) {
          return false;
       }
 
@@ -137,9 +138,9 @@ class dbxContentPageCache {
    }
 
    /** Fruehe Pruefung ohne Permalink-Index und ohne Content-Datenbank. */
-   private static function isRawPermalinkRequest(): bool {
+   private static function is_raw_permalink_request(): bool {
       // Lesen bleibt auch bei ausgeschaltetem Cache-Schreiben aktiv.
-      if (!self::isReadEnabled()) {
+      if (!self::is_read_enabled()) {
          return false;
       }
 
@@ -150,7 +151,7 @@ class dbxContentPageCache {
          return false;
       }
 
-      $permalink = self::currentPermalink();
+      $permalink = self::current_permalink();
       if ($permalink === '' || in_array($permalink, array('admin', 'sitemap', 'sitemap.xml', 'robots.txt'), true)) {
          return false;
       }
@@ -171,7 +172,7 @@ class dbxContentPageCache {
     * vor. Fuer einen Treffer ist deshalb keine Content-/CID-Datenbankabfrage
     * notwendig.
     */
-   public static function prepareFullPageRequest(): bool {
+   public static function prepare_full_page_request(): bool {
       dbx()->set_system_var('dbx_full_page_cache_prepared', 0);
       dbx()->set_system_var('dbx_full_page_cache_path', '');
       dbx()->set_system_var('dbx_full_page_cache_file', '');
@@ -185,27 +186,27 @@ class dbxContentPageCache {
          return false;
       }
 
-      if (!self::isRawPermalinkRequest()) {
+      if (!self::is_raw_permalink_request()) {
          return false;
       }
 
       // Die leere Root-Route ist fachlich dieselbe Route wie /home. Dadurch
       // erzeugt bereits der erste Root-MISS exakt dieselbe fertige Seite.
-      $rawPermalink = self::normalizePermalink((string)dbx()->get_system_var('dbx_permalink', ''));
-      if ($rawPermalink === '') {
+      $raw_permalink = self::normalize_permalink((string)dbx()->get_system_var('dbx_permalink', ''));
+      if ($raw_permalink === '') {
          dbx()->set_system_var('dbx_permalink', 'home');
          dbx()->set_system_var('dbx_self_url', 'home');
       }
 
-      $permalink = self::currentPermalink();
-      $lng = self::safeToken(self::currentLng(), 'de');
-      $design = self::currentDesign();
-      $skin = dbx()->normalize_skin((string) dbx()->get_system_var('dbx_color', 'blau'));
-      $generation = self::cacheGeneration();
+      $permalink = self::current_permalink();
+      $lng = self::safe_token(self::current_lng(), 'de');
+      $design = self::current_design();
+      $skin = dbx()->get_system_obj('dbxPresentation')->normalize_skin((string)dbx()->get_system_var('dbx_color', 'blau'));
+      $generation = self::cache_generation();
       if ($generation === '') {
          return false;
       }
-      $path = self::fullPagePathForGeneration($permalink, $lng, $design, $skin, $generation);
+      $path = self::full_page_path_for_generation($permalink, $lng, $design, $skin, $generation);
 
       dbx()->set_system_var('dbx_full_page_cache_prepared', 1);
       dbx()->set_system_var('dbx_full_page_cache_path', $path);
@@ -219,8 +220,8 @@ class dbxContentPageCache {
    }
 
    /** Bindet nach einem MISS die live aufgeloeste Content-ID an den Schreibvorgang. */
-   public static function attachResolvedContentRoute(): bool {
-      if (!self::isPreparedFullPageRequest()) {
+   public static function attach_resolved_content_route(): bool {
+      if (!self::is_prepared_full_page_request()) {
          return false;
       }
 
@@ -228,18 +229,18 @@ class dbxContentPageCache {
       // Content-Aufloesung eindeutig bestimmen. Den vorbereiteten Schreibpfad
       // dann auf die erkannte Sprache umstellen, statt fremdsprachigen Inhalt
       // unter dem vorherigen Session-Sprachschluessel abzulegen.
-      $preparedLng = (string)dbx()->get_system_var('dbx_full_page_cache_lng', '');
-      $currentLng = self::safeToken(self::currentLng(), 'de');
-      if ($preparedLng !== $currentLng && !self::prepareFullPageRequest()) {
+      $prepared_lng = (string)dbx()->get_system_var('dbx_full_page_cache_lng', '');
+      $current_lng = self::safe_token(self::current_lng(), 'de');
+      if ($prepared_lng !== $current_lng && !self::prepare_full_page_request()) {
          return false;
       }
 
       // Ein ungueltiger Permalink kann die Home-Darstellung mit HTTP 404
       // verwenden. Seine Antwort darf weder unter dem Tippfehler noch als
       // Home-Cache geschrieben werden.
-      $preparedPermalink = (string)dbx()->get_system_var('dbx_full_page_cache_permalink', '');
+      $prepared_permalink = (string)dbx()->get_system_var('dbx_full_page_cache_permalink', '');
       if ((int)dbx()->get_system_var('dbx_content_not_found', 0, 'int') === 1
-          || $preparedPermalink !== self::currentPermalink()) {
+          || $prepared_permalink !== self::current_permalink()) {
          dbx()->set_system_var('dbx_full_page_cache_prepared', 0);
          dbx()->set_system_var('dbx_full_page_cache_path', '');
          dbx()->set_system_var('dbx_full_page_cache_file', '');
@@ -258,22 +259,22 @@ class dbxContentPageCache {
       return true;
    }
 
-   public static function isPreparedFullPageRequest(): bool {
+   public static function is_prepared_full_page_request(): bool {
       return (int) dbx()->get_system_var('dbx_full_page_cache_prepared', 0, 'int') === 1
-         && self::isGuestSession()
-         && !self::hasPersonalizedGuestState()
-         && self::currentPermalink() !== ''
+         && self::is_guest_session()
+         && !self::has_personalized_guest_state()
+         && self::current_permalink() !== ''
          && trim((string) dbx()->get_system_var('dbx_full_page_cache_path', '')) !== '';
    }
 
    /** Liefert ausschliesslich eine bereits komplett gerenderte HTML-Seite. */
-   public static function readFullPage(): ?string {
-      if (!self::isPreparedFullPageRequest()) {
+   public static function read_full_page(): ?string {
+      if (!self::is_prepared_full_page_request()) {
          return null;
       }
 
-      $preparedGeneration = (string)dbx()->get_system_var('dbx_full_page_cache_generation', '');
-      if ($preparedGeneration === '' || !hash_equals($preparedGeneration, self::cacheGeneration())) {
+      $prepared_generation = (string)dbx()->get_system_var('dbx_full_page_cache_generation', '');
+      if ($prepared_generation === '' || !hash_equals($prepared_generation, self::cache_generation())) {
          return null;
       }
 
@@ -283,184 +284,197 @@ class dbxContentPageCache {
       }
 
       $html = file_get_contents($path);
-      if (!is_string($html) || !self::isCompleteHtml($html) || !self::hasCurrentBaseHref($html)) {
+      if (!is_string($html) || !self::is_complete_html($html) || !self::has_current_base_href($html)) {
          @unlink($path);
-         @unlink(self::fullPageMetaPath($path));
+         @unlink(self::full_page_meta_path($path));
          return null;
       }
 
       // Eine Invalidierung waehrend des Lesens macht auch bereits gelesene
       // Bytes ungueltig. So wird nach einem Speichern kein alter Stand bedient.
-      if (!hash_equals($preparedGeneration, self::cacheGeneration())) {
+      if (!hash_equals($prepared_generation, self::cache_generation())) {
          return null;
       }
 
       // file_get_contents liefert die unveraenderten Bytes. Kein Escaping,
       // keine Interpretation und keine Session-abhaengige Nachbearbeitung.
+      // Bestehende Cache-Dateien werden beim ersten regulaeren Treffer in den
+      // fruehen Lookup uebernommen; ein Cache-Leeren nach dem Update ist damit
+      // nicht erforderlich.
+      dbxEarlyPageCache::register($path, $prepared_generation);
       return $html;
    }
 
    /** Schreibt die finale Ausgabe nach Design, Modulen, Interpreter und Filtern. */
-   public static function writeFullPage(string $html): bool {
-      if (!self::isWriteEnabled()
-          || !self::isPreparedFullPageRequest()
+   public static function write_full_page(string $html): bool {
+      if (!self::is_write_enabled()
+          || !self::is_prepared_full_page_request()
           || http_response_code() !== 200
           || (string) dbx()->get_system_var('dbx_master_modul', '') !== 'dbxContent'
           || (int) dbx()->get_system_var('dbx_full_page_cache_cid', 0, 'int') <= 0
-          || !self::isCompleteHtml($html)
-          || !self::hasCurrentBaseHref($html)
-          || preg_match(self::secureInputPattern(), $html)) {
+          || !self::is_complete_html($html)
+          || !self::has_current_base_href($html)
+          || preg_match(self::secure_input_pattern(), $html)) {
          return false;
       }
 
-      $preparedGeneration = (string)dbx()->get_system_var('dbx_full_page_cache_generation', '');
-      if ($preparedGeneration === '' || !hash_equals($preparedGeneration, self::cacheGeneration())) {
+      $prepared_generation = (string)dbx()->get_system_var('dbx_full_page_cache_generation', '');
+      if ($prepared_generation === '' || !hash_equals($prepared_generation, self::cache_generation())) {
          // Ein paralleler Speichervorgang hat den Cache inzwischen verworfen.
          // Der alte Request darf seinen inzwischen veralteten Stand nicht in
          // die neue Cache-Generation schreiben.
          return false;
       }
 
-      self::ensureDirs();
+      self::ensure_dirs();
       $path = (string) dbx()->get_system_var('dbx_full_page_cache_path', '');
-      return self::atomicWrite($path, $html);
+      if (!self::atomic_write($path, $html)) {
+         return false;
+      }
+
+      // Der schlanke Frontcontroller-Lookup wird erst nach dem vollstaendigen,
+      // validierten HTML geschrieben. Schlaegt er fehl, bleibt der regulaere
+      // Page-Cache weiterhin korrekt und lesbar.
+      dbxEarlyPageCache::register($path, $prepared_generation);
+      return true;
    }
 
-   public static function baseDir(): string {
+   public static function base_dir(): string {
       $dir = rtrim(dbx()->get_file_dir(), '/\\') . '/cache/';
       return dbx()->os_path($dir);
    }
 
-   public static function menuVariantFlat(int $flat = 1): string {
+   public static function menu_variant_flat(int $flat = 1): string {
       return 'flat-' . ((int) $flat === 0 ? 0 : 1);
    }
 
-   public static function menuVariantLoad(int $deep = 9, string $mode = '', string $label = ''): string {
+   public static function menu_variant_load(int $deep = 9, string $mode = '', string $label = ''): string {
       $deep = max(1, (int) $deep);
       $mode = strtolower(trim($mode));
       if ($mode === '') {
          $mode = 'default';
       }
-      $mode = self::safeToken($mode, 'default');
+      $mode = self::safe_token($mode, 'default');
       $label = trim((string) $label);
-      $labelKey = $label !== '' ? substr(sha1($label), 0, 8) : 'menu';
+      $label_key = $label !== '' ? substr(sha1($label), 0, 8) : 'menu';
 
-      return 'load-' . $deep . '-' . $mode . '-' . $labelKey;
+      return 'load-' . $deep . '-' . $mode . '-' . $label_key;
    }
 
-   public static function currentLng(): string {
+   public static function current_lng(): string {
       $lng = trim((string) dbx()->get_system_var('dbx_lng', 'de'));
       return $lng !== '' ? $lng : 'de';
    }
 
    /** Das Design ist Bestandteil der vollstaendigen HTML-Ausgabe. */
-   public static function currentDesign(): string {
+   public static function current_design(): string {
       $config = dbx()->get_cfg('dbx');
       if (!is_array($config)) {
          $config = array();
       }
 
-      $userDefault = trim((string)($config['default_design_user'] ?? 'dbxapp'));
-      if ($userDefault === '') {
-         $userDefault = 'dbxapp';
+      $user_default = trim((string)($config['default_design_user'] ?? 'dbxapp'));
+      if ($user_default === '') {
+         $user_default = 'dbxapp';
       }
 
-      $design = trim((string)dbx()->get_system_var('dbx_design', $userDefault));
+      $design = trim((string)dbx()->get_system_var('dbx_design', $user_default));
       // Der Full-Page-Cache gilt nur fuer Gaeste. Die Aliase user/admin werden
       // daher genauso wie in check_design auf das Frontend-Design aufgeloest.
-      if ($design === '' || $design === 'user' || $design === 'admin' || !dbx()->is_design($design)) {
-         $design = $userDefault;
+      $presentation = dbx()->get_system_obj('dbxPresentation');
+      if ($design === '' || $design === 'user' || $design === 'admin' || !$presentation->is_design($design)) {
+         $design = $user_default;
       }
-      if (!dbx()->is_design($design)) {
+      if (!$presentation->is_design($design)) {
          $design = 'dbxapp';
       }
 
-      return self::safeToken($design, 'dbxapp');
+      return self::safe_token($design, 'dbxapp');
    }
 
-   public static function ensureDirs(): void {
-      if (self::$dirsReady) {
+   public static function ensure_dirs(): void {
+      if (self::$dirs_ready) {
          return;
       }
 
       foreach (array('content', 'content/full-page', 'meta') as $sub) {
-         $dir = self::baseDir() . $sub;
+         $dir = self::base_dir() . $sub;
          if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);
          }
       }
 
-      self::runGenerationMaintenance();
-      self::$dirsReady = true;
+      self::run_generation_maintenance();
+      self::$dirs_ready = true;
    }
 
    /** Führt teure Verzeichnisbereinigungen nur einmal je Cache-Generation aus. */
-   private static function runGenerationMaintenance(): void {
-      $generation = self::cacheGeneration();
+   private static function run_generation_maintenance(): void {
+      $generation = self::cache_generation();
       if ($generation === '') {
          return;
       }
 
-      $marker = self::baseDir() . 'meta/.maintenance-' . self::FULL_PAGE_CACHE_VERSION;
-      $maintainedGeneration = is_file($marker) ? trim((string)file_get_contents($marker)) : '';
-      if (hash_equals($generation, $maintainedGeneration)) {
+      $marker = self::base_dir() . 'meta/.maintenance-' . self::FULL_PAGE_CACHE_VERSION;
+      $maintained_generation = is_file($marker) ? trim((string)file_get_contents($marker)) : '';
+      if (hash_equals($generation, $maintained_generation)) {
          return;
       }
 
-      self::purgeLegacyMenuCache();
-      self::purgeLegacyPageCache();
-      self::purgeStaleFullPages($generation);
-      self::atomicWrite($marker, $generation);
+      self::purge_legacy_menu_cache();
+      self::purge_legacy_page_cache();
+      self::purge_stale_full_pages($generation);
+      self::atomic_write($marker, $generation);
    }
 
    /** Entfernt die nicht mehr verwendeten Permalink-, Home- und Meta-Caches. */
-   private static function purgeLegacyPageCache(): void {
+   private static function purge_legacy_page_cache(): void {
       foreach (array(
-         self::baseDir() . 'meta/pages/*.json',
-         self::baseDir() . 'meta/permalinks_*.json',
-         self::baseDir() . 'meta/home_*.json',
+         self::base_dir() . 'meta/pages/*.json',
+         self::base_dir() . 'meta/permalinks_*.json',
+         self::base_dir() . 'meta/home_*.json',
       ) as $pattern) {
          foreach (glob($pattern) ?: array() as $file) {
             @unlink($file);
          }
       }
 
-      $contentDir = self::baseDir() . 'content/';
-      foreach (array_merge(glob($contentDir . '*.htm') ?: array(), glob($contentDir . '*.html') ?: array()) as $file) {
+      $content_dir = self::base_dir() . 'content/';
+      foreach (array_merge(glob($content_dir . '*.htm') ?: array(), glob($content_dir . '*.html') ?: array()) as $file) {
          @unlink($file);
-         @unlink(self::fullPageMetaPath($file));
+         @unlink(self::full_page_meta_path($file));
       }
-      foreach (glob($contentDir . '*.html.meta.json') ?: array() as $metaFile) {
-         $htmlFile = preg_replace('/\.meta\.json$/', '', $metaFile);
-         if (!is_string($htmlFile) || !is_file($htmlFile)) {
-            @unlink($metaFile);
+      foreach (glob($content_dir . '*.html.meta.json') ?: array() as $meta_file) {
+         $html_file = preg_replace('/\.meta\.json$/', '', $meta_file);
+         if (!is_string($html_file) || !is_file($html_file)) {
+            @unlink($meta_file);
          }
       }
       // Hash-Unterordner und Meta-Dateien des alten Full-Page-Caches werden
       // nicht mehr verwendet. Neue Dateien liegen direkt in full-page/.
-      foreach (glob($contentDir . 'full-page/*.htm.meta.json') ?: array() as $metaFile) {
-         @unlink($metaFile);
+      foreach (glob($content_dir . 'full-page/*.htm.meta.json') ?: array() as $meta_file) {
+         @unlink($meta_file);
       }
       // V1 enthielt kein Design, V2 keinen kollisionsfreien Permalink-/Host-Key
       // und keine Generation. Nur die aktuelle V3 darf weiterverwendet werden.
-      foreach (glob($contentDir . 'full-page/*.htm') ?: array() as $fullPageFile) {
-         if (!str_ends_with(strtolower(basename($fullPageFile)), '_' . self::FULL_PAGE_CACHE_VERSION . '.htm')) {
-            @unlink($fullPageFile);
+      foreach (glob($content_dir . 'full-page/*.htm') ?: array() as $full_page_file) {
+         if (!str_ends_with(strtolower(basename($full_page_file)), '_' . self::FULL_PAGE_CACHE_VERSION . '.htm')) {
+            @unlink($full_page_file);
          }
       }
-      foreach (glob($contentDir . 'full-page/*', GLOB_ONLYDIR) ?: array() as $legacyDir) {
-         foreach (glob($legacyDir . '/*') ?: array() as $legacyFile) {
-            if (is_file($legacyFile)) {
-               @unlink($legacyFile);
+      foreach (glob($content_dir . 'full-page/*', GLOB_ONLYDIR) ?: array() as $legacy_dir) {
+         foreach (glob($legacy_dir . '/*') ?: array() as $legacy_file) {
+            if (is_file($legacy_file)) {
+               @unlink($legacy_file);
             }
          }
-         @rmdir($legacyDir);
+         @rmdir($legacy_dir);
       }
    }
 
    /** Entfernt den nicht mehr verwendeten Menu-Cache. */
-   public static function purgeLegacyMenuCache(): int {
-      $dir = self::baseDir() . 'menu/';
+   public static function purge_legacy_menu_cache(): int {
+      $dir = self::base_dir() . 'menu/';
       if (!is_dir($dir)) {
          return 0;
       }
@@ -475,84 +489,86 @@ class dbxContentPageCache {
       return $removed;
    }
 
-   public static function contentPath(int $cid, string $lng): string {
+   public static function content_path(int $cid, string $lng): string {
       $cid = (int) $cid;
-      $lng = self::safeToken($lng, 'de');
-      return self::baseDir() . 'content/cid-' . $cid . '.' . $lng . '.htm';
+      $lng = self::safe_token($lng, 'de');
+      return self::base_dir() . 'content/cid-' . $cid . '.' . $lng . '.htm';
    }
 
-   public static function fullPagePath(string $permalink, string $lng, string $design = '', string $skin = ''): string {
-      return self::fullPagePathForGeneration($permalink, $lng, $design, $skin, self::cacheGeneration());
+   public static function full_page_path(string $permalink, string $lng, string $design = '', string $skin = ''): string {
+      return self::full_page_path_for_generation($permalink, $lng, $design, $skin, self::cache_generation());
    }
 
-   private static function fullPagePathForGeneration(string $permalink, string $lng, string $design, string $skin, string $generation): string {
-      $normalizedPermalink = self::normalizePermalink($permalink);
-      $permalink = self::permalinkFileToken($normalizedPermalink);
-      $lng = self::safeToken($lng, 'de');
-      $design = self::safeToken($design !== '' ? $design : self::currentDesign(), 'dbxapp');
-      $skin = dbx()->normalize_skin($skin !== '' ? $skin : (string)dbx()->get_system_var('dbx_color', 'blau'));
-      $skin = self::safeToken($skin, 'blau');
-      $generation = self::safeToken($generation, 'invalid');
-      $origin = self::requestOriginToken();
+   private static function full_page_path_for_generation(string $permalink, string $lng, string $design, string $skin, string $generation): string {
+      $normalized_permalink = self::normalize_permalink($permalink);
+      $permalink = self::permalink_file_token($normalized_permalink);
+      $lng = self::safe_token($lng, 'de');
+      $design = self::safe_token($design !== '' ? $design : self::current_design(), 'dbxapp');
+      $skin = dbx()->get_system_obj('dbxPresentation')->normalize_skin(
+         $skin !== '' ? $skin : (string)dbx()->get_system_var('dbx_color', 'blau')
+      );
+      $skin = self::safe_token($skin, 'blau');
+      $generation = self::safe_token($generation, 'invalid');
+      $origin = self::request_origin_token();
 
-      return self::baseDir() . 'content/full-page/'
+      return self::base_dir() . 'content/full-page/'
          . $permalink . '_' . $lng . '_' . $design . '_' . $skin . '_'
          . $origin . '_' . $generation . '_' . self::FULL_PAGE_CACHE_VERSION . '.htm';
    }
 
-   public static function permalinkContentPath(string $permalink, string $lng): string {
-      $permalink = self::permalinkFileToken($permalink);
-      $lng = self::safeToken($lng, 'de');
+   public static function permalink_content_path(string $permalink, string $lng): string {
+      $permalink = self::permalink_file_token($permalink);
+      $lng = self::safe_token($lng, 'de');
 
-      return self::baseDir() . 'content/' . $permalink . '.' . $lng . '.htm';
+      return self::base_dir() . 'content/' . $permalink . '.' . $lng . '.htm';
    }
 
-   public static function menuPath(int $root, string $lng, string $variant = 'flat-1'): string {
+   public static function menu_path(int $root, string $lng, string $variant = 'flat-1'): string {
       $root = (int) $root;
-      $lng = self::safeToken($lng, 'de');
-      $variant = self::safeToken($variant, 'flat-1');
+      $lng = self::safe_token($lng, 'de');
+      $variant = self::safe_token($variant, 'flat-1');
 
-      return self::baseDir() . 'menu/' . $root . '_' . $lng . '_' . $variant . '.html';
+      return self::base_dir() . 'menu/' . $root . '_' . $lng . '_' . $variant . '.html';
    }
 
-   public static function pageMetaPath(int $cid): string {
-      return self::baseDir() . 'meta/pages/' . (int) $cid . '.json';
+   public static function page_meta_path(int $cid): string {
+      return self::base_dir() . 'meta/pages/' . (int) $cid . '.json';
    }
 
-   public static function readContent(int $cid, string $lng = ''): ?string {
+   public static function read_content(int $cid, string $lng = ''): ?string {
       // Der alte dbxContent-Zwischencache ist bewusst deaktiviert.
       return null;
    }
 
-   public static function readPermalinkContent(string $permalink, string $lng = ''): ?string {
+   public static function read_permalink_content(string $permalink, string $lng = ''): ?string {
       // Ein separater Permalink-Cache existiert nicht mehr.
       return null;
    }
 
-   public static function writeContent(int $cid, string $html, array $meta = array(), string $lng = ''): bool {
+   public static function write_content(int $cid, string $html, array $meta = array(), string $lng = ''): bool {
       // Der alte dbxContent-Zwischencache ist bewusst deaktiviert.
       return false;
    }
 
-   public static function readMenu(int $root, string $variant = 'flat-1', string $lng = ''): ?string {
+   public static function read_menu(int $root, string $variant = 'flat-1', string $lng = ''): ?string {
       return null;
    }
 
-   public static function writeMenu(string $html, int $root, string $variant = 'flat-1', string $lng = ''): bool {
+   public static function write_menu(string $html, int $root, string $variant = 'flat-1', string $lng = ''): bool {
       return false;
    }
 
-   public static function readPageMeta(int $cid): ?array {
-      $meta = self::buildContentMeta($cid, self::currentLng());
+   public static function read_page_meta(int $cid): ?array {
+      $meta = self::build_content_meta($cid, self::current_lng());
       return count($meta) ? $meta : null;
    }
 
-   public static function writePageMeta(int $cid, array $meta): bool {
+   public static function write_page_meta(int $cid, array $meta): bool {
       // Seiten-Metadaten werden live aus dbxContent gelesen und nicht gecacht.
       return true;
    }
 
-   public static function invalidateContent(int $cid, bool $invalidateSharedCaches = true): void {
+   public static function invalidate_content(int $cid, bool $invalidate_shared_caches = true): void {
       $cid = (int) $cid;
       if ($cid <= 0) {
          return;
@@ -560,80 +576,80 @@ class dbxContentPageCache {
 
       // Der Full-Page-Dateiname enthaelt bewusst keine Content-ID. Bei einer
       // Inhaltsaenderung werden deshalb alle fertigen Gastseiten verworfen.
-      if ($invalidateSharedCaches) {
-         self::invalidateAllFullPages();
+      if ($invalidate_shared_caches) {
+         self::invalidate_all_full_pages();
       }
 
       // Permalink-, Menü- und Seiten-Metacaches sind deaktivierte Altformate.
       // Sie werden einmal je Cache-Generation zentral bereinigt und müssen bei
       // einer normalen Inhaltsänderung nicht erneut durchsucht werden.
-      foreach (glob(self::baseDir() . 'content/cid-' . $cid . '.*.htm') ?: array() as $file) {
+      foreach (glob(self::base_dir() . 'content/cid-' . $cid . '.*.htm') ?: array() as $file) {
          @unlink($file);
       }
-      foreach (glob(self::baseDir() . 'content/cid-' . $cid . '.*.full-*.html') ?: array() as $file) {
+      foreach (glob(self::base_dir() . 'content/cid-' . $cid . '.*.full-*.html') ?: array() as $file) {
          @unlink($file);
       }
-      foreach (glob(self::baseDir() . 'content/' . $cid . '_*.html') ?: array() as $file) {
+      foreach (glob(self::base_dir() . 'content/' . $cid . '_*.html') ?: array() as $file) {
          @unlink($file);
       }
 
-      @unlink(self::pageMetaPath($cid));
-      if ($invalidateSharedCaches) {
-         self::invalidateSitemap();
+      @unlink(self::page_meta_path($cid));
+      if ($invalidate_shared_caches) {
+         self::invalidate_sitemap();
       }
    }
 
-   public static function invalidateMenu(int $root, bool $invalidateFullPages = true): void {
+   public static function invalidate_menu(int $root, bool $invalidate_full_pages = true): void {
       $root = (int) $root;
-      $pattern = self::baseDir() . 'menu/' . $root . '_*.html';
+      $pattern = self::base_dir() . 'menu/' . $root . '_*.html';
       foreach (glob($pattern) ?: array() as $file) {
          @unlink($file);
       }
-      if ($invalidateFullPages) {
-         self::invalidateAllFullPages();
+      if ($invalidate_full_pages) {
+         self::invalidate_all_full_pages();
       }
    }
 
-   public static function invalidateAllMenus(): void {
-      foreach (glob(self::baseDir() . 'menu/*.html') ?: array() as $file) {
+   public static function invalidate_all_menus(): void {
+      foreach (glob(self::base_dir() . 'menu/*.html') ?: array() as $file) {
          @unlink($file);
       }
-      self::invalidateAllFullPages();
-      self::invalidateSitemap();
+      self::invalidate_all_full_pages();
+      self::invalidate_sitemap();
    }
 
    /** Menues sind Bestandteil jeder Full-Page-Ausgabe. */
-   public static function invalidateAllFullPages(): int {
+   public static function invalidate_all_full_pages(): int {
       // Zuerst die Generation wechseln: Ab diesem Moment koennen neue Requests
       // weder alte Dateien lesen noch unter deren Namen schreiben. Das schliesst
       // die Race Condition "Speichern waehrend ein alter Request rendert".
-      $generation = self::cacheGeneration(true);
+      $generation = self::cache_generation(true);
 
-      $removed = self::purgeStaleFullPages($generation);
+      $removed = self::purge_stale_full_pages($generation);
       foreach (array('permalink-*.*.full-*.html', 'cid-*.*.full-*.html') as $pattern) {
-         foreach (glob(self::baseDir() . 'content/' . $pattern) ?: array() as $file) {
+         foreach (glob(self::base_dir() . 'content/' . $pattern) ?: array() as $file) {
             if (@unlink($file)) {
                $removed++;
             }
-            @unlink(self::fullPageMetaPath($file));
+            @unlink(self::full_page_meta_path($file));
          }
       }
-      foreach (glob(self::baseDir() . 'content/full-page/*/*.htm') ?: array() as $file) {
+      foreach (glob(self::base_dir() . 'content/full-page/*/*.htm') ?: array() as $file) {
          if (@unlink($file)) {
             $removed++;
          }
-         @unlink(self::fullPageMetaPath($file));
+         @unlink(self::full_page_meta_path($file));
          @rmdir(dirname($file));
       }
-      foreach (glob(self::baseDir() . 'content/full-page/*.htm.meta.json') ?: array() as $metaFile) {
-         @unlink($metaFile);
+      foreach (glob(self::base_dir() . 'content/full-page/*.htm.meta.json') ?: array() as $meta_file) {
+         @unlink($meta_file);
       }
-      foreach (glob(self::baseDir() . 'content/*.html.meta.json') ?: array() as $metaFile) {
-         @unlink($metaFile);
+      foreach (glob(self::base_dir() . 'content/*.html.meta.json') ?: array() as $meta_file) {
+         @unlink($meta_file);
       }
-      foreach (glob(self::baseDir() . 'content/full-page/*/*.htm.meta.json') ?: array() as $metaFile) {
-         @unlink($metaFile);
-         @rmdir(dirname($metaFile));
+      foreach (glob(self::base_dir() . 'content/full-page/*/*.htm.meta.json') ?: array() as $meta_file) {
+         @unlink($meta_file);
+         @rmdir(dirname($meta_file));
       }
       return $removed;
    }
@@ -643,26 +659,26 @@ class dbxContentPageCache {
     * Deployment wichtig, bei dem die Generation-Datei neu angelegt wurde,
     * waehrend alte HTML-Dateien im persistenten Cache-Verzeichnis verblieben.
     */
-   public static function purgeStaleFullPages(string $generation = ''): int {
+   public static function purge_stale_full_pages(string $generation = ''): int {
       if ($generation === '') {
-         $generation = self::cacheGeneration();
+         $generation = self::cache_generation();
       }
       if (!preg_match('/^[a-f0-9]{24}$/', $generation)) {
          return 0;
       }
 
       $removed = 0;
-      $currentSuffix = '_' . $generation . '_' . self::FULL_PAGE_CACHE_VERSION . '.htm';
-      foreach (glob(self::baseDir() . 'content/full-page/*.htm') ?: array() as $file) {
-         if (str_ends_with(strtolower(basename($file)), $currentSuffix)) {
+      $current_suffix = '_' . $generation . '_' . self::FULL_PAGE_CACHE_VERSION . '.htm';
+      foreach (glob(self::base_dir() . 'content/full-page/*.htm') ?: array() as $file) {
+         if (str_ends_with(strtolower(basename($file)), $current_suffix)) {
             continue;
          }
          if (@unlink($file)) {
             $removed++;
          }
-         @unlink(self::fullPageMetaPath($file));
+         @unlink(self::full_page_meta_path($file));
       }
-      foreach (glob(self::baseDir() . 'content/full-page/*.tmp-*') ?: array() as $temporary) {
+      foreach (glob(self::base_dir() . 'content/full-page/*.tmp-*') ?: array() as $temporary) {
          if (is_file($temporary) && (int)@filemtime($temporary) < time() - 300) {
             @unlink($temporary);
          }
@@ -670,16 +686,16 @@ class dbxContentPageCache {
       return $removed;
    }
 
-   public static function invalidateSitemap(): void {
+   public static function invalidate_sitemap(): void {
       if (class_exists(__NAMESPACE__ . '\\dbxContentSitemap')) {
          dbxContentSitemap::invalidate();
          return;
       }
 
-      @unlink(self::baseDir() . 'meta/sitemap.xml');
+      @unlink(self::base_dir() . 'meta/sitemap.xml');
    }
 
-   public static function invalidateAll(): array {
+   public static function invalidate_all(): array {
       $stats = array(
          'content' => 0,
          'menu' => 0,
@@ -687,38 +703,38 @@ class dbxContentPageCache {
       );
 
       foreach (array('*.htm', '*.html') as $pattern) {
-         foreach (glob(self::baseDir() . 'content/' . $pattern) ?: array() as $file) {
+         foreach (glob(self::base_dir() . 'content/' . $pattern) ?: array() as $file) {
             if (@unlink($file)) {
                $stats['content']++;
             }
          }
       }
-      foreach (glob(self::baseDir() . 'content/*.html.meta.json') ?: array() as $file) {
+      foreach (glob(self::base_dir() . 'content/*.html.meta.json') ?: array() as $file) {
          if (@unlink($file)) {
             $stats['meta']++;
          }
       }
-      $stats['content'] += self::invalidateAllFullPages();
+      $stats['content'] += self::invalidate_all_full_pages();
 
-      foreach (glob(self::baseDir() . 'menu/*.html') ?: array() as $file) {
+      foreach (glob(self::base_dir() . 'menu/*.html') ?: array() as $file) {
          if (@unlink($file)) {
             $stats['menu']++;
          }
       }
 
-      foreach (glob(self::baseDir() . 'meta/pages/*.json') ?: array() as $file) {
+      foreach (glob(self::base_dir() . 'meta/pages/*.json') ?: array() as $file) {
          if (@unlink($file)) {
             $stats['meta']++;
          }
       }
 
-      foreach (glob(self::baseDir() . 'meta/permalinks_*.json') ?: array() as $file) {
+      foreach (glob(self::base_dir() . 'meta/permalinks_*.json') ?: array() as $file) {
          if (@unlink($file)) {
             $stats['meta']++;
          }
       }
 
-      foreach (glob(self::baseDir() . 'meta/home_*.json') ?: array() as $file) {
+      foreach (glob(self::base_dir() . 'meta/home_*.json') ?: array() as $file) {
          if (@unlink($file)) {
             $stats['meta']++;
          }
@@ -727,14 +743,14 @@ class dbxContentPageCache {
       return $stats;
    }
 
-   public static function cacheStats(): array {
-      self::ensureDirs();
-      self::purgeStaleFullPages();
+   public static function cache_stats(): array {
+      self::ensure_dirs();
+      self::purge_stale_full_pages();
       $content = array_values(array_filter(
-         glob(self::baseDir() . 'content/full-page/*.htm') ?: array(),
+         glob(self::base_dir() . 'content/full-page/*.htm') ?: array(),
          static fn(string $path): bool => str_ends_with(strtolower(basename($path)), '_' . self::FULL_PAGE_CACHE_VERSION . '.htm')
       ));
-      $sitemapPath = self::baseDir() . 'meta/sitemap.xml';
+      $sitemap_path = self::base_dir() . 'meta/sitemap.xml';
 
       return array(
          'content' => count($content),
@@ -742,44 +758,44 @@ class dbxContentPageCache {
          'meta' => 0,
          'permalinks' => 0,
          'home' => 0,
-         'sitemap' => is_file($sitemapPath) ? 1 : 0,
-         'base_dir' => self::baseDir(),
+         'sitemap' => is_file($sitemap_path) ? 1 : 0,
+         'base_dir' => self::base_dir(),
       );
    }
 
-   public static function invalidateFolderTree($db, int $folderId): void {
+   public static function invalidate_folder_tree($db, int $folder_id): void {
       if (!is_object($db)) {
          return;
       }
 
-      $folderId = (int) $folderId;
-      $folderIds = self::collectFolderIds($db, $folderId);
-      foreach (array_unique(array_merge(array(0), $folderIds)) as $id) {
-         self::invalidateMenu((int) $id, false);
+      $folder_id = (int) $folder_id;
+      $folder_ids = self::collect_folder_ids($db, $folder_id);
+      foreach (array_unique(array_merge(array(0), $folder_ids)) as $id) {
+         self::invalidate_menu((int) $id, false);
       }
 
-      $pages = $db->select(dbxContentLng::ddContent(), 'folder IN (' . implode(',', array_map('intval', $folderIds)) . ')', 'id', 'id', 'ASC', '', 0, 0, 0);
+      $pages = $db->select(dbxContentLng::dd_content(), 'folder IN (' . implode(',', array_map('intval', $folder_ids)) . ')', 'id', 'id', 'ASC', '', 0, 0, 0);
       if (is_array($pages)) {
          foreach ($pages as $page) {
-            self::invalidateContent((int) ($page['id'] ?? 0), false);
+            self::invalidate_content((int) ($page['id'] ?? 0), false);
          }
       }
-      self::invalidateAllFullPages();
-      self::invalidateSitemap();
+      self::invalidate_all_full_pages();
+      self::invalidate_sitemap();
    }
 
-   private static function collectFolderIds($db, int $folderId): array {
-      $folderId = (int) $folderId;
-      $ids = array($folderId);
-      $queue = array($folderId);
+   private static function collect_folder_ids($db, int $folder_id): array {
+      $folder_id = (int) $folder_id;
+      $ids = array($folder_id);
+      $queue = array($folder_id);
 
-      $rows = $db->select(dbxContentLng::ddFolder(), '1=1', 'id,parent_id', 'id', 'ASC', '', 0, 0, 0);
+      $rows = $db->select(dbxContentLng::dd_folder(), '1=1', 'id,parent_id', 'id', 'ASC', '', 0, 0, 0);
       $children = array();
       foreach (is_array($rows) ? $rows : array() as $row) {
-         $parentId = (int)($row['parent_id'] ?? 0);
+         $parent_id = (int)($row['parent_id'] ?? 0);
          $id = (int)($row['id'] ?? 0);
          if ($id > 0) {
-            $children[$parentId][] = $id;
+            $children[$parent_id][] = $id;
          }
       }
 
@@ -796,17 +812,17 @@ class dbxContentPageCache {
       return $ids;
    }
 
-   private static function buildContentMeta(int $cid, string $lng = ''): array {
+   private static function build_content_meta(int $cid, string $lng = ''): array {
       $cid = (int) $cid;
       if ($cid <= 0) {
          return array();
       }
 
-      $prevLng = null;
+      $prev_lng = null;
       if ($lng !== '') {
-         $currentLng = (string) dbx()->get_system_var('dbx_lng', 'de');
-         if ($lng !== $currentLng) {
-            $prevLng = $currentLng;
+         $current_lng = (string) dbx()->get_system_var('dbx_lng', 'de');
+         if ($lng !== $current_lng) {
+            $prev_lng = $current_lng;
             dbx()->set_system_var('dbx_lng', $lng);
          }
       }
@@ -814,41 +830,41 @@ class dbxContentPageCache {
       require_once __DIR__ . '/dbxContentRenderer.class.php';
       $db = dbx()->get_system_obj('dbxDB');
       if (!is_object($db)) {
-         if ($prevLng !== null) {
-            dbx()->set_system_var('dbx_lng', $prevLng);
+         if ($prev_lng !== null) {
+            dbx()->set_system_var('dbx_lng', $prev_lng);
          }
          return array();
       }
 
-      $rec = $db->select1(dbxContentLng::ddContent(), $cid, 'permalink,activ,folder,title,seo_title,description,keywords,meta_robots,seo_image_id,update_date,lng_uid', 0);
+      $rec = $db->select1(dbxContentLng::dd_content(), $cid, 'permalink,activ,folder,title,seo_title,description,keywords,meta_robots,seo_image_id,update_date,lng_uid', 0);
       if (!is_array($rec)) {
-         if ($prevLng !== null) {
-            dbx()->set_system_var('dbx_lng', $prevLng);
+         if ($prev_lng !== null) {
+            dbx()->set_system_var('dbx_lng', $prev_lng);
          }
          return array();
       }
 
       $renderer = new dbxContentRenderer();
-      $rights = $renderer->getPublicFolderRights((int)($rec['folder'] ?? 0));
+      $rights = $renderer->get_public_folder_rights((int)($rec['folder'] ?? 0));
       $meta = array(
          'cid' => $cid,
          'permalink' => (string)($rec['permalink'] ?? ''),
          'rights' => $rights,
          'activ' => (int)($rec['activ'] ?? 1),
-         'seo' => dbxContentRenderer::seoMetaFromRecord($rec),
+         'seo' => dbxContentRenderer::seo_meta_from_record($rec),
       );
-      if ($prevLng !== null) {
-         dbx()->set_system_var('dbx_lng', $prevLng);
+      if ($prev_lng !== null) {
+         dbx()->set_system_var('dbx_lng', $prev_lng);
       }
       return $meta;
    }
 
-   private static function currentPermalink(): string {
-      $permalink = self::normalizePermalink((string) dbx()->get_system_var('dbx_permalink', ''));
+   private static function current_permalink(): string {
+      $permalink = self::normalize_permalink((string) dbx()->get_system_var('dbx_permalink', ''));
       return $permalink === '' ? 'home' : $permalink;
    }
 
-   private static function normalizePermalink(string $permalink): string {
+   private static function normalize_permalink(string $permalink): string {
       $permalink = trim(str_replace('\\', '/', $permalink));
       if ($permalink === 'undef' || $permalink === '/') {
          return '';
@@ -857,11 +873,11 @@ class dbxContentPageCache {
       return trim($permalink, '/');
    }
 
-   private static function fullPageMetaPath(string $htmlPath): string {
-      return $htmlPath . '.meta.json';
+   private static function full_page_meta_path(string $html_path): string {
+      return $html_path . '.meta.json';
    }
 
-   private static function isCompleteHtml(string $html): bool {
+   private static function is_complete_html(string $html): bool {
       if (trim($html) === '') {
          return false;
       }
@@ -871,39 +887,39 @@ class dbxContentPageCache {
    }
 
    /**
-    * Prueft, ob das gecachte Dokument genau die Basis-URL des aktuellen
+    * Prüft, ob das gecachte Dokument genau die Basis-URL des aktuellen
     * Requests verwendet. Ein fehlendes oder abweichendes base-Element macht
     * den Cache ungueltig, damit relative URLs nicht auf einen anderen Host,
     * Port oder Installationspfad zeigen.
     */
-   private static function hasCurrentBaseHref(string $html): bool {
-      $expected = self::normalizeBaseHref((string)dbx()->get_base_url());
+   private static function has_current_base_href(string $html): bool {
+      $expected = self::normalize_base_href((string)dbx()->get_base_url());
       if ($expected === '') {
          return false;
       }
 
-      if (!preg_match('~<head\b[^>]*>(.*?)</head>~is', $html, $headMatch)) {
+      if (!preg_match('~<head\b[^>]*>(.*?)</head>~is', $html, $head_match)) {
          return false;
       }
-      $head = preg_replace('~<!--.*?-->|<script\b.*?</script>|<style\b.*?</style>~is', '', (string)$headMatch[1]) ?? '';
+      $head = preg_replace('~<!--.*?-->|<script\b.*?</script>|<style\b.*?</style>~is', '', (string)$head_match[1]) ?? '';
 
       if (!preg_match(
          '~<base\b[^>]*\bhref\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))~i',
          $head,
-         $baseMatch
+         $base_match
       )) {
          return false;
       }
 
-      $actual = (string)($baseMatch[1] !== ''
-         ? $baseMatch[1]
-         : (($baseMatch[2] ?? '') !== '' ? $baseMatch[2] : ($baseMatch[3] ?? '')));
+      $actual = (string)($base_match[1] !== ''
+         ? $base_match[1]
+         : (($base_match[2] ?? '') !== '' ? $base_match[2] : ($base_match[3] ?? '')));
 
-      return self::normalizeBaseHref($actual) === $expected;
+      return self::normalize_base_href($actual) === $expected;
    }
 
    /** Normalisiert nur URL-Bestandteile, bei denen Grossschreibung egal ist. */
-   private static function normalizeBaseHref(string $href): string {
+   private static function normalize_base_href(string $href): string {
       $href = html_entity_decode(trim($href), ENT_QUOTES | ENT_HTML5, 'UTF-8');
       $href = str_replace('\\', '/', preg_replace('/[\x00-\x1F\x7F]/', '', $href) ?? '');
       if ($href === '') {
@@ -918,10 +934,10 @@ class dbxContentPageCache {
       $scheme = strtolower((string)$parts['scheme']);
       $host = strtolower((string)$parts['host']);
       $port = isset($parts['port']) ? (int)$parts['port'] : 0;
-      $defaultPort = ($scheme === 'https') ? 443 : (($scheme === 'http') ? 80 : 0);
+      $default_port = ($scheme === 'https') ? 443 : (($scheme === 'http') ? 80 : 0);
 
       $normalized = $scheme . '://' . $host;
-      if ($port > 0 && $port !== $defaultPort) {
+      if ($port > 0 && $port !== $default_port) {
          $normalized .= ':' . $port;
       }
       $normalized .= (string)($parts['path'] ?? '');
@@ -936,11 +952,11 @@ class dbxContentPageCache {
    }
 
    /** Sessiongebundene Formular-Tokens duerfen nicht unveraendert geteilt werden. */
-   private static function secureInputPattern(): string {
+   private static function secure_input_pattern(): string {
       return '/<input\b(?=[^>]*\bname\s*=\s*["\']?_[^"\'\s>]+)(?=[^>]*\bvalue\s*=\s*["\']?[a-f0-9]{64}["\']?)[^>]*>/i';
    }
 
-   private static function atomicWrite(string $path, string $html): bool {
+   private static function atomic_write(string $path, string $html): bool {
       if ($path === '') {
          return false;
       }
@@ -984,8 +1000,8 @@ class dbxContentPageCache {
     * Normale Cache-Hits teilen sich eine Lesesperre. Eine exklusive Sperre ist
     * nur fuer Initialisierung und Invalidierung erforderlich.
     */
-   private static function cacheGeneration(bool $rotate = false): string {
-      $dir = self::baseDir() . 'content/full-page/';
+   private static function cache_generation(bool $rotate = false): string {
+      $dir = self::base_dir() . 'content/full-page/';
       if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
          return '';
       }
@@ -1034,10 +1050,10 @@ class dbxContentPageCache {
    }
 
    /** Trennt Cache-Dateien verschiedener Hosts, Protokolle und Installationspfade. */
-   private static function requestOriginToken(): string {
-      $forwardedProto = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
-      if ($forwardedProto === 'http' || $forwardedProto === 'https') {
-         $scheme = $forwardedProto;
+   private static function request_origin_token(): string {
+      $forwarded_proto = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
+      if ($forwarded_proto === 'http' || $forwarded_proto === 'https') {
+         $scheme = $forwarded_proto;
       } else {
          $https = strtolower((string)($_SERVER['HTTPS'] ?? ''));
          $scheme = ($https !== '' && $https !== 'off') || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443
@@ -1048,12 +1064,12 @@ class dbxContentPageCache {
       $host = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'local')));
       $host = preg_replace('/[^a-z0-9.:[\]-]+/i', '', $host) ?: 'local';
       $script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
-      $installPath = trim(str_replace('\\', '/', dirname($script)), '/.');
+      $install_path = trim(str_replace('\\', '/', dirname($script)), '/.');
 
-      return substr(hash('sha256', $scheme . '://' . $host . '/' . $installPath), 0, 16);
+      return substr(hash('sha256', $scheme . '://' . $host . '/' . $install_path), 0, 16);
    }
 
-   private static function safeToken(string $value, string $fallback): string {
+   private static function safe_token(string $value, string $fallback): string {
       $value = strtolower(trim($value));
       if ($value === '' || !preg_match('/^[a-z0-9_-]+$/', $value)) {
          return $fallback;
@@ -1061,7 +1077,7 @@ class dbxContentPageCache {
       return $value;
    }
 
-   private static function permalinkFileToken(string $permalink): string {
+   private static function permalink_file_token(string $permalink): string {
       $permalink = strtolower(trim(str_replace('\\', '/', $permalink), '/'));
       if ($permalink === '') {
          $permalink = 'home';

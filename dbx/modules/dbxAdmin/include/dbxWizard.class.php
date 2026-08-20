@@ -11,7 +11,7 @@ class dbxWizard {
       }
       $texts = new \dbxForm();
       $texts->set_form_help_enabled(false);
-      $texts->_fd = 'dbxAdmin|module-wizard';
+      $texts->set_field_definition('dbxAdmin|module-wizard');
       $texts->load_fd_messages();
       $this->texts = $texts;
       return $this->texts;
@@ -29,8 +29,8 @@ class dbxWizard {
       return dbx()->get_system_obj('dbxTPL');
    }
 
-   private function kiModuleUrl(string $modul, string $ddName): string {
-      return '?dbx_modul=dbxKi&dbx_run1=briefing_module_edit&xmodul=' . rawurlencode($modul) . '&dd_name=' . rawurlencode($ddName);
+   private function ki_module_url(string $modul, string $dd_name): string {
+      return '?dbx_modul=dbxKi&dbx_run1=briefing_module_edit&xmodul=' . rawurlencode($modul) . '&dd_name=' . rawurlencode($dd_name);
    }
 
    private function modules_root() {
@@ -65,16 +65,16 @@ class dbxWizard {
       }
       $base = $this->module_dir($modul);
       $path = dbx()->os_path($base . $rel);
-      $baseNorm = str_replace('\\', '/', rtrim($base, '/\\') . '/');
-      $pathNorm = str_replace('\\', '/', $path);
-      if (strpos($pathNorm, $baseNorm) !== 0) {
+      $base_norm = str_replace('\\', '/', rtrim($base, '/\\') . '/');
+      $path_norm = str_replace('\\', '/', $path);
+      if (strpos($path_norm, $base_norm) !== 0) {
          return '';
       }
       return $path;
    }
 
-   private function module_options($withNew = false) {
-      $options = $withNew ? array('' => $this->text('option_choose')) : array();
+   private function module_options($with_new = false) {
+      $options = $with_new ? array('' => $this->text('option_choose')) : array();
       $root = $this->modules_root();
       foreach (glob($root . '*', GLOB_ONLYDIR) ?: array() as $dir) {
          $name = basename($dir);
@@ -86,8 +86,8 @@ class dbxWizard {
       return $options;
    }
 
-   private function dd_options($withEmpty = true) {
-      $options = $withEmpty ? array('' => $this->text('option_choose_manual')) : array();
+   private function dd_options($with_empty = true) {
+      $options = $with_empty ? array('' => $this->text('option_choose_manual')) : array();
       foreach (glob($this->modules_root() . '*', GLOB_ONLYDIR) ?: array() as $dir) {
          $modul = basename($dir);
          if (!$this->valid_name($modul)) {
@@ -110,64 +110,64 @@ class dbxWizard {
 
    private function collect_input($form = null) {
       $get = function($name, $default = '', $rules = 'parameter') use ($form) {
-         if ($form && array_key_exists($name, $form->_post)) {
-            return $form->_post[$name];
+         if ($form && $form->has_post_value($name)) {
+            return $form->post_value($name);
          }
          return dbx()->get_modul_var($name, $default, $rules);
       };
 
       $target = (string)$get('target_mode', 'new');
-      $existingModul = trim((string)$get('existing_modul', ''));
+      $existing_modul = trim((string)$get('existing_modul', ''));
       $modul  = trim((string)$get('xmodul', ''));
-      if ($target === 'existing' && $existingModul !== '') {
-         $modul = $existingModul;
+      if ($target === 'existing' && $existing_modul !== '') {
+         $modul = $existing_modul;
       }
       if ($modul === '') {
          $modul = trim((string)$get('modul', ''));
       }
 
-      $ddMode = (string)$get('dd_mode', 'new');
-      $ddRef = trim((string)$get('dd_ref', ''));
+      $dd_mode = (string)$get('dd_mode', 'new');
+      $dd_ref = trim((string)$get('dd_ref', ''));
       $title = trim((string)$get('title', $modul));
       $dd = trim((string)$get('dd_name', $modul ? $modul . 'Data' : ''));
-      if ($ddRef !== '' && strpos($ddRef, '|') !== false) {
-         list($refModul, $refDd) = explode('|', $ddRef, 2);
-         if ($target === 'existing' && $modul === '' && $this->valid_name($refModul)) {
-            $modul = $refModul;
+      if ($dd_ref !== '' && strpos($dd_ref, '|') !== false) {
+         list($ref_modul, $ref_dd) = explode('|', $dd_ref, 2);
+         if ($target === 'existing' && $modul === '' && $this->valid_name($ref_modul)) {
+            $modul = $ref_modul;
          }
-         if ($this->valid_name($refDd)) {
-            $dd = $refDd;
+         if ($this->valid_name($ref_dd)) {
+            $dd = $ref_dd;
          }
       }
-      if ($dd === '' && $ddMode !== 'none' && $modul !== '') {
+      if ($dd === '' && $dd_mode !== 'none' && $modul !== '') {
          $dd = $modul . 'Data';
       }
       $table = trim((string)$get('table_name', $dd));
-      if ($table === '' && $ddMode !== 'none') {
+      if ($table === '' && $dd_mode !== 'none') {
          $table = $dd;
       }
-      $dbFile = trim((string)$get('db_file', $modul ? $modul . '.db3' : 'modul.db3'));
-      if ($modul !== '' && ($dbFile === '' || $dbFile === 'modul.db3')) {
-         $dbFile = $modul . '.db3';
+      $db_file = trim((string)$get('db_file', $modul ? $modul . '.db3' : 'modul.db3'));
+      if ($modul !== '' && ($db_file === '' || $db_file === 'modul.db3')) {
+         $db_file = $modul . '.db3';
       }
-      $defaultRun1 = trim((string)$get('default_run1', 'run'));
-      if ($defaultRun1 === '') {
-         $defaultRun1 = 'run';
+      $default_run1 = trim((string)$get('default_run1', 'run'));
+      if ($default_run1 === '') {
+         $default_run1 = 'run';
       }
 
       return array(
          'target_mode'      => in_array($target, array('new', 'existing'), true) ? $target : 'new',
-         'existing_modul'   => $existingModul,
-         'dd_ref'           => $ddRef,
+         'existing_modul'   => $existing_modul,
+         'dd_ref'           => $dd_ref,
          'xmodul'           => $modul,
          'title'            => $title !== '' ? $title : $modul,
-         'default_run1'     => $defaultRun1,
+         'default_run1'     => $default_run1,
          'default_run2'     => trim((string)$get('default_run2', '')),
          'module_template'  => (string)$get('module_template', 'form_report'),
-         'dd_mode'          => $ddMode,
+         'dd_mode'          => $dd_mode,
          'dd_name'          => $dd,
          'table_name'       => $table,
-         'db_file'          => $dbFile,
+         'db_file'          => $db_file,
          'field_preset'     => (string)$get('field_preset', 'basic'),
          'create_include'   => (int)$get('create_include', 1, 'int'),
          'create_form'      => (int)$get('create_form', 1, 'int'),
@@ -197,7 +197,7 @@ class dbxWizard {
       if (($in['module_template'] === 'api' || (int)$in['create_form'] === 1 || (int)$in['create_report'] === 1) && (int)$in['create_include'] !== 1) {
          $errors[] = $this->text('validation_service_required');
       }
-      if (((int)$in['create_form'] === 1 || (int)$in['create_report'] === 1) && (int)$in['create_templates'] !== 1) {
+      if ((int)$in['create_form'] === 1 && (int)$in['create_templates'] !== 1) {
          $errors[] = $this->text('validation_templates_required');
       }
       if ($in['dd_mode'] !== 'none' && !$this->valid_name($in['dd_name'])) {
@@ -211,13 +211,13 @@ class dbxWizard {
       }
       if ($in['dd_mode'] === 'existing') {
          if ($in['dd_ref'] !== '' && strpos($in['dd_ref'], '|') !== false) {
-            list($refModul, $refDd) = explode('|', $in['dd_ref'], 2);
-            if ($refModul !== $in['xmodul'] || $refDd !== $in['dd_name']) {
+            list($ref_modul, $ref_dd) = explode('|', $in['dd_ref'], 2);
+            if ($ref_modul !== $in['xmodul'] || $ref_dd !== $in['dd_name']) {
                $errors[] = $this->text('validation_dd_module');
             }
          }
-         $ddFile = $this->module_path($in['xmodul'], 'dd/' . $in['dd_name'] . '.dd.php');
-         if ($ddFile === '' || !is_file($ddFile)) {
+         $dd_file = $this->module_path($in['xmodul'], 'dd/' . $in['dd_name'] . '.dd.php');
+         if ($dd_file === '' || !is_file($dd_file)) {
             $errors[] = $this->text('validation_dd_missing');
          }
       }
@@ -240,7 +240,7 @@ class dbxWizard {
          $log[] = array('type' => 'error', 'text' => 'Modulverzeichnis konnte nicht erstellt werden.');
          return false;
       }
-      foreach (array('cfg', 'dd', 'db', 'fd', 'include', 'tpl', 'tpl/htm', 'tpl/mod', 'tpl/css', 'tpl/js', 'tpl/img') as $dir) {
+      foreach (array('cfg', 'dd', 'db', 'fd', 'include', 'js', 'tpl', 'tpl/htm', 'tpl/help', 'tpl/mod', 'tpl/css', 'tpl/img') as $dir) {
          $path = $this->module_path($modul, $dir);
          if ($path === '' || (!is_dir($path) && !@mkdir($path, 0777, true) && !is_dir($path))) {
             $log[] = array('type' => 'error', 'text' => 'Verzeichnis konnte nicht erstellt werden: ' . $dir);
@@ -307,8 +307,8 @@ class dbxWizard {
       if (!$this->valid_name($modul) || !$this->valid_file_name($file)) {
          return '<div class="alert alert-danger">Restore nicht moeglich: ungueltige Parameter.</div>';
       }
-      $zipPath = $this->backup_root() . $file;
-      if (!is_file($zipPath)) {
+      $zip_path = $this->backup_root() . $file;
+      if (!is_file($zip_path)) {
          return '<div class="alert alert-warning">Backup-ZIP nicht gefunden.</div>';
       }
       if (!$confirm) {
@@ -316,14 +316,14 @@ class dbxWizard {
          return '<div class="p-3"><h3>Modul wiederherstellen</h3><p>Restore ersetzt den Inhalt von <code>dbx/modules/' . $this->esc($modul) . '</code> durch das Backup <code>' . $this->esc($file) . '</code>.</p><a class="btn btn-danger" href="' . $this->esc($url) . '">Restore starten</a></div>';
       }
 
-      $currentBackup = $this->backup_module($modul);
+      $current_backup = $this->backup_module($modul);
       $dir = $this->module_dir($modul);
       if (!is_dir($dir)) {
          @mkdir($dir, 0777, true);
       }
       $this->empty_dir($dir);
       $zip = new \ZipArchive();
-      if ($zip->open($zipPath) !== true) {
+      if ($zip->open($zip_path) !== true) {
          return '<div class="alert alert-danger">Backup konnte nicht geoeffnet werden.</div>';
       }
       for ($i = 0; $i < $zip->numFiles; $i++) {
@@ -335,7 +335,7 @@ class dbxWizard {
       }
       $zip->extractTo($dir);
       $zip->close();
-      return '<div class="alert alert-success">Modul wiederhergestellt. Sicherheitsbackup vorher: ' . $this->esc($currentBackup) . '</div>';
+      return '<div class="alert alert-success">Modul wiederhergestellt. Sicherheitsbackup vorher: ' . $this->esc($current_backup) . '</div>';
    }
 
    private function empty_dir($dir) {
@@ -374,6 +374,86 @@ class dbxWizard {
          $fields[] = array('status', 'varchar', '32', 'open', 'Status', 'parameter|max=32', 'select-single-label', 'MUL', array('open' => 'Offen', 'review' => 'Pruefung', 'done' => 'Erledigt', 'archived' => 'Archiv'));
       }
       return $fields;
+   }
+
+   /** Übersetzt die sichtbaren Standardfelder des Wizards ohne die DD-Semantik zu verändern. */
+   private function localized_field_defs($preset, $language = 'de') {
+      $fields = $this->field_defs($preset);
+      $labels = array(
+         'en' => array(
+            'id' => 'ID', 'create_date' => 'Created', 'create_uid' => 'Created by',
+            'update_date' => 'Updated', 'update_uid' => 'Updated by', 'owner' => 'Owner',
+            'trash' => 'Trash', 'activ' => 'Active', 'sorter' => 'Sort order',
+            'title' => 'Title', 'description' => 'Description', 'content' => 'Content',
+            'status' => 'Status',
+         ),
+         'es' => array(
+            'id' => 'ID', 'create_date' => 'Creado', 'create_uid' => 'Creado por',
+            'update_date' => 'Actualizado', 'update_uid' => 'Actualizado por', 'owner' => 'Propietario',
+            'trash' => 'Papelera', 'activ' => 'Activo', 'sorter' => 'Orden',
+            'title' => 'Título', 'description' => 'Descripción', 'content' => 'Contenido',
+            'status' => 'Estado',
+         ),
+      );
+      foreach ($fields as &$field) {
+         $name = (string)($field[0] ?? '');
+         if (isset($labels[$language][$name])) {
+            $field[4] = $labels[$language][$name];
+         }
+         if ($name === 'status' && is_array($field[8] ?? null)) {
+            $field[8] = $language === 'en'
+               ? array('open' => 'Open', 'review' => 'Review', 'done' => 'Done', 'archived' => 'Archived')
+               : ($language === 'es'
+                  ? array('open' => 'Abierto', 'review' => 'Revisión', 'done' => 'Finalizado', 'archived' => 'Archivado')
+                  : $field[8]);
+         }
+      }
+      unset($field);
+      return $fields;
+   }
+
+   /** Sprachabhängige Fachtexte der erzeugten Formular- und Report-FDs. */
+   private function generated_messages($kind, $language = 'de') {
+      $messages = array(
+         'de' => array(
+            'form_title_new' => 'Neuer Datensatz', 'form_title_edit' => 'Datensatz bearbeiten',
+            'form_subtitle' => 'Daten erfassen und sicher speichern.',
+            'form_info' => 'Felder ausfüllen und mit Speichern übernehmen.',
+            'action_report' => 'Zur Übersicht', 'report_title' => 'Datensätze',
+            'report_subtitle' => 'Suchen, auswählen und bearbeiten.', 'action_new' => 'Neu',
+            'delete_success' => 'Datensatz gelöscht.',
+            'delete_error' => 'Datensatz konnte nicht gelöscht werden.',
+         ),
+         'en' => array(
+            'form_title_new' => 'New record', 'form_title_edit' => 'Edit record',
+            'form_subtitle' => 'Enter data and save it securely.',
+            'form_info' => 'Complete the fields and select Save.',
+            'action_report' => 'Back to overview', 'report_title' => 'Records',
+            'report_subtitle' => 'Search, select and edit.', 'action_new' => 'New',
+            'delete_success' => 'Record deleted.', 'delete_error' => 'The record could not be deleted.',
+         ),
+         'es' => array(
+            'form_title_new' => 'Nuevo registro', 'form_title_edit' => 'Editar registro',
+            'form_subtitle' => 'Introducir datos y guardarlos de forma segura.',
+            'form_info' => 'Complete los campos y seleccione Guardar.',
+            'action_report' => 'Volver al resumen', 'report_title' => 'Registros',
+            'report_subtitle' => 'Buscar, seleccionar y editar.', 'action_new' => 'Nuevo',
+            'delete_success' => 'Registro eliminado.', 'delete_error' => 'No se pudo eliminar el registro.',
+         ),
+      );
+      $all = $messages[$language] ?? $messages['de'];
+      $keys = $kind === 'report'
+         ? array('report_title', 'report_subtitle', 'action_new', 'delete_success', 'delete_error')
+         : array('form_title_new', 'form_title_edit', 'form_subtitle', 'form_info', 'action_report');
+      return array_intersect_key($all, array_flip($keys));
+   }
+
+   private function messages_php(array $messages) {
+      $out = "\$messages = array();\n";
+      foreach ($messages as $key => $value) {
+         $out .= '$messages[' . var_export($key, true) . ']=' . var_export($value, true) . ";\n";
+      }
+      return $out . "\n";
    }
 
    private function dd_field_php(array $f) {
@@ -417,13 +497,11 @@ class dbxWizard {
       return $out;
    }
 
-   private function generate_form_fd(array $in) {
-      $out = "<?php\n"
-         . "\$messages = array();\n"
-         . "\$messages['save_success'] = 'Daten wurden gespeichert';\n"
-         . "\$messages['save_succeass'] = \$messages['save_success'];\n"
-         . "\$messages['save_error'] = 'Daten konnten nicht gespeichert werden';\n\n";
-      foreach ($this->field_defs($in['field_preset']) as $f) {
+   private function generate_form_fd(array $in, $language = 'de') {
+      $out = "<?php\n" . $this->messages_php(
+         $this->generated_messages('form', (string)$language)
+      );
+      foreach ($this->localized_field_defs($in['field_preset'], (string)$language) as $f) {
          if (in_array($f[0], array('id', 'create_date', 'create_uid', 'update_date', 'update_uid', 'owner', 'trash'), true)) {
             continue;
          }
@@ -432,13 +510,11 @@ class dbxWizard {
       return $out;
    }
 
-   private function generate_report_fd() {
-      return <<<'PHP'
-<?php
-$messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
+   private function generate_report_fd($language = 'de') {
+      $out = "<?php\n" . $this->messages_php(
+         $this->generated_messages('report', (string)$language)
+      );
+      $out .= <<<'PHP'
 
 $field['name']='dbx_rrows';
 $field['type']='int';
@@ -485,40 +561,35 @@ $field['rules']='int';
 $field['options']='0=Alle&1=Ausgewaehlte';
 $fields[]=$field;
 PHP;
+      if ($language === 'en') {
+         $out = str_replace(
+            array("'Anz.Seite'", "'Sortierung'", "'Auf/Ab'", "'Suchen'", "'Auswahl'", "'Aufsteigend'", "'Absteigend'", "'Alle'", "'Ausgewaehlte'", "'Titel'", "'Update'", "'Sortierung'", "'Aktiv'"),
+            array("'Per page'", "'Sort'", "'Direction'", "'Search'", "'Selection'", "'Ascending'", "'Descending'", "'All'", "'Selected'", "'Title'", "'Updated'", "'Sort order'", "'Active'"),
+            $out
+         );
+      } elseif ($language === 'es') {
+         $out = str_replace(
+            array("'Anz.Seite'", "'Sortierung'", "'Auf/Ab'", "'Suchen'", "'Auswahl'", "'Aufsteigend'", "'Absteigend'", "'Alle'", "'Ausgewaehlte'", "'Titel'", "'Update'", "'Sortierung'", "'Aktiv'"),
+            array("'Por página'", "'Orden'", "'Dirección'", "'Buscar'", "'Selección'", "'Ascendente'", "'Descendente'", "'Todos'", "'Seleccionados'", "'Título'", "'Actualizado'", "'Orden'", "'Activo'"),
+            $out
+         );
+      }
+      return $out;
    }
 
    private function generate_form_template() {
       return <<<'HTML'
-<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper">
+<div id="dbxForm_{i}" class="dbx-panel dbxForm_wrapper dbx-ajax-root">
+ {form:bar}
  <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax" data-target="dbxForm_{i}">
-  [tpl=dbx|module-bar]
   <div class="dbx-panel-body">
-   <div class="mb-3">{obj:form_msg}</div>
+   {form:message}
    <div class="row g-3">[dbx:form]</div>
   </div>
+  {form:footer}
   [dbx:js]
  </form>
 </div>
-HTML;
-   }
-
-   private function generate_report_template() {
-      return <<<'HTML'
-[tpl=dbx|report-shell-head]
- [dbx:pagination]
- <div class="table-responsive">
-  <table class="table table-striped table-bordered table-light table-hover align-middle">
-   <thead>
-    <tr class="{tr-class}">[rpt:row]</tr>
-   </thead>
-   <tbody>
-    <hr class="dbx_split">
-    <tr class="{tr-class}">[rpt:row]</tr>
-    <hr class="dbx_split">
-   </tbody>
-  </table>
- </div>
-[tpl=dbx|report-shell-foot]
 HTML;
    }
 
@@ -526,371 +597,106 @@ HTML;
       $modul = $in['xmodul'];
       $service = $modul . 'Service';
       $default = $in['default_run1'] ?: 'run';
-      $startContent = $this->esc('Modul ' . $modul . ' ist bereit.');
-      $startMethod = "   private function start() {\n      \$tpl = dbx()->get_system_obj('dbxTPL');\n      return \$tpl->get_tpl('$modul|start', array('content' => " . var_export($startContent, true) . "));\n   }\n";
+      $start_content = $this->esc('Modul ' . $modul . ' ist bereit.');
+      $start_method = "   private function start() {\n      \$tpl = dbx()->get_system_obj('dbxTPL');\n      return \$tpl->get_tpl('$modul|start', array('content' => " . var_export($start_content, true) . "));\n   }\n";
       if ((int)$in['create_templates'] !== 1) {
-         $startMethod = "   private function start() {\n      return '<div class=\"p-3\"><h2>" . $this->esc($in['title']) . "</h2><p>" . $startContent . "</p></div>';\n   }\n";
+         $start_method = "   private function start() {\n      return '<div class=\"p-3\"><h2>" . $this->esc($in['title']) . "</h2><p>" . $start_content . "</p></div>';\n   }\n";
       }
-      $cases = '';
-      $cases .= "         case " . var_export($default, true) . ":\n            \$content = \$this->start();\n            break;\n\n";
-      if ($in['create_form']) {
-         $cases .= "         case 'form':\n            \$content = \$this->service()->form();\n            break;\n\n";
+      return "<?php\n\ndeclare(strict_types=1);\n\nnamespace dbx\\$modul;\n\nfinal class $modul\n{\n   private function service()\n   {\n      return dbx()->get_include_obj('$service', '$modul');\n   }\n\n$start_method\n   public function run()\n   {\n      \$action = (string)dbx()->get_modul_var('dbx_run1', " . var_export($default, true) . ", 'parameter');\n      \$definition = dbx()->get_system_obj('dbxActionManifest')->action('$modul', \$action);\n      if (!is_array(\$definition)) {\n         return dbx()->get_system_obj('dbxTPL')->get_tpl('dbx|alert-warning', array(\n            'msg' => 'Unbekannter Modulaufruf: ' . \$action,\n         ));\n      }\n\n      \$target = (string)(\$definition['target'] ?? 'service');\n      \$handler = (string)\$definition['handler'];\n      \$object = \$target === 'module' ? \$this : \$this->service();\n      if (!is_object(\$object) || !method_exists(\$object, \$handler)) {\n         throw new \\LogicException('Modul-Handler fehlt: ' . \$action);\n      }\n      return \$object->{\$handler}();\n   }\n}\n";
+   }
+
+   /** Erzeugt den einzigen deklarativen Routingvertrag des neuen Moduls. */
+   private function generate_actions_manifest(array $in) {
+      $actions = array(
+         ($in['default_run1'] ?: 'run') => array(
+            'handler' => 'start', 'target' => 'module', 'methods' => array('GET', 'HEAD'),
+            'groups' => array('admin'), 'mutation' => false, 'response' => 'html',
+         ),
+      );
+      if ((int)$in['create_form'] === 1) {
+         $actions['form'] = array('handler' => 'form', 'methods' => array('GET', 'HEAD', 'POST'), 'groups' => array('admin'), 'mutation' => false, 'response' => 'html');
       }
-      if ($in['create_report']) {
-         $cases .= "         case 'report':\n            \$content = \$this->service()->report();\n            break;\n\n";
-         $cases .= "         case 'detail':\n            \$content = \$this->service()->detail();\n            break;\n\n";
+      if ((int)$in['create_report'] === 1) {
+         $actions['report'] = array('handler' => 'report', 'methods' => array('GET', 'HEAD', 'POST'), 'groups' => array('admin'), 'mutation' => false, 'response' => 'html');
+         $actions['detail'] = array('handler' => 'detail', 'methods' => array('GET', 'HEAD'), 'groups' => array('admin'), 'mutation' => false, 'response' => 'html');
       }
-      if ($in['module_template'] === 'api' || $in['create_include']) {
-         $cases .= "         case 'api':\n            \$this->service()->api();\n            break;\n\n";
+      if ($in['module_template'] === 'api' || (int)$in['create_include'] === 1) {
+         $actions['api'] = array('handler' => 'api', 'methods' => array('GET', 'HEAD'), 'groups' => array('admin'), 'mutation' => false, 'response' => 'json');
       }
-      return "<?php\nnamespace dbx\\$modul;\n\nclass $modul {\n\n   private function service() {\n      return dbx()->get_include_obj('$service', '$modul');\n   }\n\n$startMethod\n   public function run() {\n      \$run = dbx()->get_modul_var('dbx_run1', " . var_export($default, true) . ", 'parameter');\n      \$content = '';\n      switch (\$run) {\n$cases         default:\n            \$content = '<div class=\"alert alert-warning\">Unbekannter Aufruf: ' . htmlspecialchars((string)\$run, ENT_QUOTES, 'UTF-8') . '</div>';\n      }\n      return \$content;\n   }\n}\n";
+      return "<?php\n\ndeclare(strict_types=1);\n\nreturn " . var_export($actions, true) . ";\n";
+   }
+
+   /** Erzeugt die lokale Paketbeschreibung für Marktplatz und Updates. */
+   private function generate_package_manifest(array $in) {
+      $version = $this->product_version();
+      $version_parts = array_map('intval', explode('.', $version));
+      $release_line = $version_parts[0] . '.' . $version_parts[1] . '.0';
+      $kernel_constraint = '>=' . $release_line . ' <' . ($version_parts[0] + 1) . '.0.0';
+      $permissions = $in['dd_mode'] === 'none' ? array() : array('database');
+      $package = array(
+         'schema' => 1,
+         'id' => 'local/module/' . $in['xmodul'],
+         'type' => 'module',
+         'name' => $in['xmodul'],
+         'title' => $in['title'],
+         'description' => 'Mit dem dbxAdmin Modul-Wizard erzeugtes Funktionsmodul.',
+         'descriptions' => array(
+            'de' => 'Mit dem dbxAdmin Modul-Wizard erzeugtes Funktionsmodul.',
+            'en' => 'Feature module generated with the dbxAdmin module wizard.',
+            'es' => 'Módulo funcional generado con el asistente de módulos dbxAdmin.',
+         ),
+         'icon' => 'bi-box-seam', 'image' => '', 'package_excludes' => array(),
+         'version' => $version,
+         'vendor' => array('id' => 'local', 'name' => 'Lokaler Hersteller'),
+         'license' => 'private', 'managed' => false,
+         'requires' => array(
+            'kernel' => $kernel_constraint, 'php' => '>=8.2.0',
+            'extensions' => array('json'), 'packages' => array(),
+         ),
+         'permissions' => $permissions, 'migrations' => array(), 'files' => array(),
+      );
+      return json_encode($package, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+   }
+
+   private function product_version(): string {
+      $version = trim((string)@file_get_contents(dirname(__DIR__, 4) . '/VERSION'));
+      return preg_match('/^\d+\.\d+\.\d+$/', $version) ? $version : '0.0.0';
    }
 
    private function generate_service_class(array $in) {
       $modul = $in['xmodul'];
       $class = $modul . 'Service';
-      $ddRef = $in['dd_mode'] !== 'none' ? $modul . '|' . $in['dd_name'] : '';
-      $formFd = $modul . '|' . $in['dd_name'] . '-form';
-      $reportFd = $modul . '|rpt-' . $in['dd_name'] . '-selection';
+      $dd_ref = $in['dd_mode'] !== 'none' ? $modul . '|' . $in['dd_name'] : '';
+      $form_fd = $modul . '|' . $in['dd_name'] . '-form';
+      $report_fd = $modul . '|rpt-' . $in['dd_name'] . '-selection';
+      $form_template = strtolower($modul) . '-form';
       $fields = array();
       foreach ($this->field_defs($in['field_preset']) as $f) {
          if (in_array($f[0], array('id', 'title', 'description', 'content', 'status', 'activ', 'update_date'), true)) {
             $fields[$f[0]] = $f[4];
          }
       }
-      $fieldsExport = var_export($fields, true);
-      $template = <<<'PHP'
-<?php
-namespace dbx\__MODUL__;
-
-/**
- * Service-Grundgeruest aus dem dbxAdmin Modul-Wizard.
- *
- * Ziel:
- * - Mensch und KI sehen die vorgesehenen Erweiterungspunkte direkt im Modul.
- * - Formular: Save, Delete, Feldtemplates, Callbacks.
- * - Report: Multi-Select, Multi-Delete, Edit, Detail, Row-Actions, Callbacks.
- *
- * Harte Regel fuer KI-Arbeiten:
- * Nur Dateien unter dbx/modules/__MODUL__/ bearbeiten.
- */
-class __CLASS__ {
-
-   private $dd = __DD_REF__;
-   private $formFd = __FORM_FD__;
-   private $reportFd = __REPORT_FD__;
-
-   private function db() {
-      return dbx()->get_system_obj('dbxDB');
-   }
-
-   private function tpl() {
-      return dbx()->get_system_obj('dbxTPL');
-   }
-
-   private function base_url($run1 = 'report', array $params = array()) {
-      return dbx()->append_url_params('?dbx_modul=__MODUL__&dbx_run1=' . rawurlencode($run1), $params);
-   }
-
-   /**
-    * Formular mit gaengigen dbxForm-Moeglichkeiten.
-    *
-    * Enthalten:
-    * - Insert/Update via save_post()
-    * - Delete per dbx_do=delete
-    * - FD-basierte Felder aus __FORM_FD__
-    * - Callback-Beispiele fuer init, submit und run
-    * - Beispiele fuer Feldtemplates in configure_form_fields()
-    */
-   public function form($rid = null) {
-      if ($this->dd === '') return '<div class="alert alert-info">Kein DD konfiguriert.</div>';
-
-      $rid = $rid === null ? (int)dbx()->get_modul_var('rid', 0, 'int') : (int)$rid;
-      $do = dbx()->get_modul_var('dbx_do', '', 'parameter');
-
-      if ($do === 'delete' && $rid > 0) {
-         return $this->delete_record($rid);
-      }
-
-      $data = $rid > 0 ? $this->db()->select1($this->dd, $rid) : array('activ' => 1);
-      if (!is_array($data)) $data = array('activ' => 1);
-
-      $form = dbx()->get_system_obj('dbxForm');
-      $form->init('__MODUL__-form');
-      $form->set_form_callback_owner($this);
-      $form->set_init_callback('form_init_callback');
-      $form->set_submit_callback('form_submit_callback');
-      $form->set_run_callback('form_run_callback');
-
-      $form->_dd = $this->dd;
-      $form->_fd = $this->formFd;
-      $form->_data = $data;
-      $form->_rid = $rid;
-      $form->_action = $this->base_url('form', $rid > 0 ? array('rid' => $rid) : array());
-      $form->add_rep('bar_title', $rid > 0 ? 'Datensatz bearbeiten' : 'Neuer Datensatz');
-      $form->add_rep('bar_subtitle', $this->dd);
-      $form->add_obj('bar_actions', 'obj-value', $this->form_action_buttons($rid));
-      $form->_msg_info = 'Felder ausfuellen und mit Speichern uebernehmen.';
-
-      $this->configure_form_fields($form);
-
-      if ($form->submit() && !$form->errors()) {
-         $ok = $form->save_post($this->dd, $rid > 0 ? $rid : 'new', $this->form_save_defaults($rid));
-         if ($ok) {
-            $form->_msg_success = 'Datensatz gespeichert.';
-         } else {
-            $form->_msg_error = 'Datensatz konnte nicht gespeichert werden.';
-         }
-      }
-
-      return $form->run();
-   }
-
-   private function form_action_buttons($rid) {
-      $html = '<button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-save"></i> Speichern</button>';
-      if ($rid > 0) {
-         $delete = $this->base_url('form', array('rid' => $rid, 'dbx_do' => 'delete'));
-         $html .= ' <a class="btn btn-outline-danger btn-sm dbxConfirm" href="' . htmlspecialchars($delete, ENT_QUOTES, 'UTF-8') . '" data-confirm-title="Datensatz loeschen" data-confirm="Diesen Datensatz wirklich loeschen?" data-confirm-buttons="yesno"><i class="bi bi-trash"></i> Loeschen</a>';
-      }
-      $html .= ' <a class="btn btn-outline-secondary btn-sm" href="' . htmlspecialchars($this->base_url('report'), ENT_QUOTES, 'UTF-8') . '"><i class="bi bi-table"></i> Report</a>';
-      return $html;
-   }
-
-   private function configure_form_fields($form) {
-      $form->add_flds();
-
-      /*
-       * Gängige Feldtemplates fuer FD/DD:
-       * - text-label: einzeiliger Text
-       * - textarea-label: mehrzeiliger Text / HTML je nach Regeln
-       * - checkbox-label: 0/1
-       * - select-single-label: einfache Auswahl mit options array(...)
-       * - select-multible-label / multiselect2: Mehrfachauswahl, name[]
-       * - date-label, integer-label, password-label, hidden
-       *
-       * Direktes Feld-Beispiel ohne FD:
-       * $form->add_fld('status', 'select-single-label', label: 'Status', rules: 'parameter', options: array('open' => 'Offen', 'done' => 'Erledigt'));
-       */
-   }
-
-   private function form_save_defaults($rid) {
-      $uid = (int)dbx()->user();
-      $now = date('Y-m-d H:i:s');
-      $defaults = array('update_date' => $now, 'update_uid' => $uid);
-      if ((int)$rid <= 0) {
-         $defaults['create_date'] = $now;
-         $defaults['create_uid'] = $uid;
-         $defaults['owner'] = $uid;
-         $defaults['trash'] = 0;
-      }
-      return $defaults;
-   }
-
-   public function delete_record($rid) {
-      $rid = (int)$rid;
-      if ($rid <= 0) return '<div class="alert alert-warning">Kein Datensatz gewaehlt.</div>';
-      $ok = $this->db()->delete($this->dd, $rid);
-      if ($ok) {
-         return '<div class="alert alert-success">Datensatz geloescht.</div>' . $this->report();
-      }
-      return '<div class="alert alert-danger">Datensatz konnte nicht geloescht werden.</div>' . $this->report();
-   }
-
-   public function detail($rid = null) {
-      $rid = $rid === null ? (int)dbx()->get_modul_var('rid', 0, 'int') : (int)$rid;
-      if ($rid <= 0) return '<div class="alert alert-warning">Kein Datensatz gewaehlt.</div>';
-      $record = $this->db()->select1($this->dd, $rid);
-      if (!is_array($record)) return '<div class="alert alert-warning">Datensatz nicht gefunden.</div>';
-
-      $rows = '';
-      foreach ($record as $key => $value) {
-         $rows .= '<tr><th>' . htmlspecialchars((string)$key, ENT_QUOTES, 'UTF-8') . '</th><td>' . htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8') . '</td></tr>';
-      }
-      return '<div class="p-3"><h3>Detail #' . $rid . '</h3><table class="table table-sm table-bordered">' . $rows . '</table><p><a class="btn btn-primary btn-sm" href="' . htmlspecialchars($this->base_url('form', array('rid' => $rid)), ENT_QUOTES, 'UTF-8') . '">Bearbeiten</a> <a class="btn btn-outline-secondary btn-sm" href="' . htmlspecialchars($this->base_url('report'), ENT_QUOTES, 'UTF-8') . '">Zurueck</a></p></div>';
-   }
-
-   /**
-    * Report mit gaengigen dbxReport-Moeglichkeiten.
-    *
-    * Enthalten:
-    * - Multi-Select ueber Remember
-    * - Multi-Delete ueber delete_multi_selected_records()
-    * - Row Edit / Row Delete / Row Detail
-    * - Report-Callbacks: header/body/footer/page/report/next_record/row_action_data
-    */
-   public function report() {
-      if ($this->dd === '') return '<div class="alert alert-info">Kein DD konfiguriert.</div>';
-
-      $report = dbx()->get_system_obj('dbxReport');
-      $report->init('__MODUL__-report');
-      $report->set_callback_owner($this);
-      $report->set_report_header_callback('report_header_callback');
-      $report->set_page_header_callback('report_page_header_callback');
-      $report->set_header_callback('report_table_header_callback');
-      $report->set_body_callback('report_body_callback');
-      $report->set_footer_callback('report_table_footer_callback');
-      $report->set_page_footer_callback('report_page_footer_callback');
-      $report->set_report_footer_callback('report_footer_callback');
-      $report->set_next_record_callback('report_next_record_callback');
-      $report->set_callback('row_action_data', 'report_row_action_data_callback');
-
-      $report->_dd = $this->dd;
-      $report->_action = $this->base_url('report');
-      $report->_pages = true;
-      $report->_mode = 'table';
-      $report->_but_pagination = 9;
-      $report->_multi_page_select = 1;
-      $report->_create_sel_flds = true;
-      $report->_create_row_select = true;
-      $report->_create_row_edit = true;
-      $report->_create_row_show = true;
-      $report->_create_row_delete = true;
-      $report->_msg_confirm_delete = 'Diesen Datensatz wirklich loeschen?';
-      $report->add_rep('bar_title', 'Datensaetze');
-      $report->add_rep('bar_subtitle', $this->dd);
-      $report->add_rep('bar_icon', 'bi-table');
-      $report->add_rep('bar_class', 'dbx-bar--module');
-      $report->add_rep('bar_title_class', 'dbx-bar-title');
-      $report->add_rep('bar_actions_class', 'dbx-bar-actions');
-      $report->add_rep('bar_title_pre', '');
-      $report->add_rep('bar_title_heading_attrs', '');
-      $report->add_rep('bar_middle', '');
-      $report->add_rep('bar_extra', '');
-      $report->add_rep('bar_actions', '<a class="btn btn-primary btn-sm" href="' . htmlspecialchars($this->base_url('form'), ENT_QUOTES, 'UTF-8') . '"><i class="bi bi-plus-lg"></i> Neu</a>');
-
-      $report->add_action('rows_select', 'action_button_select', '&dbx_do=rows_select');
-      $report->add_action('rows_deselect', 'action_button_deselect', '&dbx_do=clear_selects');
-      $report->add_action('rows_delete', 'action_button_delete', '&dbx_do=multi_delete');
-      $report->create_selection_fields($this->reportFd);
-
-      $actionContent = $this->handle_report_action($report);
-      if ($actionContent !== '') {
-         return $actionContent;
-      }
-
-      $rwhere = $report->get_fld_val('dbx_rwhere', '', 'sqlsearch|max=64');
-      $rsort = $report->get_fld_val('dbx_rsort', 'title', 'parameter');
-      $rdesc = $report->get_fld_val('dbx_rdesc', 'ASC', 'parameter');
-      $rrows = $report->get_fld_val('dbx_rrows', 20, 'int');
-      $rpos = $report->get_fld_val('dbx_rpos', 0, 'int');
-      $rselect = $report->get_fld_val('dbx_rselect', 0, 'int');
-
-      if ($rwhere !== '') {
-         $rwhere = array('search' => array('value' => $rwhere, 'like' => array('title', 'description'), 'mode' => 'contains'));
-      }
-      if ($rselect) {
-         $rwhere = $report->add_rwhere_select(is_string($rwhere) ? $rwhere : '');
-      }
-
-      $flds = $this->report_fields();
-      $report->_rflds = $flds;
-      $report->_rrows = $rrows;
-      $report->_rpos = $rpos;
-      $report->_count_all = $this->db()->count($this->dd);
-      $report->_rcount = $this->db()->count($this->dd, $rwhere);
-      $report->_rdata = $this->db()->select($this->dd, $rwhere, $flds, $rsort, $rdesc, '', $rrows, $rpos);
-
-      return $report->run();
-   }
-
-   private function handle_report_action($report) {
-      $do = dbx()->get_modul_var('dbx_do', '', 'parameter');
-      $rid = (int)dbx()->get_modul_var('rid', 0, 'int');
-
-      if ($do === 'row_edit' && $rid > 0) {
-         return $this->form($rid);
-      }
-      if (($do === 'row_show' || $do === 'detail') && $rid > 0) {
-         return $this->detail($rid);
-      }
-      if ($do === 'row_delete' && $rid > 0) {
-         $ok = $this->db()->delete($this->dd, $rid);
-         $report->del_selected($rid);
-         $report->_msg_success = $ok ? 'Datensatz geloescht.' : '';
-         $report->_msg_error = $ok ? '' : 'Datensatz konnte nicht geloescht werden.';
-         return '';
-      }
-      if ($do === 'multi_delete') {
-         $result = $report->delete_multi_selected_records($this->dd);
-         $report->apply_multi_delete_result($result);
-         return '';
-      }
-      return '';
-   }
-
-   private function report_fields() {
-      return __FIELDS_EXPORT__;
-   }
-
-   public function report_header_callback($report, $content) {
-      return $content;
-   }
-
-   public function report_page_header_callback($report, $content) {
-      return $content;
-   }
-
-   public function report_table_header_callback($report, $content) {
-      return $content;
-   }
-
-   public function report_body_callback($report, $content) {
-      return $content;
-   }
-
-   public function report_table_footer_callback($report, $content) {
-      return $content;
-   }
-
-   public function report_page_footer_callback($report, $content) {
-      return $content;
-   }
-
-   public function report_footer_callback($report, $content) {
-      return $content;
-   }
-
-   public function report_next_record_callback($report, $record) {
-      if (is_array($record) && isset($record['status'])) {
-         $record['status'] = strtoupper((string)$record['status']);
-      }
-      return $record;
-   }
-
-   public function report_row_action_data_callback($report, $payload) {
-      if (is_array($payload) && isset($payload['data'], $payload['type'])) {
-         if ($payload['type'] === 'show') {
-            $payload['data']['tooltip'] = 'Details anzeigen';
-         }
-      }
-      return $payload;
-   }
-
-   public function form_init_callback($form, $value) {
-      return $value;
-   }
-
-   public function form_submit_callback($form, $value) {
-      return $value;
-   }
-
-   public function form_run_callback($form, $content) {
-      return $content;
-   }
-
-   public function api() {
-      dbx()->json_response(array('ok' => 1, 'module' => '__MODUL__', 'dd' => $this->dd));
-   }
-}
-PHP;
+      $fields_export = var_export($fields, true);
 
       return str_replace(
-         array('__MODUL__', '__CLASS__', '__DD_REF__', '__FORM_FD__', '__REPORT_FD__', '__FIELDS_EXPORT__'),
-         array($modul, $class, var_export($ddRef, true), var_export($formFd, true), var_export($reportFd, true), $fieldsExport),
-         $template
+         array('__MODUL__', '__CLASS__', '__DD_REF__', '__FORM_FD__', '__REPORT_FD__', '__FORM_TEMPLATE__', '__FIELDS_EXPORT__'),
+         array($modul, $class, var_export($dd_ref, true), var_export($form_fd, true), var_export($report_fd, true), $form_template, $fields_export),
+         $this->service_class_template()
       );
    }
 
+   /** Lädt die versionierte Codevorlage des Modul-Wizards. */
+   private function service_class_template(): string {
+      $file = __DIR__ . '/templates/module-service.template.php';
+      if (!is_file($file)) {
+         throw new \RuntimeException('Wizard-Codevorlage fehlt: ' . $file);
+      }
+      $template = require $file;
+      if (!is_string($template) || trim($template) === '') {
+         throw new \RuntimeException('Wizard-Codevorlage ist ungültig: ' . $file);
+      }
+      return $template;
+   }
    private function generate_result_template(array $in) {
       return '<div class="p-3"><h2>' . $this->esc($in['title']) . '</h2><p>{content}</p></div>';
    }
@@ -908,17 +714,22 @@ Diese Datei wurde vom dbxAdmin Modul-Wizard erzeugt. Sie ist absichtlich knapp u
 - Modulwurzel: `dbx/modules/__MODUL__/`
 - KI darf nur innerhalb dieser Modulwurzel arbeiten.
 - DD-Dateien muessen vollstaendig sein, keine DD-Includes.
-- Templates werden in PHP ueber `dbx()->get_system_obj('dbxTPL')->get_tpl('__MODUL__|template', $data)` gerendert.
+- Individuelle Formularlayouts bleiben unter `tpl/htm`; gemeinsame Bars, Meldungen, Footer und Tabellenreports kommen aus `dbx`.
+- Modul-JavaScript gehoert nach `js/`, Modul-CSS nach `tpl/css/` und wird ueber `dbxAssetRegistry` registriert.
+- Hilfetexte gehoeren ausschliesslich nach `tpl/help/`.
 - DD->DB Sync nur fuer `__MODUL__|__DD__`.
 
 ## Dateien
 
-- `__MODUL__.class.php`: Einstieg und Routing nach `dbx_run1`.
-- `include/__MODUL__Service.class.php`: Formular, Report, Detail, API und Callbacks.
+- `__MODUL__.class.php`: Schlanker Einstieg; Routing erfolgt ueber das Aktionsmanifest.
+- `cfg/actions.php`: Einziger deklarativer Vertrag fuer die Modulrouten.
+- `dbx.package.json`: Lokale Paketbeschreibung fuer Marktplatz und Updates.
+- `include/__MODUL__Service.class.php`: Formular, Standardreport, Detail und API.
 - `dd/__DD__.dd.php`: Data Dictionary und DB-Struktur.
-- `fd/__DD__-form.fd.php`: Formularfelder.
-- `fd/rpt-__DD__-selection.fd.php`: Report-Filter und Report-Auswahl.
+- `fd/*_en.fd.php` und `fd/*_es.fd.php`: Vollstaendige sprachabhaengige Varianten.
 - `tpl/htm/start.htm`: Start-Template.
+- `tpl/htm/__FORM_TEMPLATE__.htm`: Individuelle fachliche Formularanordnung.
+- `tpl/help/modul.htm`: Modulinterne Kontexthilfe.
 
 ## Formular
 
@@ -926,14 +737,11 @@ Route: `?dbx_modul=__MODUL__&dbx_run1=form`
 
 Enthaltene Muster:
 
-- `save_post()` fuer Insert/Update.
-- `dbx_do=delete` fuer Delete.
-- `form_action_buttons()` fuer Save/Delete/Report Buttons.
-- `configure_form_fields()` als zentraler Ort fuer Felder.
-- Form-Callbacks:
-  - `form_init_callback($form, $value)`
-  - `form_submit_callback($form, $value)`
-  - `form_run_callback($form, $content)`
+- Die Form-ID `__MODUL__-form` bleibt die Identitaet des UI-State.
+- Das individuelle Modul-Template enthaelt `{form:bar}`, `{form:message}` und `{form:footer}`.
+- `add_module_bar_form_actions()` nutzt die gemeinsamen Save/Delete/Reload-Komponenten.
+- `save_post()` liefert die sprachabhaengigen Standardmeldungen des Kernels.
+- Delete-Links werden durch `action_url()` und die zentrale Request-Policy abgesichert.
 
 Gängige Feldtemplates:
 
@@ -941,7 +749,7 @@ Gängige Feldtemplates:
 - `textarea-label`: mehrzeiliger Text, auch fuer HTML-Felder geeignet wenn Regeln es zulassen.
 - `checkbox-label`: 0/1 Checkbox.
 - `select-single-label`: einfache Auswahl mit `options`.
-- `select-multible-label` oder `multiselect2`: Mehrfachauswahl.
+- `select-multiple-label` oder `multiselect2`: Mehrfachauswahl.
 - `date-label`: Datum.
 - `integer-label`: Zahlen.
 - `password-label`: Passwort.
@@ -953,24 +761,14 @@ Route: `?dbx_modul=__MODUL__&dbx_run1=report`
 
 Enthaltene Muster:
 
+- Haupttemplate `dbx|report-default`; kein kopiertes Standard-Reporttemplate im Modul.
+- Deklarative Aktionen ueber `set_table_actions()`.
 - Multi-Select ueber dbxReport Remember.
 - Multi-Delete ueber `delete_multi_selected_records()`.
 - Row-Edit ueber `dbx_do=row_edit`.
 - Row-Detail ueber `dbx_do=row_show` oder `dbx_do=detail`.
 - Row-Delete ueber `dbx_do=row_delete`.
 - Filter `dbx_rselect=1` zeigt nur ausgewaehlte IDs.
-
-Report-Callbacks:
-
-- `report_header_callback($report, $content)`
-- `report_page_header_callback($report, $content)`
-- `report_table_header_callback($report, $content)`
-- `report_body_callback($report, $content)`
-- `report_table_footer_callback($report, $content)`
-- `report_page_footer_callback($report, $content)`
-- `report_footer_callback($report, $content)`
-- `report_next_record_callback($report, $record)`
-- `report_row_action_data_callback($report, $payload)`
 
 ## API
 
@@ -979,7 +777,11 @@ Route: `?dbx_modul=__MODUL__&dbx_run1=api`
 Die API-Methode ist ein Platzhalter und liefert JSON. Erweiterungen bleiben im Modul.
 MD;
 
-      return str_replace(array('__MODUL__', '__DD__'), array($modul, $dd), $template);
+      return str_replace(
+         array('__MODUL__', '__DD__', '__FORM_TEMPLATE__'),
+         array($modul, $dd, strtolower($modul) . '-form'),
+         $template
+      );
    }
 
    private function generate_module(array $in, array &$log) {
@@ -1002,9 +804,11 @@ MD;
          }
       }
 
-      $config = "<?php\n\$config['version']='1.0';\n\$config['activ']='1';\n\$config['dbxConfig_modul']='secure';\n\$config['groups']='admin';\n\$config['title']=" . var_export($in['title'], true) . ";\n\$config['default_run1']=" . var_export($in['default_run1'], true) . ";\n\$config['default_run2']=" . var_export($in['default_run2'], true) . ";\n";
+      $config = "<?php\n\$config['version']=" . var_export($this->product_version(), true) . ";\n\$config['activ']='1';\n\$config['dbxConfig_modul']='secure';\n\$config['groups']='admin';\n\$config['title']=" . var_export($in['title'], true) . ";\n\$config['default_run1']=" . var_export($in['default_run1'], true) . ";\n\$config['default_run2']=" . var_export($in['default_run2'], true) . ";\n";
       $write('cfg/config.php', $config);
+      $write('cfg/actions.php', $this->generate_actions_manifest($in));
       $write($modul . '.class.php', $this->generate_main_class($in));
+      $write('dbx.package.json', $this->generate_package_manifest($in));
 
       if ((int)$in['create_include'] === 1) {
          $write('include/' . $modul . 'Service.class.php', $this->generate_service_class($in));
@@ -1015,35 +819,38 @@ MD;
       }
       if ((int)$in['create_form'] === 1 && $in['dd_mode'] !== 'none') {
          $write('fd/' . $in['dd_name'] . '-form.fd.php', $this->generate_form_fd($in));
+         $write('fd/' . $in['dd_name'] . '-form_en.fd.php', $this->generate_form_fd($in, 'en'));
+         $write('fd/' . $in['dd_name'] . '-form_es.fd.php', $this->generate_form_fd($in, 'es'));
       }
       if ((int)$in['create_report'] === 1 && $in['dd_mode'] !== 'none') {
          $write('fd/rpt-' . $in['dd_name'] . '-selection.fd.php', $this->generate_report_fd());
+         $write('fd/rpt-' . $in['dd_name'] . '-selection_en.fd.php', $this->generate_report_fd('en'));
+         $write('fd/rpt-' . $in['dd_name'] . '-selection_es.fd.php', $this->generate_report_fd('es'));
       }
       if ((int)$in['create_templates'] === 1) {
-         $write('tpl/htm/modul-help.htm', '<p>' . $this->esc($in['title']) . '</p>');
+         $write('tpl/help/modul.htm', '<p>' . $this->esc($in['title']) . '</p>');
+         $write('tpl/help/modul_en.htm', '<p>' . $this->esc($in['title']) . '</p>');
+         $write('tpl/help/modul_es.htm', '<p>' . $this->esc($in['title']) . '</p>');
          $write('tpl/htm/start.htm', $this->generate_result_template($in));
          if ((int)$in['create_form'] === 1) {
             $write('tpl/htm/' . strtolower($modul) . '-form.htm', $this->generate_form_template());
          }
-         if ((int)$in['create_report'] === 1) {
-            $write('tpl/htm/' . strtolower($modul) . '-report.htm', $this->generate_report_template());
-         }
       }
 
       if ($in['dd_mode'] !== 'none') {
-         $syncUrl = '?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=sync_dd_to_db&modul=' . rawurlencode($modul) . '&dd=' . rawurlencode($in['dd_name']) . '&mode=apply&reset=1';
+         $sync_url = '?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=sync_dd_to_db&modul=' . rawurlencode($modul) . '&dd=' . rawurlencode($in['dd_name']) . '&mode=apply&reset=1';
          if ($in['sync_mode'] === 'apply') {
             $state = $this->sync_dd_to_db($modul, $in['dd_name']);
-            $syncOk = (($state['status'] ?? '') === 'finished');
-            $log[] = array('type' => $syncOk ? 'ok' : 'error', 'text' => 'DD->DB Sync: ' . (string)($state['message'] ?? ($state['status'] ?? '')));
-            $ok = $syncOk && $ok;
+            $sync_ok = (($state['status'] ?? '') === 'finished');
+            $log[] = array('type' => $sync_ok ? 'ok' : 'error', 'text' => 'DD->DB Sync: ' . (string)($state['message'] ?? ($state['status'] ?? '')));
+            $ok = $sync_ok && $ok;
          } elseif ($in['sync_mode'] === 'link') {
-            $log[] = array('type' => 'link', 'text' => 'DD->DB Sync: ' . $syncUrl);
+            $log[] = array('type' => 'link', 'text' => 'DD->DB Sync: ' . $sync_url);
          }
       }
 
-      $startUrl = '?dbx_modul=' . rawurlencode($modul) . '&dbx_run1=' . rawurlencode($in['default_run1'] ?: 'run');
-      $log[] = array('type' => 'link', 'text' => 'Modul starten: ' . $startUrl);
+      $start_url = '?dbx_modul=' . rawurlencode($modul) . '&dbx_run1=' . rawurlencode($in['default_run1'] ?: 'run');
+      $log[] = array('type' => 'link', 'text' => 'Modul starten: ' . $start_url);
       if ((int)$in['create_form'] === 1) {
          $log[] = array('type' => 'link', 'text' => 'Formular oeffnen: ?dbx_modul=' . rawurlencode($modul) . '&dbx_run1=form');
       }
@@ -1064,18 +871,18 @@ MD;
       }
 
       if ((int)$in['ki_package'] === 1) {
-         $apiUrl = '?dbx_modul=dbxKi&dbx_run1=module_api&action=module.describe&xmodul=' . rawurlencode($modul);
-         $log[] = array('type' => 'link', 'text' => 'dbxKi Modul-API: ' . $apiUrl);
+         $api_url = '?dbx_modul=dbxKi&dbx_run1=module_api&action=module.describe&xmodul=' . rawurlencode($modul);
+         $log[] = array('type' => 'link', 'text' => 'dbxKi Modul-API: ' . $api_url);
       }
       return $ok;
    }
 
    private function sync_dd_to_db($modul, $dd) {
-      $oDD = dbx()->get_system_obj('dbxDD');
-      $oDD->sync_dd_to_db($modul, $dd, 'reset');
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      $o_dd->sync_dd_to_db($modul, $dd, 'reset');
       $state = array('status' => 'running', 'message' => '');
       for ($i = 0; $i < 20; $i++) {
-         $state = $oDD->sync_dd_to_db($modul, $dd, 'apply');
+         $state = $o_dd->sync_dd_to_db($modul, $dd, 'apply');
          if (in_array((string)($state['status'] ?? ''), array('finished', 'error', 'cancelled'), true)) {
             break;
          }
@@ -1191,12 +998,12 @@ MD;
    public function new_modul() {
       $in = $this->collect_input();
       $log = array();
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-wizzard-new');
-      $oForm->_fd = 'dbxAdmin|module-wizard';
-      $oForm->load_fd_messages();
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_new';
-      $oForm->_data = array_merge(array(
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-wizzard-new', 'form-wizzard-new');
+      $o_form->set_field_definition('dbxAdmin|module-wizard');
+      $o_form->load_fd_messages();
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_new');
+      $o_form->set_data(array_merge(array(
          'target_mode' => 'new',
          'module_template' => 'form_report',
          'dd_mode' => 'new',
@@ -1209,39 +1016,39 @@ MD;
          'backup' => 1,
          'sync_mode' => 'link',
          'ki_package' => 1,
-      ), $in);
-      $oForm->add_rep('bar_title', $oForm->get_fd_message('bar_title'));
-      $oForm->add_rep('bar_subtitle', $oForm->get_fd_message('bar_subtitle'));
-      $oForm->add_obj(
+      ), $in));
+      $o_form->add_rep('bar_title', $o_form->get_fd_message('bar_title'));
+      $o_form->add_rep('bar_subtitle', $o_form->get_fd_message('bar_subtitle'));
+      $o_form->add_obj(
          'bar_actions',
          'obj-value',
          '<button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-magic"></i> '
-            . $this->esc($oForm->get_fd_message('action_create')) . '</button>'
+            . $this->esc($o_form->get_fd_message('action_create')) . '</button>'
       );
-      $oForm->_msg_info = $oForm->get_fd_message('wizard_info');
+      $o_form->_msg_info = $o_form->get_fd_message('wizard_info');
 
-      $oForm->add_fld('target_mode', 'select-single-label', label: $oForm->get_fd_message('label_target'), rules: 'parameter', options: $this->options(array('new' => $oForm->get_fd_message('option_target_new'), 'existing' => $oForm->get_fd_message('option_target_existing'))));
-      $oForm->add_fld('existing_modul', 'select-single-label', label: $oForm->get_fd_message('label_existing_module'), rules: 'parameter', options: $this->options($this->module_options(true)));
-      $oForm->add_fld('xmodul', 'text-label', label: $oForm->get_fd_message('label_new_module'), rules: 'parameter|max=63', tooltip: $oForm->get_fd_message('tooltip_module_name'));
-      $oForm->add_fld('title', 'text-label', label: $oForm->get_fd_message('label_title'), rules: 'varchar|max=120');
-      $oForm->add_fld('module_template', 'select-single-label', label: $oForm->get_fd_message('label_template'), rules: 'parameter', options: $this->options(array('form_report' => $oForm->get_fd_message('option_template_form_report'), 'form' => $oForm->get_fd_message('option_template_form'), 'report' => $oForm->get_fd_message('option_template_report'), 'api' => $oForm->get_fd_message('option_template_api'), 'blank' => $oForm->get_fd_message('option_template_blank'))));
-      $oForm->add_fld('default_run1', 'text-label', label: $oForm->get_fd_message('label_run1'), rules: 'parameter|max=32');
-      $oForm->add_fld('default_run2', 'text-label', label: $oForm->get_fd_message('label_run2'), rules: 'parameter|max=32');
-      $oForm->add_fld('dd_mode', 'select-single-label', label: $oForm->get_fd_message('label_dd'), rules: 'parameter', options: $this->options(array('new' => $oForm->get_fd_message('option_dd_new'), 'existing' => $oForm->get_fd_message('option_dd_existing'), 'none' => $oForm->get_fd_message('option_dd_none'))));
-      $oForm->add_fld('dd_ref', 'select-single-label', label: $oForm->get_fd_message('label_existing_dd'), rules: 'parameter', options: $this->options($this->dd_options(true)));
-      $oForm->add_fld('dd_name', 'text-label', label: $oForm->get_fd_message('label_dd_name'), rules: 'parameter|max=63');
-      $oForm->add_fld('table_name', 'text-label', label: $oForm->get_fd_message('label_table'), rules: 'parameter|max=63');
-      $oForm->add_fld('db_file', 'text-label', label: $oForm->get_fd_message('label_db_file'), rules: 'parameter+.-_|max=80');
-      $oForm->add_fld('field_preset', 'select-single-label', label: $oForm->get_fd_message('label_fields'), rules: 'parameter', options: $this->options(array('basic' => $oForm->get_fd_message('option_fields_basic'), 'content' => $oForm->get_fd_message('option_fields_content'), 'status' => $oForm->get_fd_message('option_fields_status'), 'workflow' => $oForm->get_fd_message('option_fields_workflow'))));
-      $oForm->add_fld('create_include', 'checkbox-label', label: $oForm->get_fd_message('label_create_include'), rules: 'int');
-      $oForm->add_fld('create_form', 'checkbox-label', label: $oForm->get_fd_message('label_create_form'), rules: 'int');
-      $oForm->add_fld('create_report', 'checkbox-label', label: $oForm->get_fd_message('label_create_report'), rules: 'int');
-      $oForm->add_fld('create_templates', 'checkbox-label', label: $oForm->get_fd_message('label_create_templates'), rules: 'int');
-      $oForm->add_fld('overwrite', 'checkbox-label', label: $oForm->get_fd_message('label_overwrite'), rules: 'int');
-      $oForm->add_fld('backup', 'checkbox-label', label: $oForm->get_fd_message('label_backup'), rules: 'int');
-      $oForm->add_fld('sync_mode', 'select-single-label', label: $oForm->get_fd_message('label_sync'), rules: 'parameter', options: $this->options(array('link' => $oForm->get_fd_message('option_sync_link'), 'none' => $oForm->get_fd_message('option_sync_none'), 'apply' => $oForm->get_fd_message('option_sync_apply'))));
-      $oForm->add_fld('ki_package', 'checkbox-label', label: $oForm->get_fd_message('label_ki_package'), rules: 'int');
-      $oForm->add_js_code(<<<'JS'
+      $o_form->add_fld('target_mode', 'select-single-label', label: $o_form->get_fd_message('label_target'), rules: 'parameter', options: $this->options(array('new' => $o_form->get_fd_message('option_target_new'), 'existing' => $o_form->get_fd_message('option_target_existing'))));
+      $o_form->add_fld('existing_modul', 'select-single-label', label: $o_form->get_fd_message('label_existing_module'), rules: 'parameter', options: $this->options($this->module_options(true)));
+      $o_form->add_fld('xmodul', 'text-label', label: $o_form->get_fd_message('label_new_module'), rules: 'parameter|max=63', tooltip: $o_form->get_fd_message('tooltip_module_name'));
+      $o_form->add_fld('title', 'text-label', label: $o_form->get_fd_message('label_title'), rules: 'varchar|max=120');
+      $o_form->add_fld('module_template', 'select-single-label', label: $o_form->get_fd_message('label_template'), rules: 'parameter', options: $this->options(array('form_report' => $o_form->get_fd_message('option_template_form_report'), 'form' => $o_form->get_fd_message('option_template_form'), 'report' => $o_form->get_fd_message('option_template_report'), 'api' => $o_form->get_fd_message('option_template_api'), 'blank' => $o_form->get_fd_message('option_template_blank'))));
+      $o_form->add_fld('default_run1', 'text-label', label: $o_form->get_fd_message('label_run1'), rules: 'parameter|max=32');
+      $o_form->add_fld('default_run2', 'text-label', label: $o_form->get_fd_message('label_run2'), rules: 'parameter|max=32');
+      $o_form->add_fld('dd_mode', 'select-single-label', label: $o_form->get_fd_message('label_dd'), rules: 'parameter', options: $this->options(array('new' => $o_form->get_fd_message('option_dd_new'), 'existing' => $o_form->get_fd_message('option_dd_existing'), 'none' => $o_form->get_fd_message('option_dd_none'))));
+      $o_form->add_fld('dd_ref', 'select-single-label', label: $o_form->get_fd_message('label_existing_dd'), rules: 'parameter', options: $this->options($this->dd_options(true)));
+      $o_form->add_fld('dd_name', 'text-label', label: $o_form->get_fd_message('label_dd_name'), rules: 'parameter|max=63');
+      $o_form->add_fld('table_name', 'text-label', label: $o_form->get_fd_message('label_table'), rules: 'parameter|max=63');
+      $o_form->add_fld('db_file', 'text-label', label: $o_form->get_fd_message('label_db_file'), rules: 'parameter+.-_|max=80');
+      $o_form->add_fld('field_preset', 'select-single-label', label: $o_form->get_fd_message('label_fields'), rules: 'parameter', options: $this->options(array('basic' => $o_form->get_fd_message('option_fields_basic'), 'content' => $o_form->get_fd_message('option_fields_content'), 'status' => $o_form->get_fd_message('option_fields_status'), 'workflow' => $o_form->get_fd_message('option_fields_workflow'))));
+      $o_form->add_fld('create_include', 'checkbox-label', label: $o_form->get_fd_message('label_create_include'), rules: 'int');
+      $o_form->add_fld('create_form', 'checkbox-label', label: $o_form->get_fd_message('label_create_form'), rules: 'int');
+      $o_form->add_fld('create_report', 'checkbox-label', label: $o_form->get_fd_message('label_create_report'), rules: 'int');
+      $o_form->add_fld('create_templates', 'checkbox-label', label: $o_form->get_fd_message('label_create_templates'), rules: 'int');
+      $o_form->add_fld('overwrite', 'checkbox-label', label: $o_form->get_fd_message('label_overwrite'), rules: 'int');
+      $o_form->add_fld('backup', 'checkbox-label', label: $o_form->get_fd_message('label_backup'), rules: 'int');
+      $o_form->add_fld('sync_mode', 'select-single-label', label: $o_form->get_fd_message('label_sync'), rules: 'parameter', options: $this->options(array('link' => $o_form->get_fd_message('option_sync_link'), 'none' => $o_form->get_fd_message('option_sync_none'), 'apply' => $o_form->get_fd_message('option_sync_apply'))));
+      $o_form->add_fld('ki_package', 'checkbox-label', label: $o_form->get_fd_message('label_ki_package'), rules: 'int');
+      $o_form->add_js_code(<<<'JS'
 (function () {
    var byName = function (name) { return document.querySelector('[name="' + name + '"]'); };
    var modul = byName('xmodul');
@@ -1288,32 +1095,32 @@ MD;
 JS
       );
 
-      $kiCta = '';
-      if ($oForm->submit()) {
-         $in = $this->collect_input($oForm);
+      $ki_cta = '';
+      if ($o_form->submit()) {
+         $in = $this->collect_input($o_form);
          $errors = array();
-         if ($this->validate_input($in, $errors) && !$oForm->errors()) {
+         if ($this->validate_input($in, $errors) && !$o_form->errors()) {
             if ($this->generate_module($in, $log)) {
-               $oForm->_msg_success = $oForm->get_fd_message('wizard_success');
+               $o_form->_msg_success = $o_form->get_fd_message('wizard_success');
                if ((int)$in['ki_package'] === 1) {
-                  $kiCta = $this->tpl()->get_tpl('dbxAdmin|wizard-ki-cta', array(
-                     'cta_title' => $this->esc($oForm->get_fd_message('ki_cta_title')),
-                     'cta_action' => $this->esc($oForm->get_fd_message('ki_cta_action')),
-                     'ki_url' => $this->esc($this->kiModuleUrl($in['xmodul'], $in['dd_name'])),
+                  $ki_cta = $this->tpl()->get_tpl('dbxAdmin|wizard-ki-cta', array(
+                     'cta_title' => $this->esc($o_form->get_fd_message('ki_cta_title')),
+                     'cta_action' => $this->esc($o_form->get_fd_message('ki_cta_action')),
+                     'ki_url' => $this->esc($this->ki_module_url($in['xmodul'], $in['dd_name'])),
                   ));
                }
             } else {
-               $oForm->_msg_error = $oForm->get_fd_message('wizard_error');
+               $o_form->_msg_error = $o_form->get_fd_message('wizard_error');
             }
          } else {
             foreach ($errors as $err) {
-               $oForm->add_fld_error('xmodul', $err);
+               $o_form->add_fld_error('xmodul', $err);
             }
-            $oForm->_msg_error = $oForm->get_fd_message('check_input');
+            $o_form->_msg_error = $o_form->get_fd_message('check_input');
          }
       }
 
-      return $oForm->run() . $kiCta . $this->log_html($log);
+      return $o_form->run() . $ki_cta . $this->log_html($log);
    }
 
    public function run($run = '') {

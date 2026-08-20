@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-$dbxDir = dirname(__DIR__, 2);
-$addonDir = $dbxDir . '/add_ons';
-$manifestFile = $addonDir . '/versions.json';
-$manifest = json_decode((string) file_get_contents($manifestFile), true);
+$dbx_dir = dirname(__DIR__, 2);
+$addon_dir = $dbx_dir . '/add_ons';
+$manifest_file = $addon_dir . '/versions.json';
+$manifest = json_decode((string) file_get_contents($manifest_file), true);
 $failures = array();
 $assert = static function (bool $condition, string $message) use (&$failures): void {
     if (!$condition) $failures[] = $message;
@@ -22,21 +22,21 @@ $assets = array(
 );
 
 $assert(is_array($manifest), 'add_ons/versions.json ist kein gueltiges JSON.');
-foreach ($assets as $package => [$relativeFile, $expectedVersion]) {
-    $file = $addonDir . '/' . $relativeFile;
+foreach ($assets as $package => [$relative_file, $expected_version]) {
+    $file = $addon_dir . '/' . $relative_file;
     $configured = is_array($manifest) ? (string)($manifest[$package]['version'] ?? '') : '';
-    $assert($configured === $expectedVersion, $package . ': Manifest-Version ist falsch.');
+    $assert($configured === $expected_version, $package . ': Manifest-Version ist falsch.');
     $assert(is_file($file) && filesize($file) > 0, $package . ': Distributionsdatei fehlt oder ist leer.');
     $content = is_file($file) ? (string) file_get_contents($file) : '';
-    $assert(str_contains($content, $expectedVersion), $package . ': Versionsmarker fehlt in der Distributionsdatei.');
+    $assert(str_contains($content, $expected_version), $package . ': Versionsmarker fehlt in der Distributionsdatei.');
 }
 
 $assert(
-    !is_file($addonDir . '/ace/theme-kr.js'),
+    !is_file($addon_dir . '/ace/theme-kr.js'),
     'Das in aktuellen Ace-Builds entfernte Theme theme-kr.js ist noch vorhanden.'
 );
 $assert(
-    str_contains((string) file_get_contents($addonDir . '/purecounter/js/purecounter.js'), '__dbxPureCounter'),
+    str_contains((string) file_get_contents($addon_dir . '/purecounter/js/purecounter.js'), '__dbxPureCounter'),
     'PureCounter 1.5 wird nicht kompatibel zum bisherigen Auto-Start initialisiert.'
 );
 

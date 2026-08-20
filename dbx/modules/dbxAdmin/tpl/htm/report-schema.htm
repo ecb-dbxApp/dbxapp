@@ -1,16 +1,8 @@
-<div class="dbx-panel dbxReport dbx-ajax-root" id="dbx_target_{i}" data-dbx="lib=report">[tpl=dbx|module-bar]
+<div class="dbx-panel dbxReport dbx-ajax-root" id="dbx_target_{i}" data-dbx="lib=report">
  <div class="dbx-panel-body">
-  <div class="mb-3">{obj:form_msg}</div>
+  <div class="mb-3">{report:message}</div>
   <form action="{action}" method="post" name="dbx_form_{i}" id="dbx_form_{i}" class="dbxAjax">
-   [dbx:form]
-   <div class="row g-2 align-items-end mb-3">
-    <div class="col-12 col-md-2">{obj:dbx_rmodul}</div>
-    <div class="col-12 col-md-3">{obj:dbx_rwhere}</div>
-    <div class="col-6 col-md-2">{obj:dbx_rrows}</div>
-    <div class="col-6 col-md-auto">
-     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
-    </div>
-   </div>
+   {report:bar}
    [dbx:pagination]
    <div class="table-responsive">
     <table class="table table-striped table-bordered table-light table-hover align-middle">
@@ -36,5 +28,6 @@
    </div>
   </form>
  </div>
+ {report:footer}
  [dbx:js]
 </div>

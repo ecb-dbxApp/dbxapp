@@ -1,32 +1,13 @@
 <?php
 namespace dbx\dbxShop;
 
+require_once __DIR__ . '/dbxShopMediaUrl.class.php';
+
 trait dbxShopServiceProductDisplayServiceTrait {
 
-   private function mediaUrl(string $path): string {
-      $path = trim(str_replace('\\', '/', $path));
-      if ($path === '') {
-         return '';
-      }
-      if (preg_match('~^https?://~i', $path) || substr($path, 0, 1) === '/') {
-         return $path;
-      }
-      return dbx()->get_base_url() . ltrim($path, '/');
-   }
 
-   private function mediaItemUrl(array $image, bool $thumb = false): string {
-      $mediaId = (int)($image['media_id'] ?? 0);
-      if ($mediaId > 0) {
-         $url = 'index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid=' . $mediaId;
-         if ($thumb) {
-            $url .= '&dbx_thumb=1';
-         }
-         return $url;
-      }
-      return $this->mediaUrl((string)($image['image_path'] ?? ''));
-   }
 
-   private function productImage(array $product): array {
+   private function product_image(array $product): array {
       $images = $product['images'] ?? array();
       if (is_array($images) && isset($images[0]) && is_array($images[0])) {
          return $images[0];
@@ -38,11 +19,11 @@ trait dbxShopServiceProductDisplayServiceTrait {
       );
    }
 
-   private function primaryGroup(array $product): array {
+   private function primary_group(array $product): array {
       return is_array($product['groups'] ?? null) ? (($product['groups'] ?? array())[0] ?? array()) : array();
    }
 
-   private function templateName(string $value, string $fallback, string $prefix = ''): string {
+   private function template_name(string $value, string $fallback, string $prefix = ''): string {
       $value = preg_replace('~[^a-z0-9_-]+~i', '', trim($value));
       if ($value === '') {
          return $fallback;
@@ -53,7 +34,7 @@ trait dbxShopServiceProductDisplayServiceTrait {
       return $value;
    }
 
-   private function shopTemplateExists(string $template): bool {
+   private function shop_template_exists(string $template): bool {
       $template = preg_replace('~[^a-z0-9_-]+~i', '', $template);
       if ($template === '') return false;
       return is_file(dirname(__DIR__) . '/tpl/htm/' . $template . '.htm');
@@ -65,7 +46,7 @@ trait dbxShopServiceProductDisplayServiceTrait {
     * Der Cache gilt nur fuer den aktuellen Request. Eigene Templates bleiben
     * kompatibel, weil jeder vorhandene bekannte Platzhalter erkannt wird.
     */
-   private function shopTemplateFields(string $template): array {
+   private function shop_template_fields(string $template): array {
       static $cache = array();
       $template = preg_replace('~[^a-z0-9_-]+~i', '', $template);
       if ($template === '') return array();
@@ -83,21 +64,21 @@ trait dbxShopServiceProductDisplayServiceTrait {
       return $fields;
    }
 
-   private function mediaTemplateExists(string $template): bool {
+   private function media_template_exists(string $template): bool {
       $template = preg_replace('~[^a-z0-9_-]+~i', '', strtolower($template));
       if ($template === '') return false;
       return is_file(dirname(dirname(__DIR__)) . '/dbxContent/tpl/htm/media-' . $template . '.htm');
    }
 
-   private function groupSetting(array $product, string $key, $fallback) {
-      $group = $this->primaryGroup($product);
+   private function group_setting(array $product, string $key, $fallback) {
+      $group = $this->primary_group($product);
       $value = $group[$key] ?? $fallback;
       return $value === '' || $value === null ? $fallback : $value;
    }
 
-   private function productVisual(array $product, string $class = ''): string {
-      $image = $this->productImage($product);
-      $src = $this->mediaItemUrl($image, true);
+   private function product_visual(array $product, string $class = ''): string {
+      $image = $this->product_image($product);
+      $src = dbxShopMediaUrl::item($image, true);
       $alt = (string)($image['alt'] ?? $image['title'] ?? $product['title'] ?? '');
       $count = count($product['images'] ?? array());
       $html = '<div class="dbx-shop-product-visual ' . $this->h($class) . '">';
@@ -110,24 +91,24 @@ trait dbxShopServiceProductDisplayServiceTrait {
       return $html;
    }
 
-   private function productGallery(array $product): string {
+   private function product_gallery(array $product): string {
       $images = $product['images'] ?? array();
       if (!is_array($images) || $images === array()) {
-         return $this->productVisual($product, 'dbx-shop-product-visual-large');
+         return $this->product_visual($product, 'dbx-shop-product-visual-large');
       }
-      $overflow = preg_replace('~[^a-z0-9_-]~i', '', (string)$this->groupSetting($product, 'gallery_overflow', 'grid')) ?: 'grid';
-      $click = preg_replace('~[^a-z0-9_-]~i', '', (string)$this->groupSetting($product, 'gallery_click', 'lightbox')) ?: 'lightbox';
-      $visible = max(1, (int)$this->groupSetting($product, 'gallery_visible_count', 3));
-      $imgSize = preg_replace('~[^a-z0-9_-]~i', '', (string)$this->groupSetting($product, 'gallery_image_size', 'original')) ?: 'original';
-      $lightboxWidth = preg_replace('~[^a-z0-9%._-]+~i', '', (string)$this->groupSetting($product, 'gallery_lightbox_width', '100vw')) ?: '100vw';
-      $template = preg_replace('~[^a-z0-9_-]+~i', '', strtolower((string)$this->groupSetting($product, 'gallery_template', 'image-gallery'))) ?: 'image-gallery';
-      if (!$this->mediaTemplateExists($template)) {
+      $overflow = preg_replace('~[^a-z0-9_-]~i', '', (string)$this->group_setting($product, 'gallery_overflow', 'grid')) ?: 'grid';
+      $click = preg_replace('~[^a-z0-9_-]~i', '', (string)$this->group_setting($product, 'gallery_click', 'lightbox')) ?: 'lightbox';
+      $visible = max(1, (int)$this->group_setting($product, 'gallery_visible_count', 3));
+      $img_size = preg_replace('~[^a-z0-9_-]~i', '', (string)$this->group_setting($product, 'gallery_image_size', 'original')) ?: 'original';
+      $lightbox_width = preg_replace('~[^a-z0-9%._-]+~i', '', (string)$this->group_setting($product, 'gallery_lightbox_width', '100vw')) ?: '100vw';
+      $template = preg_replace('~[^a-z0-9_-]+~i', '', strtolower((string)$this->group_setting($product, 'gallery_template', 'image-gallery'))) ?: 'image-gallery';
+      if (!$this->media_template_exists($template)) {
          $template = 'image-gallery';
       }
-      $html = '<div class="dbx-shop-product-gallery dbx-content-media-gallery gallery-list gallery-template-' . $this->h($template) . '" data-dbx="lib=gallery|overflow=' . $this->h($overflow) . '|click=' . $this->h($click) . '|img-count=' . $visible . '|img-size=' . $this->h($imgSize) . '|lightbox-width=' . $this->h($lightboxWidth) . '">';
+      $html = '<div class="dbx-shop-product-gallery dbx-content-media-gallery gallery-list gallery-template-' . $this->h($template) . '" data-dbx="lib=gallery|module=dbxContent|overflow=' . $this->h($overflow) . '|click=' . $this->h($click) . '|img-count=' . $visible . '|img-size=' . $this->h($img_size) . '|lightbox-width=' . $this->h($lightbox_width) . '">';
       foreach ($images as $image) {
-         $url = $this->mediaItemUrl($image, false);
-         $thumbUrl = $this->mediaItemUrl($image, true);
+         $url = dbxShopMediaUrl::item($image, false);
+         $thumb_url = dbxShopMediaUrl::item($image, true);
          if ($url === '') {
             continue;
          }
@@ -137,8 +118,8 @@ trait dbxShopServiceProductDisplayServiceTrait {
          $html .= $this->tpl()->get_tpl('dbxContent|media-' . $template, array(
             'id' => (string)($image['media_id'] ?? ''),
             'url' => $this->h($url),
-            'thumb_url' => $this->h($thumbUrl),
-            'poster_url' => $this->h($thumbUrl),
+            'thumb_url' => $this->h($thumb_url),
+            'poster_url' => $this->h($thumb_url),
             'media_type' => 'image',
             'title' => $this->h($title),
             'alt' => $this->h($alt),

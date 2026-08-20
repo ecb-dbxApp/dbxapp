@@ -32,7 +32,7 @@ $login = read_public_config($modules . '/dbxLogin/cfg/config.php');
 $contact = read_public_config($modules . '/dbxContact/cfg/config.php');
 $download = read_public_config($modules . '/dbxDownLoad/cfg/config.php');
 
-$mustBeEmpty = array(
+$must_be_empty = array(
    array('core', $core, array('ftp', 'web', 'sftp_host')),
    array('core', $core, array('ftp', 'web', 'sftp_user')),
    array('core', $core, array('ftp', 'web', 'sftp_pass')),
@@ -49,14 +49,14 @@ $mustBeEmpty = array(
    array('download', $download, array('token_secret')),
 );
 
-foreach ($mustBeEmpty as [$module, $config, $path]) {
+foreach ($must_be_empty as [$module, $config, $path]) {
    if (trim((string)value_at($config, $path)) !== '') {
       fwrite(STDERR, $module . ': öffentlicher Wert muss leer sein: ' . implode('.', $path) . PHP_EOL);
       exit(1);
    }
 }
 
-$disabledFlags = array(
+$disabled_flags = array(
    array('core', $core, array('db', 'dbxRoundtrip', 'activ')),
    array('core', $core, array('mail', 'dbxApp', 'auth')),
    array('login', $login, array('login_mail')),
@@ -66,7 +66,7 @@ $disabledFlags = array(
    array('contact', $contact, array('mail_on_reply')),
 );
 
-foreach ($disabledFlags as [$module, $config, $path]) {
+foreach ($disabled_flags as [$module, $config, $path]) {
    $value = strtolower(trim((string)value_at($config, $path)));
    if (!in_array($value, array('', '0', 'false', 'off', 'no'), true)) {
       fwrite(STDERR, $module . ': öffentlicher Schalter muss deaktiviert sein: ' . implode('.', $path) . PHP_EOL);

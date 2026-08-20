@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['login_info'] = 'Please sign in with your username and password';
 $messages['login_error'] = 'Username and/or password was not found';
 $messages['login_success'] = 'Login successful';

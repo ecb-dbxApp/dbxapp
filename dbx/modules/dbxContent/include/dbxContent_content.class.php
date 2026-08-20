@@ -5,10 +5,10 @@ require_once __DIR__ . '/dbxContent_bootstrap.php';
 
 class dbxContent_content {
 
-   Public $oTPL;
+   Public $o_tpl;
 
    public function __construct() {
-     $this->oTPL = dbx()->get_system_obj('dbxTPL');
+     $this->o_tpl = dbx()->get_system_obj('dbxTPL');
    }
 
 
@@ -22,31 +22,23 @@ class dbxContent_content {
 
 
 
-  private function adminEditorBarHtml($cid = 0) {
-      if (!dbx()->can('admin')) {
+  private function admin_editor_bar_html($cid = 0) {
+      if (!dbx()->has_group('admin')) {
          return '';
       }
 
-      $url = $this->appUrl() . '?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=' . (int)$cid;
-      return $this->oTPL->get_tpl('dbxContent|content-view-bar-admin-win', array(
+      $url = dbxContentRuntime::app_url() . '?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=' . (int)$cid;
+      return $this->o_tpl->get_tpl('dbxContent|content-view-bar-admin-win', array(
          'admin_url' => dbx()->esc($url),
       ));
   }
 
-  private function appUrl() {
-      $script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
-      if ($script === '') return '';
-      $dir = str_replace('\\', '/', dirname($script));
-      if ($dir === '.' || $dir === '/' || $dir === '\\') return '/';
-      return rtrim($dir, '/') . '/';
-  }
-
-  private function wrapContentPage($pageContent, $cid) {
+  private function wrap_content_page($page_content, $cid) {
       $i = dbx()->next_id();
       $title = trim((string)dbx()->get_system_var('dbx_title', ''));
       if ($title === '') {
          $db = dbx()->get_system_obj('dbxDB');
-         $row = $db->select1(dbxContentLng::ddContent(), (int)$cid, 'title', 0);
+         $row = $db->select1(dbxContentLng::dd_content(), (int)$cid, 'title', 0);
          if (is_array($row)) {
             $title = trim((string)($row['title'] ?? ''));
          }
@@ -55,21 +47,21 @@ class dbxContent_content {
          $title = 'Seite #' . (int)$cid;
       }
 
-      return $this->oTPL->get_tpl('dbxContent|content-page-frontend', array(
+      return $this->o_tpl->get_tpl('dbxContent|content-page-frontend', array(
          'frame_id'      => 'dbx_content_page_' . $i,
          'cid'           => (string)(int)$cid,
-         'frontend_head' => $this->oTPL->get_tpl('dbxContent|content-frontend-head', array(
+         'frontend_head' => $this->o_tpl->get_tpl('dbxContent|content-frontend-head', array(
             'bar_title'               => $title,
-            'bar_title_pre'           => $this->adminEditorBarHtml((int)$cid),
+            'bar_title_pre'           => $this->admin_editor_bar_html((int)$cid),
             'bar_title_heading_attrs' => ' data-cms-page-title',
          )),
-         'page_content'  => $pageContent,
+         'page_content'  => $page_content,
       ));
   }
 
 
 
-  public function renderPage(int $cid, array $options = array()): string {
+  public function render_page(int $cid, array $options = array()): string {
     $cid = (int) $cid;
     if ($cid <= 0) {
       return '';
@@ -77,20 +69,20 @@ class dbxContent_content {
 
     require_once __DIR__ . '/dbxContent_bootstrap.php';
     $renderer = dbx()->get_include_obj('dbxContentRenderer', 'dbxContent');
-    $lng = dbxContentPageCache::currentLng();
-    $renderOptions = array(
+    $lng = dbxContentPageCache::current_lng();
+    $render_options = array(
       'skip_hits' => !empty($options['skip_hits']),
       'admin_help' => !empty($options['admin_help']),
     );
-    $forcedTemplate = trim((string)($options['template'] ?? ''));
-    if ($forcedTemplate !== '') {
-      $renderOptions['template'] = $forcedTemplate;
+    $forced_template = trim((string)($options['template'] ?? ''));
+    if ($forced_template !== '') {
+      $render_options['template'] = $forced_template;
     }
-    $static = $renderer->renderStatic($cid, $renderOptions);
+    $static = $renderer->render_static($cid, $render_options);
     if (array_key_exists('wrap', $options) && !$options['wrap']) {
       return $static;
     }
-    return $this->wrapContentPage($static, $cid);
+    return $this->wrap_content_page($static, $cid);
   }
 
   public function run() {
@@ -103,14 +95,14 @@ class dbxContent_content {
     }
     if ($cid <= 0) {
       require_once __DIR__ . '/dbxContent_bootstrap.php';
-      $cid = dbxContentHome::resolveCid();
+      $cid = dbxContentHome::resolve_cid();
     }
     if (!$cid > 0) {
       $renderer = dbx()->get_include_obj('dbxContentRenderer', 'dbxContent');
-      return $renderer->renderNotFound();
+      return $renderer->render_not_found();
     }
 
-    return $this->renderPage($cid);
+    return $this->render_page($cid);
   } // run()
 
 

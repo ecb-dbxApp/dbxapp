@@ -5,11 +5,10 @@
      data-execute-url="{execute_url}"
      data-finish-url="{finish_url}"
      data-browser-result-url="{browser_result_url}">
- [tpl=dbx|module-bar]
+{report:message}
  [tpl=dbxSelfTest|selftest-dashboard-style]
  <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
-  [dbx:form]
-  [tpl=dbx|report-form-select]
+  {report:bar}
   <div class="dbx-selftest-summary-bar alert {summary_class} d-flex align-items-center justify-content-between flex-wrap gap-2"
        data-selftest-run-summary role="status">
    <span data-selftest-run-summary-text><i class="bi {summary_icon}" aria-hidden="true"></i> {summary_line}</span>
@@ -39,7 +38,8 @@
     </tbody>
    </table>
   </div>
-  [dbx:js]
+  {report:footer}
+ [dbx:js]
  </form>
- <script src="dbx/modules/dbxSelfTest/tpl/js/selftest.js?v={dbx:asset_version}-1" defer></script>
+ <script src="dbx/modules/dbxSelfTest/js/selftest.js?v={dbx:asset_version}-1" defer></script>
 </div>

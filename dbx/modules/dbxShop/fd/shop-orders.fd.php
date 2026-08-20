@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['page_title'] = 'Bestellungen';
 $messages['page_subtitle'] = 'Ihre gespeicherten Shop-Bestellungen.';
 $messages['empty_title'] = 'Noch keine Bestellungen';

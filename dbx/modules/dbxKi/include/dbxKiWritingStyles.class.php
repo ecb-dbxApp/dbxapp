@@ -45,7 +45,7 @@ class dbxKiWritingStyles {
       dbx()->set_cfg('dbxKi', $config);
    }
 
-   public static function resetToDefaults(): void {
+   public static function reset_to_defaults(): void {
       $config = dbx()->get_cfg('dbxKi');
       if (!is_array($config)) {
          $config = array();
@@ -70,7 +70,7 @@ class dbxKiWritingStyles {
          if (!is_array($meta)) {
             continue;
          }
-         $key = self::slugKey(is_string($key) ? $key : (string) ($meta['key'] ?? ''));
+         $key = self::slug_key(is_string($key) ? $key : (string) ($meta['key'] ?? ''));
          if ($key === '') {
             continue;
          }
@@ -84,13 +84,13 @@ class dbxKiWritingStyles {
       return $out;
    }
 
-   public static function slugKey(string $key): string {
+   public static function slug_key(string $key): string {
       $key = strtolower(trim($key));
       $key = preg_replace('/[^a-z0-9_-]+/', '_', $key);
       return trim((string) $key, '_');
    }
 
-   public static function parseFormRows(array $keys, array $labels, array $prompts): array {
+   public static function parse_form_rows(array $keys, array $labels, array $prompts): array {
       $styles = array();
       $count = max(count($keys), count($labels), count($prompts));
       for ($i = 0; $i < $count; $i++) {
@@ -102,7 +102,7 @@ class dbxKiWritingStyles {
       }
       $map = array();
       foreach ($styles as $row) {
-         $key = self::slugKey((string) ($row['key'] ?? ''));
+         $key = self::slug_key((string) ($row['key'] ?? ''));
          if ($key === '') {
             continue;
          }

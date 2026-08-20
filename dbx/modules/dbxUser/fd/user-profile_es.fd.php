@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['user_not_found'] = 'No se ha encontrado el perfil de usuario.';
 $messages['profile_title'] = 'Mi perfil';
 $messages['profile_subtitle'] = 'Datos personales, contacto, dirección y apariencia';

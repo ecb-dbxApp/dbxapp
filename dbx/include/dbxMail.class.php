@@ -3,6 +3,12 @@
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 use PHPMailer\PHPMailer\PHPMailer;
 
+/**
+ * Erstellt und versendet Text- und HTML-Nachrichten über PHPMailer.
+ *
+ * Die Klasse bündelt Absender, Empfänger, Anhänge, eingebettete Bilder und
+ * die in dbxApp konfigurierte Zustellungsart.
+ */
 class dbxMail {
 
   public $errstr = '';
@@ -21,6 +27,52 @@ class dbxMail {
   private $from = '';
   private $fromname = '';
 
+  /** Bereitet Inhalt und Anhänge vor und versendet eine vollständige Nachricht. */
+  public function send_message($from, $to, string $subject = '', string $body = '', string $format = 'html', $attachments = array(), array $options = array()): int {
+    $this->init();
+    $options['from'] = $from;
+    $format = strtolower(trim($format)) === 'txt' ? 'text' : strtolower(trim($format));
+
+    if ($format === 'html') {
+      $this->bodyhtml($body);
+      if (isset($options['text'])) {
+        $this->bodytext((string)$options['text']);
+      }
+    } else {
+      $this->bodytext($body);
+    }
+
+    foreach ($this->normalize_attachments($attachments) as $attachment) {
+      if (is_array($attachment)) {
+        $this->attachfile(
+          (string)($attachment['path'] ?? $attachment['file'] ?? ''),
+          (string)($attachment['disposition'] ?? 'attachment'),
+          (string)($attachment['content_type'] ?? $attachment['type'] ?? ''),
+          (string)($attachment['cid'] ?? '')
+        );
+      } else {
+        $this->attachfile((string)$attachment);
+      }
+    }
+    return (int)$this->send($to, $subject, $options);
+  }
+
+  /** Normalisiert die unterstützten Kurzformen für Mail-Anhänge. */
+  private function normalize_attachments($attachments): array {
+    if ($attachments === null || $attachments === '') {
+      return array();
+    }
+    if (is_string($attachments)) {
+      return array_filter(array_map('trim', preg_split('/[;,]+/', $attachments)));
+    }
+    if (is_array($attachments)) {
+      return isset($attachments['path']) || isset($attachments['file'])
+        ? array($attachments)
+        : $attachments;
+    }
+    return array();
+  }
+
   public function init() {
     $this->errstr = '';
     $this->headers = array();
@@ -38,8 +90,8 @@ class dbxMail {
     $this->fromname = '';
   }
 
-  public function checkEmail($inAddress) {
-    return filter_var((string) $inAddress, FILTER_VALIDATE_EMAIL) !== false;
+  public function check_email($in_address) {
+    return filter_var((string) $in_address, FILTER_VALIDATE_EMAIL) !== false;
   }
 
   public function get_body() {
@@ -73,7 +125,7 @@ class dbxMail {
     $this->headers['From'] = $this->format_address($this->from, $this->fromname);
   }
 
-  public function attachfile($file, $disp = 'attachment', $contentType = '', $cid = '') {
+  public function attachfile($file, $disp = 'attachment', $content_type = '', $cid = '') {
     $file = trim((string) $file);
 
     if ($file === '' || !is_file($file) || !is_readable($file)) {
@@ -85,15 +137,15 @@ class dbxMail {
       'path' => $file,
       'name' => basename($file),
       'disposition' => $disp ?: 'attachment',
-      'content_type' => $contentType ?: $this->getContentType($file),
+      'content_type' => $content_type ?: $this->get_content_type($file),
       'cid' => (string) $cid,
     );
 
     return 1;
   }
 
-  public function getContentType($inFileName) {
-    $file = (string) $inFileName;
+  public function get_content_type($in_file_name) {
+    $file = (string) $in_file_name;
 
     if (function_exists('mime_content_type') && is_file($file)) {
       $type = @mime_content_type($file);
@@ -148,10 +200,10 @@ class dbxMail {
     $this->errstr = '';
     $subject = (string) ($subject !== '' ? $subject : $this->subject);
 
-    $deliveryMode = $this->delivery_mode();
-    if ($deliveryMode !== 'external') {
+    $delivery_mode = $this->delivery_mode();
+    if ($delivery_mode !== 'external') {
       return $this->handle_internal_delivery(
-        $deliveryMode,
+        $delivery_mode,
         $to,
         $subject,
         is_array($options) ? $options : array()
@@ -177,9 +229,9 @@ class dbxMail {
       $this->configure_headers($mail);
       $this->configure_attachments($mail);
 
-      $spamReason = $this->spam_guard_reason($mail, $to, $subject, $options);
-      if ($spamReason !== '') {
-        $this->errstr = 'Mail wurde durch den Spam-Schutz blockiert: ' . $spamReason;
+      $spam_reason = $this->spam_guard_reason($mail, $to, $subject, $options);
+      if ($spam_reason !== '') {
+        $this->errstr = 'Mail wurde durch den Spam-Schutz blockiert: ' . $spam_reason;
         $this->sys_msg('security', $to, $subject, $this->errstr);
         return 0;
       }
@@ -276,9 +328,9 @@ class dbxMail {
         $config = $cfg;
       }
 
-      $defaultMail = dbx()->get_cfg('dbx', 'default_mail');
-      if ($defaultMail !== 'undef' && $defaultMail !== '') {
-        $config['default'] = (string) $defaultMail;
+      $default_mail = dbx()->get_cfg('dbx', 'default_mail');
+      if ($default_mail !== 'undef' && $default_mail !== '') {
+        $config['default'] = (string) $default_mail;
       }
     }
 
@@ -301,30 +353,30 @@ class dbxMail {
       return $config;
     }
 
-    $profileName = (string) ($options['mail_profile'] ?? $options['profile'] ?? '');
+    $profile_name = (string) ($options['mail_profile'] ?? $options['profile'] ?? '');
     $from = $this->normalize_from($options['from'] ?? null);
 
-    if ($profileName === '' && $from['email'] !== '') {
-      $profileName = $this->profile_for_sender($profiles, $from['email']);
+    if ($profile_name === '' && $from['email'] !== '') {
+      $profile_name = $this->profile_for_sender($profiles, $from['email']);
     }
 
-    if ($profileName === '') {
-      $profileName = (string) ($config['default'] ?? '');
+    if ($profile_name === '') {
+      $profile_name = (string) ($config['default'] ?? '');
     }
 
-    if ($profileName === '' || !isset($profiles[$profileName]) || !is_array($profiles[$profileName])) {
-      $profileName = (string) ($config['default'] ?? '');
+    if ($profile_name === '' || !isset($profiles[$profile_name]) || !is_array($profiles[$profile_name])) {
+      $profile_name = (string) ($config['default'] ?? '');
     }
 
-    if (($profileName === '' || !isset($profiles[$profileName])) && count($profiles)) {
+    if (($profile_name === '' || !isset($profiles[$profile_name])) && count($profiles)) {
       $keys = array_keys($profiles);
-      $profileName = (string) $keys[0];
+      $profile_name = (string) $keys[0];
     }
 
     $base = $this->mail_base_config($config);
 
-    if ($profileName !== '' && isset($profiles[$profileName]) && is_array($profiles[$profileName])) {
-      return array_replace_recursive($base, $profiles[$profileName], array('profile' => $profileName));
+    if ($profile_name !== '' && isset($profiles[$profile_name]) && is_array($profiles[$profile_name])) {
+      return array_replace_recursive($base, $profiles[$profile_name], array('profile' => $profile_name));
     }
 
     return $base;
@@ -382,7 +434,7 @@ class dbxMail {
     return '';
   }
 
-  private function profile_matches_domain($profile, $domain, $allowWildcard) {
+  private function profile_matches_domain($profile, $domain, $allow_wildcard) {
     if (!is_array($profile)) {
       return false;
     }
@@ -400,7 +452,7 @@ class dbxMail {
       if ($allowed === $domain) {
         return true;
       }
-      if ($allowWildcard && ($allowed === '*' || (substr($allowed, 0, 2) === '*.' && str_ends_with($domain, substr($allowed, 1))))) {
+      if ($allow_wildcard && ($allowed === '*' || (substr($allowed, 0, 2) === '*.' && str_ends_with($domain, substr($allowed, 1))))) {
         return true;
       }
     }
@@ -449,8 +501,8 @@ class dbxMail {
   }
 
   private function configure_sender(PHPMailer $mail, array $config, array $options) {
-    $forceFrom = !empty($config['force_from']);
-    $from = $forceFrom ? array('email' => '', 'name' => '') : $this->normalize_from($options['from'] ?? null);
+    $force_from = !empty($config['force_from']);
+    $from = $force_from ? array('email' => '', 'name' => '') : $this->normalize_from($options['from'] ?? null);
 
     if ($from['email'] === '') {
       $from = $this->normalize_from($this->from ? array('email' => $this->from, 'name' => $this->fromname) : null);
@@ -512,7 +564,7 @@ class dbxMail {
 
       $name = (string) ($attachment['name'] ?? basename($path));
       $encoding = PHPMailer::ENCODING_BASE64;
-      $type = (string) ($attachment['content_type'] ?? $this->getContentType($path));
+      $type = (string) ($attachment['content_type'] ?? $this->get_content_type($path));
       $disp = (string) ($attachment['disposition'] ?? 'attachment');
       $cid = (string) ($attachment['cid'] ?? '');
 
@@ -539,7 +591,7 @@ class dbxMail {
       }
 
       $cid = 'part.' . md5($file);
-      $mail->addEmbeddedImage($file, $cid, basename($file), PHPMailer::ENCODING_BASE64, $this->getContentType($file));
+      $mail->addEmbeddedImage($file, $cid, basename($file), PHPMailer::ENCODING_BASE64, $this->get_content_type($file));
       $html = str_replace($src, 'cid:' . $cid, $html);
       $this->html_images[] = $file;
     }
@@ -693,13 +745,13 @@ class dbxMail {
     $normalized = preg_replace('/\s+/u', ' ', $normalized) ?: $normalized;
     $score = 0;
 
-    $hardPatterns = array(
+    $hard_patterns = array(
       '/(?:https?:\/\/)?(?:www\.)?telegra\.ph\//i' => 'telegra.ph link',
       '/\btransaction[-\s_]*\d{2}-\d{2}-/i' => 'transaction spam code',
       '/\b(?:transaction|transfer|top\s*up)\b.{0,80}\b(?:get|claim|bonus|payment)\b/i' => 'finance spam phrase',
     );
 
-    foreach ($hardPatterns as $pattern => $reason) {
+    foreach ($hard_patterns as $pattern => $reason) {
       if (preg_match($pattern, $text)) {
         return $reason;
       }
@@ -721,8 +773,8 @@ class dbxMail {
       $score += 1;
     }
 
-    $urlCount = preg_match_all('/(?:https?:\/\/|www\.|[a-z0-9-]+\.[a-z]{2,}\/)/i', $text);
-    if ($urlCount >= 2) {
+    $url_count = preg_match_all('/(?:https?:\/\/|www\.|[a-z0-9-]+\.[a-z]{2,}\/)/i', $text);
+    if ($url_count >= 2) {
       $score += 2;
     }
 

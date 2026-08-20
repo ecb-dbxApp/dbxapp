@@ -1,7 +1,8 @@
 <?php
 namespace dbx\dbxContent_admin;
 
-dbx()->use_system_class('dbxReport');
+dbx()->get_system_obj('dbxReport', 'use');
+require_once __DIR__ . '/dbxReport_ContentSections.class.php';
 require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
 
 use dbx\dbxContent\dbxContentLng;
@@ -9,59 +10,30 @@ use dbx\dbxContent\dbxContentLngSync;
 use dbx\dbxContent\dbxContentPageCache;
 use dbx\dbxContent\dbxContent_permalink;
 
-class dbxReport_ContentSections extends \dbxReport {
-
-   public function run_body($content) {
-      $record = $this->_record;
-      $path = trim((string)($record['path'] ?? ''));
-
-      if ($path !== '') {
-         $url = '?dbx_modul=dbxEditor&dbx_run1=edit&file=' . rawurlencode($path);
-         $record['edit'] =
-            '<a class="btn btn-outline-primary btn-sm dbx-win" href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" ' .
-            'data-url="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" data-title="' .
-            htmlspecialchars($this->get_fd_message('edit_template'), ENT_QUOTES, 'UTF-8') . '" ' .
-            'title="' . htmlspecialchars($this->get_fd_message('edit_template'), ENT_QUOTES, 'UTF-8') .
-            '"><i class="bi bi-pencil"></i></a>';
-      }
-
-      $editUrl = trim((string)($record['edit_url'] ?? ''));
-      if ($editUrl !== '') {
-         $record['edit'] =
-            '<a class="btn btn-outline-primary btn-sm" href="' . htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8') . '" ' .
-            'title="' . htmlspecialchars($this->get_fd_message('edit_in_cms'), ENT_QUOTES, 'UTF-8') .
-            '"><i class="bi bi-pencil"></i></a>';
-      }
-
-      $this->_record = $record;
-      return $this->forward_run_body($content);
-   }
-}
-
 class dbxContent_sections {
 
    private $content_folders = array();
    private $media_usages = array();
-   private $sectionTexts = null;
+   private $section_texts = null;
 
    private function section_texts() {
-      if ($this->sectionTexts) return $this->sectionTexts;
+      if ($this->section_texts) return $this->section_texts;
       dbx()->get_system_obj('dbxForm', 'use');
       $texts = new \dbxForm();
       $texts->init('content-section-texts');
-      $texts->_fd = 'dbxContent_admin|rpt-content-list-selection';
+      $texts->set_field_definition('dbxContent_admin|rpt-content-list-selection');
       $texts->load_fd_messages();
       $texts->set_form_help_enabled(false);
-      $this->sectionTexts = $texts;
-      return $this->sectionTexts;
+      $this->section_texts = $texts;
+      return $this->section_texts;
    }
 
-   private function render_section($title, $subtitle, $content, $barActions = '') {
+   private function render_section($title, $subtitle, $content, $bar_actions = '') {
       return dbx()->get_system_obj('dbxTPL')->get_tpl('dbxContent_admin|content-admin-section', array(
          'title' => $title,
          'subtitle' => $subtitle,
          'content' => $content,
-         'bar_actions' => $barActions,
+         'bar_actions' => $bar_actions,
       ));
    }
 
@@ -69,12 +41,12 @@ class dbxContent_sections {
       return (int)dbx()->get_system_var('dbx_ajax', 0, 'int') === 1;
    }
 
-   private function render_section_or_ajax($title, $subtitle, $content, $barActions = '') {
+   private function render_section_or_ajax($title, $subtitle, $content, $bar_actions = '') {
       if ($this->is_ajax_request()) {
          return $content;
       }
 
-      return $this->render_section($title, $subtitle, $content, $barActions);
+      return $this->render_section($title, $subtitle, $content, $bar_actions);
    }
 
    private function base_url($action, $params = array()) {
@@ -95,28 +67,28 @@ class dbxContent_sections {
       }
 
       $pairs = array('0=/');
-      $folderIds = array_keys($this->content_folders);
-      usort($folderIds, function ($a, $b) {
+      $folder_ids = array_keys($this->content_folders);
+      usort($folder_ids, function ($a, $b) {
          return strcmp($this->content_folder_path($a), $this->content_folder_path($b));
       });
 
-      foreach ($folderIds as $folderId) {
-         $path = $this->content_folder_path($folderId);
+      foreach ($folder_ids as $folder_id) {
+         $path = $this->content_folder_path($folder_id);
          $label = str_replace(array('~', '=', ';'), array(' ', ' ', ' '), $path);
-         $pairs[] = (int)$folderId . '=' . $label;
+         $pairs[] = (int)$folder_id . '=' . $label;
       }
 
       return implode('~', $pairs);
    }
 
    private function content_grid_cols($texts) {
-      $folderValues = $this->content_grid_folder_editor_values();
+      $folder_values = $this->content_grid_folder_editor_values();
 
       return implode(',', array(
          'id[ID]:number:p:width=72;hozAlign=center;headerHozAlign=center',
          'title[' . $texts->get_fd_message('column_title') . ']:text::width=240',
          'permalink[' . $texts->get_fd_message('column_permalink') . ']:text::width=200',
-         'folder[' . $texts->get_fd_message('column_folder') . ']:text::editor=list;values=' . $folderValues . ';width=220',
+         'folder[' . $texts->get_fd_message('column_folder') . ']:text::editor=list;values=' . $folder_values . ';width=220',
          'activ[' . $texts->get_fd_message('column_active') . ']:text::editor=list;values=0='
             . $texts->get_fd_message('status_inactive') . '~1=' . $texts->get_fd_message('status_active') . ';width=110',
          'update_date[' . $texts->get_fd_message('column_updated') . ']:text:p:width=170',
@@ -124,8 +96,8 @@ class dbxContent_sections {
    }
 
    private function load_content_folders_map($db) {
-      $folderRows = $db->select(
-         dbxContentLng::ddFolder(),
+      $folder_rows = $db->select(
+         dbxContentLng::dd_folder(),
          '',
          'id,name,parent_id',
          'id',
@@ -136,11 +108,11 @@ class dbxContent_sections {
          0
       );
       $this->content_folders = array();
-      if (is_array($folderRows)) {
-         foreach ($folderRows as $folderRow) {
-            $folderId = (int)($folderRow['id'] ?? 0);
-            if ($folderId > 0) {
-               $this->content_folders[$folderId] = $folderRow;
+      if (is_array($folder_rows)) {
+         foreach ($folder_rows as $folder_row) {
+            $folder_id = (int)($folder_row['id'] ?? 0);
+            if ($folder_id > 0) {
+               $this->content_folders[$folder_id] = $folder_row;
             }
          }
       }
@@ -179,7 +151,7 @@ class dbxContent_sections {
 
    private function content_grid_read() {
       $db = dbx()->get_system_obj('dbxDB');
-      $dd = dbxContentLng::ddContent();
+      $dd = dbxContentLng::dd_content();
       $this->load_content_folders_map($db);
 
       $page = (int)dbx()->get_request_var('page', 0, 'int');
@@ -227,7 +199,7 @@ class dbxContent_sections {
 
    private function content_grid_sync() {
       $db = dbx()->get_system_obj('dbxDB');
-      $dd = dbxContentLng::ddContent();
+      $dd = dbxContentLng::dd_content();
       $this->load_content_folders_map($db);
 
       $last_update = trim((string)dbx()->get_request_var('last_update', ''));
@@ -270,7 +242,7 @@ class dbxContent_sections {
 
       $payload = $this->request_json();
       $rows = is_array($payload['rows'] ?? null) ? $payload['rows'] : array();
-      $dd = dbxContentLng::ddContent();
+      $dd = dbxContentLng::dd_content();
       $allowed = array_flip(array('title', 'permalink', 'activ', 'folder'));
       $saved = array();
 
@@ -301,8 +273,8 @@ class dbxContent_sections {
          }
 
          if (array_key_exists('folder', $data)) {
-            $folderId = (int)$data['folder'];
-            if ($folderId < 0 || ($folderId > 0 && !isset($this->content_folders[$folderId]))) {
+            $folder_id = (int)$data['folder'];
+            if ($folder_id < 0 || ($folder_id > 0 && !isset($this->content_folders[$folder_id]))) {
                continue;
             }
          }
@@ -310,16 +282,16 @@ class dbxContent_sections {
          if (array_key_exists('permalink', $data)) {
             if ($data['permalink'] === '') {
                $current = $db->select1($dd, $id, 'title,folder', 0);
-               $pageTitle = (string)($data['title'] ?? ($current['title'] ?? 'Seite'));
-               $pageFolder = (int)($data['folder'] ?? ($current['folder'] ?? 0));
+               $page_title = (string)($data['title'] ?? ($current['title'] ?? 'Seite'));
+               $page_folder = (int)($data['folder'] ?? ($current['folder'] ?? 0));
                $data['permalink'] = dbxContent_permalink::build(
                   $db,
-                  dbxContentLng::ddFolder(),
-                  $pageFolder,
-                  $pageTitle,
+                  dbxContentLng::dd_folder(),
+                  $page_folder,
+                  $page_title,
                   $id
                );
-            } elseif (!dbxContent_permalink::isValid($data['permalink'])) {
+            } elseif (!dbxContent_permalink::is_valid($data['permalink'])) {
                dbx()->json_response(array(
                   'ok' => 0,
                   'success' => false,
@@ -339,9 +311,9 @@ class dbxContent_sections {
          }
 
          if ($db->update($dd, $data, $id) >= 0) {
-            dbxContentLngSync::afterPageSave($db, $id, false);
-            dbxContentPageCache::invalidateContent($id);
-            dbxContentPageCache::invalidateAllMenus();
+            dbxContentLngSync::after_page_save($db, $id, false);
+            dbxContentPageCache::invalidate_content($id);
+            dbxContentPageCache::invalidate_all_menus();
             $fresh = $db->select1($dd, $id, 'id,title,permalink,folder,activ,update_date', 0);
             if (is_array($fresh)) {
                $saved[] = $this->enrich_content_row($fresh);
@@ -377,118 +349,116 @@ class dbxContent_sections {
    }
 
    private function report_content_grid() {
-      $oReport = dbx()->get_system_obj('dbxReport');
+      $o_report = dbx()->get_system_obj('dbxReport');
       $db = dbx()->get_system_obj('dbxDB');
-      $dd = dbxContentLng::ddContent();
+      $dd = dbxContentLng::dd_content();
       $all = (int)$db->count($dd);
       $active = (int)$db->count($dd, 'activ = 1');
 
-      $oReport->init('content-admin-content-grid', 'content-admin-content-grid');
-      $oReport->_fd = 'dbxContent_admin|rpt-content-list-selection';
-      $oReport->load_fd_messages();
-      $oReport->add_rep('shell_panel_class', 'dbx-grid dbx-content-list-grid');
-      $oReport->add_rep('frame_use_form', '0');
-      $oReport->add_rep('bar_title', $oReport->get_fd_message('bar_title'));
-      $oReport->add_rep('bar_subtitle', $oReport->get_fd_message('bar_subtitle'));
-      $oReport->_mode = 'tabulurator';
-      $oReport->_rrows = 600;
-      $oReport->_grid_id = 'dbx_content_list_grid';
-      $oReport->_grid_cols = $this->content_grid_cols($oReport);
-      $oReport->_grid_layout = 'fitDataStretch';
-      $oReport->_grid_read_url = $this->base_url('content_grid_read');
-      $oReport->_grid_save_url = $this->base_url('content_grid_save');
-      $oReport->_grid_delete_url = $this->base_url('content_grid_delete');
-      $oReport->_grid_sync_url = $this->base_url('content_grid_sync');
-      $oReport->_grid_synctime = '1.5';
-      $oReport->add_grid_stats(array(
-         array('label' => $oReport->get_fd_message('stats_pages'), 'value' => (string)$all),
-         array('label' => $oReport->get_fd_message('stats_active'), 'value' => (string)$active, 'tone' => 'ok'),
-         array('label' => $oReport->get_fd_message('stats_inactive'), 'value' => (string)max(0, $all - $active)),
-      ), $oReport->get_fd_message('stats_title'));
-      $oReport->add_obj('bar_actions', 'obj-value',
+      $o_report->init('content-admin-content-grid', 'content-admin-content-grid');
+      $o_report->set_field_definition('dbxContent_admin|rpt-content-list-selection');
+      $o_report->load_fd_messages();
+      $o_report->add_rep('shell_panel_class', 'dbx-grid dbx-content-list-grid');
+      $o_report->add_rep('frame_use_form', '0');
+      $o_report->add_rep('bar_title', $o_report->get_fd_message('bar_title'));
+      $o_report->add_rep('bar_subtitle', $o_report->get_fd_message('bar_subtitle'));
+      $o_report->set_mode('tabulator');
+      $o_report->_rrows = 600;
+      $o_report->_grid_id = 'dbx_content_list_grid';
+      $o_report->_grid_cols = $this->content_grid_cols($o_report);
+      $o_report->_grid_layout = 'fitDataStretch';
+      $o_report->_grid_read_url = $this->base_url('content_grid_read');
+      $o_report->_grid_save_url = $this->base_url('content_grid_save');
+      $o_report->_grid_delete_url = $this->base_url('content_grid_delete');
+      $o_report->_grid_sync_url = $this->base_url('content_grid_sync');
+      $o_report->_grid_synctime = '1.5';
+      $o_report->add_grid_stats(array(
+         array('label' => $o_report->get_fd_message('stats_pages'), 'value' => (string)$all),
+         array('label' => $o_report->get_fd_message('stats_active'), 'value' => (string)$active, 'tone' => 'ok'),
+         array('label' => $o_report->get_fd_message('stats_inactive'), 'value' => (string)max(0, $all - $active)),
+      ), $o_report->get_fd_message('stats_title'));
+      $o_report->add_obj('bar_actions', 'obj-value',
          '<a class="btn btn-outline-primary btn-sm" href="' . dbx()->esc($this->base_url('edit')) . '">' .
-         '<i class="bi bi-pencil-square"></i><span>' . dbx()->esc($oReport->get_fd_message('cms_label')) . '</span></a>'
+         '<i class="bi bi-pencil-square"></i><span>' . dbx()->esc($o_report->get_fd_message('cms_label')) . '</span></a>'
       );
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
-   private function report_rows($action, array $fields, array $rows, $msgSuccess = '', $msgError = '') {
+   private function report_rows($action, array $fields, array $rows, $msg_success = '', $msg_error = '') {
       $report = new dbxReport_ContentSections();
-      $report->init('content-admin-report');
-      $report->_fd = 'dbxContent_admin|rpt-content-list-selection';
+      $report->init('content-admin-report', 'content-admin-report');
+      $report->set_field_definition('dbxContent_admin|rpt-content-list-selection');
       $report->load_fd_messages();
       $report->set_form_help_enabled(false);
-      $report->_action = '?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=' . rawurlencode($action);
+      $report->set_action('?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=' . rawurlencode($action));
       $report->_create_sel_flds = 0;
       $report->_rflds = $fields;
-      $report->_mode = 'table';
+      $report->set_mode('table');
       $report->_rdata = $rows;
       $report->_rcount = count($rows);
       $report->_rrows = count($rows) > 0 ? count($rows) : 1;
       $report->_rpos = 0;
 
-      if ($msgSuccess !== '') {
-         $report->_msg_success = $msgSuccess;
+      if ($msg_success !== '') {
+         $report->_msg_success = $msg_success;
       }
-      if ($msgError !== '') {
-         $report->_msg_error = $msgError;
+      if ($msg_error !== '') {
+         $report->_msg_error = $msg_error;
       }
 
       if ($action === 'list_folder') {
          $report->set_callback_owner($this);
          $report->set_callback('next_record', 'folder_next_record');
          $report->set_callback('row_action_data', 'folder_row_action_data');
-         $report->_create_row_edit = 1;
-         $report->_create_row_delete = 1;
+         $report->set_table_actions(array('edit', 'delete'));
          $report->_msg_confirm_delete = $report->get_fd_message('confirm_folder_delete');
-         $report->set_tabel_tpl('tpl_row_edit', 'modul|content-admin-row-edit');
+         $report->set_table_tpl('tpl_row_edit', 'modul|content-admin-row-edit');
       } elseif ($action === 'list_media') {
          $report->set_callback_owner($this);
          $report->set_callback('next_record', 'media_next_record');
          $report->set_callback('row_action_data', 'media_row_action_data');
-         $report->_create_row_delete = 1;
+         $report->set_table_actions(array('delete'));
          $report->_msg_confirm_delete = $report->get_fd_message('confirm_media_delete');
-         $report->set_tabel_tpl('tpl_row_delete', 'modul|content-admin-row-delete-media');
+         $report->set_table_tpl('tpl_row_delete', 'modul|content-admin-row-delete-media');
       } elseif ($action === 'templates') {
          $report->set_callback_owner($this);
          $report->set_callback('row_action_data', 'template_row_action_data');
-         $report->_create_row_edit = 1;
-         $report->_create_row_delete = 1;
+         $report->set_table_actions(array('edit', 'delete'));
          $report->_fld_id = 'name';
          $report->_msg_confirm_delete = $report->get_fd_message('confirm_template_delete');
          $report->_rpt_format['modified'] = 'php-datetime-usr';
          $report->_table_buttons = 'left';
-         $report->set_tabel_tpl('tpl_row_edit', 'modul|content-admin-row-edit');
-         $report->set_tabel_tpl('tpl_row_delete', 'modul|content-admin-row-delete-template');
+         $report->set_table_tpl('tpl_row_edit', 'modul|content-admin-row-edit');
+         $report->set_table_tpl('tpl_row_delete', 'modul|content-admin-row-delete-template');
       }
 
       return $report->run();
    }
 
-   private function content_folder_path($folderId) {
-      $folderId = (int)$folderId;
-      if ($folderId <= 0) {
+   private function content_folder_path($folder_id) {
+      $folder_id = (int)$folder_id;
+      if ($folder_id <= 0) {
          return '/';
       }
 
       $parts = array();
       $seen = array();
 
-      while ($folderId > 0 && isset($this->content_folders[$folderId]) && !isset($seen[$folderId])) {
-         $seen[$folderId] = true;
-         $folder = $this->content_folders[$folderId];
+      while ($folder_id > 0 && isset($this->content_folders[$folder_id]) && !isset($seen[$folder_id])) {
+         $seen[$folder_id] = true;
+         $folder = $this->content_folders[$folder_id];
          $name = trim((string)($folder['name'] ?? ''), " \t\n\r\0\x0B/");
 
          if ($name !== '') {
             array_unshift($parts, $name);
          }
 
-         $parentId = (int)($folder['parent_id'] ?? 0);
-         if ($parentId === $folderId) {
+         $parent_id = (int)($folder['parent_id'] ?? 0);
+         if ($parent_id === $folder_id) {
             break;
          }
-         $folderId = $parentId;
+         $folder_id = $parent_id;
       }
 
       return '/' . implode('/', $parts);
@@ -536,23 +506,23 @@ class dbxContent_sections {
       $id = (int)($record['id'] ?? 0);
       $type = strtolower(trim((string)($record['media_type'] ?? '')));
       $provider = strtolower(trim((string)($record['provider'] ?? '')));
-      $providerId = trim((string)($record['provider_id'] ?? ''));
+      $provider_id = trim((string)($record['provider_id'] ?? ''));
       $title = trim((string)($record['title'] ?? $record['file_name'] ?? 'Medium'));
       $preview = '<span class="text-muted"><i class="bi bi-file-earmark"></i></span>';
 
       if ($id > 0 && in_array($type, array('image', 'video', 'external_video'), true)) {
-         $mediaUrl = 'index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid=' . $id;
+         $media_url = 'index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid=' . $id;
          $url = '?dbx_modul=dbxContent_admin&dbx_run1=media_view&rid=' . $id . '&dbx_window=1';
-         $thumbUrl = $mediaUrl . '&dbx_thumb=1';
-         if ($type === 'external_video' && $provider === 'youtube' && preg_match('/^[A-Za-z0-9_-]{11}$/', $providerId)) {
-            $thumbUrl = 'https://img.youtube.com/vi/' . rawurlencode($providerId) . '/hqdefault.jpg';
+         $thumb_url = $media_url . '&dbx_thumb=1';
+         if ($type === 'external_video' && $provider === 'youtube' && preg_match('/^[A-Za-z0-9_-]{11}$/', $provider_id)) {
+            $thumb_url = 'https://img.youtube.com/vi/' . rawurlencode($provider_id) . '/hqdefault.jpg';
          }
          $preview =
             '<a class="openWin dbx-win" href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" ' .
             'data-url="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" ' .
             'data-title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '" ' .
             'title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '">' .
-            '<img src="' . htmlspecialchars($thumbUrl, ENT_QUOTES, 'UTF-8') . '" ' .
+            '<img src="' . htmlspecialchars($thumb_url, ENT_QUOTES, 'UTF-8') . '" ' .
             'alt="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '" loading="lazy" ' .
             'class="rounded border bg-light" style="width:96px;height:64px;object-fit:cover">' .
             '</a>';
@@ -560,15 +530,15 @@ class dbxContent_sections {
 
       $record['thumbnail'] = $preview;
       $usages = $this->media_usages[$id] ?? array();
-      $usageHtml = array();
+      $usage_html = array();
       foreach ($usages as $usage) {
          $lng = strtolower(trim((string)($usage['lng'] ?? '')));
-         $usageId = (int)($usage['id'] ?? 0);
+         $usage_id = (int)($usage['id'] ?? 0);
          $type = (string)($usage['type'] ?? 'page');
          $label = trim((string)($usage['title'] ?? ''));
          $url = '?dbx_modul=dbxContent_admin&dbx_run1=cms&dbx_lng=' . rawurlencode($lng) .
-            ($type === 'folder' ? '&fid=' : '&cid=') . $usageId . '&dbx_window=1';
-         $usageHtml[] =
+            ($type === 'folder' ? '&fid=' : '&cid=') . $usage_id . '&dbx_window=1';
+         $usage_html[] =
             '<a class="openWin dbx-win d-block text-decoration-none mb-1" ' .
             'href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" ' .
             'data-url="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" ' .
@@ -578,8 +548,8 @@ class dbxContent_sections {
             htmlspecialchars($label, ENT_QUOTES, 'UTF-8') .
             '</a>';
       }
-      $record['usage'] = count($usageHtml)
-         ? implode('', $usageHtml)
+      $record['usage'] = count($usage_html)
+         ? implode('', $usage_html)
          : '<span class="text-muted">Nicht verwendet</span>';
       $record['_usage_count'] = count($usages);
       return $record;
@@ -608,13 +578,13 @@ class dbxContent_sections {
       return $data;
    }
 
-   private function add_media_usage(array &$map, int $mediaId, string $lng, int $id, string $title, string $type = 'page'): void {
-      if ($mediaId <= 0 || $id <= 0 || $lng === '') {
+   private function add_media_usage(array &$map, int $media_id, string $lng, int $id, string $title, string $type = 'page'): void {
+      if ($media_id <= 0 || $id <= 0 || $lng === '') {
          return;
       }
 
       $key = $type . '|' . $lng . '|' . $id;
-      $map[$mediaId][$key] = array(
+      $map[$media_id][$key] = array(
          'lng' => $lng,
          'id' => $id,
          'title' => ($type === 'folder' ? 'Ordner: ' : '') . ($title !== '' ? $title : ('#' . $id)),
@@ -624,17 +594,17 @@ class dbxContent_sections {
 
    private function load_media_usages($db): array {
       $map = array();
-      $usageRows = $db->select('dbxMediaUsage', 'active = 1', 'media_id,content_id,folder_id,content_lng', 'media_id,id', 'ASC', '', 0, 0, 0);
-      $usageRows = is_array($usageRows) ? $usageRows : array();
+      $usage_rows = $db->select('dbxMediaUsage', 'active = 1', 'media_id,content_id,folder_id,content_lng', 'media_id,id', 'ASC', '', 0, 0, 0);
+      $usage_rows = is_array($usage_rows) ? $usage_rows : array();
 
-      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
+      foreach (dbxContentLngSync::accessible_lngs() as $lng) {
          $lng = strtolower(trim((string)$lng));
          if ($lng === '') {
             continue;
          }
 
          $pages = $db->select(
-            dbxContentLng::ddContent($lng),
+            dbxContentLng::dd_content($lng),
             '',
             'id,title,hero_image_id,seo_image_id,content',
             'id',
@@ -645,7 +615,7 @@ class dbxContent_sections {
             0
          );
          $folders = $db->select(
-            dbxContentLng::ddFolder($lng),
+            dbxContentLng::dd_folder($lng),
             '',
             'id,name,hero_image_id',
             'id',
@@ -656,79 +626,79 @@ class dbxContent_sections {
             0
          );
 
-         $pagesById = array();
+         $pages_by_id = array();
          foreach (is_array($pages) ? $pages : array() as $page) {
-            $pageId = (int)($page['id'] ?? 0);
-            if ($pageId <= 0) {
+            $page_id = (int)($page['id'] ?? 0);
+            if ($page_id <= 0) {
                continue;
             }
-            $pagesById[$pageId] = $page;
+            $pages_by_id[$page_id] = $page;
 
-            $heroId = (int)($page['hero_image_id'] ?? 0);
-            if ($heroId > 0) {
-               $this->add_media_usage($map, $heroId, $lng, $pageId, (string)($page['title'] ?? ''), 'page');
+            $hero_id = (int)($page['hero_image_id'] ?? 0);
+            if ($hero_id > 0) {
+               $this->add_media_usage($map, $hero_id, $lng, $page_id, (string)($page['title'] ?? ''), 'page');
             }
-            $seoId = (int)($page['seo_image_id'] ?? 0);
-            if ($seoId > 0) {
-               $this->add_media_usage($map, $seoId, $lng, $pageId, (string)($page['title'] ?? ''), 'page');
+            $seo_id = (int)($page['seo_image_id'] ?? 0);
+            if ($seo_id > 0) {
+               $this->add_media_usage($map, $seo_id, $lng, $page_id, (string)($page['title'] ?? ''), 'page');
             }
-            $inlineIds = array();
+            $inline_ids = array();
             $content = (string)($page['content'] ?? '');
             if (preg_match_all('/data-cms-media-id=["\']?(\d+)/i', $content, $matches)) {
-               foreach ($matches[1] as $mediaId) $inlineIds[(int)$mediaId] = (int)$mediaId;
+               foreach ($matches[1] as $media_id) $inline_ids[(int)$media_id] = (int)$media_id;
             }
             if (preg_match_all('/(?:dbx_mid|media_id)=(\d+)(?:[^0-9]|$)/i', $content, $matches)) {
-               foreach ($matches[1] as $mediaId) $inlineIds[(int)$mediaId] = (int)$mediaId;
+               foreach ($matches[1] as $media_id) $inline_ids[(int)$media_id] = (int)$media_id;
             }
-            foreach ($inlineIds as $mediaId) {
-               if ($mediaId > 0) {
-                  $this->add_media_usage($map, (int)$mediaId, $lng, $pageId, (string)($page['title'] ?? ''), 'page');
+            foreach ($inline_ids as $media_id) {
+               if ($media_id > 0) {
+                  $this->add_media_usage($map, (int)$media_id, $lng, $page_id, (string)($page['title'] ?? ''), 'page');
                }
             }
          }
 
-         $foldersById = array();
+         $folders_by_id = array();
          foreach (is_array($folders) ? $folders : array() as $folder) {
-            $folderId = (int)($folder['id'] ?? 0);
-            if ($folderId <= 0) {
+            $folder_id = (int)($folder['id'] ?? 0);
+            if ($folder_id <= 0) {
                continue;
             }
-            $foldersById[$folderId] = $folder;
-            $heroId = (int)($folder['hero_image_id'] ?? 0);
-            if ($heroId > 0) {
-               $this->add_media_usage($map, $heroId, $lng, $folderId, (string)($folder['name'] ?? ''), 'folder');
+            $folders_by_id[$folder_id] = $folder;
+            $hero_id = (int)($folder['hero_image_id'] ?? 0);
+            if ($hero_id > 0) {
+               $this->add_media_usage($map, $hero_id, $lng, $folder_id, (string)($folder['name'] ?? ''), 'folder');
             }
          }
 
-         foreach ($usageRows as $usage) {
+         foreach ($usage_rows as $usage) {
             if (strtolower(trim((string)($usage['content_lng'] ?? 'de'))) !== $lng) continue;
-            $mediaId = (int)($usage['media_id'] ?? 0);
-            $contentId = (int)($usage['content_id'] ?? 0);
-            $folderId = (int)($usage['folder_id'] ?? 0);
-            if ($contentId > 0 && isset($pagesById[$contentId])) {
+            $media_id = (int)($usage['media_id'] ?? 0);
+            $content_id = (int)($usage['content_id'] ?? 0);
+            $folder_id = (int)($usage['folder_id'] ?? 0);
+            if ($content_id > 0 && isset($pages_by_id[$content_id])) {
                $this->add_media_usage(
                   $map,
-                  $mediaId,
+                  $media_id,
                   $lng,
-                  $contentId,
-                  (string)($pagesById[$contentId]['title'] ?? ''),
+                  $content_id,
+                  (string)($pages_by_id[$content_id]['title'] ?? ''),
                   'page'
                );
-            } elseif ($folderId > 0 && isset($foldersById[$folderId])) {
+            } elseif ($folder_id > 0 && isset($folders_by_id[$folder_id])) {
                $this->add_media_usage(
                   $map,
-                  $mediaId,
+                  $media_id,
                   $lng,
-                  $folderId,
-                  (string)($foldersById[$folderId]['name'] ?? ''),
+                  $folder_id,
+                  (string)($folders_by_id[$folder_id]['name'] ?? ''),
                   'folder'
                );
             }
          }
       }
 
-      foreach ($map as $mediaId => $items) {
-         $map[$mediaId] = array_values($items);
+      foreach ($map as $media_id => $items) {
+         $map[$media_id] = array_values($items);
       }
       return $map;
    }
@@ -776,10 +746,10 @@ class dbxContent_sections {
       $db = dbx()->get_system_obj('dbxDB');
       $texts = $this->section_texts();
 
-      $deleteId = (int)dbx()->get_modul_var('rid', 0, 'int');
-      if (dbx()->get_modul_var('dbx_do', '', 'parameter') === 'row_delete' && $deleteId > 0) {
+      $delete_id = (int)dbx()->get_modul_var('rid', 0, 'int');
+      if (dbx()->get_modul_var('dbx_do', '', 'parameter') === 'row_delete' && $delete_id > 0) {
          $cms = dbx()->get_include_obj('dbxContent_cms');
-         $cms->delete_folder_record($deleteId);
+         $cms->delete_folder_record($delete_id);
       }
 
       $fields = array(
@@ -790,7 +760,7 @@ class dbxContent_sections {
       );
 
       $rows = $db->select(
-         dbxContentLng::ddFolder(),
+         dbxContentLng::dd_folder(),
          '',
          'id,name,parent_id,template,group_read',
          'name',
@@ -806,9 +776,9 @@ class dbxContent_sections {
 
       $this->content_folders = array();
       foreach ($rows as $index => $row) {
-         $folderId = (int)($row['id'] ?? 0);
-         if ($folderId > 0) {
-            $this->content_folders[$folderId] = $row;
+         $folder_id = (int)($row['id'] ?? 0);
+         if ($folder_id > 0) {
+            $this->content_folders[$folder_id] = $row;
          }
          $rows[$index]['folder_path'] = '';
       }
@@ -821,10 +791,10 @@ class dbxContent_sections {
       $texts = $this->section_texts();
 
       $this->media_usages = $this->load_media_usages($db);
-      $deleteId = (int)dbx()->get_modul_var('rid', 0, 'int');
-      if (dbx()->get_modul_var('dbx_do', '', 'parameter') === 'row_delete' && $deleteId > 0) {
+      $delete_id = (int)dbx()->get_modul_var('rid', 0, 'int');
+      if (dbx()->get_modul_var('dbx_do', '', 'parameter') === 'row_delete' && $delete_id > 0) {
          $cms = dbx()->get_include_obj('dbxContent_cms');
-         $cms->delete_media_record($deleteId);
+         $cms->delete_media_record($delete_id);
          $this->media_usages = $this->load_media_usages($db);
       }
 
@@ -875,43 +845,43 @@ class dbxContent_sections {
 
       $type = strtolower(trim((string)($row['media_type'] ?? 'file')));
       $provider = strtolower(trim((string)($row['provider'] ?? '')));
-      $providerId = trim((string)($row['provider_id'] ?? ''));
+      $provider_id = trim((string)($row['provider_id'] ?? ''));
       $title = trim((string)($row['title'] ?? $row['file_name'] ?? ('Medium #' . $id)));
       $mime = trim((string)($row['mime'] ?? ''));
-      $mediaUrl = 'index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid=' . $id;
-      $mediaHtml = '';
+      $media_url = 'index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid=' . $id;
+      $media_html = '';
 
       if ($type === 'image') {
-         $mediaHtml =
-            '<img src="' . htmlspecialchars($mediaUrl, ENT_QUOTES, 'UTF-8') . '" ' .
+         $media_html =
+            '<img src="' . htmlspecialchars($media_url, ENT_QUOTES, 'UTF-8') . '" ' .
             'alt="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '" ' .
             'class="img-fluid rounded border bg-light" style="max-height:72vh;object-fit:contain">';
       } elseif ($type === 'video') {
          $poster = !empty($row['thumb_file_path'])
-            ? ' poster="' . htmlspecialchars($mediaUrl . '&dbx_thumb=1', ENT_QUOTES, 'UTF-8') . '"'
+            ? ' poster="' . htmlspecialchars($media_url . '&dbx_thumb=1', ENT_QUOTES, 'UTF-8') . '"'
             : '';
-         $mediaHtml =
+         $media_html =
             '<video class="w-100 rounded border bg-dark" style="max-height:72vh" controls preload="metadata" playsinline' . $poster . '>' .
-            '<source src="' . htmlspecialchars($mediaUrl, ENT_QUOTES, 'UTF-8') . '"' .
+            '<source src="' . htmlspecialchars($media_url, ENT_QUOTES, 'UTF-8') . '"' .
             ($mime !== '' ? ' type="' . htmlspecialchars($mime, ENT_QUOTES, 'UTF-8') . '"' : '') . '>' .
             'Ihr Browser kann dieses Video nicht wiedergeben.</video>';
-      } elseif ($type === 'external_video' && $provider === 'youtube' && preg_match('/^[A-Za-z0-9_-]{11}$/', $providerId)) {
-         $embedUrl = 'https://www.youtube.com/embed/' . rawurlencode($providerId);
-         $mediaHtml =
-            '<div class="ratio ratio-16x9"><iframe src="' . htmlspecialchars($embedUrl, ENT_QUOTES, 'UTF-8') . '" ' .
+      } elseif ($type === 'external_video' && $provider === 'youtube' && preg_match('/^[A-Za-z0-9_-]{11}$/', $provider_id)) {
+         $embed_url = 'https://www.youtube.com/embed/' . rawurlencode($provider_id);
+         $media_html =
+            '<div class="ratio ratio-16x9"><iframe src="' . htmlspecialchars($embed_url, ENT_QUOTES, 'UTF-8') . '" ' .
             'title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '" ' .
             'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' .
             'allowfullscreen></iframe></div>';
       } else {
-         $mediaHtml =
+         $media_html =
             '<div class="text-center py-5"><i class="bi bi-file-earmark fs-1 d-block mb-3"></i>' .
-            '<a class="btn btn-primary" href="' . htmlspecialchars($mediaUrl, ENT_QUOTES, 'UTF-8') . '">' .
+            '<a class="btn btn-primary" href="' . htmlspecialchars($media_url, ENT_QUOTES, 'UTF-8') . '">' .
             '<i class="bi bi-box-arrow-up-right"></i> Datei anzeigen</a></div>';
       }
 
       return dbx()->get_system_obj('dbxTPL')->get_tpl('dbxContent_admin|content-admin-media-view', array(
          'title' => htmlspecialchars($title, ENT_QUOTES, 'UTF-8'),
-         'media' => $mediaHtml,
+         'media' => $media_html,
          'type' => htmlspecialchars($type, ENT_QUOTES, 'UTF-8'),
          'folder' => htmlspecialchars((string)($row['media_folder'] ?? ''), ENT_QUOTES, 'UTF-8'),
          'mime' => htmlspecialchars($mime, ENT_QUOTES, 'UTF-8'),
@@ -930,10 +900,10 @@ class dbxContent_sections {
 
       if ($type === 'edit') {
          $modul = trim((string)($record['modul'] ?? 'dbxContent'));
-         $fileType = trim((string)($record['type'] ?? 'htm'));
+         $file_type = trim((string)($record['type'] ?? 'htm'));
 
-         $relPath = 'dbx/modules/' . $modul . '/tpl/' . $fileType . '/' . $tpl . '.' . $fileType;
-         $url = '?dbx_modul=dbxEditor&dbx_run1=edit&file=' . rawurlencode($relPath) . '&dbx_window=1';
+         $rel_path = 'dbx/modules/' . $modul . '/tpl/' . $file_type . '/' . $tpl . '.' . $file_type;
+         $url = '?dbx_modul=dbxEditor&dbx_run1=edit&file=' . rawurlencode($rel_path) . '&dbx_window=1';
 
          $data['data']['action'] = $url;
          $data['data']['edit_url'] = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
@@ -1076,11 +1046,11 @@ HTML;
       $action = '?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=template_new';
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('content-template-new', 'content-admin-template-new');
-      $form->_fd = 'dbxContent_admin|rpt-content-list-selection';
+      $form->set_field_definition('dbxContent_admin|rpt-content-list-selection');
       $form->load_fd_messages();
-      $form->_action = $action;
+      $form->set_action($action);
       // Den von init() erzeugten Security-Wert erhalten.
-      $form->_data = array_merge($form->_data, array('template_name' => ''));
+      $form->merge_data(array('template_name' => ''));
       $form->_msg_info = $form->get_fd_message('template_new_info');
       $form->add_fld(
          'template_name',
@@ -1091,16 +1061,16 @@ HTML;
          errormsg: $form->get_fd_message('template_name_error')
       );
 
-      $help = dbx()->get_include_obj('dbxAdminHelp', 'dbxAdmin');
-      $helpButton = is_object($help) && method_exists($help, 'formButton')
-         ? $help->formButton('dbxContent_admin', 'content-template-new', $form->get_fd_message('template_new_title'))
+      $help = dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp');
+      $help_button = is_object($help) && method_exists($help, 'formButton')
+         ? $help->form_button('dbxContent_admin', 'content-template-new', $form->get_fd_message('template_new_title'))
          : '';
-      $form->add_rep('help_button', $helpButton);
+      $form->add_rep('help_button', $help_button);
 
       if ($form->submit()) {
          if (!$form->errors()) {
-            $templateName = trim((string)$form->get_post('template_name', '', 'parameter|min=3|max=120'));
-            $result = $this->create_template_file($templateName);
+            $template_name = trim((string)$form->get_post('template_name', '', 'parameter|min=3|max=120'));
+            $result = $this->create_template_file($template_name);
             if (!empty($result['ok'])) {
                return dbx()->redirect('?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=templates');
             }
@@ -1116,15 +1086,15 @@ HTML;
 
    private function report_templates() {
       $texts = $this->section_texts();
-      $msgSuccess = '';
-      $msgError = '';
-      $dbxDo = (string)dbx()->get_request_var('dbx_do', '', 'alphanum');
-      $deleteName = trim((string)dbx()->get_request_var('rid', '', 'alphanum'));
-      if ($dbxDo === 'row_delete' && $deleteName !== '') {
-         if ($this->delete_template_file($deleteName)) {
-            $msgSuccess = $texts->format_fd_message('template_deleted', array('name' => $deleteName));
+      $msg_success = '';
+      $msg_error = '';
+      $dbx_do = (string)dbx()->get_request_var('dbx_do', '', 'alphanum');
+      $delete_name = trim((string)dbx()->get_request_var('rid', '', 'alphanum'));
+      if ($dbx_do === 'row_delete' && $delete_name !== '') {
+         if ($this->delete_template_file($delete_name)) {
+            $msg_success = $texts->format_fd_message('template_deleted', array('name' => $delete_name));
          } else {
-            $msgError = $texts->get_fd_message('template_delete_error');
+            $msg_error = $texts->get_fd_message('template_delete_error');
          }
       }
 
@@ -1162,7 +1132,7 @@ HTML;
          'modified' => $texts->get_fd_message('column_updated'),
       );
 
-      return $this->report_rows('templates', $fields, $rows, $msgSuccess, $msgError);
+      return $this->report_rows('templates', $fields, $rows, $msg_success, $msg_error);
    }
 
    public function run($work = '') {

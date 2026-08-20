@@ -1,10 +1,11 @@
 <?php
 namespace dbx\dbxUser;
-dbx()->use_system_class('dbxForm');
+dbx()->get_system_obj('dbxForm', 'use');
+require_once __DIR__ . '/dbxUserUpload.class.php';
 
 class dbxUser_avatar {
 
-   private string $ddUser = 'dbxUser';
+   private string $dd_user = 'dbxUser';
 
    private function avatar_dir() {
       $dir = dbx()->os_path(dbx()->get_base_dir() . 'files/user/avatar/');
@@ -48,51 +49,44 @@ class dbxUser_avatar {
       }
    }
 
-   private function has_upload_file($key) {
-      return isset($_FILES[$key])
-         && is_array($_FILES[$key])
-         && (int)($_FILES[$key]['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
-         && trim((string)($_FILES[$key]['name'] ?? '')) !== '';
-   }
-
    public function save_upload(int $rid, $db, array &$data, $texts, string &$error): bool {
       $error = '';
-      if (!$this->has_upload_file('upload_file')) {
+      if (!dbxUserUpload::has_file('upload_file')) {
          return false;
       }
 
-      $oUpload = dbx()->get_system_obj('dbxUpload');
-      $oUpload->upload($_FILES['upload_file']);
-      $oUpload->allowed = array('image/jpeg', 'image/jpg', 'image/pjpeg', 'image/png', 'image/x-png', 'image/webp', 'image/x-webp', 'image/gif');
-      $oUpload->file_max_size = 2 * 1024 * 1024;
-      $oUpload->file_overwrite = true;
-      $oUpload->file_new_name_body = 'avatar-' . $rid;
-      $oUpload->file_new_name_ext = 'webp';
-      $oUpload->image_convert = 'webp';
-      $oUpload->webp_quality = 86;
-      $oUpload->image_resize = true;
-      $oUpload->image_ratio_crop = true;
-      $oUpload->image_x = 640;
-      $oUpload->image_y = 640;
-      $oUpload->process($this->avatar_dir());
+      $o_upload = dbx()->get_system_obj('dbxUpload');
+      $o_upload->upload($_FILES['upload_file']);
+      $o_upload->allowed = array('image/jpeg', 'image/jpg', 'image/pjpeg', 'image/png', 'image/x-png', 'image/webp', 'image/x-webp', 'image/gif');
+      $o_upload->file_max_size = 2 * 1024 * 1024;
+      $o_upload->file_overwrite = true;
+      $o_upload->file_new_name_body = 'avatar-' . $rid;
+      $o_upload->file_new_name_ext = 'webp';
+      $o_upload->image_convert = 'webp';
+      $o_upload->webp_quality = 86;
+      $o_upload->image_resize = true;
+      $o_upload->image_ratio_crop = true;
+      $o_upload->image_x = 640;
+      $o_upload->image_y = 640;
+      $o_upload->process($this->avatar_dir());
 
-      if ($oUpload->processed) {
-         $ok = $db->update($this->ddUser, array('avatar' => $oUpload->file_dst_name), $rid);
+      if ($o_upload->processed) {
+         $ok = $db->update($this->dd_user, array('avatar' => $o_upload->file_dst_name), $rid);
          if ($ok) {
-            $data['avatar'] = $oUpload->file_dst_name;
-            $this->remove_old_avatar_files($rid, $oUpload->file_dst_name);
-            $oUpload->clean();
+            $data['avatar'] = $o_upload->file_dst_name;
+            $this->remove_old_avatar_files($rid, $o_upload->file_dst_name);
+            $o_upload->clean();
             return true;
          }
          $error = $texts->get_fd_message('avatar_save_error');
       } else {
          $error = $texts->format_fd_message(
             'upload_error',
-            array('error' => $oUpload->error)
+            array('error' => $o_upload->error)
          );
       }
 
-      $oUpload->clean();
+      $o_upload->clean();
       return false;
    }
 
@@ -102,53 +96,53 @@ class dbxUser_avatar {
       $rid = $uid;
 
       $db = dbx()->get_system_obj('dbxDB');
-      $data = $db->select1($this->ddUser, $rid);
-      $oForm = new \dbxForm();
-      $oForm->init('dbxUser_avatar', 'form-avatar');
-      $oForm->_fd = 'dbxUser|user-profile';
-      $oForm->load_fd_messages();
+      $data = $db->select1($this->dd_user, $rid);
+      $o_form = new \dbxForm();
+      $o_form->init('dbxUser_avatar', 'form-avatar');
+      $o_form->set_field_definition('dbxUser|user-profile');
+      $o_form->load_fd_messages();
       if (!is_array($data)) {
          return '<div class="alert alert-warning">'
-            . $oForm->get_fd_message('user_not_found')
+            . $o_form->get_fd_message('user_not_found')
             . '</div>';
       }
-      $oForm->set_workflow_scope('self-' . $uid);
-      $oForm->_data = $data;
-      $oForm->_dd = $this->ddUser;
-      $oForm->_action = '?dbx_modul=dbxUser&dbx_run1=user&dbx_run2=edit_avatar';
-      $oForm->_msg_info = '';
-      $oForm->_rid = $uid;
-      $oForm->set_state_value('rid', $uid);
+      $o_form->set_workflow_scope('self-' . $uid);
+      $o_form->set_data($data);
+      $o_form->set_data_definition($this->dd_user);
+      $o_form->set_action('?dbx_modul=dbxUser&dbx_run1=user&dbx_run2=edit_avatar');
+      $o_form->_msg_info = '';
+      $o_form->set_rid((int)$uid);
+      $o_form->set_state_value('rid', $uid);
 
-      if ($oForm->submit()) {
-         if (!$this->has_upload_file('upload_file')) {
-            $oForm->_msg_error = $oForm->get_fd_message('avatar_select_file');
+      if ($o_form->submit()) {
+         if (!dbxUserUpload::has_file('upload_file')) {
+            $o_form->_msg_error = $o_form->get_fd_message('avatar_select_file');
          } else {
-            $avatarError = '';
-            $ok = $this->save_upload($rid, $db, $data, $oForm, $avatarError);
-            $oForm->_msg_success = $ok ? $oForm->get_fd_message('avatar_saved') : '';
-            $oForm->_msg_error = $ok ? '' : $avatarError;
+            $avatar_error = '';
+            $ok = $this->save_upload($rid, $db, $data, $o_form, $avatar_error);
+            $o_form->_msg_success = $ok ? $o_form->get_fd_message('avatar_saved') : '';
+            $o_form->_msg_error = $ok ? '' : $avatar_error;
          }
       }
 
-      $oForm->add_obj(
+      $o_form->add_obj(
          'avatar_preview',
          'obj-value',
          '<img class="dbx-avatar-img" src="'
             . $this->avatar_url($data['avatar'] ?? '')
             . '?' . time()
-            . '" alt="' . dbx()->esc($oForm->get_fd_message('avatar_alt')) . '">'
+            . '" alt="' . dbx()->esc($o_form->get_fd_message('avatar_alt')) . '">'
       );
-      $jsMessages = json_encode(
+      $js_messages = json_encode(
          array(
-            'upload_running' => $oForm->get_fd_message('upload_running'),
-            'file_selected' => $oForm->get_fd_message('upload_file_selected'),
-            'upload_ready' => $oForm->get_fd_message('upload_ready'),
-            'save_profile' => $oForm->get_fd_message('upload_save_profile'),
+            'upload_running' => $o_form->get_fd_message('upload_running'),
+            'file_selected' => $o_form->get_fd_message('upload_file_selected'),
+            'upload_ready' => $o_form->get_fd_message('upload_ready'),
+            'save_profile' => $o_form->get_fd_message('upload_save_profile'),
          ),
          JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
       );
-      $oForm->add_js_code(str_replace('{dbx_avatar_messages}', $jsMessages ?: '{}', <<<'JS'
+      $o_form->add_js_code(str_replace('{dbx_avatar_messages}', $js_messages ?: '{}', <<<'JS'
 (function () {
   var messages = {dbx_avatar_messages};
   var drop = document.getElementById('uploader_{i}');
@@ -263,7 +257,7 @@ class dbxUser_avatar {
 })();
 JS));
 
-      return $oForm->run();
+      return $o_form->run();
    }
 }
 ?>

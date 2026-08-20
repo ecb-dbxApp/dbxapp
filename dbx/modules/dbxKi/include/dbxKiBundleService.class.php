@@ -1,6 +1,8 @@
 <?php
 namespace dbx\dbxKi;
 
+require_once __DIR__ . '/dbxKiSessionState.class.php';
+
 use dbx\dbxContent\dbxContentLng;
 
 require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
@@ -24,18 +26,18 @@ class dbxKiBundleService {
       return dbx()->get_include_obj('dbxKiHelp', 'dbxKi');
    }
 
-   private function withModuleBar(array $data, string $screen, string $actionsHtml = '', string $barTitle = ''): array {
-      return array_merge($data, $this->help()->moduleBarTemplateData($screen, $actionsHtml, $barTitle));
+   private function with_module_bar(array $data, string $screen, string $actions_html = '', string $bar_title = ''): array {
+      return array_merge($data, $this->help()->module_bar_template_data($screen, $actions_html, $bar_title));
    }
 
-   private function moduleUrl(string $run1, array $params = array()): string {
+   private function module_url(string $run1, array $params = array()): string {
       $url = '?dbx_modul=dbxKi&dbx_run1=' . rawurlencode($run1);
       $params = array_filter($params, static fn($value): bool => $value !== null && $value !== '');
-      return $this->appendUrlParams($url, $params);
+      return $this->append_url_params($url, $params);
    }
 
    /** Zentraler Laufzeithelfer mit kleinem Fallback für isolierte Servicetests. */
-   private function appendUrlParams(string $url, array $params): string {
+   private function append_url_params(string $url, array $params): string {
       if (!$params) {
          return $url;
       }
@@ -50,49 +52,43 @@ class dbxKiBundleService {
       return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
    }
 
-   private function configInt(string $key, int $default): int {
+   private function config_int(string $key, int $default): int {
       return max(1, (int)dbx()->get_cfg('dbxKi', $key, $default));
    }
 
-   private function sessionBucket(): array {
-      if (!isset($_SESSION['dbx']['dbxKi']) || !is_array($_SESSION['dbx']['dbxKi'])) {
-         $_SESSION['dbx']['dbxKi'] = array();
-      }
-      if (!isset($_SESSION['dbx']['dbxKi'][self::SESSION_KEY]) || !is_array($_SESSION['dbx']['dbxKi'][self::SESSION_KEY])) {
-         $_SESSION['dbx']['dbxKi'][self::SESSION_KEY] = array();
-      }
-      return $_SESSION['dbx']['dbxKi'][self::SESSION_KEY];
+   private function session_bucket(): array {
+      return dbxKiSessionState::bucket(self::SESSION_KEY);
    }
 
-   private function getJob(string $token): array {
-      $token = $this->sanitizeToken($token);
+   private function get_job(string $token): array {
+      $token = $this->sanitize_token($token);
       if ($token === '') {
          return array();
       }
-      $bucket = $this->sessionBucket();
+      $bucket = $this->session_bucket();
       return is_array($bucket[$token] ?? null) ? $bucket[$token] : array();
    }
 
-   private function setJob(string $token, array $state): array {
-      $token = $this->sanitizeToken($token);
+   private function set_job(string $token, array $state): array {
+      $token = $this->sanitize_token($token);
       if ($token === '') {
          return array();
       }
       $state['proc_key'] = $token;
       $state['updated_at'] = date('Y-m-d H:i:s');
-      $_SESSION['dbx']['dbxKi'][self::SESSION_KEY][$token] = $state;
+      dbxKiSessionState::put(self::SESSION_KEY, $token, $state);
       return $state;
    }
 
-   private function sanitizeToken(string $token): string {
+   private function sanitize_token(string $token): string {
       return preg_replace('/[^A-Za-z0-9_-]+/', '', (string)$token);
    }
 
-   private function newToken(): string {
+   private function new_token(): string {
       return substr(md5(session_id() . microtime(true) . mt_rand()), 0, 16);
    }
 
-   private function tempRoot(): string {
+   private function temp_root(): string {
       $dir = rtrim(dbx()->get_file_dir(), '/\\') . '/tmp/ki-bundle';
       $dir = dbx()->os_path($dir);
       if (!is_dir($dir)) {
@@ -101,12 +97,12 @@ class dbxKiBundleService {
       return $dir;
    }
 
-   private function jobDir(string $token): string {
-      return rtrim($this->tempRoot(), '/\\') . DIRECTORY_SEPARATOR . $this->sanitizeToken($token);
+   private function job_dir(string $token): string {
+      return rtrim($this->temp_root(), '/\\') . DIRECTORY_SEPARATOR . $this->sanitize_token($token);
    }
 
-   private function removeJobDir(string $token): void {
-      $dir = $this->jobDir($token);
+   private function remove_job_dir(string $token): void {
+      $dir = $this->job_dir($token);
       if (!is_dir($dir)) {
          return;
       }
@@ -124,7 +120,7 @@ class dbxKiBundleService {
       @rmdir($dir);
    }
 
-   public function describeBundle(): array {
+   public function describe_bundle(): array {
       $cms = $this->cms();
       return array(
          'ok' => 1,
@@ -133,9 +129,9 @@ class dbxKiBundleService {
          'area' => self::AREA,
          'module' => 'dbxKi',
          'purpose' => 'Offline KI-Bundles fuer CMS-Aenderungen ohne direkten API-Zugriff.',
-         'upload_url' => $this->moduleUrl('bundle_import'),
-         'export_url' => $this->moduleUrl('bundle_export'),
-         'allowed_actions' => $this->allowedActions(),
+         'upload_url' => $this->module_url('bundle_import'),
+         'export_url' => $this->module_url('bundle_export'),
+         'allowed_actions' => $this->allowed_actions(),
          'files' => array(
             'auftrag.contract.json' => 'Unveraenderter, signierter dbxKi-Auftrag',
             'answer.json' => 'Ausschliesslich die im Auftrag deklarierten Inhaltsfelder',
@@ -157,14 +153,14 @@ class dbxKiBundleService {
             'auto_execute' => 'Antwort-Bundles werden immer zuerst als Vorschau gezeigt und nur mit dbxKi-Ausfuehrungstoken gestartet.',
             'ki_contract' => 'Die KI liefert nur den unveraenderten Vertrag, answer.json und erlaubte assets/. Aktionen werden von dbxKi rekonstruiert.',
          ),
-         'cms' => $cms->bundleSystemDescribe(),
+         'cms' => $cms->bundle_system_describe(),
       );
    }
 
-   private function allowedActions(): array {
+   private function allowed_actions(): array {
       $out = array();
-      foreach ($this->cms()->bundleActionCatalog() as $action => $meta) {
-         if ($this->cms()->bundleIsAllowedInPackage($action)) {
+      foreach ($this->cms()->bundle_action_catalog() as $action => $meta) {
+         if ($this->cms()->bundle_is_allowed_in_package($action)) {
             $out[$action] = $meta;
          }
       }
@@ -179,14 +175,14 @@ class dbxKiBundleService {
     * der aufrufenden Seite pruefen. Die ZIP selbst wird weiterhin im spezialisierten
     * Bundle-Validator kontrolliert; dbxForm verantwortet Submit, Token und Meldungen.
     */
-   private function importForm(string $template, string $returnRun1 = '') {
+   private function import_form(string $template, string $return_run1 = '') {
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('ki-bundle-import', $template);
-      $form->_action = $this->moduleUrl('bundle_import');
+      $form->set_action($this->module_url('bundle_import'));
       // Nicht das gesamte Array ersetzen: dbxForm hat dort bereits sein
       // Security-Token abgelegt.
-      $form->_data['return_run1'] = $this->sanitizeReturnRun1($returnRun1);
-      $form->_data['bundle_zip'] = '';
+      $form->set_data_value('return_run1', $this->sanitize_return_run1($return_run1));
+      $form->set_data_value('bundle_zip', '');
       $form->_msg_info = '';
       $form->add_fld('return_run1', 'dbx|hidden', rules: 'parameter', dd: '');
       $form->add_fld(
@@ -204,21 +200,21 @@ class dbxKiBundleService {
    /**
     * Rendert den kompakten Importblock unter einem KI-Briefing.
     */
-   public function renderImportPanel(string $returnRun1): string {
-      return $this->importForm('ki-briefing-import-panel', $returnRun1)->run();
+   public function render_import_panel(string $return_run1): string {
+      return $this->import_form('ki-briefing-import-panel', $return_run1)->run();
    }
 
    /**
     * Rendert die Bundle-Startseite mit einem vollwertigen dbxForm-Upload.
     */
-   public function renderStartPage(): string {
-      $form = $this->importForm('ki-bundle-start');
-      foreach ($this->withModuleBar(array(
-         'api_url' => $this->esc($this->moduleUrl('api')),
-         'describe_url' => $this->esc($this->moduleUrl('bundle_describe')),
-         'export_url' => $this->esc($this->moduleUrl('bundle_export')),
+   public function render_start_page(): string {
+      $form = $this->import_form('ki-bundle-start');
+      foreach ($this->with_module_bar(array(
+         'api_url' => $this->esc($this->module_url('api')),
+         'describe_url' => $this->esc($this->module_url('bundle_describe')),
+         'export_url' => $this->esc($this->module_url('bundle_export')),
          'bundle_version' => $this->esc(self::BUNDLE_VERSION),
-         'execute_token' => $this->esc($this->cms()->bundleExecuteToken()),
+         'execute_token' => $this->esc($this->cms()->bundle_execute_token()),
       ), 'bundle') as $key => $value) {
          $form->add_rep((string)$key, $value);
       }
@@ -232,49 +228,49 @@ class dbxKiBundleService {
     * eintreffen. Maschinenlesbare job_json-Aufrufe bleiben ein API-Pfad und
     * werden wie bisher durch die API-/Jobvalidierung behandelt.
     */
-   public function handleImport(): string {
+   public function handle_import(): string {
       // Ergebnis-Fenster: derselbe Endpunkt liefert bei einem reinen GET mit
       // bekanntem Token (kein neuer Upload) direkt die bereits gespeicherte
       // Vorschau erneut aus - dadurch ist die Vorschau per URL adressierbar
       // und laesst sich in ein openWin-Fenster laden (siehe handleImport()
       // Erfolgszweig unten und kiResultWindow.js).
-      $existingToken = $this->sanitizeToken((string)dbx()->get_request_var('token', '', '*'));
-      if ($existingToken !== '' && $this->firstUploadFile() === array() && !isset($_POST['return_run1'])) {
-         $state = $this->getJob($existingToken);
+      $existing_token = $this->sanitize_token((string)dbx()->get_request_var('token', '', '*'));
+      if ($existing_token !== '' && $this->first_upload_file() === array() && !isset($_POST['return_run1'])) {
+         $state = $this->get_job($existing_token);
          if ($state !== array()) {
-            return $this->renderPreviewPage($existingToken, $state);
+            return $this->render_preview_page($existing_token, $state);
          }
       }
 
-      $isBrowserUpload = $this->firstUploadFile() !== array() || isset($_POST['return_run1']);
+      $is_browser_upload = $this->first_upload_file() !== array() || isset($_POST['return_run1']);
       try {
-         if ($isBrowserUpload) {
-            $importForm = $this->importForm(
+         if ($is_browser_upload) {
+            $import_form = $this->import_form(
                'ki-briefing-import-panel',
                (string)($_POST['return_run1'] ?? '')
             );
-            if (!$importForm->submit()) {
+            if (!$import_form->submit()) {
                throw new \RuntimeException('Ungueltiger oder abgelaufener Formular-Token.');
             }
          }
-         $token = $this->newToken();
-         $payload = $this->readImportPayload($token);
+         $token = $this->new_token();
+         $payload = $this->read_import_payload($token);
          $contract = is_array($payload['contract'] ?? null) ? $payload['contract'] : array();
          $answer = is_array($payload['answer'] ?? null) ? $payload['answer'] : array();
-         $assetsDir = (string)($payload['assets_dir'] ?? '');
+         $assets_dir = (string)($payload['assets_dir'] ?? '');
          $readme = (string)($payload['readme'] ?? '');
 
-         $bound = $this->contracts()->bind($contract, $answer, $assetsDir);
+         $bound = $this->contracts()->bind($contract, $answer, $assets_dir);
          if (($bound['contract']['area'] ?? '') !== self::AREA) {
             throw new \InvalidArgumentException('Der Auftrag ist kein CMS-Auftrag.');
          }
          $manifest = (array)$bound['manifest'];
          $job = (array)$bound['job'];
-         $this->validateSnapshot((array)$bound['contract']);
-         $this->validateRecipe((array)$bound['contract'], $job);
+         $this->validate_snapshot((array)$bound['contract']);
+         $this->validate_recipe((array)$bound['contract'], $job);
 
-         $validation = $this->validateJob($job, $assetsDir);
-         $preview = $this->buildPreview($job, $assetsDir, $manifest);
+         $validation = $this->validate_job($job, $assets_dir);
+         $preview = $this->build_preview($job, $assets_dir, $manifest);
 
          $state = array(
             'area' => self::AREA,
@@ -287,7 +283,7 @@ class dbxKiBundleService {
             'answer' => $answer,
             'context' => array(),
             'job' => $job,
-            'assets_dir' => $assetsDir,
+            'assets_dir' => $assets_dir,
             'readme' => $readme,
             'validation' => $validation,
             'preview' => $preview,
@@ -297,38 +293,38 @@ class dbxKiBundleService {
             'title' => (string)($manifest['title'] ?? 'KI-Bundle'),
             'recipe' => (string)($manifest['recipe'] ?? ''),
             'lng' => (string)($manifest['lng'] ?? dbxContentLng::current()),
-            'return_run1' => $this->sanitizeReturnRun1((string)($_POST['return_run1'] ?? '')),
+            'return_run1' => $this->sanitize_return_run1((string)($_POST['return_run1'] ?? '')),
          );
-         $this->setJob($token, $state);
+         $this->set_job($token, $state);
 
-         if ($isBrowserUpload) {
-            return $this->renderImportSuccess($token, $state);
+         if ($is_browser_upload) {
+            return $this->render_import_success($token, $state);
          }
-         return $this->renderPreviewPage($token, $state);
+         return $this->render_preview_page($token, $state);
       } catch (\Throwable $e) {
          dbx()->sys_msg('error', 'dbxKi', 'bundle_import', 'Import fehlgeschlagen', $e->getMessage());
-         $backRun1 = $this->sanitizeReturnRun1((string)($_POST['return_run1'] ?? ''));
-         $backUrl = $backRun1 !== '' ? $this->moduleUrl($backRun1) : $this->moduleUrl('briefing');
+         $back_run1 = $this->sanitize_return_run1((string)($_POST['return_run1'] ?? ''));
+         $back_url = $back_run1 !== '' ? $this->module_url($back_run1) : $this->module_url('briefing');
          $tpl = dbx()->get_system_obj('dbxTPL');
-         return $tpl->get_tpl('dbxKi|ki-bundle-import-error', $this->withModuleBar(array(
+         return $tpl->get_tpl('dbxKi|ki-bundle-import-error', $this->with_module_bar(array(
             'message' => $this->esc($e->getMessage()),
-            'back_url' => $this->esc($backUrl),
-            'briefing_url' => $this->esc($this->moduleUrl('briefing')),
+            'back_url' => $this->esc($back_url),
+            'briefing_url' => $this->esc($this->module_url('briefing')),
          ), 'bundle'));
       }
    }
 
-   private function readImportPayload(string $token): array {
-      $file = $this->firstUploadFile();
+   private function read_import_payload(string $token): array {
+      $file = $this->first_upload_file();
       if ($file) {
-         return $this->extractZipUpload($file, $token);
+         return $this->extract_zip_upload($file, $token);
       }
 
-      $rawContract = trim((string)($_POST['contract_json'] ?? ''));
-      $rawAnswer = trim((string)($_POST['answer_json'] ?? ''));
-      if ($rawContract !== '' || $rawAnswer !== '') {
-         $contract = json_decode($rawContract, true);
-         $answer = json_decode($rawAnswer, true);
+      $raw_contract = trim((string)($_POST['contract_json'] ?? ''));
+      $raw_answer = trim((string)($_POST['answer_json'] ?? ''));
+      if ($raw_contract !== '' || $raw_answer !== '') {
+         $contract = json_decode($raw_contract, true);
+         $answer = json_decode($raw_answer, true);
          if (!is_array($contract) || !is_array($answer)) {
             throw new \InvalidArgumentException('contract_json und answer_json muessen gueltiges JSON sein.');
          }
@@ -343,7 +339,7 @@ class dbxKiBundleService {
       throw new \InvalidArgumentException('Bitte Antwort-ZIP oder contract_json plus answer_json senden.');
    }
 
-   private function firstUploadFile(): array {
+   private function first_upload_file(): array {
       if (empty($_FILES) || !is_array($_FILES)) {
          return array();
       }
@@ -358,7 +354,7 @@ class dbxKiBundleService {
       return array();
    }
 
-   private function extractZipUpload(array $file, string $token): array {
+   private function extract_zip_upload(array $file, string $token): array {
       if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
          throw new \InvalidArgumentException('ZIP-Upload fehlgeschlagen.');
       }
@@ -370,18 +366,18 @@ class dbxKiBundleService {
          throw new \RuntimeException('ZipArchive ist auf dem Server nicht verfuegbar.');
       }
 
-      $maxBytes = $this->configInt('max_bundle_bytes', 52428800);
-      if ((int)($file['size'] ?? 0) > $maxBytes) {
+      $max_bytes = $this->config_int('max_bundle_bytes', 52428800);
+      if ((int)($file['size'] ?? 0) > $max_bytes) {
          throw new \InvalidArgumentException('ZIP ueberschreitet max_bundle_bytes.');
       }
 
-      $token = $this->sanitizeToken($token);
+      $token = $this->sanitize_token($token);
       if ($token === '') {
          throw new \InvalidArgumentException('Interner Bundle-Token fehlt.');
       }
-      $dest = $this->jobDir($token);
+      $dest = $this->job_dir($token);
       if (is_dir($dest)) {
-         $this->removeJobDir($token);
+         $this->remove_job_dir($token);
       }
       @mkdir($dest, 0777, true);
 
@@ -390,8 +386,8 @@ class dbxKiBundleService {
          throw new \InvalidArgumentException('ZIP konnte nicht geoeffnet werden.');
       }
 
-      $maxFiles = $this->configInt('max_bundle_files', 50);
-      $totalUncompressed = 0;
+      $max_files = $this->config_int('max_bundle_files', 50);
+      $total_uncompressed = 0;
       for ($i = 0; $i < $zip->numFiles; $i++) {
          $name = (string)$zip->getNameIndex($i);
          if ($name === '' || strpos($name, '..') !== false || $name[0] === '/') {
@@ -399,13 +395,13 @@ class dbxKiBundleService {
             throw new \InvalidArgumentException('Unzulaessiger ZIP-Pfad: ' . $name);
          }
          $stat = $zip->statIndex($i);
-         $totalUncompressed += (int)($stat['size'] ?? 0);
-         if ($totalUncompressed > $maxBytes) {
+         $total_uncompressed += (int)($stat['size'] ?? 0);
+         if ($total_uncompressed > $max_bytes) {
             $zip->close();
             throw new \InvalidArgumentException('Entpacktes Bundle zu gross.');
          }
       }
-      if ($zip->numFiles > $maxFiles) {
+      if ($zip->numFiles > $max_files) {
          $zip->close();
          throw new \InvalidArgumentException('Zu viele Dateien im Bundle.');
       }
@@ -416,22 +412,22 @@ class dbxKiBundleService {
       }
       $zip->close();
 
-      $root = $this->findBundleRoot($dest);
-      $this->validateResponseTree($root);
-      $contract = $this->readJsonFile($root . '/auftrag.contract.json', true);
-      $answer = $this->readJsonFile($root . '/answer.json', true);
+      $root = $this->find_bundle_root($dest);
+      $this->validate_response_tree($root);
+      $contract = $this->read_json_file($root . '/auftrag.contract.json', true);
+      $answer = $this->read_json_file($root . '/answer.json', true);
       $readme = is_file($root . '/README.md') ? (string)file_get_contents($root . '/README.md') : '';
-      $assetsDir = is_dir($root . '/assets') ? $root . '/assets' : '';
+      $assets_dir = is_dir($root . '/assets') ? $root . '/assets' : '';
 
       return array(
          'contract' => $contract,
          'answer' => $answer,
-         'assets_dir' => $assetsDir,
+         'assets_dir' => $assets_dir,
          'readme' => $readme,
       );
    }
 
-   private function findBundleRoot(string $dest): string {
+   private function find_bundle_root(string $dest): string {
       if (is_file($dest . '/auftrag.contract.json')) {
          return $dest;
       }
@@ -443,7 +439,7 @@ class dbxKiBundleService {
       throw new \InvalidArgumentException('auftrag.contract.json im Bundle nicht gefunden.');
    }
 
-   private function validateResponseTree(string $root): void {
+   private function validate_response_tree(string $root): void {
       $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
       foreach ($it as $item) {
          if (!$item->isFile()) continue;
@@ -454,7 +450,7 @@ class dbxKiBundleService {
       }
    }
 
-   private function readJsonFile(string $path, bool $required): array {
+   private function read_json_file(string $path, bool $required): array {
       if (!is_file($path)) {
          if ($required) {
             throw new \InvalidArgumentException('Pflichtdatei fehlt: ' . basename($path));
@@ -469,7 +465,7 @@ class dbxKiBundleService {
       return $data;
    }
 
-   private function validateSnapshot(array $contract): void {
+   private function validate_snapshot(array $contract): void {
       $snapshot = is_array($contract['snapshot'] ?? null) ? $contract['snapshot'] : array();
       $type = strtolower(trim((string)($snapshot['type'] ?? '')));
       if ($type === '') return;
@@ -479,7 +475,7 @@ class dbxKiBundleService {
          throw new \InvalidArgumentException('Der Auftrags-Snapshot enthaelt kein gueltiges Ziel.');
       }
       if ($type === 'folder') {
-         $current = $this->cms()->bundleRead('folder.get', array('lng' => $lng, 'id' => $id));
+         $current = $this->cms()->bundle_read('folder.get', array('lng' => $lng, 'id' => $id));
          $row = is_array($current['row'] ?? null) ? $current['row'] : array();
          $values = array();
          foreach ((array)($snapshot['fields'] ?? array()) as $field) $values[(string)$field] = $row[(string)$field] ?? null;
@@ -491,7 +487,7 @@ class dbxKiBundleService {
       if ($type !== 'page') {
          throw new \InvalidArgumentException('Unbekannter Auftrags-Snapshot: ' . $type);
       }
-      $current = $this->cms()->bundleRead('page.get', array('lng' => $lng, 'id' => $id));
+      $current = $this->cms()->bundle_read('page.get', array('lng' => $lng, 'id' => $id));
       $row = is_array($current['row'] ?? null) ? $current['row'] : array();
       $values = array();
       foreach ((array)($snapshot['fields'] ?? array()) as $field) {
@@ -503,14 +499,14 @@ class dbxKiBundleService {
       }
    }
 
-   private function validateRecipe(array $contract, array $job): void {
+   private function validate_recipe(array $contract, array $job): void {
       $recipe = strtolower(trim((string)($contract['recipe'] ?? '')));
       $allowed = array('page.create.v1', 'page.update.v1', 'translation.v1');
       if (!in_array($recipe, $allowed, true)) {
          throw new \InvalidArgumentException('Nicht unterstuetztes CMS-Rezept: ' . $recipe);
       }
-      $manifestRecipe = strtolower(trim((string)($contract['metadata']['recipe'] ?? '')));
-      if ($manifestRecipe !== $recipe) {
+      $manifest_recipe = strtolower(trim((string)($contract['metadata']['recipe'] ?? '')));
+      if ($manifest_recipe !== $recipe) {
          throw new \InvalidArgumentException('Rezept und signierte Metadaten widersprechen sich.');
       }
       if (!is_array($job['steps'] ?? null) || !$job['steps']) {
@@ -518,15 +514,15 @@ class dbxKiBundleService {
       }
    }
 
-   private function validateJob(array $job, string $assetsDir): array {
+   private function validate_job(array $job, string $assets_dir): array {
       $steps = $job['steps'] ?? null;
       if (!is_array($steps) || !$steps) {
          throw new \InvalidArgumentException('Der intern gebundene Plan muss mindestens einen Schritt enthalten.');
       }
 
       $errors = array();
-      $seenIds = array();
-      $stepResults = array();
+      $seen_ids = array();
+      $step_results = array();
       $cms = $this->cms();
 
       foreach ($steps as $index => $step) {
@@ -539,30 +535,30 @@ class dbxKiBundleService {
             $errors[] = 'Step ' . $index . ' ohne id.';
             continue;
          }
-         if (isset($seenIds[$id])) {
+         if (isset($seen_ids[$id])) {
             $errors[] = 'Doppelte step id: ' . $id;
          }
-         $seenIds[$id] = true;
+         $seen_ids[$id] = true;
 
          $action = trim((string)($step['action'] ?? ''));
          if ($action === '') {
             $errors[] = 'Step ' . $id . ' ohne action.';
             continue;
          }
-         if (!$cms->bundleIsAllowedInPackage($action)) {
+         if (!$cms->bundle_is_allowed_in_package($action)) {
             $errors[] = 'Step ' . $id . ': Aktion nicht erlaubt (' . $action . ').';
             continue;
          }
 
          $params = is_array($step['params'] ?? null) ? $step['params'] : array();
          try {
-            $this->validateRefTargets($params, array_keys($stepResults));
-            $resolved = $this->resolveParams($params, $stepResults, $assetsDir, false);
-            $cms->bundleBuildPlan($action, $resolved);
-            $stepResults[$id] = $this->syntheticStepResult($action);
+            $this->validate_ref_targets($params, array_keys($step_results));
+            $resolved = $this->resolve_params($params, $step_results, $assets_dir, false);
+            $cms->bundle_build_plan($action, $resolved);
+            $step_results[$id] = $this->synthetic_step_result($action);
          } catch (\Throwable $e) {
-            if ($this->paramsContainRef($params) && $this->isPreviewRefDependencyError($e)) {
-               $stepResults[$id] = $this->syntheticStepResult($action);
+            if ($this->params_contain_ref($params) && $this->is_preview_ref_dependency_error($e)) {
+               $step_results[$id] = $this->synthetic_step_result($action);
                continue;
             }
             $errors[] = 'Step ' . $id . ' (' . $action . '): ' . $e->getMessage();
@@ -580,7 +576,7 @@ class dbxKiBundleService {
       );
    }
 
-   private function buildPreview(array $job, string $assetsDir, array $manifest): array {
+   private function build_preview(array $job, string $assets_dir, array $manifest): array {
       $lines = array();
       $title = trim((string)($manifest['title'] ?? ''));
       if ($title !== '') {
@@ -602,8 +598,8 @@ class dbxKiBundleService {
          $lines[] = '- ' . ($step['id'] ?? '?') . ': ' . ($step['action'] ?? '?');
       }
 
-      if ($assetsDir !== '' && is_dir($assetsDir)) {
-         $count = count(glob(rtrim($assetsDir, '/\\') . '/*') ?: array());
+      if ($assets_dir !== '' && is_dir($assets_dir)) {
+         $count = count(glob(rtrim($assets_dir, '/\\') . '/*') ?: array());
          $lines[] = 'Assets: ' . $count . ' Datei(en)';
       }
 
@@ -619,12 +615,12 @@ class dbxKiBundleService {
     * openWin-Fenster geoeffnet (URL = derselbe Endpunkt mit ?token=..., siehe
     * handleImport()-Kopf), statt die Vorschau inline auf der Seite zu zeigen.
     */
-   private function renderImportSuccess(string $token, array $state): string {
+   private function render_import_success(string $token, array $state): string {
       $tpl = dbx()->get_system_obj('dbxTPL');
       $title = trim((string)($state['title'] ?? 'KI-Bundle'));
       return $tpl->get_tpl('dbxKi|ki-bundle-import-success', array(
          'message' => 'Bundle geprueft. Vorschau wird geoeffnet ...',
-         'preview_url' => $this->esc($this->moduleUrl('bundle_import', array('token' => $token))),
+         'preview_url' => $this->esc($this->module_url('bundle_import', array('token' => $token))),
          'window_title' => $this->esc($title !== '' ? $title : 'KI-Bundle-Vorschau'),
       ));
    }
@@ -634,73 +630,73 @@ class dbxKiBundleService {
     * Von "Verwerfen" im Vorschaufenster per AJAX aufgerufen (kiResultWindow.js
     * schliesst das Fenster danach clientseitig).
     */
-   public function handleDiscard(): void {
-      $token = $this->sanitizeToken((string)dbx()->get_request_var('token', '', '*'));
+   public function handle_discard(): void {
+      $token = $this->sanitize_token((string)dbx()->get_request_var('token', '', '*'));
       if ($token !== '') {
-         $this->removeJobDir($token);
-         unset($_SESSION['dbx']['dbxKi'][self::SESSION_KEY][$token]);
+         $this->remove_job_dir($token);
+         dbxKiSessionState::remove(self::SESSION_KEY, $token);
       }
       header('Content-Type: text/plain; charset=utf-8');
       echo 'ok';
       exit;
    }
 
-   private function renderPreviewPage(string $token, array $state): string {
+   private function render_preview_page(string $token, array $state): string {
       $tpl = dbx()->get_system_obj('dbxTPL');
       $warnings = is_array($state['validation']['warnings'] ?? null) ? $state['validation']['warnings'] : array();
       $lines = is_array($state['preview']['lines'] ?? null) ? $state['preview']['lines'] : array();
 
-      $warningHtml = '<li class="text-muted">Keine</li>';
+      $warning_html = '<li class="text-muted">Keine</li>';
       foreach ($warnings as $warning) {
-         $warningHtml = '';
+         $warning_html = '';
          break;
       }
-      if ($warningHtml === '') {
+      if ($warning_html === '') {
          foreach ($warnings as $warning) {
-            $warningHtml .= '<li>' . $this->esc($warning) . '</li>';
+            $warning_html .= '<li>' . $this->esc($warning) . '</li>';
          }
       }
 
-      $lineHtml = '';
+      $line_html = '';
       foreach ($lines as $line) {
-         $lineHtml .= '<li class="list-group-item py-1 px-2">' . $this->esc($line) . '</li>';
+         $line_html .= '<li class="list-group-item py-1 px-2">' . $this->esc($line) . '</li>';
       }
 
-      $warningBlock = '';
-      if ($warningHtml !== '<li class="text-muted">Keine</li>') {
-         $warningBlock = '<div class="small text-warning mb-2"><strong>Hinweise</strong><ul class="mb-0 ps-3">'
-            . $warningHtml . '</ul></div>';
+      $warning_block = '';
+      if ($warning_html !== '<li class="text-muted">Keine</li>') {
+         $warning_block = '<div class="small text-warning mb-2"><strong>Hinweise</strong><ul class="mb-0 ps-3">'
+            . $warning_html . '</ul></div>';
       }
 
       $readme = trim((string)($state['readme'] ?? ''));
-      $readmeHtml = '';
+      $readme_html = '';
       if ($readme !== '') {
-         $readmeHtml = '<details class="small mt-2"><summary class="text-muted">README der KI-ZIP</summary>'
+         $readme_html = '<details class="small mt-2"><summary class="text-muted">README der KI-ZIP</summary>'
             . '<pre class="small bg-light p-2 rounded mt-1 mb-0" style="max-height:8rem;overflow:auto">'
             . $this->esc($readme) . '</pre></details>';
       }
 
-      $backUrl = $this->returnUrlFromState($state);
-      $startUrl = $this->moduleUrl('bundle_process', array(
+      $back_url = $this->return_url_from_state($state);
+      $start_url = $this->module_url('bundle_process', array(
          'proc_key' => $token,
          'reset' => 1,
          'proc_cmd' => 'start',
-         'token' => $this->cms()->bundleExecuteToken(),
+         'token' => $this->cms()->bundle_execute_token(),
       ));
-      $footerActions = $this->buildImportFooterActions($state, true, $startUrl, $backUrl, $token);
-      $barTitle = trim((string)($state['title'] ?? ''));
+      $footer_actions = $this->build_import_footer_actions($state, true, $start_url, $back_url, $token);
+      $bar_title = trim((string)($state['title'] ?? ''));
 
-      return $tpl->get_tpl('dbxKi|ki-bundle-preview', $this->withModuleBar(array(
+      return $tpl->get_tpl('dbxKi|ki-bundle-preview', $this->with_module_bar(array(
          'subtitle' => $this->esc((string)($state['recipe'] ?? '')),
          'step_count' => (int)($state['total'] ?? 0),
-         'preview_list' => $lineHtml,
-         'warning_block' => $warningBlock,
-         'readme_block' => $readmeHtml,
-         'footer_actions' => $footerActions,
-      ), 'bundle_preview', '', $barTitle));
+         'preview_list' => $line_html,
+         'warning_block' => $warning_block,
+         'readme_block' => $readme_html,
+         'footer_actions' => $footer_actions,
+      ), 'bundle_preview', '', $bar_title));
    }
 
-   private function cmsAdminPageUrl(int $cid, string $lng = ''): string {
+   private function cms_admin_page_url(int $cid, string $lng = ''): string {
       $url = '?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=' . (int)$cid;
       $lng = strtolower(trim($lng));
       if ($lng !== '') {
@@ -709,19 +705,19 @@ class dbxKiBundleService {
       return $url;
    }
 
-   private function resolveContentPageRef(array $state): array {
+   private function resolve_content_page_ref(array $state): array {
       $lng = strtolower(trim((string)($state['lng'] ?? '')));
-      $stepResults = is_array($state['step_results'] ?? null) ? $state['step_results'] : array();
-      foreach ($stepResults as $result) {
+      $step_results = is_array($state['step_results'] ?? null) ? $state['step_results'] : array();
+      foreach ($step_results as $result) {
          if (!is_array($result)) {
             continue;
          }
          $cid = (int)($result['page_id'] ?? 0);
          if ($cid > 0) {
-            $resultLng = strtolower(trim((string)($result['lng'] ?? '')));
+            $result_lng = strtolower(trim((string)($result['lng'] ?? '')));
             return array(
                'cid' => $cid,
-               'lng' => $resultLng !== '' ? $resultLng : $lng,
+               'lng' => $result_lng !== '' ? $result_lng : $lng,
             );
          }
       }
@@ -736,41 +732,41 @@ class dbxKiBundleService {
          if ($action === 'page.update') {
             $cid = (int)($params['id'] ?? 0);
             if ($cid > 0) {
-               $stepLng = strtolower(trim((string)($params['lng'] ?? '')));
-               return array('cid' => $cid, 'lng' => $stepLng !== '' ? $stepLng : $lng);
+               $step_lng = strtolower(trim((string)($params['lng'] ?? '')));
+               return array('cid' => $cid, 'lng' => $step_lng !== '' ? $step_lng : $lng);
             }
          }
       }
       return array('cid' => 0, 'lng' => $lng);
    }
 
-   private function buildImportFooterActions(array $state, bool $showExecute, string $executeUrl, string $backUrl, string $token = ''): string {
+   private function build_import_footer_actions(array $state, bool $show_execute, string $execute_url, string $back_url, string $token = ''): string {
       $html = '';
-      if ($showExecute && $executeUrl !== '') {
-         $html .= '<button type="button" class="btn btn-primary btn-sm" data-dbx-ki-inline-action="' . $this->esc($executeUrl)
+      if ($show_execute && $execute_url !== '') {
+         $html .= '<button type="button" class="btn btn-primary btn-sm" data-dbx-ki-inline-action="' . $this->esc($execute_url)
             . '"><i class="bi bi-play-fill"></i> Ausfuehren</button>';
       }
       if ($token !== '') {
          $html .= '<button type="button" class="btn btn-outline-danger btn-sm" data-dbx-ki-discard="'
-            . $this->esc($this->moduleUrl('bundle_discard', array('token' => $token)))
+            . $this->esc($this->module_url('bundle_discard', array('token' => $token)))
             . '" data-confirm="Bundle wirklich verwerfen? Die Aenderungen werden nicht uebernommen.">'
             . '<i class="bi bi-x-lg"></i> Verwerfen</button>';
       }
 
-      $pageRef = $this->resolveContentPageRef($state);
-      if ((int)($pageRef['cid'] ?? 0) > 0) {
-         $html .= '<a class="btn btn-success btn-sm" href="' . $this->esc($this->cmsAdminPageUrl((int)$pageRef['cid'], (string)($pageRef['lng'] ?? '')))
+      $page_ref = $this->resolve_content_page_ref($state);
+      if ((int)($page_ref['cid'] ?? 0) > 0) {
+         $html .= '<a class="btn btn-success btn-sm" href="' . $this->esc($this->cms_admin_page_url((int)$page_ref['cid'], (string)($page_ref['lng'] ?? '')))
             . '"><i class="bi bi-pencil-square"></i> Seite im CMS</a>';
       }
 
-      $html .= '<a class="btn btn-outline-primary btn-sm" href="' . $this->esc($this->moduleUrl('briefing'))
+      $html .= '<a class="btn btn-outline-primary btn-sm" href="' . $this->esc($this->module_url('briefing'))
          . '"><i class="bi bi-plus-lg"></i> Neuer KI-Auftrag</a>';
-      $html .= '<a class="btn btn-outline-secondary btn-sm" href="' . $this->esc($backUrl)
+      $html .= '<a class="btn btn-outline-secondary btn-sm" href="' . $this->esc($back_url)
          . '"><i class="bi bi-arrow-left"></i> Zurueck</a>';
       return $html;
    }
 
-   private function sanitizeReturnRun1(string $run1): string {
+   private function sanitize_return_run1(string $run1): string {
       $allowed = array(
          'briefing',
          'briefing_page_create',
@@ -782,40 +778,40 @@ class dbxKiBundleService {
       return in_array($run1, $allowed, true) ? $run1 : 'bundle';
    }
 
-   private function returnUrlFromState(array $state): string {
+   private function return_url_from_state(array $state): string {
       $run1 = trim((string)($state['return_run1'] ?? ''));
       if ($run1 === '') {
-         return $this->moduleUrl('bundle');
+         return $this->module_url('bundle');
       }
-      return $this->moduleUrl($this->sanitizeReturnRun1($run1));
+      return $this->module_url($this->sanitize_return_run1($run1));
    }
 
-   public function handleProcess(): string {
-      $token = $this->sanitizeToken((string)($_GET['proc_key'] ?? ''));
+   public function handle_process(): string {
+      $token = $this->sanitize_token((string)($_GET['proc_key'] ?? ''));
       if ($token === '') {
-         $token = $this->newToken();
+         $token = $this->new_token();
       }
 
       $cmd = strtolower(preg_replace('/[^a-z_]+/', '', (string)($_GET['proc_cmd'] ?? '')));
       $reset = (int)($_GET['reset'] ?? 0);
-      $state = $this->getJob($token);
+      $state = $this->get_job($token);
 
       if (!$state) {
          return '<div class="container py-4"><div class="alert alert-warning">Bundle-Prozess nicht gefunden.</div>'
-            . '<p><a class="btn btn-secondary" href="' . $this->esc($this->moduleUrl('bundle')) . '">Zurueck</a></p></div>';
+            . '<p><a class="btn btn-secondary" href="' . $this->esc($this->module_url('bundle')) . '">Zurueck</a></p></div>';
       }
 
       if ($reset || $cmd === 'restart') {
          try {
             if ($cmd === 'start' || $reset || $cmd === 'restart') {
-               $this->authorizeBundleExecute();
+               $this->authorize_bundle_execute();
             }
          } catch (\Throwable $e) {
             $state['status'] = 'error';
             $state['message'] = $e->getMessage();
-            $this->setJob($token, $state);
-            $next = $this->moduleUrl('bundle_process', array('proc_key' => $token));
-            return $this->renderProcess($state, $next);
+            $this->set_job($token, $state);
+            $next = $this->module_url('bundle_process', array('proc_key' => $token));
+            return $this->render_process($state, $next);
          }
          $state['status'] = 'running';
          $state['step_pos'] = 0;
@@ -825,13 +821,13 @@ class dbxKiBundleService {
          $state['message'] = 'Bundle-Ausfuehrung gestartet.';
       } elseif ($cmd === 'start' && ($state['status'] ?? '') === 'preview_ready') {
          try {
-            $this->authorizeBundleExecute();
+            $this->authorize_bundle_execute();
          } catch (\Throwable $e) {
             $state['status'] = 'error';
             $state['message'] = $e->getMessage();
-            $this->setJob($token, $state);
-            $next = $this->moduleUrl('bundle_process', array('proc_key' => $token));
-            return $this->renderProcess($state, $next);
+            $this->set_job($token, $state);
+            $next = $this->module_url('bundle_process', array('proc_key' => $token));
+            return $this->render_process($state, $next);
          }
          $state['status'] = 'running';
          $state['step_pos'] = 0;
@@ -853,27 +849,27 @@ class dbxKiBundleService {
       }
 
       if (($state['status'] ?? '') === 'running') {
-         $this->executeAtomically($state);
+         $this->execute_atomically($state);
       }
 
-      $this->setJob($token, $state);
-      $next = $this->moduleUrl('bundle_process', array('proc_key' => $token));
-      return $this->renderProcess($state, $next);
+      $this->set_job($token, $state);
+      $next = $this->module_url('bundle_process', array('proc_key' => $token));
+      return $this->render_process($state, $next);
    }
 
-   private function authorizeBundleExecute(): void {
+   private function authorize_bundle_execute(): void {
       if ((int)dbx()->get_cfg('dbxKi', 'allow_execute', 1) !== 1) {
          throw new \RuntimeException('Automatische Ausfuehrung ist deaktiviert (allow_execute).');
       }
       $token = trim((string)($_GET['token'] ?? $_POST['token'] ?? ''));
-      if (!$this->cms()->bundleCheckExecuteToken($token)) {
+      if (!$this->cms()->bundle_check_execute_token($token)) {
          throw new \RuntimeException('Ungueltiges oder abgelaufenes Ausfuehrungs-Token.');
       }
    }
 
-   private function executeAtomically(array &$state): void {
+   private function execute_atomically(array &$state): void {
       $db = dbx()->get_system_obj('dbxDB');
-      $dds = $this->transactionDds((array)($state['job'] ?? array()));
+      $dds = $this->transaction_dds((array)($state['job'] ?? array()));
       $started = array();
       try {
          foreach ($dds as $dd) {
@@ -884,7 +880,7 @@ class dbxKiBundleService {
          }
          $guard = 0;
          while (($state['status'] ?? '') === 'running') {
-            $this->tickJob($state);
+            $this->tick_job($state);
             if (++$guard > 1000) {
                $state['status'] = 'error';
                $state['message'] = 'Bundle-Abbruch: ungueltige Schrittfolge.';
@@ -903,14 +899,14 @@ class dbxKiBundleService {
             }
          }
          $this->contracts()->consume((array)($state['contract'] ?? array()));
-         $this->discardFileBackups((array)($state['file_backups'] ?? array()));
+         $this->discard_file_backups((array)($state['file_backups'] ?? array()));
          $state['file_backups'] = array();
       } catch (\Throwable $e) {
          foreach (array_reverse($started) as $dd) {
             $db->rollback($dd);
          }
-         $this->removeCreatedMediaFiles((array)($state['step_results'] ?? array()));
-         $this->restoreFileBackups((array)($state['file_backups'] ?? array()));
+         $this->remove_created_media_files((array)($state['step_results'] ?? array()));
+         $this->restore_file_backups((array)($state['file_backups'] ?? array()));
          $state['file_backups'] = array();
          $state['status'] = 'error';
          $state['rolled_back'] = true;
@@ -918,22 +914,22 @@ class dbxKiBundleService {
       }
    }
 
-   private function transactionDds(array $job): array {
+   private function transaction_dds(array $job): array {
       $dds = array('dbxMedia', 'dbxMediaUsage');
       foreach ((array)($job['steps'] ?? array()) as $step) {
          $params = is_array($step['params'] ?? null) ? $step['params'] : array();
          foreach (array('lng', 'source_lng', 'target_lng') as $key) {
             $lng = strtolower(trim((string)($params[$key] ?? '')));
             if ($lng !== '') {
-               $dds[] = dbxContentLng::ddContent($lng);
-               $dds[] = dbxContentLng::ddFolder($lng);
+               $dds[] = dbxContentLng::dd_content($lng);
+               $dds[] = dbxContentLng::dd_folder($lng);
             }
          }
       }
       return array_values(array_unique($dds));
    }
 
-   private function removeCreatedMediaFiles(array $results): void {
+   private function remove_created_media_files(array $results): void {
       $root = rtrim(str_replace('\\', '/', dbx()->get_file_dir()), '/') . '/';
       foreach ($results as $result) {
          $relative = str_replace('\\', '/', (string)($result['row']['file_path'] ?? $result['media']['file_path'] ?? ''));
@@ -946,7 +942,7 @@ class dbxKiBundleService {
       }
    }
 
-   private function captureFileBackups(array $plan, array &$state): void {
+   private function capture_file_backups(array $plan, array &$state): void {
       $target = (string)($plan['target_file'] ?? '');
       if ($target === '' || !is_file($target)) return;
       $key = str_replace('\\', '/', $target);
@@ -958,7 +954,7 @@ class dbxKiBundleService {
       $state['file_backups'][$key] = $backup;
    }
 
-   private function restoreFileBackups(array $backups): void {
+   private function restore_file_backups(array $backups): void {
       foreach ($backups as $target => $backup) {
          if (is_file((string)$backup)) {
             @copy((string)$backup, dbx()->os_path((string)$target));
@@ -967,11 +963,11 @@ class dbxKiBundleService {
       }
    }
 
-   private function discardFileBackups(array $backups): void {
+   private function discard_file_backups(array $backups): void {
       foreach ($backups as $backup) if (is_file((string)$backup)) @unlink((string)$backup);
    }
 
-   private function tickJob(array &$state): void {
+   private function tick_job(array &$state): void {
       $steps = is_array($state['job']['steps'] ?? null) ? $state['job']['steps'] : array();
       $total = count($steps);
       $pos = (int)($state['step_pos'] ?? 0);
@@ -984,30 +980,30 @@ class dbxKiBundleService {
          $state['status'] = 'finished';
          $state['percent'] = 100;
          $state['step_percent'] = 100;
-         $state['message'] = $this->finishedMessage($state);
+         $state['message'] = $this->finished_message($state);
          return;
       }
 
       $step = $steps[$pos];
-      $stepId = (string)($step['id'] ?? ('step_' . $pos));
+      $step_id = (string)($step['id'] ?? ('step_' . $pos));
       $action = (string)($step['action'] ?? '');
-      $assetsDir = (string)($state['assets_dir'] ?? '');
-      $stepResults = is_array($state['step_results'] ?? null) ? $state['step_results'] : array();
+      $assets_dir = (string)($state['assets_dir'] ?? '');
+      $step_results = is_array($state['step_results'] ?? null) ? $state['step_results'] : array();
 
       try {
          $params = is_array($step['params'] ?? null) ? $step['params'] : array();
-         $resolved = $this->resolveParams($params, $stepResults, $assetsDir, false);
-         $plan = $this->cms()->bundleBuildPlan($action, $resolved);
-         $this->captureFileBackups($plan, $state);
-         $result = $this->cms()->bundleExecutePlan($action, $resolved, $plan);
-         $stepResults[$stepId] = $this->normalizeStepResult($action, $result);
-         $state['step_results'] = $stepResults;
+         $resolved = $this->resolve_params($params, $step_results, $assets_dir, false);
+         $plan = $this->cms()->bundle_build_plan($action, $resolved);
+         $this->capture_file_backups($plan, $state);
+         $result = $this->cms()->bundle_execute_plan($action, $resolved, $plan);
+         $step_results[$step_id] = $this->normalize_step_result($action, $result);
+         $state['step_results'] = $step_results;
          $state['step_pos'] = $pos + 1;
-         $state['message'] = 'Step ' . $stepId . ' (' . $action . ') ausgefuehrt.';
+         $state['message'] = 'Step ' . $step_id . ' (' . $action . ') ausgefuehrt.';
       } catch (\Throwable $e) {
          $state['status'] = 'error';
-         $state['message'] = 'Fehler in Step ' . $stepId . ': ' . $e->getMessage();
-         dbx()->sys_msg('error', 'dbxKi', 'bundle_process', $stepId, $e->getMessage());
+         $state['message'] = 'Fehler in Step ' . $step_id . ': ' . $e->getMessage();
+         dbx()->sys_msg('error', 'dbxKi', 'bundle_process', $step_id, $e->getMessage());
          return;
       }
 
@@ -1017,11 +1013,11 @@ class dbxKiBundleService {
       if ($done >= $total) {
          $state['status'] = 'finished';
          $state['percent'] = 100;
-         $state['message'] = $this->finishedMessage($state);
+         $state['message'] = $this->finished_message($state);
       }
    }
 
-   private function finishedMessage(array $state): string {
+   private function finished_message(array $state): string {
       $parts = array('Bundle abgeschlossen.');
       foreach (is_array($state['step_results'] ?? null) ? $state['step_results'] : array() as $id => $result) {
          if (!empty($result['page_id'])) {
@@ -1034,7 +1030,7 @@ class dbxKiBundleService {
       return implode(' ', $parts);
    }
 
-   private function normalizeStepResult(string $action, array $result): array {
+   private function normalize_step_result(string $action, array $result): array {
       $out = $result;
       if (!empty($result['id'])) {
          $out['id'] = (int)$result['id'];
@@ -1060,14 +1056,14 @@ class dbxKiBundleService {
       return $out;
    }
 
-   private function resolveParams($value, array $stepResults, string $assetsDir, bool $dryRun) {
+   private function resolve_params($value, array $step_results, string $assets_dir, bool $dry_run) {
       if (is_array($value)) {
          $out = array();
          foreach ($value as $key => $item) {
-            $out[$key] = $this->resolveParams($item, $stepResults, $assetsDir, $dryRun);
+            $out[$key] = $this->resolve_params($item, $step_results, $assets_dir, $dry_run);
          }
-         if (isset($out['asset_ref']) && $assetsDir !== '') {
-            $out = $this->applyAssetRef($out, $assetsDir, $dryRun);
+         if (isset($out['asset_ref']) && $assets_dir !== '') {
+            $out = $this->apply_asset_ref($out, $assets_dir, $dry_run);
          }
          return $out;
       }
@@ -1077,28 +1073,28 @@ class dbxKiBundleService {
       }
 
       if (strpos($value, '$ref:') === 0) {
-         if ($dryRun) {
+         if ($dry_run) {
             return 0;
          }
-         return $this->resolveRef($value, $stepResults);
+         return $this->resolve_ref($value, $step_results);
       }
 
       if (strpos($value, '$ref:') !== false) {
-         if ($dryRun) {
+         if ($dry_run) {
             return $value;
          }
-         return preg_replace_callback('/\$ref:([A-Za-z0-9_.-]+)/', function($match) use ($stepResults) {
-            return (string)$this->resolveRef('$ref:' . $match[1], $stepResults);
+         return preg_replace_callback('/\$ref:([A-Za-z0-9_.-]+)/', function($match) use ($step_results) {
+            return (string)$this->resolve_ref('$ref:' . $match[1], $step_results);
          }, $value);
       }
 
       return $value;
    }
 
-   private function paramsContainRef($value): bool {
+   private function params_contain_ref($value): bool {
       if (is_array($value)) {
          foreach ($value as $item) {
-            if ($this->paramsContainRef($item)) {
+            if ($this->params_contain_ref($item)) {
                return true;
             }
          }
@@ -1107,10 +1103,10 @@ class dbxKiBundleService {
       return is_string($value) && strpos($value, '$ref:') !== false;
    }
 
-   private function validateRefTargets($value, array $completedStepIds): void {
+   private function validate_ref_targets($value, array $completed_step_ids): void {
       if (is_array($value)) {
          foreach ($value as $item) {
-            $this->validateRefTargets($item, $completedStepIds);
+            $this->validate_ref_targets($item, $completed_step_ids);
          }
          return;
       }
@@ -1122,19 +1118,19 @@ class dbxKiBundleService {
       if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
          throw new \InvalidArgumentException('Ungueltige Referenz: ' . $value);
       }
-      if (!in_array($parts[0], $completedStepIds, true)) {
+      if (!in_array($parts[0], $completed_step_ids, true)) {
          throw new \InvalidArgumentException('Referenz auf noch nicht ausgefuehrten Step: ' . $value);
       }
    }
 
-   private function isPreviewRefDependencyError(\Throwable $e): bool {
+   private function is_preview_ref_dependency_error(\Throwable $e): bool {
       $msg = $e->getMessage();
       return strpos($msg, 'größer als 0') !== false
          || strpos($msg, 'groesser als 0') !== false
          || strpos($msg, 'nicht gefunden') !== false;
    }
 
-   private function syntheticStepResult(string $action): array {
+   private function synthetic_step_result(string $action): array {
       if (strpos($action, 'media.create') === 0) {
          return array('id' => 900001, 'media_id' => 900001);
       }
@@ -1150,24 +1146,24 @@ class dbxKiBundleService {
       return array('id' => 900000);
    }
 
-   private function resolveRef(string $value, array $stepResults) {
+   private function resolve_ref(string $value, array $step_results) {
       $raw = substr($value, 5);
       $parts = explode('.', $raw, 2);
       if (count($parts) !== 2) {
          throw new \InvalidArgumentException('Ungueltige Referenz: ' . $value);
       }
-      $stepId = $parts[0];
+      $step_id = $parts[0];
       $field = $parts[1];
-      if (!isset($stepResults[$stepId]) || !is_array($stepResults[$stepId])) {
+      if (!isset($step_results[$step_id]) || !is_array($step_results[$step_id])) {
          throw new \RuntimeException('Referenz nicht aufloesbar: ' . $value);
       }
-      if (!array_key_exists($field, $stepResults[$stepId])) {
+      if (!array_key_exists($field, $step_results[$step_id])) {
          throw new \RuntimeException('Feld in Referenz fehlt: ' . $value);
       }
-      return $stepResults[$stepId][$field];
+      return $step_results[$step_id][$field];
    }
 
-   private function applyAssetRef(array $params, string $assetsDir, bool $dryRun): array {
+   private function apply_asset_ref(array $params, string $assets_dir, bool $dry_run): array {
       $ref = ltrim(str_replace('\\', '/', (string)($params['asset_ref'] ?? '')), '/');
       if (strpos($ref, 'assets/') === 0) {
          $ref = substr($ref, 7);
@@ -1175,16 +1171,16 @@ class dbxKiBundleService {
       if ($ref === '' || strpos($ref, '..') !== false) {
          throw new \InvalidArgumentException('Ungueltiger asset_ref.');
       }
-      $path = rtrim(str_replace('\\', '/', $assetsDir), '/') . '/' . $ref;
-      $realAssets = realpath($assetsDir);
-      $realFile = realpath($path);
-      if (!$realAssets || !$realFile || strpos($realFile, $realAssets) !== 0 || !is_file($realFile)) {
+      $path = rtrim(str_replace('\\', '/', $assets_dir), '/') . '/' . $ref;
+      $real_assets = realpath($assets_dir);
+      $real_file = realpath($path);
+      if (!$real_assets || !$real_file || strpos($real_file, $real_assets) !== 0 || !is_file($real_file)) {
          throw new \InvalidArgumentException('Asset nicht gefunden: ' . $ref);
       }
-      if ($dryRun) {
+      if ($dry_run) {
          $params['data_base64'] = base64_encode('dry-run');
       } else {
-         $bytes = file_get_contents($realFile);
+         $bytes = file_get_contents($real_file);
          if ($bytes === false) {
             throw new \RuntimeException('Asset konnte nicht gelesen werden: ' . $ref);
          }
@@ -1192,19 +1188,19 @@ class dbxKiBundleService {
       }
       unset($params['asset_ref']);
       if (empty($params['file_name'])) {
-         $params['file_name'] = basename($realFile);
+         $params['file_name'] = basename($real_file);
       }
       return $params;
    }
 
-   private function renderProcess(array $state, string $nextUrl): string {
+   private function render_process(array $state, string $next_url): string {
       $tpl = dbx()->get_system_obj('dbxTPL');
       $status = strtolower((string)($state['status'] ?? 'running'));
       $percent = max(0, min(100, (int)($state['percent'] ?? 0)));
-      $stepPercent = max(0, min(100, (int)($state['step_percent'] ?? 0)));
+      $step_percent = max(0, min(100, (int)($state['step_percent'] ?? 0)));
       $token = (string)($state['proc_key'] ?? '');
 
-      $statusLabels = array(
+      $status_labels = array(
          'preview_ready' => 'Bereit',
          'running' => 'Laeuft',
          'paused' => 'Pausiert',
@@ -1212,7 +1208,7 @@ class dbxKiBundleService {
          'error' => 'Fehler',
          'canceled' => 'Abgebrochen',
       );
-      $statusClasses = array(
+      $status_classes = array(
          'running' => 'text-bg-primary',
          'paused' => 'text-bg-warning',
          'finished' => 'text-bg-success',
@@ -1220,7 +1216,7 @@ class dbxKiBundleService {
          'canceled' => 'text-bg-secondary',
          'preview_ready' => 'text-bg-info',
       );
-      $statusIcons = array(
+      $status_icons = array(
          'running' => 'bi bi-arrow-repeat',
          'paused' => 'bi bi-pause-fill',
          'finished' => 'bi bi-check-lg',
@@ -1231,49 +1227,49 @@ class dbxKiBundleService {
 
       $append = function(string $url, array $params): string {
          $params = array_filter($params, static fn($value): bool => $value !== null && $value !== '');
-         return $this->appendUrlParams($url, $params);
+         return $this->append_url_params($url, $params);
       };
 
-      $targetId = 'dbx_ki_bundle_' . substr(md5($token), 0, 12);
+      $target_id = 'dbx_ki_bundle_' . substr(md5($token), 0, 12);
       $autostart = ($status === 'running') ? 1 : 0;
-      $tokenParam = $this->cms()->bundleExecuteToken();
-      $backUrl = $this->returnUrlFromState($state);
-      $finishedActions = '';
+      $token_param = $this->cms()->bundle_execute_token();
+      $back_url = $this->return_url_from_state($state);
+      $finished_actions = '';
       if ($status === 'finished') {
-         $finishedActions = $this->buildImportFooterActions($state, false, '', $backUrl);
+         $finished_actions = $this->build_import_footer_actions($state, false, '', $back_url);
       }
 
-      $barTitle = trim((string)($state['title'] ?? ''));
+      $bar_title = trim((string)($state['title'] ?? ''));
 
-      return $tpl->get_tpl('dbxKi|ki-bundle-process', $this->withModuleBar(array(
-         'target_id' => $this->esc($targetId),
+      return $tpl->get_tpl('dbxKi|ki-bundle-process', $this->with_module_bar(array(
+         'target_id' => $this->esc($target_id),
          'status_key' => $this->esc($status),
-         'status_label' => $this->esc($statusLabels[$status] ?? $status),
-         'status_class' => $this->esc($statusClasses[$status] ?? 'text-bg-secondary'),
-         'status_icon' => $this->esc($statusIcons[$status] ?? 'bi bi-circle'),
+         'status_label' => $this->esc($status_labels[$status] ?? $status),
+         'status_class' => $this->esc($status_classes[$status] ?? 'text-bg-secondary'),
+         'status_icon' => $this->esc($status_icons[$status] ?? 'bi bi-circle'),
          'message' => $this->esc((string)($state['message'] ?? '')),
          'percent' => $percent,
-         'step_percent' => $stepPercent,
+         'step_percent' => $step_percent,
          'step_label' => $this->esc((int)($state['step_pos'] ?? 0) . ' / ' . (int)($state['total'] ?? 0)),
          'updated_at' => $this->esc((string)($state['updated_at'] ?? '')),
-         'next_url' => $this->esc($nextUrl),
-         'pause_url' => $this->esc($append($nextUrl, array('proc_cmd' => 'pause', 'token' => $tokenParam))),
-         'resume_url' => $this->esc($append($nextUrl, array('proc_cmd' => 'resume', 'token' => $tokenParam))),
-         'cancel_url' => $this->esc($append($nextUrl, array('proc_cmd' => 'cancel', 'token' => $tokenParam))),
-         'restart_url' => $this->esc($append($nextUrl, array('reset' => 1, 'proc_cmd' => 'restart', 'token' => $tokenParam))),
-         'back_url' => $this->esc($backUrl),
+         'next_url' => $this->esc($next_url),
+         'pause_url' => $this->esc($append($next_url, array('proc_cmd' => 'pause', 'token' => $token_param))),
+         'resume_url' => $this->esc($append($next_url, array('proc_cmd' => 'resume', 'token' => $token_param))),
+         'cancel_url' => $this->esc($append($next_url, array('proc_cmd' => 'cancel', 'token' => $token_param))),
+         'restart_url' => $this->esc($append($next_url, array('reset' => 1, 'proc_cmd' => 'restart', 'token' => $token_param))),
+         'back_url' => $this->esc($back_url),
          'autostart' => $autostart,
          'interval' => 900,
          'pause_visible' => 'running',
          'resume_visible' => 'paused',
          'restart_visible' => 'paused,canceled,error,finished',
          'cancel_visible' => 'running,paused',
-         'result_html' => $this->renderResultHtml($state),
-         'finished_actions' => $finishedActions,
-      ), 'bundle_process', '', $barTitle));
+         'result_html' => $this->render_result_html($state),
+         'finished_actions' => $finished_actions,
+      ), 'bundle_process', '', $bar_title));
    }
 
-   private function renderResultHtml(array $state): string {
+   private function render_result_html(array $state): string {
       if (($state['status'] ?? '') !== 'finished') {
          return '';
       }
@@ -1296,14 +1292,14 @@ class dbxKiBundleService {
       return '<ul class="list-group list-group-flush small mb-0">' . $items . '</ul>';
    }
 
-   public function handleExport(): void {
+   public function handle_export(): void {
       // Freie Beispiel-Jobs sind in Vertragsversion 2 entfallen. Jeder
       // Auftrag wird mit konkretem Ziel und Snapshot im Briefing signiert.
-      header('Location: ' . $this->moduleUrl('briefing'));
+      header('Location: ' . $this->module_url('briefing'));
       exit;
    }
-   public function handleDescribeJson(): void {
-      dbx()->json_response($this->describeBundle(), true);
+   public function handle_describe_json(): void {
+      dbx()->json_response($this->describe_bundle(), true);
    }
 }
 

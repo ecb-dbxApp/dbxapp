@@ -1,0 +1,20 @@
+<section class="container py-4 dbx-content-missing-navigation">
+  <div class="alert alert-warning shadow-sm" role="status">
+    <span class="text-uppercase small fw-semibold">Notice</span>
+    <h1 class="h2 mt-2">The requested page was not found</h1>
+    <p>No content exists for <code>{requested_permalink}</code>. Choose an available page from the overview.</p>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-primary" href="{home_url}">Go to home page</a>
+      <a class="btn btn-outline-primary" href="{sitemap_url}">XML sitemap</a>
+    </div>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2 class="h4 mb-0">Page overview</h2>
+      <span class="badge text-bg-primary">{page_count}</span>
+    </div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush">{page_rows}</ul>
+    </div>
+  </div>
+</section>

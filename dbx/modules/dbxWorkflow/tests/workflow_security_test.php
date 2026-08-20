@@ -1,10 +1,12 @@
 <?php
 
+require_once dirname(__DIR__, 3) . '/include/tests/dbxModuleSourceBundle.php';
+
 $root = dirname(__DIR__);
-$engineFile = $root . '/include/dbxWorkflowEngine.class.php';
-$adminFile = dirname(__DIR__, 2) . '/dbxWorkflow_admin/include/dbxWorkflowAdmin.class.php';
-$engine = file_get_contents($engineFile);
-$admin = file_get_contents($adminFile);
+$engine_file = $root . '/include/dbxWorkflowEngine.class.php';
+$admin_file = dirname(__DIR__, 2) . '/dbxWorkflow_admin/include/dbxWorkflowAdmin.class.php';
+$engine = dbx_test_module_source_bundle($engine_file);
+$admin = file_get_contents($admin_file);
 
 $fail = static function (string $message, int $code): void {
    fwrite(STDERR, "FAIL: $message\n");
@@ -21,13 +23,13 @@ if (strpos($engine, "check_action_token('dbxWorkflow.start'") === false
 }
 
 if (strpos($engine, 'guest_can_access_instance($iid)') === false
-   || !preg_match('/select\\(\\$this->ddInstance,[\\s\\S]*?,\\s*1\\s*\\);/', $engine)) {
+   || !preg_match('/select\\(\\$this->dd_instance,[\\s\\S]*?,\\s*1\\s*\\);/', $engine)) {
    $fail('Instanzzugriffe nutzen weder Gast-Sessionbindung noch DD-Pruefung.', 3);
 }
 
-if (substr_count($engine, '$db->begin($this->ddInstance)') < 3
-   || substr_count($engine, '$db->rollback($this->ddInstance)') < 3
-   || substr_count($engine, '$db->commit($this->ddInstance)') < 3) {
+if (substr_count($engine, '$db->begin($this->dd_instance)') < 3
+   || substr_count($engine, '$db->rollback($this->dd_instance)') < 3
+   || substr_count($engine, '$db->commit($this->dd_instance)') < 3) {
    $fail('Workflow-Schritt, Automation und Abschluss sind nicht vollstaendig atomar.', 4);
 }
 
@@ -36,7 +38,7 @@ if (strpos($engine, "'status' => 'finishing'") === false
    $fail('Der externe Abschluss wird nicht atomar gegen Wiederholung beansprucht.', 5);
 }
 
-if (preg_match("/\\\\\$nextUrl\\s*\\.\\s*'&proc_cmd=/", $engine) === 1
+if (preg_match("/\\\\\$next_url\\s*\\.\\s*'&proc_cmd=/", $engine) === 1
    || strpos($admin, "action_token('dbxWorkflow.instance.' . \$id)") === false) {
    $fail('Ein zustandsaendernder Workflow-GET-Link wird noch ohne Token erzeugt.', 6);
 }

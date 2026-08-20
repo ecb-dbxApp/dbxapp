@@ -5,11 +5,11 @@ require_once __DIR__ . '/dbxContent_bootstrap.php';
 
 class dbxContent_treeview {
 
-   private function needsCmsRuntime() {
-      return dbxContentLng::isCmsPermalinkMode();
+   private function needs_cms_runtime() {
+      return dbxContentLng::is_cms_permalink_mode();
    }
 
-   private function render_frontend_view($cid, $pageContent) {
+   private function render_frontend_view($cid, $page_content) {
       $tpl = dbx()->get_system_obj('dbxTPL');
       $i = dbx()->next_id();
       $title = $this->page_title($cid);
@@ -19,30 +19,30 @@ class dbxContent_treeview {
          'cid'           => (string)(int)$cid,
          'frontend_head' => $tpl->get_tpl('dbxContent|content-frontend-head', array(
             'bar_title'               => $title,
-            'bar_title_pre'           => $this->adminEditorBarHtml($cid, true),
+            'bar_title_pre'           => $this->admin_editor_bar_html($cid, true),
             'bar_title_heading_attrs' => ' data-cms-page-title',
          )),
-         'page_content'  => $pageContent,
+         'page_content'  => $page_content,
       ));
    }
 
-   private function treeToggleBarHtml() {
-      if (!dbxContentLng::isCmsPermalinkMode()) {
+   private function tree_toggle_bar_html() {
+      if (!dbxContentLng::is_cms_permalink_mode()) {
          return '';
       }
 
       return dbx()->get_system_obj('dbxTPL')->get_tpl('dbxContent|content-view-bar-tree-toggle');
    }
 
-   private function adminEditorBarHtml($cid = 0, $useWindow = false) {
-      if (!dbx()->can('admin')) {
+   private function admin_editor_bar_html($cid = 0, $use_window = false) {
+      if (!dbx()->has_group('admin')) {
          return '';
       }
 
       $tpl = dbx()->get_system_obj('dbxTPL');
       $cid = (int)$cid;
-      if ($useWindow && $cid > 0) {
-         $url = $this->appUrl() . '?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=' . $cid;
+      if ($use_window && $cid > 0) {
+         $url = dbxContentRuntime::app_url() . '?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=' . $cid;
          return $tpl->get_tpl('dbxContent|content-view-bar-admin-win', array(
             'admin_url' => dbx()->esc($url),
          ));
@@ -51,22 +51,14 @@ class dbxContent_treeview {
       return $tpl->get_tpl('dbxContent|content-view-bar-admin');
    }
 
-   private function appUrl() {
-      $script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
-      if ($script === '') return '';
-      $dir = str_replace('\\', '/', dirname($script));
-      if ($dir === '.' || $dir === '/' || $dir === '\\') return '/';
-      return rtrim($dir, '/') . '/';
-   }
-
-   private function moduleFrameReplaces($barTitle, $i, $panelAttrs, $barAdmin = '', $barSubtitle = '', $barTreeToggle = '') {
+   private function module_frame_replaces($bar_title, $i, $panel_attrs, $bar_admin = '', $bar_subtitle = '', $bar_tree_toggle = '') {
       $tpl = dbx()->get_system_obj('dbxTPL');
 
       return array(
          'frame_id'              => 'dbx_content_tree_' . $i,
          'frame_panel_class'     => 'dbx-cms dbx-cms-view dbx-content-tree-view dbxReport',
          'frame_body_class'      => 'dbx-content-tree-body',
-         'frame_panel_attrs'     => $panelAttrs,
+         'frame_panel_attrs'     => $panel_attrs,
          'frame_subbar'          => '',
          'frame_form_open'       => '',
          'frame_form_close'      => '',
@@ -75,10 +67,10 @@ class dbxContent_treeview {
          'bar_class'             => 'dbx-bar--module dbx-cms-head',
          'bar_title_class'       => 'dbx-bar-title',
          'bar_actions_class'     => 'dbx-bar-actions flex-nowrap',
-         'bar_title'             => $barTitle,
+         'bar_title'             => $bar_title,
          'bar_icon'              => 'bi-file-earmark-text',
-         'bar_subtitle'          => $barSubtitle,
-         'bar_title_pre'         => (string)$barAdmin . (string)$barTreeToggle,
+         'bar_subtitle'          => $bar_subtitle,
+         'bar_title_pre'         => (string)$bar_admin . (string)$bar_tree_toggle,
          'bar_title_heading_attrs' => ' data-cms-page-title',
          'bar_middle'            => '',
          'bar_extra'             => '',
@@ -93,7 +85,7 @@ class dbxContent_treeview {
       }
 
       $db = dbx()->get_system_obj('dbxDB');
-      $row = $db->select1(dbxContentLng::ddContent(), $cid, 'title', 0);
+      $row = $db->select1(dbxContentLng::dd_content(), $cid, 'title', 0);
       if (!is_array($row)) {
          return 'Seite #' . $cid;
       }
@@ -110,20 +102,13 @@ class dbxContent_treeview {
       return dbx()->get_modul_var('root', 0, 'int');
    }
 
-   private function user_has_access($groups) {
-      $groups = trim((string)$groups);
-      if ($groups === '') $groups = '*';
-      return dbx()->can($groups);
-   }
-
    private function dd_server($dd, $fallback) {
       $db = dbx()->get_system_obj('dbxDB');
       if (method_exists($db, 'load_dd')) {
          $sys = $db->load_dd($dd);
-         $mod = $sys['dd_modul'] ?? 'dbx';
-         $name = $sys['dd_name'] ?? '';
-         if ($name && isset($_SESSION['dbx']['cache']['dd'][$mod][$name]['table']['server'])) {
-            return $_SESSION['dbx']['cache']['dd'][$mod][$name]['table']['server'];
+         $server = (string)($sys['table']['server'] ?? '');
+         if ($server !== '') {
+            return $server;
          }
       }
       return $fallback;
@@ -145,8 +130,8 @@ class dbxContent_treeview {
       if ($done) return;
       $done = true;
 
-      $folder_server = $this->dd_server(dbxContentLng::ddFolder(), 'dbx|dbxContent.db3');
-      $folder_table  = $db->get_dd_table(dbxContentLng::ddFolder());
+      $folder_server = $this->dd_server(dbxContentLng::dd_folder(), 'dbx|dbxContent.db3');
+      $folder_table  = $db->get_dd_table(dbxContentLng::dd_folder());
       $this->ensure_column($db, $folder_server, $folder_table, 'sorter', "TEXT DEFAULT ''");
    }
 
@@ -156,7 +141,7 @@ class dbxContent_treeview {
       if (isset($visited[$folder_id])) return '*';
       $visited[$folder_id] = 1;
 
-      $row = $db->select1(dbxContentLng::ddFolder(), $folder_id, '*', 0);
+      $row = $db->select1(dbxContentLng::dd_folder(), $folder_id, '*', 0);
       if (!is_array($row)) return '*';
 
       $raw = trim((string)($row['group_read'] ?? ''));
@@ -218,13 +203,13 @@ class dbxContent_treeview {
          if ($id <= 0) continue;
 
          if ($type === 'folder') {
-            if (!$this->user_has_access($this->resolve_folder_rights($db, $id))) continue;
+            if (!dbxContentRuntime::user_can_access($this->resolve_folder_rights($db, $id))) continue;
             $node['_children'] = $this->decorate_nodes(is_array($node['_children'] ?? null) ? $node['_children'] : array(), $flat);
             if (!count($node['_children'])) continue;
          } else {
-            $page = $db->select1(dbxContentLng::ddContent(), $id, '*', 0);
+            $page = $db->select1(dbxContentLng::dd_content(), $id, '*', 0);
             if (!is_array($page) || (int)($page['activ'] ?? 0) !== 1) continue;
-            if (!$this->user_has_access($this->resolve_page_rights($db, $page))) continue;
+            if (!dbxContentRuntime::user_can_access($this->resolve_page_rights($db, $page))) continue;
             $node['_parent'] = (int)($page['folder'] ?? 0);
          }
 
@@ -239,7 +224,7 @@ class dbxContent_treeview {
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_tree_schema($db);
       $root = $this->root_id();
-      if ($root > 0 && !$this->user_has_access($this->resolve_folder_rights($db, $root))) {
+      if ($root > 0 && !dbxContentRuntime::user_can_access($this->resolve_folder_rights($db, $root))) {
          return array(
             'nodes' => array(),
             'flat' => array(),
@@ -248,7 +233,7 @@ class dbxContent_treeview {
          );
       }
 
-      $tree = $db->select_tree(dbxContentLng::ddFolder(), dbxContentLng::ddContent(), array(
+      $tree = $db->select_tree(dbxContentLng::dd_folder(), dbxContentLng::dd_content(), array(
          'root' => $root,
          'verify_access' => 0,
          'item_where' => 'activ = 1',
@@ -276,29 +261,29 @@ class dbxContent_treeview {
       $root = $this->root_id();
       $cid = (int)dbx()->get_modul_var('cid', 0, 'int');
       if (!$cid) $cid = (int)dbx()->get_modul_var('dbx_cid', 0, 'int');
-      $isCms = dbxContentLng::isCmsPermalinkMode();
+      $is_cms = dbxContentLng::is_cms_permalink_mode();
       $initial_content = $cid > 0
          ? $this->render_page($cid)
          : '<div class="dbx-cms-empty">Bitte eine Seite im Content Tree waehlen.</div>';
 
-      if (!$this->needsCmsRuntime()) {
+      if (!$this->needs_cms_runtime()) {
          return $this->render_frontend_view($cid, $initial_content);
       }
 
       $i = dbx()->next_id();
-      $dataDbx = 'lib=cms|mode=view|id=dbx_content_tree_' . $i;
-      if ($isCms) {
-         $dataDbx .= '|tree=' . dbx()->esc($this->base_url('cms', array('dbx_run2' => 'tree', 'root' => $root)));
+      $data_dbx = 'lib=cms|module=dbxContent_admin|mode=view|id=dbx_content_tree_' . $i;
+      if ($is_cms) {
+         $data_dbx .= '|tree=' . dbx()->esc($this->base_url('cms', array('dbx_run2' => 'tree', 'root' => $root)));
       }
-      $dataDbx .= '|viewpage=' . dbx()->esc($this->base_url('cms', array('dbx_run2' => 'page', 'root' => $root)));
-      $dataDbx .= '|cid=' . $cid;
+      $data_dbx .= '|viewpage=' . dbx()->esc($this->base_url('cms', array('dbx_run2' => 'page', 'root' => $root)));
+      $data_dbx .= '|cid=' . $cid;
 
-      $panelAttrs = 'data-cms-initial-page-loaded="' . ($cid > 0 ? '1' : '0') . '" data-dbx="' . $dataDbx . '"';
-      $frameTpl = $isCms ? 'content-view-frame-cms' : 'content-view-frame-content';
-      $viewFrame = $tpl->get_tpl('dbxContent|' . $frameTpl, array(
+      $panel_attrs = 'data-cms-initial-page-loaded="' . ($cid > 0 ? '1' : '0') . '" data-dbx="' . $data_dbx . '"';
+      $frame_tpl = $is_cms ? 'content-view-frame-cms' : 'content-view-frame-content';
+      $view_frame = $tpl->get_tpl('dbxContent|' . $frame_tpl, array(
          'initial_content' => $initial_content,
          'i'               => $i,
-         'cms_tree_search' => $tpl->get_tpl('dbx|search', dbx()->search_defaults(array(
+         'cms_tree_search' => $tpl->get_tpl('dbx|search', dbx()->get_system_obj('dbxSearchDefaults')->build(array(
             'title'       => 'Tree durchsuchen',
             'extra_attrs' => 'data-cms-search',
             'data_role'   => '',
@@ -307,23 +292,23 @@ class dbxContent_treeview {
       ));
 
       $data = array_merge(
-         $this->moduleFrameReplaces(
+         $this->module_frame_replaces(
             $this->page_title($cid),
             $i,
-            $panelAttrs,
-            $this->adminEditorBarHtml(),
-            $isCms ? 'Content Tree' : '',
-            $this->treeToggleBarHtml()
+            $panel_attrs,
+            $this->admin_editor_bar_html(),
+            $is_cms ? 'Content Tree' : '',
+            $this->tree_toggle_bar_html()
          ),
          array(
-            'frame_panel_class' => 'dbx-cms dbx-cms-view ' . ($isCms ? 'dbx-content-tree-view' : 'dbx-content-show') . ' dbxReport',
-            'frame_body_class'  => $isCms ? 'dbx-content-tree-body' : 'dbx-content-show-body',
+            'frame_panel_class' => 'dbx-cms dbx-cms-view ' . ($is_cms ? 'dbx-content-tree-view' : 'dbx-content-show') . ' dbxReport',
+            'frame_body_class'  => $is_cms ? 'dbx-content-tree-body' : 'dbx-content-show-body',
             'i' => $i,
             'cid' => (string)$cid,
             'initial_loaded' => $cid > 0 ? '1' : '0',
             'initial_content' => $initial_content,
-            'view_frame' => $viewFrame,
-            'tree_url' => $isCms ? dbx()->esc($this->base_url('cms', array('dbx_run2' => 'tree', 'root' => $root))) : '',
+            'view_frame' => $view_frame,
+            'tree_url' => $is_cms ? dbx()->esc($this->base_url('cms', array('dbx_run2' => 'tree', 'root' => $root))) : '',
             'view_page_url' => dbx()->esc($this->base_url('cms', array('dbx_run2' => 'page', 'root' => $root))),
          )
       );
@@ -331,7 +316,7 @@ class dbxContent_treeview {
    }
 
    private function tree_json() {
-      if (!dbxContentLng::isCmsPermalinkMode()) {
+      if (!dbxContentLng::is_cms_permalink_mode()) {
          dbx()->json_response(array('ok' => 0, 'msg' => 'Content Tree ist im Modus content deaktiviert.'), true);
       }
 
@@ -339,13 +324,13 @@ class dbxContent_treeview {
    }
 
    private function page_json() {
-      if (!dbxContentLng::isCmsPermalinkMode()) {
+      if (!dbxContentLng::is_cms_permalink_mode()) {
          dbx()->json_response(array('ok' => 0, 'msg' => 'Content Tree ist im Modus content deaktiviert.'), true);
       }
 
       $id = (int)dbx()->get_modul_var('id', 0, 'int');
       $db = dbx()->get_system_obj('dbxDB');
-      $row = $id > 0 ? $db->select1(dbxContentLng::ddContent(), $id, 'id,title', 0) : array();
+      $row = $id > 0 ? $db->select1(dbxContentLng::dd_content(), $id, 'id,title', 0) : array();
       dbx()->json_response(array(
          'ok' => 1,
          'id' => $id,

@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Withdrawals';
 $messages['bar_subtitle'] = 'Withdrawals and returns from the shop';
 $messages['report_info'] = 'Search and process incoming withdrawals.';

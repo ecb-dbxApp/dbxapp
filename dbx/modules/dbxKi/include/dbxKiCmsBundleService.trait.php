@@ -13,11 +13,11 @@ use dbx\dbxContent\dbxContent_permalink;
 
 trait dbxKiCmsBundleServiceTrait {
 
-   public function bundleActionCatalog(): array {
+   public function bundle_action_catalog(): array {
       return $this->catalog();
    }
 
-   public function bundleIsAllowedInPackage(string $action): bool {
+   public function bundle_is_allowed_in_package(string $action): bool {
       $catalog = $this->catalog();
       if (!isset($catalog[$action]) || !($catalog[$action]['write'] ?? false)) {
          return false;
@@ -28,33 +28,33 @@ trait dbxKiCmsBundleServiceTrait {
       return true;
    }
 
-   public function bundleBuildPlan(string $action, array $params): array {
-      if (!$this->bundleIsAllowedInPackage($action)) {
+   public function bundle_build_plan(string $action, array $params): array {
+      if (!$this->bundle_is_allowed_in_package($action)) {
          throw new \InvalidArgumentException('Aktion im Bundle nicht erlaubt: ' . $action);
       }
       return $this->build_plan($action, $params);
    }
 
-   public function bundleExecutePlan(string $action, array $params, array $plan): array {
-      if (!$this->bundleIsAllowedInPackage($action)) {
+   public function bundle_execute_plan(string $action, array $params, array $plan): array {
+      if (!$this->bundle_is_allowed_in_package($action)) {
          throw new \InvalidArgumentException('Aktion im Bundle nicht erlaubt: ' . $action);
       }
       return $this->execute_action($action, $params, $plan);
    }
 
-   public function bundleExecuteToken(): string {
+   public function bundle_execute_token(): string {
       return dbx()->action_token(self::TOKEN_SCOPE);
    }
 
-   public function bundleCheckExecuteToken(string $token): bool {
+   public function bundle_check_execute_token(string $token): bool {
       return dbx()->check_action_token(self::TOKEN_SCOPE, $token);
    }
 
-   public function bundleSnapshot(array $params = array()): array {
+   public function bundle_snapshot(array $params = array()): array {
       return $this->snapshot($params);
    }
 
-   public function bundleRead(string $action, array $params = array()): array {
+   public function bundle_read(string $action, array $params = array()): array {
       if (!in_array($action, array('folder.get', 'page.get'), true)) {
          throw new \InvalidArgumentException('Leseaktion fuer Bundle-Snapshot nicht erlaubt.');
       }
@@ -62,7 +62,7 @@ trait dbxKiCmsBundleServiceTrait {
       return is_array($result) ? $result : array();
    }
 
-   public function bundleSystemDescribe(): array {
+   public function bundle_system_describe(): array {
       return $this->describe();
    }
 }

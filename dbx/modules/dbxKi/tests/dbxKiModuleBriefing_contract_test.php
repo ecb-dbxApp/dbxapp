@@ -30,8 +30,8 @@ if ($class->getConstant('MODULE_BRIEFING_VERSION') !== '2.0') {
     $fail('Modul-Briefing-Version ist nicht 2.0.', 1);
 }
 
-$rules = $invoke($class, $service, 'hardRules', array('demoModule'));
-$rulesText = implode("\n", $rules);
+$rules = $invoke($class, $service, 'hard_rules', array('demoModule'));
+$rules_text = implode("\n", $rules);
 foreach (array(
     'Kundendatei und Systemquelle unterscheiden',
     'Menueinhalte und installationsbezogene Menue-Templates',
@@ -40,7 +40,16 @@ foreach (array(
     'ausschliesslich ueber dbxDB und DD-Namen',
     'create_date, create_uid, update_date, update_uid und owner',
     'dbxapp-Exportformat',
-    'Keine $addField-Closure',
+    'Jede DD-Aenderung wird geschrieben und danach verbindlich per DD->DB Sync',
+    'Keine $add_field-Closure',
+    'Vor jedem neuen Template zuerst vorhandene Templates',
+    'Ein Formular besitzt fast immer ein individuelles Haupttemplate',
+    '{form:bar}',
+    'Form-ID und Template sind unabhaengig',
+    'Default form-default nicht automatisch ueberschreiben',
+    'Normale Tabellenreports verwenden das dbxReport-Standardtemplate',
+    '{report:bar}',
+    'Keine _en/_es-Markupkopien',
     'Nach einem Insert die von dbxDB gelieferte RID',
     '{fid}_next_record-Default',
     'spaet per add_rep()',
@@ -57,13 +66,13 @@ foreach (array(
     'Standardaktionen werden automatisch signiert',
     'Ajax und normaler POST',
     'myInvoices-Modul ist die ausfuehrbare Architektur-Referenz',
-) as $requiredRule) {
-    if (strpos($rulesText, $requiredRule) === false) {
-        $fail('Verbindliche Regel fehlt: ' . $requiredRule, 2);
+) as $required_rule) {
+    if (strpos($rules_text, $required_rule) === false) {
+        $fail('Verbindliche Regel fehlt: ' . $required_rule, 2);
     }
 }
 
-$way = $invoke($class, $service, 'dbxappWay');
+$way = $invoke($class, $service, 'dbxapp_way');
 foreach (array(
     'database',
     'create_update',
@@ -73,31 +82,32 @@ foreach (array(
     'callbacks',
     'system_objects',
     'reference',
-) as $requiredKey) {
-    if (!isset($way[$requiredKey]) || trim((string)$way[$requiredKey]) === '') {
-        $fail('dbxappWay-Eintrag fehlt: ' . $requiredKey, 3);
+) as $required_key) {
+    if (!isset($way[$required_key]) || trim((string)$way[$required_key]) === '') {
+        $fail('dbxappWay-Eintrag fehlt: ' . $required_key, 3);
     }
 }
 $contract = $invoke(
     $class,
     $service,
-    'dbxApiContract',
+    'dbx_api_contract',
     array('demoModule')
 );
-foreach (array('forms', 'reports', 'dd', 'db', 'audit', 'objects', 'escaping', 'get', 'action_links') as $requiredKey) {
-    if (!isset($contract[$requiredKey]) || trim((string)$contract[$requiredKey]) === '') {
-        $fail('dbxApiContract-Eintrag fehlt: ' . $requiredKey, 4);
+foreach (array('forms', 'reports', 'dd', 'db', 'audit', 'objects', 'escaping', 'get', 'action_links') as $required_key) {
+    if (!isset($contract[$required_key]) || trim((string)$contract[$required_key]) === '') {
+        $fail('dbxApiContract-Eintrag fehlt: ' . $required_key, 4);
     }
 }
-foreach (array('{fid}_{event}-Callback-Defaults', 'add_rep()', '{rpt:colspan}') as $requiredReportRule) {
-    if (strpos((string)$contract['reports'], $requiredReportRule) === false) {
-        $fail('dbxReport-Default fehlt im API-Vertrag: ' . $requiredReportRule, 4);
+foreach (array('{fid}_{event}-Callback-Defaults', 'add_rep()', '{rpt:colspan}') as $required_report_rule) {
+    if (strpos((string)$contract['reports'], $required_report_rule) === false) {
+        $fail('dbxReport-Default fehlt im API-Vertrag: ' . $required_report_rule, 4);
     }
 }
 
-$reference = $invoke($class, $service, 'referenceStandard');
+$reference = $invoke($class, $service, 'reference_standard');
 if (
     ($reference['export_manual'] ?? '') !== 'reference/25_Verbindliches_Modulhandbuch.md'
+    || ($reference['export_template_guide'] ?? '') !== 'reference/KI-TEMPLATES.md'
     || ($reference['export_module'] ?? '') !== 'reference/myInvoices'
 ) {
     $fail('Exportierte Modulreferenz ist unvollstaendig.', 5);
@@ -106,7 +116,7 @@ if (
 $guide = $invoke(
     $class,
     $service,
-    'modulePipelineGuide',
+    'module_pipeline_guide',
     array('demoModule')
 );
 if (($guide['manifest']['task_type'] ?? '') !== 'update') {
@@ -121,11 +131,12 @@ $source = (string)file_get_contents(
 );
 foreach (array(
     "'update' => 'Bestehendes Modul bearbeiten / aktualisieren'",
-    '$this->addReferenceToZip($zip);',
-    "'reference/README.md' => \$this->referenceText()",
-) as $requiredSource) {
-    if (strpos($source, $requiredSource) === false) {
-        $fail('Exportimplementierung fehlt: ' . $requiredSource, 8);
+    '$this->add_reference_to_zip($zip);',
+    "\$zip->addFile(\$template_guide, 'reference/KI-TEMPLATES.md');",
+    "'reference/README.md' => \$this->reference_text()",
+) as $required_source) {
+    if (strpos($source, $required_source) === false) {
+        $fail('Exportimplementierung fehlt: ' . $required_source, 8);
     }
 }
 if (preg_match(
@@ -152,12 +163,37 @@ foreach (array(
     'auftrag.contract.json',
     'answer.json',
     'reference/25_Verbindliches_Modulhandbuch.md',
+    'KI-TEMPLATES.md',
     'reference/myInvoices/',
     'Staging',
     'Ausführungstoken',
-) as $requiredDocumentation) {
-    if (strpos($instructions, $requiredDocumentation) === false) {
-        $fail('KI-Dokumentation fehlt: ' . $requiredDocumentation, 10);
+    'Template-Regeln für Module',
+    'dbx|form-default',
+    '{form:message}',
+    '{report:footer}',
+) as $required_documentation) {
+    if (strpos($instructions, $required_documentation) === false) {
+        $fail('KI-Dokumentation fehlt: ' . $required_documentation, 10);
+    }
+}
+
+$template_guide = (string)file_get_contents(dirname(__DIR__) . '/KI-TEMPLATES.md');
+foreach (array(
+    'dbx/modules/{modul}/tpl/htm/',
+    'dbx/modules/dbx/tpl/htm/',
+    '{form:bar}',
+    '{form:message}',
+    '{form:footer}',
+    'dbx|form-default',
+    'dbx|report-default',
+    '{report:bar}',
+    '{report:message}',
+    '{report:footer}',
+    'set_table_actions()',
+    'Form-ID',
+) as $required_template_rule) {
+    if (strpos($template_guide, $required_template_rule) === false) {
+        $fail('Template-Leitfaden fehlt: ' . $required_template_rule, 11);
     }
 }
 

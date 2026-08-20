@@ -18,9 +18,9 @@ require_once $root . '/dbx/vendor/autoload.php';
 require_once $root . '/dbx/include/dbxKernel.php';
 
 $server = 'dbxContact|dbxDynamicReconnectTest.db3';
-$databaseFile = $root . '/dbx/modules/dbxContact/db/dbxDynamicReconnectTest.db3';
-if (!is_file($databaseFile)
-    && file_put_contents($databaseFile, '') === false) {
+$database_file = $root . '/dbx/modules/dbxContact/db/dbxDynamicReconnectTest.db3';
+if (!is_file($database_file)
+    && file_put_contents($database_file, '') === false) {
     fwrite(STDERR, "FAIL: Isolierte Testdatenbank konnte nicht angelegt werden.\n");
     exit(1);
 }
@@ -64,8 +64,8 @@ echo "OK dbxDB dynamic reconnect\n";
 // Quellbaum noch den späteren Release-Hygiene-Test verunreinigen.
 unset($db->db[$server]);
 $db->pdo = null;
-foreach (array($databaseFile, $databaseFile . '-wal', $databaseFile . '-shm') as $testFile) {
-    if (is_file($testFile) && !unlink($testFile)) {
+foreach (array($database_file, $database_file . '-wal', $database_file . '-shm') as $test_file) {
+    if (is_file($test_file) && !unlink($test_file)) {
         fwrite(STDERR, "FAIL: Isolierte Testdatenbank konnte nicht entfernt werden.\n");
         exit(6);
     }

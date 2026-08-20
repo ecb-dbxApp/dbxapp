@@ -34,29 +34,29 @@ class dbxShop {
             return $this->service()->checkout();
 
          case 'paypal_start':
-            return $this->service()->paypalStart();
+            return $this->service()->paypal_start();
 
          case 'paypal_return':
-            return $this->service()->paypalReturn();
+            return $this->service()->paypal_return();
 
          case 'paypal_cancel':
-            return $this->service()->paypalCancel();
+            return $this->service()->paypal_cancel();
 
          case 'amazon_pay_return':
-            return $this->service()->amazonPayReturn();
+            return $this->service()->amazon_pay_return();
 
          case 'amazon_pay_cancel':
-            return $this->service()->amazonPayCancel();
+            return $this->service()->amazon_pay_cancel();
 
          case 'order':
          case 'orders':
             return $this->service()->orders();
 
          case 'invoice_pdf':
-            return $this->service()->invoicePdf();
+            return $this->service()->invoice_pdf();
 
          case 'channel_webhook':
-            return $this->service()->channelWebhook();
+            return $this->service()->channel_webhook();
 
          case 'legal':
          case 'terms':

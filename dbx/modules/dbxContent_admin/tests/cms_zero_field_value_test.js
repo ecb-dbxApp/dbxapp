@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const cmsFile = path.resolve(__dirname, "../../../js/lib/cms-page.js");
+const cmsFile = path.resolve(__dirname, "../../../modules/dbxContent_admin/js/cms-page.js");
 const source = fs.readFileSync(cmsFile, "utf8");
 const match = source.match(/function cmsFieldValue\([^)]*\) \{[\s\S]*?\n        \}/);
 

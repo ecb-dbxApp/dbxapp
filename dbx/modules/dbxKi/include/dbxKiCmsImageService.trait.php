@@ -49,32 +49,32 @@ trait dbxKiCmsImageServiceTrait {
 
    private function media_local_file(array $media): string {
       if (($media['storage_type'] ?? 'local') !== 'local') return '';
-      $filePath = trim((string)($media['file_path'] ?? ''));
-      if ($filePath === '') return '';
-      $filePath = preg_replace('~^files/~', '', str_replace('\\', '/', $filePath));
-      if (strpos($filePath, 'media/') !== 0) return '';
-      return dbx()->os_path(rtrim(dbx()->get_file_dir(), '/\\') . '/' . $filePath);
+      $file_path = trim((string)($media['file_path'] ?? ''));
+      if ($file_path === '') return '';
+      $file_path = preg_replace('~^files/~', '', str_replace('\\', '/', $file_path));
+      if (strpos($file_path, 'media/') !== 0) return '';
+      return dbx()->os_path(rtrim(dbx()->get_file_dir(), '/\\') . '/' . $file_path);
    }
 
    private function hero_media_for_page(string $lng, int $id): array {
-      $page = $this->db->select1(dbxContentLng::ddContent($lng), $id);
+      $page = $this->db->select1(dbxContentLng::dd_content($lng), $id);
       if (!is_array($page)) throw new \RuntimeException('Seite nicht gefunden.');
 
       $usage = array();
-      $mediaId = (int)($page['hero_image_id'] ?? 0);
-      if ($mediaId <= 0) {
-         $rows = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $id . " AND slot = 'hero' AND active = 1", $lng), '*', 'sorter,id', 'DESC', '', 1, 0, 0);
+      $media_id = (int)($page['hero_image_id'] ?? 0);
+      if ($media_id <= 0) {
+         $rows = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::with_language('content_id = ' . $id . " AND slot = 'hero' AND active = 1", $lng), '*', 'sorter,id', 'DESC', '', 1, 0, 0);
          if (is_array($rows) && is_array($rows[0] ?? null)) {
             $usage = $rows[0];
-            $mediaId = (int)($usage['media_id'] ?? 0);
+            $media_id = (int)($usage['media_id'] ?? 0);
          }
       }
-      if ($mediaId <= 0) throw new \RuntimeException('Die Seite hat kein bestehendes Hero-Bild.');
+      if ($media_id <= 0) throw new \RuntimeException('Die Seite hat kein bestehendes Hero-Bild.');
 
-      $media = $this->db->select1('dbxMedia', $mediaId);
+      $media = $this->db->select1('dbxMedia', $media_id);
       if (!is_array($media) || (int)($media['active'] ?? 0) !== 1) throw new \RuntimeException('Hero-Medium nicht gefunden.');
       if (!$usage) {
-         $rows = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $id . ' AND media_id = ' . $mediaId . " AND slot = 'hero' AND active = 1", $lng), '*', 'sorter,id', 'DESC', '', 1, 0, 0);
+         $rows = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::with_language('content_id = ' . $id . ' AND media_id = ' . $media_id . " AND slot = 'hero' AND active = 1", $lng), '*', 'sorter,id', 'DESC', '', 1, 0, 0);
          if (is_array($rows) && is_array($rows[0] ?? null)) $usage = $rows[0];
       }
       return array('page' => $page, 'media' => $media, 'usage' => $usage);
@@ -114,18 +114,18 @@ trait dbxKiCmsImageServiceTrait {
       return min(100, max(1, (int)$value));
    }
 
-   private function image_crop_rect(array $params, int $sourceWidth, int $sourceHeight): array {
-      $sourceWidth = max(1, $sourceWidth);
-      $sourceHeight = max(1, $sourceHeight);
+   private function image_crop_rect(array $params, int $source_width, int $source_height): array {
+      $source_width = max(1, $source_width);
+      $source_height = max(1, $source_height);
       $x = (int)($params['crop_x'] ?? 0);
       $y = (int)($params['crop_y'] ?? 0);
-      $width = (int)($params['crop_width'] ?? $sourceWidth);
-      $height = (int)($params['crop_height'] ?? $sourceHeight);
+      $width = (int)($params['crop_width'] ?? $source_width);
+      $height = (int)($params['crop_height'] ?? $source_height);
 
-      $x = max(0, min($x, $sourceWidth - 1));
-      $y = max(0, min($y, $sourceHeight - 1));
-      $width = max(1, min($width, $sourceWidth - $x));
-      $height = max(1, min($height, $sourceHeight - $y));
+      $x = max(0, min($x, $source_width - 1));
+      $y = max(0, min($y, $source_height - 1));
+      $width = max(1, min($width, $source_width - $x));
+      $height = max(1, min($height, $source_height - $y));
 
       return array('x' => $x, 'y' => $y, 'width' => $width, 'height' => $height);
    }
@@ -177,37 +177,37 @@ trait dbxKiCmsImageServiceTrait {
       $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
       imagefilledrectangle($dst, 0, 0, $width, $height, $transparent);
 
-      $sourceWidth = imagesx($src);
-      $sourceHeight = imagesy($src);
-      $sourceX = 0;
-      $sourceY = 0;
+      $source_width = imagesx($src);
+      $source_height = imagesy($src);
+      $source_x = 0;
+      $source_y = 0;
       $crop = is_array($source['crop'] ?? null) ? $source['crop'] : array();
       if ($crop) {
-         $sourceX = max(0, min((int)($crop['x'] ?? 0), $sourceWidth - 1));
-         $sourceY = max(0, min((int)($crop['y'] ?? 0), $sourceHeight - 1));
-         $sourceWidth = max(1, min((int)($crop['width'] ?? $sourceWidth), imagesx($src) - $sourceX));
-         $sourceHeight = max(1, min((int)($crop['height'] ?? $sourceHeight), imagesy($src) - $sourceY));
+         $source_x = max(0, min((int)($crop['x'] ?? 0), $source_width - 1));
+         $source_y = max(0, min((int)($crop['y'] ?? 0), $source_height - 1));
+         $source_width = max(1, min((int)($crop['width'] ?? $source_width), imagesx($src) - $source_x));
+         $source_height = max(1, min((int)($crop['height'] ?? $source_height), imagesy($src) - $source_y));
       }
       if ($fit === 'contain') {
-         $scale = min($width / $sourceWidth, $height / $sourceHeight);
-         $copyWidth = max(1, (int)round($sourceWidth * $scale));
-         $copyHeight = max(1, (int)round($sourceHeight * $scale));
-         imagecopyresampled($dst, $src, (int)floor(($width - $copyWidth) / 2), (int)floor(($height - $copyHeight) / 2), $sourceX, $sourceY, $copyWidth, $copyHeight, $sourceWidth, $sourceHeight);
+         $scale = min($width / $source_width, $height / $source_height);
+         $copy_width = max(1, (int)round($source_width * $scale));
+         $copy_height = max(1, (int)round($source_height * $scale));
+         imagecopyresampled($dst, $src, (int)floor(($width - $copy_width) / 2), (int)floor(($height - $copy_height) / 2), $source_x, $source_y, $copy_width, $copy_height, $source_width, $source_height);
       } else {
-         $sourceRatio = $sourceWidth / $sourceHeight;
-         $targetRatio = $width / $height;
-         if ($sourceRatio > $targetRatio) {
-            $cropHeight = $sourceHeight;
-            $cropWidth = (int)round($sourceHeight * $targetRatio);
-            $srcX = $sourceX + (int)floor(($sourceWidth - $cropWidth) / 2);
-            $srcY = $sourceY;
+         $source_ratio = $source_width / $source_height;
+         $target_ratio = $width / $height;
+         if ($source_ratio > $target_ratio) {
+            $crop_height = $source_height;
+            $crop_width = (int)round($source_height * $target_ratio);
+            $src_x = $source_x + (int)floor(($source_width - $crop_width) / 2);
+            $src_y = $source_y;
          } else {
-            $cropWidth = $sourceWidth;
-            $cropHeight = (int)round($sourceWidth / $targetRatio);
-            $srcX = $sourceX;
-            $srcY = $sourceY + (int)floor(($sourceHeight - $cropHeight) / 2);
+            $crop_width = $source_width;
+            $crop_height = (int)round($source_width / $target_ratio);
+            $src_x = $source_x;
+            $src_y = $source_y + (int)floor(($source_height - $crop_height) / 2);
          }
-         imagecopyresampled($dst, $src, 0, 0, $srcX, $srcY, $width, $height, $cropWidth, $cropHeight);
+         imagecopyresampled($dst, $src, 0, 0, $src_x, $src_y, $width, $height, $crop_width, $crop_height);
       }
       imagedestroy($src);
       $this->gd_apply_tint($dst, (string)($source['tint'] ?? ''), (float)($source['tint_strength'] ?? 0));

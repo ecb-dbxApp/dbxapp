@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['security_token_error'] = 'La acción se ha rechazado por motivos de seguridad. Vuelva a cargar la página.';
 $messages['bar_title'] = 'SEO';
 $messages['bar_subtitle'] = 'Palabras clave, robots, imagen OG y título SEO de cada página';

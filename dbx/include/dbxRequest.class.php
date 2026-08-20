@@ -1,42 +1,42 @@
 <?php
 
 /**
- * Liest und validiert HTTP-Requestparameter.
+ * @brief Liest und validiert HTTP-Requestparameter zentral und typisiert.
  */
 class dbxRequest {
 
-   private static bool $bodyRead = false;
-   private static string $rawBody = '';
-   private static ?array $jsonBody = null;
+   private static bool $body_read = false;
+   private static string $raw_body = '';
+   private static ?array $json_body = null;
 
    /**
     * Liest den unveränderten Request-Body höchstens einmal pro Request.
     */
-   public function rawBody(): string {
-      if (!self::$bodyRead) {
+   public function raw_body(): string {
+      if (!self::$body_read) {
          $raw = file_get_contents('php://input');
-         self::$rawBody = is_string($raw) ? $raw : '';
-         self::$bodyRead = true;
+         self::$raw_body = is_string($raw) ? $raw : '';
+         self::$body_read = true;
       }
 
-      return self::$rawBody;
+      return self::$raw_body;
    }
 
    /**
     * Liefert einen JSON-Objektbody als Array. Optional dient POST als Fallback.
     */
-   public function json(bool $postFallback = false): array {
-      if (self::$jsonBody === null) {
-         $raw = trim($this->rawBody());
+   public function json(bool $post_fallback = false): array {
+      if (self::$json_body === null) {
+         $raw = trim($this->raw_body());
          $decoded = $raw !== '' ? json_decode($raw, true) : null;
-         self::$jsonBody = is_array($decoded) ? $decoded : array();
+         self::$json_body = is_array($decoded) ? $decoded : array();
       }
 
-      if (!self::$jsonBody && $postFallback && is_array($_POST)) {
+      if (!self::$json_body && $post_fallback && is_array($_POST)) {
          return $_POST;
       }
 
-      return self::$jsonBody;
+      return self::$json_body;
    }
 
    /**
@@ -44,18 +44,18 @@ class dbxRequest {
     */
    public function request(string $varname, $default = '', string $rules = 'parameter') {
       $value = $default;
-      $dangerValue = '';
+      $danger_value = '';
 
       if (isset($_GET[$varname])) {
-         $dangerValue = $_GET[$varname];
+         $danger_value = $_GET[$varname];
       }
       if (isset($_POST[$varname])) {
-         $dangerValue = $_POST[$varname];
+         $danger_value = $_POST[$varname];
       }
 
-      if ($dangerValue !== '' && $dangerValue !== null
-          && dbx()->validate_var($dangerValue, $rules, $varname)) {
-         $value = $dangerValue;
+      if ($danger_value !== '' && $danger_value !== null
+          && dbx()->validate_var($danger_value, $rules, $varname)) {
+         $value = $danger_value;
       }
 
       return $value;
@@ -69,9 +69,9 @@ class dbxRequest {
          return $default;
       }
 
-      $dangerValue = $_GET[$varname];
-      return dbx()->validate_var($dangerValue, $rules, $varname)
-         ? $dangerValue
+      $danger_value = $_GET[$varname];
+      return dbx()->validate_var($danger_value, $rules, $varname)
+         ? $danger_value
          : $default;
    }
 
@@ -83,9 +83,9 @@ class dbxRequest {
          return $default;
       }
 
-      $dangerValue = $_POST[$varname];
-      return dbx()->validate_var($dangerValue, $rules, $varname)
-         ? $dangerValue
+      $danger_value = $_POST[$varname];
+      return dbx()->validate_var($danger_value, $rules, $varname)
+         ? $danger_value
          : $default;
    }
 }

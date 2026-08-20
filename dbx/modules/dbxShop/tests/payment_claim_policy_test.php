@@ -3,7 +3,7 @@
 require_once dirname(__DIR__) . '/include/dbxShopRepository.class.php';
 
 $repo = new \dbx\dbxShop\dbxShopRepository();
-$method = new ReflectionMethod($repo, 'isStalePaymentProcessing');
+$method = new ReflectionMethod($repo, 'is_stale_payment_processing');
 $method->setAccessible(true);
 $now = strtotime('2026-07-24 12:00:00');
 

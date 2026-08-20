@@ -6,13 +6,13 @@ namespace dbx\dbxHelp;
 
 class dbxHelp_content {
 
-   Public $oTPL;
+   Public $o_tpl;
 
    public function __construct() {
-     $this->oTPL = dbx()->get_system_obj('dbxTPL');
+     $this->o_tpl = dbx()->get_system_obj('dbxTPL');
    }
 
-   function getServerInfoHTML() {
+   function get_server_info_html() {
     // Serverinformationen sammeln
     $info = [
         'Server Software' => $_SERVER['SERVER_SOFTWARE'] ?? 'N/A',
@@ -52,11 +52,11 @@ class dbxHelp_content {
         if ($key === 'Installed Modules') {
             // Separate die Module in Zeilen mit max. 8 Modulen pro Zeile
             $modules = explode(', ', $value);
-            $formattedModules = '';
+            $formatted_modules = '';
             foreach (array_chunk($modules, 8) as $chunk) {
-                $formattedModules .= implode(', ', $chunk) . '<br>';
+                $formatted_modules .= implode(', ', $chunk) . '<br>';
             }
-            $value = rtrim($formattedModules, '<br>'); // Letztes <br> entfernen
+            $value = rtrim($formatted_modules, '<br>'); // Letztes <br> entfernen
         }
 
         $html .= "<tr><td>{$key}</td><td>{$value}</td></tr>";
@@ -85,7 +85,7 @@ class dbxHelp_content {
     $cid=dbx()->get_modul_var('dbx_cid',0,'int');
     if ($cid) $content="[modul=dbxContent]cid=$cid&dbx_run1=show[/modul]";
     if (!$cid) {
-      $content=$this->getServerInfoHTML();
+      $content=$this->get_server_info_html();
 
     }
 

@@ -17,6 +17,111 @@
    padding: 8px 4px 28px;
 }
 
+.dbx-admin-ui-defaults {
+   min-height: 100%;
+   width: min(100%, 1680px);
+   margin: .75rem auto 1.5rem;
+   padding: 1.35rem;
+   overflow: hidden;
+   border: 1px solid rgba(52, 94, 145, .2);
+   border-radius: 1.15rem;
+   background: linear-gradient(145deg, #f8fbff 0%, #eef5ff 58%, #f5f1ff 100%);
+   box-shadow: 0 16px 40px rgba(31, 65, 107, .16);
+}
+
+.dbx-admin-dashboard-work > .dbx-admin-ui-defaults {
+   width: 100%;
+   margin: 0;
+   border: 0;
+   border-radius: 0;
+   box-shadow: none;
+}
+
+.dbx-admin-ui-defaults-head,
+.dbx-admin-ui-defaults-title,
+.dbx-admin-ui-defaults-card-head,
+.dbx-admin-ui-defaults-rule,
+.dbx-admin-ui-defaults-exclusions {
+   display: flex;
+   align-items: center;
+}
+
+.dbx-admin-ui-defaults-head { justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.dbx-admin-ui-defaults-title { gap: .9rem; }
+.dbx-admin-ui-defaults-title h2 { margin: 0; color: #17365b; font-size: 1.35rem; }
+.dbx-admin-ui-defaults-title p { margin: .2rem 0 0; color: #60758c; }
+.dbx-admin-ui-defaults-icon { display: grid; width: 3rem; height: 3rem; flex: 0 0 3rem; border-radius: .9rem; color: #fff; background: linear-gradient(145deg, #147ac4, #6544c4); box-shadow: 0 8px 18px rgba(62,75,178,.24); place-items: center; font-size: 1.35rem; }
+.dbx-admin-ui-defaults-context { padding: .4rem .78rem; border: 1px solid #a9c7e8; border-radius: 999px; color: #245b96; background: rgba(255,255,255,.82); font-weight: 800; }
+.dbx-admin-ui-defaults-rule { gap: .8rem; margin-bottom: 1rem; padding: .9rem 1rem; border: 1px solid rgba(37,116,172,.2); border-radius: .85rem; color: #254968; background: rgba(225,242,255,.75); }
+.dbx-admin-ui-defaults-rule i { color: #147ac4; font-size: 1.35rem; }
+.dbx-admin-ui-defaults-rule div { display: grid; gap: .1rem; }
+.dbx-admin-ui-defaults-rule span { color: #5c7187; }
+.dbx-admin-ui-defaults-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.dbx-admin-ui-defaults-card { display: flex; min-width: 0; flex-direction: column; gap: .8rem; padding: 1rem; border: 1px solid rgba(52,94,145,.18); border-radius: 1rem; background: rgba(255,255,255,.88); box-shadow: 0 8px 22px rgba(31,65,107,.08); }
+.dbx-admin-ui-defaults-card-head { justify-content: space-between; gap: .8rem; }
+.dbx-admin-ui-defaults-card-head > div { display: grid; gap: .15rem; }
+.dbx-admin-ui-defaults-card-head strong { color: #17365b; }
+.dbx-admin-ui-defaults-card-head small { color: #6a7f95; }
+.dbx-admin-ui-defaults-preview,
+.dbx-admin-ui-defaults-stored { overflow: auto; max-height: 19rem; border: 1px solid rgba(52,94,145,.12); border-radius: .7rem; background: rgba(242,247,253,.8); }
+.dbx-admin-ui-defaults-row { display: grid; grid-template-columns: minmax(12rem, 1fr) minmax(7rem, .65fr); gap: .75rem; padding: .55rem .7rem; border-bottom: 1px solid rgba(52,94,145,.1); }
+.dbx-admin-ui-defaults-row:last-child { border-bottom: 0; }
+.dbx-admin-ui-defaults-row code { overflow-wrap: anywhere; color: #245b96; }
+.dbx-admin-ui-defaults-row span { overflow: hidden; color: #5e6f80; text-overflow: ellipsis; white-space: nowrap; }
+.dbx-admin-ui-defaults-empty { padding: 1.1rem; color: #74869a; text-align: center; }
+.dbx-admin-ui-defaults-card form { display: flex; }
+.dbx-admin-ui-defaults-card form .btn,
+.dbx-admin-ui-defaults-card > .btn { width: 100%; }
+.dbx-admin-ui-defaults-tabs { display: grid; gap: .6rem; }
+.dbx-admin-ui-defaults-tabs details { overflow: hidden; border: 1px solid rgba(52,94,145,.16); border-radius: .75rem; background: rgba(250,252,255,.9); }
+.dbx-admin-ui-defaults-tabs summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem .8rem; cursor: pointer; color: #244d76; font-weight: 750; }
+.dbx-admin-ui-defaults-tabs summary span { display: inline-flex; align-items: center; gap: .45rem; }
+.dbx-admin-ui-defaults-tabs summary b { min-width: 2rem; padding: .15rem .42rem; border-radius: 999px; color: #fff; background: #2878b8; text-align: center; }
+.dbx-admin-ui-defaults-tabs details > small { display: block; padding: 0 .8rem .6rem; color: #75879a; }
+.dbx-admin-ui-defaults-tabs .dbx-admin-ui-defaults-stored { margin: 0 .65rem .65rem; }
+.dbx-admin-ui-defaults-load { width: calc(100% - 1.3rem); margin: 0 .65rem .65rem; }
+.dbx-admin-ui-defaults-exclusions { gap: .65rem; margin-top: 1rem; padding: .75rem .9rem; border: 1px solid rgba(45,155,101,.2); border-radius: .75rem; color: #436451; background: rgba(230,248,238,.76); }
+.dbx-admin-ui-defaults-exclusions i { color: #2d9b65; font-size: 1.2rem; }
+
+@media (max-width: 900px) {
+   .dbx-admin-ui-defaults-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+   .dbx-admin-ui-defaults { padding: .85rem; }
+   .dbx-admin-ui-defaults-head { align-items: flex-start; flex-direction: column; }
+   .dbx-admin-ui-defaults-row { grid-template-columns: 1fr; gap: .2rem; }
+   .dbx-admin-ui-defaults-row span { white-space: normal; overflow-wrap: anywhere; }
+}
+
+/* Kompakte Timeline des verbindlichen Change Logs. */
+.dbx-admin-dashboard-change-log { min-height: 100%; padding: 1.25rem; background: linear-gradient(145deg, #f8fbff 0%, #eef5ff 55%, #f6f1ff 100%); }
+.dbx-admin-dashboard-change-log-head,
+.dbx-admin-dashboard-change-log-actions { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.dbx-admin-dashboard-change-log-title { display: flex; align-items: center; gap: .9rem; }
+.dbx-admin-dashboard-change-log-title h2 { margin: 0; color: #17365b; font-size: 1.35rem; }
+.dbx-admin-dashboard-change-log-title p { margin: .2rem 0 0; color: #60758c; }
+.dbx-admin-dashboard-change-log-icon { width: 3rem; height: 3rem; display: grid; place-items: center; border-radius: .9rem; color: #fff; font-size: 1.35rem; background: linear-gradient(145deg, #1675d1, #6544c4); box-shadow: 0 8px 18px rgba(62,75,178,.24); }
+.dbx-admin-dashboard-change-log-count { padding: .35rem .7rem; border: 1px solid #bfd3ec; border-radius: 999px; color: #245b96; background: rgba(255,255,255,.75); font-weight: 700; font-size: .78rem; }
+.dbx-admin-dashboard-change-log-stream { display: grid; gap: .65rem; margin: 1.2rem 0; }
+.dbx-admin-dashboard-change-log-item { display: grid; grid-template-columns: 2.1rem minmax(0,1fr); gap: .75rem; padding: .82rem; border: 1px solid rgba(52,94,145,.18); border-radius: .8rem; background: rgba(255,255,255,.82); box-shadow: 0 4px 12px rgba(31,65,107,.07); }
+.dbx-admin-dashboard-change-log-marker { width: 2rem; height: 2rem; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #249b72; box-shadow: 0 0 0 4px #dff4ec; }
+.dbx-admin-dashboard-change-log-copy { min-width: 0; display: grid; gap: .2rem; }
+.dbx-admin-dashboard-change-log-copy strong { color: #17365b; }
+.dbx-admin-dashboard-change-log-copy small { overflow: hidden; color: #6a7f95; text-overflow: ellipsis; white-space: nowrap; }
+.dbx-admin-dashboard-change-log-meta { display: flex; gap: .55rem; color: #6d7f92; font-size: .72rem; }
+.dbx-admin-dashboard-change-log-meta span { color: #5943a5; font-weight: 700; }
+.dbx-admin-dashboard-change-log-actions { justify-content: flex-end; padding-top: .9rem; border-top: 1px solid rgba(52,94,145,.14); }
+.dbx-admin-dashboard-change-log-empty { display: grid; place-items: center; gap: .35rem; padding: 3rem 1rem; text-align: center; color: #60758c; }
+.dbx-admin-dashboard-change-log-empty i { color: #2b8a6e; font-size: 2rem; }
+
+@media (max-width: 760px) {
+   .dbx-admin-dashboard-change-log-head,
+   .dbx-admin-dashboard-change-log-actions { align-items: stretch; flex-direction: column; }
+   .dbx-admin-dashboard-change-log-count { align-self: flex-start; }
+   .dbx-admin-dashboard-change-log-actions .btn { width: 100%; }
+}
+
 .dbx-admin-dashboard-work {
    min-height: 62vh;
    min-width: 0;

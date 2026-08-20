@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $module = dirname(__DIR__);
-$dbxRoot = dirname(__DIR__, 3);
+$dbx_root = dirname(__DIR__, 3);
 
 if (!defined('dbxSystem')) {
     define('dbxSystem', 'dbxWebApp');
@@ -12,10 +12,10 @@ if (!defined('dbxRunAsAdmin')) {
     define('dbxRunAsAdmin', 1);
 }
 
-require_once $dbxRoot . '/vendor/autoload.php';
-require_once $dbxRoot . '/include/dbxKernel.php';
+require_once $dbx_root . '/vendor/autoload.php';
+require_once $dbx_root . '/include/dbxKernel.php';
 require_once $module . '/include/dbxDashboard.class.php';
-require_once $dbxRoot . '/include/tests/dbxModuleSourceBundle.php';
+require_once $dbx_root . '/include/tests/dbxModuleSourceBundle.php';
 
 $source = dbx_test_module_source_bundle($module . '/include/dbxDashboard.class.php');
 $template = (string)file_get_contents(
@@ -55,8 +55,8 @@ dashboard_admin_warning_assert(
 
 $class = new ReflectionClass('dbx\\dbxAdmin\\dbxDashboard');
 $dashboard = $class->newInstanceWithoutConstructor();
-$renderWarning = $class->getMethod('default_admin_password_warning_html');
-$warning = $renderWarning->invoke(
+$render_warning = $class->getMethod('default_admin_password_warning_html');
+$warning = $render_warning->invoke(
     $dashboard,
     27,
     password_hash('123456', PASSWORD_DEFAULT)
@@ -69,7 +69,7 @@ dashboard_admin_warning_assert(
     'Ein aktives Standardpasswort erzeugt keine vollständige Dashboard-Warnung.'
 );
 dashboard_admin_warning_assert(
-    $renderWarning->invoke(
+    $render_warning->invoke(
         $dashboard,
         27,
         password_hash('Persoenlich-2026!', PASSWORD_DEFAULT)

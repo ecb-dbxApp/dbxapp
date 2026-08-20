@@ -2,6 +2,7 @@
 namespace dbx\dbxLogin;
 
 require_once dirname(__DIR__, 3) . '/include/dbxPasswordPolicy.class.php';
+require_once __DIR__ . '/dbxLoginConfig.class.php';
 
 Class login {
 
@@ -15,9 +16,9 @@ public function run() {
    $form_tpl='form-login'; if ($slim) $form_tpl='form-login-slim';
    $logout = dbx()->get_modul_var('logout', 0, 'int');
 
-   $pendingPasswordReset = $this->pending_password_reset();
-   if ($pendingPasswordReset || $run2 === 'password_change') {
-      return $this->forced_password_change_page($pendingPasswordReset);
+   $pending_password_reset = $this->pending_password_reset();
+   if ($pending_password_reset || $run2 === 'password_change') {
+      return $this->forced_password_change_page($pending_password_reset);
    }
    
    $uid  =dbx()->user();
@@ -26,63 +27,63 @@ public function run() {
    if ($do_login) {
       $data=array(); // we need no Data
 
-      $oForm=dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-login',$form_tpl);
-      $oForm->add_module_bar('Login / Anmelden', 'bi-shield-lock', 'Sicher mit Benutzername oder E-Mail anmelden');
-      $oForm->_fd = 'dbxLogin|login';
-      $oForm->_data=$data;
+      $o_form=dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-login',$form_tpl);
+      $o_form->add_module_bar('Login / Anmelden', 'bi-shield-lock', 'Sicher mit Benutzername oder E-Mail anmelden');
+      $o_form->set_field_definition('dbxLogin|login');
+      $o_form->set_data($data);
       if ((string)dbx()->get_cfg('dbxLogin', 'register') === '1') {
          $register_tpl = $slim ? 'login-register-link-slim' : 'login-register-link';
-         $oForm->add_obj('register_link', 'dbxLogin|' . $register_tpl);
+         $o_form->add_obj('register_link', 'dbxLogin|' . $register_tpl);
       } else {
-         $oForm->add_obj('register_link', 'obj-value', '');
+         $o_form->add_obj('register_link', 'obj-value', '');
       }
 
-      $oForm->add_fld('username',); //#+
-      $oForm->add_fld('password'); //#+
+      $o_form->add_fld('username',); //#+
+      $o_form->add_fld('password'); //#+
 
       
-      $oForm->_try_reset=60; // Sec suspend * locks
-      $oForm->_try_max  =93;  // Count by SYS load _tpl_max_try
-      $oForm->_try_msg  = $oForm->get_tpl('dbxLogin|login-maxtry-message');
+      $o_form->_try_reset=60; // Sec suspend * locks
+      $o_form->_try_max  =93;  // Count by SYS load _tpl_max_try
+      $o_form->_try_msg  = $o_form->get_tpl('dbxLogin|login-maxtry-message');
 
       
       if ($logout) {
-         $oForm->_msg_info = $oForm->get_tpl('dbxLogin|logout-success-message');
+         $o_form->_msg_info = $o_form->get_tpl('dbxLogin|logout-success-message');
       } else {
-         $oForm->_msg_info = $oForm->get_fd_message(
+         $o_form->_msg_info = $o_form->get_fd_message(
             'login_info',
             'Bitte mit Benutzername und Passwort anmelden'
          );
       }
-      $oForm->_msg_error = $oForm->get_fd_message(
+      $o_form->_msg_error = $o_form->get_fd_message(
          'login_error',
          'Benutzername und/oder Passwort nicht gefunden'
       );
-      if ($slim) $oForm->_tpl_form_info='';
+      if ($slim) $o_form->_tpl_form_info='';
       dbx()->debug("dbxLogin check submit");
-      $submitted = $oForm->submit();
+      $submitted = $o_form->submit();
       if($submitted) {
          dbx()->debug("dbxLogin is SUBMIT");
-         if(!$oForm->errors()) {
+         if(!$o_form->errors()) {
             dbx()->debug("dbxLogin submit no errors");
          } else {
-            dbx()->debug("dbxLogin submit with errors",$oForm->_errors);
+            dbx()->debug("dbxLogin submit with errors",$o_form->_errors);
          }  
 
 
 
 
-         if(!$oForm->errors()) {      // submit && no errors
+         if(!$o_form->errors()) {      // submit && no errors
 
-            $oDB=dbx()->get_system_obj('dbxDB');
+            $o_db=dbx()->get_system_obj('dbxDB');
 
-            $user =$oForm->get_post_data('username','nix','varchar|max=120');
-            $pass =$oForm->get_post_data('password','nix','varchar|max=128');
+            $user =$o_form->get_post_data('username','nix','varchar|max=120');
+            $pass =$o_form->get_post_data('password','nix','varchar|max=128');
             $rec = array();
-            $server  = $oDB->get_dd_server('dbxUser');
-            $userSql = $oDB->escape($user, $server);
-            $rec = $oDB->select1('dbxUser',"(uname='$userSql' OR email='$userSql')", verify_access: 0 );
+            $server  = $o_db->get_dd_server('dbxUser');
+            $user_sql = $o_db->escape($user, $server);
+            $rec = $o_db->select1('dbxUser',"(uname='$user_sql' OR email='$user_sql')", verify_access: 0 );
 
             dbx()->debug("POST user=($user)",$rec);
 
@@ -90,7 +91,7 @@ public function run() {
                if (!$this->verify_password($pass, (string)($rec['pass'] ?? ''))) {
                   $rec = array();
                } elseif ((string)($rec['status'] ?? '') === '0') {
-                  $oForm->add_fld_error('username',"Benutzer ($user) ist fuer den Login gesperrt.");
+                  $o_form->add_fld_error('username',"Benutzer ($user) ist fuer den Login gesperrt.");
                   dbx()->sys_msg('security', 'login', $user, 'locked user login blocked', $_SERVER['REMOTE_ADDR'] ?? '');
                } elseif ((int)($rec['is_confirm'] ?? 0) !== 1) {
                   dbx()->sys_msg('info', 'login', (int)$rec['id'], 'login pending email confirmation', 'user=' . $user . ' ip=' . ($_SERVER['REMOTE_ADDR'] ?? ''));
@@ -124,11 +125,11 @@ public function run() {
                dbx()->sys_msg('warning', 'login', '', 'login failed', 'user=' . $user . ' ip=' . ($_SERVER['REMOTE_ADDR'] ?? ''));
 
             }
-            if (!$ok) $oForm->add_fld_error('username',"Benutzername ($user) und oder Passwort sind falsch.");
+            if (!$ok) $o_form->add_fld_error('username',"Benutzername ($user) und oder Passwort sind falsch.");
 
             if ($ok) {
-               $oForm->clear_sys();
-               $oForm->_msg_success = $oForm->get_fd_message(
+               $o_form->clear_sys();
+               $o_form->_msg_success = $o_form->get_fd_message(
                   'login_success',
                   'Login erfolgreich'
                );
@@ -147,7 +148,7 @@ public function run() {
                dbx()->debug("current-user=($uid)");
 
                if (!$redirect) {
-                  $admin=dbx()->can('admin');
+                  $admin=dbx()->has_group('admin');
 
                   if (!$admin) $redirect='?dbx_modul=dbxHome&dbx_ref=logout';
                   if ( $admin) $redirect='?dbx_modul=dbxAdmin&dbx_ref=logout';
@@ -163,9 +164,9 @@ public function run() {
       // HTML landen. Das gilt sowohl fuer falsche Zugangsdaten als auch fuer
       // Validierungsfehler anderer Felder.
       if ($submitted && !$ok) {
-         $oForm->set_fld_val('password', '');
+         $o_form->set_fld_val('password', '');
       }
-      $content= $oForm->run();
+      $content= $o_form->run();
    } // !$uid
    if ($ok) {
       $content = dbx()->get_system_obj('dbxTPL')->get_tpl('dbx|alert-success', array('msg' => 'LogIn erfolgreich.'));
@@ -179,21 +180,21 @@ public function run() {
    return $content;
 } // run()
 
-private function verify_password(string $password, string $storedHash): bool {
-   $info = password_get_info($storedHash);
-   if ($storedHash === '' || ($info['algoName'] ?? 'unknown') === 'unknown') {
+private function verify_password(string $password, string $stored_hash): bool {
+   $info = password_get_info($stored_hash);
+   if ($stored_hash === '' || ($info['algoName'] ?? 'unknown') === 'unknown') {
       return false;
    }
 
-   return password_verify($password, $storedHash);
+   return password_verify($password, $stored_hash);
 }
 
-private function password_reset_required(array $rec, string $providedPassword = ''): bool {
+private function password_reset_required(array $rec, string $provided_password = ''): bool {
    $settings = json_decode((string)($rec['settings'] ?? ''), true);
    $flagged = is_array($settings) && !empty($settings['password_reset_required']);
-   $initialAdmin = strtolower(trim((string)($rec['uname'] ?? ''))) === 'admin'
-      && hash_equals('123456', $providedPassword);
-   return $flagged || $initialAdmin;
+   $initial_admin = strtolower(trim((string)($rec['uname'] ?? ''))) === 'admin'
+      && hash_equals('123456', $provided_password);
+   return $flagged || $initial_admin;
 }
 
 private function start_password_reset(array $rec): void {
@@ -255,9 +256,9 @@ private function forced_password_change_page(array $pending): string {
 
    $form = dbx()->get_system_obj('dbxForm');
    $form->init('login-password-change', 'form-password-change');
-   $form->_fd = '';
-   $form->_data = array();
-   $form->_action = '?dbx_modul=dbxLogin&dbx_run1=login&dbx_run2=password_change';
+   $form->set_field_definition('');
+   $form->set_data(array());
+   $form->set_action('?dbx_modul=dbxLogin&dbx_run1=login&dbx_run2=password_change');
    $form->_msg_info = 'Für diesen Zugang ist ein neues persönliches Passwort erforderlich.';
    $form->_msg_error = 'Das neue Passwort erfüllt noch nicht alle Anforderungen.';
    $form->set_form_help_enabled(false);
@@ -267,27 +268,27 @@ private function forced_password_change_page(array $pending): string {
       'Der Zugang wird nach dem erfolgreichen Passwortwechsel freigegeben.',
       true
    );
-   $passwordMinLength = $this->password_min_length();
-   $passwordRecommendation = $passwordMinLength < 12
+   $password_min_length = $this->password_min_length();
+   $password_recommendation = $password_min_length < 12
       ? ' (12 oder mehr empfohlen)'
       : '';
-   $form->add_rep('password_min_length', (string)$passwordMinLength);
-   $form->add_rep('password_length_recommendation', $passwordRecommendation);
+   $form->add_rep('password_min_length', (string)$password_min_length);
+   $form->add_rep('password_length_recommendation', $password_recommendation);
    $form->add_fld(
       'password_new',
       'auth-password-label',
       'Neues Passwort',
-      'varchar|min=' . $passwordMinLength . '|max=128',
+      'varchar|min=' . $password_min_length . '|max=128',
       data: 'icon=bi-key&field_class=',
-      placeholder: 'Mindestens ' . $passwordMinLength . ' Zeichen',
-      errormsg: 'Bitte ein neues Passwort mit mindestens ' . $passwordMinLength . ' Zeichen eingeben.',
+      placeholder: 'Mindestens ' . $password_min_length . ' Zeichen',
+      errormsg: 'Bitte ein neues Passwort mit mindestens ' . $password_min_length . ' Zeichen eingeben.',
       dd: ''
    );
    $form->add_fld(
       'password_repeat',
       'auth-password-label',
       'Passwort wiederholen',
-      'varchar|min=' . $passwordMinLength . '|max=128',
+      'varchar|min=' . $password_min_length . '|max=128',
       data: 'icon=bi-shield-check&field_class=',
       placeholder: 'Neues Passwort wiederholen',
       errormsg: 'Bitte das neue Passwort wiederholen.',
@@ -297,18 +298,18 @@ private function forced_password_change_page(array $pending): string {
    if ($form->submit() && !$form->errors()) {
       $password = (string)$form->get_post_data('password_new', '', '*');
       $repeat = (string)$form->get_post_data('password_repeat', '', '*');
-      $passwordErrors = $this->password_change_errors(
+      $password_errors = $this->password_change_errors(
          $password,
          $repeat,
          (string)($rec['pass'] ?? '')
       );
-      foreach ($passwordErrors as $field => $message) {
+      foreach ($password_errors as $field => $message) {
          $form->add_fld_error($field, $message);
       }
-      if ($passwordErrors !== array()) {
+      if ($password_errors !== array()) {
          $form->_msg_error = implode(
             ' ',
-            array_values(array_unique($passwordErrors))
+            array_values(array_unique($password_errors))
          );
       }
 
@@ -368,27 +369,27 @@ private function forced_password_change_page(array $pending): string {
 private function password_change_errors(
    string $password,
    string $repeat,
-   string $currentHash,
-   ?int $minimumLength = null
+   string $current_hash,
+   ?int $minimum_length = null
 ): array {
-   $policyErrors = \dbxPasswordPolicy::errors(
+   $policy_errors = \dbxPasswordPolicy::errors(
       $password,
       $repeat,
-      $currentHash,
-      $minimumLength ?? $this->password_min_length()
+      $current_hash,
+      $minimum_length ?? $this->password_min_length()
    );
    $errors = array();
-   if (isset($policyErrors['password'])) {
-      $errors['password_new'] = $policyErrors['password'];
+   if (isset($policy_errors['password'])) {
+      $errors['password_new'] = $policy_errors['password'];
    }
-   if (isset($policyErrors['repeat'])) {
-      $errors['password_repeat'] = $policyErrors['repeat'];
+   if (isset($policy_errors['repeat'])) {
+      $errors['password_repeat'] = $policy_errors['repeat'];
    }
    return $errors;
 }
 
 private function password_min_length(): int {
-   return \dbxPasswordPolicy::minimumLength();
+   return \dbxPasswordPolicy::minimum_length();
 }
 
 /**
@@ -408,20 +409,20 @@ private function unconfirmed_page(array $rec): string {
 
    $form = dbx()->get_system_obj('dbxForm');
    $form->init('login-unconfirmed', 'login-unconfirmed');
-   $form->_action = '?dbx_modul=dbxLogin&dbx_run1=register&dbx_run2=resend_confirm';
+   $form->set_action('?dbx_modul=dbxLogin&dbx_run1=register&dbx_run2=resend_confirm');
    // Den von init() erzeugten dbxForm-Security-Wert erhalten.
-   $form->_data = array_merge($form->_data, array(
+   $form->merge_data(array(
       'dbx_token' => dbx()->action_token('dbxLogin.resend_confirm'),
    ));
    $form->_msg_info = '';
    $form->add_fld('dbx_token', 'dbx|hidden', rules: 'parameter', dd: '');
-   $help = dbx()->get_include_obj('dbxAdminHelp', 'dbxAdmin');
+   $help = dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp');
    $form->add_rep('name', $this->h($name));
    $form->add_rep('email', $this->h((string)($rec['email'] ?? '')));
    $form->add_rep(
       'help_button',
       is_object($help) && method_exists($help, 'formButton')
-         ? $help->formButton('dbxLogin', 'login-unconfirmed', 'E-Mail-Adresse bestaetigen')
+         ? $help->form_button('dbxLogin', 'login-unconfirmed', 'E-Mail-Adresse bestaetigen')
          : ''
    );
    return $form->run();
@@ -429,7 +430,7 @@ private function unconfirmed_page(array $rec): string {
 
 private function send_login_success_mail($rec, $username) {
    try {
-      if (!$this->mail_enabled('login_mail')) {
+      if (!dbxLoginConfig::mail_enabled('login_mail')) {
          return;
       }
 
@@ -440,16 +441,10 @@ private function send_login_success_mail($rec, $username) {
       $html = $this->login_success_mail_html($rec, $username, $browser);
       $text = $this->login_success_mail_text($rec, $username, $browser);
 
-      dbx()->send_mail($from, $to, $subject, $html, 'html', array(), array('text' => $text));
+      dbx()->get_system_obj('dbxMail')->send_message($from, $to, $subject, $html, 'html', array(), array('text' => $text));
    } catch (\Throwable $e) {
       dbx()->sys_msg('error', 'login', (string)($rec['id'] ?? ''), 'login mail failed', $e->getMessage());
    }
-}
-
-private function mail_enabled($key) {
-   $value = dbx()->get_cfg('dbxLogin', $key);
-   $value = strtolower(trim((string)$value));
-   return !in_array($value, array('', '0', 'false', 'off', 'no'), true);
 }
 
 private function login_success_mail_html($rec, $username, $browser) {
@@ -464,13 +459,13 @@ private function login_success_mail_html($rec, $username, $browser) {
       'Referer' => (string)($_SERVER['HTTP_REFERER'] ?? ''),
    );
 
-   $browserRows = $this->browser_info_rows($browser);
-   $oTPL = dbx()->get_system_obj('dbxTPL');
+   $browser_rows = $this->browser_info_rows($browser);
+   $o_tpl = dbx()->get_system_obj('dbxTPL');
 
-   return $oTPL->get_tpl('dbxLogin|mail-login-success', array(
+   return $o_tpl->get_tpl('dbxLogin|mail-login-success', array(
       'username' => $this->h($username),
       'login_table' => $this->html_info_table($rows),
-      'browser_table' => $this->html_info_table($browserRows),
+      'browser_table' => $this->html_info_table($browser_rows),
    ));
 }
 
@@ -515,17 +510,17 @@ private function browser_info_rows($browser) {
 }
 
 private function html_info_table($rows) {
-   $oTPL = dbx()->get_system_obj('dbxTPL');
-   $rowHtml = '';
+   $o_tpl = dbx()->get_system_obj('dbxTPL');
+   $row_html = '';
 
    foreach ($rows as $key => $value) {
-      $rowHtml .= $oTPL->get_tpl('dbxLogin|mail-info-row', array(
+      $row_html .= $o_tpl->get_tpl('dbxLogin|mail-info-row', array(
          'label' => $this->h($key),
          'value' => $this->h($value),
       ));
    }
 
-   return $oTPL->get_tpl('dbxLogin|mail-info-table', array('rows' => $rowHtml));
+   return $o_tpl->get_tpl('dbxLogin|mail-info-table', array('rows' => $row_html));
 }
 
 private function h($value) {

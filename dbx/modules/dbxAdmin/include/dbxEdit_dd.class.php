@@ -1,6 +1,9 @@
 <?php
 namespace dbx\dbxAdmin;
 
+require_once __DIR__ . '/dbxEditorRecords.class.php';
+require_once __DIR__ . '/dbxEditorPresentation.trait.php';
+
 /**
  * =========================================================
  * DBX ADMIN DD EDITOR (dbxEdit_dd)
@@ -42,6 +45,8 @@ namespace dbx\dbxAdmin;
  */
 class dbxEdit_dd
 {
+    use dbxEditorPresentationTrait;
+
     /**
      * Modulname dieses Include-Objekts.
      *
@@ -84,7 +89,7 @@ class dbxEdit_dd
         dbx()->get_system_obj('dbxForm', 'use');
         $form = new \dbxForm();
         $form->init('ddedit-texts-' . $this->safe_id($fd));
-        $form->_fd = $fd;
+        $form->set_field_definition($fd);
         $form->load_fd_messages();
         $form->set_form_help_enabled(false);
         $this->_text_forms[$fd] = $form;
@@ -175,23 +180,23 @@ class dbxEdit_dd
             'indexes_report'      => $indexes_report,
         );
 
-        $help = dbx()->get_include_obj('dbxAdminHelp', 'dbxAdmin');
-        $oTPL = dbx()->get_system_obj('dbxTPL');
-        $reloadAction = $oTPL->get_tpl('dbx|button-bar-reload-ajax', array(
+        $help = dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp');
+        $o_tpl = dbx()->get_system_obj('dbxTPL');
+        $reload_action = $o_tpl->get_tpl('dbx|button-bar-reload-ajax', array(
             'bar_reload_href'    => '?dbx_modul=dbxAdmin&dbx_run1=edit_dd&modul=' . rawurlencode($modul) . '&dd=' . rawurlencode($dd),
             'bar_reload_target'  => 'dbx_ddedit_' . $instance_id,
             'bar_reload_replace' => 'target',
         ));
-        $barData = $help->moduleBarTemplateData('edit_dd', $reloadAction);
-        $barData['bar_title'] = $texts->format_fd_message(
+        $bar_data = $help->module_bar_template_data('edit_dd', $reload_action);
+        $bar_data['bar_title'] = $texts->format_fd_message(
             'bar_title',
             array('dd' => dbx()->esc($modul . '|' . $dd))
         );
-        $barData['bar_subtitle'] = $texts->get_fd_message('bar_subtitle');
-        $barData['bar_class'] = 'dbx-bar--module dbx-ddedit-head';
-        $data = array_merge($data, $barData);
+        $bar_data['bar_subtitle'] = $texts->get_fd_message('bar_subtitle');
+        $bar_data['bar_class'] = 'dbx-bar--module dbx-ddedit-head';
+        $data = array_merge($data, $bar_data);
 
-        return $oTPL->get_tpl($this->_admin_modul . '|ddedit-frame', $data);
+        return $o_tpl->get_tpl($this->_admin_modul . '|ddedit-frame', $data);
     }
 
     /**
@@ -225,22 +230,22 @@ class dbxEdit_dd
         $data['modul'] = $modul;
         $data['dd']    = $dd;
 
-        $oForm = dbx()->get_system_obj('dbxForm');
-        $oForm->init('ddedit_table_' . $this->safe_id($modul . '_' . $dd), 'ddedit-table-form');
-        $oForm->_fd     = $this->_fd_table;
-        $oForm->load_fd_messages();
-        $oForm->set_form_help_enabled(false);
-        $oForm->_data   = $data;
-        $oForm->_action = $this->build_url('create_form_table', $modul, $dd);
-        $oForm->_msg_info = $texts->format_fd_message('edit_info', array('dd' => dbx()->esc($dd)));
-        $oForm->add_flds();
-        $this->apply_table_right_fields($oForm, $data);
+        $o_form = dbx()->get_system_obj('dbxForm');
+        $o_form->init('ddedit_table_' . $this->safe_id($modul . '_' . $dd), 'ddedit-table-form');
+        $o_form->set_field_definition($this->_fd_table);
+        $o_form->load_fd_messages();
+        $o_form->set_form_help_enabled(false);
+        $o_form->set_data($data);
+        $o_form->set_action($this->build_url('create_form_table', $modul, $dd));
+        $o_form->_msg_info = $texts->format_fd_message('edit_info', array('dd' => dbx()->esc($dd)));
+        $o_form->add_flds();
+        $this->apply_table_right_fields($o_form, $data);
 
-        if ($oForm->submit()) {
+        if ($o_form->submit()) {
 
-            if (!$oForm->errors()) {
+            if (!$o_form->errors()) {
 
-                $table = $this->merge_record($data, $oForm->_post, $this->table_keys());
+                $table = $this->merge_record($data, $o_form->validated_post(), $this->table_keys());
                 $table['datadic'] = $dd;
 
                 $model['table'] = $table;
@@ -248,18 +253,18 @@ class dbxEdit_dd
                 $ok = $this->save_model($modul, $dd, $model);
 
                 if ($ok) {
-                    $oForm->_data = array_merge($table, array('modul' => $modul, 'dd' => $dd));
-                    $oForm->_msg_success = $texts->format_fd_message('table_saved', array('dd' => dbx()->esc($dd)));
+                    $o_form->set_data(array_merge($table, array('modul' => $modul, 'dd' => $dd)));
+                    $o_form->_msg_success = $texts->format_fd_message('table_saved', array('dd' => dbx()->esc($dd)));
                 } else {
-                    $oForm->_msg_error = $texts->format_fd_message('table_save_error', array('dd' => dbx()->esc($dd)));
+                    $o_form->_msg_error = $texts->format_fd_message('table_save_error', array('dd' => dbx()->esc($dd)));
                 }
 
             } else {
-                $oForm->_msg_error = $texts->format_fd_message('table_check', array('dd' => dbx()->esc($dd)));
+                $o_form->_msg_error = $texts->format_fd_message('table_check', array('dd' => dbx()->esc($dd)));
             }
         }
 
-        return $oForm->run();
+        return $o_form->run();
     }
 
     /**
@@ -298,7 +303,7 @@ class dbxEdit_dd
         $is_new = ((string)$field_pos === 'new');
 
         if ($is_new) {
-            $data = $this->default_field_record();
+            $data = dbxEditorRecords::default_field();
         } else {
             $pos = (int)$field_pos;
             if (!isset($fields[$pos]) || !is_array($fields[$pos])) {
@@ -318,29 +323,29 @@ class dbxEdit_dd
 
         $form_id = 'ddedit_field_' . $this->safe_id($modul . '_' . $dd . '_' . (string)$field_pos);
 
-        $oForm = dbx()->get_system_obj('dbxForm');
-        $oForm->init($form_id, 'ddedit-field-form');
-        $oForm->_fd     = $this->_fd_field;
-        $oForm->load_fd_messages();
-        $oForm->set_form_help_enabled(false);
-        $oForm->_data   = $data;
-        $oForm->_action = $this->build_url('create_form_dd', $modul, $dd, array('field_pos' => (string)$field_pos));
-        $oForm->_msg_info = $is_new
+        $o_form = dbx()->get_system_obj('dbxForm');
+        $o_form->init($form_id, 'ddedit-field-form');
+        $o_form->set_field_definition($this->_fd_field);
+        $o_form->load_fd_messages();
+        $o_form->set_form_help_enabled(false);
+        $o_form->set_data($data);
+        $o_form->set_action($this->build_url('create_form_dd', $modul, $dd, array('field_pos' => (string)$field_pos)));
+        $o_form->_msg_info = $is_new
             ? $texts->format_fd_message('edit_new', array('dd' => dbx()->esc($dd)))
             : $texts->format_fd_message('edit_existing', array('field' => dbx()->esc((string)($data['name'] ?? $field_pos))));
-        $oForm->add_flds();
+        $o_form->add_flds();
 
-        if ($oForm->submit()) {
+        if ($o_form->submit()) {
 
-            if (!$oForm->errors()) {
+            if (!$o_form->errors()) {
 
-                $field = $this->merge_record($data, $oForm->_post, $this->field_keys());
+                $field = $this->merge_record($data, $o_form->validated_post(), $this->field_keys());
                 $field = $this->strip_editor_keys($field);
 
                 $message = '';
                 if (!$this->validate_field_record($field, $fields, $is_new ? -1 : (int)$field_pos, $message)) {
-                    $oForm->_msg_error = $message;
-                    return $oForm->run();
+                    $o_form->_msg_error = $message;
+                    return $o_form->run();
                 }
 
                 if ($is_new) {
@@ -361,21 +366,21 @@ class dbxEdit_dd
                     $field['field_pos'] = (string)$field_pos;
                     $field['old_name']  = (string)($field['name'] ?? '');
 
-                    $oForm->_data = $field;
-                    $oForm->_action = $this->build_url('create_form_dd', $modul, $dd, array('field_pos' => (string)$field_pos));
-                    $oForm->_msg_success = $texts->format_fd_message(
+                    $o_form->set_data($field);
+                    $o_form->set_action($this->build_url('create_form_dd', $modul, $dd, array('field_pos' => (string)$field_pos)));
+                    $o_form->_msg_success = $texts->format_fd_message(
                         'field_saved',
                         array('field' => dbx()->esc((string)($field['name'] ?? $field_pos)))
                     );
                 } else {
-                    $oForm->_msg_error = $texts->format_fd_message(
+                    $o_form->_msg_error = $texts->format_fd_message(
                         'field_save_error',
                         array('field' => dbx()->esc((string)($field['name'] ?? $field_pos)))
                     );
                 }
 
             } else {
-                $oForm->_msg_error = $texts->format_fd_message(
+                $o_form->_msg_error = $texts->format_fd_message(
                     'field_check',
                     array('field' => dbx()->esc((string)($data['name'] ?? $field_pos)))
                 );
@@ -387,7 +392,7 @@ class dbxEdit_dd
         return str_replace(
             '&dbx_run2=delete_field&modul={modul}&dd={dd}&field_pos={field_pos}',
             dbx()->esc($delete_url),
-            $oForm->run()
+            $o_form->run()
         );
     }
 
@@ -447,29 +452,29 @@ class dbxEdit_dd
 
         $form_id = 'ddedit_index_' . $this->safe_id($modul . '_' . $dd . '_' . (string)$index_pos);
 
-        $oForm = dbx()->get_system_obj('dbxForm');
-        $oForm->init($form_id, 'ddedit-index-form');
-        $oForm->_fd     = $this->_fd_index;
-        $oForm->load_fd_messages();
-        $oForm->set_form_help_enabled(false);
-        $oForm->_data   = $data;
-        $oForm->_action = $this->build_url('create_form_index', $modul, $dd, array('index_pos' => (string)$index_pos));
-        $oForm->_msg_info = $is_new
+        $o_form = dbx()->get_system_obj('dbxForm');
+        $o_form->init($form_id, 'ddedit-index-form');
+        $o_form->set_field_definition($this->_fd_index);
+        $o_form->load_fd_messages();
+        $o_form->set_form_help_enabled(false);
+        $o_form->set_data($data);
+        $o_form->set_action($this->build_url('create_form_index', $modul, $dd, array('index_pos' => (string)$index_pos)));
+        $o_form->_msg_info = $is_new
             ? $texts->format_fd_message('edit_new', array('dd' => dbx()->esc($dd)))
             : $texts->format_fd_message('edit_existing', array('index' => dbx()->esc((string)($data['name'] ?? $index_pos))));
-        $oForm->add_flds();
+        $o_form->add_flds();
 
-        if ($oForm->submit()) {
+        if ($o_form->submit()) {
 
-            if (!$oForm->errors()) {
+            if (!$o_form->errors()) {
 
-                $index = $this->merge_record($data, $oForm->_post, $this->index_keys());
+                $index = $this->merge_record($data, $o_form->validated_post(), $this->index_keys());
                 $index = $this->strip_editor_keys($index);
 
                 $message = '';
                 if (!$this->validate_index_record($index, $indexes, $is_new ? -1 : (int)$index_pos, $message)) {
-                    $oForm->_msg_error = $message;
-                    return $oForm->run();
+                    $o_form->_msg_error = $message;
+                    return $o_form->run();
                 }
 
                 if ($is_new) {
@@ -490,21 +495,21 @@ class dbxEdit_dd
                     $index['index_pos'] = (string)$index_pos;
                     $index['old_name']  = (string)($index['name'] ?? '');
 
-                    $oForm->_data = $index;
-                    $oForm->_action = $this->build_url('create_form_index', $modul, $dd, array('index_pos' => (string)$index_pos));
-                    $oForm->_msg_success = $texts->format_fd_message(
+                    $o_form->set_data($index);
+                    $o_form->set_action($this->build_url('create_form_index', $modul, $dd, array('index_pos' => (string)$index_pos)));
+                    $o_form->_msg_success = $texts->format_fd_message(
                         'index_saved',
                         array('index' => dbx()->esc((string)($index['name'] ?? $index_pos)))
                     );
                 } else {
-                    $oForm->_msg_error = $texts->format_fd_message(
+                    $o_form->_msg_error = $texts->format_fd_message(
                         'index_save_error',
                         array('index' => dbx()->esc((string)($index['name'] ?? $index_pos)))
                     );
                 }
 
             } else {
-                $oForm->_msg_error = $texts->format_fd_message(
+                $o_form->_msg_error = $texts->format_fd_message(
                     'index_check',
                     array('index' => dbx()->esc((string)($data['name'] ?? $index_pos)))
                 );
@@ -516,7 +521,7 @@ class dbxEdit_dd
         return str_replace(
             '&dbx_run2=delete_index&modul={modul}&dd={dd}&index_pos={index_pos}',
             dbx()->esc($delete_url),
-            $oForm->run()
+            $o_form->run()
         );
     }
 
@@ -563,17 +568,17 @@ class dbxEdit_dd
             'new_field_url' => $this->build_url('create_form_dd', $modul, $dd, array('field_pos' => 'new')),
         );
 
-        $oReport = dbx()->get_system_obj('dbxReport');
-        $oReport->init('ddedit_fields_order_' . $this->safe_id($modul . '_' . $dd), 'ddedit-fields-order-report');
-        $oReport->_mode  = 'tpl';
-        $oReport->_data  = $data;
-        $oReport->_replaces = $data;
-        $oReport->_rdata = $rows;
-        $oReport->_rcount = count($rows);
-        $oReport->_rrows = 'auto';
-        $oReport->_pages = false;
+        $o_report = dbx()->get_system_obj('dbxReport');
+        $o_report->init('ddedit_fields_order_' . $this->safe_id($modul . '_' . $dd), 'ddedit-fields-order-report');
+        $o_report->set_mode('tpl');
+        $o_report->set_data($data);
+        $o_report->_replaces = $data;
+        $o_report->_rdata = $rows;
+        $o_report->_rcount = count($rows);
+        $o_report->_rrows = 'auto';
+        $o_report->_pages = false;
 
-        return $oReport->run();
+        return $o_report->run();
     }
 
     /**
@@ -617,17 +622,17 @@ class dbxEdit_dd
             'new_index_url' => $this->build_url('create_form_index', $modul, $dd, array('index_pos' => 'new')),
         );
 
-        $oReport = dbx()->get_system_obj('dbxReport');
-        $oReport->init('ddedit_indexes_' . $this->safe_id($modul . '_' . $dd), 'ddedit-indexes-report');
-        $oReport->_mode  = 'tpl';
-        $oReport->_data  = $data;
-        $oReport->_replaces = $data;
-        $oReport->_rdata = $rows;
-        $oReport->_rcount = count($rows);
-        $oReport->_rrows = 'auto';
-        $oReport->_pages = false;
+        $o_report = dbx()->get_system_obj('dbxReport');
+        $o_report->init('ddedit_indexes_' . $this->safe_id($modul . '_' . $dd), 'ddedit-indexes-report');
+        $o_report->set_mode('tpl');
+        $o_report->set_data($data);
+        $o_report->_replaces = $data;
+        $o_report->_rdata = $rows;
+        $o_report->_rcount = count($rows);
+        $o_report->_rrows = 'auto';
+        $o_report->_pages = false;
 
-        return $oReport->run();
+        return $o_report->run();
     }
 
     /**
@@ -738,7 +743,7 @@ class dbxEdit_dd
         }
 
         $fields = array_values((array)($model['fields'] ?? array()));
-        $new = $this->reorder_records($fields, $order);
+        $new = dbxEditorRecords::reorder($fields, $order);
 
         if ($new === false) {
             dbx()->json_response(array('ok' => 0, 'msg' => $texts->get_fd_message('invalid_order')));
@@ -776,7 +781,7 @@ class dbxEdit_dd
         }
 
         $indexes = array_values((array)($model['indexes'] ?? array()));
-        $new = $this->reorder_records($indexes, $order);
+        $new = dbxEditorRecords::reorder($indexes, $order);
 
         if ($new === false) {
             dbx()->json_response(array('ok' => 0, 'msg' => $texts->get_fd_message('invalid_order')));
@@ -808,8 +813,8 @@ class dbxEdit_dd
             return array();
         }
 
-        $oDD = dbx()->get_system_obj('dbxDD');
-        $model = $oDD->get_dd_model($this->dd_ref($modul, $dd));
+        $o_dd = dbx()->get_system_obj('dbxDD');
+        $model = $o_dd->get_dd_model($this->dd_ref($modul, $dd));
 
         if (!is_array($model)) {
             return array();
@@ -851,8 +856,8 @@ class dbxEdit_dd
         $fields  = is_array($model['fields'] ?? null) ? array_values($model['fields']) : array();
         $indexes = is_array($model['indexes'] ?? null) ? array_values($model['indexes']) : array();
 
-        $oDD = dbx()->get_system_obj('dbxDD');
-        return $oDD->save_dd($modul, $dd, $table, $fields, $indexes);
+        $o_dd = dbx()->get_system_obj('dbxDD');
+        return $o_dd->save_dd($modul, $dd, $table, $fields, $indexes);
     }
 
     /**
@@ -863,14 +868,14 @@ class dbxEdit_dd
      *
      * @return void
      */
-    private function apply_table_right_fields($oForm, $data)
+    private function apply_table_right_fields($o_form, $data)
     {
-        if (!is_object($oForm) || !method_exists($oForm, 'add_fld')) {
+        if (!is_object($o_form) || !method_exists($o_form, 'add_fld')) {
             return;
         }
 
         foreach (array('read', 'create', 'update', 'delete') as $name) {
-            $oForm->add_fld(
+            $o_form->add_fld(
                 $name,
                 'dbxAdmin|ddedit-rights-select1',
                 rules: 'array|parameter+*',
@@ -879,7 +884,7 @@ class dbxEdit_dd
         }
 
         foreach (array('read_owner', 'create_owner', 'update_owner', 'delete_owner') as $name) {
-            $oForm->add_fld(
+            $o_form->add_fld(
                 $name,
                 'dbxAdmin|ddedit-rights-select1',
                 rules: 'array|parameter+*',
@@ -1004,7 +1009,7 @@ class dbxEdit_dd
         }
 
         if (!$modul) {
-            $modul = $this->sanitize_name($this->get_system_var('dbx_activ_modul', 'dbx'));
+            $modul = $this->sanitize_name(dbxEditorRecords::system_value('dbx_activ_modul', 'dbx'));
         }
 
         return array($modul, $dd);
@@ -1060,52 +1065,6 @@ class dbxEdit_dd
     }
 
     /**
-     * Liest eine Systemvariable defensiv.
-     *
-     * @param string $name Name
-     * @param mixed  $default Default
-     *
-     * @return mixed
-     */
-    private function get_system_var($name, $default = '')
-    {
-        if (function_exists('dbx')) {
-            $obj = dbx();
-
-            if (is_object($obj) && method_exists($obj, 'get_system_var')) {
-                $value = $obj->get_system_var($name);
-                if ($value !== null && $value !== '') {
-                    return $value;
-                }
-            }
-        }
-
-        return $default;
-    }
-
-    /**
-     * Merged gültige Form-Werte in einen bestehenden Record.
-     *
-     * @param array $old Altdaten
-     * @param array $post Geänderte Formdaten
-     * @param array $keys Erlaubte Keys
-     *
-     * @return array
-     */
-    private function merge_record($old, $post, $keys)
-    {
-        $record = is_array($old) ? $old : array();
-
-        foreach ((array)$keys as $key) {
-            if (array_key_exists($key, (array)$post)) {
-                $record[$key] = $this->normalize_value($post[$key]);
-            }
-        }
-
-        return $record;
-    }
-
-    /**
      * Entfernt Editor-Hilfsfelder aus DD-Records.
      *
      * @param array $record Record
@@ -1121,22 +1080,6 @@ class dbxEdit_dd
         unset($record['old_name']);
 
         return $record;
-    }
-
-    /**
-     * Normalisiert einen einzelnen Wert.
-     *
-     * @param mixed $value Wert
-     *
-     * @return string
-     */
-    private function normalize_value($value)
-    {
-        if (is_array($value)) {
-            return implode(',', array_map('trim', $value));
-        }
-
-        return trim((string)$value);
     }
 
     /**
@@ -1170,44 +1113,6 @@ class dbxEdit_dd
         }
 
         return array_values(array_map('intval', $parts));
-    }
-
-    /**
-     * Sortiert Records nach Positionsliste neu.
-     *
-     * @param array $records Records
-     * @param array $order Positionsliste
-     *
-     * @return array|false
-     */
-    private function reorder_records($records, $order)
-    {
-        $records = array_values((array)$records);
-        $count = count($records);
-
-        if (!$count) {
-            return array();
-        }
-
-        if (count($order) !== $count) {
-            return false;
-        }
-
-        $seen = array();
-        $new = array();
-
-        foreach ($order as $pos) {
-            $pos = (int)$pos;
-
-            if ($pos < 0 || $pos >= $count || isset($seen[$pos])) {
-                return false;
-            }
-
-            $seen[$pos] = 1;
-            $new[] = $records[$pos];
-        }
-
-        return $new;
     }
 
     /**
@@ -1333,21 +1238,6 @@ class dbxEdit_dd
     }
 
     /**
-     * Sicherer HTML-ID-Teil.
-     *
-     * @param string $value Wert
-     *
-     * @return string
-     */
-    private function safe_id($value)
-    {
-        $value = preg_replace('/[^A-Za-z0-9_]+/', '_', (string)$value);
-        $value = trim($value, '_');
-
-        return $value ?: 'x';
-    }
-
-    /**
      * Einfache Instanz-ID.
      *
      * @param string $seed Seed
@@ -1360,34 +1250,16 @@ class dbxEdit_dd
     }
 
     /**
-     * Bootstrap-Alert.
-     *
-     * @param string $type Typ
-     * @param string $msg Meldung
-     *
-     * @return string
-     */
-    private function alert($type, $msg)
-    {
-        $type = preg_replace('/[^a-z]/', '', (string)$type);
-        if (!$type) {
-            $type = 'info';
-        }
-
-        return '<div class="alert alert-' . $type . '">' . $msg . '</div>';
-    }
-
-    /**
      * Keys des $table-Bereichs.
      *
      * @return array
      */
     private function table_keys()
     {
-        $oDD = dbx()->get_system_obj('dbxDD');
+        $o_dd = dbx()->get_system_obj('dbxDD');
 
-        if (is_object($oDD) && method_exists($oDD, 'dd_table_schema_keys')) {
-            return $oDD->dd_table_schema_keys();
+        if (is_object($o_dd) && method_exists($o_dd, 'dd_table_schema_keys')) {
+            return $o_dd->dd_table_schema_keys();
         }
 
         return array(
@@ -1422,10 +1294,10 @@ class dbxEdit_dd
      */
     private function field_keys()
     {
-        $oDD = dbx()->get_system_obj('dbxDD');
+        $o_dd = dbx()->get_system_obj('dbxDD');
 
-        if (is_object($oDD) && method_exists($oDD, 'dd_field_schema_keys')) {
-            return array_merge(array('modul', 'dd', 'field_pos', 'old_name'), $oDD->dd_field_schema_keys());
+        if (is_object($o_dd) && method_exists($o_dd, 'dd_field_schema_keys')) {
+            return array_merge(array('modul', 'dd', 'field_pos', 'old_name'), $o_dd->dd_field_schema_keys());
         }
 
         return array(
@@ -1462,10 +1334,10 @@ class dbxEdit_dd
      */
     private function index_keys()
     {
-        $oDD = dbx()->get_system_obj('dbxDD');
+        $o_dd = dbx()->get_system_obj('dbxDD');
 
-        if (is_object($oDD) && method_exists($oDD, 'dd_index_schema_keys')) {
-            return array_merge(array('modul', 'dd', 'index_pos', 'old_name'), $oDD->dd_index_schema_keys());
+        if (is_object($o_dd) && method_exists($o_dd, 'dd_index_schema_keys')) {
+            return array_merge(array('modul', 'dd', 'index_pos', 'old_name'), $o_dd->dd_index_schema_keys());
         }
 
         return array(
@@ -1478,36 +1350,6 @@ class dbxEdit_dd
             'fields',
             'unique',
             'comment',
-        );
-    }
-
-    /**
-     * Default für neues DD-Feld.
-     *
-     * @return array
-     */
-    private function default_field_record()
-    {
-        return array(
-            'name'        => '',
-            'type'        => 'varchar',
-            'index'       => '',
-            'length'      => '255',
-            'default'     => '',
-            'label'       => '',
-            'rules'       => 'text',
-            'tooltip'     => '',
-            'errormsg'    => '',
-            'placeholder' => '',
-            'convert'     => '',
-            'protect'     => '0',
-            'group'       => '',
-            'mask'        => '',
-            'data'        => '',
-            'options'     => '',
-            'tpl'         => 'text-label',
-            'js'          => '',
-            'prompt'      => '',
         );
     }
 

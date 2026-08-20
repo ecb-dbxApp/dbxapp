@@ -3,14 +3,14 @@ namespace dbx\dbxLogin;
 
 class register {
 
-   private string $ddUser = 'dbxUser';
-   private string $ddGroup = 'dbxUser_groups';
-   private string $pendingRole = 'registerd';
-   private string $confirmedRole = 'member';
+   private string $dd_user = 'dbxUser';
+   private string $dd_group = 'dbxUser_groups';
+   private string $pending_role = 'registerd';
+   private string $confirmed_role = 'member';
 
    private function user_exists($uname, $email = '') {
       $db = dbx()->get_system_obj('dbxDB');
-      $server = $db->get_dd_server($this->ddUser);
+      $server = $db->get_dd_server($this->dd_user);
       $parts = array();
 
       $uname = trim((string)$uname);
@@ -27,20 +27,20 @@ class register {
          return 0;
       }
 
-      return $db->count($this->ddUser, implode(' OR ', $parts));
+      return $db->count($this->dd_user, implode(' OR ', $parts));
    }
 
    private function ensure_pending_group() {
       $db = dbx()->get_system_obj('dbxDB');
-      $server = $db->get_dd_server($this->ddGroup);
-      $name = $db->escape($this->pendingRole, $server);
+      $server = $db->get_dd_server($this->dd_group);
+      $name = $db->escape($this->pending_role, $server);
 
-      if ($db->count($this->ddGroup, "name='$name'") > 0) {
+      if ($db->count($this->dd_group, "name='$name'") > 0) {
          return;
       }
 
-      $db->insert($this->ddGroup, array(
-         'name'        => $this->pendingRole,
+      $db->insert($this->dd_group, array(
+         'name'        => $this->pending_role,
          'description' => 'Registriert, E-Mail noch nicht bestaetigt',
          'active'      => 1,
       ), 0, 1, 1, 1);
@@ -86,9 +86,9 @@ class register {
       $html = $tpl->get_tpl('dbxLogin|mail-register-confirm', $data);
       $text = "Hallo " . (string)($user['name'] ?: $user['uname']) . "\n\n"
          . "bitte bestaetige deine E-Mail-Adresse:\n" . $url . "\n\n"
-         . "Erst danach erhaelt dein Konto die Rolle " . $this->confirmedRole . ".\n";
+         . "Erst danach erhaelt dein Konto die Rolle " . $this->confirmed_role . ".\n";
 
-      $ok = dbx()->send_mail(
+      $ok = dbx()->get_system_obj('dbxMail')->send_message(
          'register@dbxapp.de',
          (string)$user['email'],
          'dbxApp Registrierung bestaetigen',
@@ -110,13 +110,13 @@ class register {
       $out = array();
 
       foreach ($parts as $role) {
-         if ($role === $this->pendingRole) {
+         if ($role === $this->pending_role) {
             continue;
          }
          $out[$role] = $role;
       }
 
-      $out[$this->confirmedRole] = $this->confirmedRole;
+      $out[$this->confirmed_role] = $this->confirmed_role;
       return implode(',', array_values($out));
    }
 
@@ -124,7 +124,7 @@ class register {
       return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
    }
 
-   private function confirm_page(string $status, string $title, string $message, string $detail, string $icon = 'bi-patch-check', string $detailIcon = 'bi-envelope-check') {
+   private function confirm_page(string $status, string $title, string $message, string $detail, string $icon = 'bi-patch-check', string $detail_icon = 'bi-envelope-check') {
       $tpl = dbx()->get_system_obj('dbxTPL');
       return $tpl->get_tpl('dbxLogin|register-confirm', array(
          'status'      => $this->h($status),
@@ -133,7 +133,7 @@ class register {
          'message'     => $message,
          'detail'      => $detail,
          'icon'        => $this->h($icon),
-         'detail_icon' => $this->h($detailIcon),
+         'detail_icon' => $this->h($detail_icon),
       ));
    }
 
@@ -146,13 +146,13 @@ class register {
       }
 
       $db = dbx()->get_system_obj('dbxDB');
-      $user = $db->select1($this->ddUser, $uid, '*', 0);
+      $user = $db->select1($this->dd_user, $uid, '*', 0);
 
       if (!is_array($user) || empty($user['id'])) {
          return $this->confirm_page('error', 'Benutzer nicht gefunden', 'Zu diesem Bestaetigungslink wurde kein Benutzerkonto gefunden.', 'Bitte registriere dich erneut oder wende dich an den Administrator.', 'bi-person-x', 'bi-search');
       }
 
-      if ((int)($user['is_confirm'] ?? 0) === 1 && preg_match('/(^|,)' . preg_quote($this->confirmedRole, '/') . '(,|$)/', (string)($user['roles'] ?? ''))) {
+      if ((int)($user['is_confirm'] ?? 0) === 1 && preg_match('/(^|,)' . preg_quote($this->confirmed_role, '/') . '(,|$)/', (string)($user['roles'] ?? ''))) {
          $name = (string)($user['name'] ?: $user['uname'] ?? '');
          return $this->confirm_page('success', 'Willkommen zurueck' . ($name ? ', ' . $name : ''), 'Deine E-Mail-Adresse ist bereits bestaetigt.', 'Dein Konto ist freigeschaltet. Du kannst dich jetzt anmelden.', 'bi-patch-check', 'bi-person-check');
       }
@@ -171,11 +171,11 @@ class register {
       }
 
       unset($settings['register_confirm']);
-      $settingsJson = $settings ? json_encode($settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '{}';
-      $ok = $db->update($this->ddUser, array(
+      $settings_json = $settings ? json_encode($settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '{}';
+      $ok = $db->update($this->dd_user, array(
          'roles'      => $this->confirmed_roles($user['roles'] ?? ''),
          'is_confirm' => 1,
-         'settings'   => $settingsJson,
+         'settings'   => $settings_json,
       ), $uid, 0, 1, 1, 1);
 
       if ($ok === 1) {
@@ -202,8 +202,8 @@ class register {
          return $this->confirm_page('error', 'Sicherheitspruefung fehlgeschlagen', 'Der erneute Versand konnte nicht gestartet werden.', 'Bitte melde dich erneut an und versuche es noch einmal.', 'bi-exclamation-triangle', 'bi-shield-lock');
       }
 
-      $postedToken = (string)($_POST['dbx_token'] ?? '');
-      if (!dbx()->check_action_token('dbxLogin.resend_confirm', $postedToken)) {
+      $posted_token = (string)($_POST['dbx_token'] ?? '');
+      if (!dbx()->check_action_token('dbxLogin.resend_confirm', $posted_token)) {
          dbx()->sys_msg('security', 'register', '', 'invalid resend confirm token', $_SERVER['REMOTE_ADDR'] ?? '');
          return $this->confirm_page('error', 'Sicherheitspruefung fehlgeschlagen', 'Der erneute Versand konnte nicht gestartet werden.', 'Bitte melde dich erneut an und versuche es noch einmal.', 'bi-exclamation-triangle', 'bi-shield-lock');
       }
@@ -213,15 +213,15 @@ class register {
          return $this->confirm_page('error', 'Anmeldung abgelaufen', 'Die zu bestaetigende Anmeldung wurde nicht mehr gefunden.', 'Bitte melde dich erneut mit Benutzername und Passwort an.', 'bi-hourglass-split', 'bi-person-x');
       }
 
-      $currentUid = (int)dbx()->user();
-      if ($currentUid > 0 && $currentUid !== $uid) {
+      $current_uid = (int)dbx()->user();
+      if ($current_uid > 0 && $current_uid !== $uid) {
          dbx()->delete_session_var('pending_confirm_uid', 'confirm', 'dbxLogin');
-         dbx()->sys_msg('security', 'register', $uid, 'resend confirm user mismatch', 'current=' . $currentUid . ' ip=' . ($_SERVER['REMOTE_ADDR'] ?? ''));
+         dbx()->sys_msg('security', 'register', $uid, 'resend confirm user mismatch', 'current=' . $current_uid . ' ip=' . ($_SERVER['REMOTE_ADDR'] ?? ''));
          return $this->confirm_page('error', 'Anmeldung passt nicht', 'Der erneute Versand passt nicht zu deiner aktuellen Sitzung.', 'Bitte melde dich erneut mit dem betroffenen Benutzerkonto an.', 'bi-exclamation-triangle', 'bi-person-x');
       }
 
       $db = dbx()->get_system_obj('dbxDB');
-      $user = $db->select1($this->ddUser, $uid, '*', 0);
+      $user = $db->select1($this->dd_user, $uid, '*', 0);
       if (!is_array($user) || empty($user['id'])) {
          dbx()->delete_session_var('pending_confirm_uid', 'confirm', 'dbxLogin');
          return $this->confirm_page('error', 'Benutzer nicht gefunden', 'Das Benutzerkonto konnte nicht mehr geladen werden.', 'Bitte registriere dich erneut oder wende dich an den Administrator.', 'bi-person-x', 'bi-search');
@@ -239,7 +239,7 @@ class register {
 
       $token = $this->new_token();
       $settings = $this->decode_settings($user['settings'] ?? '');
-      $ok = $db->update($this->ddUser, array(
+      $ok = $db->update($this->dd_user, array(
          'settings' => $this->settings_with_token($settings, $token),
       ), $uid, 0, 1, 1, 1);
 
@@ -247,8 +247,8 @@ class register {
          return $this->confirm_page('error', 'Bestaetigungslink nicht gespeichert', 'Der neue Bestaetigungslink konnte technisch nicht gespeichert werden.', 'Bitte versuche es erneut oder wende dich an den Administrator.', 'bi-exclamation-triangle', 'bi-database-x');
       }
 
-      $mailOk = $this->send_confirm_mail($user, $token);
-      if (!$mailOk) {
+      $mail_ok = $this->send_confirm_mail($user, $token);
+      if (!$mail_ok) {
          return $this->confirm_page('error', 'E-Mail nicht gesendet', 'Der Bestaetigungslink wurde erzeugt, die E-Mail konnte aber nicht versendet werden.', 'Bitte pruefe die Mail-Konfiguration oder wende dich an den Administrator.', 'bi-exclamation-triangle', 'bi-envelope-x');
       }
 
@@ -269,105 +269,105 @@ class register {
          return dbx()->redirect('?dbx_modul=dbxUser&dbx_run1=user&dbx_run2=edit_profil', 1);
       }
 
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-register');
-      $oForm->_fd = 'dbxLogin|register';
-      $oForm->load_fd_messages();
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-register', 'form-register');
+      $o_form->set_field_definition('dbxLogin|register');
+      $o_form->load_fd_messages();
       dbx()->set_system_var(
          'dbx_title',
-         $oForm->get_fd_message('page_title')
+         $o_form->get_fd_message('page_title')
       );
-      $oForm->add_module_bar(
-         $oForm->get_fd_message('bar_title'),
+      $o_form->add_module_bar(
+         $o_form->get_fd_message('bar_title'),
          'bi-person-plus',
-         $oForm->get_fd_message('bar_subtitle')
+         $o_form->get_fd_message('bar_subtitle')
       );
       // Den von init() erzeugten dbxForm-Security-Wert erhalten.
-      $oForm->_data = array_merge($oForm->_data, array(
+      $o_form->merge_data(array(
          'language' => 'de',
       ));
-      $oForm->_action = '?dbx_modul=dbxLogin&dbx_run1=register';
-      $oForm->_msg_info = $oForm->format_fd_message(
+      $o_form->set_action('?dbx_modul=dbxLogin&dbx_run1=register');
+      $o_form->_msg_info = $o_form->format_fd_message(
          'form_info',
          array('domain' => $this->current_domain())
       );
-      $oForm->_msg_error = $oForm->get_fd_message('validation_error');
-      $oForm->add_obj('login_link', 'obj-value', '');
+      $o_form->_msg_error = $o_form->get_fd_message('validation_error');
+      $o_form->add_obj('login_link', 'obj-value', '');
 
-      $oForm->add_fld('uname');
-      $oForm->add_fld('name');
-      $oForm->add_fld('email');
-      $oForm->add_fld('password');
-      $oForm->add_fld('password2');
-      $oForm->add_fld('language');
+      $o_form->add_fld('uname');
+      $o_form->add_fld('name');
+      $o_form->add_fld('email');
+      $o_form->add_fld('password');
+      $o_form->add_fld('password2');
+      $o_form->add_fld('language');
 
-      if ($oForm->submit()) {
-         if (!$oForm->errors()) {
-            $uname = $oForm->get_post('uname', '', 'parameter|max=60');
-            $email = $oForm->get_post('email', '', 'email|max=60');
-            $pass1 = $oForm->get_post_data('password', '', 'varchar|max=128');
-            $pass2 = $oForm->get_post_data('password2', '', 'varchar|max=128');
+      if ($o_form->submit()) {
+         if (!$o_form->errors()) {
+            $uname = $o_form->get_post('uname', '', 'parameter|max=60');
+            $email = $o_form->get_post('email', '', 'email|max=60');
+            $pass1 = $o_form->get_post_data('password', '', 'varchar|max=128');
+            $pass2 = $o_form->get_post_data('password2', '', 'varchar|max=128');
 
             if ($pass1 !== $pass2) {
-               $oForm->add_fld_error(
+               $o_form->add_fld_error(
                   'password2',
-                  $oForm->get_fd_message('password_mismatch')
+                  $o_form->get_fd_message('password_mismatch')
                );
-               $oForm->_msg_error = $oForm->get_fd_message(
+               $o_form->_msg_error = $o_form->get_fd_message(
                   'password_mismatch'
                );
             } elseif ($this->user_exists($uname, $email) > 0) {
-               $oForm->add_fld_error(
+               $o_form->add_fld_error(
                   'uname',
-                  $oForm->get_fd_message('user_exists')
+                  $o_form->get_fd_message('user_exists')
                );
-               $oForm->_msg_error = $oForm->get_fd_message('user_exists');
+               $o_form->_msg_error = $o_form->get_fd_message('user_exists');
             } else {
                $this->ensure_pending_group();
                $db = dbx()->get_system_obj('dbxDB');
                $token = $this->new_token();
                $values = array(
                   'uname'      => $uname,
-                  'name'       => $oForm->get_post('name', '', 'words|max=60'),
+                  'name'       => $o_form->get_post('name', '', 'words|max=60'),
                   'email'      => $email,
                   'pass'       => password_hash($pass1, PASSWORD_DEFAULT),
-                  'roles'      => $this->pendingRole,
+                  'roles'      => $this->pending_role,
                   'status'     => 1,
                   'is_confirm' => 0,
-                  'language'   => $oForm->get_post('language', 'de', 'parameter|min=2|max=3'),
+                  'language'   => $o_form->get_post('language', 'de', 'parameter|min=2|max=3'),
                   'avatar'     => 'avatar-0.png',
                   'settings'   => $this->settings_with_token(array(), $token),
                );
 
-               $id = ($db->insert($this->ddUser, $values, 0, 1, 1, 1) === 1) ? $db->get_insert_id() : 0;
+               $id = ($db->insert($this->dd_user, $values, 0, 1, 1, 1) === 1) ? $db->get_insert_id() : 0;
                if ($id > 0) {
                   $values['id'] = $id;
                   $mail_ok = $this->send_confirm_mail($values, $token);
                   dbx()->sys_msg('login', 'register', $id, 'new user registered', $uname);
                   if ($mail_ok) {
-                     $oForm->_msg_success = $oForm->get_fd_message(
+                     $o_form->_msg_success = $o_form->get_fd_message(
                         'register_success'
                      );
                   } else {
-                     $oForm->_msg_error = $oForm->get_fd_message(
+                     $o_form->_msg_error = $o_form->get_fd_message(
                         'confirm_mail_error'
                      );
                   }
-                  $oForm->add_obj('login_link', 'dbxLogin|register-login-button');
+                  $o_form->add_obj('login_link', 'dbxLogin|register-login-button');
                } else {
-                  $oForm->_msg_error = $oForm->get_fd_message(
+                  $o_form->_msg_error = $o_form->get_fd_message(
                      'register_error'
                   );
                }
             }
          } else {
-            $oForm->_msg_error = $oForm->get_fd_message(
+            $o_form->_msg_error = $o_form->get_fd_message(
                'validation_error'
             );
          }
       }
 
-      return $oForm->run();
+      return $o_form->run();
    }
 }
 ?>

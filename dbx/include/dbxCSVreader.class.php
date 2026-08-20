@@ -1,7 +1,15 @@
 <?php
 
-
+/**
+ * Liest große CSV-Dateien schrittweise und speichert den Importfortschritt.
+ */
 class dbxCSVreader extends dbxObj {
+
+  /** Schreibt die optionale zeilenweise Importdiagnose. */
+  private function write_import_debug(string $line): void {
+     $file = dbx()->os_path(dbx()->get_file_dir() . 'dbxDebug2.txt');
+     file_put_contents($file, $line, FILE_APPEND);
+  }
 
    
    public function clear() {
@@ -35,7 +43,7 @@ class dbxCSVreader extends dbxObj {
 
   private function make_fildset($line,$remap=0) {
      If(!$remap) $remap=$this->get_property('remap',-1);
-     $sep  = $this->get_property('seperator',';'); 
+     $sep  = $this->get_property('separator',';'); 
      $fieldset_clean=array();
      $fieldset = explode($sep, $line);
      foreach ($fieldset as $no => $fld) {
@@ -61,44 +69,44 @@ class dbxCSVreader extends dbxObj {
      return $fieldset;
   }
 
-  private function sql_literal($value, $oDB, $server) {
+  private function sql_literal($value, $o_db, $server) {
      if ($value === null || strtoupper((string)$value) === 'NULL') {
         return 'NULL';
      }
 
-     if (dbx()->is_int_value($value)) {
+     if (is_int($value) || (is_string($value) && filter_var($value, FILTER_VALIDATE_INT) !== false)) {
         return (string)(int)$value;
      }
 
-     if ($oDB) {
-        return "'" . $oDB->escape((string)$value, $server) . "'";
+     if ($o_db) {
+        return "'" . $o_db->escape((string)$value, $server) . "'";
      }
 
      return "'" . str_replace("'", "''", (string)$value) . "'";
   }
 
-  private function make_where($where,$record,$oDB=null,$dd='') {
-   if (!$oDB && $dd) {
-      $oDB = dbx()->get_system_obj('dbxDB');
+  private function make_where($where,$record,$o_db=null,$dd='') {
+   if (!$o_db && $dd) {
+      $o_db = dbx()->get_system_obj('dbxDB');
    }
-   $server = ($oDB && $dd) ? $oDB->get_dd_server($dd) : 'default';
+   $server = ($o_db && $dd) ? $o_db->get_dd_server($dd) : 'default';
 
    foreach ($record as $name => $value) {
         $xkey='{'.$name.'}';
         if (strpos((string)$where, "'" . $xkey . "'") !== false) {
-            $where=str_replace("'" . $xkey . "'", $this->sql_literal($value, $oDB, $server), $where);
+            $where=str_replace("'" . $xkey . "'", $this->sql_literal($value, $o_db, $server), $where);
         }
         if (strpos((string)$where, '"' . $xkey . '"') !== false) {
-            $where=str_replace('"' . $xkey . '"', $this->sql_literal($value, $oDB, $server), $where);
+            $where=str_replace('"' . $xkey . '"', $this->sql_literal($value, $o_db, $server), $where);
         }
-        $where=str_replace($xkey, $this->sql_literal($value, $oDB, $server), $where);
+        $where=str_replace($xkey, $this->sql_literal($value, $o_db, $server), $where);
         if (!(strpos($where, '}'))) break;
      }
      return $where;
   }
 
 
-  private function encodeFLEX($str) {
+  private function encode_f_l_e_x($str) {
      $str=str_replace("„","ä",$str);
      $str=str_replace("","ü",$str);
      $str=str_replace("”","ö",$str);
@@ -111,15 +119,15 @@ class dbxCSVreader extends dbxObj {
   }
 
 
-  private function encodeToUtf8($string) {
-     //$string = $this->encodeFLEX($string);
+  private function encode_to_utf8($string) {
+     //$string = $this->encode_f_l_e_x($string);
      //$string = @iconv( "cp437", "ISO-8859-15",$string);
 
      $string=mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "Windows-1252, ISO-8859-15, ISO-8859-1, ISO-8859-2, CP850, ISO-8859-15, UTF-8", true));
 
      //$string = urlencode(mb_convert_encoding ($string, "UTF-8", 'Windows-1252'));
 
-     $string = $this->encodeFLEX($string);
+     $string = $this->encode_f_l_e_x($string);
      return $string;
    }
 
@@ -132,7 +140,7 @@ class dbxCSVreader extends dbxObj {
     //$properties=$this->_properties;
 
     $file=$this->get_property('path_file','nofile');
-    $errorFile= $file.'.err'; // tmp file for error
+    $error_file= $file.'.err'; // tmp file for error
     if (!file_exists($file)) return 'end'; 
 
     $inf = new SplFileInfo($file);
@@ -148,23 +156,23 @@ class dbxCSVreader extends dbxObj {
     $dd = $this->get_property('dd');
 
     $bytes      = $this->get_property('run_bytes',9600);  // line max bytes
-    $maxRuntime = $this->get_property('run_time',10);     // less then your max script execution limit
-    $maxLines   = $this->get_property('run_lines',$max_quick);  // Read in Loop max Lines
+    $max_runtime = $this->get_property('run_time',10);     // less then your max script execution limit
+    $max_lines   = $this->get_property('run_lines',$max_quick);  // Read in Loop max Lines
     $owner      = $this->get_property('owner',null);      // owner im Datensatz setzen
     $pass       = $this->get_property('pass',0);          // passwort 
     $utf8       = $this->get_property('utf8',1);          // umwandeln 
     $all        = $this->get_property('records_all',0);   // bei 0 werden alle Datensätze, be 1 nur MaxLines Zeilen pro Loop  
-    $sep        = $this->get_property('seperator',';'); 
+    $sep        = $this->get_property('separator',';'); 
     $where      = $this->get_property('dd_where',''); 
 
     //$max        = $this->get_property('max',100); 
 
 
-    $deadline   = time()+$maxRuntime;
+    $deadline   = time()+$max_runtime;
     $filesize   = filesize($file);
-    $filePos    = $this->get_property('filepos',0);
-    $queryCount = $this->get_property('querys' ,0);
-    $lineCount  = $this->get_property('lines'  ,0);
+    $file_pos    = $this->get_property('filepos',0);
+    $query_count = $this->get_property('querys' ,0);
+    $line_count  = $this->get_property('lines'  ,0);
     $errors     = $this->get_property('errors' ,0);
     $remap      = $this->get_property('remap'  ,0);
    
@@ -173,29 +181,29 @@ class dbxCSVreader extends dbxObj {
 
    
     if ($dd) { 
-      $oDB = dbx()->get_system_obj('dbxDB');
+      $o_db = dbx()->get_system_obj('dbxDB');
     } else {
-      $maxLines=1; // return every line
+      $max_lines=1; // return every line
     }
-    dbx()->debug("#IMPORT File=($file) Pos=($filePos) von ($filesize) Lines=($lineCount) Max=($maxLines) where =($where)");
+    dbx()->debug("#IMPORT File=($file) Pos=($file_pos) von ($filesize) Lines=($line_count) Max=($max_lines) where =($where)");
 
-    if (!$filePos) $this->set_property('status','init');
+    if (!$file_pos) $this->set_property('status','init');
 
     ($fp = fopen($file, 'r')) OR die('failed to open file:'.$file);
-    if($filePos) fseek($fp, $filePos);
+    if($file_pos) fseek($fp, $file_pos);
 
     while( $deadline >= time() AND ( $line=fgets($fp, $bytes ) ) ) {
        $line=str_replace (array("\r\n","\n","\r"),'',$line);
-       if ($utf8) $line=$this->encodeToUtf8($line);
+       if ($utf8) $line=$this->encode_to_utf8($line);
 
-       dbx()->debug2($line."\n");
+       $this->write_import_debug($line."\n");
 
        if(trim($line)=='') { continue; }
 
-       if (!$lineCount) {
+       if (!$line_count) {
           $this->make_fildset($line,$remap);
        } else {
-          if (!$all) $maxLines--;
+          if (!$all) $max_lines--;
           $fieldset=$this->get_fildset();
           $record=array();
           $data  =explode($sep, $line);
@@ -226,23 +234,23 @@ class dbxCSVreader extends dbxObj {
             }
             
             if ($where) {
-                $rowWhere = $this->make_where($where,$record,$oDB,$dd);
-                $ok=$oDB->save($dd,$record,$rowWhere,0,1,0,0); //  save($dd,$field_values,$where,$verify_access=1,$verify_fields=1,$verify_values=1,$trace=1)
+                $row_where = $this->make_where($where,$record,$o_db,$dd);
+                $ok=$o_db->save($dd,$record,$row_where,0,1,0,0); //  save($dd,$field_values,$where,$verify_access=1,$verify_fields=1,$verify_values=1,$trace=1)
             } else {
-               $ok=$oDB->insert($dd,$record,0,1,0,0);       //insert($dd,$field_values,$verify_access=1,$verify_fields=1,$verify_values=1,$trace=1) {
+               $ok=$o_db->insert($dd,$record,0,1,0,0);       //insert($dd,$field_values,$verify_access=1,$verify_fields=1,$verify_values=1,$trace=1) {
             }    
 
             if (!$ok) $errors++;
-            if ( $ok) $queryCount++;
+            if ( $ok) $query_count++;
 
-            dbx()->debug("IMPORT CSV ($dd) OK=($ok) Where=($rowWhere ?? $where) Querys=($queryCount) errors=($errors) Record=",$record);
+            dbx()->debug("IMPORT CSV ($dd) OK=($ok) Where=($row_where ?? $where) Querys=($query_count) errors=($errors) Record=",$record);
 
 
           } 
        }
-       $lineCount++;
-       $this->set_property('lines' ,$lineCount);
-       if (!$maxLines) break; // Zeilenweise
+       $line_count++;
+       $this->set_property('lines' ,$line_count);
+       if (!$max_lines) break; // Zeilenweise
     } // read line
 
     if( feof($fp) ){
@@ -258,8 +266,8 @@ class dbxCSVreader extends dbxObj {
     }
 
     $this->set_property('filesize',$filesize);
-    $this->set_property('querys'  ,$queryCount);
-    $this->set_property('lines'   ,$lineCount);
+    $this->set_property('querys'  ,$query_count);
+    $this->set_property('lines'   ,$line_count);
     $this->set_property('filepos' ,$done);
     $this->set_property('errors'  ,$errors);
 

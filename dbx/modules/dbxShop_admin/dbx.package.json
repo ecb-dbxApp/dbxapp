@@ -1,0 +1,42 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxShop_admin",
+    "type": "module",
+    "name": "dbxShop_admin",
+    "title": "dbxShop_admin",
+    "description": "Administration von Artikeln, Bestellungen, Verkaufskanälen und Shop-Inhalten.",
+    "descriptions": {
+        "de": "Administration von Artikeln, Bestellungen, Verkaufskanälen und Shop-Inhalten.",
+        "en": "Administration of products, orders, sales channels and shop content.",
+        "es": "Administración de productos, pedidos, canales de venta y contenidos."
+    },
+    "icon": "bi-shop-window",
+    "image": "",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": {
+            "dbxapp/module/dbxShop": "^4.4.0",
+            "dbxapp/module/dbxContent_admin": "^4.4.0"
+        }
+    },
+    "permissions": [
+        "administration",
+        "database",
+        "media",
+        "network"
+    ],
+    "migrations": [],
+    "files": []
+}

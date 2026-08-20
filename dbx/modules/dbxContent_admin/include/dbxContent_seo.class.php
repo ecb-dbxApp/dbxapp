@@ -19,7 +19,7 @@ class dbxContent_seo {
    private const CONFIG_OG_MEDIA_ID = 'default_seo_image_id';
 
    private $dd_media = 'dbxMedia';
-   private $seoTexts = null;
+   private $seo_texts = null;
 
    /**
     * Liefert einen stabilen, sprachabhängigen Textkontext für die SEO-Seite.
@@ -28,17 +28,17 @@ class dbxContent_seo {
     * Medienformularen, die ihren jeweils eigenen FD-Kontext laden.
     */
    private function seo_texts() {
-      if ($this->seoTexts) {
-         return $this->seoTexts;
+      if ($this->seo_texts) {
+         return $this->seo_texts;
       }
       dbx()->get_system_obj('dbxForm', 'use');
       $texts = new \dbxForm();
       $texts->init('seo-page-texts');
-      $texts->_fd = 'dbxContent_admin|seo-page';
+      $texts->set_field_definition('dbxContent_admin|seo-page');
       $texts->load_fd_messages();
       $texts->set_form_help_enabled(false);
-      $this->seoTexts = $texts;
-      return $this->seoTexts;
+      $this->seo_texts = $texts;
+      return $this->seo_texts;
    }
 
    private function seo_js_messages(): string {
@@ -58,7 +58,7 @@ class dbxContent_seo {
    }
 
    public function run($action = 'seo') {
-      $this->apply_lng_context();
+      \dbx\dbxContent\dbxContentRuntime::apply_requested_language();
       $texts = $this->seo_texts();
       $action = (string)$action;
       if ($action === 'seo_save' && !$this->check_action_token($action)) {
@@ -83,21 +83,6 @@ class dbxContent_seo {
             $this->ensure_default_og_image();
             return $this->render_admin();
       }
-   }
-
-   private function apply_lng_context(): void {
-      $lng = strtolower(trim((string) dbx()->get_request_var('dbx_lng', '')));
-      if ($lng === '') {
-         return;
-      }
-
-      $allowed = dbxContentLngSync::accessibleLngs();
-      if (!in_array($lng, $allowed, true)) {
-         return;
-      }
-
-      dbx()->set_system_var('dbx_lng', $lng);
-      dbx()->set_remember_var('dbx_lng', $lng, 'dbx');
    }
 
    private function seo_json_response(array $data): void {
@@ -155,7 +140,7 @@ class dbxContent_seo {
       $this->ensure_cms_schema($db);
 
       $pages = $db->select(
-         dbxContentLng::ddContent(),
+         dbxContentLng::dd_content(),
          '',
          'id,title,permalink,activ',
          'title',
@@ -211,7 +196,7 @@ class dbxContent_seo {
          'upload_url' => dbx()->esc($this->base_url('cms_upload')),
          'external_video_url' => dbx()->esc($this->base_url('cms_external_video')),
          'upload_max_bytes' => (string)(16 * 1024 * 1024),
-         'media_browser_forms' => dbx()->get_include_obj('dbxContentMediaForms', 'dbxContent_admin')->renderTemplates(
+         'media_browser_forms' => dbx()->get_include_obj('dbxContentMediaForms', 'dbxContent_admin')->render_templates(
             $this->base_url('cms_upload'),
             'cms-media-upload',
             $this->base_url('cms_external_video'),
@@ -230,17 +215,17 @@ class dbxContent_seo {
    private function render_seo_form() {
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('seo-page', 'seo-admin-form');
-      $form->_fd = 'dbxContent_admin|seo-page';
+      $form->set_field_definition('dbxContent_admin|seo-page');
       $form->load_fd_messages();
       $form->set_form_help_enabled(false);
-      $form->_dd = dbxContentLng::ddContent();
-      $form->_data = array(
+      $form->set_data_definition(dbxContentLng::dd_content());
+      $form->set_data(array(
          'id' => 0,
          'keywords' => '',
          'meta_robots' => 'index,follow',
          'seo_title' => '',
          'seo_image_id' => 0,
-      );
+      ));
       $texts = $this->seo_texts();
       $form->add_fld('id', 'dbxContent_admin|cms-field-hidden', data: array('cms_field' => 'id', 'cms_field_scope' => 'seo', 'seo_field' => 'id'));
       $form->add_fld('keywords', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_keywords'), rules: 'varchar', data: array('cms_field' => 'keywords', 'cms_field_scope' => 'seo', 'seo_field' => 'keywords'), placeholder: $texts->get_fd_message('placeholder_keywords'));
@@ -262,7 +247,7 @@ class dbxContent_seo {
       $db = dbx()->get_system_obj('dbxDB');
       $this->connect_db($db);
       $this->ensure_cms_schema($db);
-      $row = $db->select1(dbxContentLng::ddContent(), $cid, 'id,title,permalink,keywords,meta_robots,seo_title,seo_image_id,description', 0);
+      $row = $db->select1(dbxContentLng::dd_content(), $cid, 'id,title,permalink,keywords,meta_robots,seo_title,seo_image_id,description', 0);
       if (!is_array($row) || (int)($row['id'] ?? 0) <= 0) {
          $this->seo_json_response(array('ok' => 0, 'error' => $this->seo_texts()->get_fd_message('page_not_found')));
       }
@@ -292,16 +277,16 @@ class dbxContent_seo {
          'seo_image_id' => max(0, (int)($payload['seo_image_id'] ?? 0)),
       );
 
-      if ($db->update(dbxContentLng::ddContent(), $data, $id) !== 1) {
+      if ($db->update(dbxContentLng::dd_content(), $data, $id) !== 1) {
          $this->seo_json_response(array('ok' => 0, 'error' => $this->seo_texts()->get_fd_message('save_error')));
       }
 
-      dbxContentLngSync::afterPageSave($db, $id, false);
-      dbxContentPageCache::invalidateContent($id);
-      dbxContentPageCache::invalidateAllMenus();
+      dbxContentLngSync::after_page_save($db, $id, false);
+      dbxContentPageCache::invalidate_content($id);
+      dbxContentPageCache::invalidate_all_menus();
       $this->sync_page_meta($db, $id);
 
-      $row = $db->select1(dbxContentLng::ddContent(), $id, 'id,title,permalink,keywords,meta_robots,seo_title,seo_image_id,description', 0);
+      $row = $db->select1(dbxContentLng::dd_content(), $id, 'id,title,permalink,keywords,meta_robots,seo_title,seo_image_id,description', 0);
       $this->seo_json_response(array(
          'ok' => 1,
          'row' => is_array($row) ? $row : array(),
@@ -315,25 +300,25 @@ class dbxContent_seo {
          return;
       }
 
-      $rec = $db->select1(dbxContentLng::ddContent(), $cid, 'permalink,activ,folder,title,seo_title,description,keywords,meta_robots,seo_image_id,update_date,lng_uid', 0);
+      $rec = $db->select1(dbxContentLng::dd_content(), $cid, 'permalink,activ,folder,title,seo_title,description,keywords,meta_robots,seo_image_id,update_date,lng_uid', 0);
       if (!is_array($rec)) {
          return;
       }
 
       $renderer = new dbxContentRenderer();
-      $rights = $renderer->getPublicFolderRights((int)($rec['folder'] ?? 0));
-      dbxContentPageCache::writePageMeta($cid, array(
+      $rights = $renderer->get_public_folder_rights((int)($rec['folder'] ?? 0));
+      dbxContentPageCache::write_page_meta($cid, array(
          'cid' => $cid,
          'permalink' => (string)($rec['permalink'] ?? ''),
          'rights' => $rights,
          'activ' => (int)($rec['activ'] ?? 1),
          'saved_at' => date('c'),
-         'seo' => dbxContentRenderer::seoMetaFromRecord($rec),
+         'seo' => dbxContentRenderer::seo_meta_from_record($rec),
       ));
 
       $permalink = trim((string)($rec['permalink'] ?? ''));
       if ($permalink !== '' && (int)($rec['activ'] ?? 0) === 1) {
-         dbxContentPermalinkIndex::upsertPage($cid, $permalink, $rights, 1, dbxContentLng::current());
+         dbxContentPermalinkIndex::upsert_page($cid, $permalink, $rights, 1, dbxContentLng::current());
       }
 
       if (class_exists('dbx\\dbxContent\\dbxContentSitemap')) {
@@ -370,11 +355,7 @@ class dbxContent_seo {
    }
 
    private function clean_text($value, int $max = 0) {
-      $value = trim((string)$value);
-      if ($max > 0 && strlen($value) > $max) {
-         $value = substr($value, 0, $max);
-      }
-      return $value;
+      return \dbx\dbxContent\dbxContentRuntime::clean_text($value, $max);
    }
 
    private function ensure_cms_schema($db) {
@@ -466,15 +447,15 @@ class dbxContent_seo {
    }
 
    private function assign_home_og_image($db, int $media_id) {
-      $home_cid = dbxContentHome::resolveCid();
+      $home_cid = dbxContentHome::resolve_cid();
       if ($home_cid <= 0) {
-         $home_cid = dbxContentHome::masterCid();
+         $home_cid = dbxContentHome::master_cid();
       }
       if ($home_cid <= 0) {
          return;
       }
 
-      $row = $db->select1(dbxContentLng::ddContent(), $home_cid, 'seo_image_id', 0);
+      $row = $db->select1(dbxContentLng::dd_content(), $home_cid, 'seo_image_id', 0);
       if (!is_array($row)) {
          return;
       }
@@ -482,9 +463,9 @@ class dbxContent_seo {
          return;
       }
 
-      $db->update(dbxContentLng::ddContent(), array('seo_image_id' => $media_id), $home_cid);
-      dbxContentPageCache::invalidateContent($home_cid);
-      dbxContentPageCache::invalidateAllMenus();
+      $db->update(dbxContentLng::dd_content(), array('seo_image_id' => $media_id), $home_cid);
+      dbxContentPageCache::invalidate_content($home_cid);
+      dbxContentPageCache::invalidate_all_menus();
       $this->sync_page_meta($db, $home_cid);
    }
 }

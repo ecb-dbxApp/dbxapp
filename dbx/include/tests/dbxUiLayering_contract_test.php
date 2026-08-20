@@ -12,16 +12,16 @@ $read = static function (string $file): string {
 
 $core = $read($base . '/js/lib/core.js');
 $confirm = $read($base . '/js/lib/confirm.js');
-$openWin = $read($base . '/js/lib/openWin.js');
-$cmsFiles = array(
-    $base . '/js/lib/cms.js',
-    $base . '/js/lib/cms-page.js',
-    $base . '/js/lib/cms-tree.js',
-    $base . '/js/lib/cms-media.js',
-    $base . '/js/lib/cms-language.js',
-    $base . '/js/lib/cms-jodit-image.js'
+$open_win = $read($base . '/js/lib/openWin.js');
+$cms_files = array(
+    $base . '/modules/dbxContent_admin/js/cms.js',
+    $base . '/modules/dbxContent_admin/js/cms-page.js',
+    $base . '/modules/dbxContent_admin/js/cms-tree.js',
+    $base . '/modules/dbxContent_admin/js/cms-media.js',
+    $base . '/modules/dbxContent_admin/js/cms-language.js',
+    $base . '/modules/dbxContent_admin/js/cms-jodit-image.js'
 );
-$cms = implode("\n", array_map($read, $cmsFiles));
+$cms = implode("\n", array_map($read, $cms_files));
 
 $assert(
     str_contains($core, 'dbx.uiLayer = {')
@@ -47,17 +47,17 @@ $assert(
 );
 
 $assert(
-    str_contains($openWin, 'data-dbx-layer="openwin"')
-        && str_contains($openWin, 'data-dbx-escape-owner="openwin"')
-        && str_contains($openWin, 'data-dbx-layer="openwin-overlay"')
-        && str_contains($openWin, 'dbx.uiLayer.top({ selector: "[data-dbx-escape-owner]" })')
-        && str_contains($openWin, 'this.dispatchLifecycle("dbx:openwin-before-close", windowData);')
-        && str_contains($openWin, 'const inlineContent = cfg && Object.prototype.hasOwnProperty.call(cfg, "content")')
-        && str_contains($openWin, 'if (inlineContent !== undefined) cfg.content = inlineContent;')
-        && str_contains($openWin, 'dbx.ajax.request(requestConfig)')
-        && !str_contains($openWin, '$.ajax(')
-        && !str_contains($openWin, 'fetch(')
-        && !str_contains($openWin, 'new XMLHttpRequest'),
+    str_contains($open_win, 'data-dbx-layer="openwin"')
+        && str_contains($open_win, 'data-dbx-escape-owner="openwin"')
+        && str_contains($open_win, 'data-dbx-layer="openwin-overlay"')
+        && str_contains($open_win, 'dbx.uiLayer.top({ selector: "[data-dbx-escape-owner]" })')
+        && str_contains($open_win, 'this.dispatchLifecycle("dbx:openwin-before-close", windowData);')
+        && str_contains($open_win, 'const inlineContent = cfg && Object.prototype.hasOwnProperty.call(cfg, "content")')
+        && str_contains($open_win, 'if (inlineContent !== undefined) cfg.content = inlineContent;')
+        && str_contains($open_win, 'dbx.ajax.request(requestConfig)')
+        && !str_contains($open_win, '$.ajax(')
+        && !str_contains($open_win, 'fetch(')
+        && !str_contains($open_win, 'new XMLHttpRequest'),
     'openWin nutzt nicht durchgaengig die zentrale Ebenensteuerung, erhaelt DOM-Instanzen nicht oder umgeht ajax.js.'
 );
 
@@ -73,7 +73,7 @@ $assert(
     'Jodit-Vollbild ist nicht als performanter, dynamischer UI-Layer ohne feste Sonder-Zahl umgesetzt.'
 );
 
-foreach ($cmsFiles as $file) {
+foreach ($cms_files as $file) {
     $source = $read($file);
     $assert(
         !str_contains($source, 'fetch(')
@@ -84,7 +84,7 @@ foreach ($cmsFiles as $file) {
     );
 }
 
-foreach (array('dbxapp', 'steal', 'dbxdocs') as $design) {
+foreach (array('dbxapp', 'steal') as $design) {
     $css = $read($base . '/design/' . $design . '/css/c-cms.css');
     $assert(
         str_contains($css, '.dbx-cms-editor-group .jodit-container.jodit_fullsize')

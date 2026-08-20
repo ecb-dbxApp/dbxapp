@@ -2,6 +2,7 @@
 namespace dbx\dbxContact;
 
 require_once __DIR__ . '/dbxContactTicket.class.php';
+require_once __DIR__ . '/dbxContactPresentation.class.php';
 
 class dbxContactList {
 
@@ -26,19 +27,9 @@ class dbxContactList {
       ));
    }
 
-   private function statusClass(string $status): string {
-      return array(
-         'open' => 'text-bg-primary',
-         'in_progress' => 'text-bg-info',
-         'waiting_customer' => 'text-bg-warning',
-         'answered' => 'text-bg-success',
-         'closed' => 'text-bg-secondary',
-      )[$status] ?? 'text-bg-light';
-   }
-
-   private function ticketForUser(int $rid, int $uid): array {
+   private function ticket_for_user(int $rid, int $uid): array {
       $ticket = dbxContactTicket::ticket($this->db(), $rid);
-      if (!$ticket || !dbxContactTicket::userOwns($ticket, $uid) || (int) ($ticket['user_hidden'] ?? 0) === 1) {
+      if (!$ticket || !dbxContactTicket::user_owns($ticket, $uid) || (int) ($ticket['user_hidden'] ?? 0) === 1) {
          return array();
       }
       return $ticket;
@@ -52,15 +43,15 @@ class dbxContactList {
       return $this->h($value);
    }
 
-   private function decorateRows(array $rows, $report): array {
+   private function decorate_rows(array $rows, $report): array {
       $out = array();
       foreach ($rows as $row) {
-         $status = dbxContactTicket::normalizeStatus((string) ($row['status'] ?? 'open'));
-         $statusLabel = $report->get_fd_message(
+         $status = dbxContactTicket::normalize_status((string) ($row['status'] ?? 'open'));
+         $status_label = $report->get_fd_message(
             'status_' . $status,
             $status
          );
-         $row['status_view'] = '<span class="badge ' . $this->statusClass($status) . '">' . $this->h($statusLabel) . '</span>';
+         $row['status_view'] = '<span class="badge ' . dbxContactPresentation::status_class($status) . '">' . $this->h($status_label) . '</span>';
          $row['subject_view'] = $this->excerpt($row['subject'] ?? '', 90);
          $row['action'] = $this->tpl()->get_tpl('dbxContact|contact-ticket-row-action', array(
             'rid' => (int) ($row['id'] ?? 0),
@@ -70,7 +61,7 @@ class dbxContactList {
       return $out;
    }
 
-   public function contactListReportRowActionData($report, $data): array {
+   public function contact_list_report_row_action_data($report, $data): array {
       if (!is_array($data) || (string) ($data['type'] ?? '') !== 'delete') {
          return $data;
       }
@@ -84,13 +75,13 @@ class dbxContactList {
       return $data;
    }
 
-   private function listTickets(int $uid): string {
+   private function list_tickets(int $uid): string {
       $db = $this->db();
       $report = dbx()->get_system_obj('dbxReport');
       $where = 'uid = ' . $uid . ' AND user_hidden = 0';
 
       $report->init('contact-list', 'dbxContact|contact-list');
-      $report->_fd = 'dbxContact|contact-list';
+      $report->set_field_definition('dbxContact|contact-list');
       $report->load_fd_messages();
       $report->add_rep(
          'bar_title',
@@ -105,8 +96,8 @@ class dbxContactList {
          'bar_actions',
          $this->tpl()->get_tpl('dbxContact|contact-new-request-button')
       );
-      $report->_dd = dbxContactTicket::DD_TICKET;
-      $report->_action = '?dbx_modul=dbxContact&dbx_run1=my';
+      $report->set_data_definition(dbxContactTicket::DD_TICKET);
+      $report->set_action('?dbx_modul=dbxContact&dbx_run1=my');
       $report->_pages = true;
       $report->_create_row_select = false;
       $report->_create_row_edit = false;
@@ -116,8 +107,8 @@ class dbxContactList {
          'delete_confirm'
       );
       $report->set_callback_owner($this);
-      $report->set_callback('row_action_data', 'contactListReportRowActionData');
-      $report->set_tabel_tpl('tpl_row_delete', 'modul|contact-ticket-row-delete');
+      $report->set_callback('row_action_data', 'contact_list_report_row_action_data');
+      $report->set_table_tpl('tpl_row_delete', 'modul|contact-ticket-row-delete');
       $report->_rflds = array(
          'id' => $report->get_fd_message('column_ticket'),
          'last_activity_date' => $report->get_fd_message(
@@ -148,7 +139,7 @@ class dbxContactList {
          0,
          0
       );
-      $report->_rdata = $this->decorateRows(
+      $report->_rdata = $this->decorate_rows(
          is_array($rows) ? $rows : array(),
          $report
       );
@@ -158,30 +149,30 @@ class dbxContactList {
 
    private function timeline(array $ticket, array $messages): string {
       $db = $this->db();
-      dbxContactTicket::ensureInitialMessage($db, $ticket);
+      dbxContactTicket::ensure_initial_message($db, $ticket);
       $html = '';
 
       foreach (dbxContactTicket::messages($db, (int) $ticket['id'], false) as $message) {
-         $authorType = (string) ($message['author_type'] ?? 'system');
-         $statusTo = trim((string) ($message['status_to'] ?? ''));
+         $author_type = (string) ($message['author_type'] ?? 'system');
+         $status_to = trim((string) ($message['status_to'] ?? ''));
          $html .= $this->tpl()->get_tpl('dbxContact|contact-ticket-message', array(
-            'message_class' => $authorType === 'admin' ? 'border-primary bg-primary-subtle' : 'bg-body-tertiary',
-            'message_icon' => $authorType === 'admin' ? 'bi-headset' : ($authorType === 'requester' ? 'bi-person' : 'bi-gear'),
+            'message_class' => $author_type === 'admin' ? 'border-primary bg-primary-subtle' : 'bg-body-tertiary',
+            'message_icon' => $author_type === 'admin' ? 'bi-headset' : ($author_type === 'requester' ? 'bi-person' : 'bi-gear'),
             'author_label' => $messages[
-               $authorType === 'admin'
+               $author_type === 'admin'
                   ? 'author_admin'
-                  : ($authorType === 'requester'
+                  : ($author_type === 'requester'
                      ? 'author_requester'
                      : 'author_system')
-            ] ?? $authorType,
+            ] ?? $author_type,
             'create_date' => $this->h($message['create_date'] ?? ''),
             'body' => nl2br($this->h($message['body'] ?? '')),
-            'status_badge' => $statusTo !== ''
-               ? '<span class="badge ' . $this->statusClass($statusTo) . '">'
+            'status_badge' => $status_to !== ''
+               ? '<span class="badge ' . dbxContactPresentation::status_class($status_to) . '">'
                   . $this->h($messages['status_prefix'] ?? 'Status:')
                   . ' '
                   . $this->h(
-                     $messages['status_' . $statusTo] ?? $statusTo
+                     $messages['status_' . $status_to] ?? $status_to
                   )
                   . '</span>'
                : '',
@@ -195,12 +186,11 @@ class dbxContactList {
             . '</div>';
    }
 
-   private function messageForm(array $ticket): string {
+   private function message_form(array $ticket): string {
       $rid = (int) $ticket['id'];
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('contact-user-message', 'contact-user-message-form');
-      $form->_dd = dbxContactTicket::DD_MESSAGE;
-      $form->_fd = 'dbxContact|contact-user-message';
+      $form->set_data_source(dbxContactTicket::DD_MESSAGE, 'dbxContact|contact-user-message');
       $form->load_fd_messages();
       $form->prepare_form_shell(array(
          'form_attrs' => 'data-target="dbx_contact_ticket_' . $rid . '"',
@@ -211,8 +201,8 @@ class dbxContactList {
             . '</div>';
       }
 
-      $form->_action = '?dbx_modul=dbxContact&dbx_run1=my&dbx_run2=ticket&rid=' . $rid;
-      $form->_data = array('body' => '');
+      $form->set_action('?dbx_modul=dbxContact&dbx_run1=my&dbx_run2=ticket&rid=' . $rid);
+      $form->set_data(array('body' => ''));
       $form->add_module_bar(
          $form->get_fd_message('bar_title'),
          'bi-chat-dots',
@@ -230,22 +220,22 @@ class dbxContactList {
 
       if ($form->submit() && !$form->errors()) {
          $body = trim((string) $form->get_post_data('body', '', '*'));
-         $oldStatus = dbxContactTicket::normalizeStatus((string) ($ticket['status'] ?? 'open'));
-         $messageId = dbxContactTicket::addMessage($this->db(), $rid, array(
+         $old_status = dbxContactTicket::normalize_status((string) ($ticket['status'] ?? 'open'));
+         $message_id = dbxContactTicket::add_message($this->db(), $rid, array(
             'author_uid' => (int) dbx()->user(),
             'author_type' => 'requester',
             'message_type' => 'message',
             'visibility' => 'public',
             'body' => $body,
-            'status_from' => $oldStatus,
+            'status_from' => $old_status,
             'status_to' => 'open',
          ));
-         if ($messageId > 0) {
+         if ($message_id > 0) {
             dbxContactTicket::touch($this->db(), $rid, array('status' => 'open', 'closed_date' => ''));
             $form->_msg_success = $form->get_fd_message(
                'message_success'
             );
-            $form->_data['body'] = '';
+            $form->set_data_value('body', '');
          } else {
             $form->_msg_error = $form->get_fd_message('message_error');
          }
@@ -259,16 +249,16 @@ class dbxContactList {
       $view = dbx()->get_system_obj('dbxForm');
       $view->init('contact-ticket-messages', 'dbx|form');
       $messages = $view->load_fd_messages('dbxContact|contact-list');
-      $ticket = $this->ticketForUser($rid, $uid);
+      $ticket = $this->ticket_for_user($rid, $uid);
       if (!$ticket) {
          return $this->tpl()->get_tpl('dbx|alert-warning', array(
             'msg' => $view->get_fd_message('ticket_not_found'),
          ));
       }
 
-      $messageForm = $this->messageForm($ticket);
-      $ticket = $this->ticketForUser($rid, $uid);
-      $status = dbxContactTicket::normalizeStatus((string) ($ticket['status'] ?? 'open'));
+      $message_form = $this->message_form($ticket);
+      $ticket = $this->ticket_for_user($rid, $uid);
+      $status = dbxContactTicket::normalize_status((string) ($ticket['status'] ?? 'open'));
 
       return $this->tpl()->get_tpl('dbxContact|contact-ticket-detail', array(
          'bar_class' => 'dbx-bar--module',
@@ -295,16 +285,16 @@ class dbxContactList {
          'status_label' => $this->h(
             $messages['status_' . $status] ?? $status
          ),
-         'status_class' => $this->statusClass($status),
+         'status_class' => dbxContactPresentation::status_class($status),
          'create_date' => $this->h($ticket['create_date'] ?? ''),
          'timeline' => $this->timeline($ticket, $messages),
-         'message_form' => $messageForm,
+         'message_form' => $message_form,
       ));
    }
 
-   private function deleteTicket(int $uid): string {
+   private function delete_ticket(int $uid): string {
       $rid = (int) dbx()->get_modul_var('rid', 0, 'int');
-      $ticket = $this->ticketForUser($rid, $uid);
+      $ticket = $this->ticket_for_user($rid, $uid);
       if (!$ticket) {
          $view = dbx()->get_system_obj('dbxForm');
          $view->init('contact-delete-messages', 'dbx|form');
@@ -316,10 +306,10 @@ class dbxContactList {
 
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('contact-user-delete', 'contact-user-delete-form');
-      $form->_fd = 'dbxContact|contact-user-delete';
+      $form->set_field_definition('dbxContact|contact-user-delete');
       $form->load_fd_messages();
-      $form->_action = '?dbx_modul=dbxContact&dbx_run1=my&dbx_run2=delete&rid=' . $rid;
-      $form->_data = array('confirm_delete' => 0);
+      $form->set_action('?dbx_modul=dbxContact&dbx_run1=my&dbx_run2=delete&rid=' . $rid);
+      $form->set_data(array('confirm_delete' => 0));
       $form->add_module_bar(
          $form->get_fd_message('bar_title'),
          'bi-trash'
@@ -363,8 +353,8 @@ class dbxContactList {
          return $this->ticket($uid);
       }
       if ($run2 === 'delete') {
-         return $this->deleteTicket($uid);
+         return $this->delete_ticket($uid);
       }
-      return $this->listTickets($uid);
+      return $this->list_tickets($uid);
    }
 }

@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['hero_eyebrow'] = 'dbxKi';
 $messages['hero_title'] = 'Desarrollo asistido por IA';
 $messages['hero_subtitle'] = 'Deja que la IA te ayude a mejorar Diseño, Contenido y Módulos, con control total sobre cada cambio.';

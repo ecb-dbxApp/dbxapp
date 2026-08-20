@@ -18,7 +18,7 @@ class myInvoicesFixtures
      * @param bool $seedDemo Demo-Daten ergänzen.
      * @return array Ergebnis mit Status und Zählern.
      */
-    public function install(bool $seedDemo = true): array
+    public function install(bool $seed_demo = true): array
     {
         $result = array(
             'ok' => 0,
@@ -54,7 +54,7 @@ class myInvoicesFixtures
             }
         }
 
-        if (!$seedDemo) {
+        if (!$seed_demo) {
             $result['ok'] = 1;
             $result['message'] = 'Schema synchronisiert.';
             return $result;
@@ -146,9 +146,9 @@ class myInvoicesFixtures
                     continue;
                 }
 
-                $totalCents = 0;
+                $total_cents = 0;
                 foreach ($invoice['items'] as $item) {
-                    $totalCents += (int)round(
+                    $total_cents += (int)round(
                         (float)$item['quantity']
                         * (float)$item['unit_price']
                         * 100
@@ -161,14 +161,14 @@ class myInvoicesFixtures
                     'customer' => $invoice['customer'],
                     'status' => $invoice['status'],
                     'total_gross' => number_format(
-                        $totalCents / 100,
+                        $total_cents / 100,
                         2,
                         '.',
                         ''
                     ),
                 ));
-                $invoiceId = (int)$db->_insert_id;
-                if ($ok !== 1 || $invoiceId <= 0) {
+                $invoice_id = (int)$db->_insert_id;
+                if ($ok !== 1 || $invoice_id <= 0) {
                     throw new \RuntimeException(
                         'Rechnung konnte nicht angelegt werden: '
                         . $invoice['invoice_no']
@@ -178,7 +178,7 @@ class myInvoicesFixtures
 
                 foreach ($invoice['items'] as $item) {
                     $ok = $db->insert(self::ITEM_DD, array(
-                        'invoice_id' => $invoiceId,
+                        'invoice_id' => $invoice_id,
                         'position_no' => $item['position_no'],
                         'article_no' => $item['article_no'],
                         'description' => $item['description'],

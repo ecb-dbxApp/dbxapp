@@ -1,12 +1,12 @@
 <div class="dbx-panel dbx-ki-module-bundle">
- [tpl=dbx|module-bar]
+ {form:bar}
  <div class="container py-3" style="max-width:980px">
   <div class="card border-primary shadow-sm">
    <div class="card-body p-3 p-xl-4">
     <h2 class="h4 mb-2"><i class="bi bi-upload"></i> Módulo de importación</h2>
     <p class="text-muted">Importe <code>antwort.zip</code> con contrato sin cambios y <code>answer.json</code>. dbxKi muestra la vista previa, prepara, prueba y puede revertir el cambio.</p>
     <form method="post" enctype="multipart/form-data" action="{import_url}">
-     {obj:form_msg}
+     {form:message}
      <div class="mb-3">
       <label class="form-label fw-semibold">Responder ZIP</label>
       <input class="form-control form-control-lg" type="file" name="bundle_zip" accept=".zip" required>
@@ -16,7 +16,8 @@
       <a class="btn btn-outline-secondary btn-lg" href="{back_url}">Atrás</a>
      </div>
      [dbx:form]
-    </form>
+     {form:footer}
+ </form>
    </div>
   </div>
  </div>

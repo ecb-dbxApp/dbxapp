@@ -16,7 +16,7 @@ $table['update']='admin';
 $table['delete']='admin';
 $table['read_owner']='owner,admin';
 
-$addField = function($name, $type, $index, $length, $default, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $index, $length, $default, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -38,20 +38,20 @@ $addField = function($name, $type, $index, $length, $default, $label, $rules, $t
    $fields[]=$field;
 };
 
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
-$addField('create_uid','int','','11','0','Erstellt von','int','hidden');
-$addField('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
-$addField('update_uid','int','','11','0','Aktualisiert von','int','hidden');
-$addField('owner','int','','11','0','Owner','int','hidden');
-$addField('trash','int','','1','0','Trash','int','hidden');
-$addField('order_id','int','MUL','11','0','Bestellung','int','text-label');
-$addField('product_id','int','MUL','11','0','Produkt','int','text-label');
-$addField('sku','varchar','MUL','80','','Artikelnummer','parameter|max=80','text-label');
-$addField('title','varchar','','180','','Titel','*|max=180','text-label');
-$addField('qty','int','','11','1','Menge','int','text-label');
-$addField('price_gross','decimal','','10,2','0','Einzelpreis brutto','number','text-label');
-$addField('tax_rate','decimal','','5,2','0','MwSt. %','number','text-label');
-$addField('shipping_gross','decimal','','10,2','0','Versand brutto','number','text-label');
-$addField('total_gross','decimal','','10,2','0','Zeilensumme brutto','number','text-label');
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
+$add_field('create_uid','int','','11','0','Erstellt von','int','hidden');
+$add_field('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
+$add_field('update_uid','int','','11','0','Aktualisiert von','int','hidden');
+$add_field('owner','int','','11','0','Owner','int','hidden');
+$add_field('trash','int','','1','0','Trash','int','hidden');
+$add_field('order_id','int','MUL','11','0','Bestellung','int','text-label');
+$add_field('product_id','int','MUL','11','0','Produkt','int','text-label');
+$add_field('sku','varchar','MUL','80','','Artikelnummer','parameter|max=80','text-label');
+$add_field('title','varchar','','180','','Titel','*|max=180','text-label');
+$add_field('qty','int','','11','1','Menge','int','text-label');
+$add_field('price_gross','decimal','','10,2','0','Einzelpreis brutto','number','text-label');
+$add_field('tax_rate','decimal','','5,2','0','MwSt. %','number','text-label');
+$add_field('shipping_gross','decimal','','10,2','0','Versand brutto','number','text-label');
+$add_field('total_gross','decimal','','10,2','0','Zeilensumme brutto','number','text-label');
 ?>

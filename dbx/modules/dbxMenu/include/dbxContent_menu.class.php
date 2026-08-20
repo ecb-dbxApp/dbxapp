@@ -9,18 +9,12 @@ require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap.php
 
 class dbxContent_menu {
 
-  Public $oTPL;
+  Public $o_tpl;
 
   public function __construct() {
-     $this->oTPL=dbx()->get_system_obj('dbxTPL');
+     $this->o_tpl=dbx()->get_system_obj('dbxTPL');
   }
 
-
-  private function user_has_access($groups) {
-     $groups = trim((string)$groups);
-     if ($groups === '') $groups = '*';
-     return dbx()->can($groups);
-  }
 
   private function resolve_folder_rights($db, $folder_id, array $visited = array()) {
      $folder_id = (int)$folder_id;
@@ -28,7 +22,7 @@ class dbxContent_menu {
      if (isset($visited[$folder_id])) return '*';
      $visited[$folder_id] = 1;
 
-     $row = $db->select1(dbxContentLng::ddFolder(), $folder_id, '*', 0);
+     $row = $db->select1(dbxContentLng::dd_folder(), $folder_id, '*', 0);
      if (!is_array($row)) return '*';
 
      $raw = trim((string)($row['group_read'] ?? ''));
@@ -61,25 +55,31 @@ class dbxContent_menu {
   }
 
   private function folder_allowed($db, $folder_id) {
-     return $this->user_has_access($this->resolve_folder_rights($db, $folder_id));
+     return \dbx\dbxContent\dbxContentRuntime::user_can_access($this->resolve_folder_rights($db, $folder_id));
   }
 
   private function content_href(array $page) {
      $permalink = trim((string)($page['permalink'] ?? ''));
      if ($permalink !== '') {
         if (preg_match('/^(https?:\/\/|\/|\?)/i', $permalink)) return $permalink;
-        return dbx()->get_base_url() . dbxContent_permalink::publicPath($permalink);
+        $language = strtolower(trim((string)dbxContentPageCache::current_lng()));
+        $default_language = strtolower(trim((string)dbx()->get_cfg('dbx', 'default_lng', 'de')));
+        $use_language_path = (int)dbx()->get_cfg('dbx', 'language_path_prefix', 0) === 1
+           && $language !== ''
+           && $language !== $default_language;
+        $language_prefix = $use_language_path ? $language . '/' : '';
+        return dbx()->get_base_url() . $language_prefix . dbxContent_permalink::public_path($permalink);
      }
      return '?dbx_modul=dbxContent&dbx_run1=show&dbx_cid=' . (int)($page['id'] ?? 0);
   }
 
   private function cms_pages($db, $folder_id) {
-     $rows = $db->select(dbxContentLng::ddContent(), 'folder = ' . (int)$folder_id . ' AND activ = 1', 'id,title,menu_title,permalink,sorter,folder', 'sorter,title,id', 'ASC', '', 0, 0, 0);
+     $rows = $db->select(dbxContentLng::dd_content(), 'folder = ' . (int)$folder_id . ' AND activ = 1', 'id,title,menu_title,permalink,sorter,folder', 'sorter,title,id', 'ASC', '', 0, 0, 0);
      return is_array($rows) ? $rows : array();
   }
 
   private function cms_folders($db, $parent_id) {
-     $rows = $db->select(dbxContentLng::ddFolder(), 'parent_id = ' . (int)$parent_id, 'id,name,parent_id,group_read,sorter', 'sorter,name,id', 'ASC', '', 0, 0, 0);
+     $rows = $db->select(dbxContentLng::dd_folder(), 'parent_id = ' . (int)$parent_id, 'id,name,parent_id,group_read,sorter', 'sorter,name,id', 'ASC', '', 0, 0, 0);
      return is_array($rows) ? $rows : array();
   }
 
@@ -98,19 +98,19 @@ class dbxContent_menu {
      $path = trim(rawurldecode((string)$root), " \t\n\r\0\x0B/");
      if ($path === '') return 0;
 
-     $parentId = 0;
+     $parent_id = 0;
      foreach (preg_split('#\s*/\s*#', $path, -1, PREG_SPLIT_NO_EMPTY) as $name) {
         $folder = $db->select1(
-           dbxContentLng::ddFolder(),
-           array('parent_id' => $parentId, 'name' => trim((string)$name)),
+           dbxContentLng::dd_folder(),
+           array('parent_id' => $parent_id, 'name' => trim((string)$name)),
            array('id', 'name'),
            0
         );
-        $parentId = (int)($folder['id'] ?? 0);
-        if ($parentId <= 0) return 0;
+        $parent_id = (int)($folder['id'] ?? 0);
+        if ($parent_id <= 0) return 0;
      }
 
-     return $parentId;
+     return $parent_id;
   }
 
   private function render_pages($db, $folder_id) {
@@ -169,14 +169,14 @@ class dbxContent_menu {
      $split_flat = $split_flat && $flat === 1;
      $db = dbx()->get_system_obj('dbxDB');
      $root = $this->resolve_folder_reference($db, $root);
-     $lng = dbxContentPageCache::currentLng();
-     $variant = dbxContentPageCache::menuVariantFlat($flat);
+     $lng = dbxContentPageCache::current_lng();
+     $variant = dbxContentPageCache::menu_variant_flat($flat);
      if ($split_flat) {
         $variant .= '-split';
      }
 
-      if (dbxContentPageCache::isReadEnabled()) {
-        $cached = dbxContentPageCache::readMenu($root, $variant, $lng);
+      if (dbxContentPageCache::is_read_enabled()) {
+        $cached = dbxContentPageCache::read_menu($root, $variant, $lng);
         if ($cached !== null) {
            return $cached;
         }
@@ -196,7 +196,7 @@ class dbxContent_menu {
            if ($flat) {
               $html = $this->render_children($db, $root, !$split_flat);
            } else {
-              $folder = $db->select1(dbxContentLng::ddFolder(), $root, '*', 0);
+              $folder = $db->select1(dbxContentLng::dd_folder(), $root, '*', 0);
               if (is_array($folder)) {
                  $html = $this->render_folder_li($db, $folder);
               }
@@ -204,8 +204,8 @@ class dbxContent_menu {
         }
      }
 
-      if (dbxContentPageCache::isWriteEnabled()) {
-        dbxContentPageCache::writeMenu($html, $root, $variant, $lng);
+      if (dbxContentPageCache::is_write_enabled()) {
+        dbxContentPageCache::write_menu($html, $root, $variant, $lng);
      }
 
      return $html;
@@ -269,9 +269,9 @@ class dbxContent_menu {
         foreach ($files as $no => $record) {
           $id   =$record['id'];
           $title=$record['title'];
-          $tpl=$this->oTPL->get_tpl('modul','menu-content-file');
+          $tpl=$this->o_tpl->get_tpl('modul','menu-content-file');
           if ($record['permalink']) {
-             $href=dbxContent_permalink::publicPath($record['permalink']);
+             $href=dbxContent_permalink::public_path($record['permalink']);
           } else {
              $href='?dbx_Modul=dbxContent&dbx_run1=show&cid='.$id;
           }
@@ -302,7 +302,7 @@ class dbxContent_menu {
                $name  = $record['name'];
                $count = $this->has_entrys($root,$tab_folder,$tab_content,0,$deepr);
                if ($count) {
-                  $tpl = $this->oTPL->get_tpl('modul','menu-content-sub');
+                  $tpl = $this->o_tpl->get_tpl('modul','menu-content-sub');
                   $tpl = (str_replace('{folder}',$name ,$tpl));
                   $tpl = (str_replace('{count}' ,$count,$tpl));
                   $tpl = (str_replace('{deep}'  ,$deepr,$tpl));
@@ -335,13 +335,13 @@ class dbxContent_menu {
     $tpl   = 'menu-content';
     if ($mode) $tpl=$tpl.'-'.$mode;
 
-    $tab_content = dbxContentLng::ddContent($lng);
-    $tab_folder  = dbxContentLng::ddFolder($lng);
+    $tab_content = dbxContentLng::dd_content($lng);
+    $tab_folder  = dbxContentLng::dd_folder($lng);
     dbx()->set_modul_var('deep_run',0);
     $entrys= $this->has_entrys($root,$tab_folder,$tab_content,0);
     $files = $this->has_files($root,$tab_content);
     if ($entrys) {
-      $content=$this->oTPL->get_tpl('modul',$tpl);
+      $content=$this->o_tpl->get_tpl('modul',$tpl);
       $content=str_replace('{label}',$label,$content);
 
       $content=$this->content_files($root,$tab_content,$content);
@@ -358,7 +358,7 @@ class dbxContent_menu {
 
   public function run() {
      $root = dbx()->get_modul_var('root', 0);
-     if (!dbx()->is_int_value($root)) {
+     if (!(is_int($root) || (is_string($root) && filter_var($root, FILTER_VALIDATE_INT) !== false))) {
         #todo $root = folder name select get root 
      }
 
@@ -371,10 +371,10 @@ class dbxContent_menu {
      $deep = (int) dbx()->get_modul_var('deep', 9, 'int');
      $mode = trim((string) dbx()->get_modul_var('mode', ''));
      $label = trim((string) dbx()->get_modul_var('label', ''));
-     $variant = dbxContentPageCache::menuVariantLoad($deep, $mode, $label);
+     $variant = dbxContentPageCache::menu_variant_load($deep, $mode, $label);
 
-      if (dbxContentPageCache::isReadEnabled()) {
-        $cached = dbxContentPageCache::readMenu((int) $root, $variant, $lng);
+      if (dbxContentPageCache::is_read_enabled()) {
+        $cached = dbxContentPageCache::read_menu((int) $root, $variant, $lng);
         if ($cached !== null) {
            return $cached;
         }
@@ -382,8 +382,8 @@ class dbxContent_menu {
 
      $content = $this->content_menu_load();
 
-      if (dbxContentPageCache::isWriteEnabled()) {
-        dbxContentPageCache::writeMenu($content, (int) $root, $variant, $lng);
+      if (dbxContentPageCache::is_write_enabled()) {
+        dbxContentPageCache::write_menu($content, (int) $root, $variant, $lng);
      }
 
      return $content;

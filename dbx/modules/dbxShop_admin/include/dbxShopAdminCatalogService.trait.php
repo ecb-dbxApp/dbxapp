@@ -14,8 +14,8 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 trait dbxShopAdminCatalogServiceTrait {
 
 
-   private function activeBadge(array $row, $texts = null): string {
-      $texts = $texts ?: $this->catalogTexts();
+   private function active_badge(array $row, $texts = null): string {
+      $texts = $texts ?: $this->catalog_texts();
       return ((int)($row['active'] ?? 0) === 1)
          ? '<span class="badge text-bg-success">' . $this->h($texts->get_fd_message('active')) . '</span>'
          : '<span class="badge text-bg-secondary">' . $this->h($texts->get_fd_message('inactive')) . '</span>';
@@ -24,17 +24,17 @@ trait dbxShopAdminCatalogServiceTrait {
 
 
    private function groups(): string {
-      $this->ensureSeed();
-      $texts = $this->catalogTexts();
+      $this->ensure_seed();
+      $texts = $this->catalog_texts();
       if ($this->posted('delete_product_group')) {
-         $this->repo()->deleteProductGroup((int)($_POST['id'] ?? 0));
+         $this->repo()->delete_product_group((int)($_POST['id'] ?? 0));
       } elseif ($this->posted('save_product_group')) {
-         $this->repo()->updateProductGroup((int)($_POST['id'] ?? 0), $_POST);
+         $this->repo()->update_product_group((int)($_POST['id'] ?? 0), $_POST);
       }
 
-      $cardHtml = function (array $group, bool $isNew = false) use ($texts): string {
+      $card_html = function (array $group, bool $is_new = false) use ($texts): string {
          $id = (int)($group['id'] ?? 0);
-         if ($isNew) {
+         if ($is_new) {
             $title = '<span>' . $this->h($texts->get_fd_message('groups_new')) . '</span>';
             $subtitle = $texts->get_fd_message('groups_new_subtitle');
          } else {
@@ -42,27 +42,27 @@ trait dbxShopAdminCatalogServiceTrait {
             $subtitle = trim((string)($group['description'] ?? ''));
          }
 
-         $form = $this->shopAdminCardForm(
-            'shop-product-group-' . ($isNew ? 'new' : $id),
+         $form = $this->shop_admin_card_form(
+            'shop-product-group-' . ($is_new ? 'new' : $id),
             'dbxShop|shopProductGroup',
             $group,
             $id,
-            '?dbx_modul=dbxShop_admin&dbx_run1=groups' . ($isNew ? '&new=1' : ''),
+            '?dbx_modul=dbxShop_admin&dbx_run1=groups' . ($is_new ? '&new=1' : ''),
             'save_product_group',
             'save_product_group',
             $title,
             $subtitle,
             'dbx-shop-product-group-card'
          );
-         $form->add_rep('card_badges', $isNew ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('new')) . '</span>' : $this->activeBadge($group, $texts));
+         $form->add_rep('card_badges', $is_new ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('new')) . '</span>' : $this->active_badge($group, $texts));
          $form->add_rep('extra_hidden', '<input type="hidden" name="display_variant" value="' . $this->h($group['display_variant'] ?? 'gallery_grid') . '">');
-         if (!$isNew) {
-            $form->add_rep('delete_button', $this->shopAdminCardDeleteButton('delete_product_group', $texts->get_fd_message('groups_delete_title'), $texts->get_fd_message('groups_delete_confirm')));
+         if (!$is_new) {
+            $form->add_rep('delete_button', $this->shop_admin_card_delete_button('delete_product_group', $texts->get_fd_message('groups_delete_title'), $texts->get_fd_message('groups_delete_confirm')));
          }
-         if ($isNew) {
+         if ($is_new) {
             $form->add_fld('group_key', tpl: 'text-label', placeholder: 'artikelgruppe-key', rules: '*|parameter|max=80');
          }
-         $form->add_fld('parent_id', tpl: 'select-single-label', options: $this->productGroupOptions($id, true, $texts), rules: 'int');
+         $form->add_fld('parent_id', tpl: 'select-single-label', options: $this->product_group_options($id, true, $texts), rules: 'int');
          $form->add_fld('title', tpl: 'text-label', placeholder: $texts->get_fd_message('groups_title_placeholder'), rules: '*|max=160');
          $form->add_fld('description', tpl: 'textarea-label', placeholder: $texts->get_fd_message('description_placeholder'), data: 'rows=2');
          $form->add_fld('tax_class', tpl: 'select-single-label', options: 'mwst1=mwst1&mwst2=mwst2&mwst3=mwst3');
@@ -96,13 +96,13 @@ trait dbxShopAdminCatalogServiceTrait {
             'photoswipe' => 'PhotoSwipe',
          ));
          $form->add_fld('attribute_notes', tpl: 'textarea-label', placeholder: $texts->get_fd_message('attribute_notes_placeholder'), data: 'rows=2');
-         $channelDefaults = '';
-         if ($this->channelsEnabled()) {
+         $channel_defaults = '';
+         if ($this->channels_enabled()) {
             $form->add_fld('ebay_category_id', tpl: 'text-label', placeholder: '58058');
             $form->add_fld('amazon_product_type', tpl: 'text-label', placeholder: 'SOFTWARE / PRODUCT / SHIRT');
             $form->add_fld('kleinanzeigen_category_id', tpl: 'text-label', placeholder: 'category_12345');
             $form->add_fld('mobile_category_id', tpl: 'text-label', placeholder: 'car');
-            $channelDefaults = '<div class="wide dbx-shop-channel-defaults">'
+            $channel_defaults = '<div class="wide dbx-shop-channel-defaults">'
                . '<h6>' . $this->h($texts->get_fd_message('channel_defaults_title')) . '</h6>'
                . '<p>' . $this->h($texts->get_fd_message('channel_defaults_info')) . '</p>'
                . '<div class="dbx-shop-admin-card-grid dbx-shop-channel-default-grid">'
@@ -115,16 +115,16 @@ trait dbxShopAdminCatalogServiceTrait {
          }
          $form->add_fld('sorter', tpl: 'text-label', rules: 'int');
          $form->add_fld('active', tpl: 'checkbox-label', rules: 'int');
-         $groupImagePanel = $this->productGroupImagePanel($group, $isNew, $texts);
+         $group_image_panel = $this->product_group_image_panel($group, $is_new, $texts);
          $form->add_rep('form_body',
             '<div class="dbx-shop-admin-card-grid">'
-            . ($isNew ? '<div>{obj:group_key}</div>' : '')
+            . ($is_new ? '<div>{obj:group_key}</div>' : '')
             . '<div>{obj:parent_id}</div>'
             . '<div>{obj:title}</div>'
             . '<div>{obj:tax_class}</div>'
             . '<div>{obj:sorter}</div>'
             . '<div>{obj:active}</div>'
-            . '<div class="wide">' . $groupImagePanel . '</div>'
+            . '<div class="wide">' . $group_image_panel . '</div>'
             . '<div class="wide">{obj:description}</div>'
             . '<div>{obj:card_template}</div>'
             . '<div>{obj:detail_template}</div>'
@@ -135,7 +135,7 @@ trait dbxShopAdminCatalogServiceTrait {
             . '<div>{obj:gallery_overflow}</div>'
             . '<div>{obj:gallery_click}</div>'
             . '<div class="wide">{obj:attribute_notes}</div>'
-            . $channelDefaults
+            . $channel_defaults
             . '</div>'
          );
          return $form->run();
@@ -148,8 +148,8 @@ trait dbxShopAdminCatalogServiceTrait {
          foreach ($groups as $group) {
             $sorter = max($sorter, (int)($group['sorter'] ?? 0) + 10);
          }
-         $cards .= $cardHtml(array(
-            'tax_class' => (string)($this->shopConfig()['default_tax_class'] ?? 'mwst1'),
+         $cards .= $card_html(array(
+            'tax_class' => (string)($this->shop_config()['default_tax_class'] ?? 'mwst1'),
             'default_tax_rate' => 19,
             'parent_id' => 0,
             'display_variant' => 'gallery_grid',
@@ -166,45 +166,45 @@ trait dbxShopAdminCatalogServiceTrait {
          ), true);
       }
       foreach ($groups as $group) {
-         $cards .= $cardHtml($group);
+         $cards .= $card_html($group);
       }
-      $helpButton = $this->helpButton($this->ensureShopProductGroupsHelpPage(), $texts->get_fd_message('groups_help'));
-      $barActions = '<a class="btn btn-outline-primary btn-sm me-1" href="?dbx_modul=dbxShop_admin&dbx_run1=groups&new=1" data-dbx-tooltip="' . $this->h($texts->get_fd_message('groups_new_title')) . '"><i class="bi bi-plus-square"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('groups_new')) . '</span></a>' . $helpButton;
+      $help_button = $this->help_button($this->shop_product_groups_help_context(), $texts->get_fd_message('groups_help'));
+      $bar_actions = '<a class="btn btn-outline-primary btn-sm me-1" href="?dbx_modul=dbxShop_admin&dbx_run1=groups&new=1" data-dbx-tooltip="' . $this->h($texts->get_fd_message('groups_new_title')) . '"><i class="bi bi-plus-square"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('groups_new')) . '</span></a>' . $help_button;
       $content = '<div class="alert alert-info mx-3 mt-3 mb-0">' . $this->h($texts->get_fd_message('groups_intro')) . '</div>'
          . '<div class="dbx-shop-admin-card-list">' . $cards . '</div>';
       if ($groups !== array()) {
          // Eine gemeinsame Medienbrowser-Vorlage genuegt fuer alle Karten.
          // Sie steht bewusst nach allen Kartenformularen.
-         $content .= $this->shopMediaFormTemplates($this->shopMediaConfig());
+         $content .= $this->shop_media_form_templates($this->shop_media_config());
       }
-      return $this->frame($content, $texts->get_fd_message('groups_title'), $barActions);
+      return $this->frame($content, $texts->get_fd_message('groups_title'), $bar_actions);
    }
 
 
 
    private function attributes(): string {
-      $this->ensureSeed();
-      $texts = $this->catalogTexts();
+      $this->ensure_seed();
+      $texts = $this->catalog_texts();
       if ($this->posted('save_attribute_definition')) {
-         $this->repo()->saveAttributeDefinition($_POST);
+         $this->repo()->save_attribute_definition($_POST);
       }
 
-      $groupOptions = array();
+      $group_options = array();
       foreach ($this->repo()->groups() as $group) {
-         $groupOptions[(string)(int)($group['id'] ?? 0)] = (string)($group['title'] ?? '');
+         $group_options[(string)(int)($group['id'] ?? 0)] = (string)($group['title'] ?? '');
       }
 
-      $cardHelpButton = $this->helpButton($this->ensureShopProductAttributesHelpPage(), $texts->get_fd_message('attributes_help'), 'btn btn-outline-secondary btn-sm me-1');
-      $cardHtml = function (array $attribute, bool $isNew = false) use ($groupOptions, $cardHelpButton, $texts): string {
+      $card_help_button = $this->help_button($this->shop_product_attributes_help_context(), $texts->get_fd_message('attributes_help'), 'btn btn-outline-secondary btn-sm me-1');
+      $card_html = function (array $attribute, bool $is_new = false) use ($group_options, $card_help_button, $texts): string {
          $id = (int)($attribute['id'] ?? 0);
          $type = (string)($attribute['input_type'] ?? 'text');
-         $title = $isNew
+         $title = $is_new
             ? '<span>' . $this->h($texts->get_fd_message('attributes_new')) . '</span>'
             : '<code>' . $this->h($attribute['attr_key'] ?? '') . '</code><span>' . $this->h($attribute['title'] ?? '') . '</span>';
-         $subtitle = $isNew ? $texts->get_fd_message('attributes_new_subtitle') : (string)($attribute['group_title'] ?? '');
+         $subtitle = $is_new ? $texts->get_fd_message('attributes_new_subtitle') : (string)($attribute['group_title'] ?? '');
 
-         $form = $this->shopAdminCardForm(
-            'shop-attribute-definition-' . ($isNew ? 'new' : $id),
+         $form = $this->shop_admin_card_form(
+            'shop-attribute-definition-' . ($is_new ? 'new' : $id),
             'dbxShop|shopAttributeDefinition',
             $attribute,
             $id,
@@ -215,8 +215,8 @@ trait dbxShopAdminCatalogServiceTrait {
             $subtitle,
             'dbx-shop-attribute-card'
          );
-         $form->add_rep('card_badges', $cardHelpButton . ($isNew ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('new')) . '</span>' : $this->activeBadge($attribute, $texts)));
-         $form->add_fld('group_id', tpl: 'select-single-label', options: $groupOptions, rules: 'int');
+         $form->add_rep('card_badges', $card_help_button . ($is_new ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('new')) . '</span>' : $this->active_badge($attribute, $texts)));
+         $form->add_fld('group_id', tpl: 'select-single-label', options: $group_options, rules: 'int');
          $form->add_fld('attr_key', tpl: 'text-label', placeholder: $texts->get_fd_message('attributes_key_placeholder'), rules: '*|parameter|max=80');
          $form->add_fld('title', tpl: 'text-label', placeholder: $texts->get_fd_message('attributes_title_placeholder'), rules: '*|max=160');
          $form->add_fld('input_type', tpl: 'select-single-label', options: array(
@@ -246,8 +246,8 @@ trait dbxShopAdminCatalogServiceTrait {
          return $form->run();
       };
 
-      $cards = $cardHtml(array(
-         'group_id' => (int)array_key_first($groupOptions),
+      $cards = $card_html(array(
+         'group_id' => (int)array_key_first($group_options),
          'input_type' => 'text',
          'required' => 0,
          'filterable' => 1,
@@ -255,43 +255,43 @@ trait dbxShopAdminCatalogServiceTrait {
          'active' => 1,
          'sorter' => 100,
       ), true);
-      foreach ($this->repo()->allAttributeDefinitions() as $attribute) {
-         $cards .= $cardHtml($attribute);
+      foreach ($this->repo()->all_attribute_definitions() as $attribute) {
+         $cards .= $card_html($attribute);
       }
 
-      $barActions = $this->helpButton($this->ensureShopProductAttributesHelpPage(), $texts->get_fd_message('attributes_help'));
-      return $this->frame('<div class="alert alert-info mx-3 mt-3 mb-0">' . $this->h($texts->get_fd_message('attributes_intro')) . '</div><div class="dbx-shop-admin-card-list">' . $cards . '</div>', $texts->get_fd_message('attributes_title'), $barActions);
+      $bar_actions = $this->help_button($this->shop_product_attributes_help_context(), $texts->get_fd_message('attributes_help'));
+      return $this->frame('<div class="alert alert-info mx-3 mt-3 mb-0">' . $this->h($texts->get_fd_message('attributes_intro')) . '</div><div class="dbx-shop-admin-card-list">' . $cards . '</div>', $texts->get_fd_message('attributes_title'), $bar_actions);
    }
 
 
 
-   private function productAttributes(): string {
-      $this->ensureSeed();
-      $texts = $this->catalogTexts();
-      $productId = (int)dbx()->get_modul_var('id', '0', 'int');
+   private function product_attributes(): string {
+      $this->ensure_seed();
+      $texts = $this->catalog_texts();
+      $product_id = (int)dbx()->get_modul_var('id', '0', 'int');
       if ($this->posted('save_product_attributes')) {
-         $productId = (int)($_POST['product_id'] ?? $productId);
-         $this->repo()->saveProductAttributeValues($productId, $_POST['attr_value'] ?? array());
+         $product_id = (int)($_POST['product_id'] ?? $product_id);
+         $this->repo()->save_product_attribute_values($product_id, $_POST['attr_value'] ?? array());
       }
-      $product = $this->repo()->productById($productId);
+      $product = $this->repo()->product_by_id($product_id);
       if (!$product) {
          return $this->placeholder($texts->get_fd_message('attributes_title'), $texts->get_fd_message('attributes_product_not_found'));
       }
 
-      $valueMap = array();
+      $value_map = array();
       foreach (($product['attributes'] ?? array()) as $attribute) {
-         $valueMap[(int)($attribute['id'] ?? 0)] = (string)($attribute['value_text'] ?? '');
+         $value_map[(int)($attribute['id'] ?? 0)] = (string)($attribute['value_text'] ?? '');
       }
 
       $rows = '';
-      foreach ($this->repo()->attributeDefinitionsForProduct($productId, true) as $definition) {
+      foreach ($this->repo()->attribute_definitions_for_product($product_id, true) as $definition) {
          $id = (int)($definition['id'] ?? 0);
-         $value = $valueMap[$id] ?? '';
+         $value = $value_map[$id] ?? '';
          $type = (string)($definition['input_type'] ?? 'text');
          $input = '';
          if ($type === 'select') {
             $input = '<select class="form-select form-select-sm" name="attr_value[' . $id . ']"><option value="">-</option>';
-            foreach ($this->attributeOptions((string)($definition['options'] ?? '')) as $option) {
+            foreach ($this->attribute_options((string)($definition['options'] ?? '')) as $option) {
                $input .= '<option value="' . $this->h($option) . '"' . ($option === $value ? ' selected' : '') . '>' . $this->h($option) . '</option>';
             }
             if ($value !== '' && strpos((string)($definition['options'] ?? ''), $value) === false) {
@@ -299,9 +299,9 @@ trait dbxShopAdminCatalogServiceTrait {
             }
             $input .= '</select>';
          } else {
-            $inputType = $type === 'number' ? 'number' : 'text';
+            $input_type = $type === 'number' ? 'number' : 'text';
             $step = $type === 'number' ? ' step="0.01"' : '';
-            $input = '<input class="form-control form-control-sm" type="' . $inputType . '"' . $step . ' name="attr_value[' . $id . ']" value="' . $this->h($value) . '">';
+            $input = '<input class="form-control form-control-sm" type="' . $input_type . '"' . $step . ' name="attr_value[' . $id . ']" value="' . $this->h($value) . '">';
          }
          $rows .= '<tr>';
          $rows .= '<td><strong>' . $this->h($definition['title'] ?? '') . '</strong><br><small><code>' . $this->h($definition['attr_key'] ?? '') . '</code></small></td>';
@@ -315,39 +315,39 @@ trait dbxShopAdminCatalogServiceTrait {
          $rows = '<tr><td colspan="4" class="text-muted">' . $this->h($texts->get_fd_message('attributes_none')) . '</td></tr>';
       }
 
-      $form = $this->shopAdminCardForm(
-         'shop-product-attributes-' . $productId,
+      $form = $this->shop_admin_card_form(
+         'shop-product-attributes-' . $product_id,
          'dbxShop|shopProductAttributeValue',
-         array('id' => $productId),
-         $productId,
-         '?dbx_modul=dbxShop_admin&dbx_run1=product_attributes&id=' . $productId,
+         array('id' => $product_id),
+         $product_id,
+         '?dbx_modul=dbxShop_admin&dbx_run1=product_attributes&id=' . $product_id,
          'save_product_attributes',
          'save_product_attributes',
          '<code>' . $this->h($product['sku'] ?? '') . '</code><span>' . $this->h($product['title'] ?? '') . '</span>',
          $texts->get_fd_message('attributes_value_subtitle'),
          'dbx-shop-product-attributes-card'
       );
-      $form->add_rep('extra_hidden', '<input type="hidden" name="product_id" value="' . $productId . '">');
-      $form->add_rep('card_badges', $this->helpButton($this->ensureShopProductAttributesHelpPage(), $texts->get_fd_message('attributes_help'), 'btn btn-outline-secondary btn-sm me-1') . '<a class="btn btn-outline-secondary btn-sm" href="?dbx_modul=dbxShop_admin&dbx_run1=products">' . $this->h($texts->get_fd_message('back')) . '</a>');
+      $form->add_rep('extra_hidden', '<input type="hidden" name="product_id" value="' . $product_id . '">');
+      $form->add_rep('card_badges', $this->help_button($this->shop_product_attributes_help_context(), $texts->get_fd_message('attributes_help'), 'btn btn-outline-secondary btn-sm me-1') . '<a class="btn btn-outline-secondary btn-sm" href="?dbx_modul=dbxShop_admin&dbx_run1=products">' . $this->h($texts->get_fd_message('back')) . '</a>');
       $form->add_rep('form_body', '<div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>' . $this->h($texts->get_fd_message('column_attribute')) . '</th><th>' . $this->h($texts->get_fd_message('column_value')) . '</th><th>' . $this->h($texts->get_fd_message('column_unit')) . '</th><th>' . $this->h($texts->get_fd_message('column_property')) . '</th></tr></thead><tbody>' . $rows . '</tbody></table></div>');
       return $this->frame('<div class="dbx-shop-admin-card-list">' . $form->run() . '</div>', $texts->get_fd_message('attributes_edit_title'));
    }
 
 
 
-   private function shippingGroups(): string {
-      $this->ensureSeed();
-      $texts = $this->catalogTexts();
+   private function shipping_groups(): string {
+      $this->ensure_seed();
+      $texts = $this->catalog_texts();
       if ($this->posted('delete_shipping_group')) {
-         $this->repo()->deleteShippingGroup((int)($_POST['id'] ?? 0));
+         $this->repo()->delete_shipping_group((int)($_POST['id'] ?? 0));
       } elseif ($this->posted('save_shipping_group')) {
-         $this->repo()->updateShippingGroup((int)($_POST['id'] ?? 0), $_POST);
+         $this->repo()->update_shipping_group((int)($_POST['id'] ?? 0), $_POST);
       }
 
-      $cardHelpButton = $this->helpButton($this->ensureShopShippingGroupsHelpPage(), $texts->get_fd_message('shipping_help'), 'btn btn-outline-secondary btn-sm me-1');
-      $cardHtml = function (array $group, bool $isNew = false) use ($cardHelpButton, $texts): string {
+      $card_help_button = $this->help_button($this->shop_shipping_groups_help_context(), $texts->get_fd_message('shipping_help'), 'btn btn-outline-secondary btn-sm me-1');
+      $card_html = function (array $group, bool $is_new = false) use ($card_help_button, $texts): string {
          $id = (int)($group['id'] ?? 0);
-         if ($isNew) {
+         if ($is_new) {
             $title = '<span>' . $this->h($texts->get_fd_message('shipping_new')) . '</span>';
             $subtitle = $texts->get_fd_message('shipping_new_subtitle');
          } else {
@@ -355,23 +355,23 @@ trait dbxShopAdminCatalogServiceTrait {
             $subtitle = trim((string)($group['description'] ?? ''));
          }
 
-         $form = $this->shopAdminCardForm(
-            'shop-shipping-group-' . ($isNew ? 'new' : $id),
+         $form = $this->shop_admin_card_form(
+            'shop-shipping-group-' . ($is_new ? 'new' : $id),
             'dbxShop|shopShippingGroup',
             $group,
             $id,
-            '?dbx_modul=dbxShop_admin&dbx_run1=shipping_groups' . ($isNew ? '&new=1' : ''),
+            '?dbx_modul=dbxShop_admin&dbx_run1=shipping_groups' . ($is_new ? '&new=1' : ''),
             'save_shipping_group',
             'save_shipping_group',
             $title,
             $subtitle,
             'dbx-shop-shipping-group-card'
          );
-         $form->add_rep('card_badges', $cardHelpButton . ($isNew ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('new')) . '</span>' : $this->activeBadge($group, $texts)));
-         if (!$isNew) {
-            $form->add_rep('delete_button', $this->shopAdminCardDeleteButton('delete_shipping_group', $texts->get_fd_message('shipping_delete_title'), $texts->get_fd_message('shipping_delete_confirm')));
+         $form->add_rep('card_badges', $card_help_button . ($is_new ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('new')) . '</span>' : $this->active_badge($group, $texts)));
+         if (!$is_new) {
+            $form->add_rep('delete_button', $this->shop_admin_card_delete_button('delete_shipping_group', $texts->get_fd_message('shipping_delete_title'), $texts->get_fd_message('shipping_delete_confirm')));
          }
-         if ($isNew) {
+         if ($is_new) {
             $form->add_fld('group_key', tpl: 'text-label', placeholder: 'versandgruppe-key', rules: '*|parameter|max=80');
          }
          $form->add_fld('title', tpl: 'text-label', placeholder: $texts->get_fd_message('shipping_new'), rules: '*|max=160');
@@ -384,7 +384,7 @@ trait dbxShopAdminCatalogServiceTrait {
          $form->add_fld('active', tpl: 'checkbox-label', rules: 'int');
          $form->add_rep('form_body',
             '<div class="dbx-shop-admin-card-grid">'
-            . ($isNew ? '<div>{obj:group_key}</div>' : '')
+            . ($is_new ? '<div>{obj:group_key}</div>' : '')
             . '<div>{obj:title}</div>'
             . '<div>{obj:shipping_way}</div>'
             . '<div>{obj:delivery_time}</div>'
@@ -398,14 +398,14 @@ trait dbxShopAdminCatalogServiceTrait {
          return $form->run();
       };
 
-      $groups = $this->repo()->shippingGroups();
+      $groups = $this->repo()->shipping_groups();
       $cards = '';
       if ((int)($_GET['new'] ?? 0) === 1) {
          $sorter = 10;
          foreach ($groups as $group) {
             $sorter = max($sorter, (int)($group['sorter'] ?? 0) + 10);
          }
-         $cards .= $cardHtml(array(
+         $cards .= $card_html(array(
             'shipping_gross' => 0,
             'free_from_gross' => -1,
             'active' => 1,
@@ -413,27 +413,27 @@ trait dbxShopAdminCatalogServiceTrait {
          ), true);
       }
       foreach ($groups as $group) {
-         $cards .= $cardHtml($group);
+         $cards .= $card_html($group);
       }
-      $helpButton = $this->helpButton($this->ensureShopShippingGroupsHelpPage(), $texts->get_fd_message('shipping_help'));
-      $barActions = '<a class="btn btn-outline-primary btn-sm me-1" href="?dbx_modul=dbxShop_admin&dbx_run1=shipping_groups&new=1" data-dbx-tooltip="' . $this->h($texts->get_fd_message('shipping_new_title')) . '"><i class="bi bi-plus-square"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('shipping_new')) . '</span></a>' . $helpButton;
-      return $this->frame('<div class="alert alert-info mx-3 mt-3 mb-0">' . $this->h($texts->get_fd_message('shipping_intro')) . '</div><div class="dbx-shop-admin-card-list">' . $cards . '</div>', $texts->get_fd_message('shipping_title'), $barActions);
+      $help_button = $this->help_button($this->shop_shipping_groups_help_context(), $texts->get_fd_message('shipping_help'));
+      $bar_actions = '<a class="btn btn-outline-primary btn-sm me-1" href="?dbx_modul=dbxShop_admin&dbx_run1=shipping_groups&new=1" data-dbx-tooltip="' . $this->h($texts->get_fd_message('shipping_new_title')) . '"><i class="bi bi-plus-square"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('shipping_new')) . '</span></a>' . $help_button;
+      return $this->frame('<div class="alert alert-info mx-3 mt-3 mb-0">' . $this->h($texts->get_fd_message('shipping_intro')) . '</div><div class="dbx-shop-admin-card-list">' . $cards . '</div>', $texts->get_fd_message('shipping_title'), $bar_actions);
    }
 
 
 
-   private function channelGroups(): string {
-      $this->ensureSeed();
-      $texts = $this->catalogTexts();
+   private function channel_groups(): string {
+      $this->ensure_seed();
+      $texts = $this->catalog_texts();
       if ($this->posted('delete_channel_group')) {
-         $this->repo()->deleteChannelGroup((int)($_POST['id'] ?? 0));
+         $this->repo()->delete_channel_group((int)($_POST['id'] ?? 0));
       } elseif ($this->posted('save_channel_group')) {
-         $this->repo()->updateChannelGroup((int)($_POST['id'] ?? 0), $_POST, array_map('strval', $_POST['channels'] ?? array()));
+         $this->repo()->update_channel_group((int)($_POST['id'] ?? 0), $_POST, array_map('strval', $_POST['channels'] ?? array()));
       }
       $channels = $this->repo()->channels();
-      $groups = $this->repo()->channelGroups();
-      $cardHelpButton = $this->helpButton($this->ensureShopChannelHelpPage(), $texts->get_fd_message('channel_groups_help'), 'btn btn-outline-secondary btn-sm me-1');
-      $cardHtml = function (array $group, bool $isNew = false) use ($channels, $cardHelpButton, $texts): string {
+      $groups = $this->repo()->channel_groups();
+      $card_help_button = $this->help_button($this->shop_channel_groups_help_context(), $texts->get_fd_message('channel_groups_help'), 'btn btn-outline-secondary btn-sm me-1');
+      $card_html = function (array $group, bool $is_new = false) use ($channels, $card_help_button, $texts): string {
          $id = (int)($group['id'] ?? 0);
          $active = array();
          foreach (($group['channels'] ?? array()) as $channel) {
@@ -451,7 +451,7 @@ trait dbxShopAdminCatalogServiceTrait {
          }
          $checks .= '</div>';
 
-         if ($isNew) {
+         if ($is_new) {
             $title = '<span>' . $this->h($texts->get_fd_message('channel_groups_new')) . '</span>';
             $subtitle = $texts->get_fd_message('channel_groups_new_subtitle');
          } else {
@@ -459,23 +459,23 @@ trait dbxShopAdminCatalogServiceTrait {
             $subtitle = trim((string)($group['description'] ?? ''));
          }
 
-         $form = $this->shopAdminCardForm(
-            'shop-channel-group-' . ($isNew ? 'new' : $id),
+         $form = $this->shop_admin_card_form(
+            'shop-channel-group-' . ($is_new ? 'new' : $id),
             'dbxShop|shopChannelGroup',
             $group,
             $id,
-            '?dbx_modul=dbxShop_admin&dbx_run1=channel_groups' . ($isNew ? '&new=1' : ''),
+            '?dbx_modul=dbxShop_admin&dbx_run1=channel_groups' . ($is_new ? '&new=1' : ''),
             'save_channel_group',
             'save_channel_group',
             $title,
             $subtitle,
             'dbx-shop-channel-group-card'
          );
-         $form->add_rep('card_badges', $cardHelpButton . ($isNew ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('new')) . '</span>' : $this->activeBadge($group, $texts)));
-         if (!$isNew) {
-            $form->add_rep('delete_button', $this->shopAdminCardDeleteButton('delete_channel_group', $texts->get_fd_message('channel_groups_delete_title'), $texts->get_fd_message('channel_groups_delete_confirm')));
+         $form->add_rep('card_badges', $card_help_button . ($is_new ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('new')) . '</span>' : $this->active_badge($group, $texts)));
+         if (!$is_new) {
+            $form->add_rep('delete_button', $this->shop_admin_card_delete_button('delete_channel_group', $texts->get_fd_message('channel_groups_delete_title'), $texts->get_fd_message('channel_groups_delete_confirm')));
          }
-         if ($isNew) {
+         if ($is_new) {
             $form->add_fld('group_key', tpl: 'text-label', placeholder: 'neue-channel-gruppe', rules: '*|parameter|max=80');
          }
          $form->add_fld('title', tpl: 'text-label', placeholder: $texts->get_fd_message('channel_groups_new'), rules: '*|max=160');
@@ -485,7 +485,7 @@ trait dbxShopAdminCatalogServiceTrait {
          $form->add_obj('channel_checks', 'obj-value', $checks);
          $form->add_rep('form_body',
             '<div class="dbx-shop-admin-card-grid">'
-            . ($isNew ? '<div>{obj:group_key}</div>' : '')
+            . ($is_new ? '<div>{obj:group_key}</div>' : '')
             . '<div>{obj:title}</div>'
             . '<div>{obj:sorter}</div>'
             . '<div>{obj:active}</div>'
@@ -502,7 +502,7 @@ trait dbxShopAdminCatalogServiceTrait {
          foreach ($groups as $group) {
             $sorter = max($sorter, (int)($group['sorter'] ?? 0) + 10);
          }
-         $cards .= $cardHtml(array(
+         $cards .= $card_html(array(
             'title' => '',
             'description' => '',
             'active' => 1,
@@ -511,10 +511,10 @@ trait dbxShopAdminCatalogServiceTrait {
          ), true);
       }
       foreach ($groups as $group) {
-         $cards .= $cardHtml($group);
+         $cards .= $card_html($group);
       }
-      $helpButton = $this->helpButton($this->ensureShopChannelHelpPage(), $texts->get_fd_message('channel_groups_help'));
-      $barActions = '<a class="btn btn-outline-primary btn-sm me-1" href="?dbx_modul=dbxShop_admin&dbx_run1=channel_groups&new=1" data-dbx-tooltip="' . $this->h($texts->get_fd_message('channel_groups_new_title')) . '"><i class="bi bi-plus-square"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('channel_groups_new')) . '</span></a>' . $helpButton;
-      return $this->frame('<div class="alert alert-info mx-3 mt-3 mb-0">' . $this->h($texts->get_fd_message('channel_groups_intro')) . '</div><div class="dbx-shop-admin-card-list">' . $cards . '</div>', $texts->get_fd_message('channel_groups_title'), $barActions);
+      $help_button = $this->help_button($this->shop_channel_groups_help_context(), $texts->get_fd_message('channel_groups_help'));
+      $bar_actions = '<a class="btn btn-outline-primary btn-sm me-1" href="?dbx_modul=dbxShop_admin&dbx_run1=channel_groups&new=1" data-dbx-tooltip="' . $this->h($texts->get_fd_message('channel_groups_new_title')) . '"><i class="bi bi-plus-square"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('channel_groups_new')) . '</span></a>' . $help_button;
+      return $this->frame('<div class="alert alert-info mx-3 mt-3 mb-0">' . $this->h($texts->get_fd_message('channel_groups_intro')) . '</div><div class="dbx-shop-admin-card-list">' . $cards . '</div>', $texts->get_fd_message('channel_groups_title'), $bar_actions);
    }
 }

@@ -3,173 +3,13 @@ namespace dbx\dbxAdmin;
 dbx()->get_system_obj( 'dbxReport', 'use' );
 
 
-class dbxReport_Tables extends \dbxReport {
-
-
-    /**
-     * Scannt ein Verzeichnis nach allen *.dd.php Dateien und gibt ein Array mit den Dateinamen zurück,
-     * bei denen die Bedingungen $table['table'] == $db_table und $table['server'] == $db_server erfüllt sind.
-     *
-     * @param string $db_server Der Name des Datenbank-Servers, der in der $table['server'] Variable gesucht wird.
-     * @param string $db_table Der Name der Datenbank-Tabelle, der in der $table['table'] Variable gesucht wird.
-     * @param string $path Der Pfad, in dem nach den *.dd.php Dateien gesucht werden soll. Standardmäßig das aktuelle Verzeichnis.
-     * @return array Ein Array mit den Dateinamen der passenden DataDictionary-Dateien.
-     */
-    private function get_dd_exist($db_server, $db_table, $path = '.') {
-        $datadics = array();
-        
-        // Sicherstellen, dass der Pfad mit einem Slash endet
-        $path = rtrim($path, '/') . '/';
-        
-        // Verzeichnis nach *.dd.php Dateien durchsuchen
-        $files = glob($path . '*.dd.php');
-        
-        foreach ($files as $file) {
-            // Temporäre Variablen initialisieren, um Konflikte zu vermeiden
-            $table = array();
-            $fields = array();
-            
-            // Datei einbinden
-            include $file;
-            
-            // Überprüfen, ob die Bedingungen erfüllt sind
-            if (isset($table['table']) && $table['table'] == $db_table && 
-                isset($table['server']) && $table['server'] == $db_server) {
-                $datadics[] = $file;
-            }
-        }
-        
-        return $datadics;
-    }
-    
-   
-
-    /**
-     * Verarbeitet den übergebenen Inhalt und aktualisiert den Datensatz mit einer Liste der gefundenen DataDictionary-Dateien.
-     * Nach jedem DataDictionary-Eintrag wird der $but_edit-Button angezeigt, und am Ende wird der $but_add-Button angehängt.
-     * Die Buttons haben die gleiche Größe, und die Einträge werden nebeneinander angezeigt.
-     *
-     * @param string $content Der zu verarbeitende Inhalt (wird unverändert zurückgegeben).
-     * @return string Der unveränderte Inhalt.
-     */
-    public function run_body($content) {
-        // Aktuellen Datensatz aus der Instanzvariable holen
-        $record = $this->_record;
-        
-        // Informationen aus dem Datensatz extrahieren
-        $server = $record['server']; // Name des Datenbank-Servers
-        $table  = $record['name'];   // Name der Datenbank-Tabelle
-        $path   = dbx()->get_base_dir() . 'dbx/modules/dbx/dd/'; // Pfad zu den DataDictionary-Dateien
-        $rid    = $server.'|'.$table;
-
-        // DataDictionary-Dateien suchen
-        $dds = $this->get_dd_exist($server, $table, $path);
-        
-        // Dateinamen verarbeiten:
-        // 1. '.dd.php' entfernen
-        // 2. Nach jedem Dateinamen $but_edit einfügen
-        $dd_list = implode('', array_map(function($file) {
-            // Den Dateinamen ohne '.dd.php' extrahieren
-            $dd = basename($file, '.dd.php');
-            
-            // Button für das Bearbeiten eines DataDictionary
-
-            $but_edit = '<a class="nav-link openWin" href="?dbx_modul=dbxAdmin&dbx_run1=datadic&dbx_run2=list_dd&dbx_run3=row_edit&rid='. $dd .'" data-dbx_win_width="1400" data-dbx_win_height="800"><i class="bi bi-pencil-square"></i></a>';
-
-
-            // Den DataDictionary-Eintrag und den Button kombinieren
-            return '<span class="dd-item">' . $dd . '</span>' . $but_edit;
-        }, $dds));
-        
-        // Button für das Hinzufügen eines neuen DataDictionary
-        $base_url=dbx()->get_base_url();
-        $bt['title']      = $this->get_fd_message('create_dd_title');
-        $bt['buttonText'] = "<i class='bi bi-plus-lg'></i>"; // Text des Buttons
-        $bt['class']      = "btn btn-primary btn-sm p-1 d-flex align-items-center justify-content-center";
-        $bt['style']      = "width: 36px; height: 24px; cursor: pointer; margin-left: 5px;"; 
-        $bt['url']        = $base_url."?dbx_modul=dbxAdmin&dbx_run1=datadic&dbx_run2=add_dd&rid=".$rid;  
-        $bt['modalClass'] = "modal-xl";
-        $bt['returnJs']   = "dbxReSendForm(\'#dbx_form_{i}\')"; //"alert(\'JS run\');";
-        $bt['isPrompt']   = 'false' ; // true, wenn es sich um ein Prompt-Modal handelt
-        $bt['selectValueClass'] = ""; // Nur relevant, wenn $isPrompt true ist
-        $bt['selectTarget']     = ""; // Nur relevant, wenn $isPrompt true ist
-        $but_add =$this->get_tpl('button_modal',$bt);
-
-  
-                 
-
-
-        // Kombiniere die DataDictionary-Einträge und die Buttons in einer Flexbox-Struktur
-        $dd_list = '<div class="d-flex justify-content-between align-items-center w-100">
-                        <span class="dd-list">' . $dd_list . '</span>
-                        ' . $but_add . '
-                    </div>';
-        
-        // Aktualisiere den Datensatz mit der Liste der gefundenen Dateien
-        $record['dd'] = $dd_list;
-        
-        // Aktualisiere die Instanzvariable mit dem modifizierten Datensatz
-        $this->_record = $record;
-        
-        // Gib den unveränderten Inhalt zurück
-        return $content;
-    }
-    
-
-}    
-    
-class dbxReport_Server extends \dbxReport {
-
-
-    public function run_body( $content ) {
-        $oDB =dbx()->get_system_obj('dbxDB');
-        $oTPL=dbx()->get_system_obj('dbxTPL');
-
-        $tables=0; $count_tables=0;
-
-        $record = $this->_record;
-        $server = $record['name'];
-        $isActive = $oDB->db_server_config_is_active((string)$server, is_array($record) ? $record : array());
-        $connect = $isActive ? $oDB->connect_db_server($server) : 0;
-        $action = $this->_action;
-
-        //dbx_debug("record server=($server)",$record);
-
-
-        if (!$isActive) {
-            $record['sync'] = '<span class="badge bg-secondary">'
-                . dbx()->esc($this->get_fd_message('status_inactive')) . '</span>';
-        } elseif ($connect) {
-            $record['sync'] = '<span class="green">' . dbx()->esc($this->get_fd_message('yes')) . '</span>';
-            $tables=$oDB->get_db_tables($server,'sqlite_sequence');
-            $count_tables=count($tables);
-
-        } else {
-            $but['href']  =$action.'&dbx_run3=create_db&rid='.$server;
-            $but['label'] ='DB';
-            $but['class'] ='btn-inline'; 
-            $but['title'] = 'DB';
-            $but['tooltip'] = $this->get_fd_message('connection_check');
-
-            $but_connect=$oTPL->get_tpl('dbx|button_dbcreate',$but);
-   
-            $record['sync'] = "<span class='red'>" . dbx()->esc($this->get_fd_message('no')) . "</span> $but_connect";
-        }
-
-        $record['tables']=$count_tables;
-        
-        $this->_record = $record;
-        return $content;
-    }
-
-}
-
-
+require_once __DIR__ . '/dbxReport_Tables.class.php';
+require_once __DIR__ . '/dbxReport_Server.class.php';
 
 Class dbxServer extends \dbxObj {
 
     /** @var \dbxForm|null Stabiler sprachabhängiger Textkontext der Server-FD. */
-    private $serverTexts;
+    private $server_texts;
 
     /**
      * Liefert Server-Texte aus der aktiven Sprachversion der FD.
@@ -177,18 +17,18 @@ Class dbxServer extends \dbxObj {
      * @return \dbxForm
      */
     private function server_texts() {
-        if ($this->serverTexts) {
-            return $this->serverTexts;
+        if ($this->server_texts) {
+            return $this->server_texts;
         }
 
         dbx()->get_system_obj('dbxForm', 'use');
         $texts = new \dbxForm();
         $texts->set_form_help_enabled(false);
-        $texts->_fd = 'dbxAdmin|server';
+        $texts->set_field_definition('dbxAdmin|server');
         $texts->load_fd_messages();
-        $this->serverTexts = $texts;
+        $this->server_texts = $texts;
 
-        return $this->serverTexts;
+        return $this->server_texts;
     }
 
 
@@ -203,9 +43,9 @@ Class dbxServer extends \dbxObj {
 
         if ($do == 'create_db') return 'create_db';
 
-        $oDD     = dbx()->get_system_obj('dbxDD');
-        $oReport = new dbxReport_Tables;
-        $oReport->_action = '?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=list_tables&rid='.$server;
+        $o_dd     = dbx()->get_system_obj('dbxDD');
+        $o_report = new dbxReport_Tables;
+        $o_report->set_action('?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=list_tables&rid='.$server);
  
         $flds['server']      = $texts->get_fd_message('column_server');
         $flds['name']        = $texts->get_fd_message('column_table');
@@ -214,22 +54,22 @@ Class dbxServer extends \dbxObj {
    
  
 
-        $oReport->init( 'report-tables');
-        $oReport->_fd = 'dbxAdmin|server';
-        $oReport->load_fd_messages();
-        $oReport->set_form_help_enabled(false);
-        $oReport->add_rep('bar_title', $texts->get_fd_message('column_tables'));
-        $oReport->add_rep('bar_subtitle', $texts->format_fd_message('tables_info', array('server' => $server)));
-        $oReport->_create_row_select  = 1;
-        $oReport->_create_row_edit    = 1;
-        $oReport->_create_row_delete  = 1;
-        $oReport->_create_row_show    = 1;
-        $oReport->_create_sel_flds    = 0;
-        $oReport->_fld_id     = 'server';
+        $o_report->init('report-tables', 'report-tables');
+        $o_report->set_field_definition('dbxAdmin|server');
+        $o_report->load_fd_messages();
+        $o_report->set_form_help_enabled(false);
+        $o_report->add_rep('bar_title', $texts->get_fd_message('column_tables'));
+        $o_report->add_rep('bar_subtitle', $texts->format_fd_message('tables_info', array('server' => $server)));
+        $o_report->set_table_actions(array(
+            'select',
+            'edit' => array('window' => true),
+            'delete',
+            'show' => array('window' => true),
+        ));
+        $o_report->_create_sel_flds    = 0;
+        $o_report->_fld_id     = 'server';
 
-        $oReport->_tabel_tpls['tpl_row_delete'] = 'modul|confirm_row_delete_table';
-        $oReport->_tabel_tpls['tpl_row_edit']   = 'table_row_modal-edit';
-        $oReport->_tabel_tpls['tpl_row_show']   = 'table_row_modal-show';
+        $o_report->set_table_tpl('tpl_row_delete', 'modul|confirm_row_delete_table');
 
         //$bt['label']="Neue Datenbank Tabelle erstellen.";
         //$bt['href'] ="?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=add_server_table&server=$server";
@@ -249,38 +89,38 @@ Class dbxServer extends \dbxObj {
         $bt['selectValueClass'] = ""; // Nur relevant, wenn $isPrompt true ist
         $bt['selectTarget']     = ""; // Nur relevant, wenn $isPrompt true ist
         //$but_add =$this->get_tpl('button_modal',$bt);
-        $oReport->add_obj('new_table','button_modal',$bt);
-        $tableBtn = dbx()->get_system_obj('dbxTPL')->get_tpl('dbx|button_modal', $bt);
-        $oReport->add_obj('bar_actions', 'obj-value', $tableBtn);
+        $o_report->add_obj('new_table','button_modal',$bt);
+        $table_btn = dbx()->get_system_obj('dbxTPL')->get_tpl('dbx|button_modal', $bt);
+        $o_report->add_obj('bar_actions', 'obj-value', $table_btn);
 
 
 
 
         
         $data=array(); 
-        $rdata=$oDD->get_db_tables($server);
+        $rdata=$o_dd->get_db_tables($server);
 
         //dbx_debug("DATA Tablels Server=($server)",$rdata);
 
   
-        $oReport->_data        = $data;
-        $oReport->_msg_info    = $texts->format_fd_message('tables_info', array('server' => $server));
-        $oReport->_msg_success = '';
+        $o_report->set_data($data);
+        $o_report->_msg_info    = $texts->format_fd_message('tables_info', array('server' => $server));
+        $o_report->_msg_success = '';
 
         $rwhere = dbx()->get_request_var('dbx_rwhere', '', 'sqlsearch');
         $rrows  = dbx()->get_request_var('dbx_rrows', 9999, 'int');
         $rpos   = dbx()->get_request_var('dbx_rpos', 0, 'int');
         $rpos=0; $rrows=9999;
 
-        $oReport->_rflds = $flds;
-        $oReport->_mode = 'table';
-        $oReport->_pages = 0;
-        $oReport->_rrows = $rrows;
-        $oReport->_rpos = $rpos;
-        $oReport->_rdata = $oReport->data_rows( $rdata, $rpos, $rrows );
-        $oReport->_rcount = count( $rdata );
+        $o_report->_rflds = $flds;
+        $o_report->set_mode('table');
+        $o_report->_pages = 0;
+        $o_report->_rrows = $rrows;
+        $o_report->_rpos = $rpos;
+        $o_report->_rdata = $o_report->data_rows( $rdata, $rpos, $rrows );
+        $o_report->_rcount = count( $rdata );
 
-        $content = $oReport->run();
+        $content = $o_report->run();
 
 
 
@@ -322,12 +162,12 @@ Class dbxServer extends \dbxObj {
         }
 
         $config = dbx()->get_system_obj('dbxConfigStore')->normalize_for_store($config);
-        $content = "<?php \n" . dbx()->convert_array_to_php_code($config, '$config');
+        $config_store = dbx()->get_system_obj('dbxConfigStore');
+        $content = "<?php \n" . $config_store->export_php_assignments($config, '$config');
         $ok = file_put_contents($file, $content);
 
         if ($ok) {
-            $_SESSION['dbx']['config']['dbx'] = $config;
-            $_SESSION['dbx']['config_file']['dbx'] = $file;
+            $config_store->remember('dbx', $config, $file);
         }
 
         return $ok ?: 0;
@@ -390,28 +230,28 @@ Class dbxServer extends \dbxObj {
     }
 
     private function test_server_connection(string $server, array $config): array {
-        $oDB = dbx()->get_system_obj('dbxDB');
-        $oldSessionConfig = $_SESSION['dbx']['config']['dbx'] ?? null;
+        $o_db = dbx()->get_system_obj('dbxDB');
+        $config_store = dbx()->get_system_obj('dbxConfigStore');
+        $old_session_config = $config_store->cached('dbx');
+        $config_store->remember('dbx', $config);
 
-        $_SESSION['dbx']['config']['dbx'] = $config;
-
-        if (isset($oDB->db[$server])) {
-            unset($oDB->db[$server]);
+        if (isset($o_db->db[$server])) {
+            unset($o_db->db[$server]);
         }
 
-        $oDB->_dbMessage = '';
-        $oDB->_error = '';
-        $ok = $oDB->connect_db_server($server) ? 1 : 0;
-        $message = $oDB->_dbMessage ?: $oDB->_error;
+      $o_db->_db_message = '';
+        $o_db->_error = '';
+        $ok = $o_db->connect_db_server($server) ? 1 : 0;
+      $message = $o_db->_db_message ?: $o_db->_error;
 
-        if (isset($oDB->db[$server])) {
-            unset($oDB->db[$server]);
+        if (isset($o_db->db[$server])) {
+            unset($o_db->db[$server]);
         }
 
-        if ($oldSessionConfig === null) {
-            unset($_SESSION['dbx']['config']['dbx']);
+        if ($old_session_config === null) {
+            $config_store->forget('dbx');
         } else {
-            $_SESSION['dbx']['config']['dbx'] = $oldSessionConfig;
+            $config_store->remember('dbx', $old_session_config);
         }
 
         return array('ok' => $ok, 'message' => $message);
@@ -424,19 +264,19 @@ Class dbxServer extends \dbxObj {
     private function save_server_from_form(array $post): array {
         $texts = $this->server_texts();
         $config = $this->get_db_config();
-        $oldName = trim((string) ($post['old_name'] ?? ''));
-        $newName = trim((string) ($post['name'] ?? ''));
+        $old_name = trim((string) ($post['old_name'] ?? ''));
+        $new_name = trim((string) ($post['name'] ?? ''));
 
-        if ($newName === '') {
+        if ($new_name === '') {
             return array('ok' => 0, 'message' => $texts->get_fd_message('server_name_missing'));
         }
 
-        if ($oldName !== '' && $oldName !== $newName && isset($config['db'][$newName])) {
-            return array('ok' => 0, 'message' => $texts->format_fd_message('server_exists', array('server' => $newName)));
+        if ($old_name !== '' && $old_name !== $new_name && isset($config['db'][$new_name])) {
+            return array('ok' => 0, 'message' => $texts->format_fd_message('server_exists', array('server' => $new_name)));
         }
 
-        if ($oldName === '' && isset($config['db'][$newName])) {
-            return array('ok' => 0, 'message' => $texts->format_fd_message('server_exists', array('server' => $newName)));
+        if ($old_name === '' && isset($config['db'][$new_name])) {
+            return array('ok' => 0, 'message' => $texts->format_fd_message('server_exists', array('server' => $new_name)));
         }
 
         $record = $this->normalize_server_record($post);
@@ -445,19 +285,19 @@ Class dbxServer extends \dbxObj {
             return array('ok' => 0, 'message' => $texts->get_fd_message('sqlite_config_error'));
         }
 
-        if ($oldName !== '' && $oldName !== $newName && isset($config['db'][$oldName])) {
-            unset($config['db'][$oldName]);
+        if ($old_name !== '' && $old_name !== $new_name && isset($config['db'][$old_name])) {
+            unset($config['db'][$old_name]);
         }
 
-        $config['db'][$newName] = $record;
+        $config['db'][$new_name] = $record;
 
         if ((int) ($post['is_default'] ?? 0) === 1 || $this->get_default_server($config) === '') {
-            $config['default_server'] = $newName;
+            $config['default_server'] = $new_name;
         }
 
         $test = ((string)($record['activ'] ?? '1') === '0')
             ? array('ok' => 1, 'message' => $texts->get_fd_message('server_disabled_test_skipped'))
-            : $this->ensure_server_connection($newName, $config);
+            : $this->ensure_server_connection($new_name, $config);
 
         if (!$test['ok']) {
             $msg = $test['message'] ? $test['message'] : $texts->get_fd_message('connection_failed');
@@ -470,25 +310,25 @@ Class dbxServer extends \dbxObj {
             return array('ok' => 0, 'message' => $texts->get_fd_message('config_save_error'));
         }
 
-        $oDB = dbx()->get_system_obj('dbxDB');
-        if ($oldName && isset($oDB->db[$oldName])) {
-            unset($oDB->db[$oldName]);
+        $o_db = dbx()->get_system_obj('dbxDB');
+        if ($old_name && isset($o_db->db[$old_name])) {
+            unset($o_db->db[$old_name]);
         }
-        if (isset($oDB->db[$newName])) {
-            unset($oDB->db[$newName]);
+        if (isset($o_db->db[$new_name])) {
+            unset($o_db->db[$new_name]);
         }
 
         return array(
             'ok' => 1,
-            'message' => $texts->format_fd_message('config_saved_connected', array('server' => $newName)),
-            'server' => $newName,
+            'message' => $texts->format_fd_message('config_saved_connected', array('server' => $new_name)),
+            'server' => $new_name,
         );
     }
 
     private function edit_server() {
  
         $content=''; 
-        $oForm =dbx()->get_system_obj('dbxForm');
+        $o_form =dbx()->get_system_obj('dbxForm');
         $texts = $this->server_texts();
         $server=dbx()->get_modul_var('rid' ,'new','parameter');
         if ($server === '') {
@@ -496,50 +336,50 @@ Class dbxServer extends \dbxObj {
         }
         $fd    ='dbxAdmin|server';
 
-        $oForm->init('form-server');
+        $o_form->init('form-server', 'form-server');
         $config=$this->get_db_config();
         $data=$this->server_form_data($server, $config);
 
-        $oForm->_data      = $data;
-        $oForm->_msg_info  = $texts->get_fd_message('edit_server');
-        $oForm->_fd        = $fd;
-        $oForm->load_fd_messages();
-        $oForm->_action    = '?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=edit_server&rid='.$server;
-        $oForm->_fld_change_state='*'; // get allways all, unchaged too
+        $o_form->set_data($data);
+        $o_form->_msg_info  = $texts->get_fd_message('edit_server');
+        $o_form->set_field_definition($fd);
+        $o_form->load_fd_messages();
+        $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=edit_server&rid='.$server);
+        $o_form->_fld_change_state='*'; // get allways all, unchaged too
 
-        $oForm->add_flds();
+        $o_form->add_flds();
     
-        if($oForm->submit()) {
-            if(!$oForm->errors()) {      // submit && no errors && no warnings
-                $change=$oForm->changed();
+        if($o_form->submit()) {
+            if(!$o_form->errors()) {      // submit && no errors && no warnings
+                $change=$o_form->changed();
                 if ($change) {
-                    $save = $this->save_server_from_form($oForm->_post);
+                    $save = $this->save_server_from_form($o_form->validated_post());
 
                     if ($save['ok']) {
-                        $serverName = (string)($save['server'] ?? '');
+                        $server_name = (string)($save['server'] ?? '');
                         dbx()->set_modul_var('dbx_run2', 'list_server');
                         dbx()->set_modul_var('dbx_run3', '');
-                        dbx()->set_modul_var('rid', $serverName);
+                        dbx()->set_modul_var('rid', $server_name);
                         return $this->report_server();
                     } else {
-                        $oForm->_msg_error = $save['message'];
+                        $o_form->_msg_error = $save['message'];
                     }
                 } else {
-                    $oForm->_msg_success = $texts->get_fd_message('no_change');
+                    $o_form->_msg_success = $texts->get_fd_message('no_change');
                 }
             } else {
              $err_flds='';
-             $errors=$oForm->_errors;
+             $errors=$o_form->_errors;
              foreach ($errors as $key => $value) {
                $err_flds.=$key.' ';
              }
-             $oForm->_msg_error = $texts->format_fd_message('check_input', array('fields' => trim($err_flds)));
+             $o_form->_msg_error = $texts->format_fd_message('check_input', array('fields' => trim($err_flds)));
           }
         } else {
-            $oForm->add_obj('form_msg','obj-value','');
+            $o_form->add_obj('form_msg','obj-value','');
         }
      
-        $content=$oForm->run();
+        $content=$o_form->run();
     
         return $content;
     
@@ -563,43 +403,43 @@ Class dbxServer extends \dbxObj {
 
     private function create_server($server) {
         $content='';
-        $oDB =dbx()->get_system_obj('dbxDB');
-        $oTPL=dbx()->get_system_obj('dbxTPL');
+        $o_db =dbx()->get_system_obj('dbxDB');
+        $o_tpl=dbx()->get_system_obj('dbxTPL');
         $texts=$this->server_texts();
 
-        if (isset($oDB->db[$server])) {
-            unset($oDB->db[$server]);
+        if (isset($o_db->db[$server])) {
+            unset($o_db->db[$server]);
         }
 
         $config = dbx()->get_cfg('dbx', 'db');
-        $dbConfig = is_array($config) && isset($config[$server]) && is_array($config[$server]) ? $config[$server] : array();
-        if (!$oDB->db_server_config_is_active((string)$server, $dbConfig)) {
+        $db_config = is_array($config) && isset($config[$server]) && is_array($config[$server]) ? $config[$server] : array();
+        if (!$o_db->db_server_config_is_active((string)$server, $db_config)) {
             $msg['msg'] = $texts->format_fd_message('server_disabled', array('server' => $server));
-            return $oTPL->get_tpl('dbx|alert-info', $msg);
+            return $o_tpl->get_tpl('dbx|alert-info', $msg);
         }
 
-        $ok=$oDB->connect_db_server($server);
+        $ok=$o_db->connect_db_server($server);
         if ($ok) {
             $msg['msg'] = $texts->format_fd_message('server_connected', array('server' => $server));
-            $content=$oTPL->get_tpl('dbx|alert-success',$msg);
+            $content=$o_tpl->get_tpl('dbx|alert-success',$msg);
         } else {
             $msg['msg'] = $texts->format_fd_message('server_connect_error', array('server' => $server))
-                . '<br>' . dbx()->esc((string)$oDB->_dbMessage);
-            $content=$oTPL->get_tpl('dbx|alert-danger',$msg);
+         . '<br>' . dbx()->esc((string)$o_db->_db_message);
+            $content=$o_tpl->get_tpl('dbx|alert-danger',$msg);
         }
         return $content;
     }
 
     Private function report_server() {
 
-        $oReport = new dbxReport_Server;
-        $oReport->_action = '?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=list_server';
+        $o_report = new dbxReport_Server;
+        $o_report->set_action('?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=list_server');
         $texts = $this->server_texts();
-        $listMessage = '';
+        $list_message = '';
 
         $content = "dbxAdmin->DataDic<br>";
         $uid     = dbx()->user();
-        $oDD     = dbx()->get_system_obj('dbxDD');
+        $o_dd     = dbx()->get_system_obj('dbxDD');
         $do      = dbx()->get_modul_var('dbx_run3');
         $server  = dbx()->get_modul_var('rid');
 
@@ -618,14 +458,14 @@ Class dbxServer extends \dbxObj {
         }
         if ($do == 'row_delete' && $server) {
            $ok=$this->delete_server($server);
-           $listMessage = $ok
+           $list_message = $ok
                ? $texts->format_fd_message('server_deleted', array('server' => $server))
                : $texts->format_fd_message('server_delete_error', array('server' => $server));
         }
 
         $config=$this->get_db_config();
         $xdata=$config['db'];
-        $defaultServer=$this->get_default_server($config);
+        $default_server=$this->get_default_server($config);
         $rdata=array();
         foreach ($xdata as $key => $value) {
             if (!is_array($value)) {
@@ -640,7 +480,7 @@ Class dbxServer extends \dbxObj {
             $record['activ_view'] = ((string)$record['activ'] === '0')
                 ? '<span class="badge bg-secondary">' . dbx()->esc($texts->get_fd_message('status_inactive')) . '</span>'
                 : '<span class="badge bg-success">' . dbx()->esc($texts->get_fd_message('status_active')) . '</span>';
-            $record['is_default'] = ($key === $defaultServer)
+            $record['is_default'] = ($key === $default_server)
                 ? '<span class="green">' . dbx()->esc($texts->get_fd_message('yes')) . '</span>'
                 : dbx()->esc($texts->get_fd_message('no'));
             $rdata[]=$record; // make records
@@ -661,43 +501,40 @@ Class dbxServer extends \dbxObj {
 
 
 
-        $oReport->init( 'report-server'); 
-        $oReport->_fd = 'dbxAdmin|server';
-        $oReport->load_fd_messages();
-        $oReport->set_form_help_enabled(false);
-        $oReport->set_callback_owner($this);
-        $oReport->set_callback('row_action_data', 'server_row_action_data');
-        $oReport->_create_row_select  = 0;
-        $oReport->_create_row_edit    = 1;
-        $oReport->_create_row_delete  = 1;
-        $oReport->_create_row_show    = 1;
-        $oReport->_create_sel_flds    = 0;
-        $oReport->_fld_id     = 'name';
-        $oReport->_tabel_tpls['tpl_row_edit'] = 'modul|server_row_edit';
+        $o_report->init('report-server');
+        $o_report->set_field_definition('dbxAdmin|server');
+        $o_report->load_fd_messages();
+        $o_report->set_form_help_enabled(false);
+        $o_report->set_callback_owner($this);
+        $o_report->set_callback('row_action_data', 'server_row_action_data');
+        $o_report->set_table_actions(array('edit', 'delete', 'show'));
+        $o_report->_create_sel_flds    = 0;
+        $o_report->_fld_id     = 'name';
+        $o_report->set_table_tpl('tpl_row_edit', 'modul|server_row_edit');
 
         // if ( $nosel ) $oReport->init( 'report-datadic', 'report-datadic-nosel' );
-        $oReport->_data        = $data;
-        $oReport->_msg_info    = $listMessage;
-        $oReport->_msg_success = '';
+        $o_report->set_data($data);
+        $o_report->_msg_info    = $list_message;
+        $o_report->_msg_success = '';
 
-        $oReport->_rflds = $flds;
-        $oReport->_mode = 'table';
-        $oReport->_pages = 1;
-        $oReport->_rdata = $rdata;
+        $o_report->_rflds = $flds;
+        $o_report->set_mode('table');
+        $o_report->_pages = 1;
+        $o_report->_rdata = $rdata;
 
-        $newUrl = '?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=new_server&rid=new';
-        $bdata['url']    = htmlspecialchars($newUrl, ENT_QUOTES, 'UTF-8');
+        $new_url = '?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=new_server&rid=new';
+        $bdata['url']    = htmlspecialchars($new_url, ENT_QUOTES, 'UTF-8');
         $bdata['label']  = $texts->get_fd_message('new_server');
         $bdata['title']  = $texts->get_fd_message('new_server_title');
         $bdata['class']  = 'btn btn-primary btn-sm';
         $bdata['icon']   = 'bi bi-plus-lg';
         $bdata['width']  = '30%';
         $bdata['height'] = '560';
-        $newServerBtn = dbx()->get_system_obj('dbxTPL')->get_tpl('modul|server_button_openwin', $bdata);
-        $oReport->add_obj('new_server', 'obj-value', $newServerBtn);
-        $oReport->add_obj('bar_actions', 'obj-value', $newServerBtn);
-        $oReport->add_rep('bar_title', $texts->get_fd_message('bar_title'));
-        $oReport->add_rep('bar_subtitle', $texts->get_fd_message('bar_subtitle'));
+        $new_server_btn = dbx()->get_system_obj('dbxTPL')->get_tpl('modul|server_button_openwin', $bdata);
+        $o_report->add_obj('new_server', 'obj-value', $new_server_btn);
+        $o_report->add_obj('bar_actions', 'obj-value', $new_server_btn);
+        $o_report->add_rep('bar_title', $texts->get_fd_message('bar_title'));
+        $o_report->add_rep('bar_subtitle', $texts->get_fd_message('bar_subtitle'));
 
         $rwhere = dbx()->get_request_var('dbx_rwhere', '', 'sqlsearch');
         $rrows  = dbx()->get_request_var('dbx_rrows', 25, 'int');
@@ -707,9 +544,9 @@ Class dbxServer extends \dbxObj {
             $rrows = 999999;
         }
 
-        $oReport->_rdata = $oReport->data_rows( $rdata, $rpos, $rrows );
-        $oReport->_rcount = count( $rdata );
-        $content = $oReport->run();
+        $o_report->_rdata = $o_report->data_rows( $rdata, $rpos, $rrows );
+        $o_report->_rcount = count( $rdata );
+        $content = $o_report->run();
 
         return $content;
     }
@@ -728,9 +565,9 @@ Class dbxServer extends \dbxObj {
         $base = '?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=list_server';
 
         if ($type === 'edit') {
-            $editUrl = '?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=edit_server&rid=' . rawurlencode($rid);
-            $data['data']['action'] = $editUrl;
-            $data['data']['edit_url'] = htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8');
+            $edit_url = '?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=edit_server&rid=' . rawurlencode($rid);
+            $data['data']['action'] = $edit_url;
+            $data['data']['edit_url'] = htmlspecialchars($edit_url, ENT_QUOTES, 'UTF-8');
             $data['data']['edit_title'] = htmlspecialchars(
                 $this->server_texts()->format_fd_message('edit_server_title', array('server' => $rid)),
                 ENT_QUOTES,
@@ -745,27 +582,14 @@ Class dbxServer extends \dbxObj {
         return $data;
     }
 
-    Private function delete_table($dd) {
-        $oTPL=dbx()->get_system_obj('dbxTPL');
-        $oDD =dbx()->get_system_obj('dbxDD'); 
-        $tab   =$oDD->get_dd_table($dd);
-        $server=$oDD->get_dd_server($dd);
-        $data['table']=$tab;
-        $sql=$oTPL->get_tpl('modul|del_dd',$data,'sql');
-        $dd_file=dbx()->os_path(dbx()->get_base_dir().'dbx/modules/dbx/dd/'.$dd.'.dd.php');
-        if (file_exists($dd_file)) unlink($dd_file); 
-        $ok =$oDD->rawQuery($server,$sql);
-        return $ok;
-    }
- 
     Private function create_table($table) {
         dbx()->set_modul_var('rid',$table); // need for report fields
-        $oTPL=dbx()->get_system_obj('dbxTPL');
-        $oDB =dbx()->get_system_obj('dbxDB'); 
+        $o_tpl=dbx()->get_system_obj('dbxTPL');
+        $o_db =dbx()->get_system_obj('dbxDB'); 
         $server = dbx()->get_modul_var('server', dbx()->get_modul_var('rid', '', 'parameter'), 'parameter');
         $data['table']=$table;
-        $sql=$oTPL->get_tpl('modul|new_dd',$data,'sql');
-        $ok = $server ? $oDB->exec($server, $sql) : 0;
+        $sql=$o_tpl->get_tpl('modul|new_dd',$data,'sql');
+        $ok = $server ? $o_db->exec($server, $sql) : 0;
         return $ok;
     }
  
@@ -777,23 +601,23 @@ Class dbxServer extends \dbxObj {
 
 
         $content=''; 
-        $oDD   = dbx()->get_system_obj('dbxDD');
-        $oForm = dbx()->get_system_obj('dbxForm');
+        $o_dd   = dbx()->get_system_obj('dbxDD');
+        $o_form = dbx()->get_system_obj('dbxForm');
         $texts = $this->server_texts();
         $dd    = 'mod:dbtable';
 
-        $oForm->init('form-table');
+        $o_form->init('form-table', 'form-table');
         $data=array();  
 
-        $oForm->_data      = $data;
-        $oForm->_fd        = 'dbxAdmin|server';
-        $oForm->load_fd_messages();
-        $oForm->_msg_info  = $texts->get_fd_message('create_table_info');
-        $oForm->_dd        = $dd; // Main db-Table
-        $oForm->_action    = "?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=add_dbtable&server=$server";
-        $oForm->_fld_change_state='*'; // get allways all, unchaged too
+        $o_form->set_data($data);
+        $o_form->set_field_definition('dbxAdmin|server');
+        $o_form->load_fd_messages();
+        $o_form->_msg_info  = $texts->get_fd_message('create_table_info');
+        $o_form->set_data_definition($dd); // Main db-Table
+        $o_form->set_action("?dbx_modul=dbxAdmin&dbx_run1=server&dbx_run2=add_dbtable&server=$server");
+        $o_form->_fld_change_state='*'; // get allways all, unchaged too
   
-        $oForm->add_fld(
+        $o_form->add_fld(
             'table',
             'text-label',
             rules: 'parameter|min=1',
@@ -807,43 +631,43 @@ Class dbxServer extends \dbxObj {
     
     
     
-        if($oForm->submit()) {
-            if(!$oForm->errors()) {      // submit && no errors && no warnings
-             $change=$oForm->changed();
+        if($o_form->submit()) {
+            if(!$o_form->errors()) {      // submit && no errors && no warnings
+             $change=$o_form->changed();
              if ($change) {
-                $ok=$oDD->connect_db_server($server);
+                $ok=$o_dd->connect_db_server($server);
                 if ($ok) {
                     //$database     
                 }
 
-                $database=$oDD->get_database($server);
+                $database=$o_dd->get_database($server);
                 $table   =dbx()->get_request_var('table');
 
                 $ok=1;
 
-                $messageValues = array(
+                $message_values = array(
                     'server' => $server,
                     'database' => $database,
                     'table' => $table,
                 );
                 if ($ok) {
-                    $oForm->_msg_success = $texts->format_fd_message('table_created', $messageValues);
+                    $o_form->_msg_success = $texts->format_fd_message('table_created', $message_values);
                 } else {
-                    $oForm->_msg_error = $texts->format_fd_message('table_create_error', $messageValues);
+                    $o_form->_msg_error = $texts->format_fd_message('table_create_error', $message_values);
                 }
 
              } else {
-               $oForm->_msg_success = $texts->get_fd_message('no_change');
+               $o_form->_msg_success = $texts->get_fd_message('no_change');
              }
             } else {
    
-             $oForm->_msg_error = $texts->get_fd_message('check_input_plain');
+             $o_form->_msg_error = $texts->get_fd_message('check_input_plain');
           }
         } else {
-            $oForm->add_obj('form_msg','obj-value','');
+            $o_form->add_obj('form_msg','obj-value','');
         }
      
-        $content=$oForm->run();
+        $content=$o_form->run();
     
         return $content;
     

@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Users & groups';
 $messages['bar_subtitle'] = 'Roles, groups and assigned users';
 $messages['new_group'] = 'New group';

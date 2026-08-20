@@ -36,7 +36,7 @@ $field['label'] = 'Zugriff';
 $field['rules'] = '*';
 $field['tooltip'] = 'Benutzergruppen mit Zugriff auf das Systemmodul.';
 $field['options'] = 'sql:dbxUser_groups|name|description|active = 1|name ASC|88';
-$field['tpl'] = 'select-multible-label';
+$field['tpl'] = 'select-multiple-label';
 $fields[] = $field;
 
 $field = array();
@@ -61,7 +61,7 @@ $field['label'] = 'Verfuegbare Sprachen';
 $field['rules'] = '*';
 $field['tooltip'] = 'Sprachen, die Benutzer waehlen duerfen.';
 $field['options'] = 'de=Deutsch&en=English&es=Espanol';
-$field['tpl'] = 'select-multible-label';
+$field['tpl'] = 'select-multiple-label';
 $fields[] = $field;
 
 $field = array();

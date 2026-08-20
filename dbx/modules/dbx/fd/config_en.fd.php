@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['module_subtitle'] = 'Module: dbx';
 $messages['config_info'] = 'Edit the dbx system configuration.';
 $messages['config_save'] = 'Save configuration';
@@ -36,7 +33,7 @@ require dirname(__DIR__) . '/cfg/config.dd.php';
 
 // Die technische Feldstruktur bleibt in config.dd.php zentral; nur UI-Texte
 // werden in der FD-Sprachversion ersetzt.
-$fdText = array(
+$fd_text = array(
     'Versionsnummer' => 'Version number',
     'Interne Config-Versionsnummer des dbx-Moduls.' => 'Internal configuration version number of the dbx module.',
     'Version muss eine Zahl sein.' => 'The version must be a number.',
@@ -95,15 +92,15 @@ $fdText = array(
     'off=Aus&main=Nur Hauptkennzahlen&detail=Hauptkennzahlen und Details' => 'off=Off&main=Main metrics only&detail=Main metrics and details',
 );
 
-foreach ($fields as &$fdField) {
-    foreach (array('label', 'tooltip', 'errormsg', 'options') as $fdUiKey) {
+foreach ($fields as &$fd_field) {
+    foreach (array('label', 'tooltip', 'errormsg', 'options') as $fd_ui_key) {
         if (
-            isset($fdField[$fdUiKey]) &&
-            is_string($fdField[$fdUiKey]) &&
-            isset($fdText[$fdField[$fdUiKey]])
+            isset($fd_field[$fd_ui_key]) &&
+            is_string($fd_field[$fd_ui_key]) &&
+            isset($fd_text[$fd_field[$fd_ui_key]])
         ) {
-            $fdField[$fdUiKey] = $fdText[$fdField[$fdUiKey]];
+            $fd_field[$fd_ui_key] = $fd_text[$fd_field[$fd_ui_key]];
         }
     }
 }
-unset($fdField, $fdText, $fdUiKey);
+unset($fd_field, $fd_text, $fd_ui_key);

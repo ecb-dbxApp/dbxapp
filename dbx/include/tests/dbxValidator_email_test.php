@@ -40,27 +40,27 @@ foreach ($invalid as $email) {
 
 $fd = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxContact' . DIRECTORY_SEPARATOR . 'fd' . DIRECTORY_SEPARATOR . 'contact-form.fd.php');
 $dd = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxContact' . DIRECTORY_SEPARATOR . 'dd' . DIRECTORY_SEPARATOR . 'contactRequest.dd.php');
-$downloadFd = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxDownLoad' . DIRECTORY_SEPARATOR . 'fd' . DIRECTORY_SEPARATOR . 'download-link.fd.php');
-$downloadFdEn = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxDownLoad' . DIRECTORY_SEPARATOR . 'fd' . DIRECTORY_SEPARATOR . 'download-link_en.fd.php');
-$downloadFdEs = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxDownLoad' . DIRECTORY_SEPARATOR . 'fd' . DIRECTORY_SEPARATOR . 'download-link_es.fd.php');
-$downloadClass = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxDownLoad' . DIRECTORY_SEPARATOR . 'dbxDownLoad.class.php');
-$flowersFormCss = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'design' . DIRECTORY_SEPARATOR . 'flowers' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'c-form.css');
+$download_fd = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxDownLoad' . DIRECTORY_SEPARATOR . 'fd' . DIRECTORY_SEPARATOR . 'download-link.fd.php');
+$download_fd_en = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxDownLoad' . DIRECTORY_SEPARATOR . 'fd' . DIRECTORY_SEPARATOR . 'download-link_en.fd.php');
+$download_fd_es = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxDownLoad' . DIRECTORY_SEPARATOR . 'fd' . DIRECTORY_SEPARATOR . 'download-link_es.fd.php');
+$download_class = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxDownLoad' . DIRECTORY_SEPARATOR . 'dbxDownLoad.class.php');
+$flowers_form_css = (string)file_get_contents($root . DIRECTORY_SEPARATOR . 'design' . DIRECTORY_SEPARATOR . 'flowers' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'c-form.css');
 if (strpos($fd, "\$field['rules']='email|min=6|max=180';") === false
    || strpos($dd, "\$field['rules']='email|min=6|max=180';") === false
-   || strpos($downloadFd, "\$field['rules'] = 'email|min=6|max=180';") === false
-   || strpos($downloadFdEn, "\$field['rules'] = 'email|min=6|max=180';") === false
-   || strpos($downloadFdEs, "\$field['rules'] = 'email|min=6|max=180';") === false
-   || strpos($downloadClass, "get_post_data('email', '', 'email|min=6|max=180')") === false
-   || strpos($downloadClass, "set_msg_info('')") === false
-   || strpos($downloadClass, "get_fd_message('validation_error')") === false
-   || strpos($downloadClass, "get_fd_message('send_success')") === false
-   || strpos($downloadClass, "format_fd_message(") === false
-   || strpos($downloadClass, "'sent_to'") === false
-   || strpos($downloadFd, "\$messages['validation_error']") === false
-   || strpos($downloadFdEn, "\$messages['validation_error']") === false
-   || strpos($downloadFdEs, "\$messages['validation_error']") === false
-   || strpos($flowersFormCss, '.form-control.fld-error') === false
-   || strpos($flowersFormCss, 'border-color: var(--dbx-danger') === false) {
+   || strpos($download_fd, "\$field['rules'] = 'email|min=6|max=180';") === false
+   || strpos($download_fd_en, "\$field['rules'] = 'email|min=6|max=180';") === false
+   || strpos($download_fd_es, "\$field['rules'] = 'email|min=6|max=180';") === false
+   || strpos($download_class, "get_post_data('email', '', 'email|min=6|max=180')") === false
+   || strpos($download_class, "set_msg_info('')") === false
+   || strpos($download_class, "get_fd_message('validation_error')") === false
+   || strpos($download_class, "get_fd_message('send_success')") === false
+   || strpos($download_class, "format_fd_message(") === false
+   || strpos($download_class, "'sent_to'") === false
+   || strpos($download_fd, "\$messages['validation_error']") === false
+   || strpos($download_fd_en, "\$messages['validation_error']") === false
+   || strpos($download_fd_es, "\$messages['validation_error']") === false
+   || strpos($flowers_form_css, '.form-control.fld-error') === false
+   || strpos($flowers_form_css, 'border-color: var(--dbx-danger') === false) {
    fwrite(STDERR, "Das E-Mail-Feld des Kontaktformulars ist nicht in FD und DD als Pflichtfeld definiert.\n");
    exit(1);
 }

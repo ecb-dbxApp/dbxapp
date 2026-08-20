@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['user_not_found'] = 'Benutzerprofil wurde nicht gefunden.';
 $messages['profile_title'] = 'Mein Profil';
 $messages['profile_subtitle'] = 'Eigene Stammdaten, Kontakt, Adresse und Oberfläche';

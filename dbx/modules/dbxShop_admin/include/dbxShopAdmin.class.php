@@ -1,6 +1,9 @@
 <?php
 namespace dbx\dbxShop_admin;
 
+require_once dirname(__DIR__, 2) . '/dbxShop/include/dbxShopMediaUrl.class.php';
+require_once dirname(__DIR__, 2) . '/dbxShop/include/dbxShopValue.class.php';
+
 use dbx\dbxContent\dbxContentLng;
 use dbx\dbxContent\dbxContentLngSync;
 use dbx\dbxContent\dbxContentMediaUsageScope;
@@ -41,7 +44,7 @@ class dbxShopAdmin {
     * Erlaubt Provisionierung und Reparatur nur waehrend des expliziten,
     * tokenisierten Wartungslaufs.
     */
-   private bool $maintenanceMode = false;
+   private bool $maintenance_mode = false;
 
    /**
     * Sichtbare Rückmeldung einer vor dem Seitenaufbau abgewiesenen Kartenaktion.
@@ -50,8 +53,8 @@ class dbxShopAdmin {
     * Deshalb wird die Meldung kurz zwischengespeichert und von frame() genau
     * einmal oberhalb des aktuellen Verwaltungsbereichs ausgegeben.
     */
-   private string $postedFormError = '';
-   private $catalogTexts = null;
+   private string $posted_form_error = '';
+   private $catalog_texts = null;
 
    /**
     * Modulweite, sprachabhängige Texte für die Katalog-Nebenformulare.
@@ -60,18 +63,18 @@ class dbxShopAdmin {
     * Seite mehrere Kartenformulare mit unterschiedlichen Datendictionaries
     * gerendert werden.
     */
-   private function catalogTexts() {
-      if ($this->catalogTexts) {
-         return $this->catalogTexts;
+   private function catalog_texts() {
+      if ($this->catalog_texts) {
+         return $this->catalog_texts;
       }
       dbx()->get_system_obj('dbxForm', 'use');
       $texts = new \dbxForm();
       $texts->init('shop-catalog-texts');
-      $texts->_fd = 'dbxShop_admin|shop-catalog';
+      $texts->set_field_definition('dbxShop_admin|shop-catalog');
       $texts->load_fd_messages();
       $texts->set_form_help_enabled(false);
-      $this->catalogTexts = $texts;
-      return $this->catalogTexts;
+      $this->catalog_texts = $texts;
+      return $this->catalog_texts;
    }
 
    private function tpl() {
@@ -87,15 +90,15 @@ class dbxShopAdmin {
    }
 
    /**
-    * Ergaenzt den vorhandenen sessiongebundenen dbx-Aktionstoken.
+    * Ergänzt den vorhandenen sessiongebundenen dbx-Aktionstoken.
     *
     * GET-Links bleiben kompatibel. Nur Links und Endpunkte, die Daten
     * veraendern, werden tokenisiert.
     */
-   private function actionUrl(string $url): string {
-      $securedUrl = dbx()->action_url($url);
-      if ($securedUrl !== $url) {
-         return $securedUrl;
+   private function action_url(string $url): string {
+      $secured_url = dbx()->action_url($url);
+      if ($secured_url !== $url) {
+         return $secured_url;
       }
 
       $separator = strpos($url, '?') === false ? '?' : '&';
@@ -103,15 +106,15 @@ class dbxShopAdmin {
    }
 
    /**
-    * Prueft den gemeinsamen Token fuer schreibende Shop-Admin-Aktionen.
+    * Prüft den gemeinsamen Token fuer schreibende Shop-Admin-Aktionen.
     */
-   private function checkActionToken(string $action): bool {
+   private function check_action_token(string $action): bool {
       $token = (string)dbx()->get_modul_var('dbx_token', '', 'varchar|max=128');
       if (dbx()->check_action_token(self::ACTION_TOKEN_SCOPE, $token)) {
          return true;
       }
 
-      $this->postedFormError = $this->catalogTexts()->get_fd_message('security_token_error');
+      $this->posted_form_error = $this->catalog_texts()->get_fd_message('security_token_error');
       dbx()->sys_msg(
          'security',
          'dbxShop_admin',
@@ -122,9 +125,9 @@ class dbxShopAdmin {
       return false;
    }
 
-   private function openWinButton(string $url, string $title, string $content, string $class = 'btn btn-outline-primary', string $width = '88%', string $height = '88%'): string {
-      $escUrl = $this->h($url);
-      $escTitle = $this->h($title);
+   private function open_win_button(string $url, string $title, string $content, string $class = 'btn btn-outline-primary', string $width = '88%', string $height = '88%'): string {
+      $esc_url = $this->h($url);
+      $esc_title = $this->h($title);
       $class = trim($class);
       if (strpos(' ' . $class . ' ', ' openWin ') === false) {
          $class .= ' openWin';
@@ -135,15 +138,21 @@ class dbxShopAdmin {
       if (strpos($content, 'bi-question-circle') !== false && strpos(' ' . $class . ' ', ' dbx-help-action ') === false) {
          $class .= ' dbx-help-action';
       }
-      return '<a class="' . $this->h($class) . '" href="' . $escUrl . '" data-url="' . $escUrl . '" data-title="' . $escTitle . '" data-width="' . $this->h($width) . '" data-height="' . $this->h($height) . '" title="' . $escTitle . '" role="button">' . $content . '</a>';
+      return '<a class="' . $this->h($class) . '" href="' . $esc_url . '" data-url="' . $esc_url . '" data-title="' . $esc_title . '" data-width="' . $this->h($width) . '" data-height="' . $this->h($height) . '" title="' . $esc_title . '" role="button">' . $content . '</a>';
    }
 
-   private function helpButton(int $helpId, string $title, string $class = 'btn btn-outline-secondary btn-sm me-1', string $width = '72%', string $height = '82%'): string {
-      if ($helpId <= 0) {
+   private function help_button(string $context, string $title, string $class = 'btn btn-outline-secondary btn-sm me-1', string $width = '72%', string $height = '82%'): string {
+      if ($context === '') {
          return '';
       }
-      return $this->openWinButton(
-         '?dbx_modul=dbxContent&dbx_run1=content&cid=' . $helpId,
+      $parts = explode('--', $context, 2);
+      $help = dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp');
+      $url = is_object($help)
+         ? $help->url('dbxShop_admin', $parts[0], $parts[1] ?? '', $title)
+         : '';
+      if ($url === '') return '';
+      return $this->open_win_button(
+         $url,
          $title,
          '<i class="bi bi-question-circle"></i><span class="visually-hidden"> Hilfe</span>',
          $class,
@@ -156,30 +165,13 @@ class dbxShopAdmin {
       return number_format((float) $value, 2, ',', '.') . ' EUR';
    }
 
-   private function mediaUrl(string $path): string {
-      $path = trim(str_replace('\\', '/', $path));
-      if ($path === '') return '';
-      if (preg_match('~^https?://~i', $path) || substr($path, 0, 1) === '/') return $path;
-      return dbx()->get_base_url() . ltrim($path, '/');
-   }
 
-   private function mediaItemUrl(array $image, bool $thumb = true): string {
-      $mediaId = (int)($image['media_id'] ?? 0);
-      if ($mediaId > 0) {
-         $url = 'index.php?dbx_modul=dbxContent&dbx_run1=media&dbx_mid=' . $mediaId;
-         if ($thumb) {
-            $url .= '&dbx_thumb=1';
-         }
-         return $url;
-      }
-      return $this->mediaUrl((string)($image['image_path'] ?? ''));
-   }
 
    private function repo() {
       return dbx()->get_include_obj('dbxShopRepository', 'dbxShop');
    }
 
-   private function ensureSeed(): void {
+   private function ensure_seed(): void {
       // Normale Admin-Aufrufe duerfen weder Schema noch Demo-Daten aendern.
       // Installation und Wartung erfolgen ausschliesslich ueber run1=install.
       $this->repo()->install();

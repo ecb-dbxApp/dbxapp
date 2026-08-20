@@ -257,11 +257,18 @@
         apply: applyPreset
     };
 
+    const requestedDesign = document.body && document.body.dataset
+        ? String(document.body.dataset.dbxDesign || "")
+        : "";
+    const activeDesign = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(requestedDesign)
+        ? requestedDesign
+        : "dbxapp";
+
     dbx.feature.register(LIB, {
         scope: "global",
         priority: "last",
         css: [
-            ["css", "root", "design/dbxapp/css/c-viewport.css"]
+            ["css", "root", "design/" + activeDesign + "/css/c-viewport.css"]
         ],
         js: [],
         init

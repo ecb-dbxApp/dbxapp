@@ -15,28 +15,28 @@ class dbxContactContentProvision {
          return 0;
       }
 
-      $dd = dbxContentLng::ddContent('de');
+      $dd = dbxContentLng::dd_content('de');
       $existing = $db->select1($dd, array('permalink' => 'meine-anfragen'), 'id,content', 0);
       if (is_array($existing) && (int) ($existing['id'] ?? 0) > 0) {
          $id = (int) $existing['id'];
          $content = (string) ($existing['content'] ?? '');
          if (str_starts_with($content, '<h1>Meine Anfragen</h1>') && str_contains($content, '[modul=dbxContact]dbx_run1=tickets[/modul]')) {
-            $db->update($dd, array('content' => self::pageContent()), $id, 0, 1, 0, 1);
-            dbxContentPageCache::invalidateAll();
+            $db->update($dd, array('content' => self::page_content()), $id, 0, 1, 0, 1);
+            dbxContentPageCache::invalidate_all();
          }
          return $id;
       }
 
-      $folderId = self::folderId($db);
+      $folder_id = self::folder_id($db);
       $data = array(
          'activ' => 1,
-         'folder' => $folderId,
+         'folder' => $folder_id,
          'title' => 'Meine Anfragen',
          'permalink' => 'meine-anfragen',
          'description' => 'Eigene Kontaktanfragen, Antworten und aktuellen Bearbeitungsstatus anzeigen.',
          'keywords' => 'Kontakt, Anfragen, Tickets, Antworten',
          'group_read' => '*',
-         'sorter' => self::nextSorter($db, $dd, $folderId),
+         'sorter' => self::next_sorter($db, $dd, $folder_id),
          'template' => 'parent',
          'hero_template' => 'parent',
          'hero_image_id' => 'parent',
@@ -51,7 +51,7 @@ class dbxContactContentProvision {
          'gallery_lightbox_width' => '100vw',
          'gallery_overflow' => 'grid',
          'gallery_click_behavior' => 'lightbox',
-         'content' => self::pageContent(),
+         'content' => self::page_content(),
       );
 
       if ($db->insert($dd, $data, 0, 1, 0, 1) <= 0) {
@@ -63,19 +63,19 @@ class dbxContactContentProvision {
          return 0;
       }
 
-      dbxContentLngSync::afterPageSave($db, $id, true);
-      dbxContentPermalinkIndex::upsertPage($id, 'meine-anfragen', '*', 1, 'de');
-      dbxContentPageCache::invalidateAll();
+      dbxContentLngSync::after_page_save($db, $id, true);
+      dbxContentPermalinkIndex::upsert_page($id, 'meine-anfragen', '*', 1, 'de');
+      dbxContentPageCache::invalidate_all();
       return $id;
    }
 
-   private static function pageContent(): string {
+   private static function page_content(): string {
       return '<p class="lead">Hier sehen Sie Ihre Kontaktanfragen, Antworten und den aktuellen Bearbeitungsstatus.</p>'
          . '[modul=dbxContact]dbx_run1=tickets[/modul]';
    }
 
-   private static function folderId($db): int {
-      $dd = dbxContentLng::ddFolder('de');
+   private static function folder_id($db): int {
+      $dd = dbxContentLng::dd_folder('de');
       $rows = $db->select($dd, array('name' => 'Fuer Kunden'), 'id', 'id', 'ASC', '', 1, 0, 0);
       if (is_array($rows) && isset($rows[0]['id'])) {
          return (int) $rows[0]['id'];
@@ -83,8 +83,8 @@ class dbxContactContentProvision {
       return 0;
    }
 
-   private static function nextSorter($db, string $dd, int $folderId): string {
-      $rows = $db->select($dd, array('folder' => $folderId), 'sorter', 'sorter,id', 'DESC', '', 1, 0, 0);
+   private static function next_sorter($db, string $dd, int $folder_id): string {
+      $rows = $db->select($dd, array('folder' => $folder_id), 'sorter', 'sorter,id', 'DESC', '', 1, 0, 0);
       $max = 0;
       if (is_array($rows) && isset($rows[0]['sorter'])) {
          $max = (int) $rows[0]['sorter'];

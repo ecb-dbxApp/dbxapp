@@ -1,0 +1,38 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxSelfTest",
+    "type": "module",
+    "name": "dbxSelfTest",
+    "title": "dbxSelfTest",
+    "description": "Automatische System-, Sicherheits-, Qualitäts- und Browserprüfungen mit Protokoll.",
+    "descriptions": {
+        "de": "Automatische System-, Sicherheits-, Qualitäts- und Browserprüfungen mit Protokoll.",
+        "en": "Automated system, security, quality and browser checks with reporting.",
+        "es": "Pruebas automáticas de sistema, seguridad, calidad y navegador con informes."
+    },
+    "icon": "bi-clipboard2-check",
+    "image": "",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": []
+    },
+    "permissions": [
+        "administration",
+        "filesystem",
+        "network"
+    ],
+    "migrations": [],
+    "files": []
+}

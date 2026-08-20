@@ -16,6 +16,7 @@ require_once __DIR__ . '/dbxContentMediaUsageMaintenance.class.php';
 require_once __DIR__ . '/dbxContentCmsOptionCatalog.class.php';
 require_once __DIR__ . '/dbxContentTreeOrder.class.php';
 require_once __DIR__ . '/dbxContentCmsPersistenceService.class.php';
+require_once __DIR__ . '/dbxContentAdminSessionState.class.php';
 
 require_once __DIR__ . '/dbxContentCmsCoreService.trait.php';
 require_once __DIR__ . '/dbxContentCmsTreeService.trait.php';
@@ -51,9 +52,9 @@ class dbxContent_cms extends \dbxObj {
    private $dd_media   = 'dbxMedia';
    private $dd_media_usage = 'dbxMediaUsage';
    private $cms_form_security = array();
-   private $cmsTexts = null;
-   private ?dbxContentCmsOptionCatalog $cmsOptionCatalog = null;
-   private ?dbxContentCmsPersistenceService $persistenceService = null;
+   private $cms_texts = null;
+   private ?dbxContentCmsOptionCatalog $cms_option_catalog = null;
+   private ?dbxContentCmsPersistenceService $persistence_service = null;
 
    public function run($action = 'cms') {
       $this->apply_cms_lng_context();

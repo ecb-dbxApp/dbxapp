@@ -94,9 +94,9 @@ Class dbxUser {
           break;
 
         default:
-          $oTPL=dbx()->get_system_obj('dbxTPL');
+          $o_tpl=dbx()->get_system_obj('dbxTPL');
           $msg['msg']="Modul=($modul) Action=($action) Work=($work) is undef.";
-          $content=$oTPL->get_tpl('dbx','alert-warning',$msg);
+          $content=$o_tpl->get_tpl('dbx','alert-warning',$msg);
 
 
     }

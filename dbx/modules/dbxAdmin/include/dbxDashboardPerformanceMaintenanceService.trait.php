@@ -103,28 +103,28 @@ trait dbxDashboardPerformanceMaintenanceServiceTrait {
          return $stats;
       }
 
-      list($requestServer, $requestTable) = $this->performance_dd_info(self::PERF_REQUEST_DD);
-      list($timerServer, $timerTable) = $this->performance_dd_info(self::PERF_TIMER_DD);
-      if ($requestServer === '' || $requestTable === '' || $timerServer === '' || $timerTable === '') {
+      list($request_server, $request_table) = $this->performance_dd_info(self::PERF_REQUEST_DD);
+      list($timer_server, $timer_table) = $this->performance_dd_info(self::PERF_TIMER_DD);
+      if ($request_server === '' || $request_table === '' || $timer_server === '' || $timer_table === '') {
          $stats['messages'][] = 'Performance-Tabellen konnten nicht ermittelt werden.';
          return $stats;
       }
 
       $db = dbx()->get_system_obj('dbxDB');
-      $requestRows = $db->select_query($requestServer, "SELECT COUNT(*) AS row_count, AVG(total_time_ms) AS total_time_ms, AVG(total_memory_kb) AS total_memory_kb, AVG(peak_memory_mb) AS peak_memory_mb, AVG(timer_count) AS timer_count FROM $requestTable");
-      $timerRows = $db->select_query($timerServer, "SELECT section, MAX(info) AS info, MIN(sort_order) AS sort_order, COUNT(*) AS row_count, AVG(time_ms) AS time_ms, AVG(memory_kb) AS memory_kb, AVG(start_memory_kb) AS start_memory_kb, AVG(end_memory_kb) AS end_memory_kb FROM $timerTable WHERE section <> '' AND section <> 'system' GROUP BY section ORDER BY MIN(sort_order) ASC, section ASC");
+      $request_rows = $db->select_query($request_server, "SELECT COUNT(*) AS row_count, AVG(total_time_ms) AS total_time_ms, AVG(total_memory_kb) AS total_memory_kb, AVG(peak_memory_mb) AS peak_memory_mb, AVG(timer_count) AS timer_count FROM $request_table");
+      $timer_rows = $db->select_query($timer_server, "SELECT section, MAX(info) AS info, MIN(sort_order) AS sort_order, COUNT(*) AS row_count, AVG(time_ms) AS time_ms, AVG(memory_kb) AS memory_kb, AVG(start_memory_kb) AS start_memory_kb, AVG(end_memory_kb) AS end_memory_kb FROM $timer_table WHERE section <> '' AND section <> 'system' GROUP BY section ORDER BY MIN(sort_order) ASC, section ASC");
 
       $db->empty(self::PERF_TIMER_DD);
       $db->empty(self::PERF_REQUEST_DD);
 
       $base = $this->performance_now_record_base();
-      $requestId = 0;
-      $requestDate = date('Y-m-d H:i:s');
-      $requestCount = is_array($requestRows) ? (int) ($requestRows[0]['row_count'] ?? 0) : 0;
+      $request_id = 0;
+      $request_date = date('Y-m-d H:i:s');
+      $request_count = is_array($request_rows) ? (int) ($request_rows[0]['row_count'] ?? 0) : 0;
 
-      if ($requestCount > 0) {
+      if ($request_count > 0) {
          $request = array_merge($base, array(
-            'request_date'    => $requestDate,
+            'request_date'    => $request_date,
             'uid'             => (int) dbx()->user(),
             'session_id'      => 'compressed',
             'modul'           => 'compressed',
@@ -133,22 +133,22 @@ trait dbxDashboardPerformanceMaintenanceServiceTrait {
             'ajax'            => 0,
             'sync'            => 0,
             'method'          => 'COMPRESS',
-            'uri'             => 'Performance DB komprimiert aus ' . $requestCount . ' Request-Datensaetzen',
-            'total_time_ms'   => (int) round((float) ($requestRows[0]['total_time_ms'] ?? 0)),
-            'total_memory_kb' => (int) round((float) ($requestRows[0]['total_memory_kb'] ?? 0)),
-            'peak_memory_mb'  => (int) round((float) ($requestRows[0]['peak_memory_mb'] ?? 0)),
-            'timer_count'     => (int) round((float) ($requestRows[0]['timer_count'] ?? 0)),
-            'sample_rate'     => max(1, $requestCount),
+            'uri'             => 'Performance DB komprimiert aus ' . $request_count . ' Request-Datensaetzen',
+            'total_time_ms'   => (int) round((float) ($request_rows[0]['total_time_ms'] ?? 0)),
+            'total_memory_kb' => (int) round((float) ($request_rows[0]['total_memory_kb'] ?? 0)),
+            'peak_memory_mb'  => (int) round((float) ($request_rows[0]['peak_memory_mb'] ?? 0)),
+            'timer_count'     => (int) round((float) ($request_rows[0]['timer_count'] ?? 0)),
+            'sample_rate'     => max(1, $request_count),
          ));
          if ($db->insert(self::PERF_REQUEST_DD, $request, 0, 1, 1, 0) === 1) {
-            $requestId = $db->get_insert_id();
+            $request_id = $db->get_insert_id();
             $stats['inserted']++;
          }
       }
 
-      if (is_array($timerRows)) {
+      if (is_array($timer_rows)) {
          $sort = 0;
-         foreach ($timerRows as $row) {
+         foreach ($timer_rows as $row) {
             $section = trim((string) ($row['section'] ?? ''));
             if ($section === '') {
                continue;
@@ -156,8 +156,8 @@ trait dbxDashboardPerformanceMaintenanceServiceTrait {
 
             $count = max(1, (int) ($row['row_count'] ?? 0));
             $timer = array_merge($base, array(
-               'request_id'      => $requestId,
-               'request_date'    => $requestDate,
+               'request_id'      => $request_id,
+               'request_date'    => $request_date,
                'sort_order'      => $sort,
                'section'         => substr($section, 0, 80),
                'info'            => substr(trim((string) ($row['info'] ?? '')) . ' | komprimiert aus ' . $count . ' Messungen', 0, 160),

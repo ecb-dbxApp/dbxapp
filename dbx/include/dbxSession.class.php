@@ -1,7 +1,9 @@
 <?php
 
+require_once __DIR__ . '/dbxPasswordPolicy.class.php';
+
 /**
- * Summary of dbxSession
+ * @brief Verwaltet Sitzungszustand, Persistenz und Lebenszyklus einer dbxapp-Sitzung.
  */
 class dbxSession {
 
@@ -14,7 +16,7 @@ class dbxSession {
 
   Private function get_new_session_id($uid) {
     $s1=microtime(true);
-    $s2=dbx()->new_password(8);
+    $s2=dbxPasswordPolicy::generate(8);
     $sid=md5($uid.'|'.$s1.'|'.$s2);
     $sid=substr($sid, 0, 32);
     return $sid;
@@ -23,7 +25,7 @@ class dbxSession {
   Private function get_new_session($uid) {
     $config=dbx()->get_cfg('dbx');
     $cookie=0; if (count($_COOKIE)>0) $cookie=1;
-    $oBrowser =dbx()->get_system_obj('dbxBrowser');
+    $o_browser =dbx()->get_system_obj('dbxBrowser');
     $sid=$this->get_new_session_id($uid);
     dbx()->debug("#dbxSession  new sessid for user($uid) =($sid)");
 
@@ -33,15 +35,15 @@ class dbxSession {
     $session['record']['update_date'] = date('Y-m-d H:i:s');
     $session['record']['update_uid']  = $uid;
     $session['record']['owner'] = $uid;
-  	$session['record']['ip']    = $oBrowser->_ip;
-  	$session['record']['host']  = $oBrowser->_host;
-    $session['record']['device']= $oBrowser->_device;
-  	$session['record']['robot'] = $oBrowser->_robot;
-  	$session['record']['name']  = $oBrowser->_name;
-  	$session['record']['ver']   = $oBrowser->_version;
-  	$session['record']['os']    = $oBrowser->_platform;
-  	$session['record']['width'] = $oBrowser->_width;
-  	$session['record']['height']= $oBrowser->_height;
+  	$session['record']['ip']    = $o_browser->_ip;
+  	$session['record']['host']  = $o_browser->_host;
+    $session['record']['device']= $o_browser->_device;
+  	$session['record']['robot'] = $o_browser->_robot;
+  	$session['record']['name']  = $o_browser->_name;
+  	$session['record']['ver']   = $o_browser->_version;
+  	$session['record']['os']    = $o_browser->_platform;
+  	$session['record']['width'] = $o_browser->_width;
+  	$session['record']['height']= $o_browser->_height;
     $session['record']['cookie']= $cookie;
     $session['record']['userid']= $uid;
     $session['record']['sessid']= $sid;
@@ -63,18 +65,18 @@ class dbxSession {
 
 
    private function apply_browser_to_record(&$rec) {
-      $oBrowser = dbx()->get_system_obj('dbxBrowser');
+      $o_browser = dbx()->get_system_obj('dbxBrowser');
 
-      $rec['ip']     = $oBrowser->_ip;
-      $rec['host']   = $oBrowser->_host;
-      $rec['device'] = $oBrowser->_device;
-      $rec['mobile'] = $oBrowser->_mobile;
-      $rec['robot']  = $oBrowser->_robot;
-      $rec['name']   = $oBrowser->_name;
-      $rec['ver']    = $oBrowser->_version;
-      $rec['os']     = $oBrowser->_platform;
-      $rec['width']  = $oBrowser->_width;
-      $rec['height'] = $oBrowser->_height;
+      $rec['ip']     = $o_browser->_ip;
+      $rec['host']   = $o_browser->_host;
+      $rec['device'] = $o_browser->_device;
+      $rec['mobile'] = $o_browser->_mobile;
+      $rec['robot']  = $o_browser->_robot;
+      $rec['name']   = $o_browser->_name;
+      $rec['ver']    = $o_browser->_version;
+      $rec['os']     = $o_browser->_platform;
+      $rec['width']  = $o_browser->_width;
+      $rec['height'] = $o_browser->_height;
       $rec['cookie'] = count($_COOKIE)>0 ? 1 : 0;
    }
 
@@ -130,9 +132,9 @@ class dbxSession {
   public function load_session() {
     dbx()->timer('session-browser','Session browser');
     $sok=false;
-    $oBrowser=dbx()->get_system_obj('dbxBrowser');
-    $ip  = $oBrowser->_ip;
-    $host= $oBrowser->_host;
+    $o_browser=dbx()->get_system_obj('dbxBrowser');
+    $ip  = $o_browser->_ip;
+    $host= $o_browser->_host;
     if (isset($_SESSION['dbx']['record'])) {
         if (isset($_SESSION['dbx']['current_user']['id'])) {
           $sok=1;    
@@ -170,8 +172,8 @@ class dbxSession {
     $session_db=dbx()->get_cfg('dbx','session_db');
     $session_db_guest=(int)dbx()->get_cfg('dbx','session_db_guest',0) === 1;
     $uid=(int)dbx()->user();
-    $existingId=(int)($_SESSION['dbx']['record']['id'] ?? 0);
-    if ($session_db && !$session_db_guest && $uid <= 0 && $existingId <= 0) {
+    $existing_id=(int)($_SESSION['dbx']['record']['id'] ?? 0);
+    if ($session_db && !$session_db_guest && $uid <= 0 && $existing_id <= 0) {
       // PHP-Session, Warenkorb, Sprache und Workflow-Gastbindung bleiben
       // unveraendert erhalten; lediglich der zentrale Session-DB-Datensatz
       // wird fuer anonyme Seitenaufrufe nicht pro Request geschrieben.
@@ -223,36 +225,36 @@ class dbxSession {
 
 
       if (!$install && $session_db) {
-        $oDB=dbx()->get_system_obj('dbxDB');
+        $o_db=dbx()->get_system_obj('dbxDB');
 
         //dbx_debug("#### SESSION SAVE ID=($id) User=($uid)  rec=($id) #####",$rec);
 
         $sessid = (string)($rec['sessid'] ?? '');
 
         if ($id) {
-            $ok=$oDB->update('dbxSession',$rec,$id,0,1,0,0);
+            $ok=$o_db->update('dbxSession',$rec,$id,0,1,0,0);
             if (!$ok) {
               $id=0;
-            } elseif ((int)($oDB->_update_count ?? 0) === 0 && (int)$oDB->count('dbxSession', "id=" . (int)$id) <= 0) {
+            } elseif ((int)($o_db->_update_count ?? 0) === 0 && (int)$o_db->count('dbxSession', "id=" . (int)$id) <= 0) {
               $id=0;
             }
         }
 
         if (!$id && $sessid !== '') {
-          $server = $oDB->get_dd_server('dbxSession');
-          $where  = "sessid='" . $oDB->escape($sessid, $server) . "'";
-          $old    = $oDB->select1('dbxSession', $where, array('id'), 0);
-          $oldId  = is_array($old) ? (int)($old['id'] ?? 0) : 0;
+          $server = $o_db->get_dd_server('dbxSession');
+          $where  = "sessid='" . $o_db->escape($sessid, $server) . "'";
+          $old    = $o_db->select1('dbxSession', $where, array('id'), 0);
+          $old_id  = is_array($old) ? (int)($old['id'] ?? 0) : 0;
 
-          if ($oldId > 0) {
-            $ok=$oDB->update('dbxSession',$rec,$oldId,0,1,0,0);
-            if ($ok) $id=$oldId;
+          if ($old_id > 0) {
+            $ok=$o_db->update('dbxSession',$rec,$old_id,0,1,0,0);
+            if ($ok) $id=$old_id;
           }
         }
 
         if (!$id) { // new session
-          $ok=$oDB->insert('dbxSession',$rec,0,1,0,0);
-          $id=(int)$oDB->_insert_id;
+          $ok=$o_db->insert('dbxSession',$rec,0,1,0,0);
+          $id=(int)$o_db->_insert_id;
         }
       }
 
@@ -274,7 +276,7 @@ class dbxSession {
    * wechselnde Mobilfunkadressen wuerden sonst getrennte Gaeste vermischen
    * oder bestehende Warenkoerbe verlieren.
    */
-  public function is_ephemeral_anonymous_session_request(bool $publicCacheHit = false): bool {
+  public function is_ephemeral_anonymous_session_request(bool $public_cache_hit = false): bool {
     $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     if (!in_array($method, array('GET', 'HEAD'), true)) {
       return false;
@@ -283,20 +285,20 @@ class dbxSession {
       return false;
     }
 
-    $sessionName = session_name();
-    $incomingSessionId = $sessionName !== ''
-      ? trim((string)($_COOKIE[$sessionName] ?? ''))
+    $session_name = session_name();
+    $incoming_session_id = $session_name !== ''
+      ? trim((string)($_COOKIE[$session_name] ?? ''))
       : '';
-    if ($incomingSessionId !== '') {
-      $activeSessionId = trim((string)session_id());
-      if ($activeSessionId !== '' && hash_equals($activeSessionId, $incomingSessionId)) {
+    if ($incoming_session_id !== '') {
+      $active_session_id = trim((string)session_id());
+      if ($active_session_id !== '' && hash_equals($active_session_id, $incoming_session_id)) {
         return false;
       }
     }
 
     // Ein Full-Page-Cache-Hit ist bereits als unpersonalisiert und tokenfrei
     // verifiziert. Seine kurz gestartete PHP-Session wird niemals gebraucht.
-    if ($publicCacheHit) {
+    if ($public_cache_hit) {
       return true;
     }
 
@@ -310,8 +312,8 @@ class dbxSession {
    * Rueckgabe true bedeutet, dass save_session()/clean_session() fuer diesen
    * Request nicht mehr ausgefuehrt werden duerfen.
    */
-  public function discard_ephemeral_anonymous_session(bool $publicCacheHit = false): bool {
-    if (!$this->is_ephemeral_anonymous_session_request($publicCacheHit)) {
+  public function discard_ephemeral_anonymous_session(bool $public_cache_hit = false): bool {
+    if (!$this->is_ephemeral_anonymous_session_request($public_cache_hit)) {
       return false;
     }
 
@@ -326,7 +328,7 @@ class dbxSession {
       header_remove('Set-Cookie');
     }
 
-    dbx()->debug($publicCacheHit
+    dbx()->debug($public_cache_hit
       ? '#SESSION ephemeral anonymous full-page-cache guest discarded'
       : '#SESSION ephemeral anonymous robot discarded');
     return true;
@@ -387,7 +389,7 @@ class dbxSession {
       $_SESSION['dbx']['record']['sessid']     = $new_sessid;
       $_SESSION['dbx']['current_user']         = $current_user;
       //$_SESSION=array();
-      if ($remember) dbx()->set_cookie_var('dbXwebApp','session_id',$new_sessid); // #ToDo
+      if ($remember) $_SESSION['dbx']['cookie']['dbXwebApp']['session_id']=$new_sessid; // #ToDo
       dbx()->debug("#SESSION# LOGIN ($uid) Sessid=($new_sessid)",);
 
       }

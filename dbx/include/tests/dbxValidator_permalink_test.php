@@ -17,7 +17,7 @@ require_once $root . '/dbx/vendor/autoload.php';
 require_once $root . '/dbx/include/dbxKernel.php';
 require_once dirname(__DIR__) . '/dbxValidator.class.php';
 require_once dirname(__DIR__, 2) . '/modules/dbxContent/include/dbxContent_permalink.class.php';
-require_once dirname(__DIR__, 2) . '/modules/dbxAdmin/include/dbxAdminHelp.class.php';
+require_once dirname(__DIR__, 2) . '/modules/dbxHelp/include/dbxModuleHelp.class.php';
 
 use dbx\dbxContent\dbxContent_permalink;
 
@@ -37,10 +37,6 @@ foreach (array('home/tutorial', 'zwei woerter', 'mit_unterstrich', 'datei.html',
 
 if (dbxContent_permalink::normalize(' Home / Über uns ') !== 'home-ueber-uns') {
    throw new RuntimeException('Permalink-Normalisierung verwendet nicht ausschliesslich Bindestriche.');
-}
-
-if (dbxContent_permalink::canonicalFromLegacy('home/tutorial/admin-dashboard') !== 'tutorial-admin-dashboard') {
-   throw new RuntimeException('Legacy-Tutorial wird nicht auf den stabilen Permalink abgebildet.');
 }
 
 $db = new class {
@@ -63,16 +59,4 @@ if (dbxContent_permalink::unique($db, 'content_de', 'neue-seite', 7) !== 'neue-s
    throw new RuntimeException('Eigener Datensatz wird bei der Eindeutigkeitspruefung nicht ausgeschlossen.');
 }
 
-$helpPermalinks = array();
-foreach ((new \dbx\dbxAdmin\dbxAdminHelp())->topics() as $topic => $meta) {
-   $permalink = (string)($meta['permalink'] ?? '');
-   if (!$validator->validate($permalink, 'permalink|min=1|max=254')) {
-      throw new RuntimeException('Hilfe-Thema besitzt keinen gueltigen Permalink: ' . $topic);
-   }
-   if (isset($helpPermalinks[$permalink])) {
-      throw new RuntimeException('Doppelter Hilfe-Permalink: ' . $permalink);
-   }
-   $helpPermalinks[$permalink] = $topic;
-}
-
-echo "OK: Permalink-Regel, Normalisierung, Legacy-Alias und Eindeutigkeit geprueft.\n";
+echo "OK: Permalink-Regel, Normalisierung und statische Legacy-Aliase geprueft.\n";

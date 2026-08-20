@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['page_title'] = 'Orders';
 $messages['page_subtitle'] = 'Your saved shop orders.';
 $messages['empty_title'] = 'No orders yet';

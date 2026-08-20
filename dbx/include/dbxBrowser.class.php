@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Ermittelt Browser-, Plattform-, Geräte- und Clientmerkmale einer Anfrage.
+ */
 class dbxBrowser {
     public $_device = 'desktop';
 	public $_agent    = '';
@@ -30,13 +33,13 @@ class dbxBrowser {
 		$this->get_ip();
 		$this->get_host($this->_ip);
 
-		$this->checkLanguage();
-		$this->checkPlatform();
-		$this->checkBrowsers();
-		$this->checkForSize();
-		$this->checkForIntPad();
-		$this->checkForRobot();
-		$this->checkMobile();
+		$this->check_language();
+		$this->check_platform();
+		$this->check_browsers();
+		$this->check_for_size();
+		$this->check_for_int_pad();
+		$this->check_for_robot();
+		$this->check_mobile();
 	}
 
 	public function __construct() {
@@ -44,23 +47,14 @@ class dbxBrowser {
 	}
 
 
-	public function isBrowser($browserName) {
-		return (0 == strcasecmp($this->_name, trim($browserName)));
+	public function is_browser($browser_name) {
+		return (0 == strcasecmp($this->_name, trim($browser_name)));
 	}
-
-	protected function setVersion($version) {
-		$this->_version = preg_replace('/[^0-9a-zA-Z\.]/','',$version);
-	}
-
-	protected function setPlatform($os) {
-		$this->_platform = $os;
-	}
-
 
 	/* =====================================================
 	 * MOBILE (NEU & STABIL)
 	 * ===================================================== */
-	public function checkMobile() {
+	public function check_mobile() {
 
 		$ua = strtolower($this->_agent);
 
@@ -210,14 +204,14 @@ class dbxBrowser {
 	}
 
 
-	protected function checkLanguage() {
+	protected function check_language() {
 		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 			$this->_language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 		}
 	}
 
 
-	protected function checkForIntPad() {
+	protected function check_for_int_pad() {
 		if (stripos($this->_agent, 'ipad') !== false) {
 			$this->_ipad = 1;
 		}
@@ -227,7 +221,7 @@ class dbxBrowser {
 	/* =====================================================
 	 * ROBOT (VEREINFACHT & REALISTISCH)
 	 * ===================================================== */
-	protected function checkForRobot() {
+	protected function check_for_robot() {
 
 		$ua = strtolower($this->_agent);
 
@@ -248,7 +242,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkForSize() {
+	protected function check_for_size() {
 		if (isset($_COOKIE["dbx_win_size"])) {
 			$size = explode("X", $_COOKIE["dbx_win_size"]);
 			if (isset($size[0])) $this->_width = (int)$size[0];
@@ -260,32 +254,32 @@ class dbxBrowser {
 	/* =====================================================
 	 * BROWSER (STOP BEIM ERSTEN TREFFER)
 	 * ===================================================== */
-	protected function checkBrowsers() {
+	protected function check_browsers() {
 
-		if ($this->checkBrowserGoogleBot()) return 1;
-		if ($this->checkBrowserSlurp()) return 1;
-		if ($this->checkBrowserInternetExplorer()) return 1;
+		if ($this->check_browser_google_bot()) return 1;
+		if ($this->check_browser_slurp()) return 1;
+		if ($this->check_browser_internet_explorer()) return 1;
 
-		if ($this->checkBrowserFirefox()) return 1;
+		if ($this->check_browser_firefox()) return 1;
 
 		// Chrome vor Safari!
-		if ($this->checkBrowserChrome()) return 1;
-		if ($this->checkBrowserAndroid()) return 1;
-		if ($this->checkBrowserSafari()) return 1;
+		if ($this->check_browser_chrome()) return 1;
+		if ($this->check_browser_android()) return 1;
+		if ($this->check_browser_safari()) return 1;
 
-		if ($this->checkBrowserOpera()) return 1;
+		if ($this->check_browser_opera()) return 1;
 
-		if ($this->checkBrowseriPhone()) return 1;
-		if ($this->checkBrowseriPod()) return 1;
-		if ($this->checkBrowserBlackBerry()) return 1;
+		if ($this->check_browseri_phone()) return 1;
+		if ($this->check_browseri_pod()) return 1;
+		if ($this->check_browser_black_berry()) return 1;
 
-		if ($this->checkBrowserMozilla()) return 1;
+		if ($this->check_browser_mozilla()) return 1;
 
 		return 0;
 	}
 
 
-	protected function checkBrowserGoogleBot() {
+	protected function check_browser_google_bot() {
 		if (preg_match('/googlebot/i',$this->_agent)) {
 			$this->_name = "GOOGLEBOT";
 			$this->_is_robot = 1;
@@ -295,7 +289,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowserSlurp() {
+	protected function check_browser_slurp() {
 		if (preg_match('/slurp/i',$this->_agent)) {
 			$this->_name = "SLURP";
 			$this->_is_robot = 1;
@@ -305,7 +299,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowserInternetExplorer() {
+	protected function check_browser_internet_explorer() {
 		if (preg_match('/msie|trident/i',$this->_agent)) {
 			$this->_name = "IE";
 			return 1;
@@ -314,7 +308,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowserFirefox() {
+	protected function check_browser_firefox() {
 		if (preg_match('/firefox/i',$this->_agent)) {
 			$this->_name = "FIREFOX";
 			return 1;
@@ -323,7 +317,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowserChrome() {
+	protected function check_browser_chrome() {
 		if (preg_match('/chrome/i',$this->_agent) && !preg_match('/edg|opr/i',$this->_agent)) {
 			$this->_name = "CHROME";
 			return 1;
@@ -332,7 +326,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowserSafari() {
+	protected function check_browser_safari() {
 		if (preg_match('/safari/i',$this->_agent) && !preg_match('/chrome/i',$this->_agent)) {
 			$this->_name = "SAFARI";
 			return 1;
@@ -341,7 +335,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowserOpera() {
+	protected function check_browser_opera() {
 		if (preg_match('/opera|opr/i',$this->_agent)) {
 			$this->_name = "OPERA";
 			return 1;
@@ -350,7 +344,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowserAndroid() {
+	protected function check_browser_android() {
 		if (preg_match('/android/i',$this->_agent)) {
 			$this->_name = "ANDROID";
 			$this->_mobile = 1;
@@ -360,7 +354,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowseriPhone() {
+	protected function check_browseri_phone() {
 		if (preg_match('/iphone/i',$this->_agent)) {
 			$this->_name = "IPHONE";
 			$this->_mobile = 1;
@@ -370,7 +364,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowseriPod() {
+	protected function check_browseri_pod() {
 		if (preg_match('/ipod/i',$this->_agent)) {
 			$this->_name = "IPOD";
 			$this->_mobile = 1;
@@ -380,7 +374,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowserBlackBerry() {
+	protected function check_browser_black_berry() {
 		if (preg_match('/blackberry/i',$this->_agent)) {
 			$this->_name = "BLACKBERRY";
 			$this->_mobile = 1;
@@ -390,7 +384,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkBrowserMozilla() {
+	protected function check_browser_mozilla() {
 		if (preg_match('/mozilla/i',$this->_agent)) {
 			$this->_name = "MOZILLA";
 			return 1;
@@ -399,7 +393,7 @@ class dbxBrowser {
 	}
 
 
-	protected function checkPlatform() {
+	protected function check_platform() {
 
 		if (preg_match('/iphone/i', $this->_agent)) $this->_platform = "IPHONE";
 		elseif (preg_match('/ipad/i', $this->_agent)) $this->_platform = "IPAD";

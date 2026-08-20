@@ -1,17 +1,18 @@
 <div class="dbx-panel dbx-ki-design">
- [tpl=dbx|module-bar]
+ {form:bar}
  <style>
  .dbx-ki-design-shell{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.55fr);gap:1rem;padding:1rem}.dbx-ki-design-main,.dbx-ki-design-side{border:1px solid rgba(100,116,139,.2);border-radius:1rem;background:var(--dbx-bg-panel,#fff);padding:1rem}.dbx-ki-design-head{padding:1rem;border-radius:.85rem;color:#fff;background:linear-gradient(135deg,var(--dbx-primary,#2563eb),#0f172a);margin-bottom:1rem}.dbx-ki-design-head h2{font-size:1.1rem;color:inherit;margin:0}.dbx-ki-design-head p{margin:.35rem 0 0;color:rgba(255,255,255,.8);font-size:.85rem}.dbx-ki-design-section{padding:1rem;border:1px solid rgba(100,116,139,.18);border-radius:.85rem;margin-bottom:1rem}.dbx-ki-design-section h3{font-size:.95rem;margin:0 0 .75rem}.dbx-ki-design-flow{display:grid;gap:.7rem}.dbx-ki-design-flow div{display:grid;grid-template-columns:2rem 1fr;gap:.6rem}.dbx-ki-design-flow i{width:2rem;height:2rem;display:grid;place-items:center;border-radius:.6rem;color:#fff;background:var(--dbx-primary,#2563eb)}.dbx-ki-design-flow strong{display:block;font-size:.85rem}.dbx-ki-design-flow span{display:block;font-size:.76rem;color:var(--dbx-text-muted,#64748b)}@media(max-width:950px){.dbx-ki-design-shell{grid-template-columns:1fr}}
  </style>
  <div class="dbx-ki-design-shell">
    <form method="post" action="{action}" id="dbxForm_{i}" class="dbx-ki-design-main">
     <div class="dbx-ki-design-head"><h2>Describa el resultado, no el código</h2><p>dbxKi proporciona automáticamente a la IA el contrato de diseño, la lista de archivos y el paquete de origen completo.</p></div>
-    <div class="form_msg {msg_class} mb-3">{obj:form_msg}</div>
+    <div class="form_msg {msg_class} mb-3">{form:message}</div>
     <div class="dbx-ki-design-section"><h3>Tarea y objetivo</h3><div class="row g-3"><div class="col-md-4">{obj:mode}</div><div class="col-md-4">{obj:source_design}</div><div class="col-md-4">{obj:target_design}</div><div class="col-12">{obj:goal}</div></div></div>
     <div class="dbx-ki-design-section"><h3>Preguntas orientativas</h3><div class="row g-3"><div class="col-md-6">{obj:layout_notes}</div><div class="col-md-6">{obj:menu_notes}</div><div class="col-md-6">{obj:branding_notes}</div><div class="col-md-6">{obj:footer_notes}</div><div class="col-12">{obj:responsive_notes}</div><div class="col-12">{obj:preserve_behavior}</div></div></div>
     <div class="d-flex justify-content-end"><button class="btn btn-primary" type="submit"><i class="bi bi-download"></i> Crear ZIP del encargo de IA</button></div>
     [dbx:form]
-   </form>
+    {form:footer}
+ </form>
    <aside class="dbx-ki-design-side">
     <h2 class="h6">Proceso sencillo</h2>
     <div class="dbx-ki-design-flow mb-3">

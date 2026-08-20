@@ -15,12 +15,12 @@ $table['create']='admin';
 $table['update']='admin';
 $table['delete']='admin';
 
-$addField=function($name,$type,$index,$length,$default,$label,$rules,$tpl) use (&$fields){
+$add_field=function($name,$type,$index,$length,$default,$label,$rules,$tpl) use (&$fields){
    $field=array('name'=>$name,'type'=>$type,'index'=>$index,'length'=>$length,'default'=>$default,'label'=>$label,'rules'=>$rules,'tooltip'=>'','errormsg'=>'','placeholder'=>'','convert'=>'','protect'=>'0','group'=>'','mask'=>'','data'=>'','options'=>'','tpl'=>$tpl);
    $fields[]=$field;
 };
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('channel_group_id','int','MUL','11','0','Channel-Gruppe','int','text-label');
-$addField('channel_key','varchar','MUL','80','','Channel','parameter|min=2|max=80','text-label');
-$addField('active','int','','1','1','Aktiv','int','checkbox-label');
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('channel_group_id','int','MUL','11','0','Channel-Gruppe','int','text-label');
+$add_field('channel_key','varchar','MUL','80','','Channel','parameter|min=2|max=80','text-label');
+$add_field('active','int','','1','1','Aktiv','int','checkbox-label');
 ?>

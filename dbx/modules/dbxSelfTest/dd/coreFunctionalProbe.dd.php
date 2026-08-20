@@ -18,7 +18,7 @@ $table['create'] = 'admin';
 $table['update'] = 'admin';
 $table['delete'] = 'admin';
 
-$addField = static function (
+$add_field = static function (
    string $name,
    string $type,
    string $length,
@@ -51,16 +51,16 @@ $addField = static function (
    );
 };
 
-$addField('id', 'int', '11', '', 'ID', 'int', 'PRI');
-$addField('create_date', 'datetime', '-1', '', 'Erstellt', 'datetime', 'MUL');
-$addField('create_uid', 'int', '11', '0', 'Erstellt von', 'int', 'MUL');
-$addField('update_date', 'datetime', '-1', '', 'Aktualisiert', 'datetime', 'MUL');
-$addField('update_uid', 'int', '11', '0', 'Aktualisiert von', 'int', 'MUL');
-$addField('owner', 'int', '11', '0', 'Owner', 'int', 'MUL');
-$addField('probe_key', 'varchar', '40', '', 'Pruefschluessel', 'parameter|min=2|max=40', 'UNI', 'text-label');
-$addField('label', 'varchar', '120', '', 'Bezeichnung', '*|min=2|max=120', 'MUL', 'text-label');
-$addField('quantity', 'int', '11', '0', 'Menge', 'int', '', 'integer-label');
-$addField('sorter', 'varchar', '16', '0010', 'Sortierung', 'parameter|max=16', 'MUL', 'text-label');
-$addField('active', 'int', '1', '1', 'Aktiv', 'int', 'MUL', 'checkbox-label');
+$add_field('id', 'int', '11', '', 'ID', 'int', 'PRI');
+$add_field('create_date', 'datetime', '-1', '', 'Erstellt', 'datetime', 'MUL');
+$add_field('create_uid', 'int', '11', '0', 'Erstellt von', 'int', 'MUL');
+$add_field('update_date', 'datetime', '-1', '', 'Aktualisiert', 'datetime', 'MUL');
+$add_field('update_uid', 'int', '11', '0', 'Aktualisiert von', 'int', 'MUL');
+$add_field('owner', 'int', '11', '0', 'Owner', 'int', 'MUL');
+$add_field('probe_key', 'varchar', '40', '', 'Pruefschluessel', 'parameter|min=2|max=40', 'UNI', 'text-label');
+$add_field('label', 'varchar', '120', '', 'Bezeichnung', '*|min=2|max=120', 'MUL', 'text-label');
+$add_field('quantity', 'int', '11', '0', 'Menge', 'int', '', 'integer-label');
+$add_field('sorter', 'varchar', '16', '0010', 'Sortierung', 'parameter|max=16', 'MUL', 'text-label');
+$add_field('active', 'int', '1', '1', 'Aktiv', 'int', 'MUL', 'checkbox-label');
 
 ?>

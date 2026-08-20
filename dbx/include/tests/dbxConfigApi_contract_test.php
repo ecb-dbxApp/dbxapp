@@ -3,12 +3,13 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 3);
-$api = (string)file_get_contents($root . '/dbx/include/dbxApi.php');
-$db = (string)file_get_contents($root . '/dbx/include/dbxDB.class.php');
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
+$api = dbx_test_module_source_bundle($root . '/dbx/include/dbxApi.php');
+$db = dbx_test_module_source_bundle($root . '/dbx/include/dbxDB.class.php');
 $session = (string)file_get_contents($root . '/dbx/include/dbxSession.class.php');
 $cache = (string)file_get_contents($root . '/dbx/modules/dbxContent/include/dbxContentPageCache.class.php');
-$demoJs = (string)file_get_contents($root . '/dbx/js/lib/demoMode.js');
-$webApp = (string)file_get_contents($root . '/dbx/include/dbxWebApp.class.php');
+$demo_js = (string)file_get_contents($root . '/dbx/js/lib/demoMode.js');
+$web_app = (string)file_get_contents($root . '/dbx/include/dbxWebApp.class.php');
 
 $assert = static function (bool $condition, string $message): void {
    if (!$condition) {
@@ -33,7 +34,7 @@ $assert(
 );
 $assert(
    str_contains($db, "in_array(\$mode, array('insert', 'update', 'delete'), true)")
-      && strpos($db, 'if (dbx()->is_demo_mode()') < strpos($db, "if (dbx()->can('dbxRunAsAdmin'))"),
+      && strpos($db, 'if (dbx()->is_demo_mode()') < strpos($db, "if (dbx()->has_group('dbxRunAsAdmin'))"),
    'Die Demo-Sperre muss vor dem Admin-Bypass in dbxDB greifen.'
 );
 $assert(
@@ -44,18 +45,18 @@ $assert(
 $assert(
    str_contains($api, 'public function set_cfg')
       && str_contains($cache, 'dbx()->is_demo_mode()')
-      && str_contains($demoJs, 'isMutationForm')
-      && str_contains($demoJs, 'speichern')
-      && str_contains($demoJs, 'create')
-      && str_contains($demoJs, 'anlegen')
-      && str_contains($demoJs, 'erstellen')
-      && !str_contains($demoJs, 'function isPostForm'),
+      && str_contains($demo_js, 'isMutationForm')
+      && str_contains($demo_js, 'speichern')
+      && str_contains($demo_js, 'create')
+      && str_contains($demo_js, 'anlegen')
+      && str_contains($demo_js, 'erstellen')
+      && !str_contains($demo_js, 'function isPostForm'),
    'Config-, UI- oder Cache-Grenze des Demo-Modus fehlt.'
 );
 $assert(
-   str_contains($webApp, '$demoModeRevision')
-      && str_contains($webApp, 'filemtime($demoModeFile)')
-      && str_contains($webApp, "dbx()->get_version() . '-' . \$demoModeRevision"),
+   str_contains($web_app, '$demo_mode_revision')
+      && str_contains($web_app, 'filemtime($demo_mode_file)')
+      && str_contains($web_app, "dbx()->get_version() . '-' . \$demo_mode_revision"),
    'Die Demo-UI wird ohne dateibasierte Cache-Kennung ausgeliefert.'
 );
 

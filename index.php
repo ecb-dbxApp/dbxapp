@@ -17,28 +17,53 @@ $__dbx_request_started_at = microtime(true);
 
 ob_start('ob_gzhandler');
 
+// Cookie-lose Gastseiten koennen aus dem Page-Cache bedient werden, bevor
+// Composer, Kernel und Session geladen werden. Jeder unklare Request laeuft
+// unveraendert durch den regulaeren Bootstrap.
+require_once __DIR__ . '/dbx/modules/dbxContent/include/dbxEarlyPageCache.class.php';
+\dbx\dbxContent\dbxEarlyPageCache::try_serve(__DIR__);
+
 $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
    || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443;
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
+/**
+ * Oeffentliche Crawler-Endpunkte benoetigen weder Benutzerzustand noch ein
+ * Session-Cookie. Die Erkennung muss vor session_start() erfolgen, damit PHP
+ * keine privaten No-Cache-Header und keine ungenutzte DBXSESSID ausliefert.
+ */
+function dbx_is_public_crawler_endpoint(): bool {
+   $request_path = (string)(parse_url((string)($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH) ?? '');
+   $request_file = strtolower((string)basename(rtrim($request_path, '/')));
+   if (in_array($request_file, array('sitemap.xml', 'robots.txt'), true)) {
+      return true;
+   }
+
+   $module = strtolower(trim((string)($_GET['dbx_modul'] ?? '')));
+   $action = strtolower(trim((string)($_GET['dbx_run1'] ?? '')));
+   return $module === 'dbxcontent' && in_array($action, array('sitemap', 'robots'), true);
+}
+
+$dbx_public_crawler_endpoint = dbx_is_public_crawler_endpoint();
+
+if (!$dbx_public_crawler_endpoint && session_status() !== PHP_SESSION_ACTIVE) {
    ini_set('session.use_strict_mode', '1');
    ini_set('session.use_only_cookies', '1');
    ini_set('session.use_trans_sid', '0');
-   $sessionScript = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
-   $sessionPath = rtrim(str_replace('\\', '/', dirname($sessionScript)), '/');
-   $sessionPath = ($sessionPath === '' || $sessionPath === '.') ? '/' : $sessionPath . '/';
-   if (preg_match('#^/[A-Za-z0-9._~!$&\'()*+,;=:@%/-]*/$#', $sessionPath) !== 1) {
-      $sessionPath = '/';
+   $session_script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
+   $session_path = rtrim(str_replace('\\', '/', dirname($session_script)), '/');
+   $session_path = ($session_path === '' || $session_path === '.') ? '/' : $session_path . '/';
+   if (preg_match('#^/[A-Za-z0-9._~!$&\'()*+,;=:@%/-]*/$#', $session_path) !== 1) {
+      $session_path = '/';
    }
-   $sessionHost = strtolower((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'));
-   $sessionHost = preg_replace('/:\d+$/', '', $sessionHost) ?: 'localhost';
+   $session_host = strtolower((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'));
+   $session_host = preg_replace('/:\d+$/', '', $session_host) ?: 'localhost';
    session_name(
       'DBXSESSID'
-      . strtoupper(substr(hash('sha256', $sessionHost . '|' . $sessionPath), 0, 12))
+      . strtoupper(substr(hash('sha256', $session_host . '|' . $session_path), 0, 12))
    );
    session_set_cookie_params(array(
       'lifetime' => 0,
-      'path' => $sessionPath,
+      'path' => $session_path,
       'domain' => '',
       'secure' => $https,
       'httponly' => true,
@@ -58,9 +83,9 @@ if (!defined('dbxRunAsAdmin')) {
  * Bootstrap-Ausnahme: liefert den portablen Installationspfad, bevor dbxApi
  * geladen werden kann. Nach dem Bootstrap wird dbx()->get_base_dir() genutzt.
  */
-function dbx_get_base_dir($cutData = 0): string {
+function dbx_get_base_dir($cut_data = 0): string {
    $path = str_replace('\\', '/', __DIR__) . '/';
-   if ($cutData && str_ends_with($path, '/Data/')) {
+   if ($cut_data && str_ends_with($path, '/Data/')) {
       $path = substr($path, 0, -5);
    }
    return rtrim($path, '/') . '/';
@@ -80,24 +105,26 @@ ini_set('max_execution_time', '600');
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-$errorLogDir = rtrim(dbx_get_file_dir(), '/\\');
-if (!is_dir($errorLogDir)) {
-   @mkdir($errorLogDir, 0775, true);
+$error_log_dir = rtrim(dbx_get_file_dir(), '/\\');
+if (!is_dir($error_log_dir)) {
+   @mkdir($error_log_dir, 0775, true);
 }
-ini_set('error_log', $errorLogDir . DIRECTORY_SEPARATOR . 'dbxError.log');
+ini_set('error_log', $error_log_dir . DIRECTORY_SEPARATOR . 'dbxError.log');
 
 require dbx_get_base_dir() . 'dbx/vendor/autoload.php';
 require_once dbx_get_base_dir() . 'dbx/include/dbxKernel.php';
 
-ini_set('error_log', dbx()->error_log_file());
+$runtime = dbx()->get_system_obj('dbxRuntime');
+ini_set('error_log', $runtime->error_log_file());
 
 set_error_handler(function ($errno, $errstr, $errfile, $errline) {
    if (!(error_reporting() & $errno)) {
       return false;
    }
 
-   dbx()->write_php_error_log(
-      dbx()->error_type((int)$errno),
+   $runtime = dbx()->get_system_obj('dbxRuntime');
+   $runtime->write_php_error_log(
+      $runtime->error_type((int)$errno),
       (string)$errstr,
       (string)$errfile,
       (int)$errline
@@ -106,7 +133,7 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) {
 });
 
 set_exception_handler(function ($exception) {
-   dbx()->write_php_error_log(
+   dbx()->get_system_obj('dbxRuntime')->write_php_error_log(
       get_class($exception),
       $exception->getMessage(),
       $exception->getFile(),
@@ -123,13 +150,14 @@ register_shutdown_function(function () {
       return;
    }
 
-   $fatalTypes = array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_RECOVERABLE_ERROR);
-   if (!in_array($error['type'], $fatalTypes, true)) {
+   $fatal_types = array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_RECOVERABLE_ERROR);
+   if (!in_array($error['type'], $fatal_types, true)) {
       return;
    }
 
-   dbx()->write_php_error_log(
-      dbx()->error_type((int)$error['type']),
+   $runtime = dbx()->get_system_obj('dbxRuntime');
+   $runtime->write_php_error_log(
+      $runtime->error_type((int)$error['type']),
       (string)($error['message'] ?? ''),
       (string)($error['file'] ?? ''),
       (int)($error['line'] ?? 0)
@@ -142,5 +170,5 @@ if ((string)($_GET['dbx_modul'] ?? '') === 'dbxContent'
    dbx()->get_include_obj('dbxContentMediaResponse', 'dbxContent')->serve_request();
 }
 
-dbx()->run_web_app_request();
+dbx()->get_system_obj('dbxRequestPipeline')->run();
 exit;

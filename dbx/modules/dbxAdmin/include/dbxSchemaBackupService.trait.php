@@ -21,7 +21,7 @@ trait dbxSchemaBackupServiceTrait {
 
 
    /**
-    * Prueft und liefert den sicheren absoluten Pfad zu einer Backup-Datei.
+    * Prüft und liefert den sicheren absoluten Pfad zu einer Backup-Datei.
     *
     * @param string $file Eingabeparameter fuer diese Methode.
     * @return string
@@ -33,17 +33,17 @@ trait dbxSchemaBackupServiceTrait {
       }
 
       $path = $this->backup_dir() . $file;
-      $realDir = realpath($this->backup_dir());
-      $realFile = realpath($path);
+      $real_dir = realpath($this->backup_dir());
+      $real_file = realpath($path);
 
-      if (!$realDir || !$realFile) {
+      if (!$real_dir || !$real_file) {
          return '';
       }
 
-      $realDir = rtrim(str_replace('\\', '/', $realDir), '/') . '/';
-      $realFile = str_replace('\\', '/', $realFile);
+      $real_dir = rtrim(str_replace('\\', '/', $real_dir), '/') . '/';
+      $real_file = str_replace('\\', '/', $real_file);
 
-      return str_starts_with($realFile, $realDir) ? $realFile : '';
+      return str_starts_with($real_file, $real_dir) ? $real_file : '';
    }
 
 
@@ -69,20 +69,20 @@ trait dbxSchemaBackupServiceTrait {
     */
    private function backup_table($server, $table) {
       $texts = $this->schema_texts();
-      $oDB = dbx()->get_system_obj('dbxDB');
-      $oDD = dbx()->get_system_obj('dbxDD');
+      $o_db = dbx()->get_system_obj('dbxDB');
+      $o_dd = dbx()->get_system_obj('dbxDD');
 
-      if (!$server || !$table || !$oDD->get_table_exist($server, $table)) {
+      if (!$server || !$table || !$o_dd->get_table_exist($server, $table)) {
          return array('ok' => 0, 'msg' => $texts->get_fd_message('backup_table_not_found'));
       }
 
-      $fields = $oDD->get_db_fields($server, $table);
+      $fields = $o_dd->get_db_fields($server, $table);
       if (!$fields) {
          return array('ok' => 0, 'msg' => $texts->get_fd_message('backup_fields_read_error'));
       }
 
-      $indexes = $oDD->get_db_indexes($server, $table);
-      $rows = $oDB->rawQuery($server, 'SELECT * FROM ' . $this->quote_db_ident($server, $table));
+      $indexes = $o_dd->get_db_indexes($server, $table);
+      $rows = $o_db->raw_query($server, 'SELECT * FROM ' . $this->quote_db_ident($server, $table));
       if (!is_array($rows)) {
          return array('ok' => 0, 'msg' => $texts->get_fd_message('backup_data_read_error'));
       }
@@ -97,7 +97,7 @@ trait dbxSchemaBackupServiceTrait {
          'created_at' => date('Y-m-d H:i:s'),
          'server' => $server,
          'table' => $table,
-         'db_type' => $oDB->get_db_type($server),
+         'db_type' => $o_db->get_db_type($server),
          'count' => count($rows),
          'fields' => $fields,
          'indexes' => $indexes,
@@ -225,11 +225,11 @@ trait dbxSchemaBackupServiceTrait {
          return array('ok' => 0, 'msg' => $texts->get_fd_message('backup_incomplete_metadata'));
       }
 
-      $oDB = dbx()->get_system_obj('dbxDB');
-      $oDD = dbx()->get_system_obj('dbxDD');
+      $o_db = dbx()->get_system_obj('dbxDB');
+      $o_dd = dbx()->get_system_obj('dbxDD');
 
-      $oDD->drop_db_tab($server, $table);
-      if (!$oDD->create_db_tab_from_fields($server, $table, $fields, $indexes)) {
+      $o_dd->drop_db_tab($server, $table);
+      if (!$o_dd->create_db_tab_from_fields($server, $table, $fields, $indexes)) {
          return array('ok' => 0, 'msg' => $texts->get_fd_message('restore_create_table_error'));
       }
 
@@ -249,7 +249,7 @@ trait dbxSchemaBackupServiceTrait {
          return array('ok' => 0, 'msg' => $texts->get_fd_message('restore_no_target_fields'));
       }
 
-      $qNames = array_map(function($name) use ($server) {
+      $q_names = array_map(function($name) use ($server) {
          return $this->quote_db_ident($server, $name);
       }, $names);
 
@@ -260,9 +260,9 @@ trait dbxSchemaBackupServiceTrait {
          }
 
          $sql = 'INSERT INTO ' . $this->quote_db_ident($server, $table)
-              . ' (' . implode(',', $qNames) . ') VALUES (' . implode(',', $values) . ')';
-         $ok = $oDB->rawQuery($server, $sql);
-         if (!is_array($ok) && (int)$ok === 0 && $oDB->get_error_status() !== '') {
+              . ' (' . implode(',', $q_names) . ') VALUES (' . implode(',', $values) . ')';
+         $ok = $o_db->raw_query($server, $sql);
+         if (!is_array($ok) && (int)$ok === 0 && $o_db->get_error_status() !== '') {
             return array('ok' => 0, 'msg' => 'Daten konnten nicht eingetragen werden.');
          }
       }
@@ -296,25 +296,25 @@ trait dbxSchemaBackupServiceTrait {
 
          $rows[$no]['backup'] = $this->backup_label($server, $table);
 
-         $backupUrl = $this->build_url('dd', 'backup_db_table', array(
+         $backup_url = $this->build_url('dd', 'backup_db_table', array(
             'server' => $server,
             'table' => $table,
             'reset' => 1,
          ));
          $rows[$no]['act_backup'] = $this->openwin(
-            $backupUrl,
+            $backup_url,
             'bi bi-download',
             $texts->get_fd_message('action_backup_create'),
             980,
             700
          );
 
-         $restoreUrl = $this->build_url('dd', 'restore_db_table', array(
+         $restore_url = $this->build_url('dd', 'restore_db_table', array(
             'server' => $server,
             'table' => $table,
          ));
          $rows[$no]['act_restore'] = $this->openwin(
-            $restoreUrl,
+            $restore_url,
             'bi bi-upload',
             $texts->get_fd_message('action_restore_select'),
             980,
@@ -384,7 +384,7 @@ trait dbxSchemaBackupServiceTrait {
 
 
    /**
-    * Fuehrt ein Backup fuer eine einzelne Tabelle aus.
+    * Führt ein Backup fuer eine einzelne Tabelle aus.
     *
     * @return string
     */
@@ -444,39 +444,39 @@ trait dbxSchemaBackupServiceTrait {
             . $texts->format_fd_message('record_count_short', array('count' => (int)($backup['count'] ?? 0)));
       }
 
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-schema-restore');
-      $oForm->_fd = 'dbxAdmin|schema-report';
-      $oForm->load_fd_messages();
-      $oForm->_data = array(
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-schema-restore', 'form-schema-restore');
+      $o_form->set_field_definition('dbxAdmin|schema-report');
+      $o_form->load_fd_messages();
+      $o_form->set_data(array(
          'server' => $server,
          'table' => $table,
          'backup_file' => 'latest',
-      );
-      $oForm->_action = $this->build_url('dd', 'restore_db_table', array(
+      ));
+      $o_form->set_action($this->build_url('dd', 'restore_db_table', array(
          'server' => $server,
          'table' => $table,
-      ));
-      $oForm->_msg_info = $texts->get_fd_message('restore_warning');
+      )));
+      $o_form->_msg_info = $texts->get_fd_message('restore_warning');
 
-      $oForm->add_fld('server', 'text-label', label: $texts->get_fd_message('column_server'), rules: 'parameter');
-      $oForm->add_fld('table', 'text-label', label: $texts->get_fd_message('column_table'), rules: 'parameter');
-      $oForm->add_fld('backup_file', 'select-single-label', label: $texts->get_fd_message('label_backup'), rules: 'parameter+.-_', options: $options);
-      $oForm->add_obj('restore_submit', 'dbx|button-submit', data: 'label=' . $texts->get_fd_message('action_restore_start'));
+      $o_form->add_fld('server', 'text-label', label: $texts->get_fd_message('column_server'), rules: 'parameter');
+      $o_form->add_fld('table', 'text-label', label: $texts->get_fd_message('column_table'), rules: 'parameter');
+      $o_form->add_fld('backup_file', 'select-single-label', label: $texts->get_fd_message('label_backup'), rules: 'parameter+.-_', options: $options);
+      $o_form->add_obj('restore_submit', 'dbx|button-submit', data: 'label=' . $texts->get_fd_message('action_restore_start'));
 
-      if ($oForm->submit() && !$oForm->errors()) {
-         dbx()->set_modul_var('backup_file', $oForm->get_post('backup_file', 'latest', 'parameter+.-_'));
+      if ($o_form->submit() && !$o_form->errors()) {
+         dbx()->set_modul_var('backup_file', $o_form->get_post('backup_file', 'latest', 'parameter+.-_'));
          dbx()->set_modul_var('start', 1);
          return $this->run_restore_db_table();
       }
 
-      return $oForm->run();
+      return $o_form->run();
    }
 
 
 
    /**
-    * Fuehrt den Restore einer Tabelle aus einer Backup-Datei aus.
+    * Führt den Restore einer Tabelle aus einer Backup-Datei aus.
     *
     * @return string
     */

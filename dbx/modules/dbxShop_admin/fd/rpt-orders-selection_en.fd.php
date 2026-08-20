@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Orders';
 $messages['bar_subtitle'] = 'Shop and channel orders';
 $messages['report_info'] = 'Search and review orders and edit their status.';

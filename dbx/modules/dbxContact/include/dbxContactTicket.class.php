@@ -25,7 +25,7 @@ class dbxContactTicket {
       );
    }
 
-   public function openCount(): int {
+   public function open_count(): int {
       $db = dbx()->get_system_obj('dbxDB');
       if (!is_object($db)) {
          return 0;
@@ -35,33 +35,33 @@ class dbxContactTicket {
       return max(0, (int) $count);
    }
 
-   public static function normalizeStatus(string $status, string $fallback = 'open'): string {
+   public static function normalize_status(string $status, string $fallback = 'open'): string {
       return array_key_exists($status, self::statuses()) ? $status : $fallback;
    }
 
-   public static function normalizePriority(string $priority, string $fallback = 'normal'): string {
+   public static function normalize_priority(string $priority, string $fallback = 'normal'): string {
       return array_key_exists($priority, self::priorities()) ? $priority : $fallback;
    }
 
-   public static function ticket($db, int $ticketId): array {
-      if (!is_object($db) || $ticketId <= 0) {
+   public static function ticket($db, int $ticket_id): array {
+      if (!is_object($db) || $ticket_id <= 0) {
          return array();
       }
-      $row = $db->select1(self::DD_TICKET, $ticketId, '*', 0);
+      $row = $db->select1(self::DD_TICKET, $ticket_id, '*', 0);
       return is_array($row) ? $row : array();
    }
 
-   public static function userOwns(array $ticket, int $uid): bool {
+   public static function user_owns(array $ticket, int $uid): bool {
       return $uid > 0 && (int) ($ticket['uid'] ?? 0) === $uid;
    }
 
-   public static function messages($db, int $ticketId, bool $includeInternal = false): array {
-      if (!is_object($db) || $ticketId <= 0) {
+   public static function messages($db, int $ticket_id, bool $include_internal = false): array {
+      if (!is_object($db) || $ticket_id <= 0) {
          return array();
       }
 
-      $where = 'ticket_id = ' . $ticketId;
-      if (!$includeInternal) {
+      $where = 'ticket_id = ' . $ticket_id;
+      if (!$include_internal) {
          $where .= " AND visibility = 'public'";
       }
 
@@ -80,37 +80,37 @@ class dbxContactTicket {
       return is_array($rows) ? $rows : array();
    }
 
-   public static function ensureInitialMessage($db, array $ticket): void {
-      $ticketId = (int) ($ticket['id'] ?? 0);
-      if (!is_object($db) || $ticketId <= 0) {
+   public static function ensure_initial_message($db, array $ticket): void {
+      $ticket_id = (int) ($ticket['id'] ?? 0);
+      if (!is_object($db) || $ticket_id <= 0) {
          return;
       }
       $message = trim((string) ($ticket['message'] ?? ''));
-      $hasRequest = $db->count(
+      $has_request = $db->count(
          self::DD_MESSAGE,
-         "ticket_id = " . $ticketId . " AND message_type = 'request'"
+         "ticket_id = " . $ticket_id . " AND message_type = 'request'"
       ) > 0;
-      if ($message !== '' && !$hasRequest) {
-         self::addMessage($db, $ticketId, array(
+      if ($message !== '' && !$has_request) {
+         self::add_message($db, $ticket_id, array(
             'author_uid' => (int) ($ticket['uid'] ?? 0),
             'author_type' => 'requester',
             'message_type' => 'request',
             'visibility' => 'public',
             'body' => $message,
-            'status_to' => self::normalizeStatus((string) ($ticket['status'] ?? 'open')),
+            'status_to' => self::normalize_status((string) ($ticket['status'] ?? 'open')),
             'create_date' => (string) ($ticket['create_date'] ?? ''),
          ));
       }
 
    }
 
-   public static function addMessage($db, int $ticketId, array $data): int {
-      if (!is_object($db) || $ticketId <= 0) {
+   public static function add_message($db, int $ticket_id, array $data): int {
+      if (!is_object($db) || $ticket_id <= 0) {
          return 0;
       }
 
       $values = array(
-         'ticket_id' => $ticketId,
+         'ticket_id' => $ticket_id,
          'author_uid' => (int) ($data['author_uid'] ?? dbx()->user()),
          'author_type' => (string) ($data['author_type'] ?? 'system'),
          'message_type' => (string) ($data['message_type'] ?? 'message'),
@@ -130,20 +130,20 @@ class dbxContactTicket {
       return $ok > 0 ? (int) $db->get_insert_id() : 0;
    }
 
-   public static function touch($db, int $ticketId, array $values = array()): bool {
-      if (!is_object($db) || $ticketId <= 0) {
+   public static function touch($db, int $ticket_id, array $values = array()): bool {
+      if (!is_object($db) || $ticket_id <= 0) {
          return false;
       }
       $values['last_activity_date'] = date('Y-m-d H:i:s');
-      return $db->update(self::DD_TICKET, $values, $ticketId, 0, 1, 1, 1) === 1;
+      return $db->update(self::DD_TICKET, $values, $ticket_id, 0, 1, 1, 1) === 1;
    }
 
-   public static function statusLabel(string $status): string {
+   public static function status_label(string $status): string {
       $statuses = self::statuses();
       return $statuses[$status] ?? $status;
    }
 
-   public static function priorityLabel(string $priority): string {
+   public static function priority_label(string $priority): string {
       $priorities = self::priorities();
       return $priorities[$priority] ?? $priority;
    }
