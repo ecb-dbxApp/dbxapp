@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Liefert Dateien mit einem zum Dateityp passenden Download-Verhalten aus.
+ */
 class dbxDownload {
 
   function run($dir,$file,$mobile=1) {
@@ -81,4 +84,3 @@ class dbxDownload {
   }
 
 }
-

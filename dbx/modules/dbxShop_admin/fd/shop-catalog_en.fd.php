@@ -1,9 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
-
 $messages['active'] = 'Active';
 $messages['inactive'] = 'Inactive';
 $messages['new'] = 'New';

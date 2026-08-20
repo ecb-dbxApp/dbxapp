@@ -64,7 +64,7 @@ if ($paths === array()) {
     }
 }
 
-$secretPatterns = array(
+$secret_patterns = array(
     '/-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----\s+[A-Za-z0-9+\/=\r\n]{80,}-----END (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/s',
     '/\bgithub_pat_[A-Za-z0-9_]{40,}\b/',
     '/\bgh[pousr]_[A-Za-z0-9]{30,}\b/',
@@ -97,7 +97,7 @@ foreach (array_unique($paths) as $relative) {
     if (!is_string($content)) {
         continue;
     }
-    foreach ($secretPatterns as $pattern) {
+    foreach ($secret_patterns as $pattern) {
         if (preg_match($pattern, $content)) {
             $failures[] = 'Mögliches Secret in: ' . $relative;
             break;
@@ -105,10 +105,10 @@ foreach (array_unique($paths) as $relative) {
     }
 }
 
-$releaseBuilder = $root . '/tools/build-release.php';
-if (is_file($releaseBuilder)) {
-    $releaseBuilderContent = (string)file_get_contents($releaseBuilder);
-    if (str_contains($releaseBuilderContent, "preg_match('#/tests/#'")) {
+$release_builder = $root . '/tools/build-release.php';
+if (is_file($release_builder)) {
+    $release_builder_content = (string)file_get_contents($release_builder);
+    if (str_contains($release_builder_content, "preg_match('#/tests/#'")) {
         $failures[] = 'Kunden-Releases müssen die dbxSelfTest-Vertragstests enthalten.';
     }
 }

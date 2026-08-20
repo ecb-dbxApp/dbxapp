@@ -1,0 +1,36 @@
+{
+    "schema": 1,
+    "id": "local/design/steal",
+    "type": "design",
+    "name": "steal",
+    "title": "Steal",
+    "description": "Lokales, nicht durch den Marktplatz verwaltetes Design.",
+    "descriptions": {
+        "de": "",
+        "en": "",
+        "es": ""
+    },
+    "icon": "bi-palette",
+    "image": "",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "local",
+        "name": "Lokaler Hersteller"
+    },
+    "license": "private",
+    "managed": false,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": []
+    },
+    "permissions": [
+        "presentation"
+    ],
+    "migrations": [],
+    "files": []
+}

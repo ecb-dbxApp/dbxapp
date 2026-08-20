@@ -10,14 +10,6 @@ $contracts = array(
         'Menüinhalte und installationsbezogene Menü-Templates sind Kundendateien',
         'Modulimplementierungen und ihre System-Sourcen sind Produktdateien',
     ),
-    '12_KI_Verbindliche_Regeln.md' => array(
-        'Kundeninhalt und Systemquelle unterscheiden',
-        'Eine Kundenänderung darf nicht durch einen nachfolgenden Produktabgleich oder',
-    ),
-    '27_Installation_Updates_DD_Serverbindungen.md' => array(
-        'Menü-Templates sind Kundendateien',
-        'PHP, DD, FD, JavaScript oder CSS',
-    ),
     'dbx/modules/dbxKi/KI-INSTRUCTIONS.md' => array(
         'Vor jeder Änderung die Zieldatei klassifizieren',
         'nicht durch einen Update-Abgleich überschreiben',

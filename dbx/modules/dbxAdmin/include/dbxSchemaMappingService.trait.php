@@ -29,8 +29,8 @@ trait dbxSchemaMappingServiceTrait {
          $mapping[$source] = $target;
       }
 
-      $oDD = dbx()->get_system_obj('dbxDD');
-      return $oDD->normalize_schema_mapping(
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      return $o_dd->normalize_schema_mapping(
          $mapping,
          $model['source_fields'] ?? array(),
          $model['target_fields'] ?? array()
@@ -126,29 +126,29 @@ trait dbxSchemaMappingServiceTrait {
 
       foreach (($model['target_rows'] ?? array()) as $row) {
          $target = $row['target'] ?? array();
-         $targetName = (string)($row['target_name'] ?? ($target['name'] ?? ''));
-         if ($targetName === '') {
+         $target_name = (string)($row['target_name'] ?? ($target['name'] ?? ''));
+         if ($target_name === '') {
             continue;
          }
 
-         $sourceName = (string)($row['source_name'] ?? '');
+         $source_name = (string)($row['source_name'] ?? '');
          $status = (string)($row['status'] ?? 'new');
 
-         $html .= '<div class="dbx-mapping-target" data-mapping-target="' . $this->esc($targetName) . '" '
+         $html .= '<div class="dbx-mapping-target" data-mapping-target="' . $this->esc($target_name) . '" '
               . 'data-mapping-status="' . $this->esc($status) . '">';
          $html .= '<div class="dbx-mapping-target-main">';
          $html .= '<div class="dbx-mapping-target-title">';
-         $html .= '<span class="dbx-mapping-field-name">' . $this->esc($targetName) . '</span>';
+         $html .= '<span class="dbx-mapping-field-name">' . $this->esc($target_name) . '</span>';
          $html .= $this->mapping_status_label($status);
          $html .= '</div>';
          $html .= '<span class="dbx-mapping-field-meta">' . $this->esc($this->field_type_label($target)) . '</span>';
          $html .= '</div>';
 
-         $html .= '<div class="dbx-mapping-drop" data-mapping-drop="' . $this->esc($targetName) . '">';
-         $html .= '<select class="form-select form-select-sm" name="schema_map[' . $this->esc($targetName) . ']" '
-              . 'data-mapping-select data-target="' . $this->esc($targetName) . '" '
-              . 'data-auto-source="' . $this->esc($sourceName) . '">';
-         $html .= $this->source_options_html($sources, $sourceName);
+         $html .= '<div class="dbx-mapping-drop" data-mapping-drop="' . $this->esc($target_name) . '">';
+         $html .= '<select class="form-select form-select-sm" name="schema_map[' . $this->esc($target_name) . ']" '
+              . 'data-mapping-select data-target="' . $this->esc($target_name) . '" '
+              . 'data-auto-source="' . $this->esc($source_name) . '">';
+         $html .= $this->source_options_html($sources, $source_name);
          $html .= '</select>';
          $html .= '<button type="button" class="btn btn-sm btn-outline-secondary" data-mapping-clear-row data-dbx-tooltip="'
               . $this->esc($texts->get_fd_message('mapping_clear_assignment')) . '">'
@@ -178,11 +178,11 @@ trait dbxSchemaMappingServiceTrait {
       $texts = $this->schema_texts();
       $kind = (string)($model['kind'] ?? 'dd_to_db');
       $mapping = $model['mapping'] ?? array();
-      $sourceCount = count($model['source_fields'] ?? array());
-      $targetCount = count($model['target_fields'] ?? array());
-      $mappedCount = count($mapping);
+      $source_count = count($model['source_fields'] ?? array());
+      $target_count = count($model['target_fields'] ?? array());
+      $mapped_count = count($mapping);
       $file = (string)($model['file'] ?? '');
-      $fileLabel = $file !== '' ? $this->path_rel($file) : '';
+      $file_label = $file !== '' ? $this->path_rel($file) : '';
       $updated = (string)($model['updated_at'] ?? '');
 
       $html = '<div class="dbx-schema-mapping" data-dbx="lib=mapping" data-mapping-root="1">';
@@ -198,7 +198,7 @@ trait dbxSchemaMappingServiceTrait {
       $html .= '</div>';
 
       $html .= '<div class="dbx-mapping-tools">';
-      $html .= '<span class="badge bg-secondary" data-mapping-count="mapped">' . $this->esc($mappedCount . ' / ' . $targetCount) . '</span>';
+      $html .= '<span class="badge bg-secondary" data-mapping-count="mapped">' . $this->esc($mapped_count . ' / ' . $target_count) . '</span>';
       $html .= '<button type="button" class="btn btn-outline-primary" data-mapping-action="auto" data-dbx-tooltip="'
          . $this->esc($texts->get_fd_message('mapping_auto'))
          . '"><i class="bi bi-magic"></i></button>';
@@ -210,15 +210,15 @@ trait dbxSchemaMappingServiceTrait {
 
       $html .= '<div class="dbx-mapping-meta">';
       $html .= '<span>' . $this->esc($texts->get_fd_message('mapping_source'))
-         . ': ' . $this->esc((string)$sourceCount) . '</span>';
+         . ': ' . $this->esc((string)$source_count) . '</span>';
       $html .= '<span>' . $this->esc($texts->get_fd_message('mapping_target'))
-         . ': ' . $this->esc((string)$targetCount) . '</span>';
+         . ': ' . $this->esc((string)$target_count) . '</span>';
       if ($updated !== '') {
          $html .= '<span>' . $this->esc($texts->get_fd_message('mapping_saved_at'))
             . ': ' . $this->esc($updated) . '</span>';
       }
-      if ($fileLabel !== '') {
-         $html .= '<span class="dbx-mapping-file">' . $this->esc($fileLabel) . '</span>';
+      if ($file_label !== '') {
+         $html .= '<span class="dbx-mapping-file">' . $this->esc($file_label) . '</span>';
       }
       $html .= '</div>';
 
@@ -227,7 +227,7 @@ trait dbxSchemaMappingServiceTrait {
       $html .= '<header><span>'
          . $this->esc($texts->get_fd_message('mapping_source'))
          . '</span><span class="badge bg-light text-dark">'
-         . $this->esc((string)$sourceCount) . '</span></header>';
+         . $this->esc((string)$source_count) . '</span></header>';
       $html .= '<div class="dbx-mapping-source-list">' . $this->render_source_items($model['source_fields'] ?? array(), $mapping) . '</div>';
       $html .= '</section>';
 
@@ -237,7 +237,7 @@ trait dbxSchemaMappingServiceTrait {
       $html .= '<header><span>'
          . $this->esc($texts->get_fd_message('mapping_target'))
          . '</span><span class="badge bg-light text-dark">'
-         . $this->esc((string)$targetCount) . '</span></header>';
+         . $this->esc((string)$target_count) . '</span></header>';
       $html .= '<div class="dbx-mapping-target-list">' . $this->render_mapping_rows($model) . '</div>';
       $html .= '</section>';
       $html .= '</div>';
@@ -328,14 +328,14 @@ trait dbxSchemaMappingServiceTrait {
     * @return array
     */
    private function get_sync_plan($modul, $dd) {
-      $oDD = dbx()->get_system_obj('dbxDD');
-      return $oDD->sync_dd_to_db($modul, $dd, 'plan');
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      return $o_dd->sync_dd_to_db($modul, $dd, 'plan');
    }
 
 
 
    /**
-    * Fuehrt den DD-nach-DB-Sync-Prozess aus.
+    * Führt den DD-nach-DB-Sync-Prozess aus.
     *
     * @return string
     */
@@ -345,30 +345,30 @@ trait dbxSchemaMappingServiceTrait {
       $mode  = dbx()->get_modul_var('mode', 'apply', 'parameter');
       $reset = dbx()->get_modul_var('reset', 0, 'int');
       $cmd   = dbx()->get_modul_var('proc_cmd', '', 'parameter');
-      $oDD   = dbx()->get_system_obj('dbxDD');
+      $o_dd   = dbx()->get_system_obj('dbxDD');
 
       if (!$dd) {
          return '<div class="alert alert-danger">DD fehlt.</div>';
       }
 
       if ($reset) {
-         $oDD->sync_dd_to_db($modul, $dd, 'reset');
+         $o_dd->sync_dd_to_db($modul, $dd, 'reset');
       }
 
-      $nextUrl = $this->build_url('dd', 'sync_dd_to_db', array(
+      $next_url = $this->build_url('dd', 'sync_dd_to_db', array(
          'modul' => $modul,
          'dd'    => $dd,
          'mode'  => $mode,
       ));
 
       if ($cmd && in_array($cmd, array('pause', 'resume', 'continue', 'cancel'), true)) {
-         $state = $oDD->sync_dd_to_db($modul, $dd, $cmd);
-         return $this->render_process('DD -> DB: ' . $modul . '|' . $dd, $state, $nextUrl, $this->build_url('dd', 'list_dd'));
+         $state = $o_dd->sync_dd_to_db($modul, $dd, $cmd);
+         return $this->render_process('DD -> DB: ' . $modul . '|' . $dd, $state, $next_url, $this->build_url('dd', 'list_dd'));
       }
 
-      $state = $oDD->sync_dd_to_db($modul, $dd, $mode);
+      $state = $o_dd->sync_dd_to_db($modul, $dd, $mode);
 
-      $content = $this->render_process('DD -> DB: ' . $modul . '|' . $dd, $state, $nextUrl, $this->build_url('dd', 'list_dd'));
+      $content = $this->render_process('DD -> DB: ' . $modul . '|' . $dd, $state, $next_url, $this->build_url('dd', 'list_dd'));
 
       if (($state['status'] ?? '') == 'error' && strpos((string)($state['message'] ?? ''), 'rebuild needed') !== false) {
          $force = $this->build_url('dd', 'sync_dd_to_db', array(
@@ -386,7 +386,7 @@ trait dbxSchemaMappingServiceTrait {
 
 
    /**
-    * Fuehrt den DB-nach-DD-Sync-Prozess aus.
+    * Führt den DB-nach-DD-Sync-Prozess aus.
     *
     * @return string
     */
@@ -407,12 +407,12 @@ trait dbxSchemaMappingServiceTrait {
          return $this->form_db_to_dd($server, $table);
       }
 
-      $oDD = dbx()->get_system_obj('dbxDD');
+      $o_dd = dbx()->get_system_obj('dbxDD');
       if ($reset) {
-         $oDD->sync_db_to_dd($modul, $dd, 'reset', $server, $table);
+         $o_dd->sync_db_to_dd($modul, $dd, 'reset', $server, $table);
       }
 
-      $nextUrl = $this->build_url('db', 'sync_db_to_dd', array(
+      $next_url = $this->build_url('db', 'sync_db_to_dd', array(
          'server' => $server,
          'table'  => $table,
          'modul'  => $modul,
@@ -421,13 +421,13 @@ trait dbxSchemaMappingServiceTrait {
       ));
 
       if ($cmd && in_array($cmd, array('pause', 'resume', 'continue', 'cancel'), true)) {
-         $state = $oDD->sync_db_to_dd($modul, $dd, $cmd, $server, $table);
-         return $this->render_process('DB -> DD: ' . $server . '|' . $table . ' -> ' . $modul . '|' . $dd, $state, $nextUrl, $this->build_url('db', 'list_db'));
+         $state = $o_dd->sync_db_to_dd($modul, $dd, $cmd, $server, $table);
+         return $this->render_process('DB -> DD: ' . $server . '|' . $table . ' -> ' . $modul . '|' . $dd, $state, $next_url, $this->build_url('db', 'list_db'));
       }
 
-      $state = $oDD->sync_db_to_dd($modul, $dd, $mode, $server, $table);
+      $state = $o_dd->sync_db_to_dd($modul, $dd, $mode, $server, $table);
 
-      return $this->render_process('DB -> DD: ' . $server . '|' . $table . ' -> ' . $modul . '|' . $dd, $state, $nextUrl, $this->build_url('db', 'list_db'));
+      return $this->render_process('DB -> DD: ' . $server . '|' . $table . ' -> ' . $modul . '|' . $dd, $state, $next_url, $this->build_url('db', 'list_db'));
    }
 
 
@@ -440,41 +440,41 @@ trait dbxSchemaMappingServiceTrait {
     * @return string
     */
    private function form_db_to_dd($server, $table) {
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-schema-action');
-      $oForm->_fd = 'dbxAdmin|schema-report';
-      $oForm->load_fd_messages();
-      $oForm->_data = array(
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-schema-action', 'form-schema-action');
+      $o_form->set_field_definition('dbxAdmin|schema-report');
+      $o_form->load_fd_messages();
+      $o_form->set_data(array(
          'server' => $server,
          'table'  => $table,
          'modul'  => 'dbx',
          'dd'     => $this->sanitize_dd_name($table),
-      );
-      $oForm->_action = $this->build_url('db', 'sync_db_to_dd', array(
+      ));
+      $o_form->set_action($this->build_url('db', 'sync_db_to_dd', array(
          'server' => $server,
          'table'  => $table,
-      ));
-      $oForm->_msg_info = $oForm->get_fd_message('db_to_dd_info');
+      )));
+      $o_form->_msg_info = $o_form->get_fd_message('db_to_dd_info');
 
-      $oForm->add_fld('server', 'hidden', rules: 'parameter');
-      $oForm->add_fld('table', 'hidden', rules: 'parameter');
-      $oForm->add_fld(
+      $o_form->add_fld('server', 'hidden', rules: 'parameter');
+      $o_form->add_fld('table', 'hidden', rules: 'parameter');
+      $o_form->add_fld(
          'modul',
          'select-single-label',
-         label: $oForm->get_fd_message('label_module'),
+         label: $o_form->get_fd_message('label_module'),
          rules: 'parameter',
          options: $this->get_module_options()
       );
-      $oForm->add_fld(
+      $o_form->add_fld(
          'dd',
          'text-label',
-         label: $oForm->get_fd_message('column_dd'),
+         label: $o_form->get_fd_message('column_dd'),
          rules: 'parameter|min=1'
       );
 
-      if ($oForm->submit() && !$oForm->errors()) {
-         $modul = $oForm->get_post('modul', 'dbx', 'parameter');
-         $dd = $this->sanitize_dd_name($oForm->get_post('dd', $table, 'parameter'));
+      if ($o_form->submit() && !$o_form->errors()) {
+         $modul = $o_form->get_post('modul', 'dbx', 'parameter');
+         $dd = $this->sanitize_dd_name($o_form->get_post('dd', $table, 'parameter'));
 
          dbx()->set_modul_var('modul', $modul);
          dbx()->set_modul_var('dd', $dd);
@@ -484,7 +484,7 @@ trait dbxSchemaMappingServiceTrait {
          return $this->run_sync_db_to_dd();
       }
 
-      return $oForm->run();
+      return $o_form->run();
    }
 
 
@@ -508,7 +508,7 @@ trait dbxSchemaMappingServiceTrait {
             . '</div>';
       }
 
-      $oDD = dbx()->get_system_obj('dbxDD');
+      $o_dd = dbx()->get_system_obj('dbxDD');
       $context = array(
          'modul'  => $modul,
          'dd'     => $dd,
@@ -516,14 +516,22 @@ trait dbxSchemaMappingServiceTrait {
          'table'  => $table,
       );
 
-      $model = $oDD->build_schema_mapping($kind, $context);
+      $model = $o_dd->build_schema_mapping($kind, $context);
 
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oForm->init('schema-mapping');
-      $oForm->_fd = 'dbxAdmin|schema-report';
-      $oForm->load_fd_messages();
-      $oForm->_msg_info = '';
-      $oForm->_action = $this->build_url(($kind == 'db_to_dd') ? 'db' : 'dd', 'mapping', array(
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_form->init('schema-mapping', 'schema-mapping');
+      $o_form->set_field_definition('dbxAdmin|schema-report');
+      $o_form->load_fd_messages();
+      $o_form->_msg_info = '';
+      $o_form->set_action($this->build_url(($kind == 'db_to_dd') ? 'db' : 'dd', 'mapping', array(
+         'kind'   => $kind,
+         'modul'  => $modul,
+         'dd'     => $dd,
+         'server' => $server,
+         'table'  => $table,
+      )));
+
+      $o_form->set_data(array(
          'kind'   => $kind,
          'modul'  => $modul,
          'dd'     => $dd,
@@ -531,44 +539,36 @@ trait dbxSchemaMappingServiceTrait {
          'table'  => $table,
       ));
 
-      $oForm->_data = array(
-         'kind'   => $kind,
-         'modul'  => $modul,
-         'dd'     => $dd,
-         'server' => $server,
-         'table'  => $table,
-      );
+      $o_form->add_fld('kind', 'hidden', rules: 'parameter');
+      $o_form->add_fld('modul', 'hidden', rules: 'parameter');
+      $o_form->add_fld('dd', 'hidden', rules: 'parameter');
+      $o_form->add_fld('server', 'hidden', rules: 'parameter');
+      $o_form->add_fld('table', 'hidden', rules: 'parameter');
 
-      $oForm->add_fld('kind', 'hidden', rules: 'parameter');
-      $oForm->add_fld('modul', 'hidden', rules: 'parameter');
-      $oForm->add_fld('dd', 'hidden', rules: 'parameter');
-      $oForm->add_fld('server', 'hidden', rules: 'parameter');
-      $oForm->add_fld('table', 'hidden', rules: 'parameter');
-
-      if ($oForm->submit() && !$oForm->errors()) {
+      if ($o_form->submit() && !$o_form->errors()) {
          $mapping = $this->posted_mapping_from_model($model);
-         $ok = $oDD->save_schema_mapping($kind, $model['context'] ?? $context, $mapping);
+         $ok = $o_dd->save_schema_mapping($kind, $model['context'] ?? $context, $mapping);
 
          if ($ok) {
-            $oForm->_msg_success = $oForm->get_fd_message('mapping_saved');
-            $model = $oDD->build_schema_mapping($kind, $model['context'] ?? $context);
+            $o_form->_msg_success = $o_form->get_fd_message('mapping_saved');
+            $model = $o_dd->build_schema_mapping($kind, $model['context'] ?? $context);
          } else {
-            $oForm->_msg_error = $oForm->get_fd_message('mapping_save_error');
+            $o_form->_msg_error = $o_form->get_fd_message('mapping_save_error');
          }
       }
 
-      $oForm->add_obj('mapping_board', 'obj-value', $this->render_mapping_board($model));
-      $oForm->add_obj('save_button', 'obj-value',
+      $o_form->add_obj('mapping_board', 'obj-value', $this->render_mapping_board($model));
+      $o_form->add_obj('save_button', 'obj-value',
          '<button type="submit" class="btn btn-primary" data-dbx-tooltip="'
-            . $this->esc($oForm->get_fd_message('action_save'))
+            . $this->esc($o_form->get_fd_message('action_save'))
             . '"><i class="bi bi-save"></i></button>'
       );
-      $oForm->add_obj('back_button', 'obj-value',
+      $o_form->add_obj('back_button', 'obj-value',
          '<a class="btn btn-secondary" href="' . $this->esc($this->build_url(($kind == 'db_to_dd') ? 'db' : 'dd', ($kind == 'db_to_dd') ? 'list_db' : 'list_dd')) . '" title="'
-            . $this->esc($oForm->get_fd_message('action_back'))
+            . $this->esc($o_form->get_fd_message('action_back'))
             . '"><i class="bi bi-arrow-left"></i></a>'
       );
 
-      return $oForm->run();
+      return $o_form->run();
    }
 }

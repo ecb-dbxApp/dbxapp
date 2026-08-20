@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const cmsFile = path.resolve(__dirname, "../../../js/lib/cms.js");
+const cmsFile = path.resolve(__dirname, "../../../modules/dbxContent_admin/js/cms.js");
 const source = fs.readFileSync(cmsFile, "utf8");
 const match = source.match(/function mediaSlotMatchesBox\([^)]*\) \{[\s\S]*?\n    \}/);
 

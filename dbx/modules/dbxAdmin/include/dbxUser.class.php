@@ -1,16 +1,17 @@
 <?php
+
 namespace dbx\dbxAdmin;
 
-dbx()->use_system_class('dbxReport');
+require_once dirname(__DIR__, 3) . '/include/dbxPasswordPolicy.class.php';
 
-class dbxReport_AdminUser extends \dbxReport {
-}
+dbx()->get_system_obj('dbxReport', 'use');
+require_once __DIR__ . '/dbxReport_AdminUser.class.php';
 
 class dbxUser {
 
-   private string $ddUser = 'dbxUser';
-   private string $ddGroup = 'dbxUser_groups';
-   private string $actionError = '';
+   private string $dd_user = 'dbxUser';
+   private string $dd_group = 'dbxUser_groups';
+   private string $action_error = '';
 
    private function url($run2, $params = array()) {
       return dbx()->append_url_params(
@@ -21,9 +22,9 @@ class dbxUser {
 
    private function action_url($run2, $params = array()) {
       $url = $this->url($run2, $params);
-      $securedUrl = dbx()->action_url($url);
-      if ($securedUrl !== $url) {
-         return $securedUrl;
+      $secured_url = dbx()->action_url($url);
+      if ($secured_url !== $url) {
+         return $secured_url;
       }
 
       $do = (string)($params['dbx_do'] ?? $params['dbx_run3'] ?? 'action');
@@ -49,7 +50,7 @@ class dbxUser {
       }
 
       $message = $texts->get_fd_message('token_error');
-      $this->actionError = $message;
+      $this->action_error = $message;
       dbx()->sys_msg('security', 'dbxAdmin', dbx()->user(), 'invalid admin user action token', $_SERVER['REQUEST_URI'] ?? '');
       return false;
    }
@@ -65,9 +66,9 @@ class dbxUser {
 
    private function modal_button($url, $icon, $title, $class = 'btn-outline-primary', $label = '', $size = 'btn-sm') {
       $size = trim((string)$size);
-      $sizeClass = $size !== '' ? $size . ' ' : '';
+      $size_class = $size !== '' ? $size . ' ' : '';
       $text = $label !== '' ? ' ' . dbx()->esc($label) : '';
-      return '<a class="btn dbx-win ' . $sizeClass . dbx()->esc($class) . ' me-1" href="' . dbx()->esc($url) . '" '
+      return '<a class="btn dbx-win ' . $size_class . dbx()->esc($class) . ' me-1" href="' . dbx()->esc($url) . '" '
            . 'data-url="' . dbx()->esc($url) . '" data-title="' . dbx()->esc($title) . '" role="button" title="' . dbx()->esc($title) . '">'
            . '<i class="' . dbx()->esc($icon) . '"></i>' . $text . '</a>';
    }
@@ -91,7 +92,7 @@ class dbxUser {
       );
 
       $db = dbx()->get_system_obj('dbxDB');
-      $groups = $db->select($this->ddGroup, '', array('name', 'description', 'active'), 'name', 'ASC', '', 0, 0, 0);
+      $groups = $db->select($this->dd_group, '', array('name', 'description', 'active'), 'name', 'ASC', '', 0, 0, 0);
       if (is_array($groups)) {
          foreach ($groups as $group) {
             $name = trim((string)($group['name'] ?? ''));
@@ -196,10 +197,10 @@ class dbxUser {
 
    private function stats_html($texts) {
       $db = dbx()->get_system_obj('dbxDB');
-      $all = (int)$db->count($this->ddUser);
-      $active = (int)$db->count($this->ddUser, 'status = 1');
-      $locked = (int)$db->count($this->ddUser, 'status = 0');
-      $verified = (int)$db->count($this->ddUser, 'is_confirm = 1');
+      $all = (int)$db->count($this->dd_user);
+      $active = (int)$db->count($this->dd_user, 'status = 1');
+      $locked = (int)$db->count($this->dd_user, 'status = 0');
+      $verified = (int)$db->count($this->dd_user, 'is_confirm = 1');
 
       $items = array(
          array('label' => $texts->get_fd_message('stat_users'), 'value' => $all, 'class' => 'primary', 'filter' => ''),
@@ -236,13 +237,13 @@ class dbxUser {
    }
 
    /**
-    * Prueft die beiden Passwortfelder beim Anlegen oder Bearbeiten.
+    * Prüft die beiden Passwortfelder beim Anlegen oder Bearbeiten.
     * Leere Felder sind nur bei bestehenden Benutzern erlaubt.
     *
     * @return array{change:bool,field:string,message:string}
     */
-   private function validate_password_change(bool $isNew, string $password, string $repeat, $texts): array {
-      if (!$isNew && $password === '' && $repeat === '') {
+   private function validate_password_change(bool $is_new, string $password, string $repeat, $texts): array {
+      if (!$is_new && $password === '' && $repeat === '') {
          return array('change' => false, 'field' => '', 'message' => '');
       }
       if ($password === '') {
@@ -397,7 +398,7 @@ class dbxUser {
             $message = $texts->get_fd_message('delete_protected');
             return '';
          }
-         $ok = $db->delete($this->ddUser, $rid);
+         $ok = $db->delete($this->dd_user, $rid);
          $message = $ok
             ? $texts->get_fd_message('delete_success')
             : $texts->get_fd_message('delete_error');
@@ -422,16 +423,16 @@ class dbxUser {
          $data['status'] = 1;
       }
       if ($do === 'reset_password') {
-         $newPassword = dbx()->new_password(12);
-         $data['pass'] = password_hash($newPassword, PASSWORD_DEFAULT);
+         $new_password = dbxPasswordPolicy::generate(12);
+         $data['pass'] = password_hash($new_password, PASSWORD_DEFAULT);
       }
 
       if ($data) {
-         $ok = $db->update($this->ddUser, $data, $rid);
+         $ok = $db->update($this->dd_user, $data, $rid);
          if ($ok && $do === 'reset_password') {
             $message = $texts->format_fd_message(
                'reset_password',
-               array('id' => $rid, 'password' => $newPassword)
+               array('id' => $rid, 'password' => $new_password)
             );
          } else {
             $message = $ok
@@ -464,29 +465,29 @@ class dbxUser {
    private function report_users() {
       $message = '';
       $db = dbx()->get_system_obj('dbxDB');
-      $oReport = new dbxReport_AdminUser;
-      $oReport->init('report-admin-user', 'report-admin-user');
-      $oReport->_fd = 'dbxAdmin|rpt-admin-user-selection';
-      $oReport->load_fd_messages();
-      $content = $this->handle_user_action($message, $oReport);
+      $o_report = new dbxReport_AdminUser;
+      $o_report->init('report-admin-user', 'report-admin-user');
+      $o_report->set_field_definition('dbxAdmin|rpt-admin-user-selection');
+      $o_report->load_fd_messages();
+      $content = $this->handle_user_action($message, $o_report);
       if ($content !== '') {
          return $content;
       }
-      $oReport->add_rep('frame_use_form', '0');
-      $oReport->add_rep('report_shell_class', 'dbx-admin-users');
-      $oReport->add_rep('report_shell_attrs', 'data-dbx="lib=report|form=0"');
-      $oReport->_dd = $this->ddUser;
-      $oReport->_action = $this->url('list_user');
-      $oReport->_pages = true;
-      $oReport->_create_row_select = true;
-      $oReport->_create_row_edit = false;
-      $oReport->_create_row_delete = false;
-      $oReport->_create_sel_flds = true;
-      $oReport->_but_pagination = 7;
-      $oReport->_fld_id = 'id';
-      $oReport->_data = array('dbx_rrows' => 25, 'dbx_rsort' => 'id', 'dbx_rdesc' => 'ASC');
-      $oReport->_msg_info = '';
-      $oReport->_rpt_format = array(
+      $o_report->add_rep('frame_use_form', '0');
+      $o_report->add_rep('report_shell_class', 'dbx-admin-users');
+      $o_report->add_rep('report_shell_attrs', 'data-dbx="lib=report|form=0"');
+      $o_report->set_data_definition($this->dd_user);
+      $o_report->set_action($this->url('list_user'));
+      $o_report->_pages = true;
+      $o_report->_create_row_select = true;
+      $o_report->_create_row_edit = false;
+      $o_report->_create_row_delete = false;
+      $o_report->_create_sel_flds = true;
+      $o_report->_but_pagination = 7;
+      $o_report->_fld_id = 'id';
+      $o_report->set_data(array('dbx_rrows' => 25, 'dbx_rsort' => 'id', 'dbx_rdesc' => 'ASC'));
+      $o_report->_msg_info = '';
+      $o_report->_rpt_format = array(
          'id' => 'html-chars',
          'uname' => 'html-chars',
          'name' => 'html-chars',
@@ -501,45 +502,45 @@ class dbxUser {
          'update_date' => 'php-datetime-usr',
       );
 
-      $newUserBtn = $this->modal_button(
+      $new_user_btn = $this->modal_button(
          $this->url('edit_user', array('rid' => 'new')),
          'bi bi-person-plus',
-         $oReport->get_fd_message('new_user'),
+         $o_report->get_fd_message('new_user'),
          'btn-success',
-         $oReport->get_fd_message('new_user'),
+         $o_report->get_fd_message('new_user'),
          ''
       );
-      $oReport->add_obj('new_user', 'obj-value', $newUserBtn);
-      $oReport->add_obj('bar_actions', 'obj-value', $newUserBtn);
-      $oReport->add_obj('stats', 'obj-value', $this->stats_html($oReport));
-      $oReport->add_obj('tabs', 'obj-value', $this->nav_html('users', $oReport));
-      $oReport->add_obj('rows_delete', 'obj-value', '');
-      $oReport->create_selection_fields('dbxAdmin|rpt-admin-user-selection');
+      $o_report->add_obj('new_user', 'obj-value', $new_user_btn);
+      $o_report->add_obj('bar_actions', 'obj-value', $new_user_btn);
+      $o_report->add_obj('stats', 'obj-value', $this->stats_html($o_report));
+      $o_report->add_obj('tabs', 'obj-value', $this->nav_html('users', $o_report));
+      $o_report->add_obj('rows_delete', 'obj-value', '');
+      $o_report->create_selection_fields('dbxAdmin|rpt-admin-user-selection');
 
       if ($message !== '') {
-         if ($this->actionError !== '') {
-            $oReport->_msg_error = $message;
+         if ($this->action_error !== '') {
+            $o_report->_msg_error = $message;
          } else {
-            $oReport->_msg_success = $message;
+            $o_report->_msg_success = $message;
          }
       }
 
-      if ($oReport->submit()) {
-         if (!$oReport->errors()) {
-            $oReport->_msg_success = $message ?: '';
+      if ($o_report->submit()) {
+         if (!$o_report->errors()) {
+            $o_report->_msg_success = $message ?: '';
          } else {
-            $oReport->_msg_error = $oReport->get_fd_message(
+            $o_report->_msg_error = $o_report->get_fd_message(
                'validation_error'
             );
          }
       }
 
-      $search = $oReport->get_fld_val('dbx_rwhere', '', 'sqlsearch|max=64');
-      $rrows  = $oReport->get_fld_val('dbx_rrows', 25, 'int');
-      $rpos   = $oReport->get_fld_val('dbx_rpos', 0, 'int');
-      $rsort  = $oReport->get_fld_val('dbx_rsort', 'id', 'parameter');
-      $rdesc  = $oReport->get_fld_val('dbx_rdesc', 'ASC', 'parameter');
-      $select = $oReport->get_fld_val('dbx_rselect', 0, 'int');
+      $search = $o_report->get_fld_val('dbx_rwhere', '', 'sqlsearch|max=64');
+      $rrows  = $o_report->get_fld_val('dbx_rrows', 25, 'int');
+      $rpos   = $o_report->get_fld_val('dbx_rpos', 0, 'int');
+      $rsort  = $o_report->get_fld_val('dbx_rsort', 'id', 'parameter');
+      $rdesc  = $o_report->get_fld_val('dbx_rdesc', 'ASC', 'parameter');
+      $select = $o_report->get_fld_val('dbx_rselect', 0, 'int');
       $filter = dbx()->get_modul_var('filter', '', 'parameter');
 
       $where = array();
@@ -567,38 +568,38 @@ class dbxUser {
       }
       if ($select) {
          if (is_array($where)) {
-            $where = $db->normalize_where($this->ddUser, $where);
+            $where = $db->normalize_where($this->dd_user, $where);
          }
-         $where = $oReport->add_rwhere_select($where);
+         $where = $o_report->add_rwhere_select($where);
       }
 
-      $dbFields = array('id', 'uname', 'name', 'name2', 'email', 'roles', 'is_confirm', 'status', 'language', 'design', 'color', 'lastvisit', 'update_date');
+      $db_fields = array('id', 'uname', 'name', 'name2', 'email', 'roles', 'is_confirm', 'status', 'language', 'design', 'color', 'lastvisit', 'update_date');
       $flds = array(
          'id'         => 'ID',
-         'user'       => $oReport->get_fd_message('column_user'),
-         'roles_view' => $oReport->get_fd_message('column_roles'),
-         'verified'   => $oReport->get_fd_message('column_verified'),
-         'login'      => $oReport->get_fd_message('column_login'),
-         'profile'    => $oReport->get_fd_message('column_profile'),
-         'lastvisit'  => $oReport->get_fd_message('column_last_visit'),
-         'update_date'=> $oReport->get_fd_message('column_updated'),
-         'ops'        => $oReport->get_fd_message('column_actions'),
+         'user'       => $o_report->get_fd_message('column_user'),
+         'roles_view' => $o_report->get_fd_message('column_roles'),
+         'verified'   => $o_report->get_fd_message('column_verified'),
+         'login'      => $o_report->get_fd_message('column_login'),
+         'profile'    => $o_report->get_fd_message('column_profile'),
+         'lastvisit'  => $o_report->get_fd_message('column_last_visit'),
+         'update_date'=> $o_report->get_fd_message('column_updated'),
+         'ops'        => $o_report->get_fd_message('column_actions'),
       );
 
-      $oReport->_rflds = $flds;
-      $oReport->_rrows = $rrows;
-      $oReport->_rpos = $rpos;
-      $oReport->_count_all = $db->count($this->ddUser);
-      $oReport->_rcount = $db->count($this->ddUser, $where);
-      $rows = $db->select($this->ddUser, $where, $dbFields, $rsort, $rdesc, '', $rrows, $rpos, 0);
-      $oReport->_rdata = $this->decorate_users($rows, $oReport);
+      $o_report->_rflds = $flds;
+      $o_report->_rrows = $rrows;
+      $o_report->_rpos = $rpos;
+      $o_report->_count_all = $db->count($this->dd_user);
+      $o_report->_rcount = $db->count($this->dd_user, $where);
+      $rows = $db->select($this->dd_user, $where, $db_fields, $rsort, $rdesc, '', $rrows, $rpos, 0);
+      $o_report->_rdata = $this->decorate_users($rows, $o_report);
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
    private function edit_user($rid = 'new') {
       $db = dbx()->get_system_obj('dbxDB');
-      $isNew = ($rid === 'new' || !$rid);
+      $is_new = ($rid === 'new' || !$rid);
       $data = array(
          'status' => 1,
          'is_confirm' => 1,
@@ -610,155 +611,155 @@ class dbxUser {
          'settings' => '{}',
       );
 
-      if (!$isNew) {
-         $record = $db->select1($this->ddUser, (int)$rid, '*', 0);
+      if (!$is_new) {
+         $record = $db->select1($this->dd_user, (int)$rid, '*', 0);
          if (is_array($record)) {
             $data = array_merge($data, $record);
          }
       }
 
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-admin-user');
-      $oForm->_fd = 'dbxAdmin|rpt-admin-user-selection';
-      $oForm->load_fd_messages();
-      $oForm->add_module_bar(
-         $oForm->get_fd_message(
-            $isNew ? 'form_new_title' : 'form_edit_title'
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-admin-user', 'form-admin-user');
+      $o_form->set_field_definition('dbxAdmin|rpt-admin-user-selection');
+      $o_form->load_fd_messages();
+      $o_form->add_module_bar(
+         $o_form->get_fd_message(
+            $is_new ? 'form_new_title' : 'form_edit_title'
          ),
          'bi-person-gear',
-         $oForm->get_fd_message(
-            $isNew ? 'form_new_subtitle' : 'form_edit_subtitle'
+         $o_form->get_fd_message(
+            $is_new ? 'form_new_subtitle' : 'form_edit_subtitle'
          ),
          true
       );
-      $oForm->add_module_bar_form_actions(array('save' => true));
-      $oForm->_dd = $this->ddUser;
-      $oForm->_fld_id = 'id';
-      $oForm->_data = $data;
-      $oForm->_msg_info = $oForm->get_fd_message(
-         $isNew ? 'form_new_info' : 'form_edit_info'
+      $o_form->add_module_bar_form_actions(array('save' => true));
+      $o_form->set_data_definition($this->dd_user);
+      $o_form->_fld_id = 'id';
+      $o_form->set_data($data);
+      $o_form->_msg_info = $o_form->get_fd_message(
+         $is_new ? 'form_new_info' : 'form_edit_info'
       );
-      $oForm->_action = $this->url('edit_user', array('rid' => ($isNew ? 'new' : (int)$rid)));
-      $oForm->set_activ_id($isNew ? 0 : (int)$rid);
+      $o_form->set_action($this->url('edit_user', array('rid' => ($is_new ? 'new' : (int)$rid))));
+      $o_form->set_activ_id($is_new ? 0 : (int)$rid);
 
-      $oForm->add_fld('uname', 'text-label', $oForm->get_fd_message('field_login'), 'alphanum|min=4|max=60');
-      $passwordHint = $oForm->get_fd_message(
-         $isNew ? 'password_hint_new' : 'password_hint_edit'
+      $o_form->add_fld('uname', 'text-label', $o_form->get_fd_message('field_login'), 'alphanum|min=4|max=60');
+      $password_hint = $o_form->get_fd_message(
+         $is_new ? 'password_hint_new' : 'password_hint_edit'
       );
-      $oForm->add_fld('password_new', 'password-label', $oForm->get_fd_message('field_password'), 'varchar|max=128', placeholder: $passwordHint);
-      $oForm->add_fld('password_new2', 'password-label', $oForm->get_fd_message('field_password_repeat'), 'varchar|max=128', placeholder: $oForm->get_fd_message('password_repeat_hint'));
-      $oForm->add_fld('name', 'text-label', $oForm->get_fd_message('field_name'), 'parameter|max=255');
-      $oForm->add_fld('name2', 'text-label', $oForm->get_fd_message('field_name2'), 'parameter|max=255');
-      $oForm->add_fld('email', 'text-label', $oForm->get_fd_message('field_email'), 'email|max=255');
-      $oForm->add_fld('roles', 'multi-select', $oForm->get_fd_message('field_roles'), 'array|parameter', data: array('size' => 7), options: $this->role_options($oForm));
-      $oForm->add_fld('status', 'select-single-label', $oForm->get_fd_message('field_login_status'), 'int', options: array(
-         '1' => $oForm->get_fd_message('option_active'),
-         '0' => $oForm->get_fd_message('option_locked'),
-         '2' => $oForm->get_fd_message('option_waiting'),
+      $o_form->add_fld('password_new', 'password-label', $o_form->get_fd_message('field_password'), 'varchar|max=128', placeholder: $password_hint);
+      $o_form->add_fld('password_new2', 'password-label', $o_form->get_fd_message('field_password_repeat'), 'varchar|max=128', placeholder: $o_form->get_fd_message('password_repeat_hint'));
+      $o_form->add_fld('name', 'text-label', $o_form->get_fd_message('field_name'), 'parameter|max=255');
+      $o_form->add_fld('name2', 'text-label', $o_form->get_fd_message('field_name2'), 'parameter|max=255');
+      $o_form->add_fld('email', 'text-label', $o_form->get_fd_message('field_email'), 'email|max=255');
+      $o_form->add_fld('roles', 'multi-select', $o_form->get_fd_message('field_roles'), 'array|parameter', data: array('size' => 7), options: $this->role_options($o_form));
+      $o_form->add_fld('status', 'select-single-label', $o_form->get_fd_message('field_login_status'), 'int', options: array(
+         '1' => $o_form->get_fd_message('option_active'),
+         '0' => $o_form->get_fd_message('option_locked'),
+         '2' => $o_form->get_fd_message('option_waiting'),
       ));
-      $oForm->add_fld('is_confirm', 'select-single-label', $oForm->get_fd_message('field_verified'), 'int', options: array(
-         '1' => $oForm->get_fd_message('option_verified'),
-         '0' => $oForm->get_fd_message('option_open'),
+      $o_form->add_fld('is_confirm', 'select-single-label', $o_form->get_fd_message('field_verified'), 'int', options: array(
+         '1' => $o_form->get_fd_message('option_verified'),
+         '0' => $o_form->get_fd_message('option_open'),
       ));
-      $oForm->add_fld('edit', 'select-single-label', $oForm->get_fd_message('field_editor'), 'int', options: array(
-         '1' => $oForm->get_fd_message('option_yes'),
-         '0' => $oForm->get_fd_message('option_no'),
+      $o_form->add_fld('edit', 'select-single-label', $o_form->get_fd_message('field_editor'), 'int', options: array(
+         '1' => $o_form->get_fd_message('option_yes'),
+         '0' => $o_form->get_fd_message('option_no'),
       ));
-      $oForm->add_fld('language', 'select-single-label', $oForm->get_fd_message('field_language'), 'parameter|max=3', options: array(
-         'de' => $oForm->get_fd_message('language_de'),
-         'en' => $oForm->get_fd_message('language_en'),
-         'es' => $oForm->get_fd_message('language_es'),
+      $o_form->add_fld('language', 'select-single-label', $o_form->get_fd_message('field_language'), 'parameter|max=3', options: array(
+         'de' => $o_form->get_fd_message('language_de'),
+         'en' => $o_form->get_fd_message('language_en'),
+         'es' => $o_form->get_fd_message('language_es'),
       ));
-      $oForm->add_fld('design', 'text-label', $oForm->get_fd_message('field_design'), 'parameter|max=32');
-      $oForm->add_fld('color', 'text-label', $oForm->get_fd_message('field_color'), 'parameter|max=32');
-      $oForm->add_fld('telefon', 'text-label', $oForm->get_fd_message('field_phone'), 'parameter|max=64');
-      $oForm->add_fld('handy', 'text-label', $oForm->get_fd_message('field_mobile'), 'parameter|max=64');
-      $oForm->add_fld('strasse', 'text-label', $oForm->get_fd_message('field_street'), 'parameter|max=255');
-      $oForm->add_fld('plz', 'text-label', $oForm->get_fd_message('field_postcode'), 'parameter|max=16');
-      $oForm->add_fld('ort', 'text-label', $oForm->get_fd_message('field_city'), 'parameter|max=255');
-      $oForm->add_fld('land', 'text-label', $oForm->get_fd_message('field_country'), 'parameter|max=32');
-      $oForm->add_obj('settings_view', 'obj-value', $this->user_settings_view($data, $oForm));
+      $o_form->add_fld('design', 'text-label', $o_form->get_fd_message('field_design'), 'parameter|max=32');
+      $o_form->add_fld('color', 'text-label', $o_form->get_fd_message('field_color'), 'parameter|max=32');
+      $o_form->add_fld('telefon', 'text-label', $o_form->get_fd_message('field_phone'), 'parameter|max=64');
+      $o_form->add_fld('handy', 'text-label', $o_form->get_fd_message('field_mobile'), 'parameter|max=64');
+      $o_form->add_fld('strasse', 'text-label', $o_form->get_fd_message('field_street'), 'parameter|max=255');
+      $o_form->add_fld('plz', 'text-label', $o_form->get_fd_message('field_postcode'), 'parameter|max=16');
+      $o_form->add_fld('ort', 'text-label', $o_form->get_fd_message('field_city'), 'parameter|max=255');
+      $o_form->add_fld('land', 'text-label', $o_form->get_fd_message('field_country'), 'parameter|max=32');
+      $o_form->add_obj('settings_view', 'obj-value', $this->user_settings_view($data, $o_form));
 
-      if ($oForm->submit()) {
-         $password = (string)$oForm->get_post_data('password_new', '', '*');
-         $passwordRepeat = (string)$oForm->get_post_data('password_new2', '', '*');
-         $passwordValidation = $this->validate_password_change($isNew, $password, $passwordRepeat, $oForm);
-         $passwordChanged = (bool)$passwordValidation['change'];
-         if ($passwordValidation['message'] !== '') {
-            $oForm->add_fld_error($passwordValidation['field'], $passwordValidation['message']);
-            $oForm->_msg_error = $passwordValidation['message'];
+      if ($o_form->submit()) {
+         $password = (string)$o_form->get_post_data('password_new', '', '*');
+         $password_repeat = (string)$o_form->get_post_data('password_new2', '', '*');
+         $password_validation = $this->validate_password_change($is_new, $password, $password_repeat, $o_form);
+         $password_changed = (bool)$password_validation['change'];
+         if ($password_validation['message'] !== '') {
+            $o_form->add_fld_error($password_validation['field'], $password_validation['message']);
+            $o_form->_msg_error = $password_validation['message'];
          }
 
-         if (!$oForm->errors()) {
-            $roles = $oForm->get_post('roles', array(), 'array|parameter');
+         if (!$o_form->errors()) {
+            $roles = $o_form->get_post('roles', array(), 'array|parameter');
             if (!is_array($roles)) {
                $roles = array_filter(array_map('trim', explode(',', (string)$roles)));
             }
 
             $values = array(
-               'uname'      => $oForm->get_post('uname', '', 'alphanum|max=60'),
-               'name'       => $oForm->get_post('name', '', 'parameter|max=255'),
-               'name2'      => $oForm->get_post('name2', '', 'parameter|max=255'),
-               'email'      => $oForm->get_post('email', '', 'email|max=255'),
+               'uname'      => $o_form->get_post('uname', '', 'alphanum|max=60'),
+               'name'       => $o_form->get_post('name', '', 'parameter|max=255'),
+               'name2'      => $o_form->get_post('name2', '', 'parameter|max=255'),
+               'email'      => $o_form->get_post('email', '', 'email|max=255'),
                'roles'      => implode(',', array_filter(array_map('trim', $roles))),
-               'status'     => $oForm->get_post('status', 1, 'int'),
-               'is_confirm' => $oForm->get_post('is_confirm', 0, 'int'),
-               'edit'       => $oForm->get_post('edit', 0, 'int'),
-               'language'   => $oForm->get_post('language', 'de', 'parameter|max=3'),
-               'design'     => $oForm->get_post('design', '', 'parameter|max=32'),
-               'color'      => $oForm->get_post('color', '', 'parameter|max=32'),
-               'telefon'    => $oForm->get_post('telefon', '', 'parameter|max=64'),
-               'handy'      => $oForm->get_post('handy', '', 'parameter|max=64'),
-               'strasse'    => $oForm->get_post('strasse', '', 'parameter|max=255'),
-               'plz'        => $oForm->get_post('plz', '', 'parameter|max=16'),
-               'ort'        => $oForm->get_post('ort', '', 'parameter|max=255'),
-               'land'       => $oForm->get_post('land', '', 'parameter|max=32'),
+               'status'     => $o_form->get_post('status', 1, 'int'),
+               'is_confirm' => $o_form->get_post('is_confirm', 0, 'int'),
+               'edit'       => $o_form->get_post('edit', 0, 'int'),
+               'language'   => $o_form->get_post('language', 'de', 'parameter|max=3'),
+               'design'     => $o_form->get_post('design', '', 'parameter|max=32'),
+               'color'      => $o_form->get_post('color', '', 'parameter|max=32'),
+               'telefon'    => $o_form->get_post('telefon', '', 'parameter|max=64'),
+               'handy'      => $o_form->get_post('handy', '', 'parameter|max=64'),
+               'strasse'    => $o_form->get_post('strasse', '', 'parameter|max=255'),
+               'plz'        => $o_form->get_post('plz', '', 'parameter|max=16'),
+               'ort'        => $o_form->get_post('ort', '', 'parameter|max=255'),
+               'land'       => $o_form->get_post('land', '', 'parameter|max=32'),
                'settings'   => (string)($data['settings'] ?? '{}'),
             );
 
-            if ($passwordChanged) {
+            if ($password_changed) {
                $values['pass'] = password_hash($password, PASSWORD_DEFAULT);
                $values['settings'] = $this->settings_after_password_change(
                   (string)($data['settings'] ?? '{}')
                );
             }
 
-            $server = $db->get_dd_server($this->ddUser);
+            $server = $db->get_dd_server($this->dd_user);
             $uname = $db->escape($values['uname'], $server);
-            $duplicateWhere = "uname='$uname'";
-            if (!$isNew) {
-               $duplicateWhere .= ' AND id <> ' . (int)$rid;
+            $duplicate_where = "uname='$uname'";
+            if (!$is_new) {
+               $duplicate_where .= ' AND id <> ' . (int)$rid;
             }
-            if ($db->count($this->ddUser, $duplicateWhere) > 0) {
-               $oForm->add_fld_error(
+            if ($db->count($this->dd_user, $duplicate_where) > 0) {
+               $o_form->add_fld_error(
                   'uname',
-                  $oForm->get_fd_message('duplicate_login')
+                  $o_form->get_fd_message('duplicate_login')
                );
-               $oForm->_msg_error = $oForm->get_fd_message(
+               $o_form->_msg_error = $o_form->get_fd_message(
                   'duplicate_login'
                );
             } else {
-               $ok = $db->save($this->ddUser, $values, $isNew ? 0 : (int)$rid);
+               $ok = $db->save($this->dd_user, $values, $is_new ? 0 : (int)$rid);
                if ($ok) {
-                  $oForm->_msg_success = $oForm->get_fd_message(
+                  $o_form->_msg_success = $o_form->get_fd_message(
                      'user_save_success'
                   );
                } else {
-                  $oForm->_msg_error = $oForm->get_fd_message(
+                  $o_form->_msg_error = $o_form->get_fd_message(
                      'user_save_error'
                   );
                }
             }
          } else {
-            if (!$oForm->_msg_error) {
-               $oForm->_msg_error = $oForm->get_fd_message(
+            if (!$o_form->_msg_error) {
+               $o_form->_msg_error = $o_form->get_fd_message(
                   'validation_error'
                );
             }
          }
       }
 
-      return $oForm->run();
+      return $o_form->run();
    }
 
    private function group_actions($row, $texts) {
@@ -799,19 +800,19 @@ class dbxUser {
          return '';
       }
       if ($do === 'row_delete' && $rid) {
-         $ok = $db->delete($this->ddGroup, $rid);
+         $ok = $db->delete($this->dd_group, $rid);
          $message = $ok
             ? $texts->get_fd_message('delete_success')
             : $texts->get_fd_message('delete_error');
       }
       if ($do === 'group_activate' && $rid) {
-         $ok = $db->update($this->ddGroup, array('active' => 1), $rid);
+         $ok = $db->update($this->dd_group, array('active' => 1), $rid);
          $message = $ok
             ? $texts->get_fd_message('activate_success')
             : $texts->get_fd_message('activate_error');
       }
       if ($do === 'group_deactivate' && $rid) {
-         $ok = $db->update($this->ddGroup, array('active' => 0), $rid);
+         $ok = $db->update($this->dd_group, array('active' => 0), $rid);
          $message = $ok
             ? $texts->get_fd_message('deactivate_success')
             : $texts->get_fd_message('deactivate_error');
@@ -821,7 +822,7 @@ class dbxUser {
    }
 
    private function decorate_groups($rows, $texts) {
-      $users = dbx()->get_system_obj('dbxDB')->select($this->ddUser, '', array('roles'), 'id', 'ASC', '', 0, 0, 0);
+      $users = dbx()->get_system_obj('dbxDB')->select($this->dd_user, '', array('roles'), 'id', 'ASC', '', 0, 0, 0);
       $out = array();
       foreach ((array)$rows as $row) {
          $name = (string)($row['name'] ?? '');
@@ -845,61 +846,61 @@ class dbxUser {
    private function report_groups() {
       $message = '';
       $db = dbx()->get_system_obj('dbxDB');
-      $oReport = new dbxReport_AdminUser;
-      $oReport->init('report-admin-groups', 'report-admin-groups');
-      $oReport->_fd = 'dbxAdmin|rpt-admin-groups-selection';
-      $oReport->load_fd_messages();
-      $content = $this->handle_group_action($message, $oReport);
+      $o_report = new dbxReport_AdminUser;
+      $o_report->init('report-admin-groups', 'report-admin-groups');
+      $o_report->set_field_definition('dbxAdmin|rpt-admin-groups-selection');
+      $o_report->load_fd_messages();
+      $content = $this->handle_group_action($message, $o_report);
       if ($content !== '') {
          return $content;
       }
-      $oReport->add_rep('frame_use_form', '0');
-      $oReport->add_rep('report_shell_class', 'dbx-admin-groups');
-      $oReport->add_rep('report_shell_attrs', 'data-dbx="lib=report|form=0"');
-      $oReport->_dd = $this->ddGroup;
-      $oReport->_action = $this->url('list_groups');
-      $oReport->_pages = true;
-      $oReport->_create_row_select = true;
-      $oReport->_create_row_edit = false;
-      $oReport->_create_row_delete = false;
-      $oReport->_create_sel_flds = true;
-      $oReport->_but_pagination = 7;
-      $oReport->_fld_id = 'id';
-      $oReport->_data = array('dbx_rrows' => 25, 'dbx_rsort' => 'name', 'dbx_rdesc' => 'ASC');
-      $oReport->_msg_info = '';
-      $oReport->_rpt_format = array(
+      $o_report->add_rep('frame_use_form', '0');
+      $o_report->add_rep('report_shell_class', 'dbx-admin-groups');
+      $o_report->add_rep('report_shell_attrs', 'data-dbx="lib=report|form=0"');
+      $o_report->set_data_definition($this->dd_group);
+      $o_report->set_action($this->url('list_groups'));
+      $o_report->_pages = true;
+      $o_report->_create_row_select = true;
+      $o_report->_create_row_edit = false;
+      $o_report->_create_row_delete = false;
+      $o_report->_create_sel_flds = true;
+      $o_report->_but_pagination = 7;
+      $o_report->_fld_id = 'id';
+      $o_report->set_data(array('dbx_rrows' => 25, 'dbx_rsort' => 'name', 'dbx_rdesc' => 'ASC'));
+      $o_report->_msg_info = '';
+      $o_report->_rpt_format = array(
          'id' => 'html-chars',
          'name' => 'html-chars',
          'description' => 'html-chars',
          'active_view' => 'html',
          'ops' => 'html',
       );
-      $newGroupBtn = $this->modal_button(
+      $new_group_btn = $this->modal_button(
          $this->url('edit_group', array('rid' => 'new')),
          'bi bi-plus-circle',
-         $oReport->get_fd_message('new_group'),
+         $o_report->get_fd_message('new_group'),
          'btn-success',
-         $oReport->get_fd_message('new_group'),
+         $o_report->get_fd_message('new_group'),
          ''
       );
-      $oReport->add_obj('new_group', 'obj-value', $newGroupBtn);
-      $oReport->add_obj('bar_actions', 'obj-value', $newGroupBtn);
-      $oReport->add_obj('tabs', 'obj-value', $this->nav_html('groups', $oReport));
-      $oReport->add_obj('rows_delete', 'obj-value', '');
-      $oReport->create_selection_fields('dbxAdmin|rpt-admin-groups-selection');
+      $o_report->add_obj('new_group', 'obj-value', $new_group_btn);
+      $o_report->add_obj('bar_actions', 'obj-value', $new_group_btn);
+      $o_report->add_obj('tabs', 'obj-value', $this->nav_html('groups', $o_report));
+      $o_report->add_obj('rows_delete', 'obj-value', '');
+      $o_report->create_selection_fields('dbxAdmin|rpt-admin-groups-selection');
       if ($message !== '') {
-         if ($this->actionError !== '') {
-            $oReport->_msg_error = $message;
+         if ($this->action_error !== '') {
+            $o_report->_msg_error = $message;
          } else {
-            $oReport->_msg_success = $message;
+            $o_report->_msg_success = $message;
          }
       }
 
-      $search = $oReport->get_fld_val('dbx_rwhere', '', 'sqlsearch|max=64');
-      $rrows  = $oReport->get_fld_val('dbx_rrows', 25, 'int');
-      $rpos   = $oReport->get_fld_val('dbx_rpos', 0, 'int');
-      $rsort  = $oReport->get_fld_val('dbx_rsort', 'name', 'parameter');
-      $rdesc  = $oReport->get_fld_val('dbx_rdesc', 'ASC', 'parameter');
+      $search = $o_report->get_fld_val('dbx_rwhere', '', 'sqlsearch|max=64');
+      $rrows  = $o_report->get_fld_val('dbx_rrows', 25, 'int');
+      $rpos   = $o_report->get_fld_val('dbx_rpos', 0, 'int');
+      $rsort  = $o_report->get_fld_val('dbx_rsort', 'name', 'parameter');
+      $rdesc  = $o_report->get_fld_val('dbx_rdesc', 'ASC', 'parameter');
       $where = '';
       if ($search !== '') {
          $where = array('search' => array('value' => $search, 'like' => array('name', 'description'), 'mode' => 'contains'));
@@ -907,101 +908,101 @@ class dbxUser {
 
       $flds = array(
          'id' => 'ID',
-         'name' => $oReport->get_fd_message('column_group'),
-         'description' => $oReport->get_fd_message('column_description'),
-         'active_view' => $oReport->get_fd_message('column_status'),
-         'users' => $oReport->get_fd_message('column_users'),
-         'ops' => $oReport->get_fd_message('column_actions'),
+         'name' => $o_report->get_fd_message('column_group'),
+         'description' => $o_report->get_fd_message('column_description'),
+         'active_view' => $o_report->get_fd_message('column_status'),
+         'users' => $o_report->get_fd_message('column_users'),
+         'ops' => $o_report->get_fd_message('column_actions'),
       );
 
-      $oReport->_rflds = $flds;
-      $oReport->_rrows = $rrows;
-      $oReport->_rpos = $rpos;
-      $oReport->_count_all = $db->count($this->ddGroup);
-      $oReport->_rcount = $db->count($this->ddGroup, $where);
-      $rows = $db->select($this->ddGroup, $where, array('id', 'name', 'description', 'active'), $rsort, $rdesc, '', $rrows, $rpos, 0);
-      $oReport->_rdata = $this->decorate_groups($rows, $oReport);
+      $o_report->_rflds = $flds;
+      $o_report->_rrows = $rrows;
+      $o_report->_rpos = $rpos;
+      $o_report->_count_all = $db->count($this->dd_group);
+      $o_report->_rcount = $db->count($this->dd_group, $where);
+      $rows = $db->select($this->dd_group, $where, array('id', 'name', 'description', 'active'), $rsort, $rdesc, '', $rrows, $rpos, 0);
+      $o_report->_rdata = $this->decorate_groups($rows, $o_report);
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
    private function edit_group($rid = 'new') {
       $db = dbx()->get_system_obj('dbxDB');
-      $isNew = ($rid === 'new' || !$rid);
+      $is_new = ($rid === 'new' || !$rid);
       $data = array('active' => 1);
-      if (!$isNew) {
-         $record = $db->select1($this->ddGroup, (int)$rid, '*', 0);
+      if (!$is_new) {
+         $record = $db->select1($this->dd_group, (int)$rid, '*', 0);
          if (is_array($record)) {
             $data = array_merge($data, $record);
          }
       }
 
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-admin-group');
-      $oForm->_fd = 'dbxAdmin|rpt-admin-groups-selection';
-      $oForm->load_fd_messages();
-      $oForm->add_module_bar(
-         $oForm->get_fd_message(
-            $isNew ? 'form_new_title' : 'form_edit_title'
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-admin-group', 'form-admin-group');
+      $o_form->set_field_definition('dbxAdmin|rpt-admin-groups-selection');
+      $o_form->load_fd_messages();
+      $o_form->add_module_bar(
+         $o_form->get_fd_message(
+            $is_new ? 'form_new_title' : 'form_edit_title'
          ),
          'bi-people',
-         $oForm->get_fd_message(
-            $isNew ? 'form_new_subtitle' : 'form_edit_subtitle'
+         $o_form->get_fd_message(
+            $is_new ? 'form_new_subtitle' : 'form_edit_subtitle'
          ),
          true
       );
-      $actionUrl = $this->url('edit_group', array('rid' => ($isNew ? 'new' : (int)$rid)));
-      $oForm->add_module_bar_form_actions(array(
+      $action_url = $this->url('edit_group', array('rid' => ($is_new ? 'new' : (int)$rid)));
+      $o_form->add_module_bar_form_actions(array(
          'save'       => true,
          'reload'     => true,
-         'reload_url' => $actionUrl,
-         'delete'     => !$isNew,
-         'delete_url' => $isNew ? '' : $this->action_url('list_groups', array('dbx_do' => 'row_delete', 'rid' => (int)$rid)),
-         'delete_title' => $oForm->get_fd_message('action_delete'),
+         'reload_url' => $action_url,
+         'delete'     => !$is_new,
+         'delete_url' => $is_new ? '' : $this->action_url('list_groups', array('dbx_do' => 'row_delete', 'rid' => (int)$rid)),
+         'delete_title' => $o_form->get_fd_message('action_delete'),
       ));
-      $oForm->add_obj('bar_actions', 'obj-value',
-         '<a class="btn btn-outline-secondary btn-sm" href="' . dbx()->esc($this->url('list_groups')) . '" title="' . dbx()->esc($oForm->get_fd_message('group_list_title')) . '"><i class="bi bi-list-ul"></i></a>'
+      $o_form->add_obj('bar_actions', 'obj-value',
+         '<a class="btn btn-outline-secondary btn-sm" href="' . dbx()->esc($this->url('list_groups')) . '" title="' . dbx()->esc($o_form->get_fd_message('group_list_title')) . '"><i class="bi bi-list-ul"></i></a>'
       );
-      $oForm->_dd = $this->ddGroup;
-      $oForm->_fld_id = 'id';
-      $oForm->_data = $data;
-      $oForm->_msg_info = $oForm->get_fd_message(
-         $isNew ? 'form_new_info' : 'form_edit_info'
+      $o_form->set_data_definition($this->dd_group);
+      $o_form->_fld_id = 'id';
+      $o_form->set_data($data);
+      $o_form->_msg_info = $o_form->get_fd_message(
+         $is_new ? 'form_new_info' : 'form_edit_info'
       );
-      $oForm->_action = $this->url('edit_group', array('rid' => ($isNew ? 'new' : (int)$rid)));
+      $o_form->set_action($this->url('edit_group', array('rid' => ($is_new ? 'new' : (int)$rid))));
 
-      $oForm->add_fld('name', 'text-label', $oForm->get_fd_message('field_group'), 'parameter|min=2|max=255');
-      $oForm->add_fld('description', 'textarea-label', $oForm->get_fd_message('field_description'), 'parameter|max=1000', data: array('rows' => 5));
-      $oForm->add_fld('active', 'select-single-label', $oForm->get_fd_message('field_active'), 'int', options: array(
-         '1' => $oForm->get_fd_message('option_active'),
-         '0' => $oForm->get_fd_message('option_inactive'),
+      $o_form->add_fld('name', 'text-label', $o_form->get_fd_message('field_group'), 'parameter|min=2|max=255');
+      $o_form->add_fld('description', 'textarea-label', $o_form->get_fd_message('field_description'), 'parameter|max=1000', data: array('rows' => 5));
+      $o_form->add_fld('active', 'select-single-label', $o_form->get_fd_message('field_active'), 'int', options: array(
+         '1' => $o_form->get_fd_message('option_active'),
+         '0' => $o_form->get_fd_message('option_inactive'),
       ));
 
-      if ($oForm->submit()) {
-         if (!$oForm->errors()) {
+      if ($o_form->submit()) {
+         if (!$o_form->errors()) {
             $values = array(
-               'name' => $oForm->get_post('name', '', 'parameter|max=255'),
-               'description' => $oForm->get_post('description', '', 'parameter|max=1000'),
-               'active' => $oForm->get_post('active', 0, 'int'),
+               'name' => $o_form->get_post('name', '', 'parameter|max=255'),
+               'description' => $o_form->get_post('description', '', 'parameter|max=1000'),
+               'active' => $o_form->get_post('active', 0, 'int'),
             );
-            $ok = $db->save($this->ddGroup, $values, $isNew ? 0 : (int)$rid);
+            $ok = $db->save($this->dd_group, $values, $is_new ? 0 : (int)$rid);
             if ($ok) {
-               $oForm->_msg_success = $oForm->get_fd_message(
+               $o_form->_msg_success = $o_form->get_fd_message(
                   'group_save_success'
                );
             } else {
-               $oForm->_msg_error = $oForm->get_fd_message(
+               $o_form->_msg_error = $o_form->get_fd_message(
                   'group_save_error'
                );
             }
          } else {
-            $oForm->_msg_error = $oForm->get_fd_message(
+            $o_form->_msg_error = $o_form->get_fd_message(
                'validation_error'
             );
          }
       }
 
-      return $oForm->run();
+      return $o_form->run();
    }
 
    public function run($action = '') {
@@ -1023,8 +1024,8 @@ class dbxUser {
             return $this->edit_group(dbx()->get_modul_var('rid', 'new', 'parameter'));
       }
 
-      $oTPL = dbx()->get_system_obj('dbxTPL');
-      return $oTPL->get_tpl('dbx|alert-warning', array('msg' => 'User Admin Work (' . dbx()->esc($run) . ') ist undefiniert.'));
+      $o_tpl = dbx()->get_system_obj('dbxTPL');
+      return $o_tpl->get_tpl('dbx|alert-warning', array('msg' => 'User Admin Work (' . dbx()->esc($run) . ') ist undefiniert.'));
    }
 }
 ?>

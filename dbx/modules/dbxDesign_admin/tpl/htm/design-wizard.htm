@@ -1,6 +1,6 @@
 <div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-design-wizard">
  <form action="{action}" method="post" enctype="multipart/form-data" class="dbxAjax" data-target="dbx_target_{i}" id="dbxForm_{i}">
-  [tpl=dbx|module-bar]
+  {form:bar}
   <style>
   .dbx-design-wizard-shell{--dw-primary:#2563eb;--dw-secondary:#0f172a;--dw-accent:#14b8a6;display:grid;grid-template-columns:minmax(260px,.42fr) minmax(0,1fr);gap:1rem;padding:1rem}
   .dbx-design-wizard-guide,.dbx-design-wizard-work{border:1px solid color-mix(in srgb,var(--dbx-primary,#2563eb) 18%,transparent);border-radius:1rem;background:var(--dbx-bg-panel,#fff);overflow:hidden;box-shadow:0 15px 35px rgba(15,23,42,.08)}
@@ -24,7 +24,7 @@
     </div>
    </aside>
    <section class="dbx-design-wizard-work">
-    <div class="form_msg {msg_class} m-3 mb-0">{obj:form_msg}</div>
+    <div class="form_msg {msg_class} m-3 mb-0">{form:message}</div>
     <nav class="dbx-design-wizard-tabs" aria-label="Wizard-Schritte">
      <button class="active" type="button" data-design-tab="basis">1 Vorlage</button><button type="button" data-design-tab="layout">2 Aufbau</button><button type="button" data-design-tab="brand">3 Branding</button><button type="button" data-design-tab="finish">4 Abschluss</button>
     </nav>
@@ -36,7 +36,8 @@
     <div class="dbx-design-wizard-actions"><button class="btn btn-outline-secondary" type="button" data-design-prev><i class="bi bi-arrow-left"></i> Zurueck</button><button class="btn btn-outline-primary" type="button" data-design-next>Weiter <i class="bi bi-arrow-right"></i></button><button class="btn btn-primary" type="submit"><i class="bi bi-magic"></i> Design erstellen</button></div>
    </section>
   </div>
-  [dbx:js]
+  {form:footer}
+ [dbx:js]
   <script>
   (function(){
    var root=document.currentScript.closest('.dbx-design-wizard');if(!root||root.dataset.ready)return;root.dataset.ready='1';

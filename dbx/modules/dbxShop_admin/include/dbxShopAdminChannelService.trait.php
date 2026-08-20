@@ -15,25 +15,25 @@ trait dbxShopAdminChannelServiceTrait {
 
 
    private function channels(): string {
-      $this->ensureSeed();
-      $texts = $this->catalogTexts();
+      $this->ensure_seed();
+      $texts = $this->catalog_texts();
       $notice = '';
       if ($this->posted('delete_channel')) {
-         $this->repo()->deleteChannel((int)($_POST['id'] ?? 0));
+         $this->repo()->delete_channel((int)($_POST['id'] ?? 0));
       } elseif ($this->posted('save_channel')) {
-         $this->repo()->updateChannel((int)($_POST['id'] ?? 0), $_POST);
+         $this->repo()->update_channel((int)($_POST['id'] ?? 0), $_POST);
       } elseif ($this->posted('test_channel')) {
          $id = (int)($_POST['id'] ?? 0);
          if ($id > 0) {
-            $this->repo()->updateChannel($id, $_POST);
-            $result = $this->repo()->testChannelConnection($id);
+            $this->repo()->update_channel($id, $_POST);
+            $result = $this->repo()->test_channel_connection($id);
             $notice = '<div class="alert ' . (!empty($result['ok']) ? 'alert-success' : 'alert-warning') . ' m-3">' . $this->h($result['message'] ?? '') . '</div>';
          } else {
             $notice = '<div class="alert alert-warning m-3">' . $this->h($texts->get_fd_message('channels_save_first')) . '</div>';
          }
       }
 
-      $platformOptions = array(
+      $platform_options = array(
          'shop' => 'Shop',
          'amazon' => 'Amazon',
          'ebay' => 'eBay',
@@ -41,7 +41,7 @@ trait dbxShopAdminChannelServiceTrait {
          'mobile' => 'mobile.de',
          'custom' => $texts->get_fd_message('channels_platform_custom'),
       );
-      $modeOptions = array(
+      $mode_options = array(
          'internal' => $texts->get_fd_message('channels_mode_internal'),
          'manual' => $texts->get_fd_message('channels_mode_manual'),
          'api' => 'API',
@@ -49,7 +49,7 @@ trait dbxShopAdminChannelServiceTrait {
          'webhook' => 'Webhook',
       );
 
-      $platformHints = array(
+      $platform_hints = array(
          'shop' => array($texts->get_fd_message('channels_hint_shop_api'), $texts->get_fd_message('channels_hint_shop_listing'), $texts->get_fd_message('channels_hint_shop_feedback')),
          'amazon' => array($texts->get_fd_message('channels_hint_amazon_api'), $texts->get_fd_message('channels_hint_amazon_listing'), $texts->get_fd_message('channels_hint_amazon_feedback')),
          'ebay' => array($texts->get_fd_message('channels_hint_ebay_api'), $texts->get_fd_message('channels_hint_ebay_listing'), $texts->get_fd_message('channels_hint_ebay_feedback')),
@@ -58,12 +58,16 @@ trait dbxShopAdminChannelServiceTrait {
          'custom' => array($texts->get_fd_message('channels_hint_custom_api'), $texts->get_fd_message('channels_hint_custom_listing'), $texts->get_fd_message('channels_hint_custom_feedback')),
       );
 
-      $rowHtml = function (array $channel, bool $isNew = false) use ($platformOptions, $modeOptions, $platformHints, $texts): string {
+      return $this->render_channels_page($notice, $platform_options, $mode_options, $platform_hints, $texts);
+   }
+
+   /** Rendert ein einzelnes, eigenständig zustandsbehaftetes Channel-Formular. */
+   private function render_channel_row(array $channel, bool $is_new, array $platform_options, array $mode_options, array $platform_hints, $texts): string {
          $id = (int)($channel['id'] ?? 0);
          $key = (string)($channel['channel_key'] ?? '');
          $platform = (string)($channel['platform_type'] ?? 'custom');
-         $hint = $platformHints[$platform] ?? $platformHints['custom'];
-         $placeholderMap = array(
+         $hint = $platform_hints[$platform] ?? $platform_hints['custom'];
+         $placeholder_map = array(
             'shop' => array(
                'channel_key' => 'shop',
                'api_base_url' => 'nicht benoetigt',
@@ -203,8 +207,8 @@ trait dbxShopAdminChannelServiceTrait {
                'api_scope' => "products:write\norders:read\nwebhooks:read",
             ),
          );
-         $placeholders = $placeholderMap[$platform] ?? $placeholderMap['custom'];
-         $placeholderTranslations = array(
+         $placeholders = $placeholder_map[$platform] ?? $placeholder_map['custom'];
+         $placeholder_translations = array(
             'nicht benoetigt' => $texts->get_fd_message('channels_not_required'),
             'nicht benoetigt bei OAuth' => $texts->get_fd_message('channels_not_required_oauth'),
             'nicht benoetigt bei SP-API' => $texts->get_fd_message('channels_not_required_spapi'),
@@ -212,54 +216,42 @@ trait dbxShopAdminChannelServiceTrait {
             'wird von dbxShop erzeugt' => $texts->get_fd_message('channels_generated'),
             'nur bei freigegebener Schnittstelle' => $texts->get_fd_message('channels_approved_only'),
          );
-         foreach ($placeholders as $placeholderField => $placeholderValue) {
-            if (isset($placeholderTranslations[$placeholderValue])) {
-               $placeholders[$placeholderField] = $placeholderTranslations[$placeholderValue];
+         foreach ($placeholders as $placeholder_field => $placeholder_value) {
+            if (isset($placeholder_translations[$placeholder_value])) {
+               $placeholders[$placeholder_field] = $placeholder_translations[$placeholder_value];
             }
          }
          $ph = function (string $field) use ($placeholders): string {
             return $this->h($placeholders[$field] ?? '');
          };
-         $secretPlaceholder = function (string $field) use ($placeholders): string {
+         $secret_placeholder = function (string $field) use ($placeholders): string {
             return $this->h((string)($placeholders[$field] ?? ''));
          };
          $status = (string)($channel['test_status'] ?? '');
-         $statusBadge = $status === 'ok'
+         $status_badge = $status === 'ok'
             ? '<span class="badge text-bg-success">' . $this->h($texts->get_fd_message('channels_status_ok')) . '</span>'
             : ($status === 'error'
                ? '<span class="badge text-bg-warning">' . $this->h($texts->get_fd_message('channels_status_open')) . '</span>'
                : '<span class="badge text-bg-secondary">' . $this->h($texts->get_fd_message('channels_status_none')) . '</span>');
-         $activeBadge = (int)($channel['active'] ?? 1) === 1
+         $active_badge = (int)($channel['active'] ?? 1) === 1
             ? '<span class="badge text-bg-success">' . $this->h($texts->get_fd_message('active')) . '</span>'
             : '<span class="badge text-bg-secondary">' . $this->h($texts->get_fd_message('inactive')) . '</span>';
-         $exportBadge = (int)($channel['export_enabled'] ?? 0) === 1 ? '<span class="badge text-bg-info">' . $this->h($texts->get_fd_message('channels_export')) . '</span>' : '';
-         $orderBadge = (int)($channel['order_import_enabled'] ?? 0) === 1 ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('channels_order_import')) . '</span>' : '';
-         $webhookPath = ($key !== '' && $platform !== 'shop') ? '?dbx_modul=dbxShop&dbx_run1=channel_webhook&channel=' . rawurlencode($key) : '';
-         $open = $isNew || (int)($_GET['edit'] ?? 0) === $id;
-         $editUrl = '?dbx_modul=dbxShop_admin&dbx_run1=channels&edit=' . $id;
-         $helpId = $this->ensureShopChannelProviderHelpPage($platform);
-         $helpButton = '';
-         if ($helpId > 0) {
-            $helpTitle = 'Hilfe: Channel ' . ($platformOptions[$platform] ?? 'Channel');
-            $helpButton = $this->openWinButton(
-               '?dbx_modul=dbxContent&dbx_run1=content&cid=' . $helpId,
-               $helpTitle,
-               '<i class="bi bi-question-circle"></i><span class="visually-hidden"> Hilfe</span>',
-               'btn btn-outline-secondary btn-sm dbx-shop-channel-help',
-               '72%',
-               '82%'
-            );
-            $helpButton = str_replace('<a ', '<a data-dbx="lib=shopAdmin" data-shop-stop-propagation ', $helpButton);
-         }
+         $export_badge = (int)($channel['export_enabled'] ?? 0) === 1 ? '<span class="badge text-bg-info">' . $this->h($texts->get_fd_message('channels_export')) . '</span>' : '';
+         $order_badge = (int)($channel['order_import_enabled'] ?? 0) === 1 ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('channels_order_import')) . '</span>' : '';
+         $webhook_path = ($key !== '' && $platform !== 'shop') ? '?dbx_modul=dbxShop&dbx_run1=channel_webhook&channel=' . rawurlencode($key) : '';
+         $open = $is_new || (int)($_GET['edit'] ?? 0) === $id;
+         $edit_url = '?dbx_modul=dbxShop_admin&dbx_run1=channels&edit=' . $id;
+         $help_title = 'Hilfe: Channel ' . ($platform_options[$platform] ?? 'Channel');
+         $help_button = $this->help_button($this->shop_channel_provider_help_context($platform), $help_title, 'btn btn-outline-secondary btn-sm dbx-shop-channel-help', '72%', '82%');
+         $help_button = str_replace('<a ', '<a data-dbx="lib=shopAdmin|module=dbxShop_admin" data-shop-stop-propagation ', $help_button);
 
          $form = dbx()->get_system_obj('dbxForm');
-         $form->init('shop-channel-form-' . ($isNew ? 'new' : $id), 'shop-channel-form');
-         $form->_dd = 'dbxShop|shopChannel';
-         $form->_fd = 'dbxShop|shop-channel';
-         $form->_data = $channel + array('id' => $id);
-         $form->_rid = $isNew ? 0 : $id;
-         $form->_action = '?dbx_modul=dbxShop_admin&dbx_run1=channels' . ($isNew ? '&new=1' : '&edit=' . $id);
-         $form->set_activ_id($isNew ? 0 : $id);
+         $form->init('shop-channel-form-' . ($is_new ? 'new' : $id), 'shop-channel-form');
+         $form->set_data_source('dbxShop|shopChannel', 'dbxShop|shop-channel');
+         $form->set_data($channel + array('id' => $id));
+         $form->set_rid($is_new ? 0 : $id);
+         $form->set_action('?dbx_modul=dbxShop_admin&dbx_run1=channels' . ($is_new ? '&new=1' : '&edit=' . $id));
+         $form->set_activ_id($is_new ? 0 : $id);
          $form->set_form_help_enabled(false);
          $form->add_rep('frame_skip_form_wrap', '0');
          $form->add_rep('form_class', 'dbx-shop-channel-dbXForm');
@@ -267,28 +259,28 @@ trait dbxShopAdminChannelServiceTrait {
          $form->add_rep('details_open', $open ? ' open' : '');
          $form->add_rep('channel_key_view', $this->h($key !== '' ? $key : strtolower($texts->get_fd_message('new'))));
          $form->add_rep('channel_title_view', $this->h($channel['title'] ?? $texts->get_fd_message('channels_new')));
-         $form->add_rep('platform_view', $this->h($platformOptions[$platform] ?? $platform));
-         $form->add_rep('connection_view', $this->h($modeOptions[(string)($channel['connection_mode'] ?? 'manual')] ?? ($channel['connection_mode'] ?? 'manual')));
-         $form->add_rep('active_badge', $activeBadge);
-         $form->add_rep('export_badge', $exportBadge);
-         $form->add_rep('order_badge', $orderBadge);
-         $form->add_rep('status_badge', $statusBadge);
+         $form->add_rep('platform_view', $this->h($platform_options[$platform] ?? $platform));
+         $form->add_rep('connection_view', $this->h($mode_options[(string)($channel['connection_mode'] ?? 'manual')] ?? ($channel['connection_mode'] ?? 'manual')));
+         $form->add_rep('active_badge', $active_badge);
+         $form->add_rep('export_badge', $export_badge);
+         $form->add_rep('order_badge', $order_badge);
+         $form->add_rep('status_badge', $status_badge);
          $form->add_rep('last_test_date', !empty($channel['last_test_date']) ? $this->h($channel['last_test_date']) : '');
-         $form->add_rep('channel_help_button', $helpButton);
-         $form->add_rep('channel_edit_button', !$isNew ? '<a class="btn btn-outline-primary btn-sm dbx-shop-channel-edit" data-dbx="lib=shopAdmin" data-shop-stop-propagation href="' . $this->h($editUrl) . '" title="' . $this->h($texts->get_fd_message('channels_edit_title')) . '"><i class="bi bi-pencil-square"></i> ' . $this->h($texts->get_fd_message('channels_edit')) . '</a>' : '');
+         $form->add_rep('channel_help_button', $help_button);
+         $form->add_rep('channel_edit_button', !$is_new ? '<a class="btn btn-outline-primary btn-sm dbx-shop-channel-edit" data-dbx="lib=shopAdmin|module=dbxShop_admin" data-shop-stop-propagation href="' . $this->h($edit_url) . '" title="' . $this->h($texts->get_fd_message('channels_edit_title')) . '"><i class="bi bi-pencil-square"></i> ' . $this->h($texts->get_fd_message('channels_edit')) . '</a>' : '');
          $form->add_rep('hint_api', $this->h($hint[0]));
          $form->add_rep('hint_listing', $this->h($hint[1]));
          $form->add_rep('hint_feedback', $this->h($hint[2]));
          $form->add_rep('test_message', !empty($channel['test_message']) ? '<div class="col-12"><div class="alert alert-secondary py-2 mb-0">' . $this->h($channel['test_message']) . '</div></div>' : '');
-         $form->add_rep('test_button', !$isNew ? '<button class="btn btn-outline-secondary btn-sm ms-1" name="shop_action" value="test_channel" data-dbx-tooltip="' . $this->h($texts->get_fd_message('channels_test_title')) . '"><i class="bi bi-plug"></i> ' . $this->h($texts->get_fd_message('channels_test_label')) . '</button>' : '');
-         $form->add_rep('delete_button', !$isNew ? '<button type="submit" class="btn btn-outline-danger btn-sm ms-1 dbxConfirm" name="shop_action" value="delete_channel" data-dbx-tooltip="' . $this->h($texts->get_fd_message('channels_delete_title')) . '" data-confirm-title="<i class=\'bi bi-trash\'></i> ' . $this->h($texts->get_fd_message('channels_delete_title')) . '" data-confirm="' . $this->h($texts->get_fd_message('channels_delete_confirm')) . '" data-confirm-hint="<small>' . $this->h($texts->get_fd_message('channels_delete_hint')) . '</small>" data-confirm-buttons="yesno"><i class="bi bi-trash"></i></button>' : '');
+         $form->add_rep('test_button', !$is_new ? '<button class="btn btn-outline-secondary btn-sm ms-1" name="shop_action" value="test_channel" data-dbx-tooltip="' . $this->h($texts->get_fd_message('channels_test_title')) . '"><i class="bi bi-plug"></i> ' . $this->h($texts->get_fd_message('channels_test_label')) . '</button>' : '');
+         $form->add_rep('delete_button', !$is_new ? '<button type="submit" class="btn btn-outline-danger btn-sm ms-1 dbxConfirm" name="shop_action" value="delete_channel" data-dbx-tooltip="' . $this->h($texts->get_fd_message('channels_delete_title')) . '" data-confirm-title="<i class=\'bi bi-trash\'></i> ' . $this->h($texts->get_fd_message('channels_delete_title')) . '" data-confirm="' . $this->h($texts->get_fd_message('channels_delete_confirm')) . '" data-confirm-hint="<small>' . $this->h($texts->get_fd_message('channels_delete_hint')) . '</small>" data-confirm-buttons="yesno"><i class="bi bi-trash"></i></button>' : '');
          $form->_msg_info = '';
 
          $form->add_fld('id', tpl: 'dbx|hidden', rules: 'int', dd: 'dd::');
-         $form->add_fld('channel_key', placeholder: $placeholders['channel_key'] ?? '', data: $isNew ? '' : 'readonly=readonly');
+         $form->add_fld('channel_key', placeholder: $placeholders['channel_key'] ?? '', data: $is_new ? '' : 'readonly=readonly');
          $form->add_fld('title');
-         $form->add_fld('platform_type', tpl: 'select-single-label', options: $platformOptions);
-         $form->add_fld('connection_mode', tpl: 'select-single-label', options: $modeOptions);
+         $form->add_fld('platform_type', tpl: 'select-single-label', options: $platform_options);
+         $form->add_fld('connection_mode', tpl: 'select-single-label', options: $mode_options);
          $form->add_fld('sorter');
          $form->add_fld('active');
          $form->add_fld('export_enabled');
@@ -297,10 +289,10 @@ trait dbxShopAdminChannelServiceTrait {
          $form->add_fld('api_base_url', placeholder: $placeholders['api_base_url'] ?? '');
          $form->add_fld('api_client_id', placeholder: $placeholders['api_client_id'] ?? '');
          $form->add_fld('api_username', placeholder: $placeholders['api_username'] ?? '');
-         $form->add_fld('api_client_secret', placeholder: $secretPlaceholder('api_client_secret'));
-         $form->add_fld('api_access_token', placeholder: $secretPlaceholder('api_access_token'));
-         $form->add_fld('api_refresh_token', placeholder: $secretPlaceholder('api_refresh_token'));
-         $form->add_fld('api_password', placeholder: $secretPlaceholder('api_password'));
+         $form->add_fld('api_client_secret', placeholder: $secret_placeholder('api_client_secret'));
+         $form->add_fld('api_access_token', placeholder: $secret_placeholder('api_access_token'));
+         $form->add_fld('api_refresh_token', placeholder: $secret_placeholder('api_refresh_token'));
+         $form->add_fld('api_password', placeholder: $secret_placeholder('api_password'));
          $form->add_fld('marketplace_id', placeholder: $placeholders['marketplace_id'] ?? '');
          $form->add_fld('seller_id', placeholder: $placeholders['seller_id'] ?? '');
          $form->add_fld('account_id', placeholder: $placeholders['account_id'] ?? '');
@@ -311,12 +303,23 @@ trait dbxShopAdminChannelServiceTrait {
          $form->add_fld('return_policy_id', placeholder: $placeholders['return_policy_id'] ?? '');
          $form->add_fld('notification_destination', placeholder: $placeholders['notification_destination'] ?? '');
          $form->add_fld('notification_topic', placeholder: $placeholders['notification_topic'] ?? '');
-         $form->add_fld('webhook_secret', placeholder: $secretPlaceholder('webhook_secret'));
+         $form->add_fld('webhook_secret', placeholder: $secret_placeholder('webhook_secret'));
          $form->add_fld('api_scope', placeholder: $placeholders['api_scope'] ?? '', data: 'rows=2');
-         $form->add_obj('webhook_url', 'obj-value', '<label class="form-label">' . $this->h($texts->get_fd_message('channels_webhook_url')) . '</label><input class="form-control form-control-sm" value="' . $this->h($webhookPath) . '" placeholder="' . $ph('webhook_url') . '" readonly>');
+         $form->add_obj('webhook_url', 'obj-value', '<label class="form-label">' . $this->h($texts->get_fd_message('channels_webhook_url')) . '</label><input class="form-control form-control-sm" value="' . $this->h($webhook_path) . '" placeholder="' . $ph('webhook_url') . '" readonly>');
 
          return $form->run();
-      };
+   }
+
+   /** Baut Liste, Neuanlage und gemeinsame Frame-Aktionen der Channel-Seite. */
+   private function render_channels_page(string $notice, array $platform_options, array $mode_options, array $platform_hints, $texts): string {
+      $row_html = fn(array $channel, bool $is_new = false): string => $this->render_channel_row(
+         $channel,
+         $is_new,
+         $platform_options,
+         $mode_options,
+         $platform_hints,
+         $texts
+      );
 
       $channels = $this->repo()->channels();
       $content = $notice . '<div class="m-3 dbx-shop-channel-list">';
@@ -325,7 +328,7 @@ trait dbxShopAdminChannelServiceTrait {
          foreach ($channels as $channel) {
             $sorter = max($sorter, (int)($channel['sorter'] ?? 0) + 10);
          }
-         $content .= $rowHtml(array(
+         $content .= $row_html(array(
             'title' => '',
             'platform_type' => 'custom',
             'connection_mode' => 'api',
@@ -336,15 +339,12 @@ trait dbxShopAdminChannelServiceTrait {
          ), true);
       }
       foreach ($channels as $channel) {
-         $content .= $rowHtml($channel);
+         $content .= $row_html($channel);
       }
       $content .= '</div>';
 
-      $helpId = $this->ensureShopChannelsHelpPage();
-      $helpButton = $helpId > 0
-         ? $this->openWinButton('?dbx_modul=dbxContent&dbx_run1=content&cid=' . $helpId, $texts->get_fd_message('channels_help'), '<i class="bi bi-question-circle"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('help')) . '</span>', 'btn btn-outline-secondary btn-sm me-1', '72%', '82%')
-         : '';
-      $barActions = '<a class="btn btn-outline-primary btn-sm me-1" href="?dbx_modul=dbxShop_admin&dbx_run1=channels&new=1" data-dbx-tooltip="' . $this->h($texts->get_fd_message('channels_new_title')) . '"><i class="bi bi-plus-square"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('channels_new')) . '</span></a>' . $helpButton;
-      return $this->frame($content, $texts->get_fd_message('channels_title'), $barActions);
+      $help_button = $this->help_button($this->shop_channels_help_context(), $texts->get_fd_message('channels_help'), 'btn btn-outline-secondary btn-sm me-1', '72%', '82%');
+      $bar_actions = '<a class="btn btn-outline-primary btn-sm me-1" href="?dbx_modul=dbxShop_admin&dbx_run1=channels&new=1" data-dbx-tooltip="' . $this->h($texts->get_fd_message('channels_new_title')) . '"><i class="bi bi-plus-square"></i><span class="visually-hidden"> ' . $this->h($texts->get_fd_message('channels_new')) . '</span></a>' . $help_button;
+      return $this->frame($content, $texts->get_fd_message('channels_title'), $bar_actions);
    }
 }

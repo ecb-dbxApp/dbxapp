@@ -16,7 +16,7 @@ $table['update']='admin';
 $table['delete']='admin';
 $table['read_owner']='owner,admin';
 
-$addField = function($name, $type, $index, $length, $default, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $index, $length, $default, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -38,19 +38,19 @@ $addField = function($name, $type, $index, $length, $default, $label, $rules, $t
    $fields[]=$field;
 };
 
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('create_date','datetime','MUL','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
-$addField('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
-$addField('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
-$addField('update_uid','int','','11','0','Aktualisiert von','int','hidden');
-$addField('owner','int','','11','0','Owner','int','hidden');
-$addField('trash','int','MUL','1','0','Trash','int','hidden');
-$addField('order_id','int','MUL','11','0','Bestellung','int','text-label');
-$addField('order_no','varchar','MUL','40','','Bestellnummer','parameter|max=40','text-label');
-$addField('customer_name','varchar','','180','','Name','*|max=180','text-label');
-$addField('customer_email','varchar','','180','','E-Mail','email|max=180','text-label');
-$addField('customer_address','mediumtext','','-1','','Adresse','*|max=2000','textarea-label',array('data'=>'rows=4'));
-$addField('reason','mediumtext','','-1','','Nachricht','*|max=3000','textarea-label',array('data'=>'rows=5'));
-$addField('status','varchar','MUL','40','new','Status','parameter|max=40','select-single-label',array('options'=>'new=Neu&processing=In Bearbeitung&accepted=Angenommen&rejected=Abgelehnt&refunded=Erstattet&closed=Abgeschlossen'));
-$addField('admin_note','mediumtext','','-1','','Interne Notiz','*|max=3000','textarea-label',array('data'=>'rows=4'));
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('create_date','datetime','MUL','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
+$add_field('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
+$add_field('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
+$add_field('update_uid','int','','11','0','Aktualisiert von','int','hidden');
+$add_field('owner','int','','11','0','Owner','int','hidden');
+$add_field('trash','int','MUL','1','0','Trash','int','hidden');
+$add_field('order_id','int','MUL','11','0','Bestellung','int','text-label');
+$add_field('order_no','varchar','MUL','40','','Bestellnummer','parameter|max=40','text-label');
+$add_field('customer_name','varchar','','180','','Name','*|max=180','text-label');
+$add_field('customer_email','varchar','','180','','E-Mail','email|max=180','text-label');
+$add_field('customer_address','mediumtext','','-1','','Adresse','*|max=2000','textarea-label',array('data'=>'rows=4'));
+$add_field('reason','mediumtext','','-1','','Nachricht','*|max=3000','textarea-label',array('data'=>'rows=5'));
+$add_field('status','varchar','MUL','40','new','Status','parameter|max=40','select-single-label',array('options'=>'new=Neu&processing=In Bearbeitung&accepted=Angenommen&rejected=Abgelehnt&refunded=Erstattet&closed=Abgeschlossen'));
+$add_field('admin_note','mediumtext','','-1','','Interne Notiz','*|max=3000','textarea-label',array('data'=>'rows=4'));
 ?>

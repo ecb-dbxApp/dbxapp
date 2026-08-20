@@ -18,7 +18,6 @@ final class AuthoritativeSourceSync
       'AGENTS.md' => true,
       '.htaccess' => true,
       'Doxyfile' => true,
-      'UPDATE_BASELINE' => true,
       'VERSION' => true,
       'index.php' => true,
       'favicon.ico' => true,
@@ -37,9 +36,9 @@ final class AuthoritativeSourceSync
    /**
     * Returns whether a relative path belongs to the public source mirror.
     */
-   public static function isManagedFile(string $relative): bool
+   public static function is_managed_file(string $relative): bool
    {
-      $relative = self::normalizeRelative($relative);
+      $relative = self::normalize_relative($relative);
       if ($relative === '' || str_contains($relative, '../')) {
          return false;
       }
@@ -105,40 +104,40 @@ final class AuthoritativeSourceSync
     */
    public static function plan(string $source, string $target): array
    {
-      $source = self::realDirectory($source, 'Quellverzeichnis');
-      $target = self::realDirectory($target, 'Zielverzeichnis');
+      $source = self::real_directory($source, 'Quellverzeichnis');
+      $target = self::real_directory($target, 'Zielverzeichnis');
       if (strcasecmp($source, $target) === 0) {
          throw new RuntimeException('Quelle und Ziel dürfen nicht identisch sein.');
       }
 
-      self::assertSource($source);
-      self::assertTarget($target);
+      self::assert_source($source);
+      self::assert_target($target);
 
-      $sourceFiles = self::managedFiles($source);
-      $targetFiles = self::managedFiles($target);
+      $source_files = self::managed_files($source);
+      $target_files = self::managed_files($target);
       $copy = array();
       $unchanged = 0;
 
-      foreach ($sourceFiles as $relative => $absolute) {
-         $targetFile = $target . DIRECTORY_SEPARATOR
+      foreach ($source_files as $relative => $absolute) {
+         $target_file = $target . DIRECTORY_SEPARATOR
             . str_replace('/', DIRECTORY_SEPARATOR, $relative);
-         if (!is_file($targetFile)
-            || !self::filesEquivalent($absolute, $targetFile)) {
+         if (!is_file($target_file)
+            || !self::files_equivalent($absolute, $target_file)) {
             $copy[$relative] = $absolute;
          } else {
             $unchanged++;
          }
       }
 
-      $delete = array_values(array_diff(array_keys($targetFiles), array_keys($sourceFiles)));
+      $delete = array_values(array_diff(array_keys($target_files), array_keys($source_files)));
       sort($delete, SORT_STRING);
 
       return array(
          'copy' => $copy,
          'delete' => $delete,
          'unchanged' => $unchanged,
-         'source_count' => count($sourceFiles),
-         'target_count' => count($targetFiles),
+         'source_count' => count($source_files),
+         'target_count' => count($target_files),
       );
    }
 
@@ -152,13 +151,13 @@ final class AuthoritativeSourceSync
     */
    public static function apply(string $source, string $target, array $plan): array
    {
-      $source = self::realDirectory($source, 'Quellverzeichnis');
-      $target = self::realDirectory($target, 'Zielverzeichnis');
+      $source = self::real_directory($source, 'Quellverzeichnis');
+      $target = self::real_directory($target, 'Zielverzeichnis');
       $copied = 0;
-      foreach (($plan['copy'] ?? array()) as $relative => $sourceFile) {
-         if (!self::isManagedFile((string)$relative)
-            || !is_file((string)$sourceFile)
-            || !self::isInside((string)$sourceFile, $source)) {
+      foreach (($plan['copy'] ?? array()) as $relative => $source_file) {
+         if (!self::is_managed_file((string)$relative)
+            || !is_file((string)$source_file)
+            || !self::is_inside((string)$source_file, $source)) {
             throw new RuntimeException('Ungültiger Kopierplan für ' . $relative);
          }
 
@@ -170,7 +169,7 @@ final class AuthoritativeSourceSync
             && !is_dir($directory)) {
             throw new RuntimeException('Zielverzeichnis konnte nicht erstellt werden: ' . $directory);
          }
-         if (!copy((string)$sourceFile, $destination)) {
+         if (!copy((string)$source_file, $destination)) {
             throw new RuntimeException('Datei konnte nicht gespiegelt werden: ' . $relative);
          }
          $copied++;
@@ -178,8 +177,8 @@ final class AuthoritativeSourceSync
 
       $deleted = 0;
       foreach (($plan['delete'] ?? array()) as $relative) {
-         $relative = self::normalizeRelative((string)$relative);
-         if (!self::isManagedFile($relative)) {
+         $relative = self::normalize_relative((string)$relative);
+         if (!self::is_managed_file($relative)) {
             throw new RuntimeException('Ungültiger Löschplan für ' . $relative);
          }
          $destination = $target . DIRECTORY_SEPARATOR
@@ -189,7 +188,7 @@ final class AuthoritativeSourceSync
          }
          if (!is_file($destination)) {
             $deleted++;
-            self::removeEmptyParents(dirname($destination), $target);
+            self::remove_empty_parents(dirname($destination), $target);
          }
       }
 
@@ -199,7 +198,7 @@ final class AuthoritativeSourceSync
    /**
     * @return array<string,string>
     */
-   private static function managedFiles(string $root): array
+   private static function managed_files(string $root): array
    {
       $files = array();
       $iterator = new RecursiveIteratorIterator(
@@ -209,8 +208,8 @@ final class AuthoritativeSourceSync
          if (!$item->isFile()) {
             continue;
          }
-         $relative = self::normalizeRelative(substr($item->getPathname(), strlen($root) + 1));
-         if (self::isManagedFile($relative)) {
+         $relative = self::normalize_relative(substr($item->getPathname(), strlen($root) + 1));
+         if (self::is_managed_file($relative)) {
             $files[$relative] = $item->getPathname();
          }
       }
@@ -218,7 +217,7 @@ final class AuthoritativeSourceSync
       return $files;
    }
 
-   private static function assertSource(string $source): void
+   private static function assert_source(string $source): void
    {
       if (!is_file($source . DIRECTORY_SEPARATOR . 'dbx'
          . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxApi.php')) {
@@ -226,7 +225,7 @@ final class AuthoritativeSourceSync
       }
    }
 
-   private static function assertTarget(string $target): void
+   private static function assert_target(string $target): void
    {
       if (!is_dir($target . DIRECTORY_SEPARATOR . '.git')
          || !is_file($target . DIRECTORY_SEPARATOR . 'RELEASE_PROCESS.md')) {
@@ -234,7 +233,7 @@ final class AuthoritativeSourceSync
       }
    }
 
-   private static function realDirectory(string $path, string $label): string
+   private static function real_directory(string $path, string $label): string
    {
       $resolved = realpath($path);
       if ($resolved === false || !is_dir($resolved)) {
@@ -243,7 +242,7 @@ final class AuthoritativeSourceSync
       return rtrim($resolved, '\\/');
    }
 
-   private static function normalizeRelative(string $path): string
+   private static function normalize_relative(string $path): string
    {
       return ltrim(str_replace('\\', '/', trim($path)), '/');
    }
@@ -252,26 +251,26 @@ final class AuthoritativeSourceSync
     * Compares binary files byte-for-byte and text files independent of the
     * CRLF/LF checkout convention used by the two Windows directories.
     */
-   private static function filesEquivalent(string $source, string $target): bool
+   private static function files_equivalent(string $source, string $target): bool
    {
-      $sourceHash = hash_file('sha256', $source);
-      $targetHash = hash_file('sha256', $target);
-      if (is_string($sourceHash)
-         && $sourceHash !== ''
-         && hash_equals($sourceHash, (string)$targetHash)) {
+      $source_hash = hash_file('sha256', $source);
+      $target_hash = hash_file('sha256', $target);
+      if (is_string($source_hash)
+         && $source_hash !== ''
+         && hash_equals($source_hash, (string)$target_hash)) {
          return true;
       }
 
-      $sourceContent = file_get_contents($source);
-      $targetContent = file_get_contents($target);
-      if (!is_string($sourceContent) || !is_string($targetContent)) {
+      $source_content = file_get_contents($source);
+      $target_content = file_get_contents($target);
+      if (!is_string($source_content) || !is_string($target_content)) {
          return false;
       }
 
       // NUL bytes identify binary payloads in the managed tree. Their hashes
       // must match exactly; no byte sequence is normalized.
-      if (str_contains($sourceContent, "\0")
-         || str_contains($targetContent, "\0")) {
+      if (str_contains($source_content, "\0")
+         || str_contains($target_content, "\0")) {
          return false;
       }
 
@@ -279,12 +278,12 @@ final class AuthoritativeSourceSync
          str_replace(array("\r\n", "\r"), "\n", $content);
 
       return hash_equals(
-         hash('sha256', $normalize($sourceContent)),
-         hash('sha256', $normalize($targetContent))
+         hash('sha256', $normalize($source_content)),
+         hash('sha256', $normalize($target_content))
       );
    }
 
-   private static function isInside(string $path, string $root): bool
+   private static function is_inside(string $path, string $root): bool
    {
       $resolved = realpath($path);
       return $resolved !== false
@@ -294,7 +293,7 @@ final class AuthoritativeSourceSync
          );
    }
 
-   private static function removeEmptyParents(string $directory, string $root): void
+   private static function remove_empty_parents(string $directory, string $root): void
    {
       $root = rtrim(str_replace('\\', '/', $root), '/');
       while (is_dir($directory)) {

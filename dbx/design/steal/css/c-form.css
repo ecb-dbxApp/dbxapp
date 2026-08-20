@@ -124,7 +124,14 @@
 }
 
 .dbxForm_wrapper .dbx-form-bottom-actions {
+    align-items: center;
+    border-top: 1px solid var(--dbx-form-border);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 18px;
     min-height: 0;
+    padding-top: 14px;
 }
 
 .dbxForm_wrapper .border,

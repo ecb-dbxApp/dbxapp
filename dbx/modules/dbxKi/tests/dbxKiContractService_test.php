@@ -2,8 +2,29 @@
 declare(strict_types=1);
 
 final class dbxKiContractTestApp {
+    private array $session = array();
+
     public function get_cfg(string $area): array {
         return array('secure' => str_repeat('s', 64));
+    }
+
+    public function get_session_var(string $key, mixed $default = null, string $section = 'sys', string $module = 'modul'): mixed {
+        if ($key === '*') {
+            return $this->session[$module][$section] ?? $default;
+        }
+        return $this->session[$module][$section][$key] ?? $default;
+    }
+
+    public function set_session_var(string $key, mixed $value, string $section = 'sys', string $module = 'modul'): void {
+        if ($key === '*') {
+            $this->session[$module][$section] = $value;
+            return;
+        }
+        $this->session[$module][$section][$key] = $value;
+    }
+
+    public function delete_session_var(string $key, string $section = 'sys', string $module = 'modul'): void {
+        unset($this->session[$module][$section][$key]);
     }
 }
 
@@ -24,7 +45,7 @@ $contract = $service->create(
     array(),
     array('type' => 'page', 'id' => 7)
 );
-$answer = $service->answerTemplate($contract);
+$answer = $service->answer_template($contract);
 $answer['outputs']['page.content'] = '<p>Sicherer Inhalt</p>';
 $bound = $service->bind($contract, $answer);
 if (($bound['job']['steps'][0]['params']['patch']['content'] ?? '') !== '<p>Sicherer Inhalt</p>') {
@@ -50,10 +71,10 @@ try {
 } catch (InvalidArgumentException $expected) {
 }
 
-$activeHtml = $answer;
-$activeHtml['outputs']['page.content'] = '<script>alert(1)</script>';
+$active_html = $answer;
+$active_html['outputs']['page.content'] = '<script>alert(1)</script>';
 try {
-    $service->bind($contract, $activeHtml);
+    $service->bind($contract, $active_html);
     fwrite(STDERR, "FAIL: Aktives HTML wurde akzeptiert.\n");
     exit(4);
 } catch (InvalidArgumentException $expected) {

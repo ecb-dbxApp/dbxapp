@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_title'] = 'Ocultar solicitud';
 $messages['validation_error'] = 'Confirme que desea ocultar la solicitud.';
 $messages['delete_success'] = 'La solicitud se eliminó de su vista. Se conserva el historial de soporte.';

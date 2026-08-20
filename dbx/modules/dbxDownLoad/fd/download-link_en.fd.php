@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Demo download';
 $messages['bar_subtitle'] = 'Receive the free Windows demo by email';
 $messages['try_limit'] = 'Too many unsuccessful attempts. Please wait {sec} seconds and then try again.';

@@ -5,8 +5,8 @@
  */
 $root = dirname(__DIR__, 2);
 require_once __DIR__ . '/dbxModuleSourceBundle.php';
-$cms = (string)file_get_contents($root . '/js/lib/cms.js')
-   . (string)file_get_contents($root . '/js/lib/cms-media.js');
+$cms = (string)file_get_contents($root . '/modules/dbxContent_admin/js/cms.js')
+   . (string)file_get_contents($root . '/modules/dbxContent_admin/js/cms-media.js');
 $backend = dbx_test_module_source_bundle($root . '/modules/dbxContent_admin/include/dbxContent_cms.class.php');
 $css = (string)file_get_contents($root . '/design/dbxapp/css/c-cms.css');
 

@@ -15,7 +15,7 @@ $table['create']='admin';
 $table['update']='admin';
 $table['delete']='admin';
 
-$addField=function($name,$type,$index,$length,$default,$label,$rules,$tpl,$extra=array()) use (&$fields){
+$add_field=function($name,$type,$index,$length,$default,$label,$rules,$tpl,$extra=array()) use (&$fields){
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -37,17 +37,17 @@ $addField=function($name,$type,$index,$length,$default,$label,$rules,$tpl,$extra
    $fields[]=$field;
 };
 
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
-$addField('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
-$addField('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
-$addField('update_uid','int','MUL','11','0','Aktualisiert von','int','hidden');
-$addField('owner','int','MUL','11','0','Owner','int','hidden');
-$addField('trash','int','MUL','1','0','Trash','int','hidden');
-$addField('product_id','int','MUL','11','0','Artikel','int','text-label');
-$addField('attribute_id','int','MUL','11','0','Attribut','int','text-label');
-$addField('value_text','varchar','MUL','255','','Wert','max=255','text-label');
-$addField('value_num','float','','20','','Zahlenwert','float','text-label');
-$addField('unit_override','varchar','','40','','Einheit abweichend','max=40','text-label');
-$addField('active','int','MUL','1','1','Aktiv','int','checkbox-label');
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
+$add_field('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
+$add_field('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
+$add_field('update_uid','int','MUL','11','0','Aktualisiert von','int','hidden');
+$add_field('owner','int','MUL','11','0','Owner','int','hidden');
+$add_field('trash','int','MUL','1','0','Trash','int','hidden');
+$add_field('product_id','int','MUL','11','0','Artikel','int','text-label');
+$add_field('attribute_id','int','MUL','11','0','Attribut','int','text-label');
+$add_field('value_text','varchar','MUL','255','','Wert','max=255','text-label');
+$add_field('value_num','float','','20','','Zahlenwert','float','text-label');
+$add_field('unit_override','varchar','','40','','Einheit abweichend','max=40','text-label');
+$add_field('active','int','MUL','1','1','Aktiv','int','checkbox-label');
 ?>

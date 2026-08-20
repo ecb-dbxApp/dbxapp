@@ -12,3 +12,22 @@
 - Vor jeder Änderung ist die Zieldatei zuerst als Kundeninhalt oder Systemquelle
   zu klassifizieren. Bei einer reinen Kundenänderung bleibt der Produktstand
   unverändert.
+- Für Systemquellen gelten zusätzlich die verbindlichen Konventionen in
+  `SOURCE-CONVENTIONS.md`.
+- Direkter Datenbankzugriff über PDO, mysqli, SQLite3 oder native Treiber ist
+  in Produkt-, Modul-, KI-, Migrations- und Werkzeugcode grundsätzlich
+  verboten. Jeder Datenzugriff läuft ausnahmslos über `dbxDB` und eine
+  vollständige DD; Strukturänderungen zusätzlich über die DD-Synchronisierung.
+  Diese Regel gilt verbindlich für Menschen, Codex und dbxKi.
+- Nach jedem erfolgreich abgeschlossenen logischen Änderungsblock schreibt
+  Codex genau einen verständlichen Eintrag in `dbxChangeLog` – nicht einen
+  Eintrag je Datei. Dafür ist ausschließlich
+  `php dbx/modules/dbxChangeLog_admin/tools/write-change-log.php` zu verwenden.
+  Der Eintrag enthält Datum/Uhrzeit, Akteur, eine verständliche Zusammenfassung
+  und Begründung sowie alle betroffenen Ressourcen. Fehlgeschlagene, verworfene oder lediglich
+  vorgesehene Änderungen werden nicht protokolliert; das Schreiben des
+  Protokolleintrags erzeugt keinen weiteren Protokolleintrag.
+- Für dbxKi ist das Change Log ebenfalls verbindlich. Schreibende KI-Antworten
+  enthalten das deklarierte JSON-Objekt `change_log`; dbxKi speichert es erst
+  nach erfolgreicher Ausführung über `dbxKiChangeLogService::write_change_log()`
+  und gibt die gespeicherte Information in der JSON-Antwort zurück.

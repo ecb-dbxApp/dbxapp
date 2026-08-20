@@ -24,11 +24,11 @@ class dbxSessionEphemeralGuestTestApi {
    }
 }
 
-$dbxSessionEphemeralGuestTestApi = new dbxSessionEphemeralGuestTestApi();
+$dbx_session_ephemeral_guest_test_api = new dbxSessionEphemeralGuestTestApi();
 
 function dbx(): dbxSessionEphemeralGuestTestApi {
-   global $dbxSessionEphemeralGuestTestApi;
-   return $dbxSessionEphemeralGuestTestApi;
+   global $dbx_session_ephemeral_guest_test_api;
+   return $dbx_session_ephemeral_guest_test_api;
 }
 
 require_once dirname(__DIR__) . '/dbxSession.class.php';

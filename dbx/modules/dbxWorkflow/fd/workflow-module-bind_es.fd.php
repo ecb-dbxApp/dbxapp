@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['validation_error'] = 'Revise los datos introducidos.';
 $messages['bar_title'] = 'Vinculaciones de módulos de flujo de trabajo';
 $messages['bar_subtitle'] = 'Conexiones de módulos basadas en DD';
@@ -37,7 +34,7 @@ $messages['default_binding_title'] = 'Nueva vinculación de módulo';
 $messages['default_binding_description'] = 'Vinculación unificada: dbxWorkflow utiliza la DD, FD, TPL y configuración del módulo.';
 
 
-$addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -58,11 +55,11 @@ $addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (
    $fields[]=$field;
 };
 
-$addField('modul','varchar','Módulo','parameter|min=2|max=80','text-label',array('placeholder'=>'dbxContact'));
-$addField('bind_key','varchar','La clave de unión','parameter|min=2|max=80','text-label',array('placeholder'=>'contact_reply'));
-$addField('title','varchar','Título','*|min=2|max=160','text-label');
-$addField('description','mediumtext','Descripción','*|max=3000','textarea-label',array('data'=>'rows=3'));
-$addField('bind_json','mediumtext','Binding JSON','*|min=2|max=30000','textarea-label',array('data'=>'rows=18'));
-$addField('active','int','Activo','int','checkbox-label',array('default'=>'1'));
+$add_field('modul','varchar','Módulo','parameter|min=2|max=80','text-label',array('placeholder'=>'dbxContact'));
+$add_field('bind_key','varchar','La clave de unión','parameter|min=2|max=80','text-label',array('placeholder'=>'contact_reply'));
+$add_field('title','varchar','Título','*|min=2|max=160','text-label');
+$add_field('description','mediumtext','Descripción','*|max=3000','textarea-label',array('data'=>'rows=3'));
+$add_field('bind_json','mediumtext','Binding JSON','*|min=2|max=30000','textarea-label',array('data'=>'rows=18'));
+$add_field('active','int','Activo','int','checkbox-label',array('default'=>'1'));
 
 ?>

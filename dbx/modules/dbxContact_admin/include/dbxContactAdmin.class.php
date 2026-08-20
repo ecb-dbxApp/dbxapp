@@ -4,10 +4,12 @@ namespace dbx\dbxContact_admin;
 require_once dirname(__DIR__, 2) . '/dbxContact/include/dbxContactConfig.class.php';
 require_once dirname(__DIR__, 2) . '/dbxContact/include/dbxContactTicket.class.php';
 require_once dirname(__DIR__, 2) . '/dbxContact/include/dbxContactContentProvision.class.php';
+require_once dirname(__DIR__, 2) . '/dbxContact/include/dbxContactPresentation.class.php';
 
 use dbx\dbxContact\dbxContactConfig;
 use dbx\dbxContact\dbxContactContentProvision;
 use dbx\dbxContact\dbxContactTicket;
+use dbx\dbxContact\dbxContactPresentation;
 
 class dbxContactAdmin {
 
@@ -27,7 +29,7 @@ class dbxContactAdmin {
       return $this->tpl()->get_tpl('dbx|alert-' . $type, array('msg' => $message));
    }
 
-   private function schemaReady(): bool {
+   private function schema_ready(): bool {
       $db = $this->db();
       $server = 'dbxContact|dbxContact.db3';
       if (!$db->connect_db_server($server)) {
@@ -43,17 +45,7 @@ class dbxContactAdmin {
          && $db->has_table_column($server, 'contact_request', 'user_hidden');
    }
 
-   private function statusClass(string $status): string {
-      return array(
-         'open' => 'text-bg-primary',
-         'in_progress' => 'text-bg-info',
-         'waiting_customer' => 'text-bg-warning',
-         'answered' => 'text-bg-success',
-         'closed' => 'text-bg-secondary',
-      )[$status] ?? 'text-bg-light';
-   }
-
-   private function priorityClass(string $priority): string {
+   private function priority_class(string $priority): string {
       return array(
          'low' => 'text-bg-secondary',
          'normal' => 'text-bg-primary',
@@ -73,7 +65,7 @@ class dbxContactAdmin {
       );
    }
 
-   private function reportStatusStatsHtml($report): string {
+   private function report_status_stats_html($report): string {
       $counts = $this->counts();
       return ''
          . '<span class="dbx-report-bar-stat ms-3"><span class="badge text-bg-primary">' . $this->h($report->get_fd_message('stat_open')) . ': ' . (int) $counts['count_open'] . '</span></span>'
@@ -157,27 +149,27 @@ class dbxContactAdmin {
       $db = $this->db();
       $rows = $db->select(dbxContactTicket::DD_TICKET, '', '*', 'id', 'ASC', '', 100000, 0, 0);
       foreach ((array) $rows as $ticket) {
-         dbxContactTicket::ensureInitialMessage($db, $ticket);
+         dbxContactTicket::ensure_initial_message($db, $ticket);
          if (trim((string) ($ticket['last_activity_date'] ?? '')) === '') {
             $last = (string) ($ticket['create_date'] ?? date('Y-m-d H:i:s'));
             $db->update(dbxContactTicket::DD_TICKET, array(
-               'priority' => dbxContactTicket::normalizePriority((string) ($ticket['priority'] ?? 'normal')),
+               'priority' => dbxContactTicket::normalize_priority((string) ($ticket['priority'] ?? 'normal')),
                'last_activity_date' => $last,
             ), (int) ($ticket['id'] ?? 0), 0, 1, 1, 0);
          }
       }
-      $contentPageId = dbxContactContentProvision::run($db);
+      $content_page_id = dbxContactContentProvision::run($db);
 
       return $this->frame(
          $this->alert('success', 'Ticket-Datenmodell installiert.')
-         . ($contentPageId > 0
+         . ($content_page_id > 0
             ? '<div class="alert alert-info mx-3">Die dbxContent-Seite „Meine Anfragen“ ist unter <a href="meine-anfragen">meine-anfragen</a> verfuegbar.</div>'
             : '<div class="alert alert-warning mx-3">Die dbxContent-Seite „Meine Anfragen“ konnte nicht automatisch angelegt werden.</div>')
          . '<div class="p-3"><a class="btn btn-primary" href="?dbx_modul=dbxContact_admin&dbx_run1=list"><i class="bi bi-list-ul"></i> Tickets anzeigen</a></div>'
       );
    }
 
-   private function whereForReport(string $search, string $status, string $priority): string {
+   private function where_for_report(string $search, string $status, string $priority): string {
       $db = $this->db();
       $server = $db->get_dd_server(dbxContactTicket::DD_TICKET);
       $clauses = array();
@@ -196,15 +188,15 @@ class dbxContactAdmin {
       return implode(' AND ', $clauses);
    }
 
-   private function decorateRows(array $rows, $report): array {
+   private function decorate_rows(array $rows, $report): array {
       $out = array();
       $db = $this->db();
       foreach ($rows as $row) {
          $rid = (int) ($row['id'] ?? 0);
-         $status = dbxContactTicket::normalizeStatus((string) ($row['status'] ?? 'open'));
-         $priority = dbxContactTicket::normalizePriority((string) ($row['priority'] ?? 'normal'));
-         $row['status_view'] = '<span class="badge ' . $this->statusClass($status) . '">' . $this->h($report->get_fd_message('status_' . $status, $status)) . '</span>';
-         $row['priority_view'] = '<span class="badge ' . $this->priorityClass($priority) . '">' . $this->h($report->get_fd_message('priority_' . $priority, $priority)) . '</span>';
+         $status = dbxContactTicket::normalize_status((string) ($row['status'] ?? 'open'));
+         $priority = dbxContactTicket::normalize_priority((string) ($row['priority'] ?? 'normal'));
+         $row['status_view'] = '<span class="badge ' . dbxContactPresentation::status_class($status) . '">' . $this->h($report->get_fd_message('status_' . $status, $status)) . '</span>';
+         $row['priority_view'] = '<span class="badge ' . $this->priority_class($priority) . '">' . $this->h($report->get_fd_message('priority_' . $priority, $priority)) . '</span>';
          $row['user_view'] = (int) ($row['uid'] ?? 0) > 0
             ? '#' . (int) $row['uid']
             : $report->get_fd_message('guest');
@@ -220,8 +212,8 @@ class dbxContactAdmin {
       return $out;
    }
 
-   private function deleteConfirmText(int $rid, int $messageCount, $source): array {
-      $hasThread = $messageCount > 0;
+   private function delete_confirm_text(int $rid, int $message_count, $source): array {
+      $has_thread = $message_count > 0;
 
       return array(
          'title' => $source->get_fd_message('delete_title'),
@@ -229,23 +221,23 @@ class dbxContactAdmin {
             'delete_question',
             array('id' => $rid)
          ),
-         'hint' => $hasThread
+         'hint' => $has_thread
             ? $source->format_fd_message(
                'delete_hint_thread',
-               array('count' => $messageCount)
+               array('count' => $message_count)
             )
             : $source->get_fd_message('delete_hint_empty'),
       );
    }
 
-   public function contactTicketReportRowActionData($report, $data): array {
+   public function contact_ticket_report_row_action_data($report, $data): array {
       if (!is_array($data) || (string) ($data['type'] ?? '') !== 'delete') {
          return $data;
       }
 
       $rid = (int) ($data['record']['id'] ?? $data['data']['rid'] ?? 0);
-      $messageCount = max(0, (int) ($data['record']['message_count'] ?? 0));
-      $confirm = $this->deleteConfirmText($rid, $messageCount, $report);
+      $message_count = max(0, (int) ($data['record']['message_count'] ?? 0));
+      $confirm = $this->delete_confirm_text($rid, $message_count, $report);
       $data['data']['action'] = '?dbx_modul=dbxContact_admin&dbx_run1=delete&rid=' . $rid;
       $data['data']['confirm_title'] = $confirm['title'];
       $data['data']['confirm'] = $confirm['question'];
@@ -257,18 +249,18 @@ class dbxContactAdmin {
       return $data;
    }
 
-   private function listTickets(string $success = '', string $error = '', ?bool $withFrame = null): string {
-      if ($withFrame === null) {
-         $withFrame = (int) dbx()->get_system_var('dbx_ajax', 0, 'int') !== 1;
+   private function list_tickets(string $success = '', string $error = '', ?bool $with_frame = null): string {
+      if ($with_frame === null) {
+         $with_frame = (int) dbx()->get_system_var('dbx_ajax', 0, 'int') !== 1;
       }
 
       $db = $this->db();
       $report = dbx()->get_system_obj('dbxReport');
       $report->init('contact-ticket-report', 'dbxContact_admin|ticket-report');
-      $report->_fd = 'dbxContact_admin|rpt-ticket-selection';
+      $report->set_field_definition('dbxContact_admin|rpt-ticket-selection');
       $report->load_fd_messages();
-      $report->_dd = dbxContactTicket::DD_TICKET;
-      $report->_action = '?dbx_modul=dbxContact_admin&dbx_run1=list';
+      $report->set_data_definition(dbxContactTicket::DD_TICKET);
+      $report->set_action('?dbx_modul=dbxContact_admin&dbx_run1=list');
       $report->_pages = true;
       $report->_create_row_select = false;
       $report->_create_row_edit = false;
@@ -281,7 +273,7 @@ class dbxContactAdmin {
       $report->_msg_info = '';
       $report->add_rep(
          'report_extra_stats',
-         $this->reportStatusStatsHtml($report)
+         $this->report_status_stats_html($report)
       );
       if ($success !== '') {
          $report->_msg_success = $report->get_fd_message(
@@ -293,8 +285,8 @@ class dbxContactAdmin {
          $report->_msg_error = $report->get_fd_message($error, $error);
       }
       $report->set_callback_owner($this);
-      $report->set_callback('row_action_data', 'contactTicketReportRowActionData');
-      $report->set_tabel_tpl('tpl_row_delete', 'modul|ticket-row-delete');
+      $report->set_callback('row_action_data', 'contact_ticket_report_row_action_data');
+      $report->set_table_tpl('tpl_row_delete', 'modul|ticket-row-delete');
       $report->create_selection_fields('dbxContact_admin|rpt-ticket-selection');
       $report->add_rep(
          'bar_title',
@@ -304,7 +296,7 @@ class dbxContactAdmin {
       $search = trim((string) $report->get_fld_val('dbx_rwhere', '', 'sqlsearch|max=100'));
       $status = (string) $report->get_fld_val('dbx_rstatus', 'all', 'parameter');
       $priority = (string) $report->get_fld_val('dbx_rpriority', 'all', 'parameter');
-      $rowsPerPage = max(10, min(100, (int) $report->get_fld_val('dbx_rrows', 30, 'int')));
+      $rows_per_page = max(10, min(100, (int) $report->get_fld_val('dbx_rrows', 30, 'int')));
       $position = max(0, (int) $report->get_fld_val('dbx_rpos', 0, 'int'));
       $sort = (string) $report->get_fld_val('dbx_rsort', 'last_activity_date', 'parameter');
       $direction = strtoupper((string) $report->get_fld_val('dbx_rdesc', 'DESC', 'parameter')) === 'ASC' ? 'ASC' : 'DESC';
@@ -312,7 +304,7 @@ class dbxContactAdmin {
          $sort = 'last_activity_date';
       }
 
-      $where = $this->whereForReport($search, $status, $priority);
+      $where = $this->where_for_report($search, $status, $priority);
       $cols = array('id', 'create_date', 'last_activity_date', 'status', 'priority', 'uid', 'name', 'email', 'subject', 'user_hidden');
       $report->_rflds = array(
          'id' => $report->get_fd_message('column_ticket'),
@@ -335,21 +327,21 @@ class dbxContactAdmin {
          'hidden_view' => 'html',
          'action' => 'html',
       );
-      $report->_rrows = $rowsPerPage;
+      $report->_rrows = $rows_per_page;
       $report->_rpos = $position;
       $report->_count_all = $db->count(dbxContactTicket::DD_TICKET, '');
       $report->_rcount = $db->count(dbxContactTicket::DD_TICKET, $where);
-      $rows = $db->select(dbxContactTicket::DD_TICKET, $where, $cols, $sort . ',id', $direction, '', $rowsPerPage, $position, 0);
-      $report->_rdata = $this->decorateRows(
+      $rows = $db->select(dbxContactTicket::DD_TICKET, $where, $cols, $sort . ',id', $direction, '', $rows_per_page, $position, 0);
+      $report->_rdata = $this->decorate_rows(
          is_array($rows) ? $rows : array(),
          $report
       );
 
       $content = $report->run();
-      return $withFrame ? $this->frame($content) : $content;
+      return $with_frame ? $this->frame($content) : $content;
    }
 
-   private function deleteTicketRecord(int $rid): bool {
+   private function delete_ticket_record(int $rid): bool {
       if ($rid <= 0 || !dbxContactTicket::ticket($this->db(), $rid)) {
          return false;
       }
@@ -358,8 +350,8 @@ class dbxContactAdmin {
       $ok = 0;
 
       if ($db->begin(dbxContactTicket::DD_TICKET) === 1) {
-         $messagesOk = $db->delete(dbxContactTicket::DD_MESSAGE, array('ticket_id' => $rid), 0, 1);
-         if ($messagesOk === 1 || $db->count(dbxContactTicket::DD_MESSAGE, array('ticket_id' => $rid)) === 0) {
+         $messages_ok = $db->delete(dbxContactTicket::DD_MESSAGE, array('ticket_id' => $rid), 0, 1);
+         if ($messages_ok === 1 || $db->count(dbxContactTicket::DD_MESSAGE, array('ticket_id' => $rid)) === 0) {
             $ok = $db->delete(dbxContactTicket::DD_TICKET, $rid, 0, 1);
          }
          if ($ok === 1) {
@@ -374,21 +366,21 @@ class dbxContactAdmin {
 
    private function timeline(array $ticket, $texts): string {
       $db = $this->db();
-      dbxContactTicket::ensureInitialMessage($db, $ticket);
+      dbxContactTicket::ensure_initial_message($db, $ticket);
       $html = '';
 
       foreach (dbxContactTicket::messages($db, (int) $ticket['id'], true) as $message) {
          $internal = (string) ($message['visibility'] ?? 'public') === 'internal';
-         $authorType = (string) ($message['author_type'] ?? 'system');
-         $statusTo = trim((string) ($message['status_to'] ?? ''));
+         $author_type = (string) ($message['author_type'] ?? 'system');
+         $status_to = trim((string) ($message['status_to'] ?? ''));
          $html .= $this->tpl()->get_tpl('dbxContact_admin|ticket-message', array(
-            'message_class' => $internal ? 'border-warning bg-warning-subtle' : ($authorType === 'admin' ? 'border-primary bg-primary-subtle' : 'bg-body-tertiary'),
-            'message_icon' => $internal ? 'bi-lock' : ($authorType === 'admin' ? 'bi-headset' : ($authorType === 'requester' ? 'bi-person' : 'bi-gear')),
+            'message_class' => $internal ? 'border-warning bg-warning-subtle' : ($author_type === 'admin' ? 'border-primary bg-primary-subtle' : 'bg-body-tertiary'),
+            'message_icon' => $internal ? 'bi-lock' : ($author_type === 'admin' ? 'bi-headset' : ($author_type === 'requester' ? 'bi-person' : 'bi-gear')),
             'author_label' => $internal
                ? $texts->get_fd_message('timeline_internal_note')
-               : ($authorType === 'admin'
+               : ($author_type === 'admin'
                   ? $texts->get_fd_message('timeline_support')
-                  : ($authorType === 'requester'
+                  : ($author_type === 'requester'
                      ? $texts->get_fd_message('timeline_requester')
                      : $texts->get_fd_message('timeline_system'))),
             'create_date' => $this->h($message['create_date'] ?? ''),
@@ -396,11 +388,11 @@ class dbxContactAdmin {
             'visibility_badge' => $internal
                ? '<span class="badge text-bg-warning">' . $this->h($texts->get_fd_message('timeline_internal_only')) . '</span>'
                : '',
-            'status_badge' => $statusTo !== ''
-               ? '<span class="badge ' . $this->statusClass($statusTo) . '">'
+            'status_badge' => $status_to !== ''
+               ? '<span class="badge ' . dbxContactPresentation::status_class($status_to) . '">'
                   . $this->h($texts->format_fd_message(
                      'timeline_status',
-                     array('status' => $texts->get_fd_message('status_' . $statusTo, $statusTo))
+                     array('status' => $texts->get_fd_message('status_' . $status_to, $status_to))
                   ))
                   . '</span>'
                : '',
@@ -417,26 +409,18 @@ class dbxContactAdmin {
          : '<div class="text-muted">' . $this->h($texts->get_fd_message('timeline_empty')) . '</div>';
    }
 
-   private function mailProfileOptions(array $extra = array()): array {
-      $profile = trim((string) dbx()->get_cfg('dbxContact', 'mail_profile'));
-      if ($profile !== '') {
-         $extra['mail_profile'] = $profile;
-      }
-      return $extra;
-   }
-
-   private function sendReplyMail(array $ticket, string $body): bool {
+   private function send_reply_mail(array $ticket, string $body): bool {
       $to = trim((string) ($ticket['email'] ?? ''));
       if ($to === '') {
          return false;
       }
 
       $from = trim((string) dbx()->get_cfg('dbxContact', 'mail_from'));
-      $fromName = trim((string) dbx()->get_cfg('dbxContact', 'mail_from_name'));
+      $from_name = trim((string) dbx()->get_cfg('dbxContact', 'mail_from_name'));
       if (filter_var($from, FILTER_VALIDATE_EMAIL) === false) {
          return false;
       }
-      $fromParam = array('email' => $from, 'name' => $fromName);
+      $from_param = array('email' => $from, 'name' => $from_name);
       $subject = 'Antwort zu Ticket #' . (int) $ticket['id'] . ': ' . (string) ($ticket['subject'] ?? 'Kontaktanfrage');
       $html = $this->tpl()->get_tpl('dbxContact|mail-contact-reply', array(
          'subject' => $this->h($ticket['subject'] ?? ''),
@@ -444,35 +428,34 @@ class dbxContactAdmin {
       ));
       $text = "Antwort zu Ticket #" . (int) $ticket['id'] . "\n\n" . $body;
 
-      return (bool) dbx()->send_mail(
-         $fromParam,
+      return (bool) dbx()->get_system_obj('dbxMail')->send_message(
+         $from_param,
          $to,
          $subject,
          $html,
          'html',
          array(),
-         $this->mailProfileOptions(array('text' => $text))
+         dbxContactPresentation::mail_options(array('text' => $text))
       );
    }
 
-   private function replyForm(array $ticket): string {
+   private function reply_form(array $ticket): string {
       $rid = (int) $ticket['id'];
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('contact-ticket-reply', 'ticket-reply-form');
-      $form->_dd = dbxContactTicket::DD_MESSAGE;
-      $form->_fd = 'dbxContact_admin|ticket-reply';
+      $form->set_data_source(dbxContactTicket::DD_MESSAGE, 'dbxContact_admin|ticket-reply');
       $form->load_fd_messages();
       $form->load_fd_messages(
          'dbxContact_admin|rpt-ticket-selection'
       );
-      $form->_action = '?dbx_modul=dbxContact_admin&dbx_run1=ticket&rid=' . $rid;
-      $form->_data = array(
-         'status' => dbxContactTicket::normalizeStatus((string) ($ticket['status'] ?? 'open')),
-         'priority' => dbxContactTicket::normalizePriority((string) ($ticket['priority'] ?? 'normal')),
+      $form->set_action('?dbx_modul=dbxContact_admin&dbx_run1=ticket&rid=' . $rid);
+      $form->set_data(array(
+         'status' => dbxContactTicket::normalize_status((string) ($ticket['status'] ?? 'open')),
+         'priority' => dbxContactTicket::normalize_priority((string) ($ticket['priority'] ?? 'normal')),
          'visibility' => 'public',
          'body' => '',
          'send_mail' => 1,
-      );
+      ));
       $form->add_module_bar(
          $form->get_fd_message('bar_title'),
          'bi-reply',
@@ -484,10 +467,10 @@ class dbxContactAdmin {
       $form->add_rep('bar_actions', '');
       $form->add_rep('bar_extra', '');
       $form->add_rep('rid', $rid);
-      $messageCount = max(0, (int) $this->db()->count(dbxContactTicket::DD_MESSAGE, array('ticket_id' => $rid)));
-      $confirm = $this->deleteConfirmText(
+      $message_count = max(0, (int) $this->db()->count(dbxContactTicket::DD_MESSAGE, array('ticket_id' => $rid)));
+      $confirm = $this->delete_confirm_text(
          $rid,
-         $messageCount,
+         $message_count,
          $form
       );
       $form->add_rep(
@@ -508,25 +491,25 @@ class dbxContactAdmin {
       $form->add_fld('send_mail');
 
       if ($form->submit() && !$form->errors()) {
-         $status = dbxContactTicket::normalizeStatus((string) $form->get_post('status', 'answered', 'parameter|max=24'));
-         $priority = dbxContactTicket::normalizePriority((string) $form->get_post('priority', 'normal', 'parameter|max=16'));
+         $status = dbxContactTicket::normalize_status((string) $form->get_post('status', 'answered', 'parameter|max=24'));
+         $priority = dbxContactTicket::normalize_priority((string) $form->get_post('priority', 'normal', 'parameter|max=16'));
          $visibility = (string) $form->get_post('visibility', 'public', 'parameter|max=16') === 'internal' ? 'internal' : 'public';
          $body = trim((string) $form->get_post_data('body', '', '*'));
-         $sendMail = (int) $form->get_post('send_mail', 0, 'int') === 1 && $visibility === 'public' && dbxContactConfig::mailOnReply();
-         $oldStatus = dbxContactTicket::normalizeStatus((string) ($ticket['status'] ?? 'open'));
+         $send_mail = (int) $form->get_post('send_mail', 0, 'int') === 1 && $visibility === 'public' && dbxContactConfig::mail_on_reply();
+         $old_status = dbxContactTicket::normalize_status((string) ($ticket['status'] ?? 'open'));
          $db = $this->db();
 
-         $messageId = dbxContactTicket::addMessage($db, $rid, array(
+         $message_id = dbxContactTicket::add_message($db, $rid, array(
             'author_uid' => (int) dbx()->user(),
             'author_type' => 'admin',
             'message_type' => $visibility === 'internal' ? 'note' : 'reply',
             'visibility' => $visibility,
             'body' => $body,
-            'status_from' => $oldStatus,
+            'status_from' => $old_status,
             'status_to' => $status,
          ));
 
-         if ($messageId > 0) {
+         if ($message_id > 0) {
             $values = array(
                'status' => $status,
                'priority' => $priority,
@@ -535,18 +518,18 @@ class dbxContactAdmin {
             );
             dbxContactTicket::touch($db, $rid, $values);
 
-            $mailOk = false;
-            if ($sendMail) {
-               $mailOk = $this->sendReplyMail($ticket, $body);
-               if ($mailOk) {
+            $mail_ok = false;
+            if ($send_mail) {
+               $mail_ok = $this->send_reply_mail($ticket, $body);
+               if ($mail_ok) {
                   $db->update(dbxContactTicket::DD_MESSAGE, array(
                      'mail_sent' => 1,
                      'mail_sent_date' => date('Y-m-d H:i:s'),
-                  ), $messageId, 0, 1, 1, 1);
+                  ), $message_id, 0, 1, 1, 1);
                }
             }
 
-            if ($sendMail && !$mailOk) {
+            if ($send_mail && !$mail_ok) {
                $form->_msg_warning = $form->get_fd_message(
                   'mail_warning'
                );
@@ -554,11 +537,11 @@ class dbxContactAdmin {
                $form->_msg_success = $visibility === 'internal'
                   ? $form->get_fd_message('internal_success')
                   : $form->get_fd_message('reply_success')
-                     . ($mailOk
+                     . ($mail_ok
                         ? $form->get_fd_message('mail_success_suffix')
                         : '');
             }
-            $form->_data['body'] = '';
+            $form->set_data_value('body', '');
          } else {
             $form->_msg_error = $form->get_fd_message('message_error');
          }
@@ -582,10 +565,10 @@ class dbxContactAdmin {
          );
       }
 
-      $replyForm = $this->replyForm($ticket);
+      $reply_form = $this->reply_form($ticket);
       $ticket = dbxContactTicket::ticket($this->db(), $rid);
-      $status = dbxContactTicket::normalizeStatus((string) ($ticket['status'] ?? 'open'));
-      $priority = dbxContactTicket::normalizePriority((string) ($ticket['priority'] ?? 'normal'));
+      $status = dbxContactTicket::normalize_status((string) ($ticket['status'] ?? 'open'));
+      $priority = dbxContactTicket::normalize_priority((string) ($ticket['priority'] ?? 'normal'));
       $content = $this->tpl()->get_tpl('dbxContact_admin|ticket-detail', array(
          'rid' => $rid,
          'subject' => $this->h($ticket['subject'] ?? ''),
@@ -598,45 +581,45 @@ class dbxContactAdmin {
             ? '#' . (int) $ticket['uid']
             : $texts->get_fd_message('guest'),
          'status_label' => $this->h($texts->get_fd_message('status_' . $status, $status)),
-         'status_class' => $this->statusClass($status),
+         'status_class' => dbxContactPresentation::status_class($status),
          'priority_label' => $this->h($texts->get_fd_message('priority_' . $priority, $priority)),
-         'priority_class' => $this->priorityClass($priority),
+         'priority_class' => $this->priority_class($priority),
          'user_visibility' => (int) ($ticket['user_hidden'] ?? 0) === 1
             ? $texts->get_fd_message('user_hidden')
             : $texts->get_fd_message('user_visible'),
          'timeline' => $this->timeline($ticket, $texts),
-         'reply_form' => $replyForm,
+         'reply_form' => $reply_form,
       ));
 
       return $this->frame($content, 'Ticket #' . $rid);
    }
 
-   private function deleteTicket(): string {
+   private function delete_ticket(): string {
       $rid = (int) dbx()->get_modul_var('rid', 0, 'int');
-      $withFrame = (int) dbx()->get_system_var('dbx_ajax', 0, 'int') !== 1;
+      $with_frame = (int) dbx()->get_system_var('dbx_ajax', 0, 'int') !== 1;
       $texts = dbx()->get_system_obj('dbxReport');
       $texts->init('contact-delete-texts', 'dbx|report');
       $texts->load_fd_messages(
          'dbxContact_admin|rpt-ticket-selection'
       );
-      if ($this->deleteTicketRecord($rid)) {
-         return $this->listTickets(
+      if ($this->delete_ticket_record($rid)) {
+         return $this->list_tickets(
             $texts->format_fd_message(
                'delete_success',
                array('id' => $rid)
             ),
             '',
-            $withFrame
+            $with_frame
          );
       }
 
-      return $this->listTickets(
+      return $this->list_tickets(
          '',
          $texts->format_fd_message(
             'delete_error',
             array('id' => $rid)
          ),
-         $withFrame
+         $with_frame
       );
    }
 
@@ -645,7 +628,7 @@ class dbxContactAdmin {
       if ($run === 'install') {
          return $this->install();
       }
-      if (!$this->schemaReady()) {
+      if (!$this->schema_ready()) {
          return $this->alert('warning', 'Das Ticket-Datenmodell ist noch nicht installiert.')
             . '<div class="p-3"><a class="btn btn-primary" href="?dbx_modul=dbxContact_admin&dbx_run1=install"><i class="bi bi-database-gear"></i> Jetzt installieren</a></div>';
       }
@@ -653,8 +636,8 @@ class dbxContactAdmin {
          return $this->ticket();
       }
       if ($run === 'delete') {
-         return $this->deleteTicket();
+         return $this->delete_ticket();
       }
-      return $this->listTickets();
+      return $this->list_tickets();
    }
 }

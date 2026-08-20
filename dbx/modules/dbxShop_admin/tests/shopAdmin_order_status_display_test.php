@@ -15,11 +15,11 @@ declare(strict_types=1);
  */
 
 $module = dirname(__DIR__);
-$dbxRoot = dirname(__DIR__, 3);
+$dbx_root = dirname(__DIR__, 3);
 
-require_once $dbxRoot . '/vendor/autoload.php';
-require_once $dbxRoot . '/include/dbxKernel.php';
-require_once $dbxRoot . '/include/tests/dbxModuleSourceBundle.php';
+require_once $dbx_root . '/vendor/autoload.php';
+require_once $dbx_root . '/include/dbxKernel.php';
+require_once $dbx_root . '/include/tests/dbxModuleSourceBundle.php';
 require_once $module . '/include/dbxShopAdmin.class.php';
 
 $failures = array();
@@ -38,11 +38,11 @@ $invoke = static function (string $method, array $args) use ($class, $admin) {
 
 // --- Status-/Kanal-Badges: bekannte Werte rendern, unbekannte stuerzen nicht ab ---
 foreach (array(
-    'orderStatusBadge' => array('new', 'payment_pending', 'paid', 'processing', 'shipped', 'done', 'cancelled'),
-    'paymentStatusBadge' => array('open', 'created', 'pending', 'completed', 'paid', 'failed', 'cancelled', 'refunded'),
-    'shippingStatusBadge' => array('open', 'ready', 'shipped', 'delivered', 'returned'),
-) as $method => $knownValues) {
-    foreach ($knownValues as $value) {
+    'order_status_badge' => array('new', 'payment_pending', 'paid', 'processing', 'shipped', 'done', 'cancelled'),
+    'payment_status_badge' => array('open', 'created', 'pending', 'completed', 'paid', 'failed', 'cancelled', 'refunded'),
+    'shipping_status_badge' => array('open', 'ready', 'shipped', 'delivered', 'returned'),
+) as $method => $known_values) {
+    foreach ($known_values as $value) {
         $html = (string)$invoke($method, array($value, null));
         $assert(
             str_contains($html, 'badge') && str_contains($html, 'text-bg-'),
@@ -60,67 +60,67 @@ foreach (array(
     );
 }
 
-$channelBadge = (string)$invoke('channelBadge', array('<img src=x onerror=alert(1)>'));
+$channel_badge = (string)$invoke('channel_badge', array('<img src=x onerror=alert(1)>'));
 $assert(
-    !str_contains($channelBadge, '<img'),
-    'channelBadge() escaped einen boesartigen Kanalnamen nicht.'
+    !str_contains($channel_badge, '<img'),
+    'channel_badge() escaped einen boesartigen Kanalnamen nicht.'
 );
 
-$providerLabel = (string)$invoke('paymentProviderLabel', array('unknown_provider', null));
+$provider_label = (string)$invoke('payment_provider_label', array('unknown_provider', null));
 $assert(
-    $providerLabel === 'unknown_provider',
-    'paymentProviderLabel() faellt bei unbekanntem Provider nicht auf den Rohwert zurueck.'
+    $provider_label === 'unknown_provider',
+    'payment_provider_label() faellt bei unbekanntem Provider nicht auf den Rohwert zurueck.'
 );
 
-// --- statusMailChangesHtml(): nur tatsaechlich geaenderte Felder in der Diff-Tabelle ---
+// --- status_mail_changes_html(): nur tatsaechlich geaenderte Felder in der Diff-Tabelle ---
 $base = array('status' => 'new', 'payment_status' => 'open', 'shipping_status' => 'open');
 
-$noChange = (string)$invoke('statusMailChangesHtml', array($base, $base));
+$no_change = (string)$invoke('status_mail_changes_html', array($base, $base));
 $assert(
-    str_contains($noChange, '<dl>') && !str_contains($noChange, '<table'),
-    'statusMailChangesHtml() zeigt bei unveraenderten Status trotzdem eine Diff-Tabelle statt der Zusammenfassung.'
+    str_contains($no_change, '<dl>') && !str_contains($no_change, '<table'),
+    'status_mail_changes_html() zeigt bei unveraenderten Status trotzdem eine Diff-Tabelle statt der Zusammenfassung.'
 );
 
-$statusOnlyChanged = array('status' => 'paid', 'payment_status' => 'open', 'shipping_status' => 'open');
-$diffHtml = (string)$invoke('statusMailChangesHtml', array($base, $statusOnlyChanged));
+$status_only_changed = array('status' => 'paid', 'payment_status' => 'open', 'shipping_status' => 'open');
+$diff_html = (string)$invoke('status_mail_changes_html', array($base, $status_only_changed));
 $assert(
-    str_contains($diffHtml, '<table') && str_contains($diffHtml, 'Bestellstatus'),
-    'statusMailChangesHtml() zeigt den geaenderten Bestellstatus nicht in der Diff-Tabelle.'
+    str_contains($diff_html, '<table') && str_contains($diff_html, 'Bestellstatus'),
+    'status_mail_changes_html() zeigt den geaenderten Bestellstatus nicht in der Diff-Tabelle.'
 );
 $assert(
-    !str_contains($diffHtml, 'Zahlungsstatus') && !str_contains($diffHtml, 'Versandstatus'),
-    'statusMailChangesHtml() zeigt unveraenderte Felder mit in der Diff-Tabelle an.'
+    !str_contains($diff_html, 'Zahlungsstatus') && !str_contains($diff_html, 'Versandstatus'),
+    'status_mail_changes_html() zeigt unveraenderte Felder mit in der Diff-Tabelle an.'
 );
 
-$allChanged = array('status' => 'shipped', 'payment_status' => 'paid', 'shipping_status' => 'shipped');
-$allDiffHtml = (string)$invoke('statusMailChangesHtml', array($base, $allChanged));
+$all_changed = array('status' => 'shipped', 'payment_status' => 'paid', 'shipping_status' => 'shipped');
+$all_diff_html = (string)$invoke('status_mail_changes_html', array($base, $all_changed));
 foreach (array('Bestellstatus', 'Zahlungsstatus', 'Versandstatus') as $label) {
     $assert(
-        str_contains($allDiffHtml, $label),
-        "statusMailChangesHtml() zeigt {$label} nicht, obwohl es sich geaendert hat."
+        str_contains($all_diff_html, $label),
+        "status_mail_changes_html() zeigt {$label} nicht, obwohl es sich geaendert hat."
     );
 }
 
-$xssOrder = array('status' => '<script>x</script>', 'payment_status' => 'open', 'shipping_status' => 'open');
-$xssDiff = (string)$invoke('statusMailChangesHtml', array($base, $xssOrder));
+$xss_order = array('status' => '<script>x</script>', 'payment_status' => 'open', 'shipping_status' => 'open');
+$xss_diff = (string)$invoke('status_mail_changes_html', array($base, $xss_order));
 $assert(
-    !str_contains($xssDiff, '<script>x</script>'),
-    'statusMailChangesHtml() escaped einen boesartigen Statuswert im Diff nicht.'
+    !str_contains($xss_diff, '<script>x</script>'),
+    'status_mail_changes_html() escaped einen boesartigen Statuswert im Diff nicht.'
 );
 
-// --- sendOrderStatusMail(): Quelltextvertrag fuer die Absender-/Empfaenger-Guards ---
+// --- send_order_status_mail(): Quelltextvertrag fuer die Absender-/Empfaenger-Guards ---
 $source = dbx_test_module_source_bundle($module . '/include/dbxShopAdminOrderService.trait.php');
 $assert(
     str_contains($source, 'if (filter_var($from, FILTER_VALIDATE_EMAIL) === false) {')
         && str_contains($source, "return array(false, 'Kundenmail wurde nicht gesendet: Der Mail-Absender in den Shop-Einstellungen ist ungültig.');"),
-    'sendOrderStatusMail() prueft nicht mehr die Gueltigkeit der Absenderadresse.'
+    'send_order_status_mail() prueft nicht mehr die Gueltigkeit der Absenderadresse.'
 );
 $assert(
     str_contains($source, "if (\$to === '' || !filter_var(\$to, FILTER_VALIDATE_EMAIL)) {"),
-    'sendOrderStatusMail() prueft nicht mehr die Gueltigkeit der Kunden-E-Mail vor dem Versand.'
+    'send_order_status_mail() prueft nicht mehr die Gueltigkeit der Kunden-E-Mail vor dem Versand.'
 );
 $assert(
-    str_contains($source, "\$this->repo()->addOrderHistory((int)(\$order['id'] ?? 0), 'customer_mail',"),
+    str_contains($source, "\$this->repo()->add_order_history((int)(\$order['id'] ?? 0), 'customer_mail',"),
     'Ein erfolgreich gesendeter Statusmail-Versand wird nicht mehr in der Bestellhistorie protokolliert.'
 );
 

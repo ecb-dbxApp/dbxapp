@@ -1,12 +1,8 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
-
 require dirname(__DIR__) . '/dd/shopProductChannel.dd.php';
 
-$fdLabels = array(
+$fd_labels = array(
     'product_id' => 'Producto',
     'channel_key' => 'Canal',
     'active' => 'Activo',
@@ -21,12 +17,12 @@ $fdLabels = array(
     'last_export_date' => 'Última exportación',
     'note' => 'Nota',
 );
-foreach ($fields as &$fdField) {
-    if (isset($fdLabels[$fdField['name']])) {
-        $fdField['label'] = $fdLabels[$fdField['name']];
+foreach ($fields as &$fd_field) {
+    if (isset($fd_labels[$fd_field['name']])) {
+        $fd_field['label'] = $fd_labels[$fd_field['name']];
     }
 }
-unset($fdField, $fdLabels);
+unset($fd_field, $fd_labels);
 
 $messages['mapping_title'] = 'Mapeo de canal';
 $messages['mapping_missing'] = 'Falta el producto o el canal.';

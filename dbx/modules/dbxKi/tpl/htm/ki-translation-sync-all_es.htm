@@ -1,6 +1,6 @@
 <div class="dbx-panel dbx-ki-briefing-form dbx-ki-update dbx-ki-create dbx-ki-translation-sync"
-     data-dbx="lib=kiBriefing|mode=folder|tree={tree_url}|folderid={root_folder_id}|lng={source_lng}">
- [tpl=dbx|module-bar]
+     data-dbx="lib=kiBriefing|module=dbxKi|mode=folder|tree={tree_url}|folderid={root_folder_id}|lng={source_lng}">
+ {form:bar}
  <div class="dbx-ki-update-shell">
   <div class="dbx-ki-update-workspace dbx-ki-create-workspace">
    <aside class="dbx-ki-tree-panel">
@@ -18,7 +18,7 @@
 
    <aside class="dbx-ki-order-panel">
    <form method="post" class="card p-3 mb-3" action="{action}">
-    {obj:form_msg}
+    {form:message}
     <input type="hidden" name="root_folder_id" value="{root_folder_id}" data-ki-root-folder-id>
 
     <section class="dbx-ki-card dbx-ki-selected-context">
@@ -49,7 +49,8 @@
      <button class="btn btn-primary" type="submit" name="sync_mode" value="execute">Ejecución</button>
     </div>
     [dbx:form]
-   </form>
+    {form:footer}
+ </form>
    {result_html}
    </aside>
   </div>

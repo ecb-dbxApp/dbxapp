@@ -10,25 +10,25 @@
  * AJAX-Konfiguration regulär am Formular hängen kann.
  */
 
-$dbxRoot = dirname(__DIR__, 2);
+$dbx_root = dirname(__DIR__, 2);
 require_once __DIR__ . '/dbxModuleSourceBundle.php';
-$ajaxFile = $dbxRoot . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'ajax.js';
-$confirmFile = $dbxRoot . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'confirm.js';
-$cartTemplate = $dbxRoot . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxShop'
+$ajax_file = $dbx_root . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'ajax.js';
+$confirm_file = $dbx_root . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'confirm.js';
+$cart_template = $dbx_root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxShop'
     . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm' . DIRECTORY_SEPARATOR . 'shop-cart-report.htm';
-$shopStartTemplate = $dbxRoot . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxShop'
+$shop_start_template = $dbx_root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxShop'
     . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm' . DIRECTORY_SEPARATOR . 'start.htm';
-$shopJsFile = $dbxRoot . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxShop'
+$shop_js_file = $dbx_root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxShop'
     . DIRECTORY_SEPARATOR . 'design' . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'shop.js';
-$shopServiceFile = $dbxRoot . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxShop'
+$shop_service_file = $dbx_root . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'dbxShop'
     . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'dbxShopService.class.php';
 
-$ajax = is_file($ajaxFile) ? (string)file_get_contents($ajaxFile) : '';
-$confirm = is_file($confirmFile) ? (string)file_get_contents($confirmFile) : '';
-$cart = is_file($cartTemplate) ? (string)file_get_contents($cartTemplate) : '';
-$shopStart = is_file($shopStartTemplate) ? (string)file_get_contents($shopStartTemplate) : '';
-$shopJs = is_file($shopJsFile) ? (string)file_get_contents($shopJsFile) : '';
-$shopService = is_file($shopServiceFile) ? dbx_test_module_source_bundle($shopServiceFile) : '';
+$ajax = is_file($ajax_file) ? (string)file_get_contents($ajax_file) : '';
+$confirm = is_file($confirm_file) ? (string)file_get_contents($confirm_file) : '';
+$cart = is_file($cart_template) ? (string)file_get_contents($cart_template) : '';
+$shop_start = is_file($shop_start_template) ? (string)file_get_contents($shop_start_template) : '';
+$shop_js = is_file($shop_js_file) ? (string)file_get_contents($shop_js_file) : '';
+$shop_service = is_file($shop_service_file) ? dbx_test_module_source_bundle($shop_service_file) : '';
 $errors = array();
 
 if (strpos($ajax, 'submitSource: e.submitter || null') === false) {
@@ -56,17 +56,17 @@ if (strpos($cart, 'name="clear"') === false) {
     $errors[] = 'Warenkorb-Template enthält name="clear" nicht.';
 }
 
-if (strpos($shopService, 'name="remove"') === false) {
+if (strpos($shop_service, 'name="remove"') === false) {
     $errors[] = 'Warenkorb-Report enthält name="remove" nicht.';
 }
 
 if (strpos($cart, 'data-dbx-shop-cart-count="{cart_count}"') === false
-    || strpos($shopService, "add_rep('cart_count'") === false) {
+    || strpos($shop_service, "add_rep('cart_count'") === false) {
     $errors[] = 'Warenkorb-Report veröffentlicht den aktuellen Menüzähler nicht.';
 }
 
-if (strpos($shopStart, 'dbxShop/design/js/shop.js?v={dbx:asset_version}') === false
-    || strpos($shopJs, 'window.dbx.event.on("ajax:after"') === false) {
+if (strpos($shop_start, 'dbxShop/design/js/shop.js?v={dbx:asset_version}') === false
+    || strpos($shop_js, 'window.dbx.event.on("ajax:after"') === false) {
     $errors[] = 'Shop-Menüzähler wird nach AJAX-Aktionen nicht synchronisiert.';
 }
 

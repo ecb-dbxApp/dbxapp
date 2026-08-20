@@ -10,11 +10,11 @@
         const path = require("path");
         const root = path.resolve(__dirname, "../../..");
         const jquery = fs.readFileSync(path.resolve(root, "dbx/vendor/components/jquery/jquery.js"), "utf8");
-        const tree = fs.readFileSync(path.resolve(root, "dbx/js/lib/dbxJstree.js"), "utf8");
+        const tree = fs.readFileSync(path.resolve(root, "dbx/add_ons/dbxJstree/dbxJstree.js"), "utf8");
         assert(jquery.includes("jQuery JavaScript Library v4.0.0"), "jQuery 4.0.0 fehlt.");
         assert(tree.includes("dbxJstree 1.0.0"), "Vollständige dbxJstree-Lib fehlt.");
         assert(tree.includes("feature.register('dbxJstree'"), "dbxJstree ist nicht im dbxapp-Lader registriert.");
-        assert(!tree.includes("add_ons/jstree"), "dbxJstree referenziert noch das alte Add-on.");
+        assert(tree.includes("add_ons/dbxJstree/assets"), "dbxJstree verwendet nicht seinen isolierten Asset-Pfad.");
         console.log("PASS dbxJstree static jQuery-4 contract");
         return;
     }
@@ -36,7 +36,7 @@
     }
 
     load("dbx/vendor/components/jquery/jquery.min.js")
-        .then(() => load("dbx/js/lib/dbxJstree.js"))
+        .then(() => load("dbx/add_ons/dbxJstree/dbxJstree.js"))
         .then(() => new Promise((resolve, reject) => {
             let runtimeError = null;
             const captureRuntimeError = event => {

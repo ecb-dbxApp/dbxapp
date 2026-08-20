@@ -1,9 +1,6 @@
 <?php
 
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Test overview';
 $messages['bar_subtitle'] = 'Simple list of all tests from the latest run.';
 $messages['column_name'] = 'Test';

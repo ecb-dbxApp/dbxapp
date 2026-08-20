@@ -23,17 +23,17 @@ class dbxActionManifest
         if (!preg_match('/^[a-z][a-z0-9-]*$/', $manifest)) {
             throw new InvalidArgumentException('Ungültiger Name des Aktionsmanifests.');
         }
-        $cacheKey = $module . '|' . $manifest;
-        if (isset($this->cache[$cacheKey])) {
-            return $this->cache[$cacheKey];
+        $cache_key = $module . '|' . $manifest;
+        if (isset($this->cache[$cache_key])) {
+            return $this->cache[$cache_key];
         }
 
         $file = dbx()->get_base_dir() . 'dbx/modules/' . $module . '/cfg/' . $manifest . '.php';
         if (!is_file($file)) {
-            return $this->cache[$cacheKey] = array();
+            return $this->cache[$cache_key] = array();
         }
-        $actions = (static function (string $manifestFile): mixed {
-            return require $manifestFile;
+        $actions = (static function (string $manifest_file): mixed {
+            return require $manifest_file;
         })($file);
         if (!is_array($actions)) {
             throw new UnexpectedValueException($module . ': Aktionsmanifest muss ein Array liefern.');
@@ -65,7 +65,7 @@ class dbxActionManifest
                 'response' => $response,
             ));
         }
-        return $this->cache[$cacheKey] = $normalized;
+        return $this->cache[$cache_key] = $normalized;
     }
 
     /** @return array<string,mixed>|null */

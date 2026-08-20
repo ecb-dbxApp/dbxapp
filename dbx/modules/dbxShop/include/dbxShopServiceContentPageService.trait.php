@@ -3,7 +3,7 @@ namespace dbx\dbxShop;
 
 trait dbxShopServiceContentPageServiceTrait {
 
-   private function contentDb() {
+   private function content_db() {
       $db = dbx()->get_system_obj('dbxDB');
       if (!is_object($db) || !$db->connect_db_server('dbx|dbxContent.db3')) {
          return null;
@@ -11,23 +11,23 @@ trait dbxShopServiceContentPageServiceTrait {
       return $db;
    }
 
-   private function findContentFolder($db, string $name, int $parentId): int {
+   private function find_content_folder($db, string $name, int $parent_id): int {
       $name = trim($name);
-      $parentId = (int) $parentId;
+      $parent_id = (int) $parent_id;
       if ($name === '') {
          return 0;
       }
-      $where = "name = '" . str_replace("'", "''", $name) . "' AND parent_id = " . $parentId;
-      $rows = $db->select(\dbx\dbxContent\dbxContentLng::ddFolder(), $where, 'id', 'id', 'ASC', '', 1, 0, 0);
+      $where = "name = '" . str_replace("'", "''", $name) . "' AND parent_id = " . $parent_id;
+      $rows = $db->select(\dbx\dbxContent\dbxContentLng::dd_folder(), $where, 'id', 'id', 'ASC', '', 1, 0, 0);
       if (!is_array($rows) || !isset($rows[0]['id'])) {
          return 0;
       }
       return (int) $rows[0]['id'];
    }
 
-   private function nextFolderSorter($db, int $parentId): string {
-      $parentId = (int) $parentId;
-      $rows = $db->select(\dbx\dbxContent\dbxContentLng::ddFolder(), 'parent_id = ' . $parentId, 'sorter', 'sorter,id', 'DESC', '', 1, 0, 0);
+   private function next_folder_sorter($db, int $parent_id): string {
+      $parent_id = (int) $parent_id;
+      $rows = $db->select(\dbx\dbxContent\dbxContentLng::dd_folder(), 'parent_id = ' . $parent_id, 'sorter', 'sorter,id', 'DESC', '', 1, 0, 0);
       $max = 0;
       if (is_array($rows) && isset($rows[0]) && is_array($rows[0])) {
          $max = (int) ($rows[0]['sorter'] ?? 0);
@@ -35,9 +35,9 @@ trait dbxShopServiceContentPageServiceTrait {
       return sprintf('%04d', $max + 10);
    }
 
-   private function nextContentSorter($db, int $folderId): string {
-      $folderId = (int) $folderId;
-      $rows = $db->select(\dbx\dbxContent\dbxContentLng::ddContent(), 'folder = ' . $folderId, 'sorter', 'sorter,id', 'DESC', '', 1, 0, 0);
+   private function next_content_sorter($db, int $folder_id): string {
+      $folder_id = (int) $folder_id;
+      $rows = $db->select(\dbx\dbxContent\dbxContentLng::dd_content(), 'folder = ' . $folder_id, 'sorter', 'sorter,id', 'DESC', '', 1, 0, 0);
       $max = 0;
       if (is_array($rows) && isset($rows[0]) && is_array($rows[0])) {
          $max = (int) ($rows[0]['sorter'] ?? 0);
@@ -45,16 +45,16 @@ trait dbxShopServiceContentPageServiceTrait {
       return sprintf('%04d', $max + 10);
    }
 
-   private function ensureShopContentFolder($db): int {
-      $folderId = $this->findContentFolder($db, 'shop', 0);
-      if ($folderId > 0) {
-         return $folderId;
+   private function ensure_shop_content_folder($db): int {
+      $folder_id = $this->find_content_folder($db, 'shop', 0);
+      if ($folder_id > 0) {
+         return $folder_id;
       }
 
       $data = array(
          'name' => 'shop',
          'parent_id' => 0,
-         'sorter' => $this->nextFolderSorter($db, 0),
+         'sorter' => $this->next_folder_sorter($db, 0),
          'group_read' => '*',
          'template' => 'c-body1-footer',
          'hero_template' => 'image-hero',
@@ -65,31 +65,31 @@ trait dbxShopServiceContentPageServiceTrait {
          'hero_sticky' => 'parent',
          'hero_scroll_layer' => 'parent',
       );
-      $ok = (int) $db->insert(\dbx\dbxContent\dbxContentLng::ddFolder(), $data, 0, 1, 0, 0);
+      $ok = (int) $db->insert(\dbx\dbxContent\dbxContentLng::dd_folder(), $data, 0, 1, 0, 0);
       if ($ok !== 1) {
          return 0;
       }
-      $folderId = (int) $db->get_insert_id();
-      if ($folderId <= 0) {
+      $folder_id = (int) $db->get_insert_id();
+      if ($folder_id <= 0) {
          return 0;
       }
 
-      if ($folderId > 0) {
-         \dbx\dbxContent\dbxContentLngSync::afterFolderSave($db, $folderId, true);
+      if ($folder_id > 0) {
+         \dbx\dbxContent\dbxContentLngSync::after_folder_save($db, $folder_id, true);
       }
-      return $folderId;
+      return $folder_id;
    }
 
-   private function shopLegalPageData($db, int $folderId, string $title, string $permalink, string $content): array {
+   private function shop_legal_page_data($db, int $folder_id, string $title, string $permalink, string $content): array {
       return array(
          'activ' => 1,
-         'folder' => $folderId,
+         'folder' => $folder_id,
          'title' => substr($title, 0, 254),
          'permalink' => substr($permalink, 0, 254),
          'description' => '',
          'keywords' => '',
          'group_read' => '*',
-         'sorter' => $this->nextContentSorter($db, $folderId),
+         'sorter' => $this->next_content_sorter($db, $folder_id),
          'template' => 'c-body1-footer',
          'hero_template' => 'parent',
          'hero_image_id' => 'parent',
@@ -108,17 +108,17 @@ trait dbxShopServiceContentPageServiceTrait {
       );
    }
 
-   private function syncContentPermalink(int $cid, string $permalink): void {
+   private function sync_content_permalink(int $cid, string $permalink): void {
       if ($cid <= 0 || trim($permalink) === '') {
          return;
       }
-      \dbx\dbxContent\dbxContentPermalinkIndex::upsertPage($cid, $permalink, '*', 1);
+      \dbx\dbxContent\dbxContentPermalinkIndex::upsert_page($cid, $permalink, '*', 1);
    }
 
-   private function ensureShopLegalPage($db, int $folderId, string $title, string $permalink, string $content, array $legacyPermalinks = array()): int {
-      $dd = \dbx\dbxContent\dbxContentLng::ddContent();
+   private function ensure_shop_legal_page($db, int $folder_id, string $title, string $permalink, string $content, array $legacy_permalinks = array()): int {
+      $dd = \dbx\dbxContent\dbxContentLng::dd_content();
       $existing = null;
-      foreach (array_values(array_unique(array_merge(array($permalink), $legacyPermalinks))) as $candidate) {
+      foreach (array_values(array_unique(array_merge(array($permalink), $legacy_permalinks))) as $candidate) {
          $existing = $db->select1($dd, array('permalink' => $candidate), 'id,content,permalink', 0);
          if (is_array($existing) && (int)($existing['id'] ?? 0) > 0) {
             break;
@@ -126,20 +126,20 @@ trait dbxShopServiceContentPageServiceTrait {
       }
       if (is_array($existing) && (int) ($existing['id'] ?? 0) > 0) {
          $id = (int) $existing['id'];
-         $storedContent = trim((string) ($existing['content'] ?? ''));
-         if ($storedContent === '') {
-            $data = $this->shopLegalPageData($db, $folderId, $title, $permalink, $content);
+         $stored_content = trim((string) ($existing['content'] ?? ''));
+         if ($stored_content === '') {
+            $data = $this->shop_legal_page_data($db, $folder_id, $title, $permalink, $content);
             unset($data['sorter'], $data['folder']);
             $db->update($dd, $data, $id, 0, 1, 1, 0);
-            \dbx\dbxContent\dbxContentLngSync::afterPageSave($db, $id, false);
+            \dbx\dbxContent\dbxContentLngSync::after_page_save($db, $id, false);
          } else {
             $db->update($dd, array('permalink' => $permalink, 'template' => 'c-body1-footer', 'group_read' => '*', 'activ' => 1), $id, 0, 1, 1, 0);
          }
-         $this->syncContentPermalink($id, $permalink);
+         $this->sync_content_permalink($id, $permalink);
          return $id;
       }
 
-      $data = $this->shopLegalPageData($db, $folderId, $title, $permalink, $content);
+      $data = $this->shop_legal_page_data($db, $folder_id, $title, $permalink, $content);
       $ok = (int) $db->insert($dd, $data, 0, 1, 0, 0);
       if ($ok !== 1) {
          return 0;
@@ -149,37 +149,37 @@ trait dbxShopServiceContentPageServiceTrait {
          return 0;
       }
       if ($id > 0) {
-         \dbx\dbxContent\dbxContentLngSync::afterPageSave($db, $id, true);
-         $this->syncContentPermalink($id, $permalink);
+         \dbx\dbxContent\dbxContentLngSync::after_page_save($db, $id, true);
+         $this->sync_content_permalink($id, $permalink);
       }
       return $id;
    }
 
-   public function ensureShopLegalPages(): array {
-      $db = $this->contentDb();
+   public function ensure_shop_legal_pages(): array {
+      $db = $this->content_db();
       if (!is_object($db)) {
          return array();
       }
-      $folderId = $this->ensureShopContentFolder($db);
-      if ($folderId <= 0) {
+      $folder_id = $this->ensure_shop_content_folder($db);
+      if ($folder_id <= 0) {
          return array();
       }
 
       return array(
-         'legal' => $this->ensureShopLegalPage($db, $folderId, 'Rechtstexte', 'shop-rechtstexte', $this->defaultLegalContent(), array('shop/rechtstexte')),
-         'withdrawal' => $this->ensureShopLegalPage($db, $folderId, 'Widerruf', 'shop-widerruf', $this->defaultWithdrawalContent(), array('shop/widerruf')),
+         'legal' => $this->ensure_shop_legal_page($db, $folder_id, 'Rechtstexte', 'shop-rechtstexte', $this->default_legal_content(), array('shop/rechtstexte')),
+         'withdrawal' => $this->ensure_shop_legal_page($db, $folder_id, 'Widerruf', 'shop-widerruf', $this->default_withdrawal_content(), array('shop/widerruf')),
       );
    }
 
-   private function renderCmsShopPage(string $key, string $title, string $subtitle, string $active): string {
-      $pages = $this->ensureShopLegalPages();
+   private function render_cms_shop_page(string $key, string $title, string $subtitle, string $active): string {
+      $pages = $this->ensure_shop_legal_pages();
       $cid = (int) ($pages[$key] ?? 0);
       if ($cid <= 0) {
          return $this->page($title, $subtitle, $this->placeholder($title, 'Die CMS-Seite konnte nicht angelegt oder geladen werden.'), $active);
       }
 
       $renderer = dbx()->get_include_obj('dbxContentRenderer', 'dbxContent');
-      $body = is_object($renderer) ? (string) $renderer->renderStatic($cid, array('template' => 'c-body1-footer')) : '';
+      $body = is_object($renderer) ? (string) $renderer->render_static($cid, array('template' => 'c-body1-footer')) : '';
       if (trim($body) === '') {
          $body = $this->placeholder($title, 'Die CMS-Seite ist leer.');
       }
@@ -192,9 +192,9 @@ trait dbxShopServiceContentPageServiceTrait {
     * Repository- und Mail-Aktion laufen erst nach erfolgreicher Token- und
     * Feldvalidierung. Ein fremder POST kann damit keinen Widerruf anlegen.
     */
-   private function withdrawalFormHtml($form): string {
-      $form->_action = '?dbx_modul=dbxShop&dbx_run1=withdrawal';
-      $form->_data = array_merge($form->_data, array(
+   private function withdrawal_form_html($form): string {
+      $form->set_action('?dbx_modul=dbxShop&dbx_run1=withdrawal');
+      $form->merge_data(array(
          'order_no' => (string)($_POST['order_no'] ?? ''),
          'customer_name' => (string)($_POST['customer_name'] ?? ''),
          'customer_email' => (string)($_POST['customer_email'] ?? ''),
@@ -224,11 +224,11 @@ trait dbxShopServiceContentPageServiceTrait {
                'reason' => $form->get_post_data('reason', '', '*|max=3000'),
             );
 
-            $row = $this->repo()->saveWithdrawal($values);
+            $row = $this->repo()->save_withdrawal($values);
             if (is_array($row)) {
-               $this->sendWithdrawalMails($row);
-               foreach (array_keys($values) as $fieldName) {
-                  $form->set_fld_val($fieldName, '');
+               $this->send_withdrawal_mails($row);
+               foreach (array_keys($values) as $field_name) {
+                  $form->set_fld_val($field_name, '');
                }
                $form->_msg_success = $form->get_fd_message(
                   'withdrawal_success'
@@ -244,7 +244,7 @@ trait dbxShopServiceContentPageServiceTrait {
       return $form->run();
    }
 
-   private function defaultLegalContent(): string {
+   private function default_legal_content(): string {
       return <<<'HTML'
 <div class="dbx-shop-legal-text">
    <h1>Rechtstexte</h1>
@@ -293,7 +293,7 @@ trait dbxShopServiceContentPageServiceTrait {
 HTML;
    }
 
-   private function defaultWithdrawalContent(): string {
+   private function default_withdrawal_content(): string {
       return <<<'HTML'
 <div class="dbx-shop-legal-text">
    <h1>Widerruf</h1>

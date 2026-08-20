@@ -34,23 +34,23 @@ class dbxFormValueResolver
         array $system,
         array $post,
         array $query,
-        bool $useRequest,
-        bool $fallbackToState
+        bool $use_request,
+        bool $fallback_to_state
     ): array {
         $value = $default;
         $origin = 'default';
-        if ($fallbackToState && array_key_exists($name, $data)) {
+        if ($fallback_to_state && array_key_exists($name, $data)) {
             $value = $data[$name];
             $origin = 'data';
         }
-        if ($fallbackToState && array_key_exists($name, $system)) {
+        if ($fallback_to_state && array_key_exists($name, $system)) {
             $value = $system[$name];
             $origin = 'sys';
         }
-        if ($useRequest && array_key_exists($name, $post)) {
+        if ($use_request && array_key_exists($name, $post)) {
             $value = $post[$name];
             $origin = 'post';
-        } elseif ($useRequest && array_key_exists($name, $query)) {
+        } elseif ($use_request && array_key_exists($name, $query)) {
             $value = $query[$name];
             $origin = 'get';
         }
@@ -59,7 +59,7 @@ class dbxFormValueResolver
         $validation = array();
         $valid = true;
         if ($rules !== '') {
-            $validation = $this->validator->validateResult($value, $rules, $name);
+            $validation = $this->validator->validate_result($value, $rules, $name);
             $valid = (bool)($validation['valid'] ?? false);
             if ($valid && preg_match('/(?:^|\|)trim(?:\||$)/', $rules)) {
                 $value = $validation['normalized'] ?? $value;

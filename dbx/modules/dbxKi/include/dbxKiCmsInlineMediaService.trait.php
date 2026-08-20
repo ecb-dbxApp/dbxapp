@@ -30,45 +30,45 @@ trait dbxKiCmsInlineMediaServiceTrait {
    private function package_media_id_for_permalink(string $permalink): int {
       $permalink = trim(strtolower($permalink));
       $map = $this->package_media_file_map();
-      $fileName = (string)($map[$permalink] ?? '');
-      if ($fileName === '') {
+      $file_name = (string)($map[$permalink] ?? '');
+      if ($file_name === '') {
          return 0;
       }
-      $where = "active = 1 AND file_name = '" . str_replace("'", "''", $fileName) . "'";
+      $where = "active = 1 AND file_name = '" . str_replace("'", "''", $file_name) . "'";
       $row = $this->db->select1('dbxMedia', $where);
       return is_array($row) ? (int)($row['id'] ?? 0) : 0;
    }
 
    private function package_page_hint(array $page): ?array {
       $permalink = trim((string)($page['permalink'] ?? ''));
-      $mediaId = $this->package_media_id_for_permalink($permalink);
-      if ($mediaId <= 0) {
+      $media_id = $this->package_media_id_for_permalink($permalink);
+      if ($media_id <= 0) {
          return null;
       }
       return array(
          'permalink' => $permalink,
-         'media_id' => $mediaId,
+         'media_id' => $media_id,
          'file_name' => (string)($this->package_media_file_map()[strtolower($permalink)] ?? ''),
-         'inline_src' => $this->inline_media_src($mediaId),
+         'inline_src' => $this->inline_media_src($media_id),
          'update_patch' => array('package_product_image' => true),
       );
    }
 
-   private function apply_package_product_image(string $content, int $mediaId, string $alt = ''): string {
-      if ($mediaId <= 0 || stripos($content, 'col-md-4') === false || stripos($content, 'card') === false) {
+   private function apply_package_product_image(string $content, int $media_id, string $alt = ''): string {
+      if ($media_id <= 0 || stripos($content, 'col-md-4') === false || stripos($content, 'card') === false) {
          return $content;
       }
-      $srcEsc = htmlspecialchars($this->inline_media_src($mediaId), ENT_QUOTES, 'UTF-8');
-      $altEsc = htmlspecialchars($alt !== '' ? $alt : 'Paket', ENT_QUOTES, 'UTF-8');
-      $img = '<img class="card-img-top" src="' . $srcEsc . '" data-cms-media-id="' . $mediaId . '" alt="' . $altEsc . '">';
+      $src_esc = htmlspecialchars($this->inline_media_src($media_id), ENT_QUOTES, 'UTF-8');
+      $alt_esc = htmlspecialchars($alt !== '' ? $alt : 'Paket', ENT_QUOTES, 'UTF-8');
+      $img = '<img class="card-img-top" src="' . $src_esc . '" data-cms-media-id="' . $media_id . '" alt="' . $alt_esc . '">';
 
       $updated = preg_replace_callback(
          '/<div class="col-md-4"><div class="card shadow-sm(?:\s+position-relative)?">(?:<img[^>]*card-img-top[^>]*>)?(?:<span class="position-absolute[^>]*>[\s\S]*?<\/span>)?<div class="card-body text-center">([\s\S]*?)<\/div><\/div><\/div>/i',
          function($m) use ($img) {
             $body = (string)($m[1] ?? '');
             $badge = '';
-            if (preg_match('/<span class="badge[^>]*bg-success[^>]*>([\s\S]*?)<\/span>/i', $body, $badgeMatch)) {
-               $label = trim(strip_tags((string)($badgeMatch[1] ?? 'Kostenlos')));
+            if (preg_match('/<span class="badge[^>]*bg-success[^>]*>([\s\S]*?)<\/span>/i', $body, $badge_match)) {
+               $label = trim(strip_tags((string)($badge_match[1] ?? 'Kostenlos')));
                if ($label !== '') {
                   $badge = '<span class="position-absolute top-0 end-0 badge rounded-pill bg-success m-2">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>';
                }
@@ -85,28 +85,28 @@ trait dbxKiCmsInlineMediaServiceTrait {
       return is_string($updated) && $updated !== '' ? $updated : $content;
    }
 
-   private function ensure_inline_media_usage(int $contentId, int $mediaId, string $lng = ''): void {
-      $contentId = (int)$contentId;
-      $mediaId = (int)$mediaId;
-      if ($contentId <= 0 || $mediaId <= 0) {
+   private function ensure_inline_media_usage(int $content_id, int $media_id, string $lng = ''): void {
+      $content_id = (int)$content_id;
+      $media_id = (int)$media_id;
+      if ($content_id <= 0 || $media_id <= 0) {
          return;
       }
       $lng = dbxContentMediaUsageScope::language($lng);
-      $where = dbxContentMediaUsageScope::withLanguage('content_id = ' . $contentId . ' AND media_id = ' . $mediaId . " AND slot = 'inline' AND active = 1", $lng);
+      $where = dbxContentMediaUsageScope::with_language('content_id = ' . $content_id . ' AND media_id = ' . $media_id . " AND slot = 'inline' AND active = 1", $lng);
       if (is_array($this->db->select1('dbxMediaUsage', $where))) {
          return;
       }
       $data = array(
          'active' => 1,
-         'media_id' => $mediaId,
-         'content_id' => $contentId,
+         'media_id' => $media_id,
+         'content_id' => $content_id,
          'folder_id' => 0,
          'content_lng' => $lng,
          'slot' => 'inline',
          'template' => '',
          'caption' => '',
          'settings' => '',
-         'sorter' => $this->next_usage_sorter($contentId, 0, 'inline', $lng),
+         'sorter' => $this->next_usage_sorter($content_id, 0, 'inline', $lng),
       );
       $this->db->insert('dbxMediaUsage', $data);
    }
@@ -189,8 +189,8 @@ trait dbxKiCmsInlineMediaServiceTrait {
       );
       if (is_array($rows)) {
          foreach ($rows as $candidate) {
-            $candidatePath = ltrim(str_replace('\\', '/', (string)($candidate['file_path'] ?? '')), '/');
-            if ($candidatePath === $rel || basename($candidatePath) === $base) {
+            $candidate_path = ltrim(str_replace('\\', '/', (string)($candidate['file_path'] ?? '')), '/');
+            if ($candidate_path === $rel || basename($candidate_path) === $base) {
                return $cache[$rel] = (int)($candidate['id'] ?? 0);
             }
          }

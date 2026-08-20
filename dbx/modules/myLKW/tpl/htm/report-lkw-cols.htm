@@ -1,0 +1,31 @@
+[tpl=dbx|frame-head]
+[tpl=dbx|frame-body-open]
+ <div id="lkw-report" class="print-wrapper">
+  <section class="print-page">
+   <div class="border-bottom pb-2 mb-3">
+    <div class="d-flex justify-content-between">
+     <div id="print-date">{date}</div>
+     <div id="print-page">1</div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-6 print-column">[modul=myLKW]dbx_aktion=lkw_report&page=1&col=1[/modul]</div>
+    <div class="col-6 print-column">[modul=myLKW]dbx_aktion=lkw_report&page=1&col=2[/modul]</div>
+   </div>
+  </section>
+  <div class="page_break"><hr></div>
+  <section class="print-page">
+   <div class="border-bottom pb-2 mb-3">
+    <div class="d-flex justify-content-between">
+     <div id="print-date">{date}</div>
+     <div id="print-page">2</div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-6 print-column">[modul=myLKW]dbx_aktion=lkw_report&page=2&col=1[/modul]</div>
+    <div class="col-6 print-column">[modul=myLKW]dbx_aktion=lkw_report&page=2&col=2[/modul]</div>
+   </div>
+  </section>
+ </div>
+[tpl=dbx|frame-body-close]
+[tpl=dbx|frame-foot]

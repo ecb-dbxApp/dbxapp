@@ -1,0 +1,39 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxWorkflow_admin",
+    "type": "module",
+    "name": "dbxWorkflow_admin",
+    "title": "dbxWorkflow_admin",
+    "description": "Workflows visuell definieren, an Module binden und laufende Instanzen überwachen.",
+    "descriptions": {
+        "de": "Workflows visuell definieren, an Module binden und laufende Instanzen überwachen.",
+        "en": "Visually define workflows, bind modules and monitor running instances.",
+        "es": "Definir flujos visualmente, vincular módulos y supervisar instancias."
+    },
+    "icon": "bi-bezier2",
+    "image": "dbx/modules/dbxWorkflow_admin/tpl/img/dbxWorkflow_admin.png",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": {
+            "dbxapp/module/dbxWorkflow": "^4.4.0"
+        }
+    },
+    "permissions": [
+        "administration",
+        "database"
+    ],
+    "migrations": [],
+    "files": []
+}

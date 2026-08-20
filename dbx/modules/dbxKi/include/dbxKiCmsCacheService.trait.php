@@ -14,41 +14,41 @@ use dbx\dbxContent\dbxContent_permalink;
 trait dbxKiCmsCacheServiceTrait {
 
    private function invalidate_page(int $id, string $lng, array $row): void {
-      dbxContentPageCache::invalidateContent($id);
-      dbxContentPageCache::invalidateAllMenus();
-      $previousLng = dbx()->get_system_var('dbx_lng', dbxContentLngSync::masterLng());
+      dbxContentPageCache::invalidate_content($id);
+      dbxContentPageCache::invalidate_all_menus();
+      $previous_lng = dbx()->get_system_var('dbx_lng', dbxContentLngSync::master_lng());
       dbx()->set_system_var('dbx_lng', $lng);
       $renderer = new dbxContentRenderer();
-      $rights = $renderer->getPublicFolderRights((int)($row['folder'] ?? 0));
+      $rights = $renderer->get_public_folder_rights((int)($row['folder'] ?? 0));
       if ((int)($row['activ'] ?? 1) === 1 && trim((string)($row['permalink'] ?? '')) !== '') {
-         dbxContentPermalinkIndex::upsertPage($id, (string)$row['permalink'], $rights, 1, $lng);
+         dbxContentPermalinkIndex::upsert_page($id, (string)$row['permalink'], $rights, 1, $lng);
       } else {
-         dbxContentPermalinkIndex::removeByCid($id, $lng);
+         dbxContentPermalinkIndex::remove_by_cid($id, $lng);
       }
-      dbxContentHome::refreshHomeCache($this->db, $id, $lng);
-      dbx()->set_system_var('dbx_lng', $previousLng);
+      dbxContentHome::refresh_home_cache($this->db, $id, $lng);
+      dbx()->set_system_var('dbx_lng', $previous_lng);
    }
 
    private function invalidate_folder(int $id): void {
-      dbxContentPageCache::invalidateFolderTree($this->db, $id);
-      dbxContentPageCache::invalidateAllMenus();
+      dbxContentPageCache::invalidate_folder_tree($this->db, $id);
+      dbxContentPageCache::invalidate_all_menus();
    }
 
    private function invalidate_usage(array $usage): void {
       $content = (int)($usage['content_id'] ?? 0);
       $folder = (int)($usage['folder_id'] ?? 0);
-      if ($content > 0) dbxContentPageCache::invalidateContent($content);
-      if ($folder > 0) dbxContentPageCache::invalidateFolderTree($this->db, $folder);
-      dbxContentPageCache::invalidateAllMenus();
+      if ($content > 0) dbxContentPageCache::invalidate_content($content);
+      if ($folder > 0) dbxContentPageCache::invalidate_folder_tree($this->db, $folder);
+      dbxContentPageCache::invalidate_all_menus();
    }
 
-   private function invalidate_media_references(int $mediaId): void {
-      $mediaId = (int)$mediaId;
-      if ($mediaId <= 0) {
+   private function invalidate_media_references(int $media_id): void {
+      $media_id = (int)$media_id;
+      if ($media_id <= 0) {
          return;
       }
 
-      $rows = $this->db->select('dbxMediaUsage', 'media_id = ' . $mediaId . ' AND active = 1', '*', 'id', 'ASC', '', 0, 0, 0);
+      $rows = $this->db->select('dbxMediaUsage', 'media_id = ' . $media_id . ' AND active = 1', '*', 'id', 'ASC', '', 0, 0, 0);
       foreach (is_array($rows) ? $rows : array() as $row) {
          if (is_array($row)) {
             $this->invalidate_usage($row);

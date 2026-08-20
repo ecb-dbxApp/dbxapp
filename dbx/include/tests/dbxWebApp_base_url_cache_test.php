@@ -12,16 +12,16 @@ $_SERVER['SERVER_PORT'] = '443';
 $web = dbx()->get_system_obj('dbxWebApp');
 
 dbx()->set_remember_var('base_url', 'https://localhost/dbxapp/', 'dbx');
-$baseUrl = $web->resolve_base_url('/dbxapp-github');
-if ($baseUrl !== 'https://localhost/dbxapp-github/') {
-   fwrite(STDERR, "FAIL: Veralteter Installationspfad blieb im Basis-URL-Cache: $baseUrl\n");
+$base_url = $web->resolve_base_url('/dbxapp-github');
+if ($base_url !== 'https://localhost/dbxapp-github/') {
+   fwrite(STDERR, "FAIL: Veralteter Installationspfad blieb im Basis-URL-Cache: $base_url\n");
    exit(1);
 }
 
 dbx()->set_remember_var('base_url', 'https://localhost/dbxapp-github/', 'dbx');
-$sameBaseUrl = $web->resolve_base_url('/dbxapp-github');
-if ($sameBaseUrl !== 'https://localhost/dbxapp-github/') {
-   fwrite(STDERR, "FAIL: Passender Basis-URL-Cache wurde nicht beibehalten: $sameBaseUrl\n");
+$same_base_url = $web->resolve_base_url('/dbxapp-github');
+if ($same_base_url !== 'https://localhost/dbxapp-github/') {
+   fwrite(STDERR, "FAIL: Passender Basis-URL-Cache wurde nicht beibehalten: $same_base_url\n");
    exit(2);
 }
 

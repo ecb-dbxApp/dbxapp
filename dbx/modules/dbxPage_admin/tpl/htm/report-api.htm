@@ -1,7 +1,7 @@
 <div class="dbx-panel dbxReport" id="dbx_target_{i}"> 
  <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax {class}"> 
- [dbx:form] 
- [tpl=dbx|report-form-select]
+ {report:bar}
+ <div class="dbx-report-message">{report:message}</div>
  [dbx:pagination] 
  <hr/> 
  <table class="table table-striped table-bordered table-light table-hover" data-toggle="table"> 

@@ -6,15 +6,15 @@ declare(strict_types=1);
  * Service-Traits. Quelltextvertraege pruefen dadurch die echte Komposition und
  * zwingen Implementierung nicht zurueck in eine monolithische Datei.
  */
-function dbx_test_module_source_bundle(string $entryFile): string
+function dbx_test_module_source_bundle(string $entry_file): string
 {
-    if (!is_file($entryFile)) return '';
-    $source = (string)file_get_contents($entryFile);
+    if (!is_file($entry_file)) return '';
+    $source = (string)file_get_contents($entry_file);
     $bundle = $source;
     if (!preg_match_all("~require_once __DIR__ \\. '/([^']+\\.trait\\.php)'~", $source, $matches)) {
         return $bundle;
     }
-    $directory = dirname($entryFile);
+    $directory = dirname($entry_file);
     foreach (array_values(array_unique($matches[1])) as $relative) {
         $file = $directory . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
         if (is_file($file)) $bundle .= "\n" . (string)file_get_contents($file);

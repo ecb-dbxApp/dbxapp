@@ -1,5 +1,7 @@
 <?php
 /**
+ * @brief Deterministische Rendering-Engine für Variablen, Inclusions und Template-Bausteine.
+ *
  * =========================================================
  * DBX TEMPLATE SYSTEM (dbxTPL)
  * =========================================================
@@ -61,7 +63,7 @@
  *
  * Speicherort:
  *
- *   private $templateCache im aktuellen dbxTPL-Objekt/Request
+ *   private $template_cache im aktuellen dbxTPL-Objekt/Request
  *
  * Struktur:
  *
@@ -182,7 +184,7 @@
  * Eigenschaften:
  *
  *   ✔ zerstört kein HTML
- *   ✔ funktioniert mit <ul>, <table>, etc.
+ *   ✔ funktioniert mit HTML-Listen und HTML-Tabellen
  *   ✔ unterstützt verschachtelte Templates
  *
  *
@@ -281,11 +283,11 @@ class dbxTPL extends \dbxObj {
     /**
      * Maximale Rekursionstiefe für [tpl]
      */
-    private $maxDepth = 10;
+    private $max_depth = 10;
     public $_modul = 'dbx';
 
     /** Rohcache der in diesem Request bereits gelesenen Templates. */
-    private array $templateCache = array();
+    private array $template_cache = array();
 
     /**
      * Leert den Rohcache gezielt nach einem In-Request-Editor-Schreibvorgang.
@@ -293,7 +295,17 @@ class dbxTPL extends \dbxObj {
      * dbxTPL-Instanz beginnt immer mit einem leeren Cache.
      */
     public function clear_raw_cache(): void {
-        $this->templateCache = array();
+        $this->template_cache = array();
+    }
+
+    /** Normalisiert URL-Parameterdaten fuer die Template-Ersetzung. */
+    private function normalize_replacements($data): array {
+        if (is_array($data)) return $data;
+        if (!is_string($data) || $data === '' || $data[0] === '=' || strpos($data, '=') === false) {
+            return array();
+        }
+        parse_str($data, $parsed);
+        return is_array($parsed) ? $parsed : array();
     }
 
 
@@ -307,7 +319,7 @@ class dbxTPL extends \dbxObj {
     function replaces(string $tpl, $replaces): string {
 
         if (!is_array($replaces)) {
-            $replaces = dbx()->parse_url($replaces);
+            $replaces = $this->normalize_replacements($replaces);
         }
 
         if (!is_array($replaces) || !$replaces) {
@@ -336,57 +348,43 @@ class dbxTPL extends \dbxObj {
     public function replaces_dbx(string $tpl): string {
 
         $api = dbx();
-        $coreConfig = is_object($api) && method_exists($api, 'get_config')
+        $core_config = is_object($api) && method_exists($api, 'get_cfg')
             ? $api->get_cfg('dbx')
             : array();
-        $coreConfig = is_array($coreConfig) ? $coreConfig : array();
-        $brand = trim((string)($coreConfig['brand_name'] ?? ''));
+        $core_config = is_array($core_config) ? $core_config : array();
+        $brand = trim((string)($core_config['brand_name'] ?? ''));
         if ($brand === '') {
-            $brand = trim((string)($coreConfig['site_title'] ?? ($coreConfig['page'] ?? 'dbxapp')));
+            $brand = trim((string)($core_config['site_title'] ?? ($core_config['page'] ?? 'dbxapp')));
         }
-        $tagline = trim((string)($coreConfig['brand_tagline'] ?? ''));
-        $pageTitle = trim((string)dbx()->get_system_var('dbx_title', ''));
-        $seoTitle = trim((string)dbx()->get_system_var('dbx_seo_title', ''));
-        $documentTitle = $seoTitle !== '' ? $seoTitle : $pageTitle;
-        if ($documentTitle === '') {
-            $documentTitle = $brand;
-        } elseif ($brand !== '' && stripos($documentTitle, $brand) === false) {
-            $documentTitle .= ' · ' . $brand;
+        $tagline = trim((string)($core_config['brand_tagline'] ?? ''));
+        $page_title = trim((string)dbx()->get_system_var('dbx_title', ''));
+        $seo_title = trim((string)dbx()->get_system_var('dbx_seo_title', ''));
+        $document_title = $seo_title !== '' ? $seo_title : $page_title;
+        if ($document_title === '') {
+            $document_title = $brand;
+        } elseif ($brand !== '' && stripos($document_title, $brand) === false) {
+            $document_title .= ' · ' . $brand;
         }
 
         $tpl = str_replace('{dbx:base_href}', dbx()->get_base_url(), $tpl);
-        $tpl = str_replace('{dbx:docs_home_url}', dbx()->get_base_url() . 'dokumentation/', $tpl);
         $tpl = str_replace('{dbx:design}'   , dbx()->get_system_var('dbx_activ_design', dbx()->get_system_var('dbx_design')), $tpl);
-        $tpl = str_replace('{dbx:color}'    , dbx()->get_skin(), $tpl);
-        $tpl = str_replace('{dbx:skin_css}' , dbx()->get_skin_css(), $tpl);
-        $tpl = str_replace('{dbx:skin_class}', dbx()->get_skin_class(), $tpl);
-        $docsReturnUrl = (string)dbx()->get_system_var('dbx_docs_return_url', '');
-        if ($docsReturnUrl === '' && method_exists(dbx(), 'get_system_obj')) {
-            $webApp = dbx()->get_system_obj('dbxWebApp');
-            $docsReturnUrl = method_exists($webApp, 'documentation_return_url')
-                ? $webApp->documentation_return_url()
-                : dbx()->get_base_url();
-        }
-        if ($docsReturnUrl === '') {
-            $docsReturnUrl = dbx()->get_base_url();
-        }
-        $tpl = str_replace(
-            '{dbx:docs_return_url}',
-            htmlspecialchars($docsReturnUrl, ENT_QUOTES, 'UTF-8'),
-            $tpl
-        );
+        $presentation = dbx()->get_system_obj('dbxPresentation');
+        $tpl = str_replace('{dbx:color}'    , $presentation->get_skin(), $tpl);
+        $tpl = str_replace('{dbx:skin_css}' , $presentation->get_skin_css(), $tpl);
+        $tpl = str_replace('{dbx:skin_class}', $presentation->get_skin_class(), $tpl);
         $tpl = str_replace('{dbx:page}'     , dbx()->get_system_var('dbx_activ_page', dbx()->get_system_var('dbx_page')), $tpl);
         $tpl = str_replace('{dbx:lng}'      , dbx()->get_system_var('dbx_activ_lng', dbx()->get_system_var('dbx_lng')), $tpl);
-        $tpl = str_replace('{dbx:title}'    , htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8'), $tpl);
-        $tpl = str_replace('{dbx:document_title}', htmlspecialchars($documentTitle, ENT_QUOTES, 'UTF-8'), $tpl);
+        $tpl = str_replace('{dbx:edit}'     , (string)max(0, min(9, (int)dbx()->get_system_var('dbx_edit', 0, 'int'))), $tpl);
+        $tpl = str_replace('{dbx:title}'    , htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'), $tpl);
+        $tpl = str_replace('{dbx:document_title}', htmlspecialchars($document_title, ENT_QUOTES, 'UTF-8'), $tpl);
         $tpl = str_replace('{dbx:brand}'    , htmlspecialchars($brand, ENT_QUOTES, 'UTF-8'), $tpl);
         $tpl = str_replace('{dbx:tagline}'  , htmlspecialchars($tagline, ENT_QUOTES, 'UTF-8'), $tpl);
         $tpl = str_replace('{dbx:perma}'    , dbx()->get_system_var('dbx_perma'), $tpl);
-        $rawVersion = is_object($api) && method_exists($api, 'get_version') ? $api->get_version() : '';
-        $version = htmlspecialchars($rawVersion, ENT_QUOTES, 'UTF-8');
-        $assetVersion = htmlspecialchars($this->asset_version($rawVersion), ENT_QUOTES, 'UTF-8');
+        $raw_version = is_object($api) && method_exists($api, 'get_version') ? $api->get_version() : '';
+        $version = htmlspecialchars($raw_version, ENT_QUOTES, 'UTF-8');
+        $asset_version = htmlspecialchars($this->asset_version($raw_version), ENT_QUOTES, 'UTF-8');
         $tpl = str_replace('{dbx:version}', $version, $tpl);
-        $tpl = str_replace('{dbx:asset_version}', $assetVersion, $tpl);
+        $tpl = str_replace('{dbx:asset_version}', $asset_version, $tpl);
 
         $meta_description = (string)dbx()->get_system_var('dbx_meta_description', '');
         $meta_keywords    = (string)dbx()->get_system_var('dbx_meta_keywords', '');
@@ -429,9 +427,9 @@ class dbxTPL extends \dbxObj {
         }
 
         $base = trim($version) !== '' ? trim($version) : '0';
-        $cacheDir = dirname(__DIR__, 2) . '/files/sys/cache';
-        $cacheFile = $cacheDir . '/asset-version.json';
-        $cached = is_file($cacheFile) ? json_decode((string)@file_get_contents($cacheFile), true) : null;
+        $cache_dir = dirname(__DIR__, 2) . '/files/sys/cache';
+        $cache_file = $cache_dir . '/asset-version.json';
+        $cached = is_file($cache_file) ? json_decode((string)@file_get_contents($cache_file), true) : null;
         if (is_array($cached)
             && (string)($cached['base'] ?? '') === $base
             && (int)($cached['scanned_at'] ?? 0) >= time() - 2
@@ -440,9 +438,9 @@ class dbxTPL extends \dbxObj {
             return $versions[$version] = $base . '.' . (int)$cached['latest_mtime'];
         }
 
-        $dbxDir = dirname(__DIR__);
-        $latestMtime = 0;
-        foreach (array($dbxDir . '/design', $dbxDir . '/js', $dbxDir . '/modules') as $root) {
+        $dbx_dir = dirname(__DIR__);
+        $latest_mtime = 0;
+        foreach (array($dbx_dir . '/design', $dbx_dir . '/js', $dbx_dir . '/modules') as $root) {
             if (!is_dir($root)) {
                 continue;
             }
@@ -458,27 +456,27 @@ class dbxTPL extends \dbxObj {
                 if ($extension !== 'css' && $extension !== 'js') {
                     continue;
                 }
-                $latestMtime = max($latestMtime, (int)$file->getMTime());
+                $latest_mtime = max($latest_mtime, (int)$file->getMTime());
             }
         }
 
-        if (!is_dir($cacheDir)) @mkdir($cacheDir, 0775, true);
-        if (is_dir($cacheDir) && is_writable($cacheDir)) {
+        if (!is_dir($cache_dir)) @mkdir($cache_dir, 0775, true);
+        if (is_dir($cache_dir) && is_writable($cache_dir)) {
             $payload = json_encode(array(
                 'base' => $base,
-                'latest_mtime' => $latestMtime,
+                'latest_mtime' => $latest_mtime,
                 'scanned_at' => time(),
             ), JSON_UNESCAPED_SLASHES);
             if (is_string($payload)) {
-                $temporary = $cacheFile . '.' . getmypid() . '.tmp';
+                $temporary = $cache_file . '.' . getmypid() . '.tmp';
                 if (@file_put_contents($temporary, $payload, LOCK_EX) !== false) {
-                    if (is_file($cacheFile)) @unlink($cacheFile);
-                    if (!@rename($temporary, $cacheFile)) @unlink($temporary);
+                    if (is_file($cache_file)) @unlink($cache_file);
+                    if (!@rename($temporary, $cache_file)) @unlink($temporary);
                 }
             }
         }
 
-        $versions[$version] = $latestMtime > 0 ? $base . '.' . $latestMtime : $base;
+        $versions[$version] = $latest_mtime > 0 ? $base . '.' . $latest_mtime : $base;
         return $versions[$version];
     }
 
@@ -538,9 +536,9 @@ class dbxTPL extends \dbxObj {
             $lines[] = ltrim($hreflang);
         }
 
-        $jsonLd = trim((string)dbx()->get_system_var('dbx_json_ld', ''));
-        if ($jsonLd !== '') {
-            $lines[] = $jsonLd;
+        $json_ld = trim((string)dbx()->get_system_var('dbx_json_ld', ''));
+        if ($json_ld !== '') {
+            $lines[] = $json_ld;
         }
 
         if (!$lines) {
@@ -551,17 +549,34 @@ class dbxTPL extends \dbxObj {
     }
 
     /**
-     * Baut das Nachlade-Skript fuer per dbx()->add_css()/add_js() registrierte
+     * Baut das Nachlade-Skript fuer im dbxAssetRegistry registrierte
      * Modul-Assets. Die Dateien werden nicht direkt verlinkt, sondern ueber
      * core.js (dbx.add_css/dbx.add_js) nachgeladen, damit dbxapp einen
      * einzigen Lade-/Cache-Weg fuer alle Design- und Modul-Assets behaelt.
      */
     private function build_module_assets_block(): string {
-        $api = dbx();
-        $css = method_exists($api, 'get_module_assets') ? $api->get_module_assets('css') : array();
-        $js  = method_exists($api, 'get_module_assets') ? $api->get_module_assets('js') : array();
+        $ui_defaults_script = '';
+        try {
+            $ui_defaults = dbx()->get_system_obj('dbxUiSettingsService')->load_defaults();
+            $ui_defaults['desktop'] = (object)($ui_defaults['desktop'] ?? array());
+            $ui_defaults['mobile'] = (object)($ui_defaults['mobile'] ?? array());
+            $ui_defaults_json = json_encode(
+                $ui_defaults,
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+            );
+            if (is_string($ui_defaults_json)) {
+                $ui_defaults_script = "\n<script>if(window.dbx){dbx.uiDefaultPayload="
+                    . $ui_defaults_json . ";}</script>";
+            }
+        } catch (Throwable $exception) {
+            $ui_defaults_script = '';
+        }
+
+        $assets = dbx()->get_system_obj('dbxAssetRegistry');
+        $css = $assets->get_assets('css');
+        $js  = $assets->get_assets('js');
         if (!$css && !$js) {
-            return '';
+            return $ui_defaults_script;
         }
 
         $calls = array();
@@ -572,7 +587,7 @@ class dbxTPL extends \dbxObj {
             $calls[] = 'dbx.add_js("root", ' . json_encode((string)$path, JSON_UNESCAPED_SLASHES) . ');';
         }
 
-        return "\n<script>(function () { if (window.dbx && dbx.add_css && dbx.add_js) {\n"
+        return $ui_defaults_script . "\n<script>(function () { if (window.dbx && dbx.add_css && dbx.add_js) {\n"
             . implode("\n", $calls) . "\n} })();</script>";
     }
 
@@ -580,7 +595,7 @@ class dbxTPL extends \dbxObj {
         // Technische Routen sind niemals eigenstaendige Suchergebnisse.
         // Diese Regel hat Vorrang vor dem SEO-Wert eines eventuell zugleich
         // geladenen Content-Datensatzes.
-        $technicalKeys = array(
+        $technical_keys = array(
             'dbx_modul',
             'dbx_run1',
             'dbx_run2',
@@ -591,7 +606,7 @@ class dbxTPL extends \dbxObj {
             'dbx_edit',
             'dbx_token',
         );
-        foreach ($technicalKeys as $key) {
+        foreach ($technical_keys as $key) {
             if (trim((string)dbx()->get_request_var($key, '', '*')) !== '') {
                 return 'noindex,follow';
             }
@@ -663,11 +678,11 @@ class dbxTPL extends \dbxObj {
             return "<div class='alert alert-danger'>TPL ($modul/$file.$type) not found</div>";
         }
 
-        $relPath = dbx()->editor_file_path($path);
-        $cacheKey = $modul . '|' . $file . '|' . $type . '|' . $lng;
-        $cached = $this->templateCache[$cacheKey] ?? null;
+        $rel_path = dbx()->editor_file_path($path);
+        $cache_key = $modul . '|' . $file . '|' . $type . '|' . $lng;
+        $cached = $this->template_cache[$cache_key] ?? null;
         if (is_array($cached)
-            && (string)($cached['path'] ?? '') === $relPath) {
+            && (string)($cached['path'] ?? '') === $rel_path) {
             return (string)($cached['tpl'] ?? '');
         }
 
@@ -677,12 +692,49 @@ class dbxTPL extends \dbxObj {
         }
 
         // Cache speichern
-        $this->templateCache[$cacheKey] = [
+        $this->template_cache[$cache_key] = [
             'tpl'   => $tpl,
-            'path'  => $relPath,
+            'path'  => $rel_path,
         ];
 
         return $tpl;
+    }
+
+    /**
+     * Rendert eine modulgebundene Hilfe aus tpl/help.
+     *
+     * Hilfetexte sind damit versionierte Bestandteile ihres Moduls und weder
+     * CMS-Inhalt noch Eigentum eines zentralen Admin-Moduls. Sprachvarianten
+     * folgen demselben Vertrag wie normale Templates (name_en.htm usw.).
+     */
+    public function get_help_tpl(string $modul, string $file, $data = '', int $depth = 0): string {
+        if ($depth > $this->max_depth
+            || !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $modul)
+            || !preg_match('/^[a-z0-9][a-z0-9_-]*$/', $file)) {
+            return '';
+        }
+
+        $base = dbx()->get_base_dir() . 'dbx/modules/' . $modul . '/tpl/help/';
+        $path = dbx()->lng_resolve_file($base, $file, 'htm', '', true);
+        if ($path === '' || !is_file($path)) {
+            return '';
+        }
+
+        $tpl = file_get_contents($path);
+        if (!is_string($tpl)) {
+            return '';
+        }
+
+        dbx()->register_editor_file('tpl', $path);
+        $tpl = $this->replaces_dbx($tpl);
+        $tpl = $this->replaces($tpl, $data);
+        if (strpos($tpl, '[inc=') !== false) {
+            $tpl = $this->process_inc($tpl);
+        }
+        if (strpos($tpl, '[tpl=') !== false) {
+            $tpl = $this->process_tpl($tpl, $data, $depth);
+        }
+        return $this->cleanup_optional_placeholders($tpl);
     }
 
 
@@ -693,7 +745,7 @@ class dbxTPL extends \dbxObj {
     /**
      * Prüft ob Template Editor Marker bekommt
      */
-    private function has_editor($modul, $isDesign, $edit, $path = ''): bool {
+    private function has_editor($modul, $is_design, $edit, $path = ''): bool {
         if ((int)dbx()->get_system_var('dbx_editor', 0, 'int') > 0) {
             return false;
         }
@@ -702,16 +754,16 @@ class dbxTPL extends \dbxObj {
             return false;
         }
 
-        $isDbxModule = $this->is_dbx_template_path($path);
+        $is_dbx_module = $this->is_dbx_template_path($path);
 
         if ($path === '') {
-            $isDbxModule = strtolower(trim((string) $modul)) === 'dbx';
+            $is_dbx_module = strtolower(trim((string) $modul)) === 'dbx';
         }
 
         switch ($edit) {
-            case 1: return !$isDesign && !$isDbxModule;
-            case 2: return !$isDesign && $isDbxModule;
-            case 3: return !$isDesign;
+            case 1: return !$is_design && !$is_dbx_module;
+            case 2: return !$is_design && $is_dbx_module;
+            case 3: return !$is_design;
             case 9: return true;
         }
 
@@ -725,8 +777,8 @@ class dbxTPL extends \dbxObj {
 
     private function get_cached_tpl_path($modul, $file, $type): string {
         $lng = dbx()->get_system_var('dbx_lng', '');
-        $cacheKey = $modul . '|' . strtolower((string)$file) . '|' . $type . '|' . $lng;
-        $path = $this->templateCache[$cacheKey]['path'] ?? '';
+        $cache_key = $modul . '|' . strtolower((string)$file) . '|' . $type . '|' . $lng;
+        $path = $this->template_cache[$cache_key]['path'] ?? '';
 
         // Auch absolute Windows-Pfade aus dem requestlokalen Rohcache normalisieren.
         return $path !== '' ? dbx()->editor_file_path($path) : '';
@@ -827,7 +879,7 @@ class dbxTPL extends \dbxObj {
      */
     private function process_tpl($tpl, $data, $depth) {
 
-        if ($depth > $this->maxDepth) {
+        if ($depth > $this->max_depth) {
             return "<!-- MAX DEPTH -->";
         }
 
@@ -855,6 +907,157 @@ class dbxTPL extends \dbxObj {
        MAIN ENTRY
     ========================================================= */
 
+    /** Liefert kleine, zentrale UI-Texte fuer gemeinsame Controls. */
+    private function core_ui_text(string $key): string {
+        $lng = (string)dbx()->get_system_var('dbx_lng', 'de');
+        $lng = in_array($lng, array('en', 'es'), true) ? $lng : 'de';
+        $texts = array(
+            'de' => array(
+                'save' => 'Speichern', 'filter' => 'Filter anwenden', 'reload' => 'Neu laden',
+                'delete' => 'Löschen', 'delete_question' => 'Wirklich löschen?',
+                'delete_undo_hint' => 'Dieser Vorgang kann nicht rückgängig gemacht werden.',
+                'delete_rows' => 'Zeilen löschen', 'show_password' => 'Passwort anzeigen',
+                'form_actions' => 'Formularaktionen', 'delete_record_title' => 'Datensatz löschen',
+                'message_delete_error' => 'Der Datensatz konnte nicht gelöscht werden.',
+                'message_delete_success' => 'Der Datensatz wurde gelöscht.',
+                'message_save_error' => 'Die Daten konnten nicht gespeichert werden.',
+                'message_save_success' => 'Die Daten wurden gespeichert.',
+                'message_validation_error' => 'Bitte prüfen Sie die markierten Eingaben.',
+                'message_warning' => 'Bitte prüfen Sie die Eingaben.',
+                'report_values' => 'Report Werte', 'report_statistics' => 'Report Kennzahlen',
+                'report_filters' => 'Report-Filter', 'filters' => 'Filter',
+                'total' => 'Gesamt', 'filtered' => 'Selektiert', 'selected' => 'Ausgewählt',
+                'pagination' => 'Seitennavigation', 'first' => 'Erste', 'previous' => 'Vorherige',
+                'next' => 'Nächste', 'last' => 'Letzte', 'action' => 'Aktion',
+                'choose' => 'Bitte wählen …', 'execute' => 'Ausführen',
+                'execute_action' => 'Aktion ausführen', 'reset_search' => 'Suche zurücksetzen',
+            ),
+            'en' => array(
+                'save' => 'Save', 'filter' => 'Apply filter', 'reload' => 'Reload',
+                'delete' => 'Delete', 'delete_question' => 'Really delete?',
+                'delete_undo_hint' => 'This action cannot be undone.',
+                'delete_rows' => 'Delete rows', 'show_password' => 'Show password',
+                'form_actions' => 'Form actions', 'delete_record_title' => 'Delete record',
+                'message_delete_error' => 'The record could not be deleted.',
+                'message_delete_success' => 'The record was deleted.',
+                'message_save_error' => 'The data could not be saved.',
+                'message_save_success' => 'The data was saved.',
+                'message_validation_error' => 'Please check the highlighted fields.',
+                'message_warning' => 'Please check your input.',
+                'report_values' => 'Report values', 'report_statistics' => 'Report statistics',
+                'report_filters' => 'Report filters', 'filters' => 'Filters',
+                'total' => 'Total', 'filtered' => 'Filtered', 'selected' => 'Selected',
+                'pagination' => 'Pagination', 'first' => 'First', 'previous' => 'Previous',
+                'next' => 'Next', 'last' => 'Last', 'action' => 'Action',
+                'choose' => 'Please choose …', 'execute' => 'Execute',
+                'execute_action' => 'Execute action', 'reset_search' => 'Reset the search',
+            ),
+            'es' => array(
+                'save' => 'Guardar', 'filter' => 'Aplicar filtro', 'reload' => 'Recargar',
+                'delete' => 'Eliminar', 'delete_question' => '¿Eliminar realmente?',
+                'delete_undo_hint' => 'Esta acción no se puede deshacer.',
+                'delete_rows' => 'Eliminar filas', 'show_password' => 'Mostrar contraseña',
+                'form_actions' => 'Acciones del formulario', 'delete_record_title' => 'Eliminar registro',
+                'message_delete_error' => 'El registro no pudo ser eliminado.',
+                'message_delete_success' => 'El registro fue eliminado.',
+                'message_save_error' => 'Los datos no se pudieron guardar.',
+                'message_save_success' => 'Los datos se guardaron.',
+                'message_validation_error' => 'Revise los campos marcados.',
+                'message_warning' => 'Revise los datos introducidos.',
+                'report_values' => 'Valores del informe', 'report_statistics' => 'Estadísticas del informe',
+                'report_filters' => 'Filtros del informe', 'filters' => 'Filtros',
+                'total' => 'Total', 'filtered' => 'Filtrados', 'selected' => 'Seleccionados',
+                'pagination' => 'Paginación', 'first' => 'Primera', 'previous' => 'Anterior',
+                'next' => 'Siguiente', 'last' => 'Última', 'action' => 'Acción',
+                'choose' => 'Seleccione …', 'execute' => 'Ejecutar',
+                'execute_action' => 'Ejecutar acción', 'reset_search' => 'Restablecer la búsqueda',
+            ),
+        );
+        return (string)($texts[$lng][$key] ?? $key);
+    }
+
+    /** Ersetzt kleine sprachabhängige UI-Texte ohne dupliziertes HTML. */
+    private function replace_core_ui_tokens(string $tpl): string {
+        if (strpos($tpl, '{ui:') === false) return $tpl;
+
+        return (string)preg_replace_callback(
+            '/\{ui:([a-z0-9_-]+)\}/i',
+            fn(array $match): string => $this->core_ui_text(strtolower($match[1])),
+            $tpl
+        );
+    }
+
+    /** Normalisiert semantische Core-Namen auf gemeinsame UI-Templates. */
+    private function normalize_core_ui_template(string &$file, &$data, string $type): void {
+        if (strtolower($type) !== 'htm') return;
+        if (!is_array($data)) $data = $this->normalize_replacements($data);
+        if (!is_array($data)) $data = array();
+
+        $alerts = array(
+            'alert-info' => 'info', 'alert-success' => 'success',
+            'alert-warning' => 'warning', 'alert-danger' => 'danger',
+        );
+        if (isset($alerts[$file])) {
+            $data['alert_tone'] = $alerts[$file];
+            $file = 'alert-default';
+            return;
+        }
+
+        $field_states = array(
+            'fld-alert-info' => 'info', 'fld-alert-success' => 'success',
+            'fld-alert-warning' => 'warning', 'fld-alert-danger' => 'danger',
+        );
+        if (isset($field_states[$file])) {
+            $data['field_status_tone'] = $field_states[$file];
+            $file = 'field-status-default';
+            return;
+        }
+
+        if ($file === 'button-bar-save' || $file === 'button-bar-filter') {
+            $filter = $file === 'button-bar-filter';
+            $data += array(
+                'button_form_attr' => $filter ? '' : ' form="' . (string)($data['bar_form_id'] ?? '') . '"',
+                'button_class' => 'btn btn-primary btn-sm ' . ($filter ? 'dbx-report-filter' : 'dbx-form-save'),
+                'button_icon' => $filter ? 'bi-funnel-fill' : 'bi-save',
+                'button_label' => $this->core_ui_text($filter ? 'filter' : 'save'),
+                'button_label_class' => $filter ? 'dbx-report-bar-go' : 'visually-hidden',
+                'button_attrs' => '',
+            );
+            $file = 'button-action-submit-default';
+            return;
+        }
+
+        if (in_array($file, array('button-bar-reload', 'button-bar-reload-ajax', 'button-bar-delete'), true)) {
+            $delete = $file === 'button-bar-delete';
+            $ajax = $file === 'button-bar-reload-ajax';
+            $label = $delete
+                ? (string)($data['bar_delete_title'] ?? $this->core_ui_text('delete'))
+                : $this->core_ui_text('reload');
+            $href = $delete
+                ? (string)($data['bar_delete_url'] ?? '')
+                : (string)($data[$ajax ? 'bar_reload_href' : 'bar_reload_url'] ?? '');
+            $attrs = '';
+            if ($ajax) {
+                $attrs = ' data-target="' . (string)($data['bar_reload_target'] ?? '')
+                    . '" data-replace="' . (string)($data['bar_reload_replace'] ?? '') . '"';
+            } elseif ($delete) {
+                $attrs = ' data-confirm-title="<i class=\'bi bi-trash\'></i> ' . $label
+                    . '" data-confirm-question="' . $this->core_ui_text('delete_question')
+                    . '" data-confirm-hint="<small>' . (string)($data['bar_delete_hint'] ?? '')
+                    . '</small>" data-confirm-buttons="yesno"';
+            }
+            $data += array(
+                'button_href' => $href,
+                'button_class' => 'btn btn-sm ' . ($delete ? 'btn-outline-danger dbxConfirm' : 'btn-outline-secondary' . ($ajax ? ' dbxAjax' : '')),
+                'button_icon' => $delete ? 'bi-trash' : 'bi-arrow-clockwise',
+                'button_label' => $label,
+                'button_label_class' => 'visually-hidden',
+                'button_attrs' => $attrs,
+            );
+            $file = 'button-action-link-default';
+        }
+    }
+
     /**
      * Zentrale Template-Funktion
      *
@@ -868,7 +1071,7 @@ class dbxTPL extends \dbxObj {
      * 7. Marker (optional)
      */
     public function get_tpl($file, $data = '', $type = 'htm', $i = 0, $depth = 0) {
-        if ($depth > $this->maxDepth) {
+        if ($depth > $this->max_depth) {
             return "<!-- MAX DEPTH -->";
         }
 
@@ -886,13 +1089,17 @@ class dbxTPL extends \dbxObj {
             $modul = dbx()->get_system_var('dbx_activ_modul', 'dbx');
         }
 
+        if ($modul === 'dbx') {
+            $this->normalize_core_ui_template($file, $data, (string)$type);
+        }
+
         // 🔥 FIX: Nur beim ROOT setzen (Kontext stabil halten)
         if ($depth === 0) {
             $this->_modul = $modul;
         }
 
         $edit     = dbx()->get_system_var('dbx_edit', 0);
-        $isDesign = 0;
+        $is_design = 0;
 
         // --- LOAD ---
         $tpl = $this->read_tpl($modul, $file, $type);
@@ -901,6 +1108,7 @@ class dbxTPL extends \dbxObj {
         // Nicht im Template-Cache ausführen: Design, Sprache, Seite und SEO-Werte
         // können sich innerhalb derselben Session oder sogar im Request ändern.
         $tpl = $this->replaces_dbx($tpl);
+        $tpl = $this->replace_core_ui_tokens($tpl);
 
         // --- DATA ---
         $tpl = $this->replaces($tpl, $data);
@@ -918,7 +1126,7 @@ class dbxTPL extends \dbxObj {
         // --- MARKER ---
         $path = $this->get_cached_tpl_path($modul, $file, $type);
 
-        if ($edit && $this->has_editor($modul, $isDesign, $edit, $path)) {
+        if ($edit && $this->has_editor($modul, $is_design, $edit, $path)) {
             $tpl = $this->add_marker($tpl, $modul, $file, $type);
         }
 
@@ -1091,22 +1299,22 @@ class dbxTPL extends \dbxObj {
                 continue;
             }
 
-            $fragmentContent = '';
-            $dirFile = $this->get_design_tpl_dir_file('htm', $design, $fragment, false);
-            if ($dirFile && is_file($dirFile)) {
-                $fragmentContent = (string)file_get_contents($dirFile);
-                $fragmentContent = str_replace('{base_url}', dbx()->get_base_url(), $fragmentContent);
-                $fragmentContent = str_replace('="../', '="dbx/design/' . $design . '/', $fragmentContent);
-                $fragmentContent = $this->replaces_dbx($fragmentContent);
+            $fragment_content = '';
+            $dir_file = $this->get_design_tpl_dir_file('htm', $design, $fragment, false);
+            if ($dir_file && is_file($dir_file)) {
+                $fragment_content = (string)file_get_contents($dir_file);
+                $fragment_content = str_replace('{base_url}', dbx()->get_base_url(), $fragment_content);
+                $fragment_content = str_replace('="../', '="dbx/design/' . $design . '/', $fragment_content);
+                $fragment_content = $this->replaces_dbx($fragment_content);
                 // Ein Fragment darf weder einen zweiten Modulinhalt noch
                 // weitere Design-Slots einschleusen. Verwaltete Designs
                 // werden zusätzlich bereits beim Import strikt validiert.
-                $fragmentContent = str_replace('[dbx:content]', '', $fragmentContent);
-                $fragmentContent = str_replace(array_keys($slots), '', $fragmentContent);
-                dbx()->register_editor_file('design', $dirFile);
+                $fragment_content = str_replace('[dbx:content]', '', $fragment_content);
+                $fragment_content = str_replace(array_keys($slots), '', $fragment_content);
+                dbx()->register_editor_file('design', $dir_file);
             }
 
-            $content = str_replace($marker, $fragmentContent, $content);
+            $content = str_replace($marker, $fragment_content, $content);
         }
 
         return $content;

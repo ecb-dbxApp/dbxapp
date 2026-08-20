@@ -12,6 +12,7 @@ use dbx\dbxContent\dbxContentTranslate;
 use dbx\dbxContent\dbxContent_permalink;
 
 require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
+require_once __DIR__ . '/dbxKiValue.class.php';
 
 require_once __DIR__ . '/dbxKiCmsCoreService.trait.php';
 require_once __DIR__ . '/dbxKiCmsDescribeService.trait.php';

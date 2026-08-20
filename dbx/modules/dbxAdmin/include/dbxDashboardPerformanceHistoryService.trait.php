@@ -17,20 +17,20 @@ trait dbxDashboardPerformanceHistoryServiceTrait {
    }
 
    private function ensure_history_table() {
-      if ($this->historyReady !== null) {
-         return $this->historyReady;
+      if ($this->history_ready !== null) {
+         return $this->history_ready;
       }
 
-      $this->historyReady = false;
+      $this->history_ready = false;
 
       try {
          $dd = dbx()->get_system_obj('dbxDD');
-         $this->historyReady = $dd->create_db_tab(self::HISTORY_DD) ? $this->ensure_history_columns() : false;
+         $this->history_ready = $dd->create_db_tab(self::HISTORY_DD) ? $this->ensure_history_columns() : false;
       } catch (\Throwable $e) {
-         $this->historyReady = false;
+         $this->history_ready = false;
       }
 
-      return $this->historyReady;
+      return $this->history_ready;
    }
 
    private function ensure_history_columns() {
@@ -67,17 +67,17 @@ trait dbxDashboardPerformanceHistoryServiceTrait {
    }
 
    private function history_bucket_time() {
-      $bucketSeconds = self::HISTORY_BUCKET_MINUTES * 60;
-      return (int) (floor(time() / $bucketSeconds) * $bucketSeconds);
+      $bucket_seconds = self::HISTORY_BUCKET_MINUTES * 60;
+      return (int) (floor(time() / $bucket_seconds) * $bucket_seconds);
    }
 
-   private function history_snapshot_record($metrics, $bucketTime) {
+   private function history_snapshot_record($metrics, $bucket_time) {
       $now = date('Y-m-d H:i:s');
       $uid = (int) dbx()->user();
 
       return array(
-         'bucket_key'     => date('YmdHi', $bucketTime),
-         'snapshot_date'  => date('Y-m-d H:i:s', $bucketTime),
+         'bucket_key'     => date('YmdHi', $bucket_time),
+         'snapshot_date'  => date('Y-m-d H:i:s', $bucket_time),
          'create_date'    => $now,
          'create_uid'     => $uid,
          'update_date'    => $now,
@@ -107,8 +107,8 @@ trait dbxDashboardPerformanceHistoryServiceTrait {
 
       try {
          $db = dbx()->get_system_obj('dbxDB');
-         $bucketTime = $this->history_bucket_time();
-         $record = $this->history_snapshot_record($metrics, $bucketTime);
+         $bucket_time = $this->history_bucket_time();
+         $record = $this->history_snapshot_record($metrics, $bucket_time);
          $rows = $db->select(self::HISTORY_DD, array('bucket_key' => $record['bucket_key']), array('id'), 'id', 'DESC', '', 1, 0, 0);
          $id = is_array($rows) ? (int) ($rows[0]['id'] ?? 0) : 0;
 

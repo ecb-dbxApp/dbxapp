@@ -27,9 +27,7 @@ $contracts = array(
         "get_fd_message('empty_title')",
     ),
     'modules/dbxAdmin/include/dbxServer.class.php' => array(
-        "\$texts->_fd = 'dbxAdmin|server'",
-        "\$oReport->_fd = 'dbxAdmin|server'",
-        "\$oForm->_fd        = 'dbxAdmin|server'",
+        "set_field_definition('dbxAdmin|server')",
         "get_fd_message('column_table')",
         "get_fd_message('check_input_plain')",
     ),
@@ -58,13 +56,13 @@ $contracts = array(
     ),
 );
 
-foreach ($contracts as $relative => $requiredFragments) {
+foreach ($contracts as $relative => $required_fragments) {
     $path = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
     if (!is_file($path)) {
         $fail("Datei fehlt: {$relative}");
     }
     $source = dbx_test_module_source_bundle($path);
-    foreach ($requiredFragments as $fragment) {
+    foreach ($required_fragments as $fragment) {
         if (!str_contains($source, $fragment)) {
             $fail("{$relative}: FD-Vertrag fehlt: {$fragment}");
         }
@@ -80,7 +78,7 @@ foreach ($contracts as $relative => $requiredFragments) {
     }
 }
 
-$shopSource = dbx_test_module_source_bundle(
+$shop_source = dbx_test_module_source_bundle(
     $root . '/modules/dbxShop/include/dbxShopService.class.php'
 );
 foreach (array(
@@ -89,17 +87,17 @@ foreach (array(
     'Noch keine Bestellungen',
     'Ihre gespeicherten Shop-Bestellungen.',
     'Aktuell ist keine Zahlungsart aktiv',
-) as $obsoleteText) {
-    if (str_contains($shopSource, $obsoleteText)) {
-        $fail("dbxShopService enthält noch statischen UI-Text: {$obsoleteText}");
+) as $obsolete_text) {
+    if (str_contains($shop_source, $obsolete_text)) {
+        $fail("dbxShopService enthält noch statischen UI-Text: {$obsolete_text}");
     }
 }
 
-$coreJs = file_get_contents($root . '/js/lib/core.js');
-$confirmJs = file_get_contents($root . '/js/lib/confirm.js');
+$core_js = file_get_contents($root . '/js/lib/core.js');
+$confirm_js = file_get_contents($root . '/js/lib/confirm.js');
 if (
-    !str_contains((string)$coreJs, 'dbx.translate') ||
-    !str_contains((string)$confirmJs, 'dbx.translate')
+    !str_contains((string)$core_js, 'dbx.translate') ||
+    !str_contains((string)$confirm_js, 'dbx.translate')
 ) {
     $fail('Zentrale JavaScript-Bedientexte verwenden dbx.translate() nicht.');
 }

@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "blueimp-gallery": "^3.4.0",
+    "openseadragon": "^6.0.2",
+    "photoswipe": "^5.4.4",
+    "swiper": "^14.0.7",
+    "viewerjs": "^1.11.8"
+  }
+}

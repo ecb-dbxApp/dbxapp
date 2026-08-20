@@ -160,32 +160,32 @@ trait dbxDashboardWidgetsReportServiceTrait {
    }
 
    private function database_report($metrics) {
-      $oReport = new \dbxReport();
-      $panelTarget = 'database-report';
-      $oReport->init('admin-dashboard-db', 'admin-dashboard-db-report');
-      $oReport->add_obj('database_bar', 'dbx|component-bar', $this->card_bar_data(
+      $o_report = new \dbxReport();
+      $panel_target = 'database-report';
+      $o_report->init('admin-dashboard-db', 'admin-dashboard-db-report');
+      $o_report->add_obj('database_bar', 'dbx|module-bar', $this->card_bar_data(
          'Datenbanken und Tabellen',
          'bi-hdd-stack',
          '',
          $this->card_action('?dbx_modul=dbxAdmin&dbx_run1=db&dbx_run2=list_db', 'DB Sync')
-            . $this->collapse_action($panelTarget, 'Zuklappen', true)
+            . $this->collapse_action($panel_target, 'Zuklappen', true)
       ));
-      $oReport->add_rep('panel_target', dbx()->esc($panelTarget));
-      $oReport->_mode = 'tpl';
-      $oReport->_pages = 0;
-      $oReport->_rdata = $this->database_rows($metrics);
-      $oReport->_rcount = count($oReport->_rdata);
-      $oReport->_rrows = 20;
-      $oReport->_msg_info = '';
+      $o_report->add_rep('panel_target', dbx()->esc($panel_target));
+      $o_report->set_mode('tpl');
+      $o_report->_pages = 0;
+      $o_report->_rdata = $this->database_rows($metrics);
+      $o_report->_rcount = count($o_report->_rdata);
+      $o_report->_rrows = 20;
+      $o_report->_msg_info = '';
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
    private function activity_rows($metrics) {
       $rows = array();
-      $traceRows = $this->safe_select('dbxTrace', '', array('id', 'create_date', 'action', 'dd', 'record_id'), 'create_date', 'DESC', '', 5);
+      $trace_rows = $this->safe_select('dbxTrace', '', array('id', 'create_date', 'action', 'dd', 'record_id'), 'create_date', 'DESC', '', 5);
 
-      foreach ($traceRows as $row) {
+      foreach ($trace_rows as $row) {
          $title = trim((string) ($row['action'] ?? 'Trace'));
          $dd = trim((string) ($row['dd'] ?? ''));
          $record = trim((string) ($row['record_id'] ?? ''));
@@ -200,8 +200,8 @@ trait dbxDashboardWidgetsReportServiceTrait {
       }
 
       if (count($rows) < 5) {
-         $msgRows = $this->safe_select('dbxSysMsg', '', array('id', 'create_date', 'status', 'modul', 'message'), 'create_date', 'DESC', '', 5 - count($rows));
-         foreach ($msgRows as $row) {
+         $msg_rows = $this->safe_select('dbxSysMsg', '', array('id', 'create_date', 'status', 'modul', 'message'), 'create_date', 'DESC', '', 5 - count($rows));
+         foreach ($msg_rows as $row) {
             $message = trim(strip_tags((string) ($row['message'] ?? 'Systemmeldung')));
             if (strlen($message) > 92) {
                $message = substr($message, 0, 89) . '...';
@@ -231,27 +231,27 @@ trait dbxDashboardWidgetsReportServiceTrait {
    }
 
    private function activity_report($metrics) {
-      $oReport = new \dbxReport();
-      $oReport->init('admin-dashboard-activity', 'admin-dashboard-activity-report');
-      $oReport->add_obj('activity_bar', 'dbx|component-bar', $this->card_bar_data('Aktivitaet', 'bi-clock-history'));
-      $oReport->_mode = 'tpl';
-      $oReport->_pages = 0;
-      $oReport->_rdata = $this->activity_rows($metrics);
-      $oReport->_rcount = count($oReport->_rdata);
-      $oReport->_rrows = 10;
-      $oReport->_msg_info = '';
+      $o_report = new \dbxReport();
+      $o_report->init('admin-dashboard-activity', 'admin-dashboard-activity-report');
+      $o_report->add_obj('activity_bar', 'dbx|module-bar', $this->card_bar_data('Aktivitaet', 'bi-clock-history'));
+      $o_report->set_mode('tpl');
+      $o_report->_pages = 0;
+      $o_report->_rdata = $this->activity_rows($metrics);
+      $o_report->_rcount = count($o_report->_rdata);
+      $o_report->_rrows = 10;
+      $o_report->_msg_info = '';
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
    private function quick_actions() {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-actions', 'admin-dashboard-actions');
-      $oForm->_fd = 'dbxAdmin|admin-dashboard-status';
-      $oForm->load_fd_messages();
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run';
-      $oForm->_msg_info = '';
-      $oForm->add_obj('actions_bar', 'dbx|component-bar', $this->card_bar_data('Quick Actions', 'bi-lightning-charge'));
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-actions', 'admin-dashboard-actions');
+      $o_form->set_field_definition('dbxAdmin|admin-dashboard-status');
+      $o_form->load_fd_messages();
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run');
+      $o_form->_msg_info = '';
+      $o_form->add_obj('actions_bar', 'dbx|module-bar', $this->card_bar_data('Quick Actions', 'bi-lightning-charge'));
 
       $actions = array(
          'users' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=user&dbx_run2=list_user', 'icon' => 'bi-people', 'label' => 'Benutzer', 'ajax_class' => 'dbxAjax'),
@@ -260,23 +260,23 @@ trait dbxDashboardWidgetsReportServiceTrait {
          'dd' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=dd&dbx_run2=list_dd', 'icon' => 'bi-diagram-3', 'label' => 'DD Sync', 'ajax_class' => 'dbxAjax'),
          'db' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=db&dbx_run2=list_db', 'icon' => 'bi-hdd-stack', 'label' => 'DB Sync', 'ajax_class' => 'dbxAjax'),
          'sysmsg' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=sysmsg&dbx_run2=list_sysmsg', 'icon' => 'bi-bell', 'label' => 'SysMsg', 'ajax_class' => 'dbxAjax'),
-         'update' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=update', 'icon' => 'bi-arrow-repeat', 'label' => $oForm->get_fd_message('update_title'), 'ajax_class' => ''),
+         'update' => array('href' => '?dbx_modul=dbxAdmin&dbx_run1=update', 'icon' => 'bi-arrow-repeat', 'label' => $o_form->get_fd_message('update_title'), 'ajax_class' => ''),
       );
 
       foreach ($actions as $key => $data) {
-         $oForm->add_obj('action_' . $key, 'dbxAdmin|admin-dashboard-action-link', $data);
+         $o_form->add_obj('action_' . $key, 'dbxAdmin|admin-dashboard-action-link', $data);
       }
 
-      return $oForm->run();
+      return $o_form->run();
    }
 
    private function widgets_panel($metrics) {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-widgets', 'admin-dashboard-widgets');
-      $oForm->_msg_info = '';
-      $oForm->add_obj('widgets', 'obj-value', $this->widgets($metrics, $this->metric_history($metrics)));
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-widgets', 'admin-dashboard-widgets');
+      $o_form->_msg_info = '';
+      $o_form->add_obj('widgets', 'obj-value', $this->widgets($metrics, $this->metric_history($metrics)));
 
-      return $oForm->run();
+      return $o_form->run();
    }
 
    private function chart_json($metrics) {
@@ -292,18 +292,18 @@ trait dbxDashboardWidgetsReportServiceTrait {
    }
 
    private function chart_panel($metrics) {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-chart-panel', 'admin-dashboard-chart-panel');
-      $oForm->_msg_info = '';
-      $oForm->add_rep('chart_json', $this->chart_json($metrics));
-      $oForm->add_rep('trace_count', $this->fmt($metrics['trace_count']));
-      $oForm->add_rep('missing_count', $this->fmt($metrics['missing']));
-      $oForm->add_rep('autosync_count', $this->fmt($metrics['autosync']));
-      $oForm->add_rep('trace_enabled_count', $this->fmt($metrics['trace_enabled']));
-      $oForm->add_rep('request_runtime_ms', $this->fmt($metrics['request_runtime_ms']));
-      $oForm->add_rep('memory_peak_kb', $this->fmt($metrics['memory_peak_kb']));
-      $oForm->add_obj('chart_bar', 'dbx|component-bar', $this->card_bar_data('Grafische Auswertung', 'bi-bar-chart-line', 'Relative Verteilung'));
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-chart-panel', 'admin-dashboard-chart-panel');
+      $o_form->_msg_info = '';
+      $o_form->add_rep('chart_json', $this->chart_json($metrics));
+      $o_form->add_rep('trace_count', $this->fmt($metrics['trace_count']));
+      $o_form->add_rep('missing_count', $this->fmt($metrics['missing']));
+      $o_form->add_rep('autosync_count', $this->fmt($metrics['autosync']));
+      $o_form->add_rep('trace_enabled_count', $this->fmt($metrics['trace_enabled']));
+      $o_form->add_rep('request_runtime_ms', $this->fmt($metrics['request_runtime_ms']));
+      $o_form->add_rep('memory_peak_kb', $this->fmt($metrics['memory_peak_kb']));
+      $o_form->add_obj('chart_bar', 'dbx|module-bar', $this->card_bar_data('Grafische Auswertung', 'bi-bar-chart-line', 'Relative Verteilung'));
 
-      return $oForm->run();
+      return $o_form->run();
    }
 }

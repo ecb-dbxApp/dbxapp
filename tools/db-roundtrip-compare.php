@@ -25,12 +25,12 @@ define('dbxRunAsAdmin', 1);
 require $base . '/dbx/vendor/autoload.php';
 require_once $base . '/dbx/include/dbxKernel.php';
 
-$sourceServer = (string)($argv[1] ?? '');
-$targetServer = (string)($argv[2] ?? '');
-$tablesArg = (string)($argv[3] ?? '');
-$tables = array_values(array_filter(array_map('trim', explode(',', $tablesArg))));
+$source_server = (string)($argv[1] ?? '');
+$target_server = (string)($argv[2] ?? '');
+$tables_arg = (string)($argv[3] ?? '');
+$tables = array_values(array_filter(array_map('trim', explode(',', $tables_arg))));
 
-if ($sourceServer === '' || $targetServer === '' || !$tables) {
+if ($source_server === '' || $target_server === '' || !$tables) {
     fwrite(STDERR, "Aufruf: php tools/db-roundtrip-compare.php <quelle> <ziel> <tabelle[,tabelle...]>\n");
     exit(2);
 }
@@ -49,7 +49,7 @@ if (!is_object($db) || !is_object($dd)) {
     exit(2);
 }
 
-foreach ([$sourceServer, $targetServer] as $server) {
+foreach ([$source_server, $target_server] as $server) {
     if ($db->connect_db_server($server) !== 1) {
         fwrite(STDERR, "DB-Server nicht erreichbar: {$server}\n");
         exit(2);
@@ -89,55 +89,55 @@ function dbx_roundtrip_table_snapshot($db, $dd, string $server, string $table): 
 {
     $fields = $dd->get_db_fields($server, $table);
     $indexes = $dd->get_db_indexes($server, $table);
-    $preferredSchema = $dd->get_preferred_table_schema($server, $table);
-    $preferredFields = is_array($preferredSchema['fields'] ?? null)
-        ? $preferredSchema['fields']
+    $preferred_schema = $dd->get_preferred_table_schema($server, $table);
+    $preferred_fields = is_array($preferred_schema['fields'] ?? null)
+        ? $preferred_schema['fields']
         : [];
-    $columnNames = array_values(array_filter(array_map(
+    $column_names = array_values(array_filter(array_map(
         static fn(array $field): string => (string)($field['name'] ?? ''),
         is_array($fields) ? $fields : []
     )));
-    $fieldTypes = [];
+    $field_types = [];
     foreach (is_array($fields) ? $fields : [] as $field) {
         $name = (string)($field['name'] ?? '');
         if ($name !== '') {
-            $fieldTypes[$name] = strtolower((string)($field['type'] ?? ''));
+            $field_types[$name] = strtolower((string)($field['type'] ?? ''));
         }
     }
-    foreach ($preferredFields as $field) {
+    foreach ($preferred_fields as $field) {
         $name = (string)($field['name'] ?? '');
         if ($name !== '') {
-            $fieldTypes[$name] = strtolower((string)($field['type'] ?? ($fieldTypes[$name] ?? '')));
+            $field_types[$name] = strtolower((string)($field['type'] ?? ($field_types[$name] ?? '')));
         }
     }
 
-    $orderColumn = in_array('id', $columnNames, true) ? 'id' : ($columnNames[0] ?? '');
+    $order_column = in_array('id', $column_names, true) ? 'id' : ($column_names[0] ?? '');
     $sql = 'SELECT * FROM ' . dbx_roundtrip_quote_table($db, $server, $table);
-    if ($orderColumn !== '') {
-        $sql .= ' ORDER BY ' . dbx_roundtrip_quote_table($db, $server, $orderColumn);
+    if ($order_column !== '') {
+        $sql .= ' ORDER BY ' . dbx_roundtrip_quote_table($db, $server, $order_column);
     }
     $rows = $db->select_query($server, $sql);
     $rows = is_array($rows) ? $rows : [];
 
     foreach ($rows as &$row) {
-        $normalizedRow = [];
-        foreach ($columnNames as $columnName) {
-            $value = array_key_exists($columnName, $row) ? $row[$columnName] : null;
-            $normalizedRow[$columnName] = $value === null ? null : (string)$value;
+        $normalized_row = [];
+        foreach ($column_names as $column_name) {
+            $value = array_key_exists($column_name, $row) ? $row[$column_name] : null;
+            $normalized_row[$column_name] = $value === null ? null : (string)$value;
         }
-        $row = $normalizedRow;
+        $row = $normalized_row;
     }
     unset($row);
 
-    $dataJson = json_encode($rows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $data_json = json_encode($rows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     return [
         'fields' => dbx_roundtrip_normalize(is_array($fields) ? $fields : []),
         'indexes' => dbx_roundtrip_normalize(is_array($indexes) ? $indexes : []),
-        'columns' => $columnNames,
-        'field_types' => $fieldTypes,
+        'columns' => $column_names,
+        'field_types' => $field_types,
         'rows' => count($rows),
-        'data_sha256' => hash('sha256', (string)$dataJson),
+        'data_sha256' => hash('sha256', (string)$data_json),
         'data' => $rows,
     ];
 }
@@ -173,10 +173,10 @@ function dbx_roundtrip_value_shape($value): string
     return 'string';
 }
 
-function dbx_roundtrip_semantic_value($value, string $fieldType): mixed
+function dbx_roundtrip_semantic_value($value, string $field_type): mixed
 {
-    $temporalTypes = ['date', 'time', 'datetime', 'timestamp', 'year'];
-    if (!in_array(strtolower($fieldType), $temporalTypes, true)) {
+    $temporal_types = ['date', 'time', 'datetime', 'timestamp', 'year'];
+    if (!in_array(strtolower($field_type), $temporal_types, true)) {
         return $value;
     }
     if ($value === null || $value === '') {
@@ -196,14 +196,14 @@ function dbx_roundtrip_semantic_value($value, string $fieldType): mixed
     return $value;
 }
 
-function dbx_roundtrip_semantic_data(array $snapshot, array $sharedTypes = []): array
+function dbx_roundtrip_semantic_data(array $snapshot, array $shared_types = []): array
 {
     $rows = $snapshot['data'] ?? [];
     foreach ($rows as &$row) {
         foreach ($row as $column => &$value) {
-            $fieldType = (string)($sharedTypes[$column]
+            $field_type = (string)($shared_types[$column]
                 ?? ($snapshot['field_types'][$column] ?? ''));
-            $value = dbx_roundtrip_semantic_value($value, $fieldType);
+            $value = dbx_roundtrip_semantic_value($value, $field_type);
         }
         unset($value);
     }
@@ -211,20 +211,20 @@ function dbx_roundtrip_semantic_data(array $snapshot, array $sharedTypes = []): 
     return $rows;
 }
 
-$sourceTables = array_column($db->get_db_tables($sourceServer), 'name');
-$targetTables = array_column($db->get_db_tables($targetServer), 'name');
-sort($sourceTables);
-sort($targetTables);
+$source_tables = array_column($db->get_db_tables($source_server), 'name');
+$target_tables = array_column($db->get_db_tables($target_server), 'name');
+sort($source_tables);
+sort($target_tables);
 
 $success = true;
 $report = [
-    'source_server' => $sourceServer,
-    'target_server' => $targetServer,
-    'source_integrity' => dbx_roundtrip_integrity($db, $sourceServer),
-    'target_integrity' => dbx_roundtrip_integrity($db, $targetServer),
+    'source_server' => $source_server,
+    'target_server' => $target_server,
+    'source_integrity' => dbx_roundtrip_integrity($db, $source_server),
+    'target_integrity' => dbx_roundtrip_integrity($db, $target_server),
     'requested_tables' => $tables,
-    'source_tables' => $sourceTables,
-    'target_tables' => $targetTables,
+    'source_tables' => $source_tables,
+    'target_tables' => $target_tables,
     'tables' => [],
 ];
 
@@ -233,22 +233,22 @@ if ($report['source_integrity'] === 'failed' || $report['target_integrity'] === 
 }
 
 foreach ($tables as $table) {
-    $sourceExists = in_array($table, $sourceTables, true);
-    $targetExists = in_array($table, $targetTables, true);
+    $source_exists = in_array($table, $source_tables, true);
+    $target_exists = in_array($table, $target_tables, true);
     $entry = [
-        'source_exists' => $sourceExists,
-        'target_exists' => $targetExists,
+        'source_exists' => $source_exists,
+        'target_exists' => $target_exists,
     ];
 
-    if (!$sourceExists || !$targetExists) {
+    if (!$source_exists || !$target_exists) {
         $entry['equal'] = false;
         $success = false;
         $report['tables'][$table] = $entry;
         continue;
     }
 
-    $source = dbx_roundtrip_table_snapshot($db, $dd, $sourceServer, $table);
-    $target = dbx_roundtrip_table_snapshot($db, $dd, $targetServer, $table);
+    $source = dbx_roundtrip_table_snapshot($db, $dd, $source_server, $table);
+    $target = dbx_roundtrip_table_snapshot($db, $dd, $target_server, $table);
     $entry['source_rows'] = $source['rows'];
     $entry['target_rows'] = $target['rows'];
     $entry['source_data_sha256'] = $source['data_sha256'];
@@ -257,28 +257,28 @@ foreach ($tables as $table) {
     $entry['fields_equal'] = $source['fields'] === $target['fields'];
     $entry['indexes_equal'] = $source['indexes'] === $target['indexes'];
     $entry['data_equal'] = $source['data'] === $target['data'];
-    $sharedTypes = array_merge($source['field_types'], $target['field_types']);
-    $sourceSemanticData = dbx_roundtrip_semantic_data($source, $sharedTypes);
-    $targetSemanticData = dbx_roundtrip_semantic_data($target, $sharedTypes);
-    $entry['data_semantic_equal'] = $sourceSemanticData === $targetSemanticData;
+    $shared_types = array_merge($source['field_types'], $target['field_types']);
+    $source_semantic_data = dbx_roundtrip_semantic_data($source, $shared_types);
+    $target_semantic_data = dbx_roundtrip_semantic_data($target, $shared_types);
+    $entry['data_semantic_equal'] = $source_semantic_data === $target_semantic_data;
     $entry['source_semantic_sha256'] = hash(
         'sha256',
-        json_encode($sourceSemanticData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+        json_encode($source_semantic_data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
     );
     $entry['target_semantic_sha256'] = hash(
         'sha256',
-        json_encode($targetSemanticData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+        json_encode($target_semantic_data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
     );
     if (!$entry['data_equal']) {
         $differences = [];
-        $rowCount = max(count($source['data']), count($target['data']));
-        for ($rowNo = 0; $rowNo < $rowCount; $rowNo++) {
-            $sourceRow = $source['data'][$rowNo] ?? [];
-            $targetRow = $target['data'][$rowNo] ?? [];
-            foreach (array_unique(array_merge(array_keys($sourceRow), array_keys($targetRow))) as $column) {
-                $sourceValue = array_key_exists($column, $sourceRow) ? $sourceRow[$column] : null;
-                $targetValue = array_key_exists($column, $targetRow) ? $targetRow[$column] : null;
-                if ($sourceValue === $targetValue) {
+        $row_count = max(count($source['data']), count($target['data']));
+        for ($row_no = 0; $row_no < $row_count; $row_no++) {
+            $source_row = $source['data'][$row_no] ?? [];
+            $target_row = $target['data'][$row_no] ?? [];
+            foreach (array_unique(array_merge(array_keys($source_row), array_keys($target_row))) as $column) {
+                $source_value = array_key_exists($column, $source_row) ? $source_row[$column] : null;
+                $target_value = array_key_exists($column, $target_row) ? $target_row[$column] : null;
+                if ($source_value === $target_value) {
                     continue;
                 }
                 if (!isset($differences[$column])) {
@@ -290,14 +290,14 @@ foreach ($tables as $table) {
                     ];
                 }
                 $differences[$column]['count']++;
-                if ($sourceValue === '' && $targetValue === null) {
+                if ($source_value === '' && $target_value === null) {
                     $differences[$column]['empty_to_null']++;
-                } elseif ($sourceValue === null && $targetValue === '') {
+                } elseif ($source_value === null && $target_value === '') {
                     $differences[$column]['null_to_empty']++;
                 }
-                $shape = dbx_roundtrip_value_shape($sourceValue)
+                $shape = dbx_roundtrip_value_shape($source_value)
                     . '_to_'
-                    . dbx_roundtrip_value_shape($targetValue);
+                    . dbx_roundtrip_value_shape($target_value);
                 $differences[$column]['shapes'][$shape] = ($differences[$column]['shapes'][$shape] ?? 0) + 1;
             }
         }

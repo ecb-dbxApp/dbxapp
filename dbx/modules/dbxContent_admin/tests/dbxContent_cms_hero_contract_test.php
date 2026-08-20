@@ -12,47 +12,49 @@ $assert = static function (bool $condition, string $message) use (&$failures): v
     if (!$condition) $failures[] = $message;
 };
 
-$cmsJs = (string)file_get_contents($base . '/dbx/js/lib/cms.js');
-$cmsPageJs = (string)file_get_contents($base . '/dbx/js/lib/cms-page.js');
-$settingsTemplate = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/tpl/htm/cms-admin-settings-panels.htm');
-$formService = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/include/dbxContentCmsFormService.trait.php');
+$cms_js = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/js/cms.js');
+$cms_marker_js = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/js/cms-marker.js');
+$cms_page_js = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/js/cms-page.js');
+$settings_template = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/tpl/htm/cms-admin-settings-panels.htm');
+$form_service = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/include/dbxContentCmsFormService.trait.php');
 $assert(
-    str_contains($cmsJs, '{ label: "Hero", marker: "dbx:hero" }'),
+    str_contains($cms_js, '{ label: "Hero", marker: "dbx:hero" }'),
     'Im Editor-Menü fehlt der kanonische Hero-Marker.'
 );
 $assert(
-    !str_contains($cmsJs, '"dbx:hero": "Hero-Text"')
-        && !str_contains($cmsJs, '{ label: "Hero-Text", marker: "dbx:hero" }'),
+    !str_contains($cms_js, '"dbx:hero": "Hero-Text"')
+        && !str_contains($cms_js, '{ label: "Hero-Text", marker: "dbx:hero" }'),
     'Der Editor bietet Hero noch als reinen Textbereich an.'
 );
 $assert(
-    str_contains($cmsJs, 'function dedupeSingletonMarkers(')
-        && str_contains($cmsJs, 'if (name !== "hero") return;'),
+    str_contains($cms_js, 'function dedupeSingletonMarkers(')
+        && str_contains($cms_marker_js, 'function dedupeSingleton(')
+        && str_contains($cms_marker_js, 'if (markerName !== "hero") return;'),
     'Mehrere Hero-Marker werden im Editor nicht auf einen Marker normalisiert.'
 );
 $assert(
-    str_contains($settingsTemplate, 'data-cms-action="clear-hero-media"')
-        && str_contains($settingsTemplate, '{hero_remove_label}')
-        && str_contains($formService, "'hero_remove_title'")
-        && str_contains($formService, "'hero_remove_label'"),
+    str_contains($settings_template, 'data-cms-action="clear-hero-media"')
+        && str_contains($settings_template, '{hero_remove_label}')
+        && str_contains($form_service, "'hero_remove_title'")
+        && str_contains($form_service, "'hero_remove_label'"),
     'Die Hero-Einstellungen bieten keinen klaren, übersetzbaren Entfernen-Weg.'
 );
 $assert(
-    str_contains($cmsPageJs, 'if (name === "clear-hero-media")')
-        && str_contains($cmsPageJs, 'setField(root, "hero_image_id", "0")')
-        && str_contains($cmsPageJs, 'setField(root, "hero_template", "none")')
-        && str_contains($cmsJs, 'clearButton.disabled = !canClear;')
-        && str_contains($cmsPageJs, 'function handleCmsAction(root, cfg, action, event)'),
+    str_contains($cms_page_js, 'if (name === "clear-hero-media")')
+        && str_contains($cms_page_js, 'setField(root, "hero_image_id", "0")')
+        && str_contains($cms_page_js, 'setField(root, "hero_template", "none")')
+        && str_contains($cms_js, 'clearButton.disabled = !canClear;')
+        && str_contains($cms_page_js, 'function handleCmsAction(root, cfg, action, event)'),
     'Hero entfernen setzt Zustand, Vorschau und Bedienbarkeit nicht konsistent.'
 );
 
-$heroTemplates = glob($base . '/dbx/modules/dbxContent/tpl/htm/c-*hero*.htm') ?: array();
-$assert(count($heroTemplates) >= 4, 'Die erwarteten c-*-Hero-Templates fehlen.');
-foreach ($heroTemplates as $templateFile) {
-    $html = (string)file_get_contents($templateFile);
-    $assert(str_contains($html, '{cms:hero}'), basename($templateFile) . ' enthält keinen Hero-Slot.');
-    $assert(!str_contains($html, 'hero_text') && !str_contains($html, 'hero-text'), basename($templateFile) . ' enthält noch einen getrennten Hero-Text-Slot.');
-    $assert(substr_count($html, '{cms:hero}') === 1, basename($templateFile) . ' muss genau einen Hero-Slot enthalten.');
+$hero_templates = glob($base . '/dbx/modules/dbxContent/tpl/htm/c-*hero*.htm') ?: array();
+$assert(count($hero_templates) >= 4, 'Die erwarteten c-*-Hero-Templates fehlen.');
+foreach ($hero_templates as $template_file) {
+    $html = (string)file_get_contents($template_file);
+    $assert(str_contains($html, '{cms:hero}'), basename($template_file) . ' enthält keinen Hero-Slot.');
+    $assert(!str_contains($html, 'hero_text') && !str_contains($html, 'hero-text'), basename($template_file) . ' enthält noch einen getrennten Hero-Text-Slot.');
+    $assert(substr_count($html, '{cms:hero}') === 1, basename($template_file) . ' muss genau einen Hero-Slot enthalten.');
 }
 
 $sections = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/include/dbxContent_sections.class.php');
@@ -78,13 +80,13 @@ $assert(str_contains((string)($parsed['hero'] ?? ''), '<video'), 'Ein Video kann
 $assert(str_contains((string)($parsed['body'] ?? ''), 'Seiteninhalt'), 'Inhalt hinter dem Hero-Marker fehlt im Body.');
 $assert(!array_key_exists('hero_text', $parsed), 'Der Renderer liefert weiterhin einen getrennten hero_text-Bereich.');
 
-foreach (array('dbxapp', 'dbxdocs', 'steal') as $design) {
+foreach (array('dbxapp', 'steal') as $design) {
     $css = dbx_test_read_css($base . '/dbx/design/' . $design . '/css/c-content-frame.css');
     $assert(str_contains($css, '.hero-content'), 'Universelles Hero-Content-Styling fehlt in ' . $design . '.');
     $assert(!str_contains($css, '.hero-text') && !str_contains($css, 'cms-hero-text'), 'Veraltetes Hero-Text-Styling in ' . $design . '.');
 }
 
-foreach (array('dbxapp', 'dbxdocs', 'flowers', 'steal') as $design) {
+foreach (array('dbxapp', 'flowers', 'steal') as $design) {
     $css = dbx_test_read_css($base . '/dbx/design/' . $design . '/css/c-cms.css');
     $assert(
         str_contains($css, '.dbx-cms-hero-actions .dbx-cms-hero-save'),

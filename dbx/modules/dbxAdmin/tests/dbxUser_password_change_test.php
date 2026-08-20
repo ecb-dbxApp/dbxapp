@@ -58,8 +58,8 @@ $cases = array(
 );
 
 foreach ($cases as $index => $case) {
-   [$isNew, $password, $repeat, $change, $field, $message] = $case;
-   $result = $validate->invoke($user, $isNew, $password, $repeat, $texts);
+   [$is_new, $password, $repeat, $change, $field, $message] = $case;
+   $result = $validate->invoke($user, $is_new, $password, $repeat, $texts);
    if (($result['change'] ?? null) !== $change
       || ($result['field'] ?? null) !== $field
       || ($result['message'] ?? null) !== $message) {
@@ -68,9 +68,9 @@ foreach ($cases as $index => $case) {
    }
 }
 
-$settingsAfterChange = $class->getMethod('settings_after_password_change');
-$changedSettings = json_decode(
-   $settingsAfterChange->invoke(
+$settings_after_change = $class->getMethod('settings_after_password_change');
+$changed_settings = json_decode(
+   $settings_after_change->invoke(
       $user,
       json_encode(array(
          'password_reset_required' => 1,
@@ -79,21 +79,21 @@ $changedSettings = json_decode(
    ),
    true
 );
-if (!is_array($changedSettings)
-   || isset($changedSettings['password_reset_required'])
-   || ($changedSettings['dashboard_layout'] ?? '') !== 'compact'
-   || empty($changedSettings['password_changed_at'])) {
+if (!is_array($changed_settings)
+   || isset($changed_settings['password_reset_required'])
+   || ($changed_settings['dashboard_layout'] ?? '') !== 'compact'
+   || empty($changed_settings['password_changed_at'])) {
    fwrite(STDERR, "FAIL: Ein geändertes Passwort muss die Installationswarnung dauerhaft aufheben.\n");
    exit(5);
 }
 
 $template = file_get_contents(dirname(__DIR__) . '/tpl/htm/form-admin-user.htm');
-$profilePos = strpos((string)$template, '>Profil<');
-$passwordPos = strpos((string)$template, '{obj:password_new}');
-$repeatPos = strpos((string)$template, '{obj:password_new2}');
-$contactPos = strpos((string)$template, '>Kontakt<');
-if ($profilePos === false || $passwordPos === false || $repeatPos === false || $contactPos === false
-   || !($profilePos < $passwordPos && $passwordPos < $repeatPos && $repeatPos < $contactPos)
+$profile_pos = strpos((string)$template, '>Profil<');
+$password_pos = strpos((string)$template, '{obj:password_new}');
+$repeat_pos = strpos((string)$template, '{obj:password_new2}');
+$contact_pos = strpos((string)$template, '>Kontakt<');
+if ($profile_pos === false || $password_pos === false || $repeat_pos === false || $contact_pos === false
+   || !($profile_pos < $password_pos && $password_pos < $repeat_pos && $repeat_pos < $contact_pos)
    || substr_count((string)$template, '{obj:password_new}') !== 1
    || substr_count((string)$template, '{obj:password_new2}') !== 1) {
    fwrite(STDERR, "FAIL: Beide Passwortfelder muessen einmalig im rechten Profil-Block stehen.\n");
@@ -106,8 +106,8 @@ if (strpos((string)$template, '{obj:settings_view}') === false
    exit(3);
 }
 
-$settingsView = $class->getMethod('user_settings_view');
-$settingsHtml = $settingsView->invoke($user, array(
+$settings_view = $class->getMethod('user_settings_view');
+$settings_html = $settings_view->invoke($user, array(
    'is_confirm' => 0,
    'settings' => json_encode(array(
       'register_confirm' => array(
@@ -120,12 +120,12 @@ $settingsHtml = $settingsView->invoke($user, array(
       'api_secret' => 'DARF-AUCH-NICHT-SICHTBAR-SEIN',
    )),
 ), $texts);
-if (strpos($settingsHtml, 'Bestätigungslink abgelaufen') === false
-   || strpos($settingsHtml, 'Passwortwechsel erforderlich') === false
-   || strpos($settingsHtml, 'Theme') === false
-   || strpos($settingsHtml, 'dunkel') === false
-   || strpos($settingsHtml, 'DARF-NICHT-SICHTBAR-SEIN') !== false
-   || strpos($settingsHtml, 'DARF-AUCH-NICHT-SICHTBAR-SEIN') !== false) {
+if (strpos($settings_html, 'Bestätigungslink abgelaufen') === false
+   || strpos($settings_html, 'Passwortwechsel erforderlich') === false
+   || strpos($settings_html, 'Theme') === false
+   || strpos($settings_html, 'dunkel') === false
+   || strpos($settings_html, 'DARF-NICHT-SICHTBAR-SEIN') !== false
+   || strpos($settings_html, 'DARF-AUCH-NICHT-SICHTBAR-SEIN') !== false) {
    fwrite(STDERR, "FAIL: Strukturierte Einstellungen sind unvollstaendig oder zeigen Sicherheitswerte.\n");
    exit(4);
 }

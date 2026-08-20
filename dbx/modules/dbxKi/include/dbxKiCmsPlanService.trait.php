@@ -18,7 +18,7 @@ trait dbxKiCmsPlanServiceTrait {
       $name = $this->clean($params['name'] ?? '', 120);
       if ($name === '') throw new \InvalidArgumentException('name ist erforderlich.');
       $parent = max(0, (int)($params['parent_id'] ?? 0));
-      if ($parent > 0 && !is_array($this->db->select1(dbxContentLng::ddFolder($lng), $parent))) {
+      if ($parent > 0 && !is_array($this->db->select1(dbxContentLng::dd_folder($lng), $parent))) {
          throw new \RuntimeException('Parent-Ordner nicht gefunden.');
       }
       return array(
@@ -32,7 +32,7 @@ trait dbxKiCmsPlanServiceTrait {
    private function plan_folder_update(array $params): array {
       $lng = $this->language($params['lng'] ?? '');
       $id = $this->id($params);
-      $dd = dbxContentLng::ddFolder($lng);
+      $dd = dbxContentLng::dd_folder($lng);
       $before = $this->db->select1($dd, $id);
       if (!is_array($before)) throw new \RuntimeException('Ordner nicht gefunden.');
       $patch = $this->patch($params);
@@ -51,9 +51,9 @@ trait dbxKiCmsPlanServiceTrait {
    private function plan_folder_delete(array $params): array {
       $lng = $this->language($params['lng'] ?? '');
       $id = $this->id($params);
-      $row = $this->db->select1(dbxContentLng::ddFolder($lng), $id);
+      $row = $this->db->select1(dbxContentLng::dd_folder($lng), $id);
       if (!is_array($row)) throw new \RuntimeException('Ordner nicht gefunden.');
-      $check = dbxContentLngSync::folderDeletable($this->db, $lng, $id);
+      $check = dbxContentLngSync::folder_deletable($this->db, $lng, $id);
       if ((int)($check['deletable'] ?? 0) !== 1) {
          throw new \RuntimeException((string)($check['reason'] ?? 'Ordner ist nicht löschbar.'));
       }
@@ -65,7 +65,7 @@ trait dbxKiCmsPlanServiceTrait {
       $title = $this->clean($params['title'] ?? '', 254);
       if ($title === '') throw new \InvalidArgumentException('title ist erforderlich.');
       $folder = max(0, (int)($params['folder_id'] ?? $params['folder'] ?? 0));
-      if ($folder > 0 && !is_array($this->db->select1(dbxContentLng::ddFolder($lng), $folder))) {
+      if ($folder > 0 && !is_array($this->db->select1(dbxContentLng::dd_folder($lng), $folder))) {
          throw new \RuntimeException('Zielordner nicht gefunden.');
       }
       $data = $this->page_data($params, $lng, $folder, $title);
@@ -81,16 +81,16 @@ trait dbxKiCmsPlanServiceTrait {
    private function plan_page_update(array $params): array {
       $lng = $this->language($params['lng'] ?? '');
       $id = $this->id($params);
-      $dd = dbxContentLng::ddContent($lng);
+      $dd = dbxContentLng::dd_content($lng);
       $before = $this->db->select1($dd, $id);
       if (!is_array($before)) throw new \RuntimeException('Seite nicht gefunden.');
       $patch = $this->patch($params);
       if (array_key_exists('folder_id', $patch) && !array_key_exists('folder', $patch)) {
          $patch['folder'] = $patch['folder_id'];
       }
-      $packageProductImage = $this->bool_value($patch['package_product_image'] ?? false);
-      $packageMediaId = max(0, (int)($patch['package_media_id'] ?? 0));
-      $packageImageAlt = $this->clean($patch['package_image_alt'] ?? '', 254);
+      $package_product_image = $this->bool_value($patch['package_product_image'] ?? false);
+      $package_media_id = max(0, (int)($patch['package_media_id'] ?? 0));
+      $package_image_alt = $this->clean($patch['package_image_alt'] ?? '', 254);
       unset($patch['package_product_image'], $patch['package_media_id'], $patch['package_image_alt']);
       $allowed = array(
           'activ', 'folder', 'title', 'menu_title', 'seo_title', 'permalink', 'description', 'keywords', 'group_read', 'template', 'content', 'sorter',
@@ -104,7 +104,7 @@ trait dbxKiCmsPlanServiceTrait {
       if (isset($data['seo_title'])) $data['seo_title'] = $this->clean($data['seo_title'], 254);
       if (array_key_exists('permalink', $data)) {
          $data['permalink'] = trim($this->clean($data['permalink'], 254));
-         if (!dbxContent_permalink::isValid($data['permalink'])) {
+         if (!dbxContent_permalink::is_valid($data['permalink'])) {
             throw new \InvalidArgumentException('permalink darf nur Kleinbuchstaben, Zahlen und einzelne Bindestriche enthalten.');
          }
          if (dbxContent_permalink::exists($this->db, $dd, $data['permalink'], $id)) {
@@ -113,38 +113,38 @@ trait dbxKiCmsPlanServiceTrait {
       }
       if (isset($data['folder'])) {
          $data['folder'] = max(0, (int)$data['folder']);
-         if ($data['folder'] > 0 && !is_array($this->db->select1(dbxContentLng::ddFolder($lng), $data['folder']))) {
+         if ($data['folder'] > 0 && !is_array($this->db->select1(dbxContentLng::dd_folder($lng), $data['folder']))) {
             throw new \RuntimeException('Zielordner nicht gefunden.');
          }
       }
-      if (!$data && !$packageProductImage && $packageMediaId <= 0) {
+      if (!$data && !$package_product_image && $package_media_id <= 0) {
          throw new \InvalidArgumentException('Keine änderbaren Felder übergeben.');
       }
       if (array_key_exists('content', $data)) {
          $data['content'] = $this->normalize_content_inline_media_urls((string)$data['content']);
       }
-      $packageMediaApplied = 0;
-      if ($packageProductImage || $packageMediaId > 0) {
-         $mediaId = $packageMediaId > 0
-            ? $packageMediaId
+      $package_media_applied = 0;
+      if ($package_product_image || $package_media_id > 0) {
+         $media_id = $package_media_id > 0
+            ? $package_media_id
             : $this->package_media_id_for_permalink((string)($before['permalink'] ?? ''));
-         if ($mediaId <= 0) {
+         if ($media_id <= 0) {
             throw new \RuntimeException('Kein Paket-Produktbild fuer diese Seite gefunden. package_media_id angeben oder home-package-* Medium anlegen.');
          }
          $content = array_key_exists('content', $data)
             ? (string)$data['content']
             : (string)($before['content'] ?? '');
          $data['content'] = $this->normalize_content_inline_media_urls(
-            $this->apply_package_product_image($content, $mediaId, $packageImageAlt)
+            $this->apply_package_product_image($content, $media_id, $package_image_alt)
          );
-         $packageMediaApplied = $mediaId;
+         $package_media_applied = $media_id;
       }
       if (array_key_exists('content', $data)) {
          $this->assert_no_fake_inline_hero((string)$data['content']);
       }
       $plan = array('operation' => 'update', 'entity' => 'page', 'lng' => $lng, 'id' => $id, 'before' => $before, 'changes' => $data);
-      if ($packageMediaApplied > 0) {
-         $plan['package_media_id_applied'] = $packageMediaApplied;
+      if ($package_media_applied > 0) {
+         $plan['package_media_id_applied'] = $package_media_applied;
       }
       return $plan;
    }
@@ -190,23 +190,23 @@ trait dbxKiCmsPlanServiceTrait {
    private function plan_page_hero_create_image(array $params): array {
       $lng = $this->language($params['lng'] ?? '');
       $id = $this->id($params);
-      $dd = dbxContentLng::ddContent($lng);
+      $dd = dbxContentLng::dd_content($lng);
       $page = $this->db->select1($dd, $id);
       if (!is_array($page)) throw new \RuntimeException('Seite nicht gefunden.');
 
       $permalink = trim((string)($page['permalink'] ?? ''));
-      $baseName = $permalink !== '' ? $permalink : ('page-' . $id);
-      $fileName = $this->safe_file_name($params['file_name'] ?? ($baseName . '-hero.webp'));
-      if ($fileName === '') $fileName = 'page-' . $id . '-hero.webp';
+      $base_name = $permalink !== '' ? $permalink : ('page-' . $id);
+      $file_name = $this->safe_file_name($params['file_name'] ?? ($base_name . '-hero.webp'));
+      if ($file_name === '') $file_name = 'page-' . $id . '-hero.webp';
 
       $variant = $this->plan_media_create_image_variant(array_merge($params, array(
-         'file_name' => $fileName,
+         'file_name' => $file_name,
          'width' => max(1, (int)($params['width'] ?? 1280)),
          'height' => max(1, (int)($params['height'] ?? 300)),
          'fit' => $params['fit'] ?? 'cover',
          'quality' => $params['quality'] ?? 82,
          'media_folder' => 'img/hero',
-         'title' => $params['title'] ?? ('Hero ' . ($page['title'] ?? $fileName)),
+         'title' => $params['title'] ?? ('Hero ' . ($page['title'] ?? $file_name)),
          'alt' => $params['alt'] ?? (string)($page['title'] ?? ''),
       )));
 
@@ -223,9 +223,9 @@ trait dbxKiCmsPlanServiceTrait {
    private function plan_page_delete(array $params): array {
       $lng = $this->language($params['lng'] ?? '');
       $id = $this->id($params);
-      $row = $this->db->select1(dbxContentLng::ddContent($lng), $id);
+      $row = $this->db->select1(dbxContentLng::dd_content($lng), $id);
       if (!is_array($row)) throw new \RuntimeException('Seite nicht gefunden.');
-      $usage = $this->db->count('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $id . ' AND active = 1', $lng));
+      $usage = $this->db->count('dbxMediaUsage', dbxContentMediaUsageScope::with_language('content_id = ' . $id . ' AND active = 1', $lng));
       return array('operation' => 'delete', 'entity' => 'page', 'lng' => $lng, 'id' => $id, 'before' => $row, 'media_usage_to_deactivate' => $usage);
    }
 
@@ -240,8 +240,8 @@ trait dbxKiCmsPlanServiceTrait {
       $allowed = array('image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime', 'application/pdf', 'text/plain');
       if (!in_array($mime, $allowed, true)) throw new \InvalidArgumentException('Nicht unterstützter MIME-Typ: ' . $mime);
       $type = strpos($mime, 'image/') === 0 ? 'image' : (strpos($mime, 'video/') === 0 ? 'video' : 'file');
-      $defaultFolder = $type === 'image' ? 'img/images' : ($type === 'video' ? 'img/video' : 'file/ki');
-      $folder = $this->media_folder($params['media_folder'] ?? $defaultFolder, $type);
+      $default_folder = $type === 'image' ? 'img/images' : ($type === 'video' ? 'img/video' : 'file/ki');
+      $folder = $this->media_folder($params['media_folder'] ?? $default_folder, $type);
       return array(
          'operation' => 'create_file_and_insert',
          'entity' => 'media',
@@ -273,8 +273,8 @@ trait dbxKiCmsPlanServiceTrait {
       $name = $this->safe_file_name($params['file_name'] ?? '');
       if ($name === '') throw new \InvalidArgumentException('file_name ist erforderlich.');
       $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-      $mimeMap = array('jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp');
-      if (!isset($mimeMap[$ext])) {
+      $mime_map = array('jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp');
+      if (!isset($mime_map[$ext])) {
          throw new \InvalidArgumentException('file_name muss .webp, .jpg, .jpeg oder .png verwenden.');
       }
 
@@ -282,21 +282,21 @@ trait dbxKiCmsPlanServiceTrait {
       if (!is_array($info) || empty($info[0]) || empty($info[1])) {
          throw new \InvalidArgumentException('source_file ist kein lesbares Bild.');
       }
-      $sourceMime = (string)($info['mime'] ?? '');
-      if (!in_array($sourceMime, array('image/jpeg', 'image/png', 'image/webp', 'image/gif'), true)) {
-         throw new \InvalidArgumentException('Nicht unterstützter Quellbildtyp: ' . $sourceMime);
+      $source_mime = (string)($info['mime'] ?? '');
+      if (!in_array($source_mime, array('image/jpeg', 'image/png', 'image/webp', 'image/gif'), true)) {
+         throw new \InvalidArgumentException('Nicht unterstützter Quellbildtyp: ' . $source_mime);
       }
 
-      $sourceWidth = (int)$info[0];
-      $sourceHeight = (int)$info[1];
-      $crop = $this->image_crop_rect($params, $sourceWidth, $sourceHeight);
-      $width = max(1, (int)($params['width'] ?? $sourceWidth));
-      $height = max(1, (int)($params['height'] ?? $sourceHeight));
+      $source_width = (int)$info[0];
+      $source_height = (int)$info[1];
+      $crop = $this->image_crop_rect($params, $source_width, $source_height);
+      $width = max(1, (int)($params['width'] ?? $source_width));
+      $height = max(1, (int)($params['height'] ?? $source_height));
       $fit = strtolower(trim((string)($params['fit'] ?? 'cover')));
       if (!in_array($fit, array('cover', 'contain'), true)) $fit = 'cover';
       $quality = min(100, max(1, (int)($params['quality'] ?? 82)));
       $tint = $this->normalize_hex_color((string)($params['tint'] ?? ''));
-      $tintStrength = max(0.0, min(1.0, (float)($params['tint_strength'] ?? 0)));
+      $tint_strength = max(0.0, min(1.0, (float)($params['tint_strength'] ?? 0)));
       $folder = $this->media_folder($params['media_folder'] ?? 'img/images', 'image');
 
       return array(
@@ -304,12 +304,12 @@ trait dbxKiCmsPlanServiceTrait {
          'entity' => 'media',
          'source_file' => $source,
          'source_sha256' => hash_file('sha256', $source),
-         'source_mime' => $sourceMime,
-         'source_width' => $sourceWidth,
-         'source_height' => $sourceHeight,
+         'source_mime' => $source_mime,
+         'source_width' => $source_width,
+         'source_height' => $source_height,
          'crop' => $crop,
          'file_name' => $name,
-         'mime' => $mimeMap[$ext],
+         'mime' => $mime_map[$ext],
          'media_type' => 'image',
          'media_folder' => $folder,
          'width' => $width,
@@ -317,7 +317,7 @@ trait dbxKiCmsPlanServiceTrait {
          'fit' => $fit,
          'quality' => $quality,
          'tint' => $tint,
-         'tint_strength' => $tintStrength,
+         'tint_strength' => $tint_strength,
          'metadata' => array(
             'title' => $this->clean($params['title'] ?? pathinfo($name, PATHINFO_FILENAME), 160),
             'alt' => $this->clean($params['alt'] ?? '', 254),
@@ -337,15 +337,15 @@ trait dbxKiCmsPlanServiceTrait {
    }
 
    private function plan_media_assign(array $params): array {
-      $mediaId = $this->id($params, 'media_id');
-      $media = $this->db->select1('dbxMedia', $mediaId);
+      $media_id = $this->id($params, 'media_id');
+      $media = $this->db->select1('dbxMedia', $media_id);
       if (!is_array($media) || (int)($media['active'] ?? 0) !== 1) throw new \RuntimeException('Medium nicht gefunden.');
-      $contentId = max(0, (int)($params['content_id'] ?? 0));
-      $folderId = max(0, (int)($params['folder_id'] ?? 0));
-      if (($contentId > 0) === ($folderId > 0)) throw new \InvalidArgumentException('Genau content_id oder folder_id muss gesetzt sein.');
+      $content_id = max(0, (int)($params['content_id'] ?? 0));
+      $folder_id = max(0, (int)($params['folder_id'] ?? 0));
+      if (($content_id > 0) === ($folder_id > 0)) throw new \InvalidArgumentException('Genau content_id oder folder_id muss gesetzt sein.');
       $lng = $this->language($params['lng'] ?? '');
-      if ($contentId > 0 && !is_array($this->db->select1(dbxContentLng::ddContent($lng), $contentId))) throw new \RuntimeException('Seite nicht gefunden.');
-      if ($folderId > 0 && !is_array($this->db->select1(dbxContentLng::ddFolder($lng), $folderId))) throw new \RuntimeException('Ordner nicht gefunden.');
+      if ($content_id > 0 && !is_array($this->db->select1(dbxContentLng::dd_content($lng), $content_id))) throw new \RuntimeException('Seite nicht gefunden.');
+      if ($folder_id > 0 && !is_array($this->db->select1(dbxContentLng::dd_folder($lng), $folder_id))) throw new \RuntimeException('Ordner nicht gefunden.');
       $slot = $this->slot($params['slot'] ?? 'gallery');
       return array(
          'operation' => 'insert',
@@ -354,9 +354,9 @@ trait dbxKiCmsPlanServiceTrait {
          'media' => $media,
          'data' => array(
             'active' => 1,
-            'media_id' => $mediaId,
-            'content_id' => $contentId,
-            'folder_id' => $folderId,
+            'media_id' => $media_id,
+            'content_id' => $content_id,
+            'folder_id' => $folder_id,
             'slot' => $slot,
             'template' => $this->clean($params['template'] ?? $media['template'] ?? '', 80),
             'caption' => $this->clean($params['caption'] ?? ''),
@@ -420,39 +420,39 @@ trait dbxKiCmsPlanServiceTrait {
    }
 
    private function plan_translation_sync_all(array $params): array {
-      $sourceLng = $this->language($params['source_lng'] ?? '');
-      $targetLngs = $this->target_languages($params, $sourceLng);
-      if (!count($targetLngs)) {
+      $source_lng = $this->language($params['source_lng'] ?? '');
+      $target_lngs = $this->target_languages($params, $source_lng);
+      if (!count($target_lngs)) {
          throw new \InvalidArgumentException('Keine Zielsprachen gefunden.');
       }
 
-      $rootFolderId = max(0, (int)($params['root_folder_id'] ?? $params['folder_id'] ?? 0));
-      if ($rootFolderId > 0 && !is_array($this->db->select1(dbxContentLng::ddFolder($sourceLng), $rootFolderId))) {
+      $root_folder_id = max(0, (int)($params['root_folder_id'] ?? $params['folder_id'] ?? 0));
+      if ($root_folder_id > 0 && !is_array($this->db->select1(dbxContentLng::dd_folder($source_lng), $root_folder_id))) {
          throw new \RuntimeException('Quellordner nicht gefunden.');
       }
 
-      $folderIds = $this->collect_folder_ids_for_lng($sourceLng, $rootFolderId);
-      $pageIds = $this->collect_page_ids_for_lng($sourceLng, $rootFolderId, $folderIds);
+      $folder_ids = $this->collect_folder_ids_for_lng($source_lng, $root_folder_id);
+      $page_ids = $this->collect_page_ids_for_lng($source_lng, $root_folder_id, $folder_ids);
 
       return array(
          'operation' => 'translation_sync_all',
          'entity' => 'content_language',
-         'source_lng' => $sourceLng,
-         'target_lngs' => $targetLngs,
-         'root_folder_id' => $rootFolderId,
+         'source_lng' => $source_lng,
+         'target_lngs' => $target_lngs,
+         'root_folder_id' => $root_folder_id,
          'update_existing' => !array_key_exists('update_existing', $params) || $this->bool_value($params['update_existing']),
          'skip_manual' => array_key_exists('skip_manual', $params) && $this->bool_value($params['skip_manual']),
          'copy_media' => !array_key_exists('copy_media', $params) || $this->bool_value($params['copy_media']),
          'replace_media_usage' => array_key_exists('replace_media_usage', $params) && $this->bool_value($params['replace_media_usage']),
          'provider' => dbxContentTranslate::provider(),
          'counts' => array(
-            'folders' => count($folderIds),
-            'pages' => count($pageIds),
-            'target_languages' => count($targetLngs),
+            'folders' => count($folder_ids),
+            'pages' => count($page_ids),
+            'target_languages' => count($target_lngs),
          ),
          'source_ids' => array(
-            'folders' => $folderIds,
-            'pages' => $pageIds,
+            'folders' => $folder_ids,
+            'pages' => $page_ids,
          ),
       );
    }

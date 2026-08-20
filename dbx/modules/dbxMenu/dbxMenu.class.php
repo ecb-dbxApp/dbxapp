@@ -1,13 +1,13 @@
 <?php
 namespace dbx\dbxMenu;
-dbx()->use_system_class('dbxForm');
+dbx()->get_system_obj('dbxForm', 'use');
 
 Class dbxMenu {
-  Public $oTPL;
+  Public $o_tpl;
   private $texts;
 
   public function __construct() {
-     $this->oTPL=dbx()->get_system_obj('dbxTPL');
+     $this->o_tpl=dbx()->get_system_obj('dbxTPL');
   }
 
    private function texts() {
@@ -16,7 +16,7 @@ Class dbxMenu {
       }
       $texts = new \dbxForm();
       $texts->set_form_help_enabled(false);
-      $texts->_fd = 'dbxMenu|menu-ui';
+      $texts->set_field_definition('dbxMenu|menu-ui');
       $texts->load_fd_messages();
       $this->texts = $texts;
       return $this->texts;
@@ -25,72 +25,72 @@ Class dbxMenu {
 
    private function get_menu_tpl($menu='undef') {
      $access=1; $content='';
-     if (strpos($menu, '_admin')) $access=dbx()->can('admin');
-     if (strpos($menu, '-admin')) $access=dbx()->can('admin');
-     if (strpos($menu, 'admin_')) $access=dbx()->can('admin');
-     if (strpos($menu, 'admin-')) $access=dbx()->can('admin');     
+     if (strpos($menu, '_admin')) $access=dbx()->has_group('admin');
+     if (strpos($menu, '-admin')) $access=dbx()->has_group('admin');
+     if (strpos($menu, 'admin_')) $access=dbx()->has_group('admin');
+     if (strpos($menu, 'admin-')) $access=dbx()->has_group('admin');     
          
      dbx()->debug("load get_menu_tpl=($menu)");
 
      if ($access) {
        $data=array();
-       $oWeb = dbx()->get_system_obj('dbxWebApp');
-       $baseSelf = $oWeb->normalize_self_url(dbx()->get_system_var('dbx_self_url','?','*'));
-       $data['self'] = $oWeb->route_param_prefix($baseSelf);
+       $o_web = dbx()->get_system_obj('dbxWebApp');
+       $base_self = $o_web->normalize_self_url(dbx()->get_system_var('dbx_self_url','?','*'));
+       $data['self'] = $o_web->route_param_prefix($base_self);
        $edit = (int) dbx()->get_system_var('dbx_edit', 0, 'int');
-       $nextEdit = $this->next_editor_level($edit);
+       $next_edit = $this->next_editor_level($edit);
        $data['edit_level']        = $edit;
-       $data['edit_next_level']   = $nextEdit;
-       $data['edit_toggle_url']   = $this->editor_level_url($baseSelf, $nextEdit);
-       $data['edit_level_menu']   = $this->render_editor_level_menu($baseSelf, $edit);
+       $data['edit_next_level']   = $next_edit;
+       $data['edit_toggle_url']   = $this->editor_level_url($base_self, $next_edit);
+       $data['edit_level_menu']   = $this->render_editor_level_menu($base_self, $edit);
        $data['edit_state_class']  = $edit ? 'is-active' : 'is-disabled';
        $data['edit_toggle_title'] = $this->texts()->format_fd_message(
           'editor_level_title',
           array('level' => $edit, 'label' => $this->editor_level_label($edit))
        );
        $lng = strtolower(trim((string) dbx()->get_system_var('dbx_lng', 'de')));
-       $lngMeta = $this->language_meta($lng);
+       $lng_meta = $this->language_meta($lng);
        $data['lng_active']        = $lng;
-       $data['lng_active_flag']   = $lngMeta['flag'];
-       $data['lng_active_label']  = $lngMeta['label'];
-       $data['lng_menu']          = $this->render_language_menu($baseSelf, $lng);
+       $data['lng_active_flag']   = $lng_meta['flag'];
+       $data['lng_active_label']  = $lng_meta['label'];
+       $data['lng_menu']          = $this->render_language_menu($base_self, $lng);
        $data['lng_toggle_title']  = $this->texts()->format_fd_message(
           'language_title',
-          array('language' => $lngMeta['label'])
+          array('language' => $lng_meta['label'])
        );
-        $activeDesign = $this->active_frontend_design();
-        $data['design_active']       = $activeDesign;
-        $data['design_active_label'] = $this->design_label($activeDesign);
-        $data['design_menu']         = $this->render_design_menu($baseSelf, $activeDesign);
+        $active_design = $this->active_frontend_design();
+        $data['design_active']       = $active_design;
+        $data['design_active_label'] = $this->design_label($active_design);
+        $data['design_menu']         = $this->render_design_menu($base_self, $active_design);
         $data['design_toggle_title'] = $this->texts()->format_fd_message(
            'design_title',
            array('design' => $data['design_active_label'])
         );
-        $nightActive = dbx()->get_skin() === 'dunkel';
-        $data['theme_toggle_url']   = $this->theme_toggle_url($baseSelf, $nightActive);
-        $data['theme_toggle_icon']  = $nightActive ? 'bi-moon-stars-fill' : 'bi-sun';
+        $night_active = dbx()->get_system_obj('dbxPresentation')->get_skin() === 'dunkel';
+        $data['theme_toggle_url']   = $this->theme_toggle_url($base_self, $night_active);
+        $data['theme_toggle_icon']  = $night_active ? 'bi-moon-stars-fill' : 'bi-sun';
         $data['theme_toggle_title'] = $this->texts()->format_fd_message(
            'theme_title',
-           array('mode' => $this->texts()->get_fd_message($nightActive ? 'theme_night' : 'theme_day'))
+           array('mode' => $this->texts()->get_fd_message($night_active ? 'theme_night' : 'theme_day'))
         );
-       $openContactCount = $this->open_contact_count($menu);
-       $data['contact_open_count'] = $openContactCount;
-       $contactKey = $openContactCount === 1
+       $open_contact_count = $this->open_contact_count($menu);
+       $data['contact_open_count'] = $open_contact_count;
+       $contact_key = $open_contact_count === 1
           ? 'contact_open_one'
           : 'contact_open_many';
        $data['contact_open_title'] = $this->texts()->format_fd_message(
-          $contactKey,
-          array('count' => $openContactCount)
+          $contact_key,
+          array('count' => $open_contact_count)
        );
-       $data['contact_open_badge'] = $openContactCount > 0
+       $data['contact_open_badge'] = $open_contact_count > 0
           ? '<span class="dbx-contact-open-badge" aria-label="' . $this->h($data['contact_open_title']) . '">'
-             . $openContactCount . '</span>'
+             . $open_contact_count . '</span>'
           : '';
-       $cartCount = $this->shop_cart_count();
-       $data['shop_cart_count'] = $cartCount;
-       $data['shop_cart_badge'] = $this->shop_cart_badge($cartCount);
+       $cart_count = $this->shop_cart_count();
+       $data['shop_cart_count'] = $cart_count;
+       $data['shop_cart_badge'] = $this->shop_cart_badge($cart_count);
        $i = dbx()->next_id();
-       $content=$this->oTPL->get_tpl($menu,$data,'htm',$i);
+       $content=$this->o_tpl->get_tpl($menu,$data,'htm',$i);
        $content=$this->replace_cms_placeholders($content);
      }
 
@@ -127,14 +127,14 @@ Class dbxMenu {
    }
 
    private function open_contact_count(string $menu): int {
-      if (stripos($menu, 'admin') === false || !dbx()->can('admin')) {
+      if (stripos($menu, 'admin') === false || !dbx()->has_group('admin')) {
          return 0;
       }
 
       try {
          $tickets = dbx()->get_include_obj('dbxContactTicket', 'dbxContact');
-         if (is_object($tickets) && method_exists($tickets, 'openCount')) {
-            return max(0, (int) $tickets->openCount());
+         if (is_object($tickets) && method_exists($tickets, 'open_count')) {
+            return max(0, (int) $tickets->open_count());
          }
       } catch (\Throwable $e) {
          dbx()->debug('[dbxMenu] offene Kontaktanfragen konnten nicht gezaehlt werden: ' . $e->getMessage());
@@ -179,13 +179,13 @@ Class dbxMenu {
       return 'bi-question-circle';
    }
 
-   private function render_editor_level_menu(string $baseSelf, int $activeEdit): string {
+   private function render_editor_level_menu(string $base_self, int $active_edit): string {
       $levels = array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
       $html = '';
 
       foreach ($levels as $level) {
-         $class = $level === $activeEdit ? ' class="is-active"' : '';
-         $url = htmlspecialchars($this->editor_level_url($baseSelf, $level), ENT_QUOTES, 'UTF-8');
+         $class = $level === $active_edit ? ' class="is-active"' : '';
+         $url = htmlspecialchars($this->editor_level_url($base_self, $level), ENT_QUOTES, 'UTF-8');
          $label = htmlspecialchars($this->editor_level_label($level), ENT_QUOTES, 'UTF-8');
          $icon = htmlspecialchars($this->editor_level_icon($level), ENT_QUOTES, 'UTF-8');
 
@@ -209,9 +209,9 @@ Class dbxMenu {
    }
 
    private function editor_level_url(string $url, int $edit): string {
-      $oWeb = dbx()->get_system_obj('dbxWebApp');
-      return $oWeb->append_route_params(
-         $oWeb->normalize_self_url($url),
+      $o_web = dbx()->get_system_obj('dbxWebApp');
+      return $o_web->append_route_params(
+         $o_web->normalize_self_url($url),
          array('dbx_edit' => (string) $edit)
       );
    }
@@ -262,29 +262,40 @@ Class dbxMenu {
    }
 
    private function language_url(string $url, string $lng): string {
-      $oWeb = dbx()->get_system_obj('dbxWebApp');
-      return $oWeb->append_route_params(
-         $oWeb->normalize_self_url($url),
+      $o_web = dbx()->get_system_obj('dbxWebApp');
+      $source_lng = strtolower(trim((string)dbx()->get_system_var('dbx_lng', 'de')));
+      $cid = (int)dbx()->get_system_var('dbx_content_route_cid', 0, 'int');
+      if ($cid > 0) {
+         $routes = dbx()->get_include_obj('dbxContentCanonicalRoute', 'dbxContent');
+         if (is_object($routes) && method_exists($routes, 'page_url')) {
+            $canonical = $routes->page_url($cid, $source_lng, strtolower(trim($lng)));
+            if ($canonical !== '') {
+               return $canonical;
+            }
+         }
+      }
+      return $o_web->append_route_params(
+         $o_web->normalize_self_url($url),
          array('dbx_lng' => strtolower(trim($lng)))
       );
    }
 
-   private function render_language_menu(string $baseSelf, string $activeLng): string {
-      $activeLng = strtolower(trim($activeLng));
+   private function render_language_menu(string $base_self, string $active_lng): string {
+      $active_lng = strtolower(trim($active_lng));
       $html = '';
 
       foreach ($this->language_options() as $code => $meta) {
-         $class = $code === $activeLng ? ' class="is-active"' : '';
-         $url = htmlspecialchars($this->language_url($baseSelf, $code), ENT_QUOTES, 'UTF-8');
+         $class = $code === $active_lng ? ' class="is-active"' : '';
+         $url = htmlspecialchars($this->language_url($base_self, $code), ENT_QUOTES, 'UTF-8');
          $label = htmlspecialchars($meta['label'], ENT_QUOTES, 'UTF-8');
          $flag = htmlspecialchars($meta['flag'], ENT_QUOTES, 'UTF-8');
-         $codeLabel = htmlspecialchars(strtoupper($code), ENT_QUOTES, 'UTF-8');
+         $code_label = htmlspecialchars(strtoupper($code), ENT_QUOTES, 'UTF-8');
 
          $html .= '<li' . $class . '>';
-         $html .= '<a class="dbxLngOpt' . ($code === $activeLng ? ' is-active' : '')
+         $html .= '<a class="dbxLngOpt' . ($code === $active_lng ? ' is-active' : '')
              . '" href="' . $url . '" data-dbx-tooltip="' . $label . '">';
          $html .= '<span class="dbx-lng-flag" data-dbx-flag="' . $flag . '" aria-hidden="true"></span>';
-         $html .= '<span class="dbx-lng-code">' . $codeLabel . '</span>';
+         $html .= '<span class="dbx-lng-code">' . $code_label . '</span>';
          $html .= '</a>';
          $html .= '</li>';
       }
@@ -298,7 +309,7 @@ Class dbxMenu {
     */
    private function frontend_design_options(): array {
       $options = array();
-      foreach (dbx()->get_design_catalog() as $name => $design) {
+      foreach (dbx()->get_system_obj('dbxPresentation')->get_design_catalog() as $name => $design) {
          if ($name === '' || $name[0] === '_' || $name[0] === '-') {
             continue;
          }
@@ -321,10 +332,6 @@ Class dbxMenu {
       if ($key === 'dbxapp') {
          return 'dbXapp';
       }
-      if ($key === 'dbxdocs') {
-         return 'dbxdocs';
-      }
-
       $label = trim(str_replace(array('-', '_'), ' ', $design));
       return $label !== '' ? ucfirst($label) : $design;
    }
@@ -335,10 +342,10 @@ Class dbxMenu {
     * automatisch ab, falls das Zieldesign den aktuellen Skin nicht kennt.
     */
    private function design_url(string $url, string $design): string {
-      $oWeb = dbx()->get_system_obj('dbxWebApp');
+      $o_web = dbx()->get_system_obj('dbxWebApp');
 
-      return $oWeb->append_route_params(
-         $oWeb->normalize_self_url($url),
+      return $o_web->append_route_params(
+         $o_web->normalize_self_url($url),
          array('dbx_design' => $design)
       );
    }
@@ -348,18 +355,18 @@ Class dbxMenu {
     * Tag/Nacht-Wechsel ist ein eigenes, separates Menue-Icon
     * (siehe theme_toggle_url()) und wirkt designuebergreifend.
     */
-   private function render_design_menu(string $baseSelf, string $activeDesign): string {
+   private function render_design_menu(string $base_self, string $active_design): string {
       $html = '';
 
-      foreach ($this->frontend_design_options() as $design => $designLabel) {
-         $active = $design === $activeDesign;
-         $designEsc = $this->h($design);
-         $url = $this->h($this->design_url($baseSelf, $design));
+      foreach ($this->frontend_design_options() as $design => $design_label) {
+         $active = $design === $active_design;
+         $design_esc = $this->h($design);
+         $url = $this->h($this->design_url($base_self, $design));
 
          $html .= '<li class="dbx-design-item' . ($active ? ' is-active' : '') . '">';
          $html .= '<a href="' . $url . '" class="dbx-design-opt' . ($active ? ' is-active' : '')
-            . '" data-design="' . $designEsc . '" data-dbx-tooltip="' . $this->h($designLabel) . '">';
-         $html .= '<i class="bi bi-window-sidebar dbx-design-icon" aria-hidden="true"></i><span>' . $this->h($designLabel) . '</span>';
+            . '" data-design="' . $design_esc . '" data-dbx-tooltip="' . $this->h($design_label) . '">';
+         $html .= '<i class="bi bi-window-sidebar dbx-design-icon" aria-hidden="true"></i><span>' . $this->h($design_label) . '</span>';
          if ($active) {
             $html .= '<i class="bi bi-check2 dbx-design-check" aria-hidden="true"></i>';
          }
@@ -376,12 +383,12 @@ Class dbxMenu {
     * die einzige vorhandene Farbvariante zurueck, die Darstellung bleibt dann
     * unveraendert.
     */
-   private function theme_toggle_url(string $url, bool $nightActive): string {
-      $oWeb = dbx()->get_system_obj('dbxWebApp');
+   private function theme_toggle_url(string $url, bool $night_active): string {
+      $o_web = dbx()->get_system_obj('dbxWebApp');
 
-      return $oWeb->append_route_params(
-         $oWeb->normalize_self_url($url),
-         array('dbx_color' => $nightActive ? 'blau' : 'dunkel')
+      return $o_web->append_route_params(
+         $o_web->normalize_self_url($url),
+         array('dbx_color' => $night_active ? 'blau' : 'dunkel')
       );
    }
 
@@ -415,7 +422,7 @@ Class dbxMenu {
          }
          session_start();
       }
-      $cart = $_SESSION['dbxShop_cart'] ?? array();
+      $cart = dbx()->get_session_var('cart', array(), 'state', 'dbxShop');
       if (!is_array($cart)) {
          return 0;
       }
@@ -469,8 +476,8 @@ Class dbxMenu {
 
    private function user_menu_html(int $uid): string {
       $avatar = $this->h($this->user_avatar_url($uid));
-      $cartCount = $this->shop_cart_count();
-      $cartBadge = $this->shop_cart_badge($cartCount);
+      $cart_count = $this->shop_cart_count();
+      $cart_badge = $this->shop_cart_badge($cart_count);
       $texts = $this->texts();
       $user = $this->h($texts->get_fd_message('user'));
       return '<li class="align-right dbx-user-avatar-menu">'
@@ -483,7 +490,7 @@ Class dbxMenu {
          . '</a>'
          . '<ul>'
          . '<li><a href="?dbx_modul=dbxShop&amp;dbx_run1=catalog"><i class="bi bi-bag"></i> ' . $this->h($texts->get_fd_message('shop')) . '</a></li>'
-         . '<li><a class="dbx-shop-cart-menu-link" href="?dbx_modul=dbxShop&amp;dbx_run1=cart"><span class="dbx-shop-cart-menu-icon"><i class="bi bi-basket"></i>' . $cartBadge . '</span> ' . $this->h($texts->get_fd_message('cart')) . '</a></li>'
+         . '<li><a class="dbx-shop-cart-menu-link" href="?dbx_modul=dbxShop&amp;dbx_run1=cart"><span class="dbx-shop-cart-menu-icon"><i class="bi bi-basket"></i>' . $cart_badge . '</span> ' . $this->h($texts->get_fd_message('cart')) . '</a></li>'
          . '<li><a href="?dbx_modul=dbxShop&amp;dbx_run1=orders"><i class="bi bi-receipt"></i> ' . $this->h($texts->get_fd_message('orders')) . '</a></li>'
          . '<li><a href="?dbx_modul=dbxShop&amp;dbx_run1=withdrawal"><i class="bi bi-arrow-counterclockwise"></i> ' . $this->h($texts->get_fd_message('withdrawal')) . '</a></li>'
          . '<li><a href="?dbx_modul=dbxContact&amp;dbx_run1=form"><i class="bi bi-envelope-plus"></i> ' . $this->h($texts->get_fd_message('new_request')) . '</a></li>'
@@ -498,15 +505,15 @@ Class dbxMenu {
          return $content;
       }
 
-      $hasFlatMarker = stripos($content, '[cms:flat]') !== false;
-      $flatMarkerToken = '###DBX_CMS_FLAT_MARKER_' . md5((string)microtime(true)) . '###';
-      $flatMarkerHtml = '';
+      $has_flat_marker = stripos($content, '[cms:flat]') !== false;
+      $flat_marker_token = '###DBX_CMS_FLAT_MARKER_' . md5((string)microtime(true)) . '###';
+      $flat_marker_html = '';
 
-      $content = preg_replace_callback('/\[cms:([^\]]*)\]/i', function ($match) use ($hasFlatMarker, $flatMarkerToken, &$flatMarkerHtml) {
+      $content = preg_replace_callback('/\[cms:([^\]]*)\]/i', function ($match) use ($has_flat_marker, $flat_marker_token, &$flat_marker_html) {
          $raw = trim((string)$match[1]);
 
          if (preg_match('/^flat$/i', $raw)) {
-            return $flatMarkerToken;
+            return $flat_marker_token;
          }
 
          $params = array();
@@ -517,20 +524,20 @@ Class dbxMenu {
             $root = (int)$root;
          }
          $flat = (int)($params['flat'] ?? 1);
-         $splitFlat = $hasFlatMarker && $flat === 1;
+         $split_flat = $has_flat_marker && $flat === 1;
 
          $obj = dbx()->get_include_obj('dbxContent_menu');
          if ($obj && method_exists($obj, 'render_placeholder')) {
-            if ($splitFlat && method_exists($obj, 'render_flat_marker')) {
-               $flatMarkerHtml .= $obj->render_flat_marker($root, $flat);
+            if ($split_flat && method_exists($obj, 'render_flat_marker')) {
+               $flat_marker_html .= $obj->render_flat_marker($root, $flat);
             }
-            return $obj->render_placeholder($root, $flat, $splitFlat);
+            return $obj->render_placeholder($root, $flat, $split_flat);
          }
 
          return '';
       }, $content);
 
-      return str_replace($flatMarkerToken, $flatMarkerHtml, $content);
+      return str_replace($flat_marker_token, $flat_marker_html, $content);
    }
 
    public function run() {
@@ -555,57 +562,27 @@ Class dbxMenu {
 
 
       if ($uid > 0) {
-         $LoginOut ='LogOut'; $login_out = 'logout'; $login_icon = 'bi-power';
+         $login_out ='LogOut'; $login_out = 'logout'; $login_icon = 'bi-power';
       } else {
-         $LoginOut ='LogIn' ; $login_out = 'login';  $login_icon = 'bi-person-circle';
+         $login_out ='LogIn' ; $login_out = 'login';  $login_icon = 'bi-person-circle';
       }
-      $ProfileLink = $this->user_menu_html((int)$uid);
+      $profile_link = $this->user_menu_html((int)$uid);
 
-      $AdminMenu='';
+      $admin_menu='';
       $design=dbx()->get_system_var('dbx_activ_design');
       $page  =dbx()->get_system_var('dbx_activ_page');
       $lng   =dbx()->get_system_var('dbx_activ_lng');
 
-      if (dbx()->can('admin'))         $AdminMenu="Admin";
+      if (dbx()->has_group('admin'))         $admin_menu="Admin";
       $content=$this->replace_module_menu_slots($content);
-      $content=str_replace('{dbx:Admin}'    ,$AdminMenu,$content);
-      $content=str_replace('{dbx:LogInOut}' ,$LoginOut ,$content);
+      $content=str_replace('{dbx:Admin}'    ,$admin_menu,$content);
+      $content=str_replace('{dbx:LogInOut}' ,$login_out ,$content);
       $content=str_replace('{dbx:login_out}',$login_out,$content);
       $content=str_replace('{dbx:login_icon}',$login_icon,$content);
-      $content=str_replace('{dbx:profile_link}',$ProfileLink,$content);
+      $content=str_replace('{dbx:profile_link}',$profile_link,$content);
       $content=str_replace('{dbx:design}'   ,$design   ,$content);
       $content=str_replace('{dbx:page}'     ,$page     ,$content);
       $content=str_replace('{dbx:lng}'      ,$lng      ,$content);
-
-      $docsAreaUrls = array(
-         'de' => array(
-            'start' => 'dokumentation/dokumentation-einstieg',
-            'apply' => 'dokumentation/dokumentation-einstieg',
-            'develop' => 'dokumentation/dokumentation-entwickeln',
-            'operate' => 'dokumentation/dokumentation-betrieb',
-            'ai' => 'dokumentation/dokumentation-ki-agenten',
-         ),
-         'en' => array(
-            'start' => 'dokumentation/documentation-getting-started',
-            'apply' => 'dokumentation/documentation-getting-started',
-            'develop' => 'dokumentation/documentation-develop',
-            'operate' => 'dokumentation/documentation-operate',
-            'ai' => 'dokumentation/documentation-ai',
-         ),
-         'es' => array(
-            'start' => 'dokumentation/documentacion-primeros-pasos',
-            'apply' => 'dokumentation/documentacion-primeros-pasos',
-            'develop' => 'dokumentation/documentacion-desarrollar',
-            'operate' => 'dokumentation/documentacion-operar',
-            'ai' => 'dokumentation/documentacion-ia',
-         ),
-      );
-      $docsLanguage = strtolower(trim((string)$lng));
-      $docsUrls = $docsAreaUrls[$docsLanguage] ?? $docsAreaUrls['de'];
-      foreach ($docsUrls as $area => $url) {
-         $content = str_replace('{docs_' . $area . '_url}', dbx()->get_base_url() . $url, $content);
-      }
-
 
       return $content;
    }

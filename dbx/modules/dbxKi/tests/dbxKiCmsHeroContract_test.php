@@ -15,13 +15,13 @@ $service = $class->newInstanceWithoutConstructor();
 $validate = $class->getMethod('assert_no_fake_inline_hero');
 $validate->setAccessible(true);
 
-$fakeHero = '<div class="position-relative"><img data-cms-media-id="166" src="index.php?dbx_mid=166">'
+$fake_hero = '<div class="position-relative"><img data-cms-media-id="166" src="index.php?dbx_mid=166">'
     . '<div class="position-absolute top-0 start-0 w-100 h-100"><h2>Eine Plattform</h2>'
     . '<p>Dieser umfangreiche Text liegt über dem Bild und bildet damit fälschlich einen Hero im normalen Inhalt nach.</p>'
     . '<a href="demo">Demo ansehen</a></div></div><p>Body</p>';
 $rejected = false;
 try {
-    $validate->invoke($service, $fakeHero);
+    $validate->invoke($service, $fake_hero);
 } catch (ReflectionException $error) {
     throw $error;
 } catch (Throwable $error) {
@@ -31,36 +31,36 @@ try {
 }
 $assert($rejected, 'dbxKi accepts an inline fake Hero at the start of content.');
 
-$realHero = '<div class="dbx-home-hero-copy"><h2>Eine Plattform</h2><p>Hero-Text ohne Inline-Bild.</p></div>'
+$real_hero = '<div class="dbx-home-hero-copy"><h2>Eine Plattform</h2><p>Hero-Text ohne Inline-Bild.</p></div>'
     . '<hr class="dbx-cms-marker" data-dbx-marker="dbx:hero"><p>Body</p>';
-$validHeroAccepted = true;
+$valid_hero_accepted = true;
 try {
-    $validate->invoke($service, $realHero);
+    $validate->invoke($service, $real_hero);
 } catch (Throwable $error) {
-    $validHeroAccepted = false;
+    $valid_hero_accepted = false;
 }
-$assert($validHeroAccepted, 'dbxKi rejects the native Hero marker structure.');
+$assert($valid_hero_accepted, 'dbxKi rejects the native Hero marker structure.');
 
-$cardWithBadge = '<div class="card position-relative"><img class="card-img-top" data-cms-media-id="42" src="index.php?dbx_mid=42">'
+$card_with_badge = '<div class="card position-relative"><img class="card-img-top" data-cms-media-id="42" src="index.php?dbx_mid=42">'
     . '<span class="position-absolute badge">Neu</span><div class="card-body"><p>Produkt</p></div></div>';
-$cardAccepted = true;
+$card_accepted = true;
 try {
-    $validate->invoke($service, $cardWithBadge);
+    $validate->invoke($service, $card_with_badge);
 } catch (Throwable $error) {
-    $cardAccepted = false;
+    $card_accepted = false;
 }
-$assert($cardAccepted, 'dbxKi incorrectly rejects a small absolute card badge.');
+$assert($card_accepted, 'dbxKi incorrectly rejects a small absolute card badge.');
 
 $workflow = $class->getMethod('page_workflows');
 $workflow->setAccessible(true);
-$workflowText = json_encode($workflow->invoke($service), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$workflow_text = json_encode($workflow->invoke($service), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 $contract = $class->getMethod('content_contract');
 $contract->setAccessible(true);
-$contractText = json_encode($contract->invoke($service), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$contract_text = json_encode($contract->invoke($service), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 $assert(
-    str_contains((string)$workflowText, 'Inline-Schein-Hero')
-        && str_contains((string)$workflowText, 'slot=hero')
-        && str_contains((string)$contractText, 'dbx:hero'),
+    str_contains((string)$workflow_text, 'Inline-Schein-Hero')
+        && str_contains((string)$workflow_text, 'slot=hero')
+        && str_contains((string)$contract_text, 'dbx:hero'),
     'The dbxKi CMS contract does not document the native Hero workflow.'
 );
 

@@ -13,7 +13,7 @@ foreach (array_slice($argv ?? array(), 1) as $argument) {
 }
 
 $runner = new dbxSelfTestRunner();
-$run = $runner->runProfile($profile, $requested, static function (array $result, ?array $current) use ($json): void {
+$run = $runner->run_profile($profile, $requested, static function (array $result, ?array $current) use ($json): void {
     if ($json) return;
     $total = (int)($current['totals']['total'] ?? 0);
     $done = (int)($current['totals']['completed'] ?? 0);
@@ -34,7 +34,7 @@ if ($json) {
         $totals['passed'],
         $totals['failed'],
         $totals['skipped'],
-        $runner->runLogPath((string)$run['id'])
+        $runner->run_log_path((string)$run['id'])
     ));
 }
 exit(($run['status'] ?? '') === 'passed' ? 0 : 1);

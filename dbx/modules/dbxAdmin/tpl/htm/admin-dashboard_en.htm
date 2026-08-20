@@ -1,4 +1,4 @@
-<div id="dbx_admin_dashboard" class="c-admin dbx-admin-dashboard dbx-ajax-root" data-dbx="lib=adminDashboard|id=admin-dashboard" data-admin-dashboard="1">
+<div id="dbx_admin_dashboard" class="c-admin dbx-admin-dashboard dbx-ajax-root" data-dbx="lib=adminDashboard|module=dbxAdmin|id=admin-dashboard" data-admin-dashboard="1">
    {obj:dashboard_message}
    <div class="container-fluid px-0" data-dbx="lib=ajax|class=dbxAjax|target=dbx_admin_dashboard_work|replace=inner|mode=html">
       <div class="row g-4 align-items-stretch">
@@ -20,11 +20,17 @@
                            <span>{update_nav_label}</span>
                            <span class="dbx-admin-dashboard-update-badge">{update_nav_badge}</span>
                         </a>
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=content_cache_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="content_cache_panel">
+                           <i class="bi bi-archive me-2"></i>Content cache
+                        </a>
                         <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=widgets" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="widgets">
                            <i class="bi bi-grid-1x2 me-2"></i>Characteristics
                         </a>
                         <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=quick_actions" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="quick_actions">
                            <i class="bi bi-lightning-charge me-2"></i>Quick access
+                        </a>
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=ui_defaults_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="ui_defaults_panel">
+                           <i class="bi bi-sliders2 me-2"></i>UI default
                         </a>
                      </div>
                   </div>
@@ -41,8 +47,8 @@
                         <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=performance_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="performance_panel">
                            <i class="bi bi-cpu me-2"></i>Performance
                         </a>
-                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=content_cache_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="content_cache_panel">
-                           <i class="bi bi-archive me-2"></i>Content cache
+                        <a class="list-group-item list-group-item-action dbxAjax" href="?dbx_modul=dbxAdmin&amp;dbx_run1=dashboard&amp;dbx_run2=change_log_panel" data-target="dbx_admin_dashboard_work" data-replace="inner" data-admin-nav="change_log_panel">
+                           <i class="bi bi-journal-richtext me-2"></i>Change Log
                         </a>
                      </div>
                   </div>

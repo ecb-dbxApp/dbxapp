@@ -3,7 +3,7 @@
 /**
  * Regressionstest für die Laufzeitanzeige im Seitenfuß.
  */
-$core = (string)file_get_contents(dirname(__DIR__, 2) . '/js/lib/core.js');
+$runtime = (string)file_get_contents(dirname(__DIR__, 2) . '/js/lib/runtime.js');
 
 $assert = static function (bool $condition, string $message): void {
    if (!$condition) {
@@ -13,20 +13,20 @@ $assert = static function (bool $condition, string $message): void {
 };
 
 $assert(
-   str_contains($core, 'Number(nav.domContentLoadedEventEnd)'),
+   str_contains($runtime, 'Number(nav.domContentLoadedEventEnd)'),
    'Die Browserlaufzeit endet nicht bei DOMContentLoaded.'
 );
 $assert(
-   !str_contains($core, 'return nav.duration / 1000'),
+   !str_contains($runtime, 'return nav.duration / 1000'),
    'Die Browserlaufzeit wartet weiterhin auf langsame Subressourcen und das load-Event.'
 );
 $assert(
-   str_contains($core, 'document.addEventListener("DOMContentLoaded", update, { once: true })')
-      && !str_contains($core, 'window.addEventListener("load", update, { once: true })'),
+   str_contains($runtime, 'document.addEventListener("DOMContentLoaded", update, { once: true })')
+      && !str_contains($runtime, 'window.addEventListener("load", update, { once: true })'),
    'Die Anzeige wird nicht exakt einmal an der dokumentierten DOM-Grenze aktualisiert.'
 );
 $assert(
-   str_contains($core, 'DOM- und JavaScript-Bereitschaft / PHP-Laufzeit'),
+   str_contains($runtime, 'DOM- und JavaScript-Bereitschaft / PHP-Laufzeit'),
    'Die Bezeichnung erklärt die neue Messgrenze nicht.'
 );
 

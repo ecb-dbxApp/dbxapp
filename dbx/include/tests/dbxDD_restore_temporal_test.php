@@ -13,13 +13,13 @@ class dbxDDRestoreTemporalProbe extends dbxDD
     }
 
     public function restoreValue(
-        string $dbType,
-        string $fieldType,
+        string $db_type,
+        string $field_type,
         mixed $value,
-        string $sourceFieldType = ''
+        string $source_field_type = ''
     ): mixed
     {
-        return $this->normalize_restore_value($dbType, $fieldType, $value, $sourceFieldType);
+        return $this->normalize_restore_value($db_type, $field_type, $value, $source_field_type);
     }
 }
 

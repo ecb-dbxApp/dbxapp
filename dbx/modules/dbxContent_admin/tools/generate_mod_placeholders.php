@@ -11,10 +11,10 @@ if (PHP_SAPI !== 'cli') {
     exit;
 }
 
-$modulesDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR;
+$modules_dir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR;
 
-function mod_class_files($modulesDir, $modul) {
-    $base = $modulesDir . $modul . DIRECTORY_SEPARATOR;
+function mod_class_files($modules_dir, $modul) {
+    $base = $modules_dir . $modul . DIRECTORY_SEPARATOR;
     $files = array();
     $main = $base . $modul . '.class.php';
     if (is_file($main)) $files[] = $main;
@@ -27,11 +27,11 @@ function mod_class_files($modulesDir, $modul) {
     return $files;
 }
 
-function mod_scan_runs($modulesDir, $modul) {
+function mod_scan_runs($modules_dir, $modul) {
     $run1 = array();
     $run2 = array();
     $uses_run2 = false;
-    foreach (mod_class_files($modulesDir, $modul) as $file) {
+    foreach (mod_class_files($modules_dir, $modul) as $file) {
         $src = @file_get_contents($file);
         if (!is_string($src) || $src === '') continue;
         if (preg_match("/get_modul_var\s*\(\s*['\"]dbx_run2['\"]/", $src)) {
@@ -92,7 +92,7 @@ function mod_run2_variants($modul, $run1) {
     return $map[$modul][$run1];
 }
 
-function mod_specs_for_module($modulesDir, $modul, $scan) {
+function mod_specs_for_module($modules_dir, $modul, $scan) {
     $specs = array();
     $uses_run2 = !empty($scan['uses_run2']);
     $run1_list = $scan['run1'];
@@ -155,7 +155,7 @@ function mod_svg_content($modul, $run1, $run2, $params) {
     list($bg, $accent, $border) = mod_palette($type);
     $marker = '[modul=' . $modul . ']' . $params . '[/modul]';
     $title = $modul;
-    $paramLine = $params !== '' ? $params : '(Standard-Aufruf)';
+    $param_line = $params !== '' ? $params : '(Standard-Aufruf)';
     $run2Line = $run2 !== '' ? ('dbx_run2=' . $run2) : '';
 
     $shapes = '';
@@ -201,7 +201,7 @@ function mod_svg_content($modul, $run1, $run2, $params) {
   <text x="420" y="58" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="' . $accent . '">' . $esc($title) . '</text>
   <text x="420" y="88" font-family="Consolas,monospace" font-size="14" fill="#333">dbx_run1=' . $esc($run1) . '</text>
   ' . ($run2Line !== '' ? '<text x="420" y="112" font-family="Consolas,monospace" font-size="14" fill="#333">' . $esc($run2Line) . '</text>' : '') . '
-  <text x="420" y="150" font-family="Consolas,monospace" font-size="11" fill="#666">' . $esc($paramLine) . '</text>
+  <text x="420" y="150" font-family="Consolas,monospace" font-size="11" fill="#666">' . $esc($param_line) . '</text>
   <text x="400" y="182" text-anchor="middle" font-family="Consolas,monospace" font-size="10" fill="#888">' . $esc($marker) . '</text>
 </svg>
 ';
@@ -223,22 +223,22 @@ function mod_build_params($run1, $run2) {
 $created = 0;
 $skipped = 0;
 
-foreach (glob($modulesDir . '*', GLOB_ONLYDIR) ?: array() as $path) {
+foreach (glob($modules_dir . '*', GLOB_ONLYDIR) ?: array() as $path) {
     $modul = basename(str_replace('\\', '/', $path));
     if (!preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $modul)) continue;
     if (!is_file($path . DIRECTORY_SEPARATOR . $modul . '.class.php')) continue;
 
-    $scan = mod_scan_runs($modulesDir, $modul);
-    $specs = mod_specs_for_module($modulesDir, $modul, $scan);
-    $outDir = $path . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'mod' . DIRECTORY_SEPARATOR;
-    if (!is_dir($outDir) && !mkdir($outDir, 0775, true) && !is_dir($outDir)) {
-        fwrite(STDERR, "Cannot create dir: $outDir\n");
+    $scan = mod_scan_runs($modules_dir, $modul);
+    $specs = mod_specs_for_module($modules_dir, $modul, $scan);
+    $out_dir = $path . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'mod' . DIRECTORY_SEPARATOR;
+    if (!is_dir($out_dir) && !mkdir($out_dir, 0775, true) && !is_dir($out_dir)) {
+        fwrite(STDERR, "Cannot create dir: $out_dir\n");
         continue;
     }
 
     foreach ($specs as $spec) {
         list($run1, $run2) = $spec;
-        $file = $outDir . mod_filename($modul, $run1, $run2);
+        $file = $out_dir . mod_filename($modul, $run1, $run2);
         if (is_file($file)) {
             $skipped++;
             continue;

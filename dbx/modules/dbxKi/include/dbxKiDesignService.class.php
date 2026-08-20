@@ -1,10 +1,12 @@
 <?php
 namespace dbx\dbxKi;
 
+require_once __DIR__ . '/dbxKiSessionState.class.php';
+
 require_once __DIR__ . '/dbxKiContractService.class.php';
 
 /**
- * dbxKi-Vertrag für Design-Briefing, Antwort-ZIP, Vorschau und Anwendung.
+ * @brief Vertrag für Design-Briefing, Antwort-ZIP, Vorschau und Anwendung mit dbxKi.
  *
  * Die Klasse führt keine beliebigen KI-Befehle aus. Eine Antwort enthält
  * ausschließlich validierte Dateien unter `result/design/`. Der eigentliche
@@ -17,11 +19,11 @@ class dbxKiDesignService {
    private const RESULT_CONTRACT = 'dbx.design.result.v1';
 
    /** Zentral validierte Design-Domainlogik aus dbxDesign_admin. */
-   private $designService;
+   private $design_service;
    private $texts;
 
    public function __construct() {
-      $this->designService = dbx()->get_include_obj('dbxDesignService', 'dbxDesign_admin');
+      $this->design_service = dbx()->get_include_obj('dbxDesignService', 'dbxDesign_admin');
    }
 
    private function contracts(): dbxKiContractService {
@@ -39,7 +41,7 @@ class dbxKiDesignService {
       dbx()->get_system_obj('dbxForm', 'use');
       $texts = new \dbxForm();
       $texts->init('ki-design-texts');
-      $texts->_fd = 'dbxKi|design-briefing';
+      $texts->set_field_definition('dbxKi|design-briefing');
       $texts->load_fd_messages();
       $texts->set_form_help_enabled(false);
       $this->texts = $texts;
@@ -57,28 +59,28 @@ class dbxKiDesignService {
       return dbx()->append_url_params('?dbx_modul=dbxKi&dbx_run1=' . rawurlencode($run1), $params);
    }
 
-   private function designOptions(): array {
+   private function design_options(): array {
       $items = array();
-      foreach ($this->designService->listDesigns() as $name => $meta) {
+      foreach ($this->design_service->list_designs() as $name => $meta) {
          $items[$name] = $meta['title'] . ' (' . $name . ')';
       }
       return $items;
    }
 
-   private function briefingForm(string $template = 'ki-design-briefing') {
+   private function briefing_form(string $template = 'ki-design-briefing') {
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('ki-design-briefing', $template);
-      $form->_fd = 'dbxKi|design-briefing';
+      $form->set_field_definition('dbxKi|design-briefing');
       $form->load_fd_messages();
       $form->set_form_help_enabled(false);
-      $form->_action = $this->url('briefing_design_export');
+      $form->set_action($this->url('briefing_design_export'));
       $form->_msg_info = '';
-      $selected = $this->designService->normalizeName((string)dbx()->get_request_var('design', 'dbxapp', 'parameter'));
-      if (!isset($this->designService->listDesigns()[$selected])) {
+      $selected = $this->design_service->normalize_name((string)dbx()->get_request_var('design', 'dbxapp', 'parameter'));
+      if (!isset($this->design_service->list_designs()[$selected])) {
          $selected = 'dbxapp';
       }
       $mode = strtolower((string)dbx()->get_request_var('mode', 'update', 'parameter')) === 'create' ? 'create' : 'update';
-      $form->_data = array_merge($form->_data, array(
+      $form->merge_data(array(
          'mode' => $mode,
          'source_design' => $selected,
          'target_design' => $mode === 'update' ? $selected : '',
@@ -95,7 +97,7 @@ class dbxKiDesignService {
          'update' => $texts->get_fd_message('mode_update'),
          'create' => $texts->get_fd_message('mode_create'),
       ), dd: '');
-      $form->add_fld('source_design', 'select-single-label', label: $texts->get_fd_message('label_source_design'), rules: 'parameter|max=63', options: $this->designOptions(), dd: '');
+      $form->add_fld('source_design', 'select-single-label', label: $texts->get_fd_message('label_source_design'), rules: 'parameter|max=63', options: $this->design_options(), dd: '');
       $form->add_fld('target_design', 'text-label', label: $texts->get_fd_message('label_target_design'), rules: 'parameter+_-|min=2|max=63', placeholder: $texts->get_fd_message('placeholder_target_design'), dd: '');
       $form->add_fld('goal', 'textarea-label', label: $texts->get_fd_message('label_goal'), rules: 'varchar|min=10|max=6000', data: 'rows=7', placeholder: $texts->get_fd_message('placeholder_goal'), dd: '');
       $form->add_fld('layout_notes', 'textarea-label', label: $texts->get_fd_message('label_layout_notes'), rules: 'varchar|max=1800', data: 'rows=3', placeholder: $texts->get_fd_message('placeholder_layout'), dd: '');
@@ -110,19 +112,19 @@ class dbxKiDesignService {
    /**
     * Rendert das Design-Briefing als dbxForm.
     */
-   public function renderBriefing(): string {
+   public function render_briefing(): string {
       // dbxForm ist ein Request-Singleton. Den kompakten Importblock zuerst
       // vollständig rendern und erst danach das eigentliche Briefing
       // initialisieren, damit beide Formulare getrennte IDs und Token behalten.
-      $importPanel = $this->renderImportPanel();
-      $form = $this->briefingForm();
+      $import_panel = $this->render_import_panel();
+      $form = $this->briefing_form();
       $form->add_rep('design_list_url', $this->h('?dbx_modul=dbxDesign_admin&dbx_run1=list'));
-      $form->add_rep('import_panel', $importPanel);
+      $form->add_rep('import_panel', $import_panel);
       $form->add_rep('bar_title', $this->message('bar_title'));
       $form->add_rep('bar_subtitle', $this->message('bar_subtitle'));
       $form->add_rep('bar_icon', 'bi-stars');
       $form->add_rep('bar_actions', '<a class="btn btn-outline-secondary btn-sm" href="' . $this->h('?dbx_modul=dbxDesign_admin&dbx_run1=list') . '"><i class="bi bi-palette"></i> ' . $this->h($this->message('action_design_studio')) . '</a>');
-      foreach ($this->barDefaults() as $key => $value) {
+      foreach ($this->bar_defaults() as $key => $value) {
          $form->add_rep($key, $value);
       }
       return $form->run();
@@ -131,21 +133,21 @@ class dbxKiDesignService {
    /**
     * Prüft das Briefing und sendet ein vollständiges KI-Auftragspaket.
     */
-   public function handleExport(): void {
-      $form = $this->briefingForm();
+   public function handle_export(): void {
+      $form = $this->briefing_form();
       if (!$form->submit()) {
          throw new \RuntimeException($this->message('token_error'));
       }
-      $in = $this->collectBriefing($form);
-      $sourceDir = $this->designService->designDir($in['source_design']);
-      if (!is_dir($sourceDir)) {
+      $in = $this->collect_briefing($form);
+      $source_dir = $this->design_service->design_dir($in['source_design']);
+      if (!is_dir($source_dir)) {
          throw new \RuntimeException($this->message('source_not_found'));
       }
       if ($in['mode'] === 'update') {
          $in['target_design'] = $in['source_design'];
-      } elseif (!$this->designService->isValidName($in['target_design'])) {
+      } elseif (!$this->design_service->is_valid_name($in['target_design'])) {
          throw new \InvalidArgumentException($this->message('target_required'));
-      } elseif (isset($this->designService->listDesigns()[$in['target_design']])) {
+      } elseif (isset($this->design_service->list_designs()[$in['target_design']])) {
          throw new \InvalidArgumentException($this->message('target_exists'));
       }
       if (trim($in['goal']) === '') {
@@ -176,12 +178,12 @@ class dbxKiDesignService {
          array('operation' => 'design.apply', 'source_design' => $in['source_design'], 'target_design' => $in['target_design']),
          array('design.summary' => array('type' => 'string', 'required' => true, 'allow_empty' => false, 'max_length' => 1000)),
          array(),
-         array('type' => 'design', 'name' => $in['source_design'], 'fingerprint' => $this->designFingerprint($sourceDir))
+         array('type' => 'design', 'name' => $in['source_design'], 'fingerprint' => $this->design_fingerprint($source_dir))
       );
       $context = array(
-         'design' => $this->designService->readMetadata($in['source_design']),
-         'validation' => $this->designService->validateDesignDirectory($sourceDir, false),
-         'files' => array_keys($this->designService->relativeFiles($sourceDir)),
+         'design' => $this->design_service->read_metadata($in['source_design']),
+         'validation' => $this->design_service->validate_design_directory($source_dir, false),
+         'files' => array_keys($this->design_service->relative_files($source_dir)),
          'runtime' => array(
             'content_slot' => '[dbx:content]',
             'design_slots' => array('[dbx:logo]', '[dbx:branding]', '[dbx:footer]'),
@@ -189,14 +191,14 @@ class dbxKiDesignService {
             'admin_module' => 'dbxDesign_admin',
          ),
       );
-      $zip->addFromString('00-START.md', $this->startInstructions($in));
+      $zip->addFromString('00-START.md', $this->start_instructions($in));
       $zip->addFromString('auftrag.contract.json', json_encode($contract, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-      $zip->addFromString('answer.template.json', json_encode($this->contracts()->answerTemplate($contract), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+      $zip->addFromString('answer.template.json', json_encode($this->contracts()->answer_template($contract), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
       $zip->addFromString('briefing.json', json_encode($in, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
       $zip->addFromString('context.json', json_encode($context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-      $zip->addFromString('KI-AUFTRAG.md', $this->aiInstructions($in));
-      $zip->addFromString('RESULT-FORMAT.md', $this->resultFormat());
-      foreach ($this->designService->relativeFiles($sourceDir) as $relative => $absolute) {
+      $zip->addFromString('KI-AUFTRAG.md', $this->ai_instructions($in));
+      $zip->addFromString('RESULT-FORMAT.md', $this->result_format());
+      foreach ($this->design_service->relative_files($source_dir) as $relative => $absolute) {
          $zip->addFile($absolute, 'source-design/' . $in['source_design'] . '/' . $relative);
       }
       $zip->close();
@@ -209,7 +211,7 @@ class dbxKiDesignService {
       exit;
    }
 
-   private function collectBriefing($form): array {
+   private function collect_briefing($form): array {
       $rules = array(
          'mode' => 'parameter',
          'source_design' => 'parameter|max=63',
@@ -227,21 +229,21 @@ class dbxKiDesignService {
          $out[$name] = $form->get_fld_value($name, '', $rule);
       }
       $out['mode'] = $out['mode'] === 'create' ? 'create' : 'update';
-      $out['source_design'] = $this->designService->normalizeName($out['source_design']);
-      $out['target_design'] = $this->designService->normalizeName($out['target_design']);
+      $out['source_design'] = $this->design_service->normalize_name($out['source_design']);
+      $out['target_design'] = $this->design_service->normalize_name($out['target_design']);
       return $out;
    }
 
-   private function designFingerprint(string $dir): string {
+   private function design_fingerprint(string $dir): string {
       $hashes = array();
-      foreach ($this->designService->relativeFiles($dir) as $relative => $absolute) {
+      foreach ($this->design_service->relative_files($dir) as $relative => $absolute) {
          $hashes[$relative] = hash_file('sha256', $absolute);
       }
       ksort($hashes, SORT_STRING);
       return $this->contracts()->fingerprint($hashes);
    }
 
-   private function startInstructions(array $in): string {
+   private function start_instructions(array $in): string {
       return "# dbxKi Design-Auftrag\n\n"
          . "1. Lies `KI-AUFTRAG.md`, `briefing.json`, `context.json` und das komplette Ausgangsdesign.\n"
          . "2. Bearbeite ausschließlich Design-Dateien. Keine Fachlogik, Datenbank, Rechte oder Module ändern.\n"
@@ -251,7 +253,7 @@ class dbxKiDesignService {
          . "6. Ergebnis als ZIP zurückgeben. Ziel: `" . $in['target_design'] . "`.\n";
    }
 
-   private function aiInstructions(array $in): string {
+   private function ai_instructions(array $in): string {
       return "# Verbindlicher Design-Auftrag\n\n"
          . "## Ziel\n\n" . $in['goal'] . "\n\n"
          . "## Aufteilung\n\n" . ($in['layout_notes'] ?: '(aus dem Ziel ableiten)') . "\n\n"
@@ -265,24 +267,24 @@ class dbxKiDesignService {
          . "- dbxMenu-Aufrufe, Admin-Menü, Ajax, openWin, Fenster-Dock, dbxForm und dbxReport bleiben funktionsfähig.\n"
          . "- Optionale Bereiche über `[dbx:logo]`, `[dbx:branding]`, `[dbx:footer]` und die gleichnamigen Dateien unter `htm/` strukturieren.\n"
          . "- Keine PHP-Dateien, keine Datenbank, keine DD/FD, keine Module und keine externen Build-Abhängigkeiten liefern.\n"
-         . "- Kein eingebettetes `<style>`/`<script>` in Templates einfuehren; modul-eigenes CSS/JS bleibt Sache der Module (dbx()->add_css()/add_js()), das Design liefert nur design-eigenes CSS/JS unter `css/` bzw. `js/` des Designs.\n"
+         . "- Kein eingebettetes `<style>`/`<script>` in Templates einfuehren; modul-eigenes CSS/JS wird ueber dbxAssetRegistry angemeldet, das Design liefert nur design-eigenes CSS/JS unter `css/` bzw. `js/` des Designs.\n"
          . "- Das Paket bleibt eigenständig; keine privaten Dateien eines anderen Designs referenzieren.\n";
    }
 
-   private function resultFormat(): string {
+   private function result_format(): string {
       return "# Antwort-ZIP\n\n"
          . "```text\nauftrag.contract.json\nanswer.json\nresult/design/htm/default.htm\nresult/design/css/design-custom.css\n...\n```\n\n"
          . "Der Vertrag wird unveraendert kopiert. `answer.json` darf nur das vorgegebene Feld `design.summary` enthalten.\n\n"
          . "Bei `update` nur neue/geänderte Dateien liefern. Bei `create` darf ebenfalls ein Delta zum mitgelieferten Ausgangsdesign geliefert werden. dbxapp baut daraus im Staging ein vollständiges Paket und prüft es vor der Freigabe.\n";
    }
 
-   private function importForm() {
+   private function import_form() {
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('ki-design-result-import', 'ki-design-import');
-      $form->_fd = 'dbxKi|design-briefing';
+      $form->set_field_definition('dbxKi|design-briefing');
       $form->load_fd_messages();
       $form->set_form_help_enabled(false);
-      $form->_action = $this->url('design_bundle_import');
+      $form->set_action($this->url('design_bundle_import'));
       $form->_msg_info = '';
       return $form;
    }
@@ -290,40 +292,37 @@ class dbxKiDesignService {
    /**
     * Rendert den kompakten Importblock für Design-Antworten.
     */
-   public function renderImportPanel(): string {
-      return $this->importForm()->run();
+   public function render_import_panel(): string {
+      return $this->import_form()->run();
    }
 
    /**
     * Entpackt und validiert eine Design-Antwort in ein isoliertes Staging.
     */
-   public function handleImport(): string {
+   public function handle_import(): string {
       // Ergebnis-Fenster: ein reiner GET mit bekanntem Token (kein neuer
       // Upload) zeigt die bereits gespeicherte Vorschau erneut - dadurch
       // ist sie per URL adressierbar und laesst sich per kiResultWindow.js
       // automatisch in einem openWin-Fenster oeffnen (siehe Erfolgszweig
       // unten).
-      $getToken = trim((string)dbx()->get_request_var('token', '', '*'));
-      if ($getToken !== '' && ($_FILES['design_zip']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
-         $state = $_SESSION['dbx']['dbxKi'][self::SESSION_KEY][$getToken] ?? null;
+      $get_token = trim((string)dbx()->get_request_var('token', '', '*'));
+      if ($get_token !== '' && ($_FILES['design_zip']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+         $state = dbxKiSessionState::get(self::SESSION_KEY, $get_token);
          if (is_array($state)) {
-            return $this->renderPreview($getToken, $state);
+            return $this->render_preview($get_token, $state);
          }
       }
 
-      $form = $this->importForm();
+      $form = $this->import_form();
       try {
          if (!$form->submit()) {
             throw new \RuntimeException($this->message('token_error'));
          }
          $upload = is_array($_FILES['design_zip'] ?? null) ? $_FILES['design_zip'] : array();
-         $state = $this->extractResult($upload);
+         $state = $this->extract_result($upload);
          $token = bin2hex(random_bytes(12));
-         if (!isset($_SESSION['dbx']['dbxKi'][self::SESSION_KEY]) || !is_array($_SESSION['dbx']['dbxKi'][self::SESSION_KEY])) {
-            $_SESSION['dbx']['dbxKi'][self::SESSION_KEY] = array();
-         }
-         $_SESSION['dbx']['dbxKi'][self::SESSION_KEY][$token] = $state;
-         return $this->renderImportSuccess($token, $state);
+         dbxKiSessionState::put(self::SESSION_KEY, $token, $state);
+         return $this->render_import_success($token, $state);
       } catch (\Throwable $e) {
          return dbx()->get_system_obj('dbxTPL')->get_tpl('dbxKi|ki-design-result', array(
             'result_class' => 'alert-danger',
@@ -334,7 +333,7 @@ class dbxKiDesignService {
       }
    }
 
-   private function extractResult(array $file): array {
+   private function extract_result(array $file): array {
       if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
          throw new \InvalidArgumentException($this->message('zip_select'));
       }
@@ -342,8 +341,8 @@ class dbxKiDesignService {
       if ($tmp === '' || !is_uploaded_file($tmp)) {
          throw new \InvalidArgumentException($this->message('zip_upload_invalid'));
       }
-      $maxBytes = max(1, (int)dbx()->get_cfg('dbxKi', 'max_bundle_bytes', 52428800));
-      if ((int)($file['size'] ?? 0) > $maxBytes) {
+      $max_bytes = max(1, (int)dbx()->get_cfg('dbxKi', 'max_bundle_bytes', 52428800));
+      if ((int)($file['size'] ?? 0) > $max_bytes) {
          throw new \InvalidArgumentException($this->message('zip_too_large'));
       }
       if (!class_exists('ZipArchive')) {
@@ -359,8 +358,8 @@ class dbxKiDesignService {
             throw new \InvalidArgumentException($this->message('zip_open_error'));
          }
          $total = 0;
-         $maxFiles = max(50, (int)dbx()->get_cfg('dbxKi', 'max_bundle_files', 50));
-         if ($zip->numFiles > $maxFiles) {
+         $max_files = max(50, (int)dbx()->get_cfg('dbxKi', 'max_bundle_files', 50));
+         if ($zip->numFiles > $max_files) {
             $zip->close();
             throw new \InvalidArgumentException($this->message('zip_too_many_files'));
          }
@@ -372,7 +371,7 @@ class dbxKiDesignService {
                $zip->close();
                throw new \InvalidArgumentException($this->message('zip_path_invalid', array('path' => $name)));
             }
-            if ($total > $maxBytes) {
+            if ($total > $max_bytes) {
                $zip->close();
                throw new \InvalidArgumentException($this->message('zip_unpacked_too_large'));
             }
@@ -382,7 +381,7 @@ class dbxKiDesignService {
             throw new \RuntimeException($this->message('zip_extract_error'));
          }
          $zip->close();
-         $root = $this->findResultRoot($work);
+         $root = $this->find_result_root($work);
          foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)) as $item) {
             if (!$item->isFile()) continue;
             $relative = str_replace('\\', '/', substr($item->getPathname(), strlen(rtrim($root, '/\\')) + 1));
@@ -390,11 +389,11 @@ class dbxKiDesignService {
             if (str_starts_with($relative, 'result/design/')) continue;
             throw new \InvalidArgumentException('Nicht erlaubte Datei in Designantwort: ' . $relative);
          }
-         $contractFile = $root . DIRECTORY_SEPARATOR . 'auftrag.contract.json';
-         $answerFile = $root . DIRECTORY_SEPARATOR . 'answer.json';
-         $resultDir = $root . DIRECTORY_SEPARATOR . 'result' . DIRECTORY_SEPARATOR . 'design';
-         $contract = is_file($contractFile) ? json_decode((string)file_get_contents($contractFile), true) : null;
-         $answer = is_file($answerFile) ? json_decode((string)file_get_contents($answerFile), true) : null;
+         $contract_file = $root . DIRECTORY_SEPARATOR . 'auftrag.contract.json';
+         $answer_file = $root . DIRECTORY_SEPARATOR . 'answer.json';
+         $result_dir = $root . DIRECTORY_SEPARATOR . 'result' . DIRECTORY_SEPARATOR . 'design';
+         $contract = is_file($contract_file) ? json_decode((string)file_get_contents($contract_file), true) : null;
+         $answer = is_file($answer_file) ? json_decode((string)file_get_contents($answer_file), true) : null;
          if (!is_array($contract) || !is_array($answer)) {
             throw new \InvalidArgumentException('auftrag.contract.json oder answer.json fehlt bzw. ist ungueltig.');
          }
@@ -407,25 +406,25 @@ class dbxKiDesignService {
          if (($manifest['contract'] ?? '') !== 'dbx.design.briefing.v1' || ($manifest['result_contract'] ?? '') !== self::RESULT_CONTRACT) {
             throw new \InvalidArgumentException($this->message('manifest_contract_error', array('contract' => self::RESULT_CONTRACT)));
          }
-         if (!is_dir($resultDir)) {
+         if (!is_dir($result_dir)) {
             throw new \InvalidArgumentException($this->message('result_directory_missing'));
          }
-         $rawMode = strtolower(trim((string)($manifest['mode'] ?? '')));
-         if (!in_array($rawMode, array('create', 'update'), true)) {
+         $raw_mode = strtolower(trim((string)($manifest['mode'] ?? '')));
+         if (!in_array($raw_mode, array('create', 'update'), true)) {
             throw new \InvalidArgumentException($this->message('manifest_mode_error'));
          }
-         $mode = $rawMode;
-         $source = $this->designService->normalizeName((string)($manifest['source_design'] ?? ''));
-         $target = $this->designService->normalizeName((string)($manifest['target_design'] ?? ''));
-         if (!$this->designService->isValidName($source) || !$this->designService->isValidName($target)) {
+         $mode = $raw_mode;
+         $source = $this->design_service->normalize_name((string)($manifest['source_design'] ?? ''));
+         $target = $this->design_service->normalize_name((string)($manifest['target_design'] ?? ''));
+         if (!$this->design_service->is_valid_name($source) || !$this->design_service->is_valid_name($target)) {
             throw new \InvalidArgumentException($this->message('manifest_design_error'));
          }
-         $designs = $this->designService->listDesigns();
+         $designs = $this->design_service->list_designs();
          if (!isset($designs[$source])) {
             throw new \InvalidArgumentException($this->message('manifest_source_missing'));
          }
          $snapshot = (array)($bound['contract']['snapshot'] ?? array());
-         if (!hash_equals((string)($snapshot['fingerprint'] ?? ''), $this->designFingerprint($this->designService->designDir($source)))) {
+         if (!hash_equals((string)($snapshot['fingerprint'] ?? ''), $this->design_fingerprint($this->design_service->design_dir($source)))) {
             throw new \RuntimeException('Das Ausgangsdesign wurde seit dem Export veraendert. Bitte Auftrag neu exportieren.');
          }
          if ($mode === 'create' && isset($designs[$target])) {
@@ -434,23 +433,23 @@ class dbxKiDesignService {
          if ($mode === 'update' && !isset($designs[$target])) {
             throw new \InvalidArgumentException($this->message('manifest_target_missing'));
          }
-         $files = $this->designService->relativeFiles($resultDir);
+         $files = $this->design_service->relative_files($result_dir);
          if (!$files) {
             throw new \InvalidArgumentException($this->message('result_empty'));
          }
          foreach ($files as $relative => $absolute) {
-            $fileError = $this->designService->validateResultFile($relative, $absolute);
-            if ($fileError !== '') {
+            $file_error = $this->design_service->validate_result_file($relative, $absolute);
+            if ($file_error !== '') {
                throw new \InvalidArgumentException($this->message('result_file_invalid', array('file' => $relative)));
             }
          }
       } catch (\Throwable $e) {
-         $this->removeWorkDir($work);
+         $this->remove_work_dir($work);
          throw $e;
       }
       return array(
          'work_dir' => $work,
-         'result_dir' => $resultDir,
+         'result_dir' => $result_dir,
          'manifest' => $manifest,
          'contract' => $bound['contract'],
          'mode' => $mode,
@@ -460,7 +459,7 @@ class dbxKiDesignService {
       );
    }
 
-   private function findResultRoot(string $work): string {
+   private function find_result_root(string $work): string {
       if (is_file($work . '/auftrag.contract.json')) {
          return $work;
       }
@@ -476,7 +475,7 @@ class dbxKiDesignService {
     * Vorschau wird per kiResultWindow.js automatisch in einem openWin-Fenster
     * geoeffnet (URL = derselbe Endpunkt mit ?token=..., siehe handleImport()).
     */
-   private function renderImportSuccess(string $token, array $state): string {
+   private function render_import_success(string $token, array $state): string {
       $title = trim((string)($state['target_design'] ?? $state['source_design'] ?? 'Design'));
       return dbx()->get_system_obj('dbxTPL')->get_tpl('dbxKi|ki-bundle-import-success', array(
          'message' => 'Antwort geprueft. Vorschau wird geoeffnet ...',
@@ -488,38 +487,38 @@ class dbxKiDesignService {
    /**
     * Verwirft eine gepruefte, aber noch nicht angewendete Design-Antwort.
     */
-   public function handleDiscard(): void {
+   public function handle_discard(): void {
       $token = trim((string)dbx()->get_request_var('token', '', '*'));
-      $state = $_SESSION['dbx']['dbxKi'][self::SESSION_KEY][$token] ?? null;
+      $state = dbxKiSessionState::get(self::SESSION_KEY, $token);
       if (is_array($state)) {
-         $this->removeWorkDir((string)($state['work_dir'] ?? ''));
-         unset($_SESSION['dbx']['dbxKi'][self::SESSION_KEY][$token]);
+         $this->remove_work_dir((string)($state['work_dir'] ?? ''));
+         dbxKiSessionState::remove(self::SESSION_KEY, $token);
       }
       header('Content-Type: text/plain; charset=utf-8');
       echo 'ok';
       exit;
    }
 
-   private function renderPreview(string $token, array $state): string {
-      $targetBase = is_dir($this->designService->designDir($state['target_design']))
-         ? $this->designService->designDir($state['target_design'])
-         : $this->designService->designDir($state['source_design']);
+   private function render_preview(string $token, array $state): string {
+      $target_base = is_dir($this->design_service->design_dir($state['target_design']))
+         ? $this->design_service->design_dir($state['target_design'])
+         : $this->design_service->design_dir($state['source_design']);
       $rows = '';
       foreach ($state['files'] as $relative) {
          $new = $state['result_dir'] . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
-         $old = $targetBase . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
-         $statusKey = !is_file($old) ? 'new' : (hash_file('sha256', $old) === hash_file('sha256', $new) ? 'unchanged' : 'changed');
-         $class = $statusKey === 'new' ? 'text-bg-success' : ($statusKey === 'changed' ? 'text-bg-warning' : 'text-bg-secondary');
-         $rows .= '<tr><td><code>' . $this->h($relative) . '</code></td><td><span class="badge ' . $class . '">' . $this->h($this->message('status_' . $statusKey)) . '</span></td><td class="text-end">' . number_format((int)filesize($new), 0, ',', '.') . ' B</td></tr>';
+         $old = $target_base . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
+         $status_key = !is_file($old) ? 'new' : (hash_file('sha256', $old) === hash_file('sha256', $new) ? 'unchanged' : 'changed');
+         $class = $status_key === 'new' ? 'text-bg-success' : ($status_key === 'changed' ? 'text-bg-warning' : 'text-bg-secondary');
+         $rows .= '<tr><td><code>' . $this->h($relative) . '</code></td><td><span class="badge ' . $class . '">' . $this->h($this->message('status_' . $status_key)) . '</span></td><td class="text-end">' . number_format((int)filesize($new), 0, ',', '.') . ' B</td></tr>';
       }
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('ki-design-result-apply', 'ki-design-preview');
-      $form->_fd = 'dbxKi|design-briefing';
+      $form->set_field_definition('dbxKi|design-briefing');
       $form->load_fd_messages();
       $form->set_form_help_enabled(false);
-      $form->_action = $this->url('design_bundle_apply');
+      $form->set_action($this->url('design_bundle_apply'));
       $form->_msg_info = '';
-      $form->_data['job_token'] = $token;
+      $form->set_data_value('job_token', $token);
       $form->add_fld('job_token', 'dbx|hidden', rules: 'parameter', dd: '');
       $form->add_rep('mode', $this->h($state['mode']));
       $form->add_rep('source_design', $this->h($state['source_design']));
@@ -533,13 +532,13 @@ class dbxKiDesignService {
       $form->add_rep('bar_subtitle', $this->h($state['mode'] . ': ' . $state['source_design'] . ' → ' . $state['target_design']));
       $form->add_rep('bar_icon', 'bi-search');
       $form->add_rep('bar_actions', '');
-      foreach ($this->barDefaults() as $key => $value) {
+      foreach ($this->bar_defaults() as $key => $value) {
          $form->add_rep($key, $value);
       }
       return $form->run();
    }
 
-   private function barDefaults(): array {
+   private function bar_defaults(): array {
       return array(
          'bar_class' => 'dbx-bar--module',
          'bar_title_class' => 'dbx-bar-title',
@@ -554,13 +553,13 @@ class dbxKiDesignService {
    /**
     * Wendet eine zuvor geprüfte Antwort nach dbxForm-Bestätigung an.
     */
-   public function handleApply(): string {
+   public function handle_apply(): string {
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('ki-design-result-apply', 'ki-design-preview');
-      $form->_fd = 'dbxKi|design-briefing';
+      $form->set_field_definition('dbxKi|design-briefing');
       $form->load_fd_messages();
       $form->set_form_help_enabled(false);
-      $form->_action = $this->url('design_bundle_apply');
+      $form->set_action($this->url('design_bundle_apply'));
       $form->_msg_info = '';
       $form->add_fld('job_token', 'dbx|hidden', rules: 'parameter', dd: '');
       try {
@@ -568,23 +567,23 @@ class dbxKiDesignService {
             throw new \RuntimeException($this->message('token_error'));
          }
          $token = (string)$form->get_fld_value('job_token', '', 'parameter');
-         $state = $_SESSION['dbx']['dbxKi'][self::SESSION_KEY][$token] ?? null;
+         $state = dbxKiSessionState::get(self::SESSION_KEY, $token);
          if (!is_array($state)) {
             throw new \RuntimeException($this->message('preview_expired'));
          }
          $snapshot = (array)($state['contract']['snapshot'] ?? array());
-         if (!hash_equals((string)($snapshot['fingerprint'] ?? ''), $this->designFingerprint($this->designService->designDir((string)$state['source_design'])))) {
+         if (!hash_equals((string)($snapshot['fingerprint'] ?? ''), $this->design_fingerprint($this->design_service->design_dir((string)$state['source_design'])))) {
             throw new \RuntimeException('Das Ausgangsdesign wurde seit der Vorschau veraendert.');
          }
-         $result = $this->designService->applyResult(
+         $result = $this->design_service->apply_result(
             $state['source_design'],
             $state['target_design'],
             $state['result_dir'],
             $state['mode']
          );
          $this->contracts()->consume((array)$state['contract']);
-         $this->removeWorkDir((string)($state['work_dir'] ?? ''));
-         unset($_SESSION['dbx']['dbxKi'][self::SESSION_KEY][$token]);
+         $this->remove_work_dir((string)($state['work_dir'] ?? ''));
+         dbxKiSessionState::remove(self::SESSION_KEY, $token);
          $backup = (string)($result['backup'] ?? '');
          $message = $this->message('apply_message', array('name' => $result['name']));
          if ($backup !== '') {
@@ -607,7 +606,7 @@ class dbxKiDesignService {
       }
    }
 
-   private function removeWorkDir(string $dir): void {
+   private function remove_work_dir(string $dir): void {
       if ($dir === '' || !is_dir($dir)) {
          return;
       }

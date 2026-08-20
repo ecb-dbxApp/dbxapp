@@ -19,7 +19,7 @@ $table['delete']='admin';
 $table['read_owner']='owner,admin';
 $table['update_owner']='owner,admin';
 
-$addField = function($name, $type, $index, $length, $default, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $index, $length, $default, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -43,20 +43,20 @@ $addField = function($name, $type, $index, $length, $default, $label, $rules, $t
    $fields[]=$field;
 };
 
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
-$addField('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
-$addField('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
-$addField('update_uid','int','MUL','11','0','Aktualisiert von','int','hidden');
-$addField('owner','int','MUL','11','0','Owner','int','hidden');
-$addField('trash','int','MUL','1','0','Trash','int','hidden');
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
+$add_field('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
+$add_field('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
+$add_field('update_uid','int','MUL','11','0','Aktualisiert von','int','hidden');
+$add_field('owner','int','MUL','11','0','Owner','int','hidden');
+$add_field('trash','int','MUL','1','0','Trash','int','hidden');
 
-$addField('instance_id','int','MUL','11','0','Instanz','int','hidden');
-$addField('step_pos','int','MUL','11','0','Position','int','text-label');
-$addField('need_key','varchar','MUL','80','','Need','parameter|max=80','text-label');
-$addField('action','varchar','MUL','40','','Aktion','parameter|max=40','text-label');
-$addField('status','varchar','MUL','24','open','Status','parameter|max=24','text-label');
-$addField('value_json','mediumtext','','-1','','Wert','*|max=50000','textarea-label',array('data'=>'rows=6'));
-$addField('message','varchar','','500','','Meldung','*|max=500','text-label');
+$add_field('instance_id','int','MUL','11','0','Instanz','int','hidden');
+$add_field('step_pos','int','MUL','11','0','Position','int','text-label');
+$add_field('need_key','varchar','MUL','80','','Need','parameter|max=80','text-label');
+$add_field('action','varchar','MUL','40','','Aktion','parameter|max=40','text-label');
+$add_field('status','varchar','MUL','24','open','Status','parameter|max=24','text-label');
+$add_field('value_json','mediumtext','','-1','','Wert','*|max=50000','textarea-label',array('data'=>'rows=6'));
+$add_field('message','varchar','','500','','Meldung','*|max=500','text-label');
 
 ?>

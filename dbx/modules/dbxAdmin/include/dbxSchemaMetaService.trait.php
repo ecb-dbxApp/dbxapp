@@ -39,15 +39,15 @@ trait dbxSchemaMetaServiceTrait {
    private function get_server_options() {
       $options = array();
       $config = dbx()->get_cfg('dbx', 'db');
-      $moduleFiles = $this->get_module_db_files();
-      $moduleFileIndex = array();
+      $module_files = $this->get_module_db_files();
+      $module_file_index = array();
 
-      foreach ($moduleFiles as $server => $db) {
+      foreach ($module_files as $server => $db) {
          $options[$server] = $db['label'];
 
          $real = realpath((string)($db['file'] ?? ''));
          if ($real) {
-            $moduleFileIndex[strtolower(str_replace('\\', '/', $real))] = 1;
+            $module_file_index[strtolower(str_replace('\\', '/', $real))] = 1;
          }
       }
 
@@ -60,15 +60,15 @@ trait dbxSchemaMetaServiceTrait {
             $type = strtolower((string)($data['type'] ?? ''));
             $host = (string)($data['host'] ?? '');
             $name = (string)($data['dbname'] ?? ($data['name'] ?? ''));
-            $isSqlite = ($type == 'sqlite' || $type == 'sqlite3' || preg_match('/\.(db3|sqlite|sqlite3)$/i', $name));
+            $is_sqlite = ($type == 'sqlite' || $type == 'sqlite3' || preg_match('/\.(db3|sqlite|sqlite3)$/i', $name));
 
-            if ($isSqlite && ($host !== '' || $name !== '')) {
+            if ($is_sqlite && ($host !== '' || $name !== '')) {
                $file = dbx()->os_path($host . $name);
                $real = realpath($file);
 
                if ($real) {
                   $real = strtolower(str_replace('\\', '/', $real));
-                  if (isset($moduleFileIndex[$real])) {
+                  if (isset($module_file_index[$real])) {
                      continue;
                   }
                }
@@ -125,7 +125,7 @@ trait dbxSchemaMetaServiceTrait {
 
 
    /**
-    * Loest einen Modul-DB-Servernamen auf eine Datei im Modul-DB-Verzeichnis auf.
+    * Löst einen Modul-DB-Servernamen auf eine Datei im Modul-DB-Verzeichnis auf.
     *
     * @param string $server Eingabeparameter fuer diese Methode.
     * @return string
@@ -169,9 +169,9 @@ trait dbxSchemaMetaServiceTrait {
     * @return string
     */
    private function get_database_label($server) {
-      $moduleFile = $this->resolve_module_db_file($server);
-      if ($moduleFile) {
-         return $this->path_rel($moduleFile);
+      $module_file = $this->resolve_module_db_file($server);
+      if ($module_file) {
+         return $this->path_rel($module_file);
       }
 
       $config = dbx()->get_cfg('dbx', 'db');
@@ -212,9 +212,9 @@ trait dbxSchemaMetaServiceTrait {
     * @return string
     */
    private function get_database_path_label($server) {
-      $moduleFile = $this->resolve_module_db_file($server);
-      if ($moduleFile) {
-         return $this->path_rel($moduleFile);
+      $module_file = $this->resolve_module_db_file($server);
+      if ($module_file) {
+         return $this->path_rel($module_file);
       }
 
       $config = dbx()->get_cfg('dbx', 'db');
@@ -245,13 +245,13 @@ trait dbxSchemaMetaServiceTrait {
 
    private function get_server_module($server) {
       $server = (string)$server;
-      static $moduleFiles = null;
-      if ($moduleFiles === null) {
-         $moduleFiles = $this->get_module_db_files();
+      static $module_files = null;
+      if ($module_files === null) {
+         $module_files = $this->get_module_db_files();
       }
 
-      if (isset($moduleFiles[$server])) {
-         return $moduleFiles[$server]['modul'] ?? '';
+      if (isset($module_files[$server])) {
+         return $module_files[$server]['modul'] ?? '';
       }
 
       $config = dbx()->get_cfg('dbx', 'db');
@@ -260,19 +260,19 @@ trait dbxSchemaMetaServiceTrait {
          $type = strtolower((string)($db['type'] ?? ''));
          $host = (string)($db['host'] ?? '');
          $name = (string)($db['dbname'] ?? ($db['name'] ?? ''));
-         $isSqlite = ($type == 'sqlite' || $type == 'sqlite3' || preg_match('/\.(db3|sqlite|sqlite3)$/i', $name));
+         $is_sqlite = ($type == 'sqlite' || $type == 'sqlite3' || preg_match('/\.(db3|sqlite|sqlite3)$/i', $name));
 
-         if ($isSqlite && ($host !== '' || $name !== '')) {
-            $configFile = realpath(dbx()->os_path($host . $name));
+         if ($is_sqlite && ($host !== '' || $name !== '')) {
+            $config_file = realpath(dbx()->os_path($host . $name));
 
-            if ($configFile) {
-               $configFile = strtolower(str_replace('\\', '/', $configFile));
+            if ($config_file) {
+               $config_file = strtolower(str_replace('\\', '/', $config_file));
 
-               foreach ($moduleFiles as $moduleDb) {
-                  $moduleFile = realpath((string)($moduleDb['file'] ?? ''));
+               foreach ($module_files as $module_db) {
+                  $module_file = realpath((string)($module_db['file'] ?? ''));
 
-                  if ($moduleFile && strtolower(str_replace('\\', '/', $moduleFile)) === $configFile) {
-                     return $moduleDb['modul'] ?? '';
+                  if ($module_file && strtolower(str_replace('\\', '/', $module_file)) === $config_file) {
+                     return $module_db['modul'] ?? '';
                   }
                }
             }
@@ -457,9 +457,9 @@ trait dbxSchemaMetaServiceTrait {
          }
       }
 
-      $moduleFile = $this->resolve_module_db_file($server);
-      if ($moduleFile) {
-         $file = str_replace('\\', '/', $moduleFile);
+      $module_file = $this->resolve_module_db_file($server);
+      if ($module_file) {
+         $file = str_replace('\\', '/', $module_file);
          $add($file);
          $add($this->path_rel($file));
          $add(basename($file));

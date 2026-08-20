@@ -50,11 +50,6 @@ class dbxContent_admin {
       return is_object($obj) ? $obj->run() : $this->unavailable();
    }
 
-   private function handle_iupload(): string {
-      $obj=dbx()->get_include_obj('dbxContent_images');
-      return is_object($obj) ? $obj->run() : $this->unavailable();
-   }
-
    private function handle_flat(): string {
       $obj=dbx()->get_include_obj('dbxContent_list');
       return is_object($obj) ? $obj->run('flat') : $this->unavailable();
@@ -149,9 +144,9 @@ class dbxContent_admin {
           break;
 
           default:
-            $oTPL=dbx()->get_system_obj('dbxTPL');
+            $o_tpl=dbx()->get_system_obj('dbxTPL');
             $msg['msg']="Modul=($modul) Action=($action) Work=($work) is undef.";
-            $content=$oTPL->get_tpl('dbx','alert-warning',$msg);
+            $content=$o_tpl->get_tpl('dbx','alert-warning',$msg);
         }
       break;
 

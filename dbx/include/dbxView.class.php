@@ -1,25 +1,27 @@
 <?php
 
-
+/**
+ * Basisklasse für zustandsbehaftete, templatebasierte dbxApp-Ansichten.
+ */
 class dbxView extends \dbxObj {
 
 
-  Public $oTPL;
-  Public $oValidator;
+  Public $o_tpl;
+  Public $o_validator;
 
    public function __construct() {
-     $this->oValidator=dbx()->get_system_obj('dbxValidator');
-     $this->oTPL      =dbx()->get_system_obj('dbxTPL');
+     $this->o_validator=dbx()->get_system_obj('dbxValidator');
+     $this->o_tpl      =dbx()->get_system_obj('dbxTPL');
    }
 
 
-   public function dbxView_init($id,$tpl='') {
+   public function dbx_view_init($id,$tpl='') {
       if (!$tpl) $tpl=$id;
       $this->set_property('prozess_id',$id);
       $this->set_property('tpl'       ,$tpl);
    }
 
-   public function dbxView_run() {
+   public function dbx_view_run() {
        $i      = dbx()->next_id();
        $target = 'dbx_target_'.$i;
 
@@ -53,7 +55,7 @@ class dbxView extends \dbxObj {
        $reps['rid']       = $val;
        $reps['i']         = $i;
 
-       $content=$this->oTPL->get_tpl($modul . '|' . $tpl, $reps, 'htm', $i);
+       $content=$this->o_tpl->get_tpl($modul . '|' . $tpl, $reps, 'htm', $i);
        return $content;
    }
 

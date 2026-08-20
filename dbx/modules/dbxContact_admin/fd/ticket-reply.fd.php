@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['bar_title'] = 'Antwort oder interne Notiz';
 $messages['bar_subtitle'] = 'Der gesamte Verlauf bleibt am Ticket erhalten';
 $messages['form_info'] = 'Öffentliche Antworten können per E-Mail versendet werden. Interne Notizen bleiben nur in der Administration sichtbar.';

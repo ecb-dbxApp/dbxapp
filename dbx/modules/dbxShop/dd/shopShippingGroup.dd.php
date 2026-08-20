@@ -15,7 +15,7 @@ $table['create']='admin';
 $table['update']='admin';
 $table['delete']='admin';
 
-$addField=function($name,$type,$index,$length,$default,$label,$rules,$tpl,$extra=array()) use (&$fields){
+$add_field=function($name,$type,$index,$length,$default,$label,$rules,$tpl,$extra=array()) use (&$fields){
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -37,20 +37,20 @@ $addField=function($name,$type,$index,$length,$default,$label,$rules,$tpl,$extra
    $fields[]=$field;
 };
 
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
-$addField('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
-$addField('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
-$addField('update_uid','int','MUL','11','0','Aktualisiert von','int','hidden');
-$addField('owner','int','MUL','11','0','Owner','int','hidden');
-$addField('trash','int','MUL','1','0','Trash','int','hidden');
-$addField('group_key','varchar','UNI','80','','Key','parameter|min=2|max=80','text-label');
-$addField('title','varchar','MUL','180','','Titel','*|min=2|max=180','text-label');
-$addField('description','mediumtext','','-1','','Beschreibung','*|max=2000','textarea-label',array('data'=>'rows=3'));
-$addField('shipping_way','varchar','','180','','Versandweg','*|max=180','text-label');
-$addField('delivery_time','varchar','','120','','Lieferzeit','*|max=120','text-label');
-$addField('shipping_gross','decimal','','10,2','0','Versand brutto','number','text-label');
-$addField('free_from_gross','decimal','','10,2','-1','Versandfrei ab','number','text-label');
-$addField('active','int','MUL','1','1','Aktiv','int','checkbox-label');
-$addField('sorter','int','MUL','11','100','Sortierung','int','text-label');
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
+$add_field('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
+$add_field('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
+$add_field('update_uid','int','MUL','11','0','Aktualisiert von','int','hidden');
+$add_field('owner','int','MUL','11','0','Owner','int','hidden');
+$add_field('trash','int','MUL','1','0','Trash','int','hidden');
+$add_field('group_key','varchar','UNI','80','','Key','parameter|min=2|max=80','text-label');
+$add_field('title','varchar','MUL','180','','Titel','*|min=2|max=180','text-label');
+$add_field('description','mediumtext','','-1','','Beschreibung','*|max=2000','textarea-label',array('data'=>'rows=3'));
+$add_field('shipping_way','varchar','','180','','Versandweg','*|max=180','text-label');
+$add_field('delivery_time','varchar','','120','','Lieferzeit','*|max=120','text-label');
+$add_field('shipping_gross','decimal','','10,2','0','Versand brutto','number','text-label');
+$add_field('free_from_gross','decimal','','10,2','-1','Versandfrei ab','number','text-label');
+$add_field('active','int','MUL','1','1','Aktiv','int','checkbox-label');
+$add_field('sorter','int','MUL','11','100','Sortierung','int','text-label');
 ?>

@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['label_mode'] = 'Tarea';
 $messages['label_source_design'] = 'Diseño de origen';
 $messages['label_target_design'] = 'Diseño de destino';

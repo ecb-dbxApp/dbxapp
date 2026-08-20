@@ -35,21 +35,21 @@ trait dbxContentCmsTreeServiceTrait {
          return $id;
       }
 
-      $rawPermalink = trim((string)dbx()->get_request_var('permalink', ''));
-      $permalink = dbxContent_permalink::isValid($rawPermalink)
-         ? $rawPermalink
-         : dbxContent_permalink::canonicalFromLegacy($rawPermalink);
+      $raw_permalink = trim((string)dbx()->get_request_var('permalink', ''));
+      $permalink = dbxContent_permalink::is_valid($raw_permalink)
+         ? $raw_permalink
+         : dbxContent_permalink::canonical_from_legacy($raw_permalink);
       $db = dbx()->get_system_obj('dbxDB');
       if ($permalink !== '') {
-         $rec = $db->select1(dbxContentLng::ddContent(), array('permalink' => $permalink), 'id', 0);
-         $permalinkId = is_array($rec) ? (int)($rec['id'] ?? 0) : 0;
-         if ($permalinkId > 0) return $permalinkId;
+         $rec = $db->select1(dbxContentLng::dd_content(), array('permalink' => $permalink), 'id', 0);
+         $permalink_id = is_array($rec) ? (int)($rec['id'] ?? 0) : 0;
+         if ($permalink_id > 0) return $permalink_id;
       }
 
       // Eine initiale Seite wird mit einer kleinen Einzelabfrage bestimmt.
       // Dafuer muss der vollstaendige Content-Baum nicht aufgebaut werden.
       $rows = $db->select(
-         dbxContentLng::ddContent(),
+         dbxContentLng::dd_content(),
          '',
          'id',
          'sorter,title,id',
@@ -65,36 +65,36 @@ trait dbxContentCmsTreeServiceTrait {
 
 
    private function attach_unreachable_tree_nodes(array $tree): array {
-      $reachablePageIds = array();
-      $reachableFolderIds = array();
+      $reachable_page_ids = array();
+      $reachable_folder_ids = array();
       foreach (is_array($tree['flat'] ?? null) ? $tree['flat'] : array() as $node) {
          if (!is_array($node)) {
             continue;
          }
          if (($node['_type'] ?? '') === 'page') {
-            $reachablePageIds[(int)($node['_id'] ?? 0)] = true;
+            $reachable_page_ids[(int)($node['_id'] ?? 0)] = true;
          } elseif (($node['_type'] ?? '') === 'folder') {
-            $reachableFolderIds[(int)($node['_id'] ?? 0)] = true;
+            $reachable_folder_ids[(int)($node['_id'] ?? 0)] = true;
          }
       }
 
       $items = is_array($tree['items'] ?? null) ? $tree['items'] : array();
-      $orphanPages = array();
+      $orphan_pages = array();
       foreach ($items as $row) {
          if (!is_array($row)) {
             continue;
          }
          $id = (int)($row['id'] ?? 0);
-         if ($id > 0 && !isset($reachablePageIds[$id])) {
-            $orphanPages[] = $row;
+         if ($id > 0 && !isset($reachable_page_ids[$id])) {
+            $orphan_pages[] = $row;
          }
       }
-      if (!count($orphanPages)) {
+      if (!count($orphan_pages)) {
          return $tree;
       }
 
       $children = array();
-      foreach ($orphanPages as $row) {
+      foreach ($orphan_pages as $row) {
          $id = (int)($row['id'] ?? 0);
          if ($id <= 0) {
             continue;
@@ -116,7 +116,7 @@ trait dbxContentCmsTreeServiceTrait {
          return $tree;
       }
 
-      $orphanFolder = array(
+      $orphan_folder = array(
          'id' => -999001,
          'name' => 'Nicht im Baum',
          '_node_id' => 'folder--999001',
@@ -129,11 +129,11 @@ trait dbxContentCmsTreeServiceTrait {
          '_level' => 0,
       );
 
-      $tree['nodes'] = array_merge(is_array($tree['nodes'] ?? null) ? $tree['nodes'] : array(), array($orphanFolder));
+      $tree['nodes'] = array_merge(is_array($tree['nodes'] ?? null) ? $tree['nodes'] : array(), array($orphan_folder));
       foreach ($children as $child) {
          $tree['flat'][] = $child;
       }
-      $tree['flat'][] = $orphanFolder;
+      $tree['flat'][] = $orphan_folder;
 
       return $tree;
    }
@@ -143,7 +143,7 @@ trait dbxContentCmsTreeServiceTrait {
    private function cms_tree() {
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
-      $tree = $db->select_tree(dbxContentLng::ddFolder(), dbxContentLng::ddContent(), array(
+      $tree = $db->select_tree(dbxContentLng::dd_folder(), dbxContentLng::dd_content(), array(
          'folder_order' => 'sorter,name,id',
          'item_order' => 'sorter,title,id',
          'verify_access' => 0,
@@ -209,19 +209,19 @@ trait dbxContentCmsTreeServiceTrait {
 
    private function tree_lng_coverage_rows($db): array {
       $out = array('folder' => array(), 'page' => array());
-      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
+      foreach (dbxContentLngSync::accessible_lngs() as $lng) {
          foreach (array(
-            'folder' => array(dbxContentLng::ddFolder($lng), 'id,lng_uid,lng_sync,name', 'name'),
-            'page' => array(dbxContentLng::ddContent($lng), 'id,lng_uid,lng_sync,title', 'title'),
+            'folder' => array(dbxContentLng::dd_folder($lng), 'id,lng_uid,lng_sync,name', 'name'),
+            'page' => array(dbxContentLng::dd_content($lng), 'id,lng_uid,lng_sync,title', 'title'),
          ) as $entity => $definition) {
-            [$dd, $fields, $titleField] = $definition;
+            [$dd, $fields, $title_field] = $definition;
             $rows = $db->select($dd, '', $fields, 'id', 'ASC', '', 0, 0, 0);
             foreach (is_array($rows) ? $rows : array() as $row) {
-               $lngUid = trim((string)($row['lng_uid'] ?? ''));
-               if ($lngUid === '') continue;
-               $out[$entity][$lngUid][$lng] = array(
+               $lng_uid = trim((string)($row['lng_uid'] ?? ''));
+               if ($lng_uid === '') continue;
+               $out[$entity][$lng_uid][$lng] = array(
                   'id' => (int)($row['id'] ?? 0),
-                  'title' => (string)($row[$titleField] ?? ''),
+                  'title' => (string)($row[$title_field] ?? ''),
                   'lng_sync' => strtolower(trim((string)($row['lng_sync'] ?? 'auto'))) ?: 'auto',
                );
             }
@@ -232,17 +232,17 @@ trait dbxContentCmsTreeServiceTrait {
 
 
 
-   private function tree_lng_coverage(string $type, string $lngUid, array $coverageRows): array {
-      $master = dbxContentLngSync::masterLng();
+   private function tree_lng_coverage(string $type, string $lng_uid, array $coverage_rows): array {
+      $master = dbxContentLngSync::master_lng();
       $coverage = array(
-         'lng_uid' => $lngUid,
+         'lng_uid' => $lng_uid,
          'entity' => $type,
          'master_lng' => $master,
          'current_lng' => dbxContentLng::current(),
          'languages' => array(),
       );
-      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
-         $row = $coverageRows[$type][$lngUid][$lng] ?? null;
+      foreach (dbxContentLngSync::accessible_lngs() as $lng) {
+         $row = $coverage_rows[$type][$lng_uid][$lng] ?? null;
          $sync = is_array($row) ? (string)($row['lng_sync'] ?? 'auto') : '';
          $coverage['languages'][$lng] = array(
             'lng' => $lng,
@@ -258,24 +258,24 @@ trait dbxContentCmsTreeServiceTrait {
 
 
 
-   private function attach_lng_coverage(array $node, $db, array &$coverageRows): array {
+   private function attach_lng_coverage(array $node, $db, array &$coverage_rows): array {
       $type = ($node['_type'] ?? '') === 'folder' ? 'folder' : 'page';
       $id = (int)($node['_id'] ?? 0);
-      $lngUid = trim((string)($node['lng_uid'] ?? $node['_lng_uid'] ?? ''));
+      $lng_uid = trim((string)($node['lng_uid'] ?? $node['_lng_uid'] ?? ''));
 
-      $node['_lng_uid'] = $lngUid;
-      if ($lngUid !== '') {
-         $currentLng = dbxContentLng::current();
-         if (!isset($coverageRows[$type][$lngUid][$currentLng])) {
-            $coverageRows[$type][$lngUid][$currentLng] = array(
+      $node['_lng_uid'] = $lng_uid;
+      if ($lng_uid !== '') {
+         $current_lng = dbxContentLng::current();
+         if (!isset($coverage_rows[$type][$lng_uid][$current_lng])) {
+            $coverage_rows[$type][$lng_uid][$current_lng] = array(
                'id' => $id,
                'title' => (string)($node['_title'] ?? ''),
                'lng_sync' => strtolower(trim((string)($node['lng_sync'] ?? 'auto'))) ?: 'auto',
             );
          }
-         $coverage = $this->tree_lng_coverage($type, $lngUid, $coverageRows);
+         $coverage = $this->tree_lng_coverage($type, $lng_uid, $coverage_rows);
          $node['_lng_coverage'] = $coverage;
-         $node['_lng_badges'] = dbxContentLngSync::badgesHtml($coverage);
+         $node['_lng_badges'] = dbxContentLngSync::badges_html($coverage);
       }
 
       return $node;
@@ -283,12 +283,12 @@ trait dbxContentCmsTreeServiceTrait {
 
 
 
-   private function decorate_tree_nodes(array $nodes, array &$flat, $db, array $folderRows, array $pageRows, array &$coverageRows) {
+   private function decorate_tree_nodes(array $nodes, array &$flat, $db, array $folder_rows, array $page_rows, array &$coverage_rows) {
       $out = array();
       foreach ($nodes as $node) {
          if (!is_array($node)) continue;
          if (($node['_type'] ?? '') === 'folder' && (int)($node['_id'] ?? 0) > 0) {
-            $full = $folderRows[(int)$node['_id']] ?? null;
+            $full = $folder_rows[(int)$node['_id']] ?? null;
             if (is_array($full)) {
                foreach (array('template','group_read','hero_template','hero_image_id','hero_margin_top','hero_height','hero_variant','hero_sticky','hero_scroll_layer') as $key) {
                   if (array_key_exists($key, $full)) {
@@ -303,16 +303,16 @@ trait dbxContentCmsTreeServiceTrait {
             }
          }
          if (($node['_type'] ?? '') === 'page' && (int)($node['_id'] ?? 0) > 0) {
-            $full = $pageRows[(int)$node['_id']] ?? null;
+            $full = $page_rows[(int)$node['_id']] ?? null;
             if (is_array($full)) {
                $node['lng_uid'] = $full['lng_uid'] ?? '';
                $node['lng_sync'] = $full['lng_sync'] ?? 'auto';
             }
          }
-         $node = $this->attach_lng_coverage($node, $db, $coverageRows);
+         $node = $this->attach_lng_coverage($node, $db, $coverage_rows);
          $flat[] = $node;
          if (isset($node['_children']) && is_array($node['_children'])) {
-            $node['_children'] = $this->decorate_tree_nodes($node['_children'], $flat, $db, $folderRows, $pageRows, $coverageRows);
+            $node['_children'] = $this->decorate_tree_nodes($node['_children'], $flat, $db, $folder_rows, $page_rows, $coverage_rows);
          }
          $out[] = $node;
       }
@@ -323,21 +323,21 @@ trait dbxContentCmsTreeServiceTrait {
 
    private function decorate_tree(array $tree) {
       $db = dbx()->get_system_obj('dbxDB');
-      $folderRows = $this->tree_records_by_id(
+      $folder_rows = $this->tree_records_by_id(
          $db,
-         dbxContentLng::ddFolder(),
+         dbxContentLng::dd_folder(),
          'id,template,group_read,hero_template,hero_image_id,hero_margin_top,hero_height,hero_variant,hero_sticky,hero_scroll_layer,lng_uid,lng_sync'
       );
-      $pageRows = $this->tree_records_by_id($db, dbxContentLng::ddContent(), 'id,lng_uid,lng_sync');
-      $coverageRows = $this->tree_lng_coverage_rows($db);
+      $page_rows = $this->tree_records_by_id($db, dbxContentLng::dd_content(), 'id,lng_uid,lng_sync');
+      $coverage_rows = $this->tree_lng_coverage_rows($db);
       $flat = array();
       $tree['nodes'] = $this->decorate_tree_nodes(
          is_array($tree['nodes'] ?? null) ? $tree['nodes'] : array(),
          $flat,
          $db,
-         $folderRows,
-         $pageRows,
-         $coverageRows
+         $folder_rows,
+         $page_rows,
+         $coverage_rows
       );
       $tree['flat'] = $flat;
       return $tree;

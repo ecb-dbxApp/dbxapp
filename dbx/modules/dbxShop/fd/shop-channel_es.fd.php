@@ -1,12 +1,8 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
-
 require dirname(__DIR__) . '/dd/shopChannel.dd.php';
 
-$fdLabels = array(
+$fd_labels = array(
     'create_date' => 'Creado',
     'create_uid' => 'Creado por',
     'update_date' => 'Actualizado',
@@ -40,10 +36,10 @@ $fdLabels = array(
     'active' => 'Activo',
     'sorter' => 'Orden',
 );
-foreach ($fields as &$fdField) {
-    if (isset($fdLabels[$fdField['name']])) {
-        $fdField['label'] = $fdLabels[$fdField['name']];
+foreach ($fields as &$fd_field) {
+    if (isset($fd_labels[$fd_field['name']])) {
+        $fd_field['label'] = $fd_labels[$fd_field['name']];
     }
 }
-unset($fdField, $fdLabels);
+unset($fd_field, $fd_labels);
 ?>

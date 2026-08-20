@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['editor_level_title'] = 'Editor-Level {level}: {label} | Level auswählen';
 $messages['editor_level_item'] = 'Level {level} – {label}';
 $messages['editor_level_0'] = 'aus';

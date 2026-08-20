@@ -26,32 +26,32 @@ final class dbxContentReadOnlyUidDb
 }
 
 $db = new dbxContentReadOnlyUidDb();
-$uid = dbxContentLngSync::recordUid($db, 'content', 7);
+$uid = dbxContentLngSync::record_uid($db, 'content', 7);
 if ($uid !== 'p_existing' || $db->selects !== 1 || $db->updates !== 0) {
     fwrite(STDERR, "Das reine Lesen einer Sprach-UID hat einen Seiteneffekt oder liefert einen falschen Wert.\n");
     exit(1);
 }
 
 $db->row = array('lng_uid' => '');
-$uid = dbxContentLngSync::recordUid($db, 'content', 7);
+$uid = dbxContentLngSync::record_uid($db, 'content', 7);
 if ($uid !== '' || $db->updates !== 0) {
     fwrite(STDERR, "Eine fehlende Sprach-UID wurde in einem Leseablauf geschrieben.\n");
     exit(1);
 }
 
-$cmsSource = file_get_contents(dirname(__DIR__, 2) . '/dbxContent_admin/include/dbxContent_cms.class.php');
-$homeSource = file_get_contents(dirname(__DIR__) . '/include/dbxContentHome.class.php');
-if (!is_string($cmsSource) || !is_string($homeSource)) {
+$cms_source = file_get_contents(dirname(__DIR__, 2) . '/dbxContent_admin/include/dbxContent_cms.class.php');
+$home_source = file_get_contents(dirname(__DIR__) . '/include/dbxContentHome.class.php');
+if (!is_string($cms_source) || !is_string($home_source)) {
     fwrite(STDERR, "Content-Quellen konnten nicht geprüft werden.\n");
     exit(1);
 }
 foreach (array('attach_lng_coverage', 'lng_coverage_json') as $method) {
-    if (preg_match('/function\s+' . preg_quote($method, '/') . '\b(?:(?!\n\s*(?:public|private|protected)\s+function\b).)*ensureRecordUid\s*\(/s', $cmsSource) === 1) {
+    if (preg_match('/function\s+' . preg_quote($method, '/') . '\b(?:(?!\n\s*(?:public|private|protected)\s+function\b).)*ensureRecordUid\s*\(/s', $cms_source) === 1) {
         fwrite(STDERR, "CMS-Lesemethode $method darf keine Sprach-UID erzeugen.\n");
         exit(1);
     }
 }
-if (preg_match('/function\s+resolveForLng\b(?:(?!\n\s*(?:public|private|protected)\s+function\b).)*ensureRecordUid\s*\(/s', $homeSource) === 1) {
+if (preg_match('/function\s+resolveForLng\b(?:(?!\n\s*(?:public|private|protected)\s+function\b).)*ensureRecordUid\s*\(/s', $home_source) === 1) {
     fwrite(STDERR, "Startseitenauflösung darf keine Sprach-UID erzeugen.\n");
     exit(1);
 }

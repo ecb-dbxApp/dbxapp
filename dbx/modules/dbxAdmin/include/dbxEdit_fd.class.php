@@ -1,6 +1,9 @@
 <?php
 namespace dbx\dbxAdmin;
 
+require_once __DIR__ . '/dbxEditorRecords.class.php';
+require_once __DIR__ . '/dbxEditorPresentation.trait.php';
+
 /**
  * Editor fuer FD-Dateien.
  *
@@ -10,6 +13,8 @@ namespace dbx\dbxAdmin;
  */
 class dbxEdit_fd
 {
+    use dbxEditorPresentationTrait;
+
     private $_admin_modul = 'dbxAdmin';
     private $_fd_field = 'dbxAdmin|ddedit-field';
     private $_texts = null;
@@ -31,7 +36,7 @@ class dbxEdit_fd
         dbx()->get_system_obj('dbxForm', 'use');
         $this->_texts = new \dbxForm();
         $this->_texts->set_form_help_enabled(false);
-        $this->_texts->_fd = $this->_fd_field;
+        $this->_texts->set_field_definition($this->_fd_field);
         $this->_texts->load_fd_messages();
 
         return $this->_texts;
@@ -103,22 +108,22 @@ class dbxEdit_fd
             'fields_order_report'=> $this->create_fields_order_report($modul, $fd, $model, $work_target_id),
         );
 
-        $help = dbx()->get_include_obj('dbxAdminHelp', 'dbxAdmin');
-        $oTPL = dbx()->get_system_obj('dbxTPL');
-        $reloadAction = $oTPL->get_tpl('dbx|button-bar-reload-ajax', array(
+        $help = dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp');
+        $o_tpl = dbx()->get_system_obj('dbxTPL');
+        $reload_action = $o_tpl->get_tpl('dbx|button-bar-reload-ajax', array(
             'bar_reload_href'    => '?dbx_modul=dbxAdmin&dbx_run1=edit_fd&modul=' . rawurlencode($modul) . '&fd=' . rawurlencode($fd),
             'bar_reload_target'  => 'dbx_fdedit_' . $instance_id,
             'bar_reload_replace' => 'target',
         ));
-        $barData = $help->moduleBarTemplateData('edit_fd', $reloadAction);
-        $barData['bar_title'] = $texts->format_fd_message(
+        $bar_data = $help->module_bar_template_data('edit_fd', $reload_action);
+        $bar_data['bar_title'] = $texts->format_fd_message(
             'fd_frame_title',
             array('fd' => dbx()->esc($modul . '|' . $fd))
         );
-        $barData['bar_class'] = 'dbx-bar--module dbx-ddedit-head';
-        $data = array_merge($data, $barData);
+        $bar_data['bar_class'] = 'dbx-bar--module dbx-ddedit-head';
+        $data = array_merge($data, $bar_data);
 
-        return $oTPL->get_tpl($this->_admin_modul . '|fdedit-frame', $data);
+        return $o_tpl->get_tpl($this->_admin_modul . '|fdedit-frame', $data);
     }
 
     private function create_form_fd($modul = '', $fd = '', $field_pos = null, $model = array())
@@ -150,7 +155,7 @@ class dbxEdit_fd
         $is_new = ((string)$field_pos === 'new');
 
         if ($is_new) {
-            $data = $this->default_field_record();
+            $data = dbxEditorRecords::default_field();
         } else {
             $pos = (int)$field_pos;
             if (!isset($fields[$pos]) || !is_array($fields[$pos])) {
@@ -170,18 +175,18 @@ class dbxEdit_fd
         $data['field_pos'] = (string)$field_pos;
         $data['old_name'] = (string)($data['name'] ?? '');
 
-        $oForm = dbx()->get_system_obj('dbxForm');
-        $oForm->init('fdedit_field_' . $this->safe_id($modul . '_' . $fd . '_' . (string)$field_pos), 'ddedit-field-form');
-        $oForm->_fd = $this->_fd_field;
-        $oForm->load_fd_messages();
-        $oForm->_data = $data;
-        $oForm->_action = $this->build_url('create_form_fd', $modul, $fd, array('field_pos' => (string)$field_pos));
-        $oForm->_msg_info = $is_new
-            ? $oForm->format_fd_message(
+        $o_form = dbx()->get_system_obj('dbxForm');
+        $o_form->init('fdedit_field_' . $this->safe_id($modul . '_' . $fd . '_' . (string)$field_pos), 'ddedit-field-form');
+        $o_form->set_field_definition($this->_fd_field);
+        $o_form->load_fd_messages();
+        $o_form->set_data($data);
+        $o_form->set_action($this->build_url('create_form_fd', $modul, $fd, array('field_pos' => (string)$field_pos)));
+        $o_form->_msg_info = $is_new
+            ? $o_form->format_fd_message(
                 'fd_edit_new',
                 array('fd' => dbx()->esc($fd))
             )
-            : $oForm->format_fd_message(
+            : $o_form->format_fd_message(
                 'fd_edit_existing',
                 array(
                     'field' => dbx()->esc(
@@ -189,17 +194,17 @@ class dbxEdit_fd
                     ),
                 )
             );
-        $oForm->add_flds();
+        $o_form->add_flds();
 
-        if ($oForm->submit()) {
-            if (!$oForm->errors()) {
-                $field = $this->merge_record($data, $oForm->_post, $this->field_keys());
+        if ($o_form->submit()) {
+            if (!$o_form->errors()) {
+                $field = $this->merge_record($data, $o_form->validated_post(), $this->field_keys());
                 $field = $this->strip_editor_keys($field);
 
                 $message = '';
-                if (!$this->validate_field_record($field, $fields, $is_new ? -1 : (int)$field_pos, $message, $oForm)) {
-                    $oForm->_msg_error = $message;
-                    return $oForm->run();
+                if (!$this->validate_field_record($field, $fields, $is_new ? -1 : (int)$field_pos, $message, $o_form)) {
+                    $o_form->_msg_error = $message;
+                    return $o_form->run();
                 }
 
                 if ($is_new) {
@@ -219,9 +224,9 @@ class dbxEdit_fd
                     $field['field_pos'] = (string)$field_pos;
                     $field['old_name'] = (string)($field['name'] ?? '');
 
-                    $oForm->_data = $field;
-                    $oForm->_action = $this->build_url('create_form_fd', $modul, $fd, array('field_pos' => (string)$field_pos));
-                    $oForm->_msg_success = $oForm->format_fd_message(
+                    $o_form->set_data($field);
+                    $o_form->set_action($this->build_url('create_form_fd', $modul, $fd, array('field_pos' => (string)$field_pos)));
+                    $o_form->_msg_success = $o_form->format_fd_message(
                         'fd_field_saved',
                         array(
                             'field' => dbx()->esc(
@@ -231,7 +236,7 @@ class dbxEdit_fd
                         )
                     );
                 } else {
-                    $oForm->_msg_error = $oForm->format_fd_message(
+                    $o_form->_msg_error = $o_form->format_fd_message(
                         'fd_field_save_error',
                         array(
                             'field' => dbx()->esc(
@@ -242,7 +247,7 @@ class dbxEdit_fd
                     );
                 }
             } else {
-                $oForm->_msg_error = $oForm->format_fd_message(
+                $o_form->_msg_error = $o_form->format_fd_message(
                     'fd_field_check',
                     array(
                         'field' => dbx()->esc(
@@ -258,7 +263,7 @@ class dbxEdit_fd
         return str_replace(
             '&dbx_run2=delete_field&modul={modul}&dd={dd}&field_pos={field_pos}',
             dbx()->esc($delete_url),
-            $oForm->run()
+            $o_form->run()
         );
     }
 
@@ -294,17 +299,17 @@ class dbxEdit_fd
             'new_field_url' => $this->build_url('create_form_fd', $modul, $fd, array('field_pos' => 'new')),
         );
 
-        $oReport = dbx()->get_system_obj('dbxReport');
-        $oReport->init('fdedit_fields_order_' . $this->safe_id($modul . '_' . $fd), 'fdedit-fields-order-report');
-        $oReport->_mode = 'tpl';
-        $oReport->_data = $data;
-        $oReport->_replaces = $data;
-        $oReport->_rdata = $rows;
-        $oReport->_rcount = count($rows);
-        $oReport->_rrows = 'auto';
-        $oReport->_pages = false;
+        $o_report = dbx()->get_system_obj('dbxReport');
+        $o_report->init('fdedit_fields_order_' . $this->safe_id($modul . '_' . $fd), 'fdedit-fields-order-report');
+        $o_report->set_mode('tpl');
+        $o_report->set_data($data);
+        $o_report->_replaces = $data;
+        $o_report->_rdata = $rows;
+        $o_report->_rcount = count($rows);
+        $o_report->_rrows = 'auto';
+        $o_report->_pages = false;
 
-        return $oReport->run();
+        return $o_report->run();
     }
 
     private function delete_field()
@@ -369,7 +374,7 @@ class dbxEdit_fd
             ));
         }
 
-        $new = $this->reorder_records(array_values((array)($model['fields'] ?? array())), $order);
+        $new = dbxEditorRecords::reorder(array_values((array)($model['fields'] ?? array())), $order);
         if ($new === false) {
             dbx()->json_response(array(
                 'ok' => 0,
@@ -409,100 +414,100 @@ class dbxEdit_fd
         $target_fd = $this->sanitize_name(dbx()->get_modul_var('target_fd', $fd));
         $overwrite = (string)dbx()->get_modul_var('overwrite', '') === '1';
 
-        $oForm = dbx()->get_system_obj('dbxForm');
-        $oForm->init(
+        $o_form = dbx()->get_system_obj('dbxForm');
+        $o_form->init(
             'fd-create-from-dd-' . $this->safe_id($target_modul . '-' . $target_fd),
             'fdedit-create-from-dd'
         );
-        $oForm->_fd = $this->_fd_field;
-        $oForm->load_fd_messages();
-        $oForm->_action = '?dbx_modul=' . $this->_admin_modul .
+        $o_form->set_field_definition($this->_fd_field);
+        $o_form->load_fd_messages();
+        $o_form->set_action('?dbx_modul=' . $this->_admin_modul .
             '&dbx_run1=edit_fd&dbx_run2=create_from_dd&modul=' . rawurlencode($target_modul) .
-            '&fd=' . rawurlencode($target_fd);
+            '&fd=' . rawurlencode($target_fd));
         // init() legt den Security-Wert in _data ab; deshalb Vorgaben ergänzen
         // und den von dbxForm erzeugten Wert nicht durch ein neues Array ersetzen.
-        $oForm->_data = array_merge($oForm->_data, array(
+        $o_form->merge_data(array(
             'source_modul' => $source_modul,
             'source_dd'    => $source_dd,
             'target_modul' => $target_modul,
             'target_fd'    => $target_fd,
             'overwrite'    => $overwrite ? 1 : 0,
         ));
-        $oForm->_msg_info = $oForm->get_fd_message('create_info');
+        $o_form->_msg_info = $o_form->get_fd_message('create_info');
 
-        $oForm->add_fld(
+        $o_form->add_fld(
             'source_modul',
             'text-label',
-            label: $oForm->get_fd_message('label_source_module'),
+            label: $o_form->get_fd_message('label_source_module'),
             rules: 'parameter|min=1|max=64',
-            errormsg: $oForm->get_fd_message('error_source_module'),
+            errormsg: $o_form->get_fd_message('error_source_module'),
             dd: ''
         );
-        $oForm->add_fld(
+        $o_form->add_fld(
             'source_dd',
             'text-label',
-            label: $oForm->get_fd_message('label_source_dd'),
+            label: $o_form->get_fd_message('label_source_dd'),
             rules: 'parameter|min=1|max=64',
-            errormsg: $oForm->get_fd_message('error_source_dd'),
+            errormsg: $o_form->get_fd_message('error_source_dd'),
             dd: ''
         );
-        $oForm->add_fld(
+        $o_form->add_fld(
             'target_modul',
             'text-label',
-            label: $oForm->get_fd_message('label_target_module'),
+            label: $o_form->get_fd_message('label_target_module'),
             rules: 'parameter|min=1|max=64',
-            errormsg: $oForm->get_fd_message('error_target_module'),
+            errormsg: $o_form->get_fd_message('error_target_module'),
             dd: ''
         );
-        $oForm->add_fld(
+        $o_form->add_fld(
             'target_fd',
             'text-label',
-            label: $oForm->get_fd_message('label_target_fd'),
+            label: $o_form->get_fd_message('label_target_fd'),
             rules: 'parameter|min=1|max=64',
-            errormsg: $oForm->get_fd_message('error_target_fd'),
+            errormsg: $o_form->get_fd_message('error_target_fd'),
             dd: ''
         );
-        $oForm->add_fld(
+        $o_form->add_fld(
             'overwrite',
             'checkbox-label',
-            label: $oForm->get_fd_message('label_overwrite'),
+            label: $o_form->get_fd_message('label_overwrite'),
             rules: 'int',
             dd: ''
         );
 
-        if ($oForm->submit()) {
-            if ($oForm->errors()) {
-                $oForm->_msg_error = $oForm->get_fd_message('required_fields');
+        if ($o_form->submit()) {
+            if ($o_form->errors()) {
+                $o_form->_msg_error = $o_form->get_fd_message('required_fields');
             } else {
-                $source_modul = $this->sanitize_name($oForm->get_post('source_modul', '', 'parameter|min=1|max=64'));
-                $source_dd = $this->sanitize_name($oForm->get_post('source_dd', '', 'parameter|min=1|max=64'));
-                $target_modul = $this->sanitize_name($oForm->get_post('target_modul', '', 'parameter|min=1|max=64'));
-                $target_fd = $this->sanitize_name($oForm->get_post('target_fd', '', 'parameter|min=1|max=64'));
-                $overwrite = (int)$oForm->get_post('overwrite', 0, 'int') === 1;
+                $source_modul = $this->sanitize_name($o_form->get_post('source_modul', '', 'parameter|min=1|max=64'));
+                $source_dd = $this->sanitize_name($o_form->get_post('source_dd', '', 'parameter|min=1|max=64'));
+                $target_modul = $this->sanitize_name($o_form->get_post('target_modul', '', 'parameter|min=1|max=64'));
+                $target_fd = $this->sanitize_name($o_form->get_post('target_fd', '', 'parameter|min=1|max=64'));
+                $overwrite = (int)$o_form->get_post('overwrite', 0, 'int') === 1;
 
                 if ($this->fd_file_exists($target_modul, $target_fd) && !$overwrite) {
-                    $oForm->add_fld_error(
+                    $o_form->add_fld_error(
                         'overwrite',
-                        $oForm->get_fd_message('target_exists_field')
+                        $o_form->get_fd_message('target_exists_field')
                     );
-                    $oForm->_msg_error = $oForm->get_fd_message('target_exists');
+                    $o_form->_msg_error = $o_form->get_fd_message('target_exists');
                 } else {
-                    $oDD = dbx()->get_system_obj('dbxDD');
-                    $dd_model = $oDD->get_dd_model($source_modul . '|' . $source_dd);
+                    $o_dd = dbx()->get_system_obj('dbxDD');
+                    $dd_model = $o_dd->get_dd_model($source_modul . '|' . $source_dd);
                     $fields = is_array($dd_model['fields'] ?? null) ? array_values($dd_model['fields']) : array();
 
                     if (!count($fields)) {
-                        $oForm->add_fld_error(
+                        $o_form->add_fld_error(
                             'source_dd',
-                            $oForm->get_fd_message('source_no_fields_field')
+                            $o_form->get_fd_message('source_no_fields_field')
                         );
-                        $oForm->_msg_error = $oForm->get_fd_message('source_invalid');
+                        $o_form->_msg_error = $o_form->get_fd_message('source_invalid');
                     } elseif ($this->save_model($target_modul, $target_fd, array('fields' => $fields))) {
                         $url = '?dbx_modul=' . $this->_admin_modul .
                             '&dbx_run1=edit_fd&modul=' . rawurlencode($target_modul) .
                             '&fd=' . rawurlencode($target_fd);
-                        $oForm->_msg_success =
-                            $oForm->format_fd_message(
+                        $o_form->_msg_success =
+                            $o_form->format_fd_message(
                                 'fd_created',
                                 array(
                                     'fd' => dbx()->esc($target_modul . '|' . $target_fd),
@@ -510,19 +515,19 @@ class dbxEdit_fd
                                 )
                             ) . ' ' .
                             '<a class="btn btn-sm btn-primary ms-2" href="' . dbx()->esc($url) .
-                            '">' . $oForm->get_fd_message('edit_fd_action') . '</a>';
+                            '">' . $o_form->get_fd_message('edit_fd_action') . '</a>';
                     } else {
-                        $oForm->_msg_error = $oForm->get_fd_message('fd_write_error');
-                        $oForm->add_fld_error(
+                        $o_form->_msg_error = $o_form->get_fd_message('fd_write_error');
+                        $o_form->add_fld_error(
                             'target_fd',
-                            $oForm->get_fd_message('fd_write_field_error')
+                            $o_form->get_fd_message('fd_write_field_error')
                         );
                     }
                 }
             }
         }
 
-        return $oForm->run();
+        return $o_form->run();
     }
 
     private function load_model($modul, $fd)
@@ -544,8 +549,7 @@ class dbxEdit_fd
         return array(
             'fields' => is_array($fields) ? array_values($fields) : array(),
             'messages' => $this->normalize_fd_messages(
-                is_array($messages) ? $messages : array(),
-                $fd
+                is_array($messages) ? $messages : array()
             ),
         );
     }
@@ -558,8 +562,7 @@ class dbxEdit_fd
 
         $fields = is_array($model['fields'] ?? null) ? array_values($model['fields']) : array();
         $messages = $this->normalize_fd_messages(
-            is_array($model['messages'] ?? null) ? $model['messages'] : array(),
-            $fd
+            is_array($model['messages'] ?? null) ? $model['messages'] : array()
         );
         $dir = dbx()->get_base_dir() . 'dbx/modules/' . $modul . '/fd/';
         $dir = dbx()->os_path($dir);
@@ -573,26 +576,14 @@ class dbxEdit_fd
 
         $content = "<?php\n\n";
         $content .= "\$messages = array();\n";
-        $content .= "\$messages['save_success'] = "
-            . var_export($messages['save_success'], true) . ";\n";
-        $content .= "\$messages['save_succeass'] = \$messages['save_success'];\n";
-        $content .= "\$messages['save_error'] = "
-            . var_export($messages['save_error'], true) . ";\n\n";
-        foreach ($messages as $messageKey => $messageValue) {
-            if (
-                in_array(
-                    $messageKey,
-                    array('save_success', 'save_succeass', 'save_error'),
-                    true
-                ) ||
-                !is_scalar($messageValue)
-            ) {
+        foreach ($messages as $message_key => $message_value) {
+            if (!is_scalar($message_value)) {
                 continue;
             }
-            $content .= "\$messages[" . var_export((string)$messageKey, true) . '] = '
-                . var_export((string)$messageValue, true) . ";\n";
+            $content .= "\$messages[" . var_export((string)$message_key, true) . '] = '
+                . var_export((string)$message_value, true) . ";\n";
         }
-        if (count($messages) > 3) {
+        if (count($messages) > 0) {
             $content .= "\n";
         }
         foreach ($fields as $field) {
@@ -610,52 +601,13 @@ class dbxEdit_fd
         return file_put_contents($file, $content) !== false ? 1 : 0;
     }
 
-    /**
-     * Normalisiert die Standard-Speichermeldungen einer FD.
-     *
-     * `save_success` ist der verbindliche Schlüssel. `save_succeass` bleibt
-     * als kompatibler Alias erhalten. Bei neuen FDs richtet sich die
-     * Standardsprache nach dem Dateisuffix `_en` bzw. `_es`.
-     */
-    private function normalize_fd_messages(array $messages, string $fd): array
+    /** Entfernt globale Formularmeldungen aus dem modulspezifischen FD-Modell. */
+    private function normalize_fd_messages(array $messages): array
     {
-        $language = 'de';
-        if (preg_match('/_en$/', $fd)) {
-            $language = 'en';
-        } elseif (preg_match('/_es$/', $fd)) {
-            $language = 'es';
-        }
-
-        $defaults = array(
-            'de' => array(
-                'save_success' => 'Daten wurden gespeichert',
-                'save_error' => 'Daten konnten nicht gespeichert werden',
-            ),
-            'en' => array(
-                'save_success' => 'Data was saved',
-                'save_error' => 'Data could not be saved',
-            ),
-            'es' => array(
-                'save_success' => 'Los datos se guardaron',
-                'save_error' => 'Los datos no se pudieron guardar',
-            ),
+        unset(
+            $messages['save_success'],
+            $messages['save_error']
         );
-
-        if (
-            !isset($messages['save_success']) &&
-            isset($messages['save_succeass'])
-        ) {
-            $messages['save_success'] = $messages['save_succeass'];
-        }
-
-        foreach ($defaults[$language] as $key => $value) {
-            if (!isset($messages[$key]) || !is_scalar($messages[$key])) {
-                $messages[$key] = $value;
-            } else {
-                $messages[$key] = (string)$messages[$key];
-            }
-        }
-        $messages['save_succeass'] = $messages['save_success'];
 
         return $messages;
     }
@@ -663,9 +615,9 @@ class dbxEdit_fd
     private function normalize_field_for_write($field)
     {
         $field = $this->strip_editor_keys($field);
-        $oDD = dbx()->get_system_obj('dbxDD');
-        if (is_object($oDD) && method_exists($oDD, 'normalize_dd_field')) {
-            return $oDD->normalize_dd_field($field);
+        $o_dd = dbx()->get_system_obj('dbxDD');
+        if (is_object($o_dd) && method_exists($o_dd, 'normalize_dd_field')) {
+            return $o_dd->normalize_dd_field($field);
         }
 
         $out = array();
@@ -708,7 +660,7 @@ class dbxEdit_fd
         }
 
         if (!$modul) {
-            $modul = $this->sanitize_name($this->get_system_var('dbx_activ_modul', 'dbx'));
+            $modul = $this->sanitize_name(dbxEditorRecords::system_value('dbx_activ_modul', 'dbx'));
         }
 
         return array($modul, $fd);
@@ -736,43 +688,10 @@ class dbxEdit_fd
         return dbx()->append_url_params($url, (array)$extra);
     }
 
-    private function get_system_var($name, $default = '')
-    {
-        if (function_exists('dbx')) {
-            $obj = dbx();
-            if (is_object($obj) && method_exists($obj, 'get_system_var')) {
-                $value = $obj->get_system_var($name);
-                if ($value !== null && $value !== '') {
-                    return $value;
-                }
-            }
-        }
-        return $default;
-    }
-
-    private function merge_record($old, $post, $keys)
-    {
-        $record = is_array($old) ? $old : array();
-        foreach ((array)$keys as $key) {
-            if (array_key_exists($key, (array)$post)) {
-                $record[$key] = $this->normalize_value($post[$key]);
-            }
-        }
-        return $record;
-    }
-
     private function strip_editor_keys($record)
     {
         unset($record['modul'], $record['dd'], $record['fd'], $record['field_pos'], $record['old_name']);
         return $record;
-    }
-
-    private function normalize_value($value)
-    {
-        if (is_array($value)) {
-            return implode(',', array_map('trim', $value));
-        }
-        return trim((string)$value);
     }
 
     private function parse_order($raw)
@@ -795,30 +714,6 @@ class dbxEdit_fd
 
         $parts = preg_split('/[|,\s;]+/', $raw);
         return is_array($parts) ? array_values(array_map('intval', $parts)) : array();
-    }
-
-    private function reorder_records($records, $order)
-    {
-        $records = array_values((array)$records);
-        $count = count($records);
-        if (!$count) {
-            return array();
-        }
-        if (count($order) !== $count) {
-            return false;
-        }
-
-        $seen = array();
-        $new = array();
-        foreach ($order as $pos) {
-            $pos = (int)$pos;
-            if ($pos < 0 || $pos >= $count || isset($seen[$pos])) {
-                return false;
-            }
-            $seen[$pos] = 1;
-            $new[] = $records[$pos];
-        }
-        return $new;
     }
 
     private function validate_field_record($field, $fields, $self_pos, &$message, $texts)
@@ -866,32 +761,16 @@ class dbxEdit_fd
         return preg_match('/^[A-Za-z0-9_-]+$/', $name) ? $name : '';
     }
 
-    private function safe_id($value)
-    {
-        $value = preg_replace('/[^A-Za-z0-9_]+/', '_', (string)$value);
-        $value = trim($value, '_');
-        return $value ?: 'x';
-    }
-
     private function instance_id($seed)
     {
         return $this->safe_id($seed . '_' . substr(md5((string)$seed), 0, 6));
     }
 
-    private function alert($type, $msg)
-    {
-        $type = preg_replace('/[^a-z]/', '', (string)$type);
-        if (!$type) {
-            $type = 'info';
-        }
-        return '<div class="alert alert-' . $type . '">' . $msg . '</div>';
-    }
-
     private function field_keys()
     {
-        $oDD = dbx()->get_system_obj('dbxDD');
-        if (is_object($oDD) && method_exists($oDD, 'dd_field_schema_keys')) {
-            return array_merge(array('modul', 'dd', 'fd', 'field_pos', 'old_name'), $oDD->dd_field_schema_keys());
+        $o_dd = dbx()->get_system_obj('dbxDD');
+        if (is_object($o_dd) && method_exists($o_dd, 'dd_field_schema_keys')) {
+            return array_merge(array('modul', 'dd', 'fd', 'field_pos', 'old_name'), $o_dd->dd_field_schema_keys());
         }
 
         return array(
@@ -919,31 +798,6 @@ class dbxEdit_fd
             'tpl',
             'js',
             'prompt',
-        );
-    }
-
-    private function default_field_record()
-    {
-        return array(
-            'name'        => '',
-            'type'        => 'varchar',
-            'index'       => '',
-            'length'      => '255',
-            'default'     => '',
-            'label'       => '',
-            'rules'       => 'text',
-            'tooltip'     => '',
-            'errormsg'    => '',
-            'placeholder' => '',
-            'convert'     => '',
-            'protect'     => '0',
-            'group'       => '',
-            'mask'        => '',
-            'data'        => '',
-            'options'     => '',
-            'tpl'         => 'text-label',
-            'js'          => '',
-            'prompt'      => '',
         );
     }
 

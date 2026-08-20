@@ -1,0 +1,37 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxContact",
+    "type": "module",
+    "name": "dbxContact",
+    "title": "dbxContact",
+    "description": "Kontaktformulare und nachvollziehbare Anfragen für Besucher und angemeldete Benutzer.",
+    "descriptions": {
+        "de": "Kontaktformulare und nachvollziehbare Anfragen für Besucher und angemeldete Benutzer.",
+        "en": "Contact forms and traceable requests for visitors and signed-in users.",
+        "es": "Formularios de contacto y solicitudes trazables para visitantes y usuarios."
+    },
+    "icon": "bi-chat-left-text",
+    "image": "dbx/modules/dbxContact/tpl/img/dbxContact.png",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": []
+    },
+    "permissions": [
+        "database",
+        "mail"
+    ],
+    "migrations": [],
+    "files": []
+}

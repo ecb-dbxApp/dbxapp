@@ -5,8 +5,8 @@ require_once dirname(__DIR__) . '/include/dbxKiBundleService.class.php';
 $class = new ReflectionClass('dbx\\dbxKi\\dbxKiBundleService');
 $service = $class->newInstanceWithoutConstructor();
 
-$urlMethod = $class->getMethod('cmsAdminPageUrl');
-$url = $urlMethod->invoke($service, 51, 'de');
+$url_method = $class->getMethod('cms_admin_page_url');
+$url = $url_method->invoke($service, 51, 'de');
 $expected = '?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=51&dbx_lng=de';
 
 if ($url !== $expected || strpos($url, 'dbx_ajax') !== false) {
@@ -14,8 +14,8 @@ if ($url !== $expected || strpos($url, 'dbx_ajax') !== false) {
    exit(1);
 }
 
-$footerMethod = $class->getMethod('buildImportFooterActions');
-$footer = $footerMethod->invoke($service, array(
+$footer_method = $class->getMethod('build_import_footer_actions');
+$footer = $footer_method->invoke($service, array(
    'lng' => 'de',
    'step_results' => array(array('page_id' => 51, 'lng' => 'de')),
 ), false, '', '?dbx_modul=dbxKi&dbx_run1=bundle');

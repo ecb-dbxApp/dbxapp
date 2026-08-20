@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['filter_error'] = 'Revise los datos de los filtros.';
 $messages['report_title'] = 'Informe de facturas';
 $messages['column_invoice_no'] = 'Factura';

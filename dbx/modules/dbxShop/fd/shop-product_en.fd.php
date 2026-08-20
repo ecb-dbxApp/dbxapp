@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['form_new_title'] = 'New product';
 $messages['form_edit_title'] = 'Edit product';
 $messages['form_new_subtitle'] = 'Create master data';
@@ -58,7 +55,7 @@ $messages['export_question'] = 'Export the product to {channel} now?';
 $messages['export_hint'] = 'The connector only sends when the required provider credentials and mandatory fields are available. Status and response are stored with the product.';
 $messages['export_button_title'] = 'Export to this channel';
 
-$addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -79,23 +76,23 @@ $addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (
    $fields[]=$field;
 };
 
-$addField('sku','varchar','Product number','parameter|min=2|max=80','text-label');
-$addField('slug','varchar','URL name','parameter|min=2|max=120','text-label');
-$addField('title','varchar','Title','*|min=2|max=180','text-label');
-$addField('category','varchar','Category','parameter|max=80','select-single-label',array('options'=>'Software=Software&Dienstleistung=Services&Merchandise=Merchandise'));
-$addField('product_group_id','int','Product group','int','select-single-label');
-$addField('product_type','varchar','Product type','parameter|max=24','select-single-label',array('options'=>'digital=Digital&service=Services&physical=Physical'));
-$addField('summary','varchar','Short description','*|max=255','textarea-label',array('data'=>'rows=2'));
-$addField('description','mediumtext','Description','*|max=5000','textarea-label',array('data'=>'rows=6'));
-$addField('price_gross','decimal','Gross price','decimal','text-label');
-$addField('tax_mode','varchar','VAT Source','parameter|max=24','select-single-label',array('options'=>'group=From group&individual=Individual'));
-$addField('tax_rate','decimal','VAT % individual','decimal','text-label');
-$addField('shipping_mode','varchar','Dispatch source','parameter|max=24','select-single-label',array('options'=>'group=From group&individual=Individual'));
-$addField('shipping_gross','decimal','Shipment gross individually','decimal','text-label');
-$addField('stock','int','Stock','int','text-label');
-$addField('active','int','Active','int','checkbox-label',array('default'=>'1'));
-$addField('sorter','int','Sorting','int','text-label');
-$addField('badge','varchar','Badge','*|max=80','text-label');
-$addField('image_icon','varchar','icon','parameter|max=80','text-label');
-$addField('logo_variant','varchar','Logo variant','parameter|max=80','text-label');
+$add_field('sku','varchar','Product number','parameter|min=2|max=80','text-label');
+$add_field('slug','varchar','URL name','parameter|min=2|max=120','text-label');
+$add_field('title','varchar','Title','*|min=2|max=180','text-label');
+$add_field('category','varchar','Category','parameter|max=80','select-single-label',array('options'=>'Software=Software&Dienstleistung=Services&Merchandise=Merchandise'));
+$add_field('product_group_id','int','Product group','int','select-single-label');
+$add_field('product_type','varchar','Product type','parameter|max=24','select-single-label',array('options'=>'digital=Digital&service=Services&physical=Physical'));
+$add_field('summary','varchar','Short description','*|max=255','textarea-label',array('data'=>'rows=2'));
+$add_field('description','mediumtext','Description','*|max=5000','textarea-label',array('data'=>'rows=6'));
+$add_field('price_gross','decimal','Gross price','decimal','text-label');
+$add_field('tax_mode','varchar','VAT Source','parameter|max=24','select-single-label',array('options'=>'group=From group&individual=Individual'));
+$add_field('tax_rate','decimal','VAT % individual','decimal','text-label');
+$add_field('shipping_mode','varchar','Dispatch source','parameter|max=24','select-single-label',array('options'=>'group=From group&individual=Individual'));
+$add_field('shipping_gross','decimal','Shipment gross individually','decimal','text-label');
+$add_field('stock','int','Stock','int','text-label');
+$add_field('active','int','Active','int','checkbox-label',array('default'=>'1'));
+$add_field('sorter','int','Sorting','int','text-label');
+$add_field('badge','varchar','Badge','*|max=80','text-label');
+$add_field('image_icon','varchar','icon','parameter|max=80','text-label');
+$add_field('logo_variant','varchar','Logo variant','parameter|max=80','text-label');
 ?>

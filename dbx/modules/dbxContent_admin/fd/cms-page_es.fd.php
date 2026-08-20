@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_title'] = 'Content CMS';
 $messages['bar_subtitle'] = 'Administre páginas, carpetas, permisos y medios de forma centralizada.';
 $messages['page_section_title'] = 'Página';

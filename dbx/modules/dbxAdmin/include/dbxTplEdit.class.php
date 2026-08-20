@@ -21,7 +21,7 @@ Class dbxTplEdit {
       $modul =dbx()->get_request_var('modul' ,''   ,'parameter');
       $type  =dbx()->get_request_var('type'  ,'htm','parameter');
       $file  =dbx()->get_request_var('tpl'   ,''   ,'parameter');
-      $oTPL  =dbx()->get_system_obj('dbxTPL');
+      $o_tpl  =dbx()->get_system_obj('dbxTPL');
 
       dbx()->set_system_var('dbx_page' ,'_tpledit');
       dbx()->set_system_var('dbx_editor',1);
@@ -29,7 +29,7 @@ Class dbxTplEdit {
       //dbx_debug("#### EDIT#### Uid=($uid) Type=($type) Modul=($modul) File=($file) ");
       //return "edit=$file";
 
-      $tpl=$oTPL->read_tpl($modul,$file,$type);
+      $tpl=$o_tpl->read_tpl($modul,$file,$type);
 
       //dbx_debug("#tpl  ($modul,$file,$type)",$tpl);
 
@@ -38,42 +38,42 @@ Class dbxTplEdit {
       $data['modul']  = $modul;
      
 
-      $oForm=dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-tpl-edit');
+      $o_form=dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-tpl-edit', 'form-tpl-edit');
 
-      $oForm->_data      = $data;
-      $oForm->_action    ='?dbx_modul=dbxAdmin&dbx_run1=_edittpl';   // &modul='.$modul.'&file='.$file.'&design='.$design.'&lng='.$lng;
-      $oForm->_msg_info  = 'TPL: '.$modul.'/'.$file.'.'.$type;
+      $o_form->set_data($data);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=_edittpl');
+      $o_form->_msg_info  = 'TPL: '.$modul.'/'.$file.'.'.$type;
       //$oForm->_editor_fld='tpl';
 
-      $oForm->add_fld('modul' ,'text-label'   ,rules: 'parameter' ,label: 'TPL-Modul');
-      $oForm->add_fld('file'  ,'text-label'   ,rules: 'parameter' ,label: 'TPL-File');
-      $oForm->add_fld('tpl'   ,'textarea-tpl' ,rules: '*'         ,label: 'TPL-Content',data: 'rows=22');
-      $oForm->add_obj('button_save','dbx|button-submit','label=Speichern');             //#+
+      $o_form->add_fld('modul' ,'text-label'   ,rules: 'parameter' ,label: 'TPL-Modul');
+      $o_form->add_fld('file'  ,'text-label'   ,rules: 'parameter' ,label: 'TPL-File');
+      $o_form->add_fld('tpl'   ,'textarea-tpl' ,rules: '*'         ,label: 'TPL-Content',data: 'rows=22');
+      $o_form->add_obj('button_save','dbx|button-submit','label=Speichern');             //#+
 
 
-      $oForm->add_js_call('tpl','editor-ace');  // -ace
+      $o_form->add_js_call('tpl','editor-ace');  // -ace
 
-      if($oForm->submit()) {
-        if($oForm->changed()) {      // submit && no errors // we ignore warnings
-           $tpl   =$oForm->get_post('tpl','','*');
-           $file  =$oForm->get_post('file');
-           $design=$oForm->get_post('design');
-           $lng   =$oForm->get_post('lng');
-           if (!$oForm->errors()) {
+      if($o_form->submit()) {
+        if($o_form->changed()) {      // submit && no errors // we ignore warnings
+           $tpl   =$o_form->get_post('tpl','','*');
+           $file  =$o_form->get_post('file');
+           $design=$o_form->get_post('design');
+           $lng   =$o_form->get_post('lng');
+           if (!$o_form->errors()) {
              $path_file=$this->save_tpl($type,$modul,$file,$design,$lng,$tpl);
-             if (!$path_file) $oForm->_msg_error = '#error_save_data#';
+             if (!$path_file) $o_form->_msg_error = '#error_save_data#';
              if ( $path_file) {
-               $oForm->_msg_success = "Save: ($path_file)";
+               $o_form->_msg_success = "Save: ($path_file)";
              }
            } else {
-             $oForm->_msg_success   = '#no_change#';
+             $o_form->_msg_success   = '#no_change#';
            }
         } else {
-           $oForm->_msg_errr = '#check_input#';
+           $o_form->_msg_errr = '#check_input#';
         }
       }
-      $content= $oForm->run();
+      $content= $o_form->run();
       $content=dbx()->norep($content);
       dbx()->set_system_var('dbx_editor',0);
 

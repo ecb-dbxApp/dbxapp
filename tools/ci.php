@@ -4,7 +4,7 @@ require_once dirname(__DIR__) . '/dbx/modules/dbxSelfTest/include/dbxSelfTestRun
 use dbx\dbxSelfTest\dbxSelfTestRunner;
 
 $runner = new dbxSelfTestRunner();
-$testIds = array_values(array_map(
+$test_ids = array_values(array_map(
     static fn(array $test): string => (string)$test['id'],
     array_filter($runner->catalog('full'), static fn(array $test): bool => !in_array(
         (string)$test['id'],
@@ -12,7 +12,7 @@ $testIds = array_values(array_map(
         true
     ))
 ));
-$run = $runner->runProfile('full', $testIds, static function (array $result, ?array $current): void {
+$run = $runner->run_profile('full', $test_ids, static function (array $result, ?array $current): void {
     $total = (int)($current['totals']['total'] ?? 0);
     $done = (int)($current['totals']['completed'] ?? 0);
     echo sprintf("[%d/%d] %-7s %s\n", $done, $total, strtoupper((string)$result['status']), $result['name']);

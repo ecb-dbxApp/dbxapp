@@ -1,7 +1,7 @@
 <div id="dbx_target_{i}" class="dbx-panel dbxForm_wrapper dbx-module-wizard">
    <form action="?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_new&dbx_target=dbx_target_{i}" method="post" class="dbxAjax" id="dbxForm_{i}">
       <div id="dbxform-{i}" class="dbx_form">
-         [tpl=dbx|module-bar]
+         {form:bar}
 
          <style>
          .dbx-module-wizard-shell {
@@ -226,7 +226,7 @@
          </style>
 
          <div class="dbx-module-wizard-shell">
-            <div class="form_msg {msg_class} mb-3">{obj:form_msg}</div>
+            <div class="form_msg {msg_class} mb-3">{form:message}</div>
 
             <div class="dbx-module-wizard-grid">
                <aside class="dbx-module-wizard-assistant" aria-label="AI assistant">
@@ -355,7 +355,8 @@
             </div>
          </div>
 
-         [dbx:js]
+         {form:footer}
+ [dbx:js]
          <script>
          (function () {
             if (window.dbxModuleWizardTabsReady) return;

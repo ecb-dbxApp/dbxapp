@@ -3,10 +3,10 @@ namespace dbx\dbxUser_admin;
 
 Class dbxUser_import extends \dbxObj {
 
-  Public $oTPL;
+  Public $o_tpl;
 
   public function __construct() {
-   $this->oTPL = dbx()->get_system_obj('dbxTPL');
+   $this->o_tpl = dbx()->get_system_obj('dbxTPL');
   }
 
   public function import() {
@@ -14,52 +14,52 @@ Class dbxUser_import extends \dbxObj {
      $data['file']='user.csv';
    
 
-      $oForm=dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-csv-reader');
-      $oForm->_action='?dbx_modul=dbxUser_admin&dbx_run1=import_user';
-      $oForm->_data=$data;
-      $oForm->_fld_change_state='all';
-      $oForm->_msg_info='';
+      $o_form=dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-csv-reader', 'dbx|form-csv-process');
+      $o_form->set_action('?dbx_modul=dbxUser_admin&dbx_run1=import_user');
+      $o_form->set_data($data);
+      $o_form->_fld_change_state='all';
+      $o_form->_msg_info='';
 
-      $oForm->_try_max=99999999;
+      $o_form->_try_max=99999999;
    
       $bdata['id']   ='button_{i}';
       $bdata['label']='User einlesen';
       $bdata['sec']  = $timer;
 
-      $oImporter=dbx()->get_system_obj('dbxCSVreader');
-      $progress =$this->oTPL->get_tpl('dbx','progressbar-1');
-      $button   =$this->oTPL->get_tpl('dbx','button-submit',$bdata);
+      $o_importer=dbx()->get_system_obj('dbxCSVreader');
+      $progress =$this->o_tpl->get_tpl('dbx','progressbar-1');
+      $button   =$this->o_tpl->get_tpl('dbx','button-submit',$bdata);
       $date_time=date('d-m-Y H:i:s');
 
 
       $msg='CSV Datei einlesen.';
 
-      if($oForm->submit()) {
-         if(!$oForm->errors()) {
+      if($o_form->submit()) {
+         if(!$o_form->errors()) {
             $file =dbx()->get_file_dir().'/myBefund/ldt-in/user.csv';
 
             if (file_exists($file)) {
 
-               $status=$oImporter->init('import_user_csv');
+               $status=$o_importer->init('import_user_csv');
                if ($status=='init') {               
-                  $oImporter->set_property('filename',$file);
-                  $oImporter->set_property('dd'   ,'dbx_user');
-                  $oImporter->set_property('where','id = {id}');
-                  $oImporter->set_property('pass' , 1); // convert
-                  $oImporter->set_property('owner',-1); // admin
-                  $oImporter->set_property('utf8' , 1); // convert 2 utf8
-                  $oImporter->set_property('run_bytes',9600); // max Line length
-                  $oImporter->set_property('seperator',';');
+                  $o_importer->set_property('filename',$file);
+                  $o_importer->set_property('dd'   ,'dbx_user');
+                  $o_importer->set_property('where','id = {id}');
+                  $o_importer->set_property('pass' , 1); // convert
+                  $o_importer->set_property('owner',-1); // admin
+                  $o_importer->set_property('utf8' , 1); // convert 2 utf8
+                  $o_importer->set_property('run_bytes',9600); // max Line length
+                  $o_importer->set_property('separator',';');
                }
                $msg="Die CSV Datei ($file) wird eingelesen ($status)."; 
 
-               $status=$oImporter->run();   
-               $filesize=$oImporter->get_property('filesize');
-               $percent =$oImporter->get_property('percent');
-               $querys  =$oImporter->get_property('querys');
-               $errors  =$oImporter->get_property('errors');
-               $lines   =$oImporter->get_property('lines');
+               $status=$o_importer->run();   
+               $filesize=$o_importer->get_property('filesize');
+               $percent =$o_importer->get_property('percent');
+               $querys  =$o_importer->get_property('querys');
+               $errors  =$o_importer->get_property('errors');
+               $lines   =$o_importer->get_property('lines');
 
 
                $msg="Querys=($querys) ($percent %) status=($status)"; 
@@ -79,11 +79,11 @@ Class dbxUser_import extends \dbxObj {
    $pdata['width']=$percent;
    $bdata['sec']  =$timer;
    //if ($timer)
-   $oForm->add_obj('progress','obj-value',$progress,$pdata);
-   $oForm->add_obj('button'  ,'obj-value',$button  ,$bdata);
-   if ($status=='run') $oForm->add_js_autosubmit('#dbx_form_{i}',$timer);
+   $o_form->add_obj('progress','obj-value',$progress,$pdata);
+   $o_form->add_obj('button'  ,'obj-value',$button  ,$bdata);
+   if ($status=='run') $o_form->add_js_autosubmit('#dbx_form_{i}',$timer);
 
-   $content=$oForm->run();      
+   $content=$o_form->run();      
    return $content;
 
 }  // import()

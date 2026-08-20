@@ -17,23 +17,13 @@ DirectoryIndex index.php index.html index.htm
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Die frühere Dokumentations-Subdomain wird seitenweise in den festen
-    # Bereich der Hauptdomain überführt. Der alte Pfad bleibt dabei erhalten.
-    RewriteCond %{HTTP_HOST} ^doku\.dbxapp\.de$ [NC]
-    RewriteRule ^$ https://dbxapp.de/dokumentation/ [R=301,L,NE,QSD]
-    RewriteCond %{HTTP_HOST} ^doku\.dbxapp\.de$ [NC]
-    RewriteRule ^(?:dokumentation/)?(.+?)/?$ https://dbxapp.de/dokumentation/$1 [R=301,L,NE]
-
-    # Frühere flache Dokumentations- und Tutorial-URLs behalten ein exaktes
-    # Ziel unter /dokumentation/ statt nur auf der Startseite zu landen.
-    RewriteCond %{HTTP_HOST} ^(?:www\.)?dbxapp\.de$ [NC]
-    RewriteRule ^tutorials-dbxapp/?$ https://dbxapp.de/dokumentation/ [R=301,L,NE]
-    RewriteCond %{HTTP_HOST} ^(?:www\.)?dbxapp\.de$ [NC]
-    RewriteRule ^((?:dokumentation|documentation|documentacion|tutorial)-[A-Za-z0-9_-]+)/?$ https://dbxapp.de/dokumentation/$1 [R=301,L,NE]
-    RewriteCond %{HTTP_HOST} !^(?:www\.)?dbxapp\.de$ [NC]
-    RewriteRule ^tutorials-dbxapp/?$ https://%{HTTP_HOST}/dbxapp/dokumentation/ [R=301,L,NE]
-    RewriteCond %{HTTP_HOST} !^(?:www\.)?dbxapp\.de$ [NC]
-    RewriteRule ^((?:dokumentation|documentation|documentacion|tutorial)-[A-Za-z0-9_-]+)/?$ https://%{HTTP_HOST}/dbxapp/dokumentation/$1 [R=301,L,NE]
+    # Die Dokumentation lebt vollständig auf der eigenen Subdomain.
+    RewriteCond %{QUERY_STRING} (^|&)dbx_modul=dbxDocs(?:&|$) [NC]
+    RewriteRule ^ https://doku.dbxapp.de/ [R=301,L,NE]
+    RewriteRule ^dokumentation/?$ https://doku.dbxapp.de/ [R=301,L,NE,QSD]
+    RewriteRule ^dokumentation/(.+?)/?$ https://doku.dbxapp.de/dokumentation/$1 [R=301,L,NE]
+    RewriteRule ^tutorials-dbxapp/?$ https://doku.dbxapp.de/ [R=301,L,NE,QSD]
+    RewriteRule ^((?:dokumentation|documentation|documentacion|tutorial)-[A-Za-z0-9_-]+)/?$ https://doku.dbxapp.de/dokumentation/$1 [R=301,L,NE]
 
     # Startseitenalias direkt (ohne Redirect-Kette) auf die kanonische URL.
     RewriteCond %{HTTP_HOST} ^(?:www\.)?dbxapp\.de$ [NC]
@@ -60,16 +50,9 @@ DirectoryIndex index.php index.html index.htm
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # Historische Doxygen-Adressen dauerhaft in die aktuelle Portalansicht
-    # überführen. Das Modul validiert den Dateinamen gegen reference/current.
-    RewriteCond %{REQUEST_URI} ^(.*/)(?:docs/html|reference/html)/((?:class|struct|interface|namespace|file|md_|dir_|group__)[A-Za-z0-9_.-]*\.html)$ [NC]
-    RewriteRule ^(?:docs/html|reference/html)/ %1index.php?dbx_modul=dbxDocs&dbx_run1=reference&dbx_run2=page&doc=%2 [R=301,L,NE]
-    RewriteCond %{REQUEST_URI} ^(.*/)((?:class|struct|interface|namespace|file|md_|dir_|group__)[A-Za-z0-9_.-]*\.html)$ [NC]
-    RewriteRule ^(?:class|struct|interface|namespace|file|md_|dir_|group__)[A-Za-z0-9_.-]*\.html$ %1index.php?dbx_modul=dbxDocs&dbx_run1=reference&dbx_run2=page&doc=%2 [R=301,L,NE]
-
-    # Veraltete HTML-Links erhalten eine hilfreiche 404-Seite mit Suche statt
-    # einer leeren Servermeldung.
-    RewriteRule ^(.+\.html)$ index.php?dbx_modul=dbxDocs&dbx_run1=not_found&resource=$1 [L,QSA,NE]
+    # Historische Doxygen- und Referenzpfade wechseln vollständig zur Dokumentationsdomain.
+    RewriteRule ^(?:docs/html|reference(?:/html|/current)?)/?(.*)$ https://doku.dbxapp.de/reference/current/$1 [R=301,L,NE]
+    RewriteRule ^((?:class|struct|interface|namespace|file|md_|dir_|group__)[A-Za-z0-9_.-]*\.html)$ https://doku.dbxapp.de/reference/current/$1 [R=301,L,NE]
 
     # ONLINE / IONOS: alles an /index.php
     RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:[0-9]+)?$ [NC]

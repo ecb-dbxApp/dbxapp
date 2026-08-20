@@ -22,11 +22,11 @@ trait dbxContentCmsCoreServiceTrait {
 
    /** Eine Persistenzinstanz pro Request und dbxDB-Verbindung. */
    private function persistence($db = null): dbxContentCmsPersistenceService {
-      if (!$this->persistenceService) {
+      if (!$this->persistence_service) {
          $db ??= dbx()->get_system_obj('dbxDB');
-         $this->persistenceService = new dbxContentCmsPersistenceService($db, $this->dd_media, $this->dd_media_usage);
+         $this->persistence_service = new dbxContentCmsPersistenceService($db, $this->dd_media, $this->dd_media_usage);
       }
-      return $this->persistenceService;
+      return $this->persistence_service;
    }
 
 
@@ -39,25 +39,25 @@ trait dbxContentCmsCoreServiceTrait {
     * überschreiben.
     */
    private function cms_texts() {
-      if ($this->cmsTexts) return $this->cmsTexts;
+      if ($this->cms_texts) return $this->cms_texts;
       dbx()->get_system_obj('dbxForm', 'use');
       $texts = new \dbxForm();
       $texts->init('cms-page-texts');
-      $texts->_fd = 'dbxContent_admin|cms-page';
+      $texts->set_field_definition('dbxContent_admin|cms-page');
       $texts->load_fd_messages();
       $texts->set_form_help_enabled(false);
-      $this->cmsTexts = $texts;
-      return $this->cmsTexts;
+      $this->cms_texts = $texts;
+      return $this->cms_texts;
    }
 
 
 
    /** Gemeinsamer Optionskatalog für alle CMS-Formularbereiche. */
    private function cms_options(): dbxContentCmsOptionCatalog {
-      if (!$this->cmsOptionCatalog) {
-         $this->cmsOptionCatalog = new dbxContentCmsOptionCatalog($this->cms_texts());
+      if (!$this->cms_option_catalog) {
+         $this->cms_option_catalog = new dbxContentCmsOptionCatalog($this->cms_texts());
       }
-      return $this->cmsOptionCatalog;
+      return $this->cms_option_catalog;
    }
 
 
@@ -154,7 +154,7 @@ trait dbxContentCmsCoreServiceTrait {
 
 
    /**
-    * Prueft den dbxForm-Token eines Medienbrowser-POSTs.
+    * Prüft den dbxForm-Token eines Medienbrowser-POSTs.
     *
     * Der von dbxForm rotierte Folgetoken wird an cms_json_response()
     * weitergereicht, damit cms.js Mehrfachuploads ohne Seitenreload fortsetzen
@@ -170,30 +170,19 @@ trait dbxContentCmsCoreServiceTrait {
 
 
    private function lng_provision_open_flag($db, string $entity, int $id): int {
-      return $this->persistence($db)->languageProvisionOpenFlag($entity, $id);
+      return $this->persistence($db)->language_provision_open_flag($entity, $id);
    }
 
 
 
    /** Gemeinsame Sprachmetadaten fuer Seiten- und Ordner-Speicherantworten. */
-   private function lng_save_response($db, string $entity, int $id, array $syncResult): array {
-      return $this->persistence($db)->languageSaveResponse($entity, $id, $syncResult);
+   private function lng_save_response($db, string $entity, int $id, array $sync_result): array {
+      return $this->persistence($db)->language_save_response($entity, $id, $sync_result);
    }
 
 
    private function apply_cms_lng_context(): void {
-      $lng = strtolower(trim((string) dbx()->get_request_var('dbx_lng', '')));
-      if ($lng === '') {
-         return;
-      }
-
-      $allowed = dbxContentLngSync::accessibleLngs();
-      if (!in_array($lng, $allowed, true)) {
-         return;
-      }
-
-      dbx()->set_system_var('dbx_lng', $lng);
-      dbx()->set_remember_var('dbx_lng', $lng, 'dbx');
+      \dbx\dbxContent\dbxContentRuntime::apply_requested_language();
    }
 
 
@@ -222,7 +211,7 @@ trait dbxContentCmsCoreServiceTrait {
 
 
    private function base_url($action, $params = array()) {
-      $url = $this->app_url() . '?dbx_modul=dbxContent_admin&dbx_run1=' . rawurlencode((string)$action);
+      $url = \dbx\dbxContent\dbxContentRuntime::app_url() . '?dbx_modul=dbxContent_admin&dbx_run1=' . rawurlencode((string)$action);
       if ($this->tokenized_action((string)$action)) {
          $params['dbx_token'] = dbx()->action_token(self::ACTION_TOKEN_SCOPE);
       }
@@ -298,27 +287,13 @@ trait dbxContentCmsCoreServiceTrait {
 
 
 
-   private function app_url(): string {
-      $script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
-      if ($script === '') {
-         return '';
-      }
-
-      $dir = str_replace('\\', '/', dirname($script));
-      if ($dir === '.' || $dir === '/' || $dir === '\\') {
-         return '/';
-      }
-
-      return rtrim($dir, '/') . '/';
-   }
-
 
 
 
 
 
    private function flush_saved_page_cache($db, int $cid): void {
-      $this->persistence($db)->flushSavedPageCache($cid);
+      $this->persistence($db)->flush_saved_page_cache($cid);
    }
 
 
@@ -328,31 +303,31 @@ trait dbxContentCmsCoreServiceTrait {
 
    private function copy_page_media_usage(
       $db,
-      int $sourceCid,
-      int $targetCid,
-      int $targetFolderId,
+      int $source_cid,
+      int $target_cid,
+      int $target_folder_id,
       bool $replace = true,
-      string $sourceLng = '',
-      string $targetLng = ''
+      string $source_lng = '',
+      string $target_lng = ''
    ): int {
-      $sourceCid = (int) $sourceCid;
-      $targetCid = (int) $targetCid;
-      $targetFolderId = (int) $targetFolderId;
-      $sourceLng = dbxContentMediaUsageScope::language($sourceLng);
-      $targetLng = dbxContentMediaUsageScope::language($targetLng);
-      if ($sourceCid <= 0 || $targetCid <= 0 || !is_object($db)) {
+      $source_cid = (int) $source_cid;
+      $target_cid = (int) $target_cid;
+      $target_folder_id = (int) $target_folder_id;
+      $source_lng = dbxContentMediaUsageScope::language($source_lng);
+      $target_lng = dbxContentMediaUsageScope::language($target_lng);
+      if ($source_cid <= 0 || $target_cid <= 0 || !is_object($db)) {
          return 0;
       }
 
-      $copySlots = array('hero', 'gallery', 'header', 'teaser', 'footer');
+      $copy_slots = array('hero', 'gallery', 'header', 'teaser', 'footer');
       if ($replace) {
-         foreach ($copySlots as $slot) {
+         foreach ($copy_slots as $slot) {
             $db->update(
                $this->dd_media_usage,
                array('active' => 0),
-               dbxContentMediaUsageScope::withLanguage(
-                  "content_id = " . $targetCid . " AND slot = '" . str_replace("'", "''", $slot) . "' AND active = 1",
-                  $targetLng
+               dbxContentMediaUsageScope::with_language(
+                  "content_id = " . $target_cid . " AND slot = '" . str_replace("'", "''", $slot) . "' AND active = 1",
+                  $target_lng
                ),
                0,
                1,
@@ -364,9 +339,9 @@ trait dbxContentCmsCoreServiceTrait {
 
       $rows = $db->select(
          $this->dd_media_usage,
-         dbxContentMediaUsageScope::withLanguage(
-            "content_id = " . $sourceCid . " AND active = 1 AND slot IN ('hero','gallery','header','teaser','footer')",
-            $sourceLng
+         dbxContentMediaUsageScope::with_language(
+            "content_id = " . $source_cid . " AND active = 1 AND slot IN ('hero','gallery','header','teaser','footer')",
+            $source_lng
          ),
          '*',
          'slot,sorter,id',
@@ -385,11 +360,11 @@ trait dbxContentCmsCoreServiceTrait {
          if (!is_array($usage)) {
             continue;
          }
-         $mediaId = (int) ($usage['media_id'] ?? 0);
-         if ($mediaId <= 0) {
+         $media_id = (int) ($usage['media_id'] ?? 0);
+         if ($media_id <= 0) {
             continue;
          }
-         $media = $db->select1($this->dd_media, $mediaId, 'active', 0);
+         $media = $db->select1($this->dd_media, $media_id, 'active', 0);
          if (!is_array($media) || (int) ($media['active'] ?? 0) !== 1) {
             continue;
          }
@@ -399,18 +374,18 @@ trait dbxContentCmsCoreServiceTrait {
             continue;
          }
 
-         $usageId = $this->create_media_usage(
+         $usage_id = $this->create_media_usage(
             $db,
-            $mediaId,
-            $targetCid,
-            $targetFolderId,
+            $media_id,
+            $target_cid,
+            $target_folder_id,
             $slot,
             (string) ($usage['template'] ?? ''),
             (string) ($usage['caption'] ?? ''),
             (string) ($usage['settings'] ?? ''),
-            $targetLng
+            $target_lng
          );
-         if ($usageId > 0) {
+         if ($usage_id > 0) {
             $copied++;
          }
       }
@@ -420,55 +395,55 @@ trait dbxContentCmsCoreServiceTrait {
 
 
 
-   private function sync_lng_page_media_from_master($db, int $masterCid, int $slaveCid, string $lng): int {
-      $masterCid = (int) $masterCid;
-      $slaveCid = (int) $slaveCid;
+   private function sync_lng_page_media_from_master($db, int $master_cid, int $slave_cid, string $lng): int {
+      $master_cid = (int) $master_cid;
+      $slave_cid = (int) $slave_cid;
       $lng = strtolower(trim($lng));
-      if ($masterCid <= 0 || $slaveCid <= 0 || $lng === '' || !is_object($db)) {
+      if ($master_cid <= 0 || $slave_cid <= 0 || $lng === '' || !is_object($db)) {
          return 0;
       }
 
-      $slaveRow = $db->select1(dbxContentLng::ddContent($lng), $slaveCid, 'content,folder', 0);
-      if (!is_array($slaveRow)) {
+      $slave_row = $db->select1(dbxContentLng::dd_content($lng), $slave_cid, 'content,folder', 0);
+      if (!is_array($slave_row)) {
          return 0;
       }
 
-      $slaveFolder = (int) ($slaveRow['folder'] ?? 0);
+      $slave_folder = (int) ($slave_row['folder'] ?? 0);
       $copied = $this->copy_page_media_usage(
          $db,
-         $masterCid,
-         $slaveCid,
-         $slaveFolder,
+         $master_cid,
+         $slave_cid,
+         $slave_folder,
          true,
-         dbxContentLngSync::masterLng(),
+         dbxContentLngSync::master_lng(),
          $lng
       );
-      $this->sync_inline_media_usage($db, $slaveCid, (string) ($slaveRow['content'] ?? ''), $slaveFolder, null, false, $lng);
+      $this->sync_inline_media_usage($db, $slave_cid, (string) ($slave_row['content'] ?? ''), $slave_folder, null, false, $lng);
       return $copied;
    }
 
 
 
-   private function apply_lng_sync_media($db, int $masterCid, array $syncResult): int {
-      $master = dbxContentLngSync::masterLng();
+   private function apply_lng_sync_media($db, int $master_cid, array $sync_result): int {
+      $master = dbxContentLngSync::master_lng();
       $copied = 0;
-      foreach (($syncResult['updated'] ?? array()) as $item) {
+      foreach (($sync_result['updated'] ?? array()) as $item) {
          if (!is_array($item) || (($item['entity'] ?? 'page') !== 'page')) {
             continue;
          }
          $lng = strtolower(trim((string) ($item['lng'] ?? '')));
-         $slaveId = (int) ($item['id'] ?? 0);
-         if ($slaveId <= 0 || $lng === '' || $lng === $master) {
+         $slave_id = (int) ($item['id'] ?? 0);
+         if ($slave_id <= 0 || $lng === '' || $lng === $master) {
             continue;
          }
-         $copied += $this->sync_lng_page_media_from_master($db, $masterCid, $slaveId, $lng);
+         $copied += $this->sync_lng_page_media_from_master($db, $master_cid, $slave_id, $lng);
       }
       return $copied;
    }
 
 
 
-   private function apply_lng_provision_media($db, string $type, int $masterId, array $result): int {
+   private function apply_lng_provision_media($db, string $type, int $master_id, array $result): int {
       if ($type !== 'page' || !is_object($db)) {
          return 0;
       }
@@ -483,11 +458,11 @@ trait dbxContentCmsCoreServiceTrait {
             continue;
          }
          $lng = strtolower(trim((string) ($item['lng'] ?? '')));
-         $slaveId = (int) ($item['id'] ?? 0);
-         if ($slaveId <= 0 || $lng === '') {
+         $slave_id = (int) ($item['id'] ?? 0);
+         if ($slave_id <= 0 || $lng === '') {
             continue;
          }
-         $copied += $this->sync_lng_page_media_from_master($db, $masterId, $slaveId, $lng);
+         $copied += $this->sync_lng_page_media_from_master($db, $master_id, $slave_id, $lng);
       }
       return $copied;
    }
@@ -503,7 +478,7 @@ trait dbxContentCmsCoreServiceTrait {
 
 
    private function flush_menu_cache(): void {
-      $this->persistence()->flushMenuCache();
+      $this->persistence()->flush_menu_cache();
    }
 
 
@@ -512,13 +487,13 @@ trait dbxContentCmsCoreServiceTrait {
 
 
    private function flush_media_cache($db, int $content_id = 0, int $folder_id = 0): void {
-      $this->persistence($db)->flushMediaCache($content_id, $folder_id);
+      $this->persistence($db)->flush_media_cache($content_id, $folder_id);
    }
 
 
 
    private function flush_media_by_media_id($db, int $media_id): void {
-      $this->persistence($db)->flushMediaByMediaId($media_id);
+      $this->persistence($db)->flush_media_by_media_id($media_id);
    }
 
 
@@ -674,11 +649,11 @@ trait dbxContentCmsCoreServiceTrait {
 
 
 
-   private function safe_content_style(string $style, string $tag, string $className = ''): string {
+   private function safe_content_style(string $style, string $tag, string $class_name = ''): string {
       $tag = strtolower(trim($tag));
-      $className = strtolower(trim($className));
-      $isMediaLayout = in_array($tag, array('img', 'video', 'iframe', 'figure'), true)
-         || preg_match('/(?:^|\s)dbx-cms-inline-(?:media|image|video|video-block)(?:\s|$)/', $className);
+      $class_name = strtolower(trim($class_name));
+      $is_media_layout = in_array($tag, array('img', 'video', 'iframe', 'figure'), true)
+         || preg_match('/(?:^|\s)dbx-cms-inline-(?:media|image|video|video-block)(?:\s|$)/', $class_name);
       $safe = array();
 
       foreach (explode(';', $style) as $declaration) {
@@ -704,7 +679,7 @@ trait dbxContentCmsCoreServiceTrait {
             continue;
          }
 
-         if (!$isMediaLayout) continue;
+         if (!$is_media_layout) continue;
          if ($property === 'float' && in_array($value, array('left', 'right', 'none'), true)) {
             $safe[$property] = $value;
             continue;
@@ -764,12 +739,12 @@ trait dbxContentCmsCoreServiceTrait {
        $walker = function($node) use (&$walker) {
           if ($node instanceof \DOMElement) {
              $remove = array();
-             $safeStyle = '';
+             $safe_style = '';
              foreach ($node->attributes as $attr) {
                 $name = strtolower($attr->name);
                 $value = trim((string)$attr->value);
                 if ($name === 'style') {
-                   $safeStyle = $this->safe_content_style(
+                   $safe_style = $this->safe_content_style(
                       $value,
                       (string)$node->tagName,
                       (string)$node->getAttribute('class')
@@ -794,8 +769,8 @@ trait dbxContentCmsCoreServiceTrait {
             foreach ($remove as $name) {
                $node->removeAttribute($name);
             }
-             if ($safeStyle !== '') {
-                $node->setAttribute('style', $safeStyle);
+             if ($safe_style !== '') {
+                $node->setAttribute('style', $safe_style);
              }
           }
 
@@ -805,13 +780,13 @@ trait dbxContentCmsCoreServiceTrait {
       };
       $walker($root);
 
-      $emptyParagraphs = array();
+      $empty_paragraphs = array();
       foreach ($root->getElementsByTagName('p') as $paragraph) {
          if (!$this->content_node_has_visible_value($paragraph)) {
-            $emptyParagraphs[] = $paragraph;
+            $empty_paragraphs[] = $paragraph;
          }
       }
-      foreach ($emptyParagraphs as $paragraph) {
+      foreach ($empty_paragraphs as $paragraph) {
          if ($paragraph->parentNode) $paragraph->parentNode->removeChild($paragraph);
       }
 
@@ -893,11 +868,7 @@ trait dbxContentCmsCoreServiceTrait {
 
 
    private function clean_text($value, $max = 254) {
-      $value = trim((string)$value);
-      if ($max > 0 && strlen($value) > $max) {
-         $value = substr($value, 0, $max);
-      }
-      return $value;
+      return \dbx\dbxContent\dbxContentRuntime::clean_text($value, (int)$max);
    }
 
 
@@ -908,15 +879,15 @@ trait dbxContentCmsCoreServiceTrait {
 
 
 
-   private function page_permalink($db, $folder_id, $title, $permalink, int $excludeId = 0) {
+   private function page_permalink($db, $folder_id, $title, $permalink, int $exclude_id = 0) {
       $permalink = trim($this->clean_text($permalink, 254));
       if ($permalink === '') {
-         return dbxContent_permalink::build($db, dbxContentLng::ddFolder(), $folder_id, $title, $excludeId);
+         return dbxContent_permalink::build($db, dbxContentLng::dd_folder(), $folder_id, $title, $exclude_id);
       }
-      if (!dbxContent_permalink::isValid($permalink)) {
+      if (!dbxContent_permalink::is_valid($permalink)) {
          throw new \InvalidArgumentException('Permalink: nur Kleinbuchstaben, Zahlen und einzelne Bindestriche sind erlaubt.');
       }
-      if (dbxContent_permalink::exists($db, dbxContentLng::ddContent(), $permalink, $excludeId)) {
+      if (dbxContent_permalink::exists($db, dbxContentLng::dd_content(), $permalink, $exclude_id)) {
          throw new \InvalidArgumentException('Dieser Permalink wird bereits von einer anderen Seite verwendet.');
       }
       return $permalink;
@@ -924,32 +895,32 @@ trait dbxContentCmsCoreServiceTrait {
 
 
 
-   private function page_permalink_exists($db, string $permalink, int $excludeId = 0): bool {
+   private function page_permalink_exists($db, string $permalink, int $exclude_id = 0): bool {
       $permalink = dbxContent_permalink::normalize($permalink);
-      return dbxContent_permalink::exists($db, dbxContentLng::ddContent(), $permalink, $excludeId);
+      return dbxContent_permalink::exists($db, dbxContentLng::dd_content(), $permalink, $exclude_id);
    }
 
 
 
-   private function duplicate_page_permalink($db, int $folderId, string $title, string $permalink): string {
+   private function duplicate_page_permalink($db, int $folder_id, string $title, string $permalink): string {
       $base = dbxContent_permalink::normalize($this->clean_text($permalink, 254));
       if ($base === '') {
-         $base = dbxContent_permalink::build($db, dbxContentLng::ddFolder(), $folderId, $title);
+         $base = dbxContent_permalink::build($db, dbxContentLng::dd_folder(), $folder_id, $title);
       }
       if ($base === '') {
          $base = 'seite';
       }
 
-      $copyNumber = 1;
+      $copy_number = 1;
       do {
-         $suffix = $copyNumber === 1 ? '-kopie' : '-kopie-' . $copyNumber;
-         $maxBaseLength = max(1, 254 - strlen($suffix));
-         $candidateBase = rtrim(substr($base, 0, $maxBaseLength), '/-');
-         if ($candidateBase === '') {
-            $candidateBase = 'seite';
+         $suffix = $copy_number === 1 ? '-kopie' : '-kopie-' . $copy_number;
+         $max_base_length = max(1, 254 - strlen($suffix));
+         $candidate_base = rtrim(substr($base, 0, $max_base_length), '/-');
+         if ($candidate_base === '') {
+            $candidate_base = 'seite';
          }
-         $candidate = dbxContent_permalink::normalize($candidateBase . $suffix);
-         $copyNumber++;
+         $candidate = dbxContent_permalink::normalize($candidate_base . $suffix);
+         $copy_number++;
       } while ($this->page_permalink_exists($db, $candidate));
 
       return $candidate;

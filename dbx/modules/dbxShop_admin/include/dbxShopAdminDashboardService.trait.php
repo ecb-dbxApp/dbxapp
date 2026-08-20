@@ -15,7 +15,7 @@ trait dbxShopAdminDashboardServiceTrait {
 
 
    private function dashboard(): string {
-      $stats = $this->repo()->dashboardStats();
+      $stats = $this->repo()->dashboard_stats();
       return $this->frame($this->tpl()->get_tpl('dbxShop_admin|admin-dashboard', array(
          'orders_open' => (string)($stats['orders_open'] ?? 0),
          'payments_open' => (string)($stats['payments_open'] ?? 0),
@@ -33,7 +33,7 @@ trait dbxShopAdminDashboardServiceTrait {
          'media_url' => '?dbx_modul=dbxShop_admin&dbx_run1=media',
          'legal_url' => '?dbx_modul=dbxShop_admin&dbx_run1=legal',
          'return_url' => '?dbx_modul=dbxShop_admin&dbx_run1=returns',
-         'install_url' => $this->actionUrl('?dbx_modul=dbxShop_admin&dbx_run1=install'),
+         'install_url' => $this->action_url('?dbx_modul=dbxShop_admin&dbx_run1=install'),
       )));
    }
 
@@ -48,33 +48,33 @@ trait dbxShopAdminDashboardServiceTrait {
 
 
 
-   private function shopLegalCmsPage(string $key, string $title, string $intro, string $shopRun): string {
+   private function shop_legal_cms_page(string $key, string $title, string $intro, string $shop_run): string {
       $service = dbx()->get_include_obj('dbxShopService', 'dbxShop');
       $pages = is_object($service) && method_exists($service, 'ensureShopLegalPages')
-         ? $service->ensureShopLegalPages()
+         ? $service->ensure_shop_legal_pages()
          : array();
       $cid = (int)($pages[$key] ?? 0);
       if ($cid <= 0) {
          return $this->placeholder($title, 'Die CMS-Seite konnte nicht angelegt oder gefunden werden.');
       }
 
-      $row = $this->db()->select1($this->contentDd(), $cid, 'id,title,permalink,content,group_read,template,activ', 0);
+      $row = $this->db()->select1($this->content_dd(), $cid, 'id,title,permalink,content,group_read,template,activ', 0);
       if (!is_array($row) || (int)($row['id'] ?? 0) <= 0) {
          return $this->placeholder($title, 'Die CMS-Seite konnte nicht geladen werden.');
       }
 
-      $editUrl = '?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=' . $cid;
-      $cmsViewUrl = '?dbx_modul=dbxContent&dbx_run1=content&cid=' . $cid;
-      $shopViewUrl = '?dbx_modul=dbxShop&dbx_run1=' . rawurlencode($shopRun);
+      $edit_url = '?dbx_modul=dbxContent_admin&dbx_run1=cms&cid=' . $cid;
+      $cms_view_url = '?dbx_modul=dbxContent&dbx_run1=content&cid=' . $cid;
+      $shop_view_url = '?dbx_modul=dbxShop&dbx_run1=' . rawurlencode($shop_run);
       $permalink = (string)($row['permalink'] ?? '');
 
-      $actions = $this->openWinButton($editUrl, $title . ' bearbeiten', '<i class="bi bi-pencil-square"></i><span> Bearbeiten</span>', 'btn btn-primary btn-sm me-1', '94%', '92%')
-         . $this->openWinButton($cmsViewUrl, $title . ' CMS-Ansicht', '<i class="bi bi-file-richtext"></i><span class="visually-hidden"> CMS-Ansicht</span>', 'btn btn-outline-primary btn-sm me-1', '82%', '86%')
-         . $this->openWinButton($shopViewUrl, $title . ' im Shop ansehen', '<i class="bi bi-box-arrow-up-right"></i><span class="visually-hidden"> Shop-Ansicht</span>', 'btn btn-outline-primary btn-sm me-1', '82%', '86%');
+      $actions = $this->open_win_button($edit_url, $title . ' bearbeiten', '<i class="bi bi-pencil-square"></i><span> Bearbeiten</span>', 'btn btn-primary btn-sm me-1', '94%', '92%')
+         . $this->open_win_button($cms_view_url, $title . ' CMS-Ansicht', '<i class="bi bi-file-richtext"></i><span class="visually-hidden"> CMS-Ansicht</span>', 'btn btn-outline-primary btn-sm me-1', '82%', '86%')
+         . $this->open_win_button($shop_view_url, $title . ' im Shop ansehen', '<i class="bi bi-box-arrow-up-right"></i><span class="visually-hidden"> Shop-Ansicht</span>', 'btn btn-outline-primary btn-sm me-1', '82%', '86%');
 
       $renderer = dbx()->get_include_obj('dbxContentRenderer', 'dbxContent');
-      $preview = is_object($renderer) && method_exists($renderer, 'renderStatic')
-         ? (string)$renderer->renderStatic($cid, array('template' => 'c-body1-footer', 'skip_hits' => true))
+      $preview = is_object($renderer) && method_exists($renderer, 'render_static')
+         ? (string)$renderer->render_static($cid, array('template' => 'c-body1-footer', 'skip_hits' => true))
          : trim((string)($row['content'] ?? ''));
       if (trim($preview) === '') {
          $preview = '<div class="alert alert-warning">Die CMS-Seite ist leer.</div>';
@@ -99,19 +99,14 @@ trait dbxShopAdminDashboardServiceTrait {
 
 
 
-   private function settingsBool(array $cfg, string $key, bool $default = false): bool {
-      if (!array_key_exists($key, $cfg)) {
-         return $default;
-      }
-      $value = $cfg[$key];
-      if (is_bool($value)) return $value;
-      return in_array(strtolower(trim((string)$value)), array('1', 'true', 'yes', 'on'), true);
+   private function settings_bool(array $cfg, string $key, bool $default = false): bool {
+      return \dbx\dbxShop\dbxShopValue::setting_bool($cfg, $key, $default);
    }
 
 
 
-   private function saveSettings(): void {
-      $cfg = $this->shopConfig();
+   private function save_settings(): void {
+      $cfg = $this->shop_config();
       $cfg['enabled'] = !empty($_POST['enabled']);
       $cfg['activ'] = $cfg['enabled'] ? '1' : '0';
       $cfg['default_channel'] = trim((string)($_POST['default_channel'] ?? 'shop')) ?: 'shop';
@@ -172,28 +167,28 @@ trait dbxShopAdminDashboardServiceTrait {
       $cfg['mail_from'] = trim((string)($_POST['mail_from'] ?? ''));
       $cfg['mail_admin_to'] = trim((string)($_POST['mail_admin_to'] ?? ''));
 
-      $flatShipping = str_replace(',', '.', trim((string)($_POST['delivery_flat_shipping_gross_price'] ?? '0')));
-      $cfg['delivery_flat_shipping_gross_price'] = number_format((float)$flatShipping, 2, '.', '');
+      $flat_shipping = str_replace(',', '.', trim((string)($_POST['delivery_flat_shipping_gross_price'] ?? '0')));
+      $cfg['delivery_flat_shipping_gross_price'] = number_format((float)$flat_shipping, 2, '.', '');
       $cfg['media_usage_slot'] = preg_replace('~[^a-z0-9_-]+~i', '', (string)($_POST['media_usage_slot'] ?? 'shop')) ?: 'shop';
 
-      $mailLocal = array(
+      $mail_local = array(
          'mail_profile' => trim((string)($cfg['mail_profile'] ?? 'dbxApp')) ?: 'dbxApp',
          'mail_from' => $cfg['mail_from'],
          'mail_from_name' => trim((string)($cfg['mail_from_name'] ?? 'dbxShop')) ?: 'dbxShop',
          'mail_admin_to' => $cfg['mail_admin_to'],
       );
-      dbx()->patch_local_config('dbxShop', $mailLocal);
+      dbx()->patch_local_config('dbxShop', $mail_local);
       dbx()->set_cfg('dbxShop', $cfg);
       $this->loadContentCacheSupport();
       if (class_exists('\\dbx\\dbxContent\\dbxContentPageCache')) {
-         \dbx\dbxContent\dbxContentPageCache::invalidateAllFullPages();
+         \dbx\dbxContent\dbxContentPageCache::invalidate_all_full_pages();
       }
    }
 
 
 
-   private function settingsFormData(array $cfg): array {
-      $rates = $this->taxRatesConfig();
+   private function settings_form_data(array $cfg): array {
+      $rates = $this->tax_rates_config();
       $data = $cfg;
       foreach (array('mwst1', 'mwst2', 'mwst3') as $key) {
          $rate = is_array($rates[$key] ?? null) ? $rates[$key] : array();
@@ -219,7 +214,7 @@ trait dbxShopAdminDashboardServiceTrait {
          'delivery_digital_download_enabled',
          'delivery_flat_shipping_enabled',
       ) as $key) {
-         $data[$key] = $this->settingsBool($cfg, $key, in_array($key, array(
+         $data[$key] = $this->settings_bool($cfg, $key, in_array($key, array(
             'enabled',
             'checkout_guest_allowed',
             'demo_notice_enabled',
@@ -238,7 +233,7 @@ trait dbxShopAdminDashboardServiceTrait {
       $data['default_currency'] = (string)($cfg['default_currency'] ?? 'EUR');
       $data['price_display'] = (string)($cfg['price_display'] ?? 'gross');
       $data['default_tax_class'] = (string)($cfg['default_tax_class'] ?? 'mwst1');
-      $data['tax_display_enabled'] = $this->settingsBool($cfg, 'tax_display_enabled', true) ? 1 : 0;
+      $data['tax_display_enabled'] = $this->settings_bool($cfg, 'tax_display_enabled', true) ? 1 : 0;
       $data['payment_paypal_mode'] = (string)($cfg['payment_paypal_mode'] ?? 'sandbox');
       $data['payment_paypal_brand_name'] = (string)($cfg['payment_paypal_brand_name'] ?? 'dbXapp');
       $data['payment_paypal_client_id'] = (string)($cfg['payment_paypal_client_id'] ?? '');
@@ -266,8 +261,8 @@ trait dbxShopAdminDashboardServiceTrait {
 
 
 
-   private function settingsChannelsStatusHtml(array $cfg, $texts): string {
-      $channelsEnabled = $this->settingsBool($cfg, 'channels_enabled', true);
+   private function settings_channels_status_html(array $cfg, $texts): string {
+      $channels_enabled = $this->settings_bool($cfg, 'channels_enabled', true);
       $channels = $this->repo()->channels();
       $external = array();
       foreach ($channels as $channel) {
@@ -283,11 +278,11 @@ trait dbxShopAdminDashboardServiceTrait {
 
       $html = '<div class="dbx-shop-settings-channel-status">';
       $html .= '<div class="dbx-shop-settings-channel-head">';
-      $html .= '<div><strong>' . $this->h($texts->get_fd_message('channels_external')) . '</strong><span>' . $this->h($channelsEnabled ? $texts->get_fd_message('channels_global_active') : $texts->get_fd_message('channels_global_inactive')) . '</span></div>';
-      $html .= $this->openWinButton('?dbx_modul=dbxShop_admin&dbx_run1=channels', $texts->get_fd_message('channels_edit'), '<i class="bi bi-broadcast"></i> ' . $this->h($texts->get_fd_message('column_channel')), 'btn btn-outline-primary btn-sm', '92%', '88%');
+      $html .= '<div><strong>' . $this->h($texts->get_fd_message('channels_external')) . '</strong><span>' . $this->h($channels_enabled ? $texts->get_fd_message('channels_global_active') : $texts->get_fd_message('channels_global_inactive')) . '</span></div>';
+      $html .= $this->open_win_button('?dbx_modul=dbxShop_admin&dbx_run1=channels', $texts->get_fd_message('channels_edit'), '<i class="bi bi-broadcast"></i> ' . $this->h($texts->get_fd_message('column_channel')), 'btn btn-outline-primary btn-sm', '92%', '88%');
       $html .= '</div>';
 
-      if (!$channelsEnabled) {
+      if (!$channels_enabled) {
          $html .= '<div class="alert alert-warning py-2 mb-0">' . $this->h($texts->get_fd_message('channels_disabled')) . '</div>';
       }
 
@@ -300,14 +295,14 @@ trait dbxShopAdminDashboardServiceTrait {
       $html .= '<div class="dbx-shop-settings-channel-grid-head"><span>' . $this->h($texts->get_fd_message('column_channel')) . '</span><span>' . $this->h($texts->get_fd_message('column_platform')) . '</span><span>' . $this->h($texts->get_fd_message('column_connection')) . '</span><span>' . $this->h($texts->get_fd_message('column_export')) . '</span><span>' . $this->h($texts->get_fd_message('column_import')) . '</span><span>' . $this->h($texts->get_fd_message('column_test')) . '</span></div>';
       foreach ($external as $channel) {
          $test = trim((string)($channel['test_status'] ?? ''));
-         $testClass = $test === 'ok' ? 'success' : ($test !== '' ? 'warning' : 'secondary');
+         $test_class = $test === 'ok' ? 'success' : ($test !== '' ? 'warning' : 'secondary');
          $html .= '<div class="dbx-shop-settings-channel-grid-row">';
          $html .= '<span class="dbx-shop-settings-channel-name"><strong>' . $this->h((string)($channel['title'] ?? $channel['channel_key'] ?? '')) . '</strong><code>' . $this->h((string)($channel['channel_key'] ?? '')) . '</code></span>';
          $html .= '<span>' . $this->h((string)($channel['platform_type'] ?? '')) . '</span>';
          $html .= '<span>' . $this->h((string)($channel['connection_mode'] ?? '')) . '</span>';
          $html .= ((int)($channel['export_enabled'] ?? 0) === 1 ? '<span class="badge text-bg-success">' . $this->h($texts->get_fd_message('column_export')) . '</span>' : '<span class="badge text-bg-secondary">' . $this->h($texts->get_fd_message('export_off')) . '</span>');
          $html .= ((int)($channel['order_import_enabled'] ?? 0) === 1 ? '<span class="badge text-bg-primary">' . $this->h($texts->get_fd_message('column_import')) . '</span>' : '<span class="badge text-bg-secondary">' . $this->h($texts->get_fd_message('import_off')) . '</span>');
-         $html .= '<span class="badge text-bg-' . $testClass . '">' . $this->h($test !== '' ? $test : $texts->get_fd_message('not_tested')) . '</span>';
+         $html .= '<span class="badge text-bg-' . $test_class . '">' . $this->h($test !== '' ? $test : $texts->get_fd_message('not_tested')) . '</span>';
          $html .= '</div>';
       }
       $html .= '</div>';
@@ -319,15 +314,12 @@ trait dbxShopAdminDashboardServiceTrait {
    private function settings(): string {
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('shop-settings-form', 'shop-settings-form');
-      $form->_fd = 'dbxShop_admin|shop-settings';
+      $form->set_field_definition('dbxShop_admin|shop-settings');
       $form->load_fd_messages();
-      $helpId = $this->ensureShopSettingsHelpPage();
-      $helpButton = $helpId > 0
-         ? $this->openWinButton('?dbx_modul=dbxContent&dbx_run1=content&cid=' . $helpId, $form->get_fd_message('settings_help'), '<i class="bi bi-question-circle"></i><span class="visually-hidden"> ' . $this->h($form->get_fd_message('settings_help')) . '</span>', 'btn btn-outline-secondary btn-sm me-1', '72%', '82%')
-         : '';
-      $form->_action = '?dbx_modul=dbxShop_admin&dbx_run1=settings';
-      $form->_data = $this->settingsFormData($this->shopConfig());
-      $form->add_rep('shop_admin_style', $this->shopAdminStyle());
+      $help_button = $this->help_button($this->shop_settings_help_context(), $form->get_fd_message('settings_help'), 'btn btn-outline-secondary btn-sm me-1', '72%', '82%');
+      $form->set_action('?dbx_modul=dbxShop_admin&dbx_run1=settings');
+      $form->set_data($this->settings_form_data($this->shop_config()));
+      $form->add_rep('shop_admin_style', $this->shop_admin_style());
       $form->add_rep('form_class', 'dbx-shop-settings-dbXForm');
       $form->add_rep('bar_title', $this->h($form->get_fd_message('settings_title')));
       $form->add_rep('bar_icon', 'bi-sliders');
@@ -339,17 +331,17 @@ trait dbxShopAdminDashboardServiceTrait {
       $form->add_rep('bar_middle', '');
       $form->add_rep('bar_actions_class', 'dbx-bar-actions');
       $form->add_rep('bar_extra', '');
-      $form->add_obj('channels_status', 'obj-value', $this->settingsChannelsStatusHtml($this->shopConfig(), $form));
-      $paymentTestButton = $this->openWinButton('?dbx_modul=dbxShop_admin&dbx_run1=payment_test', $form->get_fd_message('settings_payment_test'), '<i class="bi bi-plug"></i><span class="visually-hidden"> ' . $this->h($form->get_fd_message('settings_payment_test')) . '</span>', 'btn btn-outline-primary btn-sm me-1', '64%', '58%');
-      $form->add_rep('bar_actions', $paymentTestButton . '<button class="btn btn-primary btn-sm" type="submit" name="shop_action" value="save_settings" data-dbx-tooltip="' . $this->h($form->get_fd_message('settings_save')) . '"><i class="bi bi-save"></i><span class="visually-hidden"> ' . $this->h($form->get_fd_message('settings_save')) . '</span></button>' . $helpButton);
+      $form->add_obj('channels_status', 'obj-value', $this->settings_channels_status_html($this->shop_config(), $form));
+      $payment_test_button = $this->open_win_button('?dbx_modul=dbxShop_admin&dbx_run1=payment_test', $form->get_fd_message('settings_payment_test'), '<i class="bi bi-plug"></i><span class="visually-hidden"> ' . $this->h($form->get_fd_message('settings_payment_test')) . '</span>', 'btn btn-outline-primary btn-sm me-1', '64%', '58%');
+      $form->add_rep('bar_actions', $payment_test_button . '<button class="btn btn-primary btn-sm" type="submit" name="shop_action" value="save_settings" data-dbx-tooltip="' . $this->h($form->get_fd_message('settings_save')) . '"><i class="bi bi-save"></i><span class="visually-hidden"> ' . $this->h($form->get_fd_message('settings_save')) . '</span></button>' . $help_button);
       $form->_msg_info = '';
       $form->add_flds();
 
       if ($form->submit()) {
          if (!$form->errors() && !$form->warnings()) {
-            $this->saveSettings();
-            $form->_data = $this->settingsFormData($this->shopConfig());
-            $form->add_obj('channels_status', 'obj-value', $this->settingsChannelsStatusHtml($this->shopConfig(), $form));
+            $this->save_settings();
+            $form->set_data($this->settings_form_data($this->shop_config()));
+            $form->add_obj('channels_status', 'obj-value', $this->settings_channels_status_html($this->shop_config(), $form));
          }
       }
 
@@ -358,14 +350,14 @@ trait dbxShopAdminDashboardServiceTrait {
 
 
 
-   private function paymentTest(): string {
+   private function payment_test(): string {
       $paypal = dbx()->get_include_obj('dbxShopPayPal', 'dbxShop');
-      $amazonPay = dbx()->get_include_obj('dbxShopAmazonPay', 'dbxShop');
-      $paypalResult = is_object($paypal) && method_exists($paypal, 'testConnection')
-         ? $paypal->testConnection()
+      $amazon_pay = dbx()->get_include_obj('dbxShopAmazonPay', 'dbxShop');
+      $paypal_result = is_object($paypal) && method_exists($paypal, 'testConnection')
+         ? $paypal->test_connection()
          : array('ok' => false, 'mode' => '', 'message' => 'PayPal-Connector konnte nicht geladen werden.');
-      $amazonResult = is_object($amazonPay) && method_exists($amazonPay, 'testConnection')
-         ? $amazonPay->testConnection()
+      $amazon_result = is_object($amazon_pay) && method_exists($amazon_pay, 'testConnection')
+         ? $amazon_pay->test_connection()
          : array('ok' => false, 'mode' => '', 'region' => '', 'message' => 'Amazon-Pay-Connector konnte nicht geladen werden.');
 
       $card = function(string $title, string $icon, array $result): string {
@@ -388,8 +380,8 @@ trait dbxShopAdminDashboardServiceTrait {
       };
 
       $body = $this->tpl()->get_tpl('dbxShop_admin|payment-test', array(
-         'cards' => $card('PayPal', 'bi-paypal', $paypalResult)
-            . $card('Amazon Pay', 'bi-amazon', $amazonResult),
+         'cards' => $card('PayPal', 'bi-paypal', $paypal_result)
+            . $card('Amazon Pay', 'bi-amazon', $amazon_result),
       ));
       return $this->frame($body, 'Payment testen');
    }
@@ -397,15 +389,15 @@ trait dbxShopAdminDashboardServiceTrait {
 
 
    private function install(): string {
-      if (!$this->checkActionToken('install')) {
-         return $this->placeholder('Shop-Installation abgewiesen', $this->postedFormError);
+      if (!$this->check_action_token('install')) {
+         return $this->placeholder('Shop-Installation abgewiesen', $this->posted_form_error);
       }
-      $this->maintenanceMode = true;
+      $this->maintenance_mode = true;
       try {
-         $this->repo()->seedDemoProducts();
-         $this->maintainShopAdminContent();
+         $this->repo()->seed_demo_products();
+         $this->maintain_shop_admin_content();
       } finally {
-         $this->maintenanceMode = false;
+         $this->maintenance_mode = false;
       }
       return $this->placeholder(
          'Shop-Installation ausgefuehrt',
@@ -416,16 +408,16 @@ trait dbxShopAdminDashboardServiceTrait {
 
 
    private function products(): string {
-      $this->ensureSeed();
+      $this->ensure_seed();
       $report = dbx()->get_system_obj('dbxReport');
-      $report->init('shop-products-report');
-      $report->_fd = 'dbxShop_admin|rpt-products-selection';
+      $report->init('shop-products-report', 'shop-products-report');
+      $report->set_field_definition('dbxShop_admin|rpt-products-selection');
       $report->load_fd_messages();
       // dbxReport haengt die konkreten Schreibaktionen an diese Basis-URL an.
       // Der zusaetzliche Token ist fuer reine Filter-/Navigationsaufrufe
       // unschaedlich und sichert gleichzeitig die kompatiblen GET-Aktionen.
-      $report->_action = $this->actionUrl('?dbx_modul=dbxShop_admin&dbx_run1=products');
-      $report->_mode = 'table';
+      $report->set_action($this->action_url('?dbx_modul=dbxShop_admin&dbx_run1=products'));
+      $report->set_mode('table');
       $report->_pages = true;
       $report->_multi_page_select = 1;
       $report->_create_row_select = true;
@@ -443,16 +435,16 @@ trait dbxShopAdminDashboardServiceTrait {
       $report->add_rep('bar_class', 'dbx-bar--module');
       $report->add_rep('bar_title_class', 'dbx-bar-title');
       $report->add_rep('bar_actions_class', 'dbx-bar-actions');
-      $report->add_rep('bar_title_pre', $this->productTreeToggleButton($report));
+      $report->add_rep('bar_title_pre', $this->product_tree_toggle_button($report));
       $report->add_rep('bar_title_heading_attrs', '');
       $report->add_rep('bar_middle', '');
       $report->add_rep('bar_extra', '');
-      $report->add_rep('bar_actions', $this->productShellActions($report));
-      $report->add_rep('shop_admin_style', $this->shopAdminStyle());
+      $report->add_rep('bar_actions', $this->product_shell_actions($report));
+      $report->add_rep('shop_admin_style', $this->shop_admin_style());
       $report->add_rep('report_form_class', 'dbx-shop-products-form is-shop-tree-collapsed');
-      $report->add_rep('report_form_attrs', 'data-dbx="lib=shopAdmin" data-shop-tree-shell');
-      $channelsEnabled = $this->channelsEnabled();
-      $columnClasses = array(
+      $report->add_rep('report_form_attrs', 'data-dbx="lib=shopAdmin|module=dbxShop_admin" data-shop-tree-shell');
+      $channels_enabled = $this->channels_enabled();
+      $column_classes = array(
          'image_view' => 'dbx-shop-col-image',
          'article_view' => 'dbx-shop-col-article',
          'groups_view' => 'dbx-shop-col-groups',
@@ -463,54 +455,54 @@ trait dbxShopAdminDashboardServiceTrait {
          'shipping_view' => 'dbx-shop-col-money',
          'status_view' => 'dbx-shop-col-status',
       );
-      if ($channelsEnabled) {
-         $columnClasses['channel_groups_view'] = 'dbx-shop-col-channel-groups';
-         $columnClasses['channels_view'] = 'dbx-shop-col-channels';
+      if ($channels_enabled) {
+         $column_classes['channel_groups_view'] = 'dbx-shop-col-channel-groups';
+         $column_classes['channels_view'] = 'dbx-shop-col-channels';
       }
-      foreach ($columnClasses as $field => $class) {
-         $report->set_class_haeder($field, $class);
+      foreach ($column_classes as $field => $class) {
+         $report->set_class_header($field, $class);
          $report->_class_body[$field] = $class;
       }
       $report->set_callback_owner($this);
       $report->set_callback('next_record', 'product_report_next_record');
       $report->set_callback('row_action_data', 'product_report_row_action_data');
-      $report->add_rep('report_products_actions', $this->productReportActionControls($report->_action, $report));
+      $report->add_rep('report_products_actions', $this->product_report_action_controls($report->get_action(), $report));
       $report->create_selection_fields('dbxShop_admin|rpt-products-selection');
-      $this->handleProductReportAction($report);
+      $this->handle_product_report_action($report);
 
       $query = trim((string)$report->get_fld_val('dbx_rwhere', '', 'parameter|max=100'));
-      $requestedRowsPerPage = (int)$report->get_fld_val('dbx_rrows', 30, 'int');
-      $rowsPerPage = $requestedRowsPerPage === 0 ? 0 : max(10, min(100, $requestedRowsPerPage));
-      $position = $rowsPerPage === 0 ? 0 : max(0, (int)$report->get_fld_val('dbx_rpos', 0, 'int'));
+      $requested_rows_per_page = (int)$report->get_fld_val('dbx_rrows', 30, 'int');
+      $rows_per_page = $requested_rows_per_page === 0 ? 0 : max(10, min(100, $requested_rows_per_page));
+      $position = $rows_per_page === 0 ? 0 : max(0, (int)$report->get_fld_val('dbx_rpos', 0, 'int'));
       $sort = (string)$report->get_fld_val('dbx_rsort', 'sorter', 'parameter');
       $direction = strtoupper((string)$report->get_fld_val('dbx_rdesc', 'ASC', 'parameter')) === 'DESC' ? 'DESC' : 'ASC';
-      $selectedOnly = (int)$report->get_fld_val('dbx_rselect', 0, 'int') === 1;
+      $selected_only = (int)$report->get_fld_val('dbx_rselect', 0, 'int') === 1;
       if (!in_array($sort, array('sorter', 'sku', 'title', 'price_gross', 'effective_tax_rate', 'effective_shipping_gross', 'active'), true)) {
          $sort = 'sorter';
       }
 
-      $allProducts = $this->repo()->products(false);
-      $matchedProducts = array();
-      $selectedIds = $selectedOnly ? $report->get_multi_selects() : array();
-      foreach ($allProducts as $product) {
-         if ($selectedOnly && !isset($selectedIds[(string)(int)($product['id'] ?? 0)])) {
+      $all_products = $this->repo()->products(false);
+      $matched_products = array();
+      $selected_ids = $selected_only ? $report->get_multi_selects() : array();
+      foreach ($all_products as $product) {
+         if ($selected_only && !isset($selected_ids[(string)(int)($product['id'] ?? 0)])) {
             continue;
          }
-         $score = $this->productSearchScore($product, $query);
+         $score = $this->product_search_score($product, $query);
          if ($score <= 0) {
             continue;
          }
          $product['_search_score'] = $score;
-         $matchedProducts[] = $product;
+         $matched_products[] = $product;
       }
-      $matchedProducts = $this->sortProductsForReport($matchedProducts, $query, $sort, $direction);
-      $filteredCount = count($matchedProducts);
-      if ($rowsPerPage > 0 && $position >= $filteredCount && $filteredCount > 0) {
-         $position = max(0, (int)(floor(($filteredCount - 1) / $rowsPerPage) * $rowsPerPage));
+      $matched_products = $this->sort_products_for_report($matched_products, $query, $sort, $direction);
+      $filtered_count = count($matched_products);
+      if ($rows_per_page > 0 && $position >= $filtered_count && $filtered_count > 0) {
+         $position = max(0, (int)(floor(($filtered_count - 1) / $rows_per_page) * $rows_per_page));
       }
-      $visibleProducts = $rowsPerPage === 0
-         ? $matchedProducts
-         : array_slice($matchedProducts, $position, $rowsPerPage);
+      $visible_products = $rows_per_page === 0
+         ? $matched_products
+         : array_slice($matched_products, $position, $rows_per_page);
 
       $report->_rflds = array(
          'image_view' => $report->get_fd_message('column_image'),
@@ -523,7 +515,7 @@ trait dbxShopAdminDashboardServiceTrait {
          'shipping_view' => $report->get_fd_message('column_shipping'),
          'status_view' => $report->get_fd_message('column_status'),
       );
-      if ($channelsEnabled) {
+      if ($channels_enabled) {
          $report->_rflds = array_slice($report->_rflds, 0, 5, true)
             + array(
                'channel_groups_view' => $report->get_fd_message('column_channel_groups'),
@@ -542,19 +534,19 @@ trait dbxShopAdminDashboardServiceTrait {
          'shipping_view' => 'html',
          'status_view' => 'html',
       );
-      if ($channelsEnabled) {
+      if ($channels_enabled) {
          $report->_rpt_format['channel_groups_view'] = 'html';
          $report->_rpt_format['channels_view'] = 'html';
       }
-      $report->_rrows = $rowsPerPage;
+      $report->_rrows = $rows_per_page;
       $report->_rpos = $position;
-      $report->_count_all = count($allProducts);
-      $report->_rcount = $filteredCount;
-      $report->_rdata = $visibleProducts;
+      $report->_count_all = count($all_products);
+      $report->_rcount = $filtered_count;
+      $report->_rdata = $visible_products;
 
-      $report->add_rep('product_tree_panel', $this->productTreePanel($allProducts, $report));
+      $report->add_rep('product_tree_panel', $this->product_tree_panel($all_products, $report));
       $content = $report->run();
-      if ($filteredCount === 0) {
+      if ($filtered_count === 0) {
          $content .= '<div class="alert alert-info mx-3">'
             . $this->h($report->get_fd_message('no_results'))
             . '</div>';
@@ -565,54 +557,53 @@ trait dbxShopAdminDashboardServiceTrait {
 
 
 
-   private function productEdit(): string {
-      $this->ensureSeed();
+   private function product_edit(): string {
+      $this->ensure_seed();
       $id = (int)dbx()->get_modul_var('id', 0, 'int');
-      $isNew = $id <= 0;
-      $exportNotice = '';
-      $exportOk = false;
-      $removeImageId = (int)dbx()->get_modul_var('remove_image', 0, 'int');
-      if (!$isNew && $removeImageId > 0) {
-         if ($this->checkActionToken('remove_image')) {
-            $this->repo()->removeProductImageAssociation($removeImageId, $id);
-            $this->syncShopMediaUsage();
+      $is_new = $id <= 0;
+      $export_notice = '';
+      $export_ok = false;
+      $remove_image_id = (int)dbx()->get_modul_var('remove_image', 0, 'int');
+      if (!$is_new && $remove_image_id > 0) {
+         if ($this->check_action_token('remove_image')) {
+            $this->repo()->remove_product_image_association($remove_image_id, $id);
+            $this->sync_shop_media_usage();
          }
       }
-      $exportChannel = trim((string)dbx()->get_modul_var('export_channel', '', 'parameter'));
-      if (!$isNew && $exportChannel !== '') {
-         if ($this->checkActionToken('export_channel')) {
-            $result = $this->repo()->exportProductToChannel($id, $exportChannel);
-            $exportOk = !empty($result['ok']);
-            $exportNotice = (string)($result['message'] ?? '');
+      $export_channel = trim((string)dbx()->get_modul_var('export_channel', '', 'parameter'));
+      if (!$is_new && $export_channel !== '') {
+         if ($this->check_action_token('export_channel')) {
+            $result = $this->repo()->export_product_to_channel($id, $export_channel);
+            $export_ok = !empty($result['ok']);
+            $export_notice = (string)($result['message'] ?? '');
          } else {
-            $exportNotice = $this->postedFormError;
+            $export_notice = $this->posted_form_error;
          }
       }
-      $data = $isNew ? $this->applyProductPreset($this->newProductDefaults()) : $this->repo()->productById($id);
+      $data = $is_new ? $this->apply_product_preset($this->new_product_defaults()) : $this->repo()->product_by_id($id);
 
-      if (!$isNew && !is_array($data)) {
-         return $this->frame('<div class="alert alert-warning m-3">Artikel nicht gefunden.</div>', 'Artikel bearbeiten', $this->productBarActions());
+      if (!$is_new && !is_array($data)) {
+         return $this->frame('<div class="alert alert-warning m-3">Artikel nicht gefunden.</div>', 'Artikel bearbeiten', $this->product_bar_actions());
       }
 
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('shop-product-form', 'shop-product-form');
-      $form->_dd = 'dbxShop|shopProduct';
-      $form->_fd = 'dbxShop|shop-product';
+      $form->set_data_source('dbxShop|shopProduct', 'dbxShop|shop-product');
       $form->load_fd_messages();
-      $form->_data = $data;
-      $form->_rid = $isNew ? 0 : $id;
-      $form->_action = '?dbx_modul=dbxShop_admin&dbx_run1=product_edit&id=' . ($isNew ? 0 : $id);
-      $form->set_activ_id($isNew ? 0 : $id);
+      $form->set_data($data);
+      $form->set_rid($is_new ? 0 : $id);
+      $form->set_action('?dbx_modul=dbxShop_admin&dbx_run1=product_edit&id=' . ($is_new ? 0 : $id));
+      $form->set_activ_id($is_new ? 0 : $id);
       $form->add_rep(
          'bar_title',
          $form->get_fd_message(
-            $isNew ? 'form_new_title' : 'form_edit_title'
+            $is_new ? 'form_new_title' : 'form_edit_title'
          )
       );
       $form->add_rep('bar_icon', 'bi-bag-check');
       $form->add_rep(
          'bar_subtitle',
-         $isNew
+         $is_new
             ? $form->get_fd_message('form_new_subtitle')
             : trim((string)($data['sku'] ?? '') . ' - ' . (string)($data['title'] ?? ''))
       );
@@ -622,15 +613,15 @@ trait dbxShopAdminDashboardServiceTrait {
       $form->add_rep('bar_title_heading_attrs', '');
       $form->add_rep('bar_middle', '');
       $form->add_rep('bar_actions_class', 'dbx-bar-actions');
-      $form->add_rep('bar_actions', $this->productFormActions($id, $form));
+      $form->add_rep('bar_actions', $this->product_form_actions($id, $form));
       $form->add_rep('bar_extra', '');
-      $form->add_rep('shop_admin_style', $this->shopAdminStyle());
+      $form->add_rep('shop_admin_style', $this->shop_admin_style());
       $form->_msg_info = $form->get_fd_message('form_info');
-      if ($exportNotice !== '') {
-         if ($exportOk) {
-            $form->_msg_success = $exportNotice;
+      if ($export_notice !== '') {
+         if ($export_ok) {
+            $form->_msg_success = $export_notice;
          } else {
-            $form->_msg_error = $exportNotice;
+            $form->_msg_error = $export_notice;
          }
       }
       $form->add_flds();
@@ -638,30 +629,30 @@ trait dbxShopAdminDashboardServiceTrait {
          'product_group_id',
          tpl: 'select-single-label',
          label: $form->get_fd_message('field_product_group'),
-         options: $this->productGroupOptions(0, false),
+         options: $this->product_group_options(0, false),
          rules: 'int'
       );
 
       if ($form->submit()) {
          if (!$form->errors()) {
-            $ok = $form->save_post('dbxShop|shopProduct', $isNew ? 'new' : $id, $this->productFormDefaults($id));
+            $ok = $form->save_post('dbxShop|shopProduct', $is_new ? 'new' : $id, $this->product_form_defaults($id));
             if ($ok) {
-               $savedId = (int)$form->_rid;
-               $groupId = (int)($_POST['product_group_id'] ?? 0);
-               if ($savedId > 0 && $groupId > 0) {
-                  $this->repo()->setProductGroupForProducts(array($savedId), $groupId);
+               $saved_id = $form->current_rid();
+               $group_id = (int)($_POST['product_group_id'] ?? 0);
+               if ($saved_id > 0 && $group_id > 0) {
+                  $this->repo()->set_product_group_for_products(array($saved_id), $group_id);
                }
-               if ($savedId > 0 && isset($_POST['product_channel_editor'])) {
-                  $this->repo()->saveProductChannelOverrides($savedId, (array)($_POST['product_channels'] ?? array()));
+               if ($saved_id > 0 && isset($_POST['product_channel_editor'])) {
+                  $this->repo()->save_product_channel_overrides($saved_id, (array)($_POST['product_channels'] ?? array()));
                }
                $form->_msg_success = $form->get_fd_message(
                   'product_save_success'
                );
-               if ($savedId > 0) {
-                  $id = $savedId;
-                  $isNew = false;
-                  $data = $this->repo()->productById($savedId) ?: $form->_data;
-                  $form->_action = '?dbx_modul=dbxShop_admin&dbx_run1=product_edit&id=' . $savedId;
+               if ($saved_id > 0) {
+                  $id = $saved_id;
+                  $is_new = false;
+                  $data = $this->repo()->product_by_id($saved_id) ?: $form->get_data();
+                  $form->set_action('?dbx_modul=dbxShop_admin&dbx_run1=product_edit&id=' . $saved_id);
                }
             } else {
                $form->_msg_error = $form->get_fd_message(
@@ -678,38 +669,36 @@ trait dbxShopAdminDashboardServiceTrait {
       $form->add_obj(
          'product_images',
          'obj-value',
-         $this->productImagesPanel(
+         $this->product_images_panel(
             is_array($data) ? $data : array(),
-            $isNew,
+            $is_new,
             $form
          )
       );
       $form->add_obj(
          'product_channels',
          'obj-value',
-         $this->productChannelsPanel(
+         $this->product_channels_panel(
             is_array($data) ? $data : array(),
-            $isNew,
+            $is_new,
             $form
          )
       );
 
       $content = $form->run();
-      if (!$isNew) {
+      if (!$is_new) {
          // Eigene Upload-/Video-Formulare erst nach dem Artikel-Formular
          // einbetten, damit der Browser keine verschachtelte Form erzeugt.
-         $content .= $this->shopMediaFormTemplates($this->shopMediaConfig());
+         $content .= $this->shop_media_form_templates($this->shop_media_config());
       }
       return $content;
    }
 
 
 
-   private function productsHelp(): string {
-      $helpId = $this->ensureShopProductsHelpPage();
-      if ($helpId > 0) {
-         return $this->frame('<div class="m-3">' . $this->productsHelpHtml() . '</div>', 'Produkte Hilfe', $this->productBarActions());
-      }
-      return $this->frame('<div class="alert alert-warning m-3">Hilfe konnte nicht angelegt werden.</div>', 'Produkte Hilfe', $this->productBarActions());
+   private function products_help(): string {
+      $help = dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp');
+      $content = is_object($help) ? (string)$help->render('dbxShop_admin', 'products') : '';
+      return $this->frame('<div class="m-3">' . $content . '</div>', 'Produkte Hilfe', $this->product_bar_actions());
    }
 }

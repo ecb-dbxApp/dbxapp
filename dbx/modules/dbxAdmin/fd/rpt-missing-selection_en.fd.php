@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Missing resources';
 $messages['bar_subtitle'] = 'Files and requests that could not be found';
 $messages['column_created'] = 'Created';

@@ -30,31 +30,30 @@ class dbxFormTryCountApi {
         return $name === 'dbxTPL' ? $this->tpl : new stdClass();
     }
 
-    public function timestamp($addSec = 0) {
-        return $this->now + (int) $addSec;
-    }
-
-    public function time_diff($startTime = 0, $endTime = 0) {
-        return $endTime - $startTime;
-    }
-
     public function get_self_url() {
         return '/try-count-test';
     }
 }
 
-$dbxFormTryCountApi = new dbxFormTryCountApi();
+$dbx_form_try_count_api = new dbxFormTryCountApi();
 
 function dbx() {
-    global $dbxFormTryCountApi;
-    return $dbxFormTryCountApi;
+    global $dbx_form_try_count_api;
+    return $dbx_form_try_count_api;
 }
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'dbxForm.class.php';
 
 $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
-$form = new dbxForm();
+class dbxFormTryCountForm extends dbxForm {
+    protected function current_time(): float {
+        global $dbx_form_try_count_api;
+        return $dbx_form_try_count_api->now;
+    }
+}
+
+$form = new dbxFormTryCountForm();
 $form->_try_max = 5;
 $form->_try_reset = 6;
 $form->_try_count_reset = 600;

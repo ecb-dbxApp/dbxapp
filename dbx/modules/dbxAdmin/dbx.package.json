@@ -1,0 +1,39 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxAdmin",
+    "type": "module",
+    "name": "dbxAdmin",
+    "title": "dbxAdmin",
+    "description": "Administration für Systemstatus, Datenbanken, Module, Konfiguration, Benutzer und Updates.",
+    "descriptions": {
+        "de": "Administration für Systemstatus, Datenbanken, Module, Konfiguration, Benutzer und Updates.",
+        "en": "Administration for system health, databases, modules, configuration, users and updates.",
+        "es": "Administración del estado del sistema, bases de datos, módulos, configuración, usuarios y actualizaciones."
+    },
+    "icon": "bi-speedometer2",
+    "image": "dbx/modules/dbxAdmin/tpl/img/dbxAdmin.png",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": []
+    },
+    "permissions": [
+        "administration",
+        "database",
+        "filesystem",
+        "package-management"
+    ],
+    "migrations": [],
+    "files": []
+}

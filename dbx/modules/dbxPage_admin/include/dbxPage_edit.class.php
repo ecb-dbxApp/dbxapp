@@ -14,37 +14,37 @@ class dbxPage_edit {
 
 
     //return $content;
-    $oForm=dbx()->get_system_obj('dbxForm');
-    $oForm->init('form-api');
-    $oForm->_dd      = $dd;
-    $oForm->_data    = $data;
-    $oForm->_msg_info= 'Sie können die Api Aufrufe bearbeiten';
-    $oForm->_action  = '?dbx_modul=dbxPage_admin&dbx_run1=edit&rid='.$rid;
+    $o_form=dbx()->get_system_obj('dbxForm');
+    $o_form->init('form-api', 'form-api');
+    $o_form->set_data_definition($dd);
+    $o_form->set_data($data);
+    $o_form->_msg_info= 'Sie können die Api Aufrufe bearbeiten';
+    $o_form->set_action('?dbx_modul=dbxPage_admin&dbx_run1=edit&rid='.$rid);
 
-    $oForm->add_fld('api'       ,'text-label');  // #+
-    $oForm->add_fld('apikey'    ,'text-label');  // #+
-    $oForm->add_fld('modul'     ,'text-label');  // #+
-    $oForm->add_fld('action'    ,'text-label');  // #+
-    $oForm->add_fld('work'      ,'text-label');  // #+
-    $oForm->add_fld('count'     ,'text-label');  // #+
-    $oForm->add_fld('max'       ,'text-label');  // #+
+    $o_form->add_fld('api'       ,'text-label');  // #+
+    $o_form->add_fld('apikey'    ,'text-label');  // #+
+    $o_form->add_fld('modul'     ,'text-label');  // #+
+    $o_form->add_fld('action'    ,'text-label');  // #+
+    $o_form->add_fld('work'      ,'text-label');  // #+
+    $o_form->add_fld('count'     ,'text-label');  // #+
+    $o_form->add_fld('max'       ,'text-label');  // #+
 
-    if($oForm->submit()) {
-      if(!$oForm->errors() && !$oForm->warnings()) {      // submit && no errors && no warnings
-         $change=$oForm->changed();
+    if($o_form->submit()) {
+      if(!$o_form->errors() && !$o_form->warnings()) {      // submit && no errors && no warnings
+         $change=$o_form->changed();
          if ($change) {
-           $ok=$oForm->save_post($dd,$rid);
-           if ( $ok) $oForm->_msg_success   = 'Daten gespeichert';
-           if (!$ok) $oForm->_msg_success   = 'Daten konnten nicht gespeichert werden';
+           $ok=$o_form->save_post($dd,$rid);
+           if ( $ok) $o_form->_msg_success   = 'Daten gespeichert';
+           if (!$ok) $o_form->_msg_success   = 'Daten konnten nicht gespeichert werden';
          } else {
-           $oForm->_msg_success   = 'Keine Änderung';
+           $o_form->_msg_success   = 'Keine Änderung';
          }
-         $oForm->_msg_success .=" Change=($change)";
+         $o_form->_msg_success .=" Change=($change)";
       } else {
-         $oForm->_msg_errr = 'Prüfen sie bitte ihre Eingaben';
+         $o_form->_msg_errr = 'Prüfen sie bitte ihre Eingaben';
       }
     }
-    $content=$oForm->run();
+    $content=$o_form->run();
 
     return $content;
 

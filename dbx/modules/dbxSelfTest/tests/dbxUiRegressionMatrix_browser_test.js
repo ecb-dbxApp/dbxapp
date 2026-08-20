@@ -15,7 +15,7 @@
         const path = require("path");
         const root = path.resolve(__dirname, "../../../..");
         const source = fs.readFileSync(__filename, "utf8");
-        const runner = fs.readFileSync(path.resolve(root, "dbx/modules/dbxSelfTest/tpl/js/selftest.js"), "utf8");
+        const runner = fs.readFileSync(path.resolve(root, "dbx/modules/dbxSelfTest/js/selftest.js"), "utf8");
         ["desktop", "tablet", "mobile", "/home", "cid=1", "dbx_run1=flat",
             "checkCmsEditor", "checkMediaBrowser", "checkOpenWinAjax", "checkTooltip"]
             .forEach(token => assert(source.includes(token), "UI-Matrixvertrag fehlt: " + token));

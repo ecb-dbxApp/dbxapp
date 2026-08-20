@@ -22,8 +22,8 @@ $assert = static function (bool $condition, string $message): void {
    if (!$condition) throw new RuntimeException($message);
 };
 
-$noChange = dbxContentTreeOrder::plan($rows, 2, 0, 1);
-$assert($noChange['updates'] === array(), 'Eine unveraenderte Position erzeugt DB-Schreibvorgaenge.');
+$no_change = dbxContentTreeOrder::plan($rows, 2, 0, 1);
+$assert($no_change['updates'] === array(), 'Eine unveraenderte Position erzeugt DB-Schreibvorgaenge.');
 
 $moved = dbxContentTreeOrder::plan($rows, 3, 1, 0);
 $assert(
@@ -47,14 +47,14 @@ $assert(
    'Unregelmaessige Sortierwerte werden nicht auf 10er-Schritte normalisiert.'
 );
 
-$largeRows = array();
+$large_rows = array();
 for ($i = 1; $i <= 1000; $i++) {
-   $largeRows[] = array('id' => $i, 'sorter' => sprintf('%04d', $i * 10), 'title' => 'P' . $i);
+   $large_rows[] = array('id' => $i, 'sorter' => sprintf('%04d', $i * 10), 'title' => 'P' . $i);
 }
 $started = microtime(true);
-$largePlan = dbxContentTreeOrder::plan($largeRows, 500, 0, 501);
-$runtimeMs = (microtime(true) - $started) * 1000;
-$assert(count($largePlan['updates']) === 2, 'Ein Nachbarwechsel schreibt mehr als die zwei betroffenen Sorter.');
-$assert($runtimeMs < 50.0, 'Die Sortierplanung fuer 1000 Eintraege ist zu langsam: ' . round($runtimeMs, 2) . ' ms.');
+$large_plan = dbxContentTreeOrder::plan($large_rows, 500, 0, 501);
+$runtime_ms = (microtime(true) - $started) * 1000;
+$assert(count($large_plan['updates']) === 2, 'Ein Nachbarwechsel schreibt mehr als die zwei betroffenen Sorter.');
+$assert($runtime_ms < 50.0, 'Die Sortierplanung fuer 1000 Eintraege ist zu langsam: ' . round($runtime_ms, 2) . ' ms.');
 
-echo 'OK CMS tree order planner: 2 statt 1000 Updates, ' . round($runtimeMs, 2) . " ms\n";
+echo 'OK CMS tree order planner: 2 statt 1000 Updates, ' . round($runtime_ms, 2) . " ms\n";

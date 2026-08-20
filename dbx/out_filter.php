@@ -10,7 +10,7 @@
     $content = preg_replace_callback(
       '/<!--\s*dbx-content-images:start\s*-->([\s\S]*?)<!--\s*dbx-content-images:end\s*-->/i',
       static function(array $match): string {
-        return \dbx\dbxContent\dbxContentRenderer::optimizeContentPageImages((string)($match[1] ?? ''));
+        return \dbx\dbxContent\dbxContentRenderer::optimize_content_page_images((string)($match[1] ?? ''));
       },
       (string)$content
     );

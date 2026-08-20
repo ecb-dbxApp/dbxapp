@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['bar_title'] = 'Manage modules';
 $messages['bar_subtitle'] = 'Manage installed modules';
 $messages['all_modules'] = 'All modules';

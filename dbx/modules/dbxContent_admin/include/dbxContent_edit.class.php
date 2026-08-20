@@ -22,9 +22,9 @@ class dbxContent_edit {
         if ($obs && $obv) $rid=$obv;
      }
      //dbx_debug("EDIT-RID=($rid) ");
-     $oForm=dbx()->get_system_obj('dbxForm');
-     $oForm->init('dbxContent_edit','form-content');
-     $oForm->_action= "?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=edit&dbx_view=$view&rid=$rid";
+     $o_form=dbx()->get_system_obj('dbxForm');
+     $o_form->init('dbxContent_edit','form-content');
+     $o_form->set_action("?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=edit&dbx_view=$view&rid=$rid");
      if ($rid) {
 
        $db  = dbx()->get_system_obj('dbxDB');
@@ -33,48 +33,48 @@ class dbxContent_edit {
        $tab_content = dbx()->lng_name('content', $lng);
        $tab_folder = $tab_content.'_folder';
 
-       $oForm->_data=$db->select1($tab_content,$rid);
+       $o_form->set_data($db->select1($tab_content,$rid));
        // All fields must be def bevore save !
-       $oForm->add_fld('title'   ,'text-label'          ,rules: 'words|min=1'  ,title: 'Titel'   ,errormsg: 'Der Title darf keine Sonderzeichen beinhalten. ');  // #+
-       $oForm->add_fld('content' ,'textarea-label',''   ,rules: '*'            ,title: 'Content' );  // #+
+       $o_form->add_fld('title'   ,'text-label'          ,rules: 'words|min=1'  ,title: 'Titel'   ,errormsg: 'Der Title darf keine Sonderzeichen beinhalten. ');  // #+
+       $o_form->add_fld('content' ,'textarea-label',''   ,rules: '*'            ,title: 'Content' );  // #+
        //$oForm->add_js_call('content','editor-ace'); //don´t work #todo  
 
 
        //dbx_debug("CONTENT-CONTENT");
-       if ($oForm->submit()) {
+       if ($o_form->submit()) {
          //dbx_debug("SUBMIT");
-         if (!$oForm->errors()) {      // submit && no errors // we ignore warnings
+         if (!$o_form->errors()) {      // submit && no errors // we ignore warnings
             //dbx_debug("NO-ERRORS");
-            $change=$oForm->changed();
+            $change=$o_form->changed();
             $post_values = array();
-            if (dbxContent_permalink::normalize($oForm->_data['permalink'] ?? '') === '') {
-              $post_values['permalink'] = dbxContent_permalink::build($db, $tab_folder, (int)($oForm->_data['folder'] ?? 0), $_POST['title'] ?? ($oForm->_data['title'] ?? ''));
-              $oForm->set_post('permalink', $post_values['permalink']);
+            if (dbxContent_permalink::normalize($o_form->get_data('permalink', '')) === '') {
+              $post_values['permalink'] = dbxContent_permalink::build($db, $tab_folder, (int)$o_form->get_data('folder', 0), $_POST['title'] ?? $o_form->get_data('title', ''));
+              $o_form->set_post('permalink', $post_values['permalink']);
               $change = 1;
             }
             //dbx_debug("CHANGE=($change)");
             if ($change) {
               //dbx_debug("CHANGE=($change)");
-              $ok=$oForm->save_post($tab_content,$rid,$post_values);
-              if ( $ok) $oForm->_msg_success   = 'Daten gespeichert';
-              if (!$ok) $oForm->_msg_error     = 'Daten konnten nicht gespeichert werden';
+              $ok=$o_form->save_post($tab_content,$rid,$post_values);
+              if ( $ok) $o_form->_msg_success   = 'Daten gespeichert';
+              if (!$ok) $o_form->_msg_error     = 'Daten konnten nicht gespeichert werden';
             } else {
-              $oForm->_msg_success   = 'Keine Änderung';
+              $o_form->_msg_success   = 'Keine Änderung';
             }
          }
-         if ($oForm->errors()) {
-            $oForm->_msg_error = 'Prüfen sie bitte ihre Eingaben';
+         if ($o_form->errors()) {
+            $o_form->_msg_error = 'Prüfen sie bitte ihre Eingaben';
          }
        }
 
-       $oForm->_msg_info='Content bearbeiten';
+       $o_form->_msg_info='Content bearbeiten';
 
      } // rid
 
      if (!$rid) {
-        $oForm->_msg_info='Content bearbeiten - warte -';
-        $oForm->_tpl='form-content_wait';
-        $oForm->add_obj('msg','dbx|alert-warning','msg=Der Content kann erst nach dem Speichern der Systemdaten vom Content bearbeitet werden.');
+        $o_form->_msg_info='Content bearbeiten - warte -';
+        $o_form->set_template('form-content_wait');
+        $o_form->add_obj('msg','dbx|alert-warning','msg=Der Content kann erst nach dem Speichern der Systemdaten vom Content bearbeitet werden.');
 
         $observer='obs_content_rid';
         $observ['name']   =  $observer;
@@ -83,14 +83,14 @@ class dbxContent_edit {
         $observ['value']  =  $rid; //  $img_src
         $observ['old']    =  $rid;
 
-        $oForm->add_obj($observer,'dbx|observer',$observ);
-        $oForm->add_js_observe($observer,1500);   // watch rid from content->sysdata
+        $o_form->add_obj($observer,'dbx|observer',$observ);
+        $o_form->add_js_observe($observer,1500);   // watch rid from content->sysdata
 
 
 
      }
 
-     $content= $oForm->run();
+     $content= $o_form->run();
 
      return $content;
   } // run()

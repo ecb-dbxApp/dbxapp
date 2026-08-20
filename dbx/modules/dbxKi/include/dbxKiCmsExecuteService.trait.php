@@ -14,7 +14,7 @@ use dbx\dbxContent\dbxContent_permalink;
 trait dbxKiCmsExecuteServiceTrait {
 
    private function execute_folder_create(array $plan): array {
-      $dd = dbxContentLng::ddFolder($plan['lng']);
+      $dd = dbxContentLng::dd_folder($plan['lng']);
       $data = $plan['data'];
       $data['sorter'] = $this->next_sorter($dd, 'parent_id', (int)$data['parent_id']);
       $data += $this->lng_fields('f', $plan['lng']);
@@ -25,7 +25,7 @@ trait dbxKiCmsExecuteServiceTrait {
    }
 
    private function execute_folder_update(array $plan): array {
-      $dd = dbxContentLng::ddFolder($plan['lng']);
+      $dd = dbxContentLng::dd_folder($plan['lng']);
       $data = $plan['changes'];
       $data = $this->advance_revision($dd, $plan['id'], $data, $plan['lng']);
       if ($this->db->update($dd, $data, $plan['id']) !== 1) throw new \RuntimeException('Ordner konnte nicht aktualisiert werden.');
@@ -34,14 +34,14 @@ trait dbxKiCmsExecuteServiceTrait {
    }
 
    private function execute_folder_delete(array $plan): array {
-      $dd = dbxContentLng::ddFolder($plan['lng']);
+      $dd = dbxContentLng::dd_folder($plan['lng']);
       if ($this->db->delete($dd, $plan['id']) !== 1) throw new \RuntimeException('Ordner konnte nicht gelöscht werden.');
       $this->invalidate_folder($plan['id']);
       return array('deleted' => true, 'id' => $plan['id'], 'lng' => $plan['lng']);
    }
 
    private function execute_page_create(array $plan): array {
-      $dd = dbxContentLng::ddContent($plan['lng']);
+      $dd = dbxContentLng::dd_content($plan['lng']);
       $data = $plan['data'];
       if (trim((string)($data['sorter'] ?? '')) === '') {
          $data['sorter'] = $this->next_sorter($dd, 'folder', (int)$data['folder']);
@@ -54,19 +54,19 @@ trait dbxKiCmsExecuteServiceTrait {
    }
 
    private function execute_page_update(array $plan): array {
-      $dd = dbxContentLng::ddContent($plan['lng']);
+      $dd = dbxContentLng::dd_content($plan['lng']);
       $data = $this->advance_revision($dd, $plan['id'], $plan['changes'], $plan['lng']);
       if ($this->db->update($dd, $data, $plan['id']) !== 1) throw new \RuntimeException('Seite konnte nicht aktualisiert werden.');
-      $mediaId = (int)($plan['package_media_id_applied'] ?? 0);
-      if ($mediaId > 0) {
-         $this->ensure_inline_media_usage((int)$plan['id'], $mediaId, (string)$plan['lng']);
+      $media_id = (int)($plan['package_media_id_applied'] ?? 0);
+      if ($media_id > 0) {
+         $this->ensure_inline_media_usage((int)$plan['id'], $media_id, (string)$plan['lng']);
       }
       $row = $this->db->select1($dd, $plan['id']);
       $this->invalidate_page($plan['id'], $plan['lng'], $row);
       $result = array('id' => $plan['id'], 'row' => $row);
-      if ($mediaId > 0) {
-         $result['package_media_id'] = $mediaId;
-         $result = array_merge($result, $this->media_inline_payload($mediaId));
+      if ($media_id > 0) {
+         $result['package_media_id'] = $media_id;
+         $result = array_merge($result, $this->media_inline_payload($media_id));
       }
       return $result;
    }
@@ -75,20 +75,20 @@ trait dbxKiCmsExecuteServiceTrait {
       $target = (string)$plan['target_file'];
       $this->render_image_variant_to_file($plan['source'], $target, (int)$plan['width'], (int)$plan['height'], (string)$plan['fit'], (string)$plan['mime'], (int)$plan['quality']);
 
-      $mediaId = (int)($plan['media']['id'] ?? 0);
+      $media_id = (int)($plan['media']['id'] ?? 0);
       $data = array(
          'size' => (int)@filesize($target),
          'width' => (int)$plan['width'],
          'height' => (int)$plan['height'],
          'mime' => (string)$plan['mime'],
       );
-      if ($mediaId <= 0) throw new \RuntimeException('Hero-Medium konnte nicht aktualisiert werden.');
-      $this->db->update('dbxMedia', $data, $mediaId);
-      $this->invalidate_media_references($mediaId);
+      if ($media_id <= 0) throw new \RuntimeException('Hero-Medium konnte nicht aktualisiert werden.');
+      $this->db->update('dbxMedia', $data, $media_id);
+      $this->invalidate_media_references($media_id);
       $this->invalidate_page((int)$plan['id'], (string)$plan['lng'], $plan['page']);
       return array(
          'id' => (int)$plan['id'],
-         'media_id' => $mediaId,
+         'media_id' => $media_id,
          'file' => str_replace('\\', '/', $target),
          'replaced' => true,
       );
@@ -96,12 +96,12 @@ trait dbxKiCmsExecuteServiceTrait {
 
    private function execute_page_hero_create_image(array $plan): array {
       $media = $this->execute_media_create_image_variant($plan['media_plan']);
-      $mediaId = (int)($media['id'] ?? 0);
-      if ($mediaId <= 0) throw new \RuntimeException('Hero-Medium konnte nicht erstellt werden.');
+      $media_id = (int)($media['id'] ?? 0);
+      if ($media_id <= 0) throw new \RuntimeException('Hero-Medium konnte nicht erstellt werden.');
 
       $data = array(
          'active' => 1,
-         'media_id' => $mediaId,
+         'media_id' => $media_id,
          'content_id' => (int)$plan['id'],
          'folder_id' => 0,
          'content_lng' => dbxContentMediaUsageScope::language((string)$plan['lng']),
@@ -110,32 +110,32 @@ trait dbxKiCmsExecuteServiceTrait {
          'caption' => '',
          'settings' => '',
       );
-      $where = dbxContentMediaUsageScope::withLanguage('content_id = ' . (int)$plan['id'] . " AND slot = 'hero' AND active = 1", (string)$plan['lng']);
+      $where = dbxContentMediaUsageScope::with_language('content_id = ' . (int)$plan['id'] . " AND slot = 'hero' AND active = 1", (string)$plan['lng']);
       $this->db->update('dbxMediaUsage', array('active' => 0), $where, 0, 1, 1, 1);
       $data['sorter'] = $this->next_usage_sorter((int)$plan['id'], 0, 'hero', (string)$plan['lng']);
       if ($this->db->insert('dbxMediaUsage', $data) !== 1) {
          throw new \RuntimeException('Hero-Medienzuordnung konnte nicht erstellt werden.');
       }
-      $usageId = $this->db->get_insert_id();
+      $usage_id = $this->db->get_insert_id();
       $this->sync_hero_setting((string)$plan['lng'], $data);
       $this->invalidate_usage($data);
-      $row = $this->db->select1(dbxContentLng::ddContent((string)$plan['lng']), (int)$plan['id']);
+      $row = $this->db->select1(dbxContentLng::dd_content((string)$plan['lng']), (int)$plan['id']);
       return array(
          'id' => (int)$plan['id'],
-         'media_id' => $mediaId,
-         'usage_id' => $usageId,
+         'media_id' => $media_id,
+         'usage_id' => $usage_id,
          'row' => $row,
          'media' => $media['row'] ?? array(),
       );
    }
 
    private function execute_page_delete(array $plan): array {
-      $dd = dbxContentLng::ddContent($plan['lng']);
+      $dd = dbxContentLng::dd_content($plan['lng']);
       if ($this->db->delete($dd, $plan['id']) !== 1) throw new \RuntimeException('Seite konnte nicht gelöscht werden.');
-      $this->db->update('dbxMediaUsage', array('active' => 0), dbxContentMediaUsageScope::withLanguage('content_id = ' . (int)$plan['id'] . ' AND active = 1', (string)$plan['lng']), 0, 1, 1, 1);
-      dbxContentPageCache::invalidateContent($plan['id']);
-      dbxContentPageCache::invalidateAllMenus();
-      dbxContentPermalinkIndex::removeByCid($plan['id'], $plan['lng']);
+      $this->db->update('dbxMediaUsage', array('active' => 0), dbxContentMediaUsageScope::with_language('content_id = ' . (int)$plan['id'] . ' AND active = 1', (string)$plan['lng']), 0, 1, 1, 1);
+      dbxContentPageCache::invalidate_content($plan['id']);
+      dbxContentPageCache::invalidate_all_menus();
+      dbxContentPermalinkIndex::remove_by_cid($plan['id'], $plan['lng']);
       return array('deleted' => true, 'id' => $plan['id'], 'lng' => $plan['lng']);
    }
 
@@ -196,40 +196,40 @@ trait dbxKiCmsExecuteServiceTrait {
       $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
       imagefilledrectangle($dst, 0, 0, $width, $height, $transparent);
 
-      $sourceWidth = imagesx($src);
-      $sourceHeight = imagesy($src);
-      $sourceX = 0;
-      $sourceY = 0;
+      $source_width = imagesx($src);
+      $source_height = imagesy($src);
+      $source_x = 0;
+      $source_y = 0;
       $crop = is_array($plan['crop'] ?? null) ? $plan['crop'] : array();
       if ($crop) {
-         $sourceX = max(0, min((int)($crop['x'] ?? 0), $sourceWidth - 1));
-         $sourceY = max(0, min((int)($crop['y'] ?? 0), $sourceHeight - 1));
-         $sourceWidth = max(1, min((int)($crop['width'] ?? $sourceWidth), imagesx($src) - $sourceX));
-         $sourceHeight = max(1, min((int)($crop['height'] ?? $sourceHeight), imagesy($src) - $sourceY));
+         $source_x = max(0, min((int)($crop['x'] ?? 0), $source_width - 1));
+         $source_y = max(0, min((int)($crop['y'] ?? 0), $source_height - 1));
+         $source_width = max(1, min((int)($crop['width'] ?? $source_width), imagesx($src) - $source_x));
+         $source_height = max(1, min((int)($crop['height'] ?? $source_height), imagesy($src) - $source_y));
       }
       $fit = (string)($plan['fit'] ?? 'cover');
       if ($fit === 'contain') {
-         $scale = min($width / $sourceWidth, $height / $sourceHeight);
-         $copyWidth = max(1, (int)round($sourceWidth * $scale));
-         $copyHeight = max(1, (int)round($sourceHeight * $scale));
-         $dstX = (int)floor(($width - $copyWidth) / 2);
-         $dstY = (int)floor(($height - $copyHeight) / 2);
-         imagecopyresampled($dst, $src, $dstX, $dstY, $sourceX, $sourceY, $copyWidth, $copyHeight, $sourceWidth, $sourceHeight);
+         $scale = min($width / $source_width, $height / $source_height);
+         $copy_width = max(1, (int)round($source_width * $scale));
+         $copy_height = max(1, (int)round($source_height * $scale));
+         $dst_x = (int)floor(($width - $copy_width) / 2);
+         $dst_y = (int)floor(($height - $copy_height) / 2);
+         imagecopyresampled($dst, $src, $dst_x, $dst_y, $source_x, $source_y, $copy_width, $copy_height, $source_width, $source_height);
       } else {
-         $sourceRatio = $sourceWidth / $sourceHeight;
-         $targetRatio = $width / $height;
-         if ($sourceRatio > $targetRatio) {
-            $cropHeight = $sourceHeight;
-            $cropWidth = (int)round($sourceHeight * $targetRatio);
-            $srcX = $sourceX + (int)floor(($sourceWidth - $cropWidth) / 2);
-            $srcY = $sourceY;
+         $source_ratio = $source_width / $source_height;
+         $target_ratio = $width / $height;
+         if ($source_ratio > $target_ratio) {
+            $crop_height = $source_height;
+            $crop_width = (int)round($source_height * $target_ratio);
+            $src_x = $source_x + (int)floor(($source_width - $crop_width) / 2);
+            $src_y = $source_y;
          } else {
-            $cropWidth = $sourceWidth;
-            $cropHeight = (int)round($sourceWidth / $targetRatio);
-            $srcX = $sourceX;
-            $srcY = $sourceY + (int)floor(($sourceHeight - $cropHeight) / 2);
+            $crop_width = $source_width;
+            $crop_height = (int)round($source_width / $target_ratio);
+            $src_x = $source_x;
+            $src_y = $source_y + (int)floor(($source_height - $crop_height) / 2);
          }
-         imagecopyresampled($dst, $src, 0, 0, $srcX, $srcY, $width, $height, $cropWidth, $cropHeight);
+         imagecopyresampled($dst, $src, 0, 0, $src_x, $src_y, $width, $height, $crop_width, $crop_height);
       }
       imagedestroy($src);
 
@@ -277,7 +277,7 @@ trait dbxKiCmsExecuteServiceTrait {
          $where = $data['content_id'] > 0
             ? 'content_id = ' . (int)$data['content_id']
             : 'folder_id = ' . (int)$data['folder_id'];
-         $this->db->update('dbxMediaUsage', array('active' => 0), dbxContentMediaUsageScope::withLanguage($where . " AND slot = 'hero' AND active = 1", $data['content_lng']), 0, 1, 1, 1);
+         $this->db->update('dbxMediaUsage', array('active' => 0), dbxContentMediaUsageScope::with_language($where . " AND slot = 'hero' AND active = 1", $data['content_lng']), 0, 1, 1, 1);
       }
       $data['sorter'] = $this->next_usage_sorter($data['content_id'], $data['folder_id'], $data['slot'], $data['content_lng']);
       if ($this->db->insert('dbxMediaUsage', $data) !== 1) throw new \RuntimeException('Medienzuordnung konnte nicht erstellt werden.');
@@ -290,50 +290,50 @@ trait dbxKiCmsExecuteServiceTrait {
    }
 
    private function sync_hero_setting(string $lng, array $usage): void {
-      $mediaId = (int)($usage['media_id'] ?? 0);
-      $contentId = (int)($usage['content_id'] ?? 0);
-      $folderId = (int)($usage['folder_id'] ?? 0);
-      if ($mediaId <= 0) {
+      $media_id = (int)($usage['media_id'] ?? 0);
+      $content_id = (int)($usage['content_id'] ?? 0);
+      $folder_id = (int)($usage['folder_id'] ?? 0);
+      if ($media_id <= 0) {
          return;
       }
       if ($lng === '') {
          $lng = dbxContentLng::current();
       }
 
-      if ($contentId > 0) {
-         $dd = dbxContentLng::ddContent($lng);
-         $page = $this->db->select1($dd, $contentId);
+      if ($content_id > 0) {
+         $dd = dbxContentLng::dd_content($lng);
+         $page = $this->db->select1($dd, $content_id);
          if (!is_array($page)) {
             return;
          }
-         $patch = array('hero_image_id' => (string)$mediaId);
-         $heroTemplate = trim((string)($page['hero_template'] ?? ''));
-         if ($heroTemplate === '' || $heroTemplate === 'parent') {
+         $patch = array('hero_image_id' => (string)$media_id);
+         $hero_template = trim((string)($page['hero_template'] ?? ''));
+         if ($hero_template === '' || $hero_template === 'parent') {
             $patch['hero_template'] = 'image-hero';
          }
-         if ($this->db->update($dd, $patch, $contentId) !== 1) {
+         if ($this->db->update($dd, $patch, $content_id) !== 1) {
             return;
          }
-         $row = $this->db->select1($dd, $contentId);
+         $row = $this->db->select1($dd, $content_id);
          if (is_array($row)) {
-            $this->invalidate_page($contentId, $lng, $row);
+            $this->invalidate_page($content_id, $lng, $row);
          }
          return;
       }
 
-      if ($folderId > 0) {
-         $dd = dbxContentLng::ddFolder($lng);
-         $folder = $this->db->select1($dd, $folderId);
+      if ($folder_id > 0) {
+         $dd = dbxContentLng::dd_folder($lng);
+         $folder = $this->db->select1($dd, $folder_id);
          if (!is_array($folder)) {
             return;
          }
-         $patch = array('hero_image_id' => (string)$mediaId);
-         $heroTemplate = trim((string)($folder['hero_template'] ?? ''));
-         if ($heroTemplate === '' || $heroTemplate === 'parent') {
+         $patch = array('hero_image_id' => (string)$media_id);
+         $hero_template = trim((string)($folder['hero_template'] ?? ''));
+         if ($hero_template === '' || $hero_template === 'parent') {
             $patch['hero_template'] = 'image-hero';
          }
-         if ($this->db->update($dd, $patch, $folderId) === 1) {
-            $this->invalidate_folder($folderId);
+         if ($this->db->update($dd, $patch, $folder_id) === 1) {
+            $this->invalidate_folder($folder_id);
          }
       }
    }
@@ -355,69 +355,69 @@ trait dbxKiCmsExecuteServiceTrait {
 
    private function execute_translation_apply(array $params, array $plan): array {
       $source = $plan['source'];
-      $targetLng = $plan['target_lng'];
-      $targetDd = dbxContentLng::ddContent($targetLng);
-      $sourceUid = trim((string)($source['lng_uid'] ?? ''));
-      if ($sourceUid === '') {
-         $sourceUid = dbxContentLngSync::ensureRecordUid(
+      $target_lng = $plan['target_lng'];
+      $target_dd = dbxContentLng::dd_content($target_lng);
+      $source_uid = trim((string)($source['lng_uid'] ?? ''));
+      if ($source_uid === '') {
+         $source_uid = dbxContentLngSync::ensure_record_uid(
             $this->db,
-            dbxContentLng::ddContent($plan['source_lng']),
+            dbxContentLng::dd_content($plan['source_lng']),
             (int)$source['id'],
             'p'
          );
       }
-      $targetFolder = dbxContentLngSync::ensureFolderIdInLng($this->db, (int)($source['folder'] ?? 0), $targetLng);
+      $target_folder = dbxContentLngSync::ensure_folder_id_in_lng($this->db, (int)($source['folder'] ?? 0), $target_lng);
       $data = $this->copy_page_structure($source);
       $data = array_merge($data, $plan['translation']);
-      $data['folder'] = $targetFolder;
-      $data['permalink'] = dbxContent_permalink::build($this->db, dbxContentLng::ddFolder($targetLng), $targetFolder, $data['title']);
-      $data['lng_uid'] = $sourceUid;
+      $data['folder'] = $target_folder;
+      $data['permalink'] = dbxContent_permalink::build($this->db, dbxContentLng::dd_folder($target_lng), $target_folder, $data['title']);
+      $data['lng_uid'] = $source_uid;
       $data['lng_sync'] = 'manual';
       $data['lng_rev'] = max(1, (int)($plan['target']['lng_rev'] ?? 0) + 1);
       $data['lng_synced_rev'] = (int)($source['lng_rev'] ?? 1);
 
-      $targetId = (int)($plan['target']['id'] ?? 0);
-      if ($targetId > 0) {
-         if ($this->db->update($targetDd, $data, $targetId) !== 1) throw new \RuntimeException('Übersetzung konnte nicht aktualisiert werden.');
+      $target_id = (int)($plan['target']['id'] ?? 0);
+      if ($target_id > 0) {
+         if ($this->db->update($target_dd, $data, $target_id) !== 1) throw new \RuntimeException('Übersetzung konnte nicht aktualisiert werden.');
       } else {
-         if ($this->db->insert($targetDd, $data) !== 1) throw new \RuntimeException('Übersetzung konnte nicht erstellt werden.');
-         $targetId = $this->db->get_insert_id();
+         if ($this->db->insert($target_dd, $data) !== 1) throw new \RuntimeException('Übersetzung konnte nicht erstellt werden.');
+         $target_id = $this->db->get_insert_id();
       }
 
-      $mediaCopied = 0;
+      $media_copied = 0;
       if ($plan['copy_media']) {
          $this->db->update(
             'dbxMediaUsage',
             array('active' => 0),
-            dbxContentMediaUsageScope::withLanguage('content_id = ' . $targetId . ' AND active = 1', $targetLng),
+            dbxContentMediaUsageScope::with_language('content_id = ' . $target_id . ' AND active = 1', $target_lng),
             0,
             1,
             1,
             1
          );
-         $mediaCopied = $this->copy_media_usage((int)$source['id'], $targetId, $targetFolder, (string)$plan['source_lng'], $targetLng);
+         $media_copied = $this->copy_media_usage((int)$source['id'], $target_id, $target_folder, (string)$plan['source_lng'], $target_lng);
       }
-      $row = $this->db->select1($targetDd, $targetId);
-      $this->invalidate_page($targetId, $targetLng, $row);
-      return array('id' => $targetId, 'lng' => $targetLng, 'row' => $row, 'media_copied' => $mediaCopied);
+      $row = $this->db->select1($target_dd, $target_id);
+      $this->invalidate_page($target_id, $target_lng, $row);
+      return array('id' => $target_id, 'lng' => $target_lng, 'row' => $row, 'media_copied' => $media_copied);
    }
 
    private function execute_translation_sync_all(array $plan): array {
-      $sourceLng = (string)($plan['source_lng'] ?? '');
-      $targetLngs = is_array($plan['target_lngs'] ?? null) ? $plan['target_lngs'] : array();
-      $updateExisting = (bool)($plan['update_existing'] ?? true);
-      $skipManual = (bool)($plan['skip_manual'] ?? false);
-      $copyMedia = (bool)($plan['copy_media'] ?? true);
-      $replaceMediaUsage = (bool)($plan['replace_media_usage'] ?? false);
-      $sourceIds = is_array($plan['source_ids'] ?? null) ? $plan['source_ids'] : array();
-      $folderIds = is_array($sourceIds['folders'] ?? null) ? array_map('intval', $sourceIds['folders']) : array();
-      $pageIds = is_array($sourceIds['pages'] ?? null) ? array_map('intval', $sourceIds['pages']) : array();
+      $source_lng = (string)($plan['source_lng'] ?? '');
+      $target_lngs = is_array($plan['target_lngs'] ?? null) ? $plan['target_lngs'] : array();
+      $update_existing = (bool)($plan['update_existing'] ?? true);
+      $skip_manual = (bool)($plan['skip_manual'] ?? false);
+      $copy_media = (bool)($plan['copy_media'] ?? true);
+      $replace_media_usage = (bool)($plan['replace_media_usage'] ?? false);
+      $source_ids = is_array($plan['source_ids'] ?? null) ? $plan['source_ids'] : array();
+      $folder_ids = is_array($source_ids['folders'] ?? null) ? array_map('intval', $source_ids['folders']) : array();
+      $page_ids = is_array($source_ids['pages'] ?? null) ? array_map('intval', $source_ids['pages']) : array();
 
-      dbxContentTranslate::clearWarnings();
+      dbxContentTranslate::clear_warnings();
 
       $result = array(
-         'source_lng' => $sourceLng,
-         'target_lngs' => $targetLngs,
+         'source_lng' => $source_lng,
+         'target_lngs' => $target_lngs,
          'provider' => dbxContentTranslate::provider(),
          'folders' => array('created' => array(), 'updated' => array(), 'skipped' => array()),
          'pages' => array('created' => array(), 'updated' => array(), 'skipped' => array()),
@@ -426,26 +426,26 @@ trait dbxKiCmsExecuteServiceTrait {
          'warnings' => array(),
       );
 
-      foreach ($targetLngs as $targetLng) {
-         $targetLng = $this->language($targetLng);
-         foreach ($folderIds as $folderId) {
+      foreach ($target_lngs as $target_lng) {
+         $target_lng = $this->language($target_lng);
+         foreach ($folder_ids as $folder_id) {
             try {
-               $item = $this->sync_translate_folder($sourceLng, $targetLng, $folderId, $updateExisting, $skipManual);
+               $item = $this->sync_translate_folder($source_lng, $target_lng, $folder_id, $update_existing, $skip_manual);
                $bucket = (string)($item['status'] ?? 'skipped');
                $result['folders'][$bucket === 'created' ? 'created' : ($bucket === 'updated' ? 'updated' : 'skipped')][] = $item;
             } catch (\Throwable $e) {
-               $result['errors'][] = 'Ordner #' . $folderId . ' nach ' . strtoupper($targetLng) . ': ' . $e->getMessage();
+               $result['errors'][] = 'Ordner #' . $folder_id . ' nach ' . strtoupper($target_lng) . ': ' . $e->getMessage();
             }
          }
 
-         foreach ($pageIds as $pageId) {
+         foreach ($page_ids as $page_id) {
             try {
-               $item = $this->sync_translate_page($sourceLng, $targetLng, $pageId, $updateExisting, $skipManual, $copyMedia, $replaceMediaUsage);
+               $item = $this->sync_translate_page($source_lng, $target_lng, $page_id, $update_existing, $skip_manual, $copy_media, $replace_media_usage);
                $bucket = (string)($item['status'] ?? 'skipped');
                $result['pages'][$bucket === 'created' ? 'created' : ($bucket === 'updated' ? 'updated' : 'skipped')][] = $item;
                $result['media_copied'] += (int)($item['media_copied'] ?? 0);
             } catch (\Throwable $e) {
-               $result['errors'][] = 'Seite #' . $pageId . ' nach ' . strtoupper($targetLng) . ': ' . $e->getMessage();
+               $result['errors'][] = 'Seite #' . $page_id . ' nach ' . strtoupper($target_lng) . ': ' . $e->getMessage();
             }
          }
       }

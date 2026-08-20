@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['page_title'] = 'Finalizar compra';
 $messages['bar_title'] = 'Completar pedido';
 $messages['page_subtitle'] = 'Revise los datos del cliente y pruebe el proceso de pedido de demostración.';
@@ -53,7 +50,7 @@ $messages['thanks_title'] = 'Gracias';
 $messages['saved_snapshot_subtitle'] = 'El pedido se guardó como instantánea.';
 $messages['payment_note'] = 'Información de pago';
 
-$addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
+$add_field = function($name, $type, $label, $rules, $tpl, $extra = array()) use (&$fields) {
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -74,19 +71,19 @@ $addField = function($name, $type, $label, $rules, $tpl, $extra = array()) use (
    $fields[]=$field;
 };
 
-$addField('customer_name','varchar','Nombre','*|min=2|max=180','text-label',array('placeholder'=>'Su nombre'));
-$addField('customer_email','varchar','E-mail','email|max=180','text-label',array('placeholder'=>'name@example.org'));
-$addField('customer_phone','varchar','Teléfono','*|max=80','text-label',array('placeholder'=>'+49 30 123456'));
-$addField('shipping_address','mediumtext','Dirección de entrega','*|min=8|max=2000','textarea-label',array('data'=>'rows=4','placeholder'=>"Nombre\nCalle y número\nCódigo postal y localidad\nPaís"));
-$addField('note','mediumtext','Nota','*|max=2000','textarea-label',array('data'=>'rows=4','placeholder'=>'Nota opcional sobre el pedido'));
-$addField('checkout_request_id','varchar','','parameter|max=64','hidden');
+$add_field('customer_name','varchar','Nombre','*|min=2|max=180','text-label',array('placeholder'=>'Su nombre'));
+$add_field('customer_email','varchar','E-mail','email|max=180','text-label',array('placeholder'=>'name@example.org'));
+$add_field('customer_phone','varchar','Teléfono','*|max=80','text-label',array('placeholder'=>'+49 30 123456'));
+$add_field('shipping_address','mediumtext','Dirección de entrega','*|min=8|max=2000','textarea-label',array('data'=>'rows=4','placeholder'=>"Nombre\nCalle y número\nCódigo postal y localidad\nPaís"));
+$add_field('note','mediumtext','Nota','*|max=2000','textarea-label',array('data'=>'rows=4','placeholder'=>'Nota opcional sobre el pedido'));
+$add_field('checkout_request_id','varchar','','parameter|max=64','hidden');
 
 $cfg = array();
 if (function_exists('dbx')) {
-   $rawCfg = dbx()->get_cfg('dbxShop');
-   $cfg = is_array($rawCfg) ? $rawCfg : array();
+   $raw_cfg = dbx()->get_cfg('dbxShop');
+   $cfg = is_array($raw_cfg) ? $raw_cfg : array();
 }
-$cfgBool = function(string $key, bool $default = false) use ($cfg): bool {
+$cfg_bool = function(string $key, bool $default = false) use ($cfg): bool {
    if (!array_key_exists($key, $cfg)) {
       return $default;
    }
@@ -94,34 +91,34 @@ $cfgBool = function(string $key, bool $default = false) use ($cfg): bool {
    if (is_bool($value)) return $value;
    return in_array(strtolower(trim((string)$value)), array('1', 'true', 'yes', 'on'), true);
 };
-$paymentOptions = array();
-if ($cfgBool('payment_bank_transfer_enabled', true)) {
-   $paymentOptions['bank_transfer'] = 'Pago anticipado / transferencia bancaria';
+$payment_options = array();
+if ($cfg_bool('payment_bank_transfer_enabled', true)) {
+   $payment_options['bank_transfer'] = 'Pago anticipado / transferencia bancaria';
 }
-if ($cfgBool('payment_invoice_enabled', false)) {
-   $paymentOptions['invoice'] = 'Factura';
+if ($cfg_bool('payment_invoice_enabled', false)) {
+   $payment_options['invoice'] = 'Factura';
 }
 if (
-   $cfgBool('payment_paypal_enabled', false)
+   $cfg_bool('payment_paypal_enabled', false)
    && trim((string)($cfg['payment_paypal_client_id'] ?? '')) !== ''
    && trim((string)($cfg['payment_paypal_client_secret'] ?? '')) !== ''
 ) {
-   $paymentOptions['paypal'] = 'PayPal';
+   $payment_options['paypal'] = 'PayPal';
 }
 if (
-   $cfgBool('payment_amazon_pay_enabled', false)
+   $cfg_bool('payment_amazon_pay_enabled', false)
    && trim((string)($cfg['payment_amazon_pay_merchant_id'] ?? '')) !== ''
    && trim((string)($cfg['payment_amazon_pay_store_id'] ?? '')) !== ''
    && trim((string)($cfg['payment_amazon_pay_public_key_id'] ?? '')) !== ''
    && trim((string)($cfg['payment_amazon_pay_private_key'] ?? '')) !== ''
 ) {
-   $paymentOptions['amazon_pay'] = 'Amazon Pay';
+   $payment_options['amazon_pay'] = 'Amazon Pay';
 }
-$optionString = '';
-foreach ($paymentOptions as $value => $label) {
-   $optionString .= ($optionString !== '' ? '&' : '') . $value . '=' . $label;
+$option_string = '';
+foreach ($payment_options as $value => $label) {
+   $option_string .= ($option_string !== '' ? '&' : '') . $value . '=' . $label;
 }
-$addField('payment_method','varchar','Método de pago','parameter','select-single-label',array('options'=>$optionString,'default'=>array_key_first($paymentOptions) ?: ''));
-$addField('accept_legal','int','He leído y acepto los <a href="?dbx_modul=dbxShop&amp;dbx_run1=legal" target="_blank" rel="noopener">textos legales, las condiciones generales y la información de pago y envío</a>.','int','dbxShop|shop-checkout-check');
-$addField('accept_withdrawal','int','He leído la <a href="?dbx_modul=dbxShop&amp;dbx_run1=withdrawal" target="_blank" rel="noopener">política de desistimiento</a>.','int','dbxShop|shop-checkout-check');
+$add_field('payment_method','varchar','Método de pago','parameter','select-single-label',array('options'=>$option_string,'default'=>array_key_first($payment_options) ?: ''));
+$add_field('accept_legal','int','He leído y acepto los <a href="?dbx_modul=dbxShop&amp;dbx_run1=legal" target="_blank" rel="noopener">textos legales, las condiciones generales y la información de pago y envío</a>.','int','dbxShop|shop-checkout-check');
+$add_field('accept_withdrawal','int','He leído la <a href="?dbx_modul=dbxShop&amp;dbx_run1=withdrawal" target="_blank" rel="noopener">política de desistimiento</a>.','int','dbxShop|shop-checkout-check');
 ?>

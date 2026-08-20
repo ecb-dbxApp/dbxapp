@@ -3,9 +3,6 @@
 $messages = array(
    'form_title' => 'Functional core self-test',
    'form_info' => 'Checks DD, FD, form and data flow together.',
-   'save_success' => 'Data was saved',
-   'save_succeass' => 'Data was saved',
-   'save_error' => 'Data could not be saved',
    'report_title' => 'Controlled component report',
    'column_probe_key' => 'Probe key',
    'column_label' => 'Label',

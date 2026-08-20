@@ -1,0 +1,14 @@
+<div class="dbx-report-bar-wrap">
+ <div class="dbx-bar dbx-report-bar">
+  <div class="dbx-report-bar-title {report_filter_class}" data-dbx-tooltip="{ui:report_filters}"><i class="bi bi-sliders2"></i><span>{ui:filters}</span></div>
+  <div class="dbx-report-bar-fields {report_filter_class}">{report:filters}</div>
+  <div class="dbx-report-bar-stats" aria-label="{ui:report_statistics}">
+   <span class="dbx-report-bar-stat">{ui:total} <strong data-report-count="total">{pagination:count_all}</strong></span>
+   <span class="dbx-report-bar-stat">{ui:filtered} <strong data-report-count="filtered-total">{pagination:count_selected}</strong></span>
+   <span class="dbx-report-bar-stat">{ui:selected} <strong data-report-count="selected-total">{pagination:count_checked}</strong></span>
+   {report_extra_stats}
+  </div>
+  <div class="dbx-report-bar-actions">{report_bar_actions}{report_filter_action}</div>
+ </div>
+ <div class="dbx-report-bar-state" hidden aria-hidden="true">[dbx:form]</div>
+</div>

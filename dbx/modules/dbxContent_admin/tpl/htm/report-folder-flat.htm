@@ -3,7 +3,8 @@
     <div class="col">{obj:add_folder}</div> 
  </div>    
  <form action="{action}" class="dbxAjax dbxForm" method="post" id="dbx_form_{i}">  
- [tpl=dbx|report-form-select]
+  {report:bar}
+  <div class="dbx-report-message">{report:message}</div>
  [dbx:pagination]  
  <hr/>  
  <table id="dbx_table_{i}" class="bootstrap-table bootstrap5 table table-striped table-bordered table-light table-hover data-table"  

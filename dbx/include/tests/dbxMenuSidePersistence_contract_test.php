@@ -5,13 +5,13 @@ declare(strict_types=1);
 $root = dirname(__DIR__, 2);
 require_once __DIR__ . '/dbxCssTestReader.php';
 $menu = (string)file_get_contents($root . '/js/lib/menu.js');
-$mainTemplates = array_map(
+$main_templates = array_map(
     static fn(string $file): string => (string)file_get_contents($root . '/modules/dbxMenu/tpl/htm/' . $file),
     array('dbx-top-main.htm', 'dbx-top-main_en.htm', 'dbx-top-main_es.htm')
 );
-$menuStyles = array_map(
+$menu_styles = array_map(
     static fn(string $design): string => dbx_test_read_css($root . '/design/' . $design . '/css/m-menu.css'),
-    array('dbxapp', 'dbxdocs', 'flowers', 'steal')
+    array('dbxapp', 'flowers', 'steal')
 );
 
 $assert = static function (bool $condition, string $message): void {
@@ -49,7 +49,7 @@ $assert(
     'Linke Menüs schließen beim Öffnen eines anderen Ordners nicht alle fremden Zweige.'
 );
 
-foreach ($mainTemplates as $template) {
+foreach ($main_templates as $template) {
     foreach (array('dbx-shop-cart-menu-link', 'dbxModeToggle', 'dbx-skin-menu-root', 'dbx:login_out') as $anchor) {
         $position = strpos($template, $anchor);
         $assert(
@@ -59,7 +59,7 @@ foreach ($mainTemplates as $template) {
     }
 }
 
-foreach ($menuStyles as $style) {
+foreach ($menu_styles as $style) {
     $assert(
         str_contains($style, '.dbx-menu-mobile-label')
             && str_contains($style, 'display: none')

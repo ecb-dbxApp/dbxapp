@@ -38,7 +38,7 @@ foreach (array('dd/invoice.dd.php', 'dd/invoiceItem.dd.php') as $relative) {
     if (!preg_match('/\$table\[\'trace\'\]\s*=\s*\'0\';/', $source)) {
         $fail($relative . ': produktives DD muss trace=0 verwenden.', 2);
     }
-    if (strpos($source, '$addField') !== false) {
+    if (strpos($source, '$add_field') !== false) {
         $fail($relative . ': DD-Felder muessen explizit definiert sein.', 2);
     }
     foreach (array(
@@ -50,25 +50,25 @@ foreach (array('dd/invoice.dd.php', 'dd/invoiceItem.dd.php') as $relative) {
         "\$field['prompt']",
         '$fields[]=$field;',
         '$indexes[]=$index;',
-    ) as $requiredDdPart) {
-        if (strpos($source, $requiredDdPart) === false) {
+    ) as $required_dd_part) {
+        if (strpos($source, $required_dd_part) === false) {
             $fail(
                 $relative . ': expliziter DD-Bestandteil fehlt: '
-                . $requiredDdPart,
+                . $required_dd_part,
                 2
             );
         }
     }
 }
 
-$phpSources = '';
+$php_sources = '';
 foreach (array(
     'myInvoices.class.php',
     'include/myInvoicesFixtures.class.php',
     'include/myInvoicesService.class.php',
 ) as $relative) {
     $source = (string)file_get_contents($module . '/' . $relative);
-    $phpSources .= "\n" . $source;
+    $php_sources .= "\n" . $source;
     try {
         token_get_all($source, TOKEN_PARSE);
     } catch (ParseError $exception) {
@@ -82,7 +82,7 @@ foreach (array(
     '/->(?:query|exec|prepare)\s*\(/',
     '/\b(?:SELECT|INSERT|UPDATE|DELETE)\s+(?:FROM|INTO|SET)\b/i',
 ) as $forbidden) {
-    if (preg_match($forbidden, $phpSources)) {
+    if (preg_match($forbidden, $php_sources)) {
         $fail('Direkter Datenbankzugriff gefunden: ' . $forbidden, 4);
     }
 }
@@ -90,12 +90,12 @@ foreach (array(
 if (preg_match(
     '/private function (?:db|tpl|form|report)\s*\([^)]*\)\s*\{'
     . '\s*return\s+dbx\(\)->get_(?:system|include)_obj/s',
-    $phpSources
+    $php_sources
 )) {
     $fail('Unnötiger dbx-Wrapper gefunden.', 5);
 }
 
-$fixtureSource = (string)file_get_contents(
+$fixture_source = (string)file_get_contents(
     $module . '/include/myInvoicesFixtures.class.php'
 );
 foreach (array(
@@ -104,13 +104,13 @@ foreach (array(
     'update_date',
     'update_uid',
     'owner',
-) as $systemField) {
+) as $system_field) {
     if (preg_match(
-        '/[\'"]' . preg_quote($systemField, '/') . '[\'"]\s*=>/',
-        $fixtureSource
+        '/[\'"]' . preg_quote($system_field, '/') . '[\'"]\s*=>/',
+        $fixture_source
     )) {
         $fail(
-            'Fixture setzt dbxDB-Systemfeld manuell: ' . $systemField,
+            'Fixture setzt dbxDB-Systemfeld manuell: ' . $system_field,
             6
         );
     }
@@ -132,9 +132,9 @@ foreach (array(
     '->begin(self::INVOICE_DD)',
     '->commit(self::INVOICE_DD)',
     '->rollback(self::INVOICE_DD)',
-) as $requiredSource) {
-    if (strpos($service, $requiredSource) === false) {
-        $fail('Servicevertrag fehlt: ' . $requiredSource, 7);
+) as $required_source) {
+    if (strpos($service, $required_source) === false) {
+        $fail('Servicevertrag fehlt: ' . $required_source, 7);
     }
 }
 
@@ -154,36 +154,36 @@ foreach (array(
     'renderInvoiceFooter',
     'renderItemFooter',
     'str_replace(',
-) as $unnecessaryCallbackCode) {
-    if (strpos($service, $unnecessaryCallbackCode) !== false) {
+) as $unnecessary_callback_code) {
+    if (strpos($service, $unnecessary_callback_code) !== false) {
         $fail(
-            'Service umgeht Callback-Defaults: ' . $unnecessaryCallbackCode,
+            'Service umgeht Callback-Defaults: ' . $unnecessary_callback_code,
             8
         );
     }
 }
 
-$itemTemplate = (string)file_get_contents(
+$item_template = (string)file_get_contents(
     $module . '/tpl/htm/invoice-items-report.htm'
 );
-if (stripos($itemTemplate, '<form') !== false) {
+if (stripos($item_template, '<form') !== false) {
     $fail('Eingebetteter Positionsreport enthält ein Formular.', 8);
 }
 foreach (array(
     '<hr class="dbx_split">',
     '{rpt:colspan}',
     '{report_total}',
-) as $requiredTemplate) {
-    if (strpos($itemTemplate, $requiredTemplate) === false) {
-        $fail('Positionsreport-Vertrag fehlt: ' . $requiredTemplate, 9);
+) as $required_template) {
+    if (strpos($item_template, $required_template) === false) {
+        $fail('Positionsreport-Vertrag fehlt: ' . $required_template, 9);
     }
 }
 
-$actionTemplate = (string)file_get_contents(
+$action_template = (string)file_get_contents(
     $module . '/tpl/htm/invoice-row-action.htm'
 );
 foreach (array('dbxAjax', 'dbxConfirm', 'data-confirm-buttons="yesno"') as $part) {
-    if (strpos($actionTemplate, $part) === false) {
+    if (strpos($action_template, $part) === false) {
         $fail('Action-Vertrag fehlt: ' . $part, 10);
     }
 }

@@ -15,7 +15,7 @@ $table['create']='admin';
 $table['update']='admin';
 $table['delete']='admin';
 
-$addField=function($name,$type,$index,$length,$default,$label,$rules,$tpl,$extra=array()) use (&$fields){
+$add_field=function($name,$type,$index,$length,$default,$label,$rules,$tpl,$extra=array()) use (&$fields){
    $field=array();
    $field['name']=$name;
    $field['type']=$type;
@@ -37,20 +37,20 @@ $addField=function($name,$type,$index,$length,$default,$label,$rules,$tpl,$extra
    $fields[]=$field;
 };
 
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
-$addField('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
-$addField('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
-$addField('update_uid','int','MUL','11','0','Aktualisiert von','int','hidden');
-$addField('owner','int','MUL','11','0','Owner','int','hidden');
-$addField('trash','int','MUL','1','0','Trash','int','hidden');
-$addField('product_id','int','MUL','11','0','Artikel','int','text-label');
-$addField('group_id','int','MUL','11','0','Artikelgruppe','int','text-label');
-$addField('media_id','int','MUL','11','0','CMS-Medium','int','text-label');
-$addField('image_path','varchar','MUL','255','','Bildpfad','*|max=255','text-label');
-$addField('title','varchar','','180','','Titel','*|max=180','text-label');
-$addField('alt','varchar','','255','','Alt-Text','*|max=255','text-label');
-$addField('is_primary','int','MUL','1','0','Primaerbild','int','checkbox-label');
-$addField('active','int','MUL','1','1','Aktiv','int','checkbox-label');
-$addField('sorter','int','MUL','11','100','Sortierung','int','text-label');
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('create_date','datetime','','-1','','Erstellt','datetime','hidden',array('convert'=>'date_time'));
+$add_field('create_uid','int','MUL','11','0','Erstellt von','int','hidden');
+$add_field('update_date','datetime','','-1','','Aktualisiert','datetime','hidden',array('convert'=>'date_time'));
+$add_field('update_uid','int','MUL','11','0','Aktualisiert von','int','hidden');
+$add_field('owner','int','MUL','11','0','Owner','int','hidden');
+$add_field('trash','int','MUL','1','0','Trash','int','hidden');
+$add_field('product_id','int','MUL','11','0','Artikel','int','text-label');
+$add_field('group_id','int','MUL','11','0','Artikelgruppe','int','text-label');
+$add_field('media_id','int','MUL','11','0','CMS-Medium','int','text-label');
+$add_field('image_path','varchar','MUL','255','','Bildpfad','*|max=255','text-label');
+$add_field('title','varchar','','180','','Titel','*|max=180','text-label');
+$add_field('alt','varchar','','255','','Alt-Text','*|max=255','text-label');
+$add_field('is_primary','int','MUL','1','0','Primaerbild','int','checkbox-label');
+$add_field('active','int','MUL','1','1','Aktiv','int','checkbox-label');
+$add_field('sorter','int','MUL','11','100','Sortierung','int','text-label');
 ?>

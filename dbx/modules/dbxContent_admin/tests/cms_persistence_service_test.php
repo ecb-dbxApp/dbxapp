@@ -11,28 +11,28 @@ final class CmsPersistenceTestLog {
     public function sys_msg(...$args): void { $this->messages[] = $args; }
 }
 
-$testLog = new CmsPersistenceTestLog();
+$test_log = new CmsPersistenceTestLog();
 if (!function_exists('dbx')) {
     function dbx(): CmsPersistenceTestLog {
-        global $testLog;
-        return $testLog;
+        global $test_log;
+        return $test_log;
     }
 }
 
 final class CmsPersistenceFakeDb {
     public array $calls = array();
-    public int $beginResult = 1;
-    public int $commitResult = 1;
-    public function begin(string $dd): int { $this->calls[] = array('begin', $dd); return $this->beginResult; }
-    public function commit(string $dd): int { $this->calls[] = array('commit', $dd); return $this->commitResult; }
+    public int $begin_result = 1;
+    public int $commit_result = 1;
+    public function begin(string $dd): int { $this->calls[] = array('begin', $dd); return $this->begin_result; }
+    public function commit(string $dd): int { $this->calls[] = array('commit', $dd); return $this->commit_result; }
     public function rollback(string $dd): int { $this->calls[] = array('rollback', $dd); return 1; }
 }
 
 $base = dirname(__DIR__, 4);
 require_once $base . '/dbx/include/tests/dbxModuleSourceBundle.php';
-$serviceFile = $base . '/dbx/modules/dbxContent_admin/include/dbxContentCmsPersistenceService.class.php';
-$controllerFile = $base . '/dbx/modules/dbxContent_admin/include/dbxContent_cms.class.php';
-require_once $serviceFile;
+$service_file = $base . '/dbx/modules/dbxContent_admin/include/dbxContentCmsPersistenceService.class.php';
+$controller_file = $base . '/dbx/modules/dbxContent_admin/include/dbxContent_cms.class.php';
+require_once $service_file;
 
 $failures = array();
 $assert = static function (bool $condition, string $message) use (&$failures): void {
@@ -62,7 +62,7 @@ try {
 $assert($db->calls === array(array('begin', 'content'), array('rollback', 'content')), 'Arbeitsfehler loest keinen Rollback aus.');
 
 $db = new CmsPersistenceFakeDb();
-$db->commitResult = 0;
+$db->commit_result = 0;
 $service = $class->newInstance($db);
 try {
     $transaction->invoke($service, 'folder', 'test_commit_error', 'commit', static fn(): int => 1);
@@ -75,9 +75,9 @@ $assert(
     'Ein Commitfehler loest keinen Rollback aus.'
 );
 
-$source = (string)file_get_contents($serviceFile);
-$controller = dbx_test_module_source_bundle($controllerFile);
-foreach (array('savePage', 'createPage', 'duplicatePage', 'saveFolder', 'createFolder', 'deletePage', 'deleteFolder', 'moveNode') as $method) {
+$source = (string)file_get_contents($service_file);
+$controller = dbx_test_module_source_bundle($controller_file);
+foreach (array('save_page', 'create_page', 'duplicate_page', 'save_folder', 'create_folder', 'delete_page', 'delete_folder', 'move_node') as $method) {
     $assert(str_contains($source, 'public function ' . $method . '('), 'Persistenzmethode fehlt: ' . $method);
 }
 $assert(substr_count($source, '$this->transaction(') >= 7, 'Nicht alle schreibenden CMS-Ablaufe verwenden die gemeinsame Transaktion.');
@@ -86,12 +86,12 @@ $assert(
     'Der Service umgeht dbxDB mit einem direkten Datenbankzugriff.'
 );
 $assert(
-    str_contains($controller, '$this->persistence($db)->savePage(')
-        && str_contains($controller, '$this->persistence($db)->saveFolder(')
-        && str_contains($controller, '$this->persistence($db)->moveNode('),
+    str_contains($controller, '$this->persistence($db)->save_page(')
+        && str_contains($controller, '$this->persistence($db)->save_folder(')
+        && str_contains($controller, '$this->persistence($db)->move_node('),
     'Der CMS-Controller delegiert Kernmutationen nicht vollstaendig an den Persistenzservice.'
 );
-$assert(count($testLog->messages) === 2, 'Fehlerpfade werden nicht genau einmal im Systemlog lokalisiert.');
+$assert(count($test_log->messages) === 2, 'Fehlerpfade werden nicht genau einmal im Systemlog lokalisiert.');
 
 if ($failures !== array()) {
     fwrite(STDERR, "FAIL\n- " . implode("\n- ", $failures) . "\n");

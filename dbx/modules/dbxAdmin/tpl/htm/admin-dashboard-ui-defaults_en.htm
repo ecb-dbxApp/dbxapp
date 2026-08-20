@@ -1,0 +1,23 @@
+<section class="dbx-admin-ui-defaults" data-dbx="lib=adminDashboard|module=dbxAdmin|id=admin-dashboard-ui-defaults" data-admin-ui-defaults="1">
+   <header class="dbx-admin-ui-defaults-head"><div class="dbx-admin-ui-defaults-title"><span class="dbx-admin-ui-defaults-icon"><i class="bi bi-sliders2"></i></span><div><h2>User UI defaults</h2><p>Your current presentation becomes the default until a user stores an individual value.</p></div></div><span class="dbx-admin-ui-defaults-context" data-ui-default-context>Desktop</span></header>
+   {message}
+   <div class="dbx-admin-ui-defaults-rule"><i class="bi bi-diagram-3"></i><div><strong>Binding order</strong><span>Personal value → admin default → product default</span></div></div>
+   <div class="dbx-admin-ui-defaults-grid">
+      <article class="dbx-admin-ui-defaults-card dbx-admin-ui-defaults-current">
+         <div class="dbx-admin-ui-defaults-card-head"><div><strong>Current personal presentation</strong><small>Only approved, stable UI values</small></div><span class="badge text-bg-primary" data-ui-default-current-count>0</span></div>
+         <div class="dbx-admin-ui-defaults-preview" data-ui-default-preview><div class="dbx-admin-ui-defaults-empty">Reading settings …</div></div>
+         <form method="post" action="{save_action}" data-ui-default-form="save"><input type="hidden" name="ui_defaults_context" value="desktop" data-ui-default-context-input><input type="hidden" name="ui_defaults_json" value="{}" data-ui-default-json><button type="submit" class="btn btn-primary" data-ui-default-save><i class="bi bi-people"></i> Save as user default</button></form>
+         <button type="button" class="btn btn-outline-secondary" data-ui-default-clear-personal><i class="bi bi-arrow-counterclockwise"></i> Remove own values and use default</button>
+      </article>
+      <article class="dbx-admin-ui-defaults-card">
+         <div class="dbx-admin-ui-defaults-card-head"><div><strong>Stored admin defaults</strong><small>Desktop and mobile remain separate</small></div></div>
+         <div class="dbx-admin-ui-defaults-tabs">
+            <details open><summary><span><i class="bi bi-display"></i> Desktop</span><b>{desktop_count}</b></summary><small>{desktop_meta}</small><div class="dbx-admin-ui-defaults-stored">{desktop_settings}</div><button type="button" class="btn btn-outline-primary btn-sm dbx-admin-ui-defaults-load" data-ui-default-load="desktop" {desktop_load_disabled}><i class="bi bi-arrow-clockwise"></i> Load &amp; reload</button></details>
+            <details><summary><span><i class="bi bi-phone"></i> Mobile</span><b>{mobile_count}</b></summary><small>{mobile_meta}</small><div class="dbx-admin-ui-defaults-stored">{mobile_settings}</div><button type="button" class="btn btn-outline-primary btn-sm dbx-admin-ui-defaults-load" data-ui-default-load="mobile" {mobile_load_disabled}><i class="bi bi-arrow-clockwise"></i> Load &amp; reload</button></details>
+         </div>
+         <textarea hidden data-ui-default-snapshot="desktop">{desktop_json}</textarea><textarea hidden data-ui-default-snapshot="mobile">{mobile_json}</textarea>
+         <form method="post" action="{clear_action}" data-ui-default-form="clear"><input type="hidden" name="ui_defaults_context" value="desktop" data-ui-default-context-input><button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Delete admin default for this context</button></form>
+      </article>
+   </div>
+   <div class="dbx-admin-ui-defaults-exclusions"><i class="bi bi-shield-check"></i><span><strong>Never distributed:</strong> search filters, selected records, current page, form data, window positions, history and scroll position.</span></div>
+</section>

@@ -102,8 +102,8 @@ class dbxEditor {
           $data['security_name'] = htmlspecialchars($security['name'], ENT_QUOTES, 'UTF-8');
           $data['security_value'] = htmlspecialchars($security['value'], ENT_QUOTES, 'UTF-8');
 
-          $oTPL = dbx()->get_system_obj('dbxTPL');
-          $content = $oTPL->get_tpl('dbxEditor|editor', $data);
+          $o_tpl = dbx()->get_system_obj('dbxTPL');
+          $content = $o_tpl->get_tpl('dbxEditor|editor', $data);
           
         break;
 
@@ -158,18 +158,18 @@ class dbxEditor {
                 $this->json_result(false, 'invalid file', $mutation['security']);
             }
 
-            $fullOld = $base.$old;
-            $fullNew = $base.$new;
+            $full_old = $base.$old;
+            $full_new = $base.$new;
 
-            if (!file_exists($fullOld)) {
+            if (!file_exists($full_old)) {
                 $this->json_result(false, 'source not found', $mutation['security']);
             }
 
-            if (file_exists($fullNew)) {
+            if (file_exists($full_new)) {
                 $this->json_result(false, 'target exists', $mutation['security']);
             }
 
-            if (!rename($fullOld, $fullNew)) {
+            if (!rename($full_old, $full_new)) {
                 $this->json_result(false, 'rename failed', $mutation['security']);
             }
             $this->clear_dd_file_cache($old);
@@ -187,18 +187,18 @@ class dbxEditor {
                 $this->json_result(false, 'invalid file', $mutation['security']);
             }
 
-            $fullOld = $base . $old;
-            $fullNew = $base . $new;
+            $full_old = $base . $old;
+            $full_new = $base . $new;
 
-            if (!file_exists($fullOld)) {
+            if (!file_exists($full_old)) {
                 $this->json_result(false, 'source not found', $mutation['security']);
             }
 
-            if (file_exists($fullNew)) {
+            if (file_exists($full_new)) {
                 $this->json_result(false, 'target exists', $mutation['security']);
             }
 
-            if (!copy($fullOld, $fullNew)) {
+            if (!copy($full_old, $full_new)) {
                 $this->json_result(false, 'copy failed', $mutation['security']);
             }
 
@@ -209,9 +209,9 @@ class dbxEditor {
 
 
         default:
-          $oTPL=dbx()->get_system_obj('dbxTPL');
+          $o_tpl=dbx()->get_system_obj('dbxTPL');
           $msg['msg']="Modul=($modul) Action=($run1) is undef.";
-          $content=$oTPL->get_tpl('dbx|alert-warning',$msg);
+          $content=$o_tpl->get_tpl('dbx|alert-warning',$msg);
       } // switch
       dbx()->set_system_var('dbx_edit',$xedit);
       return $content;
@@ -221,8 +221,8 @@ class dbxEditor {
     $file = str_replace('\\', '/', (string)$file);
 
     if (preg_match('#(?:^|/)dbx/modules/([^/]+)/dd/([^/]+)\.dd\.php$#', $file, $match)) {
-      $oDD = dbx()->get_system_obj('dbxDD');
-      $oDD->clear_dd_cache($match[1] . '|' . $match[2]);
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      $o_dd->clear_dd_cache($match[1] . '|' . $match[2]);
     }
   }
 

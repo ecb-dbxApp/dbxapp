@@ -14,35 +14,35 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 trait dbxShopAdminMediaUsageServiceTrait {
 
 
-   private function ensureShopMediaUsagePage(): int {
+   private function ensure_shop_media_usage_page(): int {
       $db = $this->db();
-      $contentDd = $this->shopMediaUsageContentDd();
+      $content_dd = $this->shop_media_usage_content_dd();
       try {
-         $row = $db->select1($contentDd, array('permalink' => 'shop-medienverwendung'), 'id', 0);
+         $row = $db->select1($content_dd, array('permalink' => 'shop-medienverwendung'), 'id', 0);
          if (!is_array($row)) {
-            $row = $db->select1($contentDd, array('permalink' => 'outside/shop-media-usage'), 'id', 0);
-            if ($this->maintenanceMode && is_array($row) && (int)($row['id'] ?? 0) > 0) {
-               $db->update($contentDd, array('permalink' => 'shop-medienverwendung'), (int)$row['id']);
+            $row = $db->select1($content_dd, array('permalink' => 'outside/shop-media-usage'), 'id', 0);
+            if ($this->maintenance_mode && is_array($row) && (int)($row['id'] ?? 0) > 0) {
+               $db->update($content_dd, array('permalink' => 'shop-medienverwendung'), (int)$row['id']);
             }
          }
          if (is_array($row) && (int)($row['id'] ?? 0) > 0) {
             return (int)$row['id'];
          }
 
-         if (!$this->maintenanceMode) {
+         if (!$this->maintenance_mode) {
             return 0;
          }
 
-         $folderId = 0;
-         $folder = $db->select1($this->shopMediaUsageFolderDd(), array('name' => 'outside'), 'id', 0);
+         $folder_id = 0;
+         $folder = $db->select1($this->shop_media_usage_folder_dd(), array('name' => 'outside'), 'id', 0);
          if (is_array($folder)) {
-            $folderId = (int)($folder['id'] ?? 0);
+            $folder_id = (int)($folder['id'] ?? 0);
          }
 
          $insert = array(
             'activ' => 0,
             'addmenu' => 0,
-            'folder' => $folderId,
+            'folder' => $folder_id,
             'group_read' => 'admin',
             'sorter' => '9999',
             'title' => 'Shop Medienverwendung',
@@ -53,7 +53,7 @@ trait dbxShopAdminMediaUsageServiceTrait {
             'content' => '<p>Interne Seite fuer Shop-Medienverwendung.</p>',
             'meta_robots' => 'noindex,nofollow',
          );
-         $ok = (int)$db->insert($contentDd, $insert);
+         $ok = (int)$db->insert($content_dd, $insert);
          if ($ok === 1) {
             $id = (int)$db->get_insert_id();
             return $id;
@@ -69,7 +69,7 @@ trait dbxShopAdminMediaUsageServiceTrait {
 
 
 
-   private function shopMediaUsageSlot(): string {
+   private function shop_media_usage_slot(): string {
       $slot = strtolower(trim((string)dbx()->get_cfg('dbxShop', 'media_usage_slot')));
       $allowed = array('shop','hero','gallery','inline','header','teaser','footer');
       return in_array($slot, $allowed, true) ? $slot : 'shop';
@@ -77,10 +77,10 @@ trait dbxShopAdminMediaUsageServiceTrait {
 
 
 
-   private function shopMediaUsageSorter($db, int $contentId, string $slot): string {
-      $where = dbxContentMediaUsageScope::withLanguage(
-         'content_id = ' . $contentId . " AND slot = '" . str_replace("'", "''", $slot) . "' AND active = 1",
-         $this->shopMediaUsageLng()
+   private function shop_media_usage_sorter($db, int $content_id, string $slot): string {
+      $where = dbxContentMediaUsageScope::with_language(
+         'content_id = ' . $content_id . " AND slot = '" . str_replace("'", "''", $slot) . "' AND active = 1",
+         $this->shop_media_usage_lng()
       );
       $rows = $db->select('dbxMediaUsage', $where, 'sorter,id', 'sorter,id', 'DESC', '', 1, 0, 0);
       $max = 0;
@@ -92,14 +92,14 @@ trait dbxShopAdminMediaUsageServiceTrait {
 
 
 
-   private function shopMediaFolderPath(): string {
+   private function shop_media_folder_path(): string {
       $base = dbx()->get_file_dir();
       return rtrim($base, '/\\') . '/media/img/shop';
    }
 
 
 
-   private function normalizeShopSourceImagePath(string $path): string {
+   private function normalize_shop_source_image_path(string $path): string {
       $path = trim(str_replace('\\', '/', $path));
       $path = preg_replace('~^https?://[^/]+/~i', '', $path) ?: $path;
       $path = preg_replace('~^/?dbxapp/~i', '', $path) ?: $path;
@@ -108,8 +108,8 @@ trait dbxShopAdminMediaUsageServiceTrait {
 
 
 
-   private function filePathForShopImage(string $path): string {
-      $path = $this->normalizeShopSourceImagePath($path);
+   private function file_path_for_shop_image(string $path): string {
+      $path = $this->normalize_shop_source_image_path($path);
       if ($path === '' || strpos($path, '..') !== false || preg_match('~(^|/)\.~', $path)) {
          return '';
       }
@@ -124,7 +124,7 @@ trait dbxShopAdminMediaUsageServiceTrait {
 
 
 
-   private function mediaMime(string $file): string {
+   private function media_mime(string $file): string {
       $mime = function_exists('mime_content_type') ? (string)@mime_content_type($file) : '';
       if ($mime !== '') {
          return $mime;
@@ -144,33 +144,33 @@ trait dbxShopAdminMediaUsageServiceTrait {
 
 
 
-   private function ensureMediaRecordForShopImage(array $image): int {
-      $mediaId = (int)($image['media_id'] ?? 0);
-      if ($mediaId > 0) {
-         return $mediaId;
+   private function ensure_media_record_for_shop_image(array $image): int {
+      $media_id = (int)($image['media_id'] ?? 0);
+      if ($media_id > 0) {
+         return $media_id;
       }
 
-      $sourcePath = $this->normalizeShopSourceImagePath((string)($image['image_path'] ?? ''));
-      if ($sourcePath === '' || stripos($sourcePath, 'dbxmedia:') === 0) {
+      $source_path = $this->normalize_shop_source_image_path((string)($image['image_path'] ?? ''));
+      if ($source_path === '' || stripos($source_path, 'dbxmedia:') === 0) {
          return 0;
       }
 
-      $sourceFile = $this->filePathForShopImage($sourcePath);
-      if ($sourceFile === '' || !is_file($sourceFile) || !is_readable($sourceFile)) {
+      $source_file = $this->file_path_for_shop_image($source_path);
+      if ($source_file === '' || !is_file($source_file) || !is_readable($source_file)) {
          return 0;
       }
 
-      $name = basename($sourceFile);
+      $name = basename($source_file);
       $name = preg_replace('/[^A-Za-z0-9_.-]+/', '-', $name) ?: ('shop-image-' . (int)($image['id'] ?? 0));
-      $targetDir = $this->shopMediaFolderPath();
-      if (!is_dir($targetDir)) {
-         @mkdir($targetDir, 0775, true);
+      $target_dir = $this->shop_media_folder_path();
+      if (!is_dir($target_dir)) {
+         @mkdir($target_dir, 0775, true);
       }
-      $targetFile = rtrim($targetDir, '/\\') . '/' . $name;
-      if (!is_file($targetFile)) {
-         @copy($sourceFile, $targetFile);
+      $target_file = rtrim($target_dir, '/\\') . '/' . $name;
+      if (!is_file($target_file)) {
+         @copy($source_file, $target_file);
       }
-      if (!is_file($targetFile)) {
+      if (!is_file($target_file)) {
          return 0;
       }
 
@@ -178,17 +178,17 @@ trait dbxShopAdminMediaUsageServiceTrait {
       $db = $this->db();
       $existing = $db->select1('dbxMedia', array('file_path' => $rel), 'id,active', 0);
       if (is_array($existing) && (int)($existing['id'] ?? 0) > 0) {
-         $mediaId = (int)$existing['id'];
+         $media_id = (int)$existing['id'];
          if ((int)($existing['active'] ?? 0) !== 1) {
-            $db->update('dbxMedia', array('active' => 1), $mediaId);
+            $db->update('dbxMedia', array('active' => 1), $media_id);
          }
-         $this->repo()->updateImageMediaReference((int)($image['id'] ?? 0), $mediaId, 'dbxmedia:' . $mediaId);
-         return $mediaId;
+         $this->repo()->update_image_media_reference((int)($image['id'] ?? 0), $media_id, 'dbxmedia:' . $media_id);
+         return $media_id;
       }
 
       $width = 0;
       $height = 0;
-      $size = @getimagesize($targetFile);
+      $size = @getimagesize($target_file);
       if (is_array($size)) {
          $width = (int)($size[0] ?? 0);
          $height = (int)($size[1] ?? 0);
@@ -197,7 +197,7 @@ trait dbxShopAdminMediaUsageServiceTrait {
       if ($title === '') {
          $title = pathinfo($name, PATHINFO_FILENAME);
       }
-      $mime = $this->mediaMime($targetFile);
+      $mime = $this->media_mime($target_file);
       $insert = array(
          'active' => 1,
          'content_id' => 0,
@@ -212,7 +212,7 @@ trait dbxShopAdminMediaUsageServiceTrait {
          'file_name' => $name,
          'file_path' => $rel,
          'mime' => $mime,
-         'size' => (int)@filesize($targetFile),
+         'size' => (int)@filesize($target_file),
          'width' => $width,
          'height' => $height,
          'tags' => 'shop',
@@ -224,79 +224,79 @@ trait dbxShopAdminMediaUsageServiceTrait {
       if ($ok !== 1) {
          return 0;
       }
-      $mediaId = (int)$db->get_insert_id();
-      if ($mediaId <= 0) {
+      $media_id = (int)$db->get_insert_id();
+      if ($media_id <= 0) {
          return 0;
       }
-      if ($mediaId > 0) {
-         $this->repo()->updateImageMediaReference((int)($image['id'] ?? 0), $mediaId, 'dbxmedia:' . $mediaId);
+      if ($media_id > 0) {
+         $this->repo()->update_image_media_reference((int)($image['id'] ?? 0), $media_id, 'dbxmedia:' . $media_id);
       }
-      return $mediaId;
+      return $media_id;
    }
 
 
 
-   private function migrateExistingShopImagesToMedia(): void {
-      foreach ($this->repo()->allImages() as $image) {
+   private function migrate_existing_shop_images_to_media(): void {
+      foreach ($this->repo()->all_images() as $image) {
          if ((int)($image['active'] ?? 0) !== 1) {
             continue;
          }
-         $this->ensureMediaRecordForShopImage($image);
+         $this->ensure_media_record_for_shop_image($image);
       }
    }
 
 
 
-   private function syncShopMediaUsage(): void {
+   private function sync_shop_media_usage(): void {
       $db = $this->db();
-      $contentId = $this->shopMediaUsageContentId();
-      if ($contentId <= 0) {
+      $content_id = $this->shop_media_usage_content_id();
+      if ($content_id <= 0) {
          return;
       }
 
-      $slot = $this->shopMediaUsageSlot();
-      $sourceNeedle = '%"source":"dbxShop"%';
+      $slot = $this->shop_media_usage_slot();
+      $source_needle = '%"source":"dbxShop"%';
       try {
-         $this->migrateExistingShopImagesToMedia();
+         $this->migrate_existing_shop_images_to_media();
 
          // Die Shop-Tabelle ist die einzige Quelle. Alte Snapshots werden
          // physisch entfernt, damit jeder Lauf exakt dieselbe Nutzung erzeugt
          // und die Datenbank nicht durch inaktive Historie waechst.
          $db->delete(
             'dbxMediaUsage',
-            "slot = 'shop' OR settings LIKE '" . str_replace("'", "''", $sourceNeedle) . "'",
+            "slot = 'shop' OR settings LIKE '" . str_replace("'", "''", $source_needle) . "'",
             1,
             0
          );
 
-         $byMedia = array();
-         foreach ($this->repo()->allImages() as $image) {
+         $by_media = array();
+         foreach ($this->repo()->all_images() as $image) {
             if ((int)($image['active'] ?? 0) !== 1) {
                continue;
             }
-            $mediaId = (int)($image['media_id'] ?? 0);
-            if ($mediaId <= 0) {
+            $media_id = (int)($image['media_id'] ?? 0);
+            if ($media_id <= 0) {
                continue;
             }
-            if (!isset($byMedia[$mediaId])) {
-               $byMedia[$mediaId] = array(
-                  'media_id' => $mediaId,
+            if (!isset($by_media[$media_id])) {
+               $by_media[$media_id] = array(
+                  'media_id' => $media_id,
                   'title' => (string)($image['title'] ?? ''),
                   'product_ids' => array(),
                   'group_ids' => array(),
                );
             }
-            $productId = (int)($image['product_id'] ?? 0);
-            $groupId = (int)($image['group_id'] ?? 0);
-            if ($productId > 0) {
-               $byMedia[$mediaId]['product_ids'][$productId] = $productId;
+            $product_id = (int)($image['product_id'] ?? 0);
+            $group_id = (int)($image['group_id'] ?? 0);
+            if ($product_id > 0) {
+               $by_media[$media_id]['product_ids'][$product_id] = $product_id;
             }
-            if ($groupId > 0) {
-               $byMedia[$mediaId]['group_ids'][$groupId] = $groupId;
+            if ($group_id > 0) {
+               $by_media[$media_id]['group_ids'][$group_id] = $group_id;
             }
          }
 
-         foreach ($byMedia as $mediaId => $info) {
+         foreach ($by_media as $media_id => $info) {
             $settings = json_encode(array(
                'source' => 'dbxShop',
                'product_ids' => array_values($info['product_ids']),
@@ -304,12 +304,12 @@ trait dbxShopAdminMediaUsageServiceTrait {
             ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             $db->insert('dbxMediaUsage', array(
                'active' => 1,
-               'media_id' => (int)$mediaId,
-               'content_id' => $contentId,
+               'media_id' => (int)$media_id,
+               'content_id' => $content_id,
                'folder_id' => 0,
-               'content_lng' => $this->shopMediaUsageLng(),
+               'content_lng' => $this->shop_media_usage_lng(),
                'slot' => $slot,
-               'sorter' => $this->shopMediaUsageSorter($db, $contentId, $slot),
+               'sorter' => $this->shop_media_usage_sorter($db, $content_id, $slot),
                'template' => 'image-gallery',
                'caption' => (string)($info['title'] ?? ''),
                'settings' => $settings ?: '{"source":"dbxShop"}',
@@ -324,26 +324,10 @@ trait dbxShopAdminMediaUsageServiceTrait {
 
 
 
-   /**
-    * Provisioniert Shop-Hilfen und Medienreferenzen bewusst nur im
-    * administrativen Wartungslauf.
-    */
-   private function maintainShopAdminContent(): void {
-      $this->ensureCmsShopMediaFolder();
-      $this->ensureShopMediaUsagePage();
-      $this->ensureShopChannelHelpPage();
-      $this->ensureShopChannelsHelpPage();
-      foreach (array('shop', 'amazon', 'ebay', 'kleinanzeigen', 'mobile', 'custom') as $platform) {
-         $this->ensureShopChannelProviderHelpPage($platform);
-      }
-      $this->ensureShopProductGroupsHelpPage();
-      $this->ensureShopShippingGroupsHelpPage();
-      $this->ensureShopSettingsHelpPage();
-      $this->ensureShopOrdersHelpPage();
-      $this->ensureShopProductsHelpPage();
-      $this->ensureShopProductChannelMappingHelpPage();
-      $this->ensureShopProductAttributesHelpPage();
-      $this->ensureShopMediaHelpPage();
-      $this->syncShopMediaUsage();
+   /** Pflegt ausschließlich die CMS-Medienreferenzen des Shops. */
+   private function maintain_shop_admin_content(): void {
+      $this->ensure_cms_shop_media_folder();
+      $this->ensure_shop_media_usage_page();
+      $this->sync_shop_media_usage();
    }
 }

@@ -1,18 +1,18 @@
 <?php
 
-
-
-
+/**
+ * Importiert SQL-Dateien in zeitlich begrenzten, wiederaufnehmbaren Schritten.
+ */
 class dbxSQLreader extends dbxObj {
 
   public function import() {
 
     $percent=0;
     $info='import';
-    $oDB = dbx()->get_system_obj('dbxDB');
+    $o_db = dbx()->get_system_obj('dbxDB');
 
     $file=$this->get_property('filename','nofile');
-    $errorFile= $file.'.err'; // tmp file for erro
+    $error_file= $file.'.err'; // tmp file for erro
     $inf = new SplFileInfo($file);
     $ext = ($inf->getExtension());
     $max = ini_get('max_execution_time');
@@ -22,18 +22,18 @@ class dbxSQLreader extends dbxObj {
     $process    = $this->get_property('process','sqlImport');
     $server     = $this->get_property('server', dbx()->get_cfg('dbx', 'default_server'));
     $bytes      = $this->get_property('run_bytes',96000);
-    $maxRuntime = $this->get_property('run_time',1);  // less then your max script execution limit
-    $deadline   = time()+$maxRuntime;
-    $filePos    = dbx()->get_session_var('filepos',0,$process);
-    $queryCount = $this->get_property('querys',0);
+    $max_runtime = $this->get_property('run_time',1);  // less then your max script execution limit
+    $deadline   = time()+$max_runtime;
+    $file_pos    = dbx()->get_session_var('filepos',0,$process);
+    $query_count = $this->get_property('querys',0);
 
     //dbx_debug("#IMPORT Pos=($filePos)");
 
-    if (!$filePos) $this->set_property('status',0);
-    $queryCount=dbx()->get_session_var('querys',0,$process);
+    if (!$file_pos) $this->set_property('status',0);
+    $query_count=dbx()->get_session_var('querys',0,$process);
 
     ($fp = fopen($file, 'r')) OR die('failed to open file:'.$file);
-    if($filePos) fseek($fp, $filePos);
+    if($file_pos) fseek($fp, $file_pos);
 
     $filesize=filesize($file);
     $query = '';
@@ -45,13 +45,13 @@ class dbxSQLreader extends dbxObj {
        $query.= $line;
 
        if( substr(trim($query),-1)==';' ){
-         $ok=$server ? $oDB->exec($server, $query) : 0;
+         $ok=$server ? $o_db->exec($server, $query) : 0;
          if(!$ok) {
-          $error = $query . $oDB->get_error_text();
-          $errorFile=dbx()->os_path($errorFile);
-          file_put_contents($errorFile, $error, FILE_APPEND);
+          $error = $query . $o_db->get_error_text();
+          $error_file=dbx()->os_path($error_file);
+          file_put_contents($error_file, $error, FILE_APPEND);
          }
-         $query = ''; $queryCount++;
+         $query = ''; $query_count++;
          dbx()->set_session_var('filepos',ftell($fp),$process);// save current file position
        }
 
@@ -71,8 +71,8 @@ class dbxSQLreader extends dbxObj {
       dbx()->set_session_var('filepos',$done,$process);
     }
     $this->set_property('filesize' ,$filesize);
-    $this->set_property('querys'   ,$queryCount);
-    dbx()->set_session_var('querys',$queryCount,$process);
+    $this->set_property('querys'   ,$query_count);
+    dbx()->set_session_var('querys',$query_count,$process);
 
     $status=$this->get_property('status',0);
 

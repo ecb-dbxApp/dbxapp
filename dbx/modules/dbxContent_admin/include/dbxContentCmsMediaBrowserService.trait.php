@@ -125,7 +125,7 @@ trait dbxContentCmsMediaBrowserServiceTrait {
    private function media_usage_rows_for_context($db, $content_id = 0, $folder_id = 0, $slot = '', $content_lng = '') {
       $content_id = (int)$content_id;
       $folder_id = (int)$folder_id;
-      $where = dbxContentMediaUsageScope::withLanguage('active = 1', $content_lng);
+      $where = dbxContentMediaUsageScope::with_language('active = 1', $content_lng);
       if ($content_id > 0) $where .= ' AND content_id = ' . $content_id;
       if ($folder_id > 0) $where .= ' AND folder_id = ' . $folder_id;
       if ($slot !== '') $where .= " AND slot = '" . str_replace("'", "''", (string)$slot) . "'";
@@ -260,7 +260,7 @@ trait dbxContentCmsMediaBrowserServiceTrait {
 
       $rows = $db->select(
          $this->dd_media_usage,
-         dbxContentMediaUsageScope::withLanguage('content_id = ' . $content_id . " AND active = 1 AND slot = 'inline'", $content_lng),
+         dbxContentMediaUsageScope::with_language('content_id = ' . $content_id . " AND active = 1 AND slot = 'inline'", $content_lng),
          '*',
          'id'
       );
@@ -282,7 +282,7 @@ trait dbxContentCmsMediaBrowserServiceTrait {
 
          $usages = $db->select(
             $this->dd_media_usage,
-            dbxContentMediaUsageScope::withLanguage('media_id = ' . $id . ' AND content_id = ' . $content_id . " AND slot = 'inline'", $content_lng),
+            dbxContentMediaUsageScope::with_language('media_id = ' . $id . ' AND content_id = ' . $content_id . " AND slot = 'inline'", $content_lng),
             '*', 'active DESC, id DESC', '', 0, 0, 0
          );
 
@@ -355,9 +355,9 @@ trait dbxContentCmsMediaBrowserServiceTrait {
       $content_lng = dbxContentMediaUsageScope::language((string)$content_lng);
       $except = $except_id > 0 ? ' AND media_id <> ' . $except_id : '';
       if ($content_id > 0) {
-         $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::withLanguage("content_id = " . $content_id . " AND slot = 'hero' AND active = 1" . $except, $content_lng), 0, 1, 1, 0);
+         $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::with_language("content_id = " . $content_id . " AND slot = 'hero' AND active = 1" . $except, $content_lng), 0, 1, 1, 0);
       } elseif ($folder_id > 0) {
-         $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::withLanguage("folder_id = " . $folder_id . " AND slot = 'hero' AND active = 1" . $except, $content_lng), 0, 1, 1, 0);
+         $db->update($this->dd_media_usage, array('active' => 0), dbxContentMediaUsageScope::with_language("folder_id = " . $folder_id . " AND slot = 'hero' AND active = 1" . $except, $content_lng), 0, 1, 1, 0);
       }
    }
 

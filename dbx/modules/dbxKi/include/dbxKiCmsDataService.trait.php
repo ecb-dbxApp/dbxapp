@@ -32,12 +32,12 @@ trait dbxKiCmsDataServiceTrait {
    private function page_data(array $params, string $lng, int $folder, string $title): array {
       $permalink = trim($this->clean($params['permalink'] ?? '', 254));
       if ($permalink === '') {
-         $permalink = dbxContent_permalink::build($this->db, dbxContentLng::ddFolder($lng), $folder, $title);
+         $permalink = dbxContent_permalink::build($this->db, dbxContentLng::dd_folder($lng), $folder, $title);
       } else {
-         if (!dbxContent_permalink::isValid($permalink)) {
+         if (!dbxContent_permalink::is_valid($permalink)) {
             throw new \InvalidArgumentException('permalink darf nur Kleinbuchstaben, Zahlen und einzelne Bindestriche enthalten.');
          }
-         if (dbxContent_permalink::exists($this->db, dbxContentLng::ddContent($lng), $permalink)) {
+         if (dbxContent_permalink::exists($this->db, dbxContentLng::dd_content($lng), $permalink)) {
             throw new \InvalidArgumentException('permalink wird bereits von einer anderen Seite verwendet.');
          }
       }
@@ -127,16 +127,16 @@ trait dbxKiCmsDataServiceTrait {
                   if ($candidate === $image || !$candidate instanceof \DOMElement) {
                      continue;
                   }
-                  $candidateClass = ' ' . strtolower($candidate->getAttribute('class')) . ' ';
-                  $candidateStyle = strtolower($candidate->getAttribute('style'));
-                  $absolute = str_contains($candidateClass, ' position-absolute ')
-                     || preg_match('/position\s*:\s*absolute/i', $candidateStyle) === 1;
+                  $candidate_class = ' ' . strtolower($candidate->getAttribute('class')) . ' ';
+                  $candidate_style = strtolower($candidate->getAttribute('style'));
+                  $absolute = str_contains($candidate_class, ' position-absolute ')
+                     || preg_match('/position\s*:\s*absolute/i', $candidate_style) === 1;
                   $text = trim(preg_replace('/\s+/u', ' ', $candidate->textContent ?? '') ?? '');
-                  $structuredText = $candidate->getElementsByTagName('h1')->length
+                  $structured_text = $candidate->getElementsByTagName('h1')->length
                      + $candidate->getElementsByTagName('h2')->length
                      + $candidate->getElementsByTagName('p')->length
                      + $candidate->getElementsByTagName('a')->length;
-                  if ($absolute && (mb_strlen($text) >= 80 || $structuredText >= 2)) {
+                  if ($absolute && (mb_strlen($text) >= 80 || $structured_text >= 2)) {
                      throw new \InvalidArgumentException(
                         'dbxKi: Ein Bild mit ueberlagertem Text am Seitenanfang ist ein CMS-Hero. '
                         . 'Hero-Bild ueber hero_image_id/media.assign slot=hero setzen und den Hero-Text '
@@ -167,8 +167,8 @@ trait dbxKiCmsDataServiceTrait {
 
    private function lng_fields(string $prefix, string $lng): array {
       return array(
-         'lng_uid' => dbxContentLngSync::newUid($prefix),
-         'lng_sync' => $lng === dbxContentLngSync::masterLng() ? 'auto' : 'manual',
+         'lng_uid' => dbxContentLngSync::new_uid($prefix),
+         'lng_sync' => $lng === dbxContentLngSync::master_lng() ? 'auto' : 'manual',
          'lng_rev' => 1,
          'lng_synced_rev' => 0,
       );
@@ -177,10 +177,10 @@ trait dbxKiCmsDataServiceTrait {
    private function advance_revision(string $dd, int $id, array $data, string $lng): array {
       $row = $this->db->select1($dd, $id, 'lng_uid,lng_rev', 0);
       $uid = trim((string)($row['lng_uid'] ?? ''));
-      if ($uid === '') $uid = dbxContentLngSync::newUid(strpos($dd, 'folder') !== false ? 'f' : 'p');
+      if ($uid === '') $uid = dbxContentLngSync::new_uid(strpos($dd, 'folder') !== false ? 'f' : 'p');
       $data['lng_uid'] = $uid;
       $data['lng_rev'] = max(1, (int)($row['lng_rev'] ?? 0)) + 1;
-      if ($lng !== dbxContentLngSync::masterLng()) $data['lng_sync'] = 'manual';
+      if ($lng !== dbxContentLngSync::master_lng()) $data['lng_sync'] = 'manual';
       return $data;
    }
 
@@ -194,7 +194,7 @@ trait dbxKiCmsDataServiceTrait {
       $where = "active = 1 AND slot = '" . str_replace("'", "''", $slot) . "'";
       if ($content > 0) $where .= ' AND content_id = ' . $content;
       if ($folder > 0) $where .= ' AND folder_id = ' . $folder;
-      $where = dbxContentMediaUsageScope::withLanguage($where, $lng);
+      $where = dbxContentMediaUsageScope::with_language($where, $lng);
       $rows = $this->db->select('dbxMediaUsage', $where, 'sorter,id', 'sorter DESC,id DESC', 'ASC', '', 1, 0, 0);
       $max = is_array($rows) && isset($rows[0]) ? (int)($rows[0]['sorter'] ?? 0) : 0;
       return sprintf('%04d', $max + 10);

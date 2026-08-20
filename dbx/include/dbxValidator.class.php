@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Zentrale, strikt pruefende Eingabevalidierung.
+ * @brief Zentrale, strikt prüfende Eingabevalidierung.
  *
  * `validate()` bleibt der rueckwaertskompatible boolesche Einstieg.
  * `validateResult()` liefert zusaetzlich einen stabilen Fehlercode, eine
@@ -21,21 +21,21 @@
  */
 class dbxValidator {
 
-    private array $errorMessages = [];
+    private array $error_messages = [];
 
     /** Strukturierte Fehler des letzten Validierungslaufs. */
     private array $errors = [];
 
     /** Vollständiges strukturiertes Ergebnis des letzten Validierungslaufs. */
-    private array $lastResult = [];
+    private array $last_result = [];
 
     /** Optional fest vorgegebene Sprache; leer verwendet die aktive UI-Sprache. */
     private string $language = '';
 
-    private static array $ruleCache = [];
+    private static array $rule_cache = [];
 
     /** Request-lokaler Cache der kleinen sprachabhängigen Include-Dateien. */
-    private static array $messageCache = [];
+    private static array $message_cache = [];
 
     /** Deutscher Notfall-Fallback, falls eine Sprachdatei nicht lesbar ist. */
     private const DEFAULT_MESSAGES = [
@@ -132,10 +132,10 @@ class dbxValidator {
        RULE PARSER
        ===================================================== */
 
-    private function parseRule(string $rules): array {
+    private function parse_rule(string $rules): array {
 
-        if (isset(self::$ruleCache[$rules])) {
-            return self::$ruleCache[$rules];
+        if (isset(self::$rule_cache[$rules])) {
+            return self::$rule_cache[$rules];
         }
 
         $r=[
@@ -220,7 +220,7 @@ class dbxValidator {
             $r['base']=self::TYPE_ALIAS[$r['base']];
         }
 
-        if ($r['base'] === '' || !$this->isKnownBase($r['base'])) {
+        if ($r['base'] === '' || !$this->is_known_base($r['base'])) {
             $r['invalid'][] = $r['base'] === '' ? '(empty)' : $r['base'];
         }
 
@@ -228,12 +228,12 @@ class dbxValidator {
             $r['invalid'][] = 'min>max';
         }
 
-        self::$ruleCache[$rules]=$r;
+        self::$rule_cache[$rules]=$r;
 
         return $r;
     }
 
-    private function isKnownBase(string $base): bool {
+    private function is_known_base(string $base): bool {
         return $base === '*'
             || in_array($base, [
                 'int', 'tinyint', 'smallint', 'mediumint', 'bigint',
@@ -250,7 +250,7 @@ class dbxValidator {
        LENGTH
        ===================================================== */
 
-    private function stringLength(string $value): int {
+    private function string_length(string $value): int {
         if (function_exists('mb_strlen')) {
             return mb_strlen($value, 'UTF-8');
         }
@@ -264,7 +264,7 @@ class dbxValidator {
        EXTRA STRIP
        ===================================================== */
 
-    private function stripExtra(string $v,string $extra): string {
+    private function strip_extra(string $v,string $extra): string {
 
         if ($extra==='') return $v;
 
@@ -276,7 +276,7 @@ class dbxValidator {
        DATE / TIME
        ===================================================== */
 
-    private function validateDate(string $v): bool {
+    private function validate_date(string $v): bool {
 
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/',$v)) return false;
 
@@ -285,12 +285,12 @@ class dbxValidator {
         return checkdate((int)$m,(int)$d,(int)$y);
     }
 
-    private function validateTime(string $v): bool {
+    private function validate_time(string $v): bool {
 
         return (bool)preg_match('/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/',$v);
     }
 
-    private function validateTimestamp(string $v): bool {
+    private function validate_timestamp(string $v): bool {
 
         if (!preg_match(
             '/^(\d{4})-(\d{2})-(\d{2}) ((?:[01]\d|2[0-3])):([0-5]\d):([0-5]\d)(?:\.\d{1,6})?$/',
@@ -309,12 +309,12 @@ class dbxValidator {
        ===================================================== */
 
     /**
-     * Prueft eine vollstaendige Internet-E-Mail-Adresse.
+     * Prüft eine vollstaendige Internet-E-Mail-Adresse.
      *
      * Neben PHPs Syntaxpruefung werden die RFC-Laengenbegrenzungen sowie
      * Domainlabels und eine vollstaendige Top-Level-Domain kontrolliert.
      */
-    private function validateEmail(string $v): bool {
+    private function validate_email(string $v): bool {
 
         if ($v === '' || strlen($v) > 254 || substr_count($v, '@') !== 1) {
             return false;
@@ -331,13 +331,13 @@ class dbxValidator {
         }
 
         if (function_exists('idn_to_ascii') && preg_match('/[^\x20-\x7E]/', $domain)) {
-            $idnFlags = defined('IDNA_DEFAULT') ? IDNA_DEFAULT : 0;
-            $idnVariant = defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 0;
-            $asciiDomain = idn_to_ascii($domain, $idnFlags, $idnVariant);
-            if ($asciiDomain === false) {
+            $idn_flags = defined('IDNA_DEFAULT') ? IDNA_DEFAULT : 0;
+            $idn_variant = defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 0;
+            $ascii_domain = idn_to_ascii($domain, $idn_flags, $idn_variant);
+            if ($ascii_domain === false) {
                 return false;
             }
-            $domain = $asciiDomain;
+            $domain = $ascii_domain;
         }
 
         if (strpos($domain, '.') === false || strpos($domain, '..') !== false) {
@@ -365,7 +365,7 @@ class dbxValidator {
        INT VALIDATION
        ===================================================== */
 
-    private function validateInt(string $v,string $type): bool {
+    private function validate_int(string $v,string $type): bool {
 
         if (!preg_match('/^-?\d+$/',$v)) return false;
 
@@ -421,35 +421,35 @@ class dbxValidator {
      *
      * Ein leerer Wert aktiviert wieder die automatische UI-Sprache.
      */
-    public function setLanguage(string $language = ''): void {
-        $this->language = $this->normalizeLanguage($language, true);
+    public function set_language(string $language = ''): void {
+        $this->language = $this->normalize_language($language, true);
     }
 
     /**
      * Liefert die aktuell wirksame Sprache.
      */
-    public function getLanguage(): string {
-        return $this->resolveLanguage();
+    public function get_language(): string {
+        return $this->resolve_language();
     }
 
-    private function normalizeLanguage(string $language, bool $allowEmpty = false): string {
+    private function normalize_language(string $language, bool $allow_empty = false): string {
         $language = strtolower(trim($language));
         $language = preg_split('/[-_]/', $language, 2)[0] ?? '';
 
-        if ($language === '' && $allowEmpty) {
+        if ($language === '' && $allow_empty) {
             return '';
         }
 
         return preg_match('/^[a-z]{2,3}$/', $language) ? $language : 'de';
     }
 
-    private function resolveLanguage(): string {
+    private function resolve_language(): string {
         if ($this->language !== '') {
             return $this->language;
         }
 
         try {
-            return $this->normalizeLanguage((string)dbx()->lng_current());
+            return $this->normalize_language((string)dbx()->lng_current());
         } catch (\Throwable $e) {
         }
 
@@ -457,40 +457,40 @@ class dbxValidator {
     }
 
     private function messages(string $language): array {
-        $language = $this->normalizeLanguage($language);
-        if (isset(self::$messageCache[$language])) {
-            return self::$messageCache[$language];
+        $language = $this->normalize_language($language);
+        if (isset(self::$message_cache[$language])) {
+            return self::$message_cache[$language];
         }
 
         $messages = self::DEFAULT_MESSAGES;
-        $defaultFile = __DIR__ . '/lang/dbxValidator_de.php';
-        if (is_file($defaultFile)) {
-            $loaded = include $defaultFile;
+        $default_file = __DIR__ . '/lang/dbxValidator_de.php';
+        if (is_file($default_file)) {
+            $loaded = include $default_file;
             if (is_array($loaded)) {
                 $messages = array_merge($messages, $loaded);
             }
         }
 
         if ($language !== 'de') {
-            $languageFile = __DIR__ . '/lang/dbxValidator_' . $language . '.php';
-            if (is_file($languageFile)) {
-                $loaded = include $languageFile;
+            $language_file = __DIR__ . '/lang/dbxValidator_' . $language . '.php';
+            if (is_file($language_file)) {
+                $loaded = include $language_file;
                 if (is_array($loaded)) {
                     $messages = array_merge($messages, $loaded);
                 }
             }
         }
 
-        self::$messageCache[$language] = $messages;
+        self::$message_cache[$language] = $messages;
         return $messages;
     }
 
     private function message(string $code): string {
-        $messages = $this->messages($this->resolveLanguage());
+        $messages = $this->messages($this->resolve_language());
         return (string)($messages[$code] ?? $messages['invalid_format'] ?? '');
     }
 
-    private function validateScalarResult($value, array $rule, string $rules, string $name): array {
+    private function validate_scalar_result($value, array $rule, string $rules, string $name): array {
         $base     = $rule['base'];
         $extra    = $rule['extra'];
         $min      = $rule['min'];
@@ -518,7 +518,7 @@ class dbxValidator {
             return $this->result(false, $name, $rules, $base, $value, 'required');
         }
 
-        $length = $this->stringLength($value);
+        $length = $this->string_length($value);
         if ($min !== null && $length < $min) {
             return $this->result(false, $name, $rules, $base, $value, 'min_length', [
                 'min' => $min,
@@ -536,8 +536,8 @@ class dbxValidator {
             return $this->result(true, $name, $rules, $base, $value);
         }
 
-        $checkValue = $this->stripExtra($value, $extra);
-        if ($checkValue === '') {
+        $check_value = $this->strip_extra($value, $extra);
+        if ($check_value === '') {
             return $this->result(true, $name, $rules, $base, $value);
         }
 
@@ -554,26 +554,26 @@ class dbxValidator {
             case 'smallint':
             case 'mediumint':
             case 'bigint':
-                $ok=$this->validateInt($checkValue,$base);
-                $code = preg_match('/^-?\d+$/', $checkValue) ? 'invalid_range' : 'invalid_format';
+                $ok=$this->validate_int($check_value,$base);
+                $code = preg_match('/^-?\d+$/', $check_value) ? 'invalid_range' : 'invalid_format';
                 break;
 
             case 'decimal':
             case 'float':
-                $ok=is_numeric($checkValue);
+                $ok=is_numeric($check_value);
                 break;
 
             case 'date':
-                $ok=$this->validateDate($checkValue);
+                $ok=$this->validate_date($check_value);
                 break;
 
             case 'time':
-                $ok=$this->validateTime($checkValue);
+                $ok=$this->validate_time($check_value);
                 break;
 
             case 'datetime':
             case 'timestamp':
-                $ok=$this->validateTimestamp($checkValue);
+                $ok=$this->validate_timestamp($check_value);
                 break;
 
             case 'varchar':
@@ -583,26 +583,26 @@ class dbxValidator {
                 break;
 
             case 'boolean':
-                $ok=($checkValue==='0'||$checkValue==='1'||$checkValue==='true'||$checkValue==='false');
+                $ok=($check_value==='0'||$check_value==='1'||$check_value==='true'||$check_value==='false');
                 break;
 
             case 'email':
-                $ok=$this->validateEmail($checkValue);
+                $ok=$this->validate_email($check_value);
                 break;
 
             case 'json':
-                json_decode($checkValue);
+                json_decode($check_value);
                 $ok=(json_last_error()===JSON_ERROR_NONE);
                 break;
 
             case 'year':
-                $ok=preg_match('/^\d{4}$/',$checkValue);
+                $ok=preg_match('/^\d{4}$/',$check_value);
                 break;
 
             default:
 
                 if (isset(self::TEXT_LIMIT[$base])){
-                    $ok=$this->stringLength($checkValue)<=self::TEXT_LIMIT[$base];
+                    $ok=$this->string_length($check_value)<=self::TEXT_LIMIT[$base];
                     $code = 'max_length';
                     break;
                 }
@@ -613,7 +613,7 @@ class dbxValidator {
                 }
 
                 if (isset(self::REGEX[$base])){
-                    $ok=preg_match(self::REGEX[$base],$checkValue);
+                    $ok=preg_match(self::REGEX[$base],$check_value);
                     break;
                 }
 
@@ -653,8 +653,8 @@ class dbxValidator {
      *   details:array
      * }
      */
-    public function validateResult($value, $rules = 'parameter', $name = '-undef-'): array {
-        $this->clearErrors();
+    public function validate_result($value, $rules = 'parameter', $name = '-undef-'): array {
+        $this->clear_errors();
 
         $rules = trim((string)$rules);
         $name = (string)$name;
@@ -662,15 +662,15 @@ class dbxValidator {
         // Historischer Vollpass: `*` akzeptiert bewusst auch Arrays und
         // andere Werte. Engere Arraypruefung wird mit `array|...` aktiviert.
         if ($rules === '*') {
-            return $this->recordResult(
+            return $this->record_result(
                 $this->result(true, $name, $rules, '*', $value)
             );
         }
 
-        $rule = $this->parseRule($rules);
+        $rule = $this->parse_rule($rules);
 
         if ($rule['invalid']) {
-            return $this->recordResult($this->result(
+            return $this->record_result($this->result(
                 false,
                 $name,
                 $rules,
@@ -686,17 +686,17 @@ class dbxValidator {
                 $result = $rule['required']
                     ? $this->result(false, $name, $rules, $rule['base'], [], 'required')
                     : $this->result(true, $name, $rules, $rule['base'], []);
-                return $this->recordResult($result);
+                return $this->record_result($result);
             }
 
             if (!is_array($value)) {
-                return $this->recordResult(
+                return $this->record_result(
                     $this->result(false, $name, $rules, $rule['base'], $value, 'invalid_array')
                 );
             }
 
             if ($rule['required'] && count($value) === 0) {
-                return $this->recordResult(
+                return $this->record_result(
                     $this->result(false, $name, $rules, $rule['base'], [], 'required')
                 );
             }
@@ -705,7 +705,7 @@ class dbxValidator {
             foreach ($value as $index => $item) {
                 if (is_array($item) || is_object($item) || is_resource($item)
                     || (!is_scalar($item) && $item !== null)) {
-                    return $this->recordResult($this->result(
+                    return $this->record_result($this->result(
                         false,
                         $name,
                         $rules,
@@ -716,29 +716,29 @@ class dbxValidator {
                     ));
                 }
 
-                $itemResult = $this->validateScalarResult($item, $rule, $rules, $name . '[' . $index . ']');
-                $normalized[$index] = $itemResult['normalized'];
-                if (!$itemResult['valid']) {
-                    return $this->recordResult($this->result(
+                $item_result = $this->validate_scalar_result($item, $rule, $rules, $name . '[' . $index . ']');
+                $normalized[$index] = $item_result['normalized'];
+                if (!$item_result['valid']) {
+                    return $this->record_result($this->result(
                         false,
                         $name,
                         $rules,
                         $rule['base'],
                         $normalized,
                         'invalid_array_item',
-                        ['index' => $index, 'item' => $itemResult]
+                        ['index' => $index, 'item' => $item_result]
                     ));
                 }
             }
 
-            return $this->recordResult(
+            return $this->record_result(
                 $this->result(true, $name, $rules, $rule['base'], $normalized)
             );
         }
 
         if (is_array($value) || is_object($value) || is_resource($value)
             || (!is_scalar($value) && $value !== null)) {
-            return $this->recordResult($this->result(
+            return $this->record_result($this->result(
                 false,
                 $name,
                 $rules,
@@ -749,8 +749,8 @@ class dbxValidator {
             ));
         }
 
-        return $this->recordResult(
-            $this->validateScalarResult($value, $rule, $rules, $name)
+        return $this->record_result(
+            $this->validate_scalar_result($value, $rule, $rules, $name)
         );
     }
 
@@ -760,7 +760,7 @@ class dbxValidator {
      * Fuer Fehlercode, normalisierten Wert und Details validateResult() nutzen.
      */
     public function validate($value,$rules='parameter',$name='-undef-'): bool {
-        $result = $this->validateResult($value, $rules, $name);
+        $result = $this->validate_result($value, $rules, $name);
         return (bool)$result['valid'];
     }
 
@@ -801,35 +801,35 @@ class dbxValidator {
        UTIL
        ===================================================== */
 
-    public function getErrorMessages(): array {
-        return $this->errorMessages;
+    public function get_error_messages(): array {
+        return $this->error_messages;
     }
 
     /**
      * Liefert die strukturierten Fehler des letzten Validierungslaufs.
      */
-    public function getErrors(): array {
+    public function get_errors(): array {
         return $this->errors;
     }
 
     /**
      * Liefert das vollstaendige Ergebnis des letzten Validierungslaufs.
      */
-    public function getLastResult(): array {
-        return $this->lastResult;
+    public function get_last_result(): array {
+        return $this->last_result;
     }
 
-    public function clearErrors(): void {
-        $this->errorMessages=[];
+    public function clear_errors(): void {
+        $this->error_messages=[];
         $this->errors=[];
-        $this->lastResult=[];
+        $this->last_result=[];
     }
 
-    private function recordResult(array $result): array {
-        $this->lastResult = $result;
+    private function record_result(array $result): array {
+        $this->last_result = $result;
         if (!($result['valid'] ?? false)) {
             $this->errors[] = $result;
-            $this->errorMessages[] = (string)($result['message'] ?? '');
+            $this->error_messages[] = (string)($result['message'] ?? '');
         }
         return $result;
     }

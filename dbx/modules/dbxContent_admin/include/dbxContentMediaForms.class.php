@@ -26,8 +26,8 @@ class dbxContentMediaForms {
       // Ein fester Sysdata-Scope hält Token-Erzeugung und Prüfung identisch.
       $form->_dbx_modul = 'dbxContent_admin';
       $form->_sys = $form->load_sysdata();
-      $form->_action = $action;
-      $form->_fd = 'dbxContent_admin|cms-page';
+      $form->set_action($action);
+      $form->set_field_definition('dbxContent_admin|cms-page');
       $form->load_fd_messages();
       $form->_msg_info = '';
       $form->set_form_help_enabled(false);
@@ -49,16 +49,16 @@ class dbxContentMediaForms {
    /**
     * Rendert Upload- und optional YouTube-Formular als inerte DOM-Templates.
     */
-   public function renderTemplates(
-      string $uploadAction,
-      string $uploadFid = 'cms-media-upload',
-      string $externalAction = '',
-      string $externalFid = 'cms-external-video'
+   public function render_templates(
+      string $upload_action,
+      string $upload_fid = 'cms-media-upload',
+      string $external_action = '',
+      string $external_fid = 'cms-external-video'
    ): string {
-      $upload = $this->form($uploadFid, 'cms-media-upload-form', $uploadAction)->run();
+      $upload = $this->form($upload_fid, 'cms-media-upload-form', $upload_action)->run();
       $external = '';
-      if ($externalAction !== '') {
-         $external = $this->form($externalFid, 'cms-external-video-form', $externalAction)->run();
+      if ($external_action !== '') {
+         $external = $this->form($external_fid, 'cms-external-video-form', $external_action)->run();
       }
 
       return dbx()->get_system_obj('dbxTPL')->get_tpl(
@@ -71,19 +71,19 @@ class dbxContentMediaForms {
    }
 
    /**
-    * Prueft einen Medienbrowser-POST und liefert zugleich den Folgetoken.
+    * Prüft einen Medienbrowser-POST und liefert zugleich den Folgetoken.
     *
     * @return array{submitted:bool,security:array{name:string,value:string}}
     */
    public function verify(string $kind, string $action, string $fid = ''): array {
       $kind = strtolower(trim($kind));
-      $isExternal = $kind === 'external';
+      $is_external = $kind === 'external';
       if ($fid === '') {
-         $fid = $isExternal ? 'cms-external-video' : 'cms-media-upload';
+         $fid = $is_external ? 'cms-external-video' : 'cms-media-upload';
       }
       $form = $this->form(
          $fid,
-         $isExternal ? 'cms-external-video-form' : 'cms-media-upload-form',
+         $is_external ? 'cms-external-video-form' : 'cms-media-upload-form',
          $action
       );
       $submitted = (bool)$form->submit();

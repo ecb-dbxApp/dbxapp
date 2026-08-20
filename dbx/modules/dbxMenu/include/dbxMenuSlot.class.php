@@ -14,7 +14,8 @@ namespace dbx\dbxMenu;
  * @endcode
  *
  * Die Templates liegen im registrierenden Hauptmodul unter tpl/htm und
- * liefern die zum vorhandenen Menue passende Struktur, normalerweise <li>.
+ * liefern die zum vorhandenen Menue passende Struktur, normalerweise ein
+ * HTML-Listenelement.
  */
 class dbxMenuSlot {
    private const SYSTEM_VAR = 'dbx_module_menu_slots';
@@ -29,32 +30,32 @@ class dbxMenuSlot {
    public function register(string $area, string $template, array $data = array()): bool {
       $area = strtolower(trim($area));
       $template = strtolower(trim($template));
-      $masterModule = trim((string)dbx()->get_system_var('dbx_master_modul', '', '*'));
-      $activeModule = trim((string)dbx()->get_system_var('dbx_activ_modul', '', '*'));
+      $master_module = trim((string)dbx()->get_system_var('dbx_master_modul', '', '*'));
+      $active_module = trim((string)dbx()->get_system_var('dbx_activ_modul', '', '*'));
 
-      if (!$this->isArea($area)) {
+      if (!$this->is_area($area)) {
          return $this->reject('Unbekannter Menuebereich: ' . $area);
       }
-      if (!$this->isSafeName($masterModule) || !$this->isSafeName($template)) {
+      if (!$this->is_safe_name($master_module) || !$this->is_safe_name($template)) {
          return $this->reject('Ungueltiges Modul oder Template.');
       }
-      if (!$this->isSafeData($data)) {
+      if (!$this->is_safe_data($data)) {
          return $this->reject('Menue-Daten duerfen nur Skalare, null und Arrays enthalten.');
       }
-      if ($activeModule !== '' && $activeModule !== $masterModule) {
+      if ($active_module !== '' && $active_module !== $master_module) {
          return $this->reject(
             'Nur das aktive Hauptmodul darf Menuebeitraege registrieren.'
          );
       }
-      if (!$this->templateExists($masterModule, $template)) {
+      if (!$this->template_exists($master_module, $template)) {
          return $this->reject(
-            'Menue-Template fehlt: ' . $masterModule . '|' . $template
+            'Menue-Template fehlt: ' . $master_module . '|' . $template
          );
       }
 
       $registry = $this->registry();
       $registry[$area] = array(
-         'module' => $masterModule,
+         'module' => $master_module,
          'template' => $template,
          'data' => $data,
       );
@@ -66,10 +67,10 @@ class dbxMenuSlot {
    /** Rendert den registrierten Beitrag oder liefert fuer den Leerfall ''. */
    public function render(string $area): string {
       $area = strtolower(trim($area));
-      if (!$this->isArea($area)) {
+      if (!$this->is_area($area)) {
          return '';
       }
-      if ($area === 'admin' && !dbx()->can('admin')) {
+      if ($area === 'admin' && !dbx()->has_group('admin')) {
          return '';
       }
 
@@ -81,11 +82,11 @@ class dbxMenuSlot {
       $module = trim((string)($entry['module'] ?? ''));
       $template = strtolower(trim((string)($entry['template'] ?? '')));
       $data = $entry['data'] ?? array();
-      if (!$this->isSafeName($module)
-          || !$this->isSafeName($template)
+      if (!$this->is_safe_name($module)
+          || !$this->is_safe_name($template)
           || !is_array($data)
-          || !$this->isSafeData($data)
-          || !$this->templateExists($module, $template)) {
+          || !$this->is_safe_data($data)
+          || !$this->template_exists($module, $template)) {
          $this->reject('Ungueltige Menue-Registrierung wurde verworfen.');
          return '';
       }
@@ -111,7 +112,7 @@ class dbxMenuSlot {
          dbx()->set_system_var(self::SYSTEM_VAR, array());
          return;
       }
-      if (!$this->isArea($area)) {
+      if (!$this->is_area($area)) {
          return;
       }
 
@@ -124,27 +125,27 @@ class dbxMenuSlot {
       // Ausschliesslich den internen Request-Speicher lesen. get_system_var()
       // wuerde ohne Sessionwert auch gleichnamige GET-/POST-Daten akzeptieren.
       $context = dbx()->request_context();
-      $registry = $context->hasSystem(self::SYSTEM_VAR)
+      $registry = $context->has_system(self::SYSTEM_VAR)
          ? $context->system(self::SYSTEM_VAR)
          : array();
       return is_array($registry) ? $registry : array();
    }
 
-   private function isArea(string $area): bool {
+   private function is_area(string $area): bool {
       return in_array($area, self::AREAS, true);
    }
 
-   private function isSafeName(string $name): bool {
+   private function is_safe_name(string $name): bool {
       return (bool)preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/', $name);
    }
 
-   private function isSafeData(array $data, int $depth = 0): bool {
+   private function is_safe_data(array $data, int $depth = 0): bool {
       if ($depth > 20) {
          return false;
       }
       foreach ($data as $value) {
          if (is_array($value)) {
-            if (!$this->isSafeData($value, $depth + 1)) {
+            if (!$this->is_safe_data($value, $depth + 1)) {
                return false;
             }
             continue;
@@ -157,8 +158,8 @@ class dbxMenuSlot {
       return true;
    }
 
-   private function templateExists(string $module, string $template): bool {
-      if (!$this->isSafeName($module) || !$this->isSafeName($template)) {
+   private function template_exists(string $module, string $template): bool {
+      if (!$this->is_safe_name($module) || !$this->is_safe_name($template)) {
          return false;
       }
 

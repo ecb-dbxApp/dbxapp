@@ -36,12 +36,12 @@ $fail = static function (string $message, int $code): void {
    exit($code);
 };
 
-$resourceExtensions = array(
+$resource_extensions = array(
    'js', 'mjs', 'css', 'map', 'json', 'wasm',
    'png', 'jpg', 'svg', 'webp', 'avif', 'ico',
    'woff', 'woff2', 'ttf', 'pdf', 'zip', 'mp3', 'mp4',
 );
-foreach ($resourceExtensions as $extension) {
+foreach ($resource_extensions as $extension) {
    if ($web->get_is_resorce($extension) !== 1) {
       $fail("Ressourcenerweiterung .$extension wird nicht erkannt.", 1);
    }
@@ -98,14 +98,14 @@ if (!$handled || http_response_code() !== 404 || $body !== '' || count($api->log
    $fail('HEAD fuer eine fehlende Ressource ist nicht konsistent.', 7);
 }
 
-$resourceFileMethod = new ReflectionMethod(dbxWebApp::class, 'get_resource_file');
-$appleIconFile = (string)$resourceFileMethod->invoke($web, 'apple-touch-icon.png');
-if ($appleIconFile === '' || realpath($appleIconFile) !== realpath(dirname(__DIR__, 3) . '/favicon.png')) {
+$resource_file_method = new ReflectionMethod(dbxWebApp::class, 'get_resource_file');
+$apple_icon_file = (string)$resource_file_method->invoke($web, 'apple-touch-icon.png');
+if ($apple_icon_file === '' || realpath($apple_icon_file) !== realpath(dirname(__DIR__, 3) . '/favicon.png')) {
    $fail('Der Standardpfad apple-touch-icon.png wird nicht auf das vorhandene Favicon aufgeloest.', 8);
 }
 
-$defaultTemplate = (string)file_get_contents(dirname(__DIR__, 2) . '/design/dbxapp/htm/default.htm');
-if (!str_contains($defaultTemplate, 'rel="apple-touch-icon"')) {
+$default_template = (string)file_get_contents(dirname(__DIR__, 2) . '/design/dbxapp/htm/default.htm');
+if (!str_contains($default_template, 'rel="apple-touch-icon"')) {
    $fail('Das dbxapp-Design deklariert kein Apple-Touch-Icon.', 9);
 }
 

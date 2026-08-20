@@ -16,7 +16,6 @@ $allowed = array(
    'index.php',
    'AGENTS.md',
    'VERSION',
-   'UPDATE_BASELINE',
    '07_DBXAPP_ARCHITEKTUR.md',
    'dbx/include/dbxApi.php',
    'dbx/modules/dbxContent_admin/files/og/dbxapp-og.png',
@@ -29,7 +28,7 @@ $allowed = array(
 );
 foreach ($allowed as $path) {
    sync_test_assert(
-      AuthoritativeSourceSync::isManagedFile($path),
+      AuthoritativeSourceSync::is_managed_file($path),
       'Öffentliche Produktdatei wurde abgelehnt: ' . $path
    );
 }
@@ -57,43 +56,43 @@ $blocked = array(
 );
 foreach ($blocked as $path) {
    sync_test_assert(
-      !AuthoritativeSourceSync::isManagedFile($path),
+      !AuthoritativeSourceSync::is_managed_file($path),
       'Lokale oder Release-eigene Datei wurde zugelassen: ' . $path
    );
 }
 
-$testRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR
+$test_root = sys_get_temp_dir() . DIRECTORY_SEPARATOR
    . 'dbx-source-sync-' . bin2hex(random_bytes(6));
-$sourceRoot = $testRoot . DIRECTORY_SEPARATOR . 'source';
-$targetRoot = $testRoot . DIRECTORY_SEPARATOR . 'target';
-$requiredDirectories = array(
-   $sourceRoot . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR . 'include',
-   $targetRoot . DIRECTORY_SEPARATOR . '.git',
+$source_root = $test_root . DIRECTORY_SEPARATOR . 'source';
+$target_root = $test_root . DIRECTORY_SEPARATOR . 'target';
+$required_directories = array(
+   $source_root . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR . 'include',
+   $target_root . DIRECTORY_SEPARATOR . '.git',
 );
-foreach ($requiredDirectories as $directory) {
+foreach ($required_directories as $directory) {
    if (!mkdir($directory, 0775, true) && !is_dir($directory)) {
       fwrite(STDERR, 'Temporäres Testverzeichnis konnte nicht erstellt werden.' . PHP_EOL);
       exit(1);
    }
 }
 file_put_contents(
-   $sourceRoot . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR
+   $source_root . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR
       . 'include' . DIRECTORY_SEPARATOR . 'dbxApi.php',
    "<?php\r\n"
 );
-file_put_contents($sourceRoot . DIRECTORY_SEPARATOR . 'index.php', "<?php\r\necho 1;\r\n");
-file_put_contents($sourceRoot . DIRECTORY_SEPARATOR . 'logo.png', "\x00A\r\nB");
-file_put_contents($targetRoot . DIRECTORY_SEPARATOR . 'RELEASE_PROCESS.md', "# Test\n");
-file_put_contents($targetRoot . DIRECTORY_SEPARATOR . 'index.php', "<?php\necho 1;\n");
-file_put_contents($targetRoot . DIRECTORY_SEPARATOR . 'logo.png', "\x00A\nB");
+file_put_contents($source_root . DIRECTORY_SEPARATOR . 'index.php', "<?php\r\necho 1;\r\n");
+file_put_contents($source_root . DIRECTORY_SEPARATOR . 'logo.png', "\x00A\r\nB");
+file_put_contents($target_root . DIRECTORY_SEPARATOR . 'RELEASE_PROCESS.md', "# Test\n");
+file_put_contents($target_root . DIRECTORY_SEPARATOR . 'index.php', "<?php\necho 1;\n");
+file_put_contents($target_root . DIRECTORY_SEPARATOR . 'logo.png', "\x00A\nB");
 
-$lineEndingPlan = AuthoritativeSourceSync::plan($sourceRoot, $targetRoot);
+$line_ending_plan = AuthoritativeSourceSync::plan($source_root, $target_root);
 sync_test_assert(
-   !isset($lineEndingPlan['copy']['index.php']),
+   !isset($line_ending_plan['copy']['index.php']),
    'CRLF/LF-Unterschiede dürfen bei Textdateien keinen Kopierplan erzeugen.'
 );
 sync_test_assert(
-   isset($lineEndingPlan['copy']['logo.png']),
+   isset($line_ending_plan['copy']['logo.png']),
    'Binärdateien müssen weiterhin bytegenau verglichen werden.'
 );
 
@@ -110,6 +109,6 @@ $cleanup = static function (string $path) use (&$cleanup): void {
       unlink($path);
    }
 };
-$cleanup($testRoot);
+$cleanup($test_root);
 
 echo "AuthoritativeSourceSync-Vertrag erfolgreich geprüft.\n";

@@ -1,12 +1,12 @@
 <?php
 namespace dbx\dbxContent_admin;
 
-dbx()->use_system_class('dbxView');
+dbx()->get_system_obj('dbxView', 'use');
 
 class dbxContent_view extends \dbxView {
 
-  private function viewFrameBarReps($tpl, $rid, $i) {
-    $isSaveView = ($tpl === 'save-view-content');
+  private function view_frame_bar_reps($tpl, $rid, $i) {
+    $is_save_view = ($tpl === 'save-view-content');
 
     return array(
       'frame_id'            => 'dbx_target_' . $i,
@@ -21,8 +21,8 @@ class dbxContent_view extends \dbxView {
       'bar_class'           => 'dbx-bar--module',
       'bar_title_class'     => 'dbx-bar-title',
       'bar_actions_class'   => 'dbx-bar-actions',
-      'bar_title'           => $isSaveView ? ('Content View (' . (int)$rid . ')') : ('Content ID=(' . (int)$rid . ')'),
-      'bar_icon'            => $isSaveView ? 'bi-eye' : 'bi-file-earmark-text',
+      'bar_title'           => $is_save_view ? ('Content View (' . (int)$rid . ')') : ('Content ID=(' . (int)$rid . ')'),
+      'bar_icon'            => $is_save_view ? 'bi-eye' : 'bi-file-earmark-text',
       'bar_subtitle'        => '',
       'bar_title_pre'       => '',
       'bar_title_heading_attrs' => '',
@@ -32,7 +32,7 @@ class dbxContent_view extends \dbxView {
     );
   }
 
-  public function dbxView_run() {
+  public function dbx_view_run() {
     $i      = dbx()->next_id();
     $target = 'dbx_target_'.$i;
 
@@ -66,23 +66,23 @@ class dbxContent_view extends \dbxView {
       'rid'       => $val,
       'i'         => $i,
     );
-    $reps = array_merge($reps, $this->viewFrameBarReps($tpl, $val, $i));
+    $reps = array_merge($reps, $this->view_frame_bar_reps($tpl, $val, $i));
 
-    $content=$this->oTPL->get_tpl($modul . '|' . $tpl, $reps, 'htm', $i);
+    $content=$this->o_tpl->get_tpl($modul . '|' . $tpl, $reps, 'htm', $i);
     return $content;
   }
 
   public function run($rid=0) {
-    $oTPL=dbx()->get_system_obj('dbxTPL');
+    $o_tpl=dbx()->get_system_obj('dbxTPL');
     $rid=dbx()->get_modul_var("rid",0,'int');
     $modul="dbxContent_admin";
     $tpl  ='view-content';
     $reps ="i=1&rid=$rid";
 
-    $this->dbxView_init('view-content');
+    $this->dbx_view_init('view-content');
     $this->set_property('sync','rid');
     $this->set_property('rid',$rid);
-    $content=$this->dbxView_run();
+    $content=$this->dbx_view_run();
 
     return $content;
 

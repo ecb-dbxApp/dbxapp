@@ -1,4 +1,5 @@
 [tpl=dbx|frame-head]
  <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax {report_form_class}" {report_form_attrs}>
-  [tpl=dbx|report_bar]
+  {report:bar}
+  <div class="dbx-report-message">{report:message}</div>
   [tpl=dbx|frame-body-open]

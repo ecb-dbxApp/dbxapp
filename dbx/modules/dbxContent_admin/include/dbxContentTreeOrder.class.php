@@ -12,7 +12,10 @@ namespace dbx\dbxContent_admin;
 final class dbxContentTreeOrder {
 
    /**
-    * @param array<int,array<string,mixed>> $rows Nach sorter und Titel sortierte Geschwister
+    * @param array $rows Nach sorter und Titel sortierte Geschwister
+    * @param int $moved_id ID des verschobenen Eintrags
+    * @param int $before_id ID des nachfolgenden Eintrags oder 0
+    * @param int $after_id ID des vorhergehenden Eintrags oder 0
     * @return array{ordered:array<int,array<string,mixed>>,updates:array<int,string>}
     */
    public static function plan(array $rows, int $moved_id, int $before_id = 0, int $after_id = 0): array {

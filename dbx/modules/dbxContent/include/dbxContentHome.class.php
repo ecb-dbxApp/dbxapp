@@ -9,7 +9,7 @@ class dbxContentHome {
       return dbx()->get_system_obj('dbxDB');
    }
 
-   public static function masterCid(): int {
+   public static function master_cid(): int {
       $cid = dbx()->get_cfg('dbxHome', 'cid');
       if ($cid === 'undef' || $cid === '' || $cid === null) {
          return 0;
@@ -18,7 +18,7 @@ class dbxContentHome {
       return (int) $cid;
    }
 
-   public static function currentLng(): string {
+   public static function current_lng(): string {
       return dbx()->lng_current();
    }
 
@@ -26,20 +26,20 @@ class dbxContentHome {
     * Startseiten-CID fuer die aktive (oder uebergebene) Sprache.
     * Config-cid ist die Master-Sprache; Slaves werden per lng_uid aufgeloest.
     */
-   public static function resolveCid(string $lng = ''): int {
-      $masterCid = self::masterCid();
-      if ($masterCid <= 0) {
+   public static function resolve_cid(string $lng = ''): int {
+      $master_cid = self::master_cid();
+      if ($master_cid <= 0) {
          return 0;
       }
 
       if ($lng === '') {
-         $lng = self::currentLng();
+         $lng = self::current_lng();
       }
       $lng = strtolower(trim($lng));
-      $masterLng = dbxContentLngSync::masterLng();
+      $master_lng = dbxContentLngSync::master_lng();
 
-      if ($lng === $masterLng) {
-         return $masterCid;
+      if ($lng === $master_lng) {
+         return $master_cid;
       }
 
       $db = self::db();
@@ -47,46 +47,46 @@ class dbxContentHome {
          return 0;
       }
 
-      $masterDd = dbxContentLng::ddContent($masterLng);
-      $masterRow = $db->select1($masterDd, $masterCid, 'lng_uid', 0);
-      if (!is_array($masterRow)) {
+      $master_dd = dbxContentLng::dd_content($master_lng);
+      $master_row = $db->select1($master_dd, $master_cid, 'lng_uid', 0);
+      if (!is_array($master_row)) {
          return 0;
       }
 
-      $lngUid = trim((string) ($masterRow['lng_uid'] ?? ''));
-      if ($lngUid === '') {
+      $lng_uid = trim((string) ($master_row['lng_uid'] ?? ''));
+      if ($lng_uid === '') {
          return 0;
       }
 
-      $slaveId = dbxContentLngSync::resolveIdByUid($db, dbxContentLng::ddContent(), $lngUid, $lng);
-      if ($slaveId <= 0) {
+      $slave_id = dbxContentLngSync::resolve_id_by_uid($db, dbxContentLng::dd_content(), $lng_uid, $lng);
+      if ($slave_id <= 0) {
          return 0;
       }
 
-      return $slaveId;
+      return $slave_id;
    }
 
    /**
-    * Prueft, ob eine Seite die Startseite der angegebenen Sprache ist.
+    * Prüft, ob eine Seite die Startseite der angegebenen Sprache ist.
     */
-   public static function isHomePage($db, int $cid, string $lng = ''): bool {
+   public static function is_home_page($db, int $cid, string $lng = ''): bool {
       $cid = (int) $cid;
       if ($cid <= 0) {
          return false;
       }
 
       if ($lng === '') {
-         $lng = self::currentLng();
+         $lng = self::current_lng();
       }
       $lng = strtolower(trim($lng));
 
-      return self::resolveCid($lng) === $cid;
+      return self::resolve_cid($lng) === $cid;
    }
 
    /**
     * Kompatibilitaetsmethode: Ein separater Home-Cache existiert nicht mehr.
     */
-   public static function refreshHomeCache($db, int $cid, string $lng = ''): void {
+   public static function refresh_home_cache($db, int $cid, string $lng = ''): void {
       return;
    }
 }

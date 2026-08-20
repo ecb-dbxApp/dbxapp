@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_title'] = 'Vínculos de servidor DD';
 $messages['bar_subtitle'] = 'Seleccionar servidores DB3 y SQL de forma independiente para cada DD';
 $messages['intro'] = 'Solo los destinos diferentes se guardan localmente. Sin vínculo local continúa activo el servidor definido por el DD.';

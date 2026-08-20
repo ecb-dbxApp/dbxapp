@@ -1,6 +1,6 @@
 <?php
 namespace dbx\dbxAdmin;
-dbx()->use_system_class('dbxForm');
+dbx()->get_system_obj('dbxForm', 'use');
 
 class dbxConfig_dbx {
     private const CONFIG_FD = 'fd:dbx|config';
@@ -10,10 +10,10 @@ class dbxConfig_dbx {
     private const SERVER_FIELD_NAMES = array('activ', 'type', 'host', 'dbname', 'user', 'pass', 'port');
 
     private array $config = array();
-    private string $activeTab = 'config';
-    private string $activeSubTab = '';
-    private array $sectionMessages = array();
-    private array $groupMessages = array();
+    private string $active_tab = 'config';
+    private string $active_sub_tab = '';
+    private array $section_messages = array();
+    private array $group_messages = array();
     private $texts;
 
     private function texts() {
@@ -22,7 +22,7 @@ class dbxConfig_dbx {
         }
         $texts = new \dbxForm();
         $texts->set_form_help_enabled(false);
-        $texts->_fd = self::CONFIG_FD;
+        $texts->set_field_definition(self::CONFIG_FD);
         $texts->load_fd_messages();
         $this->texts = $texts;
         return $this->texts;
@@ -43,12 +43,12 @@ class dbxConfig_dbx {
         }
 
         $this->read_active_state();
-        $arraySections = $this->array_sections();
+        $array_sections = $this->array_sections();
 
-        if ($this->activeTab !== 'config'
-            && $this->activeTab !== self::SQL_DB_SECTION
-            && !in_array($this->activeTab, $arraySections, true)) {
-            $this->activeTab = 'config';
+        if ($this->active_tab !== 'config'
+            && $this->active_tab !== self::SQL_DB_SECTION
+            && !in_array($this->active_tab, $array_sections, true)) {
+            $this->active_tab = 'config';
         }
 
         $tabs = array(
@@ -64,7 +64,7 @@ class dbxConfig_dbx {
             ),
         );
 
-        foreach ($arraySections as $section) {
+        foreach ($array_sections as $section) {
             $tabs[] = array(
                 'id' => $section,
                 'label' => $this->section_label($section),
@@ -72,11 +72,11 @@ class dbxConfig_dbx {
             );
         }
 
-        $tabsHtml = $this->render_tabs($tabs, 'dbx_config', $this->activeTab);
-        $help = dbx()->get_include_obj('dbxAdminHelp', 'dbxAdmin');
+        $tabs_html = $this->render_tabs($tabs, 'dbx_config', $this->active_tab);
+        $help = dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp');
 
         return $this->get_tpl('config-dbx-shell', array_merge(
-            $help->moduleBarTemplateData('config', '', '', '', $this->text('module_subtitle')),
+            $help->module_bar_template_data('config', '', '', '', $this->text('module_subtitle')),
             array(
                 'frame_id' => 'dbx_target_config_dbx',
                 'frame_panel_class' => 'dbx-config-dbx',
@@ -87,7 +87,7 @@ class dbxConfig_dbx {
                 'frame_body_head' => '',
                 'frame_body_tail' => '',
                 'frame_panel_attrs' => '',
-                'content' => $tabsHtml,
+                'content' => $tabs_html,
             )
         ));
     }
@@ -110,14 +110,14 @@ class dbxConfig_dbx {
 
     private function read_active_state(): void {
         $tab = (string)($_POST['activeTab'] ?? dbx()->get_modul_var('activeTab', 'config', 'parameter'));
-        $subTab = (string)($_POST['activeSubTab'] ?? dbx()->get_modul_var('activeSubTab', '', 'parameter'));
+        $sub_tab = (string)($_POST['activeSubTab'] ?? dbx()->get_modul_var('activeSubTab', '', 'parameter'));
 
         if ($tab === '') {
             $tab = 'config';
         }
 
-        $this->activeTab = $tab;
-        $this->activeSubTab = $subTab;
+        $this->active_tab = $tab;
+        $this->active_sub_tab = $sub_tab;
     }
 
     private function array_sections(): array {
@@ -132,25 +132,25 @@ class dbxConfig_dbx {
         return $sections;
     }
 
-    private function render_tabs(array $tabs, string $idPrefix, string $activeId): string {
-        $tabHtml = '';
-        $paneHtml = '';
+    private function render_tabs(array $tabs, string $id_prefix, string $active_id): string {
+        $tab_html = '';
+        $pane_html = '';
 
         foreach ($tabs as $tab) {
-            $tabId = (string)($tab['id'] ?? 'tab');
-            $id = $this->safe_id($idPrefix . '_' . $tabId);
+            $tab_id = (string)($tab['id'] ?? 'tab');
+            $id = $this->safe_id($id_prefix . '_' . $tab_id);
             $label = (string)($tab['label'] ?? '');
             $content = (string)($tab['content'] ?? '');
-            $active = ($tabId === $activeId);
+            $active = ($tab_id === $active_id);
 
-            $tabHtml .= $this->get_tpl('config-dbx-tab', array(
+            $tab_html .= $this->get_tpl('config-dbx-tab', array(
                 'id' => $id,
                 'label' => $this->h($label),
                 'active' => $active ? 'active' : '',
                 'selected' => $active ? 'true' : 'false',
             ));
 
-            $paneHtml .= $this->get_tpl('config-dbx-pane', array(
+            $pane_html .= $this->get_tpl('config-dbx-pane', array(
                 'id' => $id,
                 'content' => $content,
                 'active' => $active ? 'show active' : '',
@@ -158,8 +158,8 @@ class dbxConfig_dbx {
         }
 
         return $this->get_tpl('config-dbx-tabs', array(
-            'tabs' => $tabHtml,
-            'panes' => $paneHtml,
+            'tabs' => $tab_html,
+            'panes' => $pane_html,
         ));
     }
 
@@ -167,7 +167,7 @@ class dbxConfig_dbx {
         $data = $this->config_form_data();
         $form = $this->new_form('config_dbx_general', $data, $this->text('config_info'));
         $this->add_state_fields($form);
-        $form->_fd = self::CONFIG_FD;
+        $form->set_field_definition(self::CONFIG_FD);
         $form->add_flds(self::CONFIG_FD);
         $form->add_fld('default_server', options: $this->sql_server_options());
         $form->add_obj('actions', 'dbxAdmin|config-dbx-save-actions', array('label' => $this->text('config_save')));
@@ -219,16 +219,16 @@ class dbxConfig_dbx {
 
     private function apply_config_form_post($form): void {
         foreach ($this->config_fd_names() as $name) {
-            if (!array_key_exists($name, $form->_post)) {
+            if (!$form->has_post_value($name)) {
                 continue;
             }
-            $raw = $form->_post[$name];
-            $oldValue = $this->config[$name] ?? '';
+            $raw = $form->post_value($name);
+            $old_value = $this->config[$name] ?? '';
             if ($name === 'groups' || $name === 'accessible_lng') {
                 $this->config[$name] = $this->multiselect_to_array($raw);
                 continue;
             }
-            $this->config[$name] = $this->field_to_top_value($oldValue, (string) $raw);
+            $this->config[$name] = $this->field_to_top_value($old_value, (string) $raw);
         }
     }
 
@@ -304,22 +304,22 @@ class dbxConfig_dbx {
             $groups = array();
         }
 
-        $addForm = $this->render_group_add_form($section, $groups);
+        $add_form = $this->render_group_add_form($section, $groups);
 
         if (!$groups) {
-            $emptyMsg = $section === self::SQL_DB_SECTION
+            $empty_msg = $section === self::SQL_DB_SECTION
                 ? $this->text('no_sql_servers')
                 : $this->text('no_entries');
             return $this->get_tpl('config-dbx-section', array(
-                'add_form' => $addForm,
-                'tabs' => $this->get_dbx_tpl('alert-info', array('msg' => $emptyMsg)),
+                'add_form' => $add_form,
+                'tabs' => $this->get_dbx_tpl('alert-info', array('msg' => $empty_msg)),
             ));
         }
 
-        $activeGroup = ($this->activeTab === $section) ? $this->activeSubTab : '';
-        if ($activeGroup === '' || !isset($groups[$activeGroup])) {
+        $active_group = ($this->active_tab === $section) ? $this->active_sub_tab : '';
+        if ($active_group === '' || !isset($groups[$active_group])) {
             $keys = array_keys($groups);
-            $activeGroup = (string)reset($keys);
+            $active_group = (string)reset($keys);
         }
 
         $tabs = array();
@@ -336,8 +336,8 @@ class dbxConfig_dbx {
         }
 
         return $this->get_tpl('config-dbx-section', array(
-            'add_form' => $addForm,
-            'tabs' => $this->render_tabs($tabs, 'dbx_config_' . $section, $activeGroup),
+            'add_form' => $add_form,
+            'tabs' => $this->render_tabs($tabs, 'dbx_config_' . $section, $active_group),
         ));
     }
 
@@ -367,9 +367,9 @@ class dbxConfig_dbx {
 
         if ($form->submit() && !$form->errors()) {
             foreach ($fields as $name => $field) {
-                $oldValue = $field['value'];
-                $newValue = (string)($form->_post[$name] ?? '');
-                $this->set_path($this->config[$section], $field['path'], $this->field_to_value($oldValue, $newValue));
+                $old_value = $field['value'];
+                $new_value = (string)$form->post_value($name, '');
+                $this->set_path($this->config[$section], $field['path'], $this->field_to_value($old_value, $new_value));
             }
 
             $this->set_form_save_message($form);
@@ -393,13 +393,13 @@ class dbxConfig_dbx {
         }
 
         if ($form->errors()) {
-            $this->sectionMessages[$section] = array('error', $this->text('check_new_name'));
+            $this->section_messages[$section] = array('error', $this->text('check_new_name'));
             return;
         }
 
-        $entry = trim((string)($form->_post['configEntry'] ?? ''));
+        $entry = trim((string)$form->post_value('configEntry', ''));
         if ($entry === '') {
-            $this->sectionMessages[$section] = array('error', $this->text('enter_new_name'));
+            $this->section_messages[$section] = array('error', $this->text('enter_new_name'));
             return;
         }
 
@@ -408,7 +408,7 @@ class dbxConfig_dbx {
         }
 
         if (isset($this->config[$section][$entry])) {
-            $this->sectionMessages[$section] = array(
+            $this->section_messages[$section] = array(
                 'error',
                 $this->format_text('entry_exists', array('entry' => $entry))
             );
@@ -428,24 +428,24 @@ class dbxConfig_dbx {
             : $this->empty_group_template($this->config[$section]);
 
         if (!$this->save_config()) {
-            $this->sectionMessages[$section] = array('error', $this->text('entry_create_error'));
+            $this->section_messages[$section] = array('error', $this->text('entry_create_error'));
             return;
         }
 
-        $this->activeTab = $section;
-        $this->activeSubTab = $entry;
-        $this->sectionMessages[$section] = array(
+        $this->active_tab = $section;
+        $this->active_sub_tab = $entry;
+        $this->section_messages[$section] = array(
             'success',
             $this->format_text('entry_created', array('entry' => $entry))
         );
     }
 
     private function process_group_action(string $section): void {
-        if (($this->activeTab !== $section) || $this->activeSubTab === '') {
+        if (($this->active_tab !== $section) || $this->active_sub_tab === '') {
             return;
         }
 
-        $group = $this->activeSubTab;
+        $group = $this->active_sub_tab;
         if (!isset($this->config[$section][$group]) || !is_array($this->config[$section][$group])) {
             return;
         }
@@ -461,7 +461,7 @@ class dbxConfig_dbx {
             unset($this->config[$section][$group]);
 
             if (!$this->save_config()) {
-                $this->sectionMessages[$section] = array(
+                $this->section_messages[$section] = array(
                     'error',
                     $this->format_text('entry_delete_error', array('entry' => $group))
                 );
@@ -469,8 +469,8 @@ class dbxConfig_dbx {
             }
 
             $keys = array_keys((array)$this->config[$section]);
-            $this->activeSubTab = $keys ? (string)reset($keys) : '';
-            $this->sectionMessages[$section] = array(
+            $this->active_sub_tab = $keys ? (string)reset($keys) : '';
+            $this->section_messages[$section] = array(
                 'success',
                 $this->format_text('entry_deleted', array('entry' => $group))
             );
@@ -478,31 +478,31 @@ class dbxConfig_dbx {
         }
 
         if ($form->errors()) {
-            $this->groupMessages[$section][$group] = array('error', $this->text('check_input'));
+            $this->group_messages[$section][$group] = array('error', $this->text('check_input'));
             return;
         }
 
         if ($section === self::SQL_DB_SECTION) {
-            $record = $this->server_record_from_post($form->_post);
+            $record = $this->server_record_from_post($form->validated_post());
             if (strtolower((string) ($record['type'] ?? '')) === 'sqlite') {
-                $this->groupMessages[$section][$group] = array('error', $this->text('module_sqlite_forbidden'));
+                $this->group_messages[$section][$group] = array('error', $this->text('module_sqlite_forbidden'));
                 return;
             }
             $this->config[$section][$group] = $record;
         } else {
             foreach ($this->group_fields($section, $group, $values) as $name => $field) {
-                $oldValue = $field['value'];
-                $newValue = (string)($form->_post[$name] ?? '');
-                $this->set_path($this->config[$section][$group], $field['path'], $this->field_to_value($oldValue, $newValue));
+                $old_value = $field['value'];
+                $new_value = (string)$form->post_value($name, '');
+                $this->set_path($this->config[$section][$group], $field['path'], $this->field_to_value($old_value, $new_value));
             }
         }
 
         if (!$this->save_config()) {
-            $this->groupMessages[$section][$group] = array('error', $this->text('entry_save_error'));
+            $this->group_messages[$section][$group] = array('error', $this->text('entry_save_error'));
             return;
         }
 
-        $this->groupMessages[$section][$group] = array('success', $this->text('entry_saved'));
+        $this->group_messages[$section][$group] = array('success', $this->text('entry_saved'));
     }
 
     private function render_group_add_form(string $section, array $groups): string {
@@ -591,10 +591,10 @@ class dbxConfig_dbx {
     private function new_form(string $fid, array $data, string $info) {
         $form = dbx()->get_system_obj('dbxForm');
         $form->init($fid, 'form-config-dbx');
-        $form->_fd = self::CONFIG_FD;
+        $form->set_field_definition(self::CONFIG_FD);
         $form->load_fd_messages();
-        $form->_action = $this->base_action();
-        $form->_data = array_merge($form->_data, $data);
+        $form->set_action($this->base_action());
+        $form->merge_data($data);
         $form->_msg_info = $info;
         $form->_fld_change_state = '*';
 
@@ -606,14 +606,14 @@ class dbxConfig_dbx {
         $form->add_fld('activeSubTab', 'dbx|hidden', rules: 'parameter', dd: '');
     }
 
-    private function add_fields($form, array $fields, string $tooltipPrefix): void {
+    private function add_fields($form, array $fields, string $tooltip_prefix): void {
         foreach ($fields as $field) {
             $form->add_fld(
                 $field['name'],
                 $this->field_template($field),
                 label: $field['label'],
                 rules: '*',
-                tooltip: $tooltipPrefix . ': ' . $field['label'],
+                tooltip: $tooltip_prefix . ': ' . $field['label'],
                 dd: ''
             );
         }
@@ -662,19 +662,19 @@ class dbxConfig_dbx {
     }
 
     private function apply_section_message($form, string $section): void {
-        if (empty($this->sectionMessages[$section])) {
+        if (empty($this->section_messages[$section])) {
             return;
         }
 
-        $this->apply_message($form, $this->sectionMessages[$section]);
+        $this->apply_message($form, $this->section_messages[$section]);
     }
 
     private function apply_group_message($form, string $section, string $group): void {
-        if (empty($this->groupMessages[$section][$group])) {
+        if (empty($this->group_messages[$section][$group])) {
             return;
         }
 
-        $this->apply_message($form, $this->groupMessages[$section][$group]);
+        $this->apply_message($form, $this->group_messages[$section][$group]);
     }
 
     private function apply_message($form, array $message): void {
@@ -726,14 +726,14 @@ class dbxConfig_dbx {
         $fields = array();
 
         foreach ($value as $key => $item) {
-            $nextPath = array_merge($path, array((string)$key));
+            $next_path = array_merge($path, array((string)$key));
 
             if (is_array($item)) {
-                $fields = array_merge($fields, $this->collect_fields($prefix, $item, $nextPath, $used));
+                $fields = array_merge($fields, $this->collect_fields($prefix, $item, $next_path, $used));
                 continue;
             }
 
-            $field = $this->field_definition($prefix, $nextPath, $item, $used);
+            $field = $this->field_definition($prefix, $next_path, $item, $used);
             $fields[$field['name']] = $field;
         }
 
@@ -742,11 +742,11 @@ class dbxConfig_dbx {
 
     private function field_definition(string $prefix, array $path, $value, array &$used): array {
         $name = $this->field_name($prefix, $path);
-        $baseName = $name;
+        $base_name = $name;
         $counter = 2;
 
         while (isset($used[$name])) {
-            $name = $baseName . '_' . $counter;
+            $name = $base_name . '_' . $counter;
             $counter++;
         }
 
@@ -791,9 +791,9 @@ class dbxConfig_dbx {
         return (string)$value;
     }
 
-    private function field_to_top_value($oldValue, string $value) {
-        if (is_array($oldValue)) {
-            if ($this->is_list_array($oldValue)) {
+    private function field_to_top_value($old_value, string $value) {
+        if (is_array($old_value)) {
+            if ($this->is_list_array($old_value)) {
                 return $value;
             }
 
@@ -806,19 +806,19 @@ class dbxConfig_dbx {
             return $value;
         }
 
-        return $this->field_to_value($oldValue, $value);
+        return $this->field_to_value($old_value, $value);
     }
 
-    private function field_to_value($oldValue, string $value) {
-        if (is_int($oldValue)) {
+    private function field_to_value($old_value, string $value) {
+        if (is_int($old_value)) {
             return (int)$value;
         }
 
-        if (is_float($oldValue)) {
+        if (is_float($old_value)) {
             return (float)$value;
         }
 
-        if (is_bool($oldValue)) {
+        if (is_bool($old_value)) {
             return in_array(strtolower($value), array('1', 'true', 'yes', 'on'), true);
         }
 

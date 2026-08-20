@@ -1,0 +1,41 @@
+{
+    "schema": 1,
+    "id": "dbxapp/kernel/dbxapp",
+    "type": "kernel",
+    "name": "dbxapp",
+    "title": "dbxApp Kernel",
+    "description": "Gemeinsame Laufzeit, globale Assets, Add-ons und Paket-Engine.",
+    "descriptions": {
+        "de": "Der sichere Kern von dbxApp: Laufzeit, globale Assets, Add-ons, Abstraktionen und die Paket-Engine.",
+        "en": "The secure dbxApp core: runtime, global assets, add-ons, abstractions and the package engine.",
+        "es": "El núcleo seguro de dbxApp: entorno de ejecución, recursos globales, complementos, abstracciones y motor de paquetes."
+    },
+    "icon": "bi-cpu",
+    "image": "",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": "*",
+        "php": ">=8.2.0",
+        "extensions": [
+            "curl",
+            "json",
+            "openssl",
+            "zip"
+        ],
+        "packages": []
+    },
+    "permissions": [
+        "filesystem",
+        "network",
+        "package-management"
+    ],
+    "migrations": [],
+    "files": []
+}

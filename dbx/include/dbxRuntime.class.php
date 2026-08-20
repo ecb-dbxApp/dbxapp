@@ -1,9 +1,49 @@
 <?php
 
 /**
- * Laufzeit-, Response-Header- und Performance-Helfer des Systemkerns.
+ * @brief Liefert Laufzeit-, Response-Header- und Performance-Helfer des Systemkerns.
  */
 class dbxRuntime {
+
+   /** Liefert die zentrale PHP-Fehlerprotokolldatei. */
+   public function error_log_file(): string {
+      $dir = rtrim(dbx()->get_file_dir(), '/\\');
+      if (!is_dir($dir)) {
+         @mkdir($dir, 0775, true);
+      }
+      return $dir . DIRECTORY_SEPARATOR . 'dbxError.log';
+   }
+
+   /** Übersetzt eine PHP-Fehlernummer in ihre symbolische Bezeichnung. */
+   public function error_type(int $errno): string {
+      $types = array(
+         E_ERROR => 'E_ERROR', E_WARNING => 'E_WARNING', E_PARSE => 'E_PARSE',
+         E_NOTICE => 'E_NOTICE', E_CORE_ERROR => 'E_CORE_ERROR',
+         E_CORE_WARNING => 'E_CORE_WARNING', E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+         E_COMPILE_WARNING => 'E_COMPILE_WARNING', E_USER_ERROR => 'E_USER_ERROR',
+         E_USER_WARNING => 'E_USER_WARNING', E_USER_NOTICE => 'E_USER_NOTICE',
+         E_STRICT => 'E_STRICT', E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+         E_DEPRECATED => 'E_DEPRECATED', E_USER_DEPRECATED => 'E_USER_DEPRECATED',
+      );
+      return $types[$errno] ?? 'E_UNKNOWN';
+   }
+
+   /** Schreibt einen PHP-Fehler mit Request-Kontext in das zentrale Protokoll. */
+   public function write_php_error_log(string $type, string $message, string $file = '', int $line = 0): void {
+      $log = sprintf(
+         "[%s] %s: %s in %s:%d | %s %s | IP=%s%s",
+         date('Y-m-d H:i:s'),
+         $type,
+         str_replace(array("\r", "\n"), ' ', $message),
+         $file,
+         $line,
+         $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+         $_SERVER['REQUEST_URI'] ?? '',
+         $_SERVER['REMOTE_ADDR'] ?? '',
+         PHP_EOL
+      );
+      error_log($log, 3, $this->error_log_file());
+   }
 
    /**
     * Liefert die aktuelle PHP-Laufzeit des Requests in Sekunden.
@@ -112,7 +152,7 @@ class dbxRuntime {
          $timer = new \dbxPerformanceTimer();
          return method_exists($timer, 'store') ? (int)$timer->store() : 0;
       } catch (\Throwable $e) {
-         dbx()->write_php_error_log(
+         $this->write_php_error_log(
             get_class($e),
             $e->getMessage(),
             $e->getFile(),

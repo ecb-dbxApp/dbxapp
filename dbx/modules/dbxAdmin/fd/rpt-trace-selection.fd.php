@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['bar_title'] = 'Trace / Historie';
 $messages['bar_subtitle'] = 'Änderungshistorie';
 $messages['column_created'] = 'Erstellt';

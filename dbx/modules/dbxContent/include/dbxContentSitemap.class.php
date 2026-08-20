@@ -6,16 +6,20 @@ require_once __DIR__ . '/dbxContentPermalinkIndex.class.php';
 require_once __DIR__ . '/dbxContentRenderer.class.php';
 require_once __DIR__ . '/dbxContentHome.class.php';
 
+/**
+ * Erzeugt und cached sitemap.xml sowie robots.txt für öffentliche Content-Seiten.
+ */
 class dbxContentSitemap {
 
    private const CACHE_TTL_SECONDS = 900;
+   private const ROBOTS_CACHE_TTL_SECONDS = 3600;
 
-   public static function cachePath(): string {
-      return dbxContentPageCache::baseDir() . 'meta/sitemap.xml';
+   public static function cache_path(): string {
+      return dbxContentPageCache::base_dir() . 'meta/sitemap.xml';
    }
 
    public static function invalidate(): void {
-      @unlink(self::cachePath());
+      @unlink(self::cache_path());
    }
 
    public static function serve(): void {
@@ -24,14 +28,21 @@ class dbxContentSitemap {
       }
 
       $refresh = (int) dbx()->get_request_var('refresh', 0, 'int') === 1;
-      $xml = $refresh ? null : self::readCache();
+      $xml = $refresh ? null : self::read_cache();
       if ($xml === null) {
          $xml = self::build();
-         self::writeCache($xml);
+         self::write_cache($xml);
       }
 
       header('Content-Type: application/xml; charset=UTF-8');
       header('X-Content-Type-Options: nosniff');
+      if (self::send_public_cache_headers(
+         $xml,
+         self::CACHE_TTL_SECONDS,
+         (int)@filemtime(self::cache_path())
+      )) {
+         exit;
+      }
       echo $xml;
       exit;
    }
@@ -39,13 +50,13 @@ class dbxContentSitemap {
    public static function rebuild(): array {
       self::invalidate();
       $xml = self::build();
-      self::writeCache($xml);
+      self::write_cache($xml);
 
-      return self::statsFromXml($xml);
+      return self::stats_from_xml($xml);
    }
 
    public static function stats(): array {
-      $path = self::cachePath();
+      $path = self::cache_path();
       if (!is_file($path) || !is_readable($path)) {
          return array(
             'exists' => false,
@@ -57,7 +68,7 @@ class dbxContentSitemap {
       }
 
       $xml = file_get_contents($path);
-      $stats = self::statsFromXml(is_string($xml) ? $xml : '');
+      $stats = self::stats_from_xml(is_string($xml) ? $xml : '');
       $stats['exists'] = true;
       $stats['size'] = (int) @filesize($path);
       $stats['generated_at'] = date('d.m.Y H:i:s', (int) @filemtime($path));
@@ -65,20 +76,113 @@ class dbxContentSitemap {
       return $stats;
    }
 
-   public static function serveRobots(): void {
+   public static function serve_robots(): void {
       if (function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE) {
          session_write_close();
       }
 
       $base = rtrim((string) dbx()->get_base_url(), '/') . '/';
+      $robots = "User-agent: *\nAllow: /\n\nSitemap: " . $base . "sitemap.xml\n";
       header('Content-Type: text/plain; charset=UTF-8');
       header('X-Content-Type-Options: nosniff');
-      echo "User-agent: *\nAllow: /\n\nSitemap: " . $base . "sitemap.xml\n";
+      if (self::send_public_cache_headers($robots, self::ROBOTS_CACHE_TTL_SECONDS)) {
+         exit;
+      }
+      echo $robots;
       exit;
    }
 
-   private static function readCache(): ?string {
-      $path = self::cachePath();
+   /**
+    * Liefert die öffentlichen Sitemap-Seiten einer Sprache für die sichtbare
+    * Navigationsseite. Die Auswahl entspricht den Regeln von sitemap.xml.
+    *
+    * @return array<int,array{title:string,permalink:string,url:string}>
+    */
+   public static function navigation_pages(string $lng): array {
+      $lng = strtolower(trim($lng));
+      if (!in_array($lng, dbxContentLngSync::accessible_lngs(), true)) {
+         $lng = dbxContentLngSync::master_lng();
+      }
+
+      $db = dbx()->get_system_obj('dbxDB');
+      $renderer = new dbxContentRenderer();
+      $base = rtrim((string)dbx()->get_base_url(), '/') . '/';
+      $master_lng = dbxContentLngSync::master_lng();
+      $use_language_paths = (int)dbx()->get_cfg(
+         'dbx',
+         'language_path_prefix',
+         0
+      ) === 1;
+      $language_prefix = $use_language_paths && $lng !== $master_lng
+         ? rawurlencode($lng) . '/'
+         : '';
+      $pages = array();
+
+      foreach (self::collect_public_pages($db, $renderer, $lng) as $page) {
+         $permalink = dbxContent_permalink::public_path(
+            (string)($page['permalink'] ?? '')
+         );
+         if ($permalink === '') {
+            continue;
+         }
+         $title = trim((string)($page['title'] ?? ''));
+         $pages[] = array(
+            'title' => $title !== '' ? $title : $permalink,
+            'permalink' => $permalink,
+            'url' => $base . $language_prefix . $permalink,
+         );
+      }
+
+      usort($pages, static function (array $left, array $right): int {
+         return strnatcasecmp(
+            (string)($left['title'] ?? ''),
+            (string)($right['title'] ?? '')
+         );
+      });
+
+      return $pages;
+   }
+
+   /**
+    * Sendet cachebare Header und beantwortet gueltige Validatoren mit 304.
+    *
+    * @return bool true, wenn die Antwort bereits als 304 abgeschlossen ist.
+    */
+   private static function send_public_cache_headers(
+      string $content,
+      int $max_age,
+      int $last_modified = 0
+   ): bool {
+      $max_age = max(0, $max_age);
+      $etag = '"' . hash('sha256', $content) . '"';
+
+      header_remove('Pragma');
+      header_remove('Expires');
+      header('Cache-Control: public, max-age=' . $max_age);
+      header('ETag: ' . $etag);
+      if ($last_modified > 0) {
+         header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $last_modified) . ' GMT');
+      }
+
+      $if_none_match = trim((string)($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''));
+      if ($if_none_match !== '' && $if_none_match === $etag) {
+         http_response_code(304);
+         return true;
+      }
+
+      if ($if_none_match === '' && $last_modified > 0) {
+         $if_modified_since = strtotime((string)($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? ''));
+         if ($if_modified_since !== false && $if_modified_since >= $last_modified) {
+            http_response_code(304);
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   private static function read_cache(): ?string {
+      $path = self::cache_path();
       if (!is_file($path) || !is_readable($path)) {
          return null;
       }
@@ -101,13 +205,13 @@ class dbxContentSitemap {
       return $xml;
    }
 
-   private static function writeCache(string $xml): void {
+   private static function write_cache(string $xml): void {
       if (trim($xml) === '') {
          return;
       }
 
-      dbxContentPageCache::ensureDirs();
-      @file_put_contents(self::cachePath(), $xml, LOCK_EX);
+      dbxContentPageCache::ensure_dirs();
+      @file_put_contents(self::cache_path(), $xml, LOCK_EX);
    }
 
    private static function build(): string {
@@ -115,27 +219,27 @@ class dbxContentSitemap {
       $base = rtrim((string) dbx()->get_base_url(), '/') . '/';
       $renderer = new dbxContentRenderer();
       $entries = array();
-      $homeCid = dbxContentHome::masterCid();
-      $masterLng = dbxContentLngSync::masterLng();
-      // Die öffentliche URL enthält aktuell kein Sprachsegment. Deshalb darf
-      // jede flache URL nur einmal und in der maßgeblichen Sprache erscheinen.
-      // Weitere Sprachen werden erst mit eigenen kanonischen URLs aufgenommen.
-      $lngs = array($masterLng);
+      $master_lng = dbxContentLngSync::master_lng();
+      $use_language_paths = (int)dbx()->get_cfg('dbx', 'language_path_prefix', 0) === 1;
+      // Ohne Sprachpfade darf jede flache URL nur einmal erscheinen. Sobald
+      // die Installation stabile /en/-, /es/-...-Pfade aktiviert, gehören
+      // dagegen alle erreichbaren Sprachen mit ihren kanonischen URLs hinein.
+      $lngs = $use_language_paths ? dbxContentLngSync::accessible_lngs() : array($master_lng);
 
       foreach ($lngs as $lng) {
          $lng = strtolower(trim((string) $lng));
          if ($lng === '') {
             continue;
          }
-         foreach (self::collectPublicPages($db, $renderer, $lng) as $page) {
-            $permalink = dbxContent_permalink::publicPath((string)($page['permalink'] ?? ''));
+         foreach (self::collect_public_pages($db, $renderer, $lng) as $page) {
+            $permalink = dbxContent_permalink::public_path((string)($page['permalink'] ?? ''));
             if ($permalink === '') {
                continue;
             }
 
-            $loc = $lng === $masterLng && (int) ($page['cid'] ?? 0) === $homeCid
-               ? $base
-               : $base . $permalink;
+            $is_home = (int)($page['cid'] ?? 0) === dbxContentHome::resolve_cid($lng);
+            $language_prefix = $use_language_paths && $lng !== $master_lng ? $lng . '/' : '';
+            $loc = $is_home ? $base . $language_prefix : $base . $language_prefix . $permalink;
             $key = strtolower($loc);
             if (!isset($entries[$key])) {
                $entries[$key] = array(
@@ -155,10 +259,10 @@ class dbxContentSitemap {
 
       foreach ($entries as $entry) {
          $lines[] = '  <url>';
-         $lines[] = '    <loc>' . self::xmlEsc((string) $entry['loc']) . '</loc>';
+         $lines[] = '    <loc>' . self::xml_esc((string) $entry['loc']) . '</loc>';
          $lastmod = trim((string) ($entry['lastmod'] ?? ''));
          if ($lastmod !== '') {
-            $lines[] = '    <lastmod>' . self::xmlEsc($lastmod) . '</lastmod>';
+            $lines[] = '    <lastmod>' . self::xml_esc($lastmod) . '</lastmod>';
          }
          $lines[] = '  </url>';
       }
@@ -167,15 +271,15 @@ class dbxContentSitemap {
       return implode("\n", $lines) . "\n";
    }
 
-   private static function collectPublicPages($db, dbxContentRenderer $renderer, string $lng): array {
+   private static function collect_public_pages($db, dbxContentRenderer $renderer, string $lng): array {
       $pages = array();
       $seen = array();
 
       if (is_object($db)) {
          $rows = $db->select(
-            dbxContentLng::ddContent($lng),
+            dbxContentLng::dd_content($lng),
             'activ = 1',
-            'id,permalink,folder,update_date,meta_robots',
+            'id,title,permalink,folder,update_date,meta_robots',
             'id',
             'ASC',
             '',
@@ -194,23 +298,24 @@ class dbxContentSitemap {
                   continue;
                }
                $seen[$cid] = 1;
-               if (self::isNoindex((string) ($row['meta_robots'] ?? ''))) {
+               if (self::is_noindex((string) ($row['meta_robots'] ?? ''))) {
                   continue;
                }
-               if (!self::isPublicRights($renderer->getPublicFolderRights((int) ($row['folder'] ?? 0)))) {
+               if (!self::is_public_rights($renderer->get_public_folder_rights((int) ($row['folder'] ?? 0)))) {
                   continue;
                }
 
                $pages[] = array(
                   'cid' => $cid,
+                  'title' => trim((string)($row['title'] ?? '')),
                   'permalink' => $permalink,
-                  'lastmod' => self::formatLastmod((string) ($row['update_date'] ?? '')),
+                  'lastmod' => self::format_lastmod((string) ($row['update_date'] ?? '')),
                );
             }
          }
       }
 
-      if (dbxContentPageCache::isConfigEnabled()) {
+      if (dbxContentPageCache::is_config_enabled()) {
          $index = dbxContentPermalinkIndex::load($lng);
          foreach ($index as $permalink => $row) {
             if (!is_array($row)) {
@@ -219,10 +324,10 @@ class dbxContentSitemap {
             if ((int) ($row['activ'] ?? 0) !== 1) {
                continue;
             }
-            if (self::isNoindex((string) ($row['meta_robots'] ?? ''))) {
+            if (self::is_noindex((string) ($row['meta_robots'] ?? ''))) {
                continue;
             }
-            if (!self::isPublicRights((string) ($row['rights'] ?? '*'))) {
+            if (!self::is_public_rights((string) ($row['rights'] ?? '*'))) {
                continue;
             }
 
@@ -235,8 +340,9 @@ class dbxContentSitemap {
             $seen[$cid] = 1;
             $pages[] = array(
                'cid' => $cid,
+               'title' => trim((string)($row['title'] ?? '')),
                'permalink' => $permalink,
-               'lastmod' => self::lastmodForCid($cid),
+               'lastmod' => self::lastmod_for_cid($cid),
             );
          }
       }
@@ -244,42 +350,42 @@ class dbxContentSitemap {
       return $pages;
    }
 
-   private static function statsFromXml(string $xml): array {
+   private static function stats_from_xml(string $xml): array {
       return array(
          'exists' => trim($xml) !== '',
          'urls' => substr_count($xml, '<url>'),
          'size' => strlen($xml),
          'generated_at' => date('d.m.Y H:i:s'),
-         'path' => self::cachePath(),
+         'path' => self::cache_path(),
       );
    }
 
-   private static function isPublicRights(string $rights): bool {
+   private static function is_public_rights(string $rights): bool {
       $rights = trim($rights);
       return $rights === '' || $rights === '*';
    }
 
-   private static function isNoindex(string $robots): bool {
+   private static function is_noindex(string $robots): bool {
       return in_array('noindex', array_map('trim', explode(',', strtolower($robots))), true);
    }
 
-   private static function lastmodForCid(int $cid): string {
-      $meta = dbxContentPageCache::readPageMeta($cid);
+   private static function lastmod_for_cid(int $cid): string {
+      $meta = dbxContentPageCache::read_page_meta($cid);
       if (is_array($meta)) {
          $saved = trim((string) ($meta['saved_at'] ?? ''));
          if ($saved !== '') {
-            return self::formatLastmod($saved);
+            return self::format_lastmod($saved);
          }
          $seo = is_array($meta['seo'] ?? null) ? $meta['seo'] : array();
          $update = trim((string) ($seo['update_date'] ?? ''));
          if ($update !== '') {
-            return self::formatLastmod($update);
+            return self::format_lastmod($update);
          }
       }
       return '';
    }
 
-   private static function formatLastmod(string $value): string {
+   private static function format_lastmod(string $value): string {
       $value = trim($value);
       if ($value === '') {
          return '';
@@ -293,7 +399,7 @@ class dbxContentSitemap {
       return gmdate('Y-m-d', $ts);
    }
 
-   private static function xmlEsc(string $value): string {
+   private static function xml_esc(string $value): string {
       return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
    }
 }

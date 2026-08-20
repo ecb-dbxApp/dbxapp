@@ -7,7 +7,7 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 
 trait dbxKiBriefingBootstrapComponentServiceTrait {
 
-   private function allowedBootstrapComponents(): array {
+   private function allowed_bootstrap_components(): array {
       return array(
          'alert' => array(
             'label' => 'Hinweis',
@@ -52,12 +52,12 @@ trait dbxKiBriefingBootstrapComponentServiceTrait {
       );
    }
 
-   private function selectedBootstrapComponentsFromRequest(): array {
+   private function selected_bootstrap_components_from_request(): array {
       $raw = dbx()->get_request_var('bootstrap_components', array(), '*');
       if (!is_array($raw)) {
          $raw = $raw === '' ? array() : explode(',', (string) $raw);
       }
-      $allowed = $this->allowedBootstrapComponents();
+      $allowed = $this->allowed_bootstrap_components();
       $out = array();
       foreach ($raw as $key) {
          $key = strtolower(trim((string) $key));
@@ -73,9 +73,9 @@ trait dbxKiBriefingBootstrapComponentServiceTrait {
     * FD-Felder `comp_<key>` (siehe fd/ki-briefing-page-update.fd.php),
     * damit dbxForm ihre Auswahl per UI-State dauerhaft merken kann.
     */
-   private function selectedBootstrapComponentsFromUpdateFields(): array {
+   private function selected_bootstrap_components_from_update_fields(): array {
       $out = array();
-      foreach ($this->allowedBootstrapComponents() as $key => $meta) {
+      foreach ($this->allowed_bootstrap_components() as $key => $meta) {
          if (dbx()->get_request_var('comp_' . $key, '0', '*') === '1') {
             $out[] = $key;
          }
@@ -83,9 +83,9 @@ trait dbxKiBriefingBootstrapComponentServiceTrait {
       return $out;
    }
 
-   private function buildBootstrapComponentChoices(array $selected): string {
+   private function build_bootstrap_component_choices(array $selected): string {
       $html = '';
-      foreach ($this->allowedBootstrapComponents() as $key => $meta) {
+      foreach ($this->allowed_bootstrap_components() as $key => $meta) {
          $checked = in_array($key, $selected, true) ? ' checked' : '';
          $html .= '<label><input type="checkbox" name="bootstrap_components[]" value="' . $this->esc($key) . '"' . $checked . '>'
             . '<span><strong>' . $this->esc($meta['label'] ?? $key) . '</strong><small>' . $this->esc($meta['use'] ?? '') . '</small></span></label>';
@@ -93,8 +93,8 @@ trait dbxKiBriefingBootstrapComponentServiceTrait {
       return $html;
    }
 
-   private function bootstrapComponentsMeta(array $selected): array {
-      $allowed = $this->allowedBootstrapComponents();
+   private function bootstrap_components_meta(array $selected): array {
+      $allowed = $this->allowed_bootstrap_components();
       $out = array();
       foreach ($selected as $key) {
          if (isset($allowed[$key])) {
@@ -104,8 +104,8 @@ trait dbxKiBriefingBootstrapComponentServiceTrait {
       return $out;
    }
 
-   private function bootstrapComponentsGuide(array $selected): string {
-      $meta = $this->bootstrapComponentsMeta($selected);
+   private function bootstrap_components_guide(array $selected): string {
+      $meta = $this->bootstrap_components_meta($selected);
       if (!$meta) {
          return "Keine Bootstrap-Komponenten im Content verwenden. Erlaubt sind nur normales Jodit-HTML wie h2, h3, p, ul/ol, Links und einfache Textstruktur.";
       }

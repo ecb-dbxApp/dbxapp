@@ -13,7 +13,7 @@ class dbxObj
 
 class dbxTPLRawCacheTestApi
 {
-    public string $baseDir = '';
+    public string $base_dir = '';
 
     public array $system = array(
         'dbx_lng' => '',
@@ -24,8 +24,8 @@ class dbxTPLRawCacheTestApi
 
     public function get_base_dir(): string
     {
-        if ($this->baseDir !== '') {
-            return $this->baseDir;
+        if ($this->base_dir !== '') {
+            return $this->base_dir;
         }
         return __DIR__ . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'dbxTPL' . DIRECTORY_SEPARATOR;
     }
@@ -63,6 +63,16 @@ class dbxTPLRawCacheTestApi
     public function get_skin_class(): string
     {
         return 'skin-default';
+    }
+
+    public function get_system_obj(string $class): object
+    {
+        return $this;
+    }
+
+    public function get_assets(string $type): array
+    {
+        return array();
     }
 
     public function editor_file_path(string $path): string
@@ -123,31 +133,31 @@ if (trim($design) !== 'visible') {
     exit(1);
 }
 
-$tempRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'dbx-tpl-cache-' . bin2hex(random_bytes(6));
-$tempTplDir = $tempRoot . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR . 'modules'
+$temp_root = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'dbx-tpl-cache-' . bin2hex(random_bytes(6));
+$temp_tpl_dir = $temp_root . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR . 'modules'
     . DIRECTORY_SEPARATOR . 'dbx' . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR . 'htm';
-if (!mkdir($tempTplDir, 0777, true) && !is_dir($tempTplDir)) {
+if (!mkdir($temp_tpl_dir, 0777, true) && !is_dir($temp_tpl_dir)) {
     fwrite(STDERR, "FAIL: Temporaeres Template-Verzeichnis konnte nicht angelegt werden.\n");
     exit(1);
 }
-$tempTpl = $tempTplDir . DIRECTORY_SEPARATOR . 'test-source-change.htm';
-file_put_contents($tempTpl, 'erste Version');
-dbx()->baseDir = $tempRoot . DIRECTORY_SEPARATOR;
-$sourceFirst = $tpl->get_tpl('dbx|test-source-change', array());
-file_put_contents($tempTpl, 'zweite, laengere Version');
-clearstatcache(true, $tempTpl);
+$temp_tpl = $temp_tpl_dir . DIRECTORY_SEPARATOR . 'test-source-change.htm';
+file_put_contents($temp_tpl, 'erste Version');
+dbx()->base_dir = $temp_root . DIRECTORY_SEPARATOR;
+$source_first = $tpl->get_tpl('dbx|test-source-change', array());
+file_put_contents($temp_tpl, 'zweite, laengere Version');
+clearstatcache(true, $temp_tpl);
 $tpl->clear_raw_cache();
-$sourceSecond = $tpl->get_tpl('dbx|test-source-change', array());
+$source_second = $tpl->get_tpl('dbx|test-source-change', array());
 
-@unlink($tempTpl);
-@rmdir($tempTplDir);
-@rmdir(dirname($tempTplDir));
-@rmdir(dirname(dirname($tempTplDir)));
-@rmdir(dirname(dirname(dirname($tempTplDir))));
-@rmdir(dirname(dirname(dirname(dirname($tempTplDir)))));
-@rmdir($tempRoot);
+@unlink($temp_tpl);
+@rmdir($temp_tpl_dir);
+@rmdir(dirname($temp_tpl_dir));
+@rmdir(dirname(dirname($temp_tpl_dir)));
+@rmdir(dirname(dirname(dirname($temp_tpl_dir))));
+@rmdir(dirname(dirname(dirname(dirname($temp_tpl_dir)))));
+@rmdir($temp_root);
 
-if ($sourceFirst !== 'erste Version' || $sourceSecond !== 'zweite, laengere Version') {
+if ($source_first !== 'erste Version' || $source_second !== 'zweite, laengere Version') {
     fwrite(STDERR, "FAIL: Geaenderte Template-Datei blieb im Requestcache veraltet.\n");
     exit(1);
 }

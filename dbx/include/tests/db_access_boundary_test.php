@@ -19,7 +19,10 @@ foreach ($iterator as $file) {
    }
    $path = $file->getRealPath();
    $normalized = str_replace('\\', '/', $path ?: '');
+   $is_dbx_db_component = str_starts_with($normalized, str_replace('\\', '/', dirname((string)$allowed)) . '/dbxDB')
+      && str_ends_with($normalized, '.trait.php');
    if ($path === $allowed
+      || $is_dbx_db_component
       || strpos($normalized, '/vendor/') !== false
       || strpos($normalized, '/dbx/vendor/') !== false
       || strpos($normalized, '/files/') !== false

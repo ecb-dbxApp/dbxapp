@@ -21,8 +21,7 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
 
 
    private function is_no_hero_template($value) {
-      $value = strtolower(trim((string)$value));
-      return in_array($value, array('none', 'no-hero', '0', 'off'), true);
+      return \dbx\dbxContent\dbxContentRuntime::is_no_hero($value);
    }
 
 
@@ -139,7 +138,7 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
       foreach ($ids as $id) {
          $id = (int)$id;
          if ($id <= 0) continue;
-         $where = dbxContentMediaUsageScope::withLanguage(
+         $where = dbxContentMediaUsageScope::with_language(
             "active = 1 AND slot = '" . str_replace("'", "''", $slot) . "'",
             dbxContentLng::current()
          );
@@ -225,8 +224,8 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
          mkdir($dir, 0777, true);
       }
 
-      $dstName = $this->unique_media_name($name);
-      $dst = $dir . $dstName;
+      $dst_name = $this->unique_media_name($name);
+      $dst = $dir . $dst_name;
 
       if (!move_uploaded_file($file['tmp_name'], $dst)) {
          $this->cms_json_response(array('ok' => 0, 'msg' => 'Datei konnte nicht gespeichert werden.'));
@@ -242,7 +241,7 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
          $height = (int)($img[1] ?? 0);
       }
       $max_image_size = max(800, min(6000, (int)($_POST['max_image_size'] ?? 2560)));
-      if ($width > 0 && $height > 0 && $this->media_type(array('mime' => $mime, 'file_name' => $dstName)) === 'image') {
+      if ($width > 0 && $height > 0 && $this->media_type(array('mime' => $mime, 'file_name' => $dst_name)) === 'image') {
          if ($this->resize_image_to_max($dst, $mime, $max_image_size)) {
             clearstatcache(true, $dst);
             $img = @getimagesize($dst);
@@ -252,10 +251,10 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
             }
          }
 
-         $webp = $this->convert_media_image_to_webp($dst, $dstName, $mime);
+         $webp = $this->convert_media_image_to_webp($dst, $dst_name, $mime);
          if (is_array($webp) && !empty($webp['file']) && !empty($webp['name'])) {
             $dst = (string)$webp['file'];
-            $dstName = (string)$webp['name'];
+            $dst_name = (string)$webp['name'];
             $mime = (string)($webp['mime'] ?? 'image/webp');
             clearstatcache(true, $dst);
             $img = @getimagesize($dst);
@@ -269,7 +268,7 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
       $media_tpl = $this->clean_text($_POST['template'] ?? '', 80);
       $file_size = (int)@filesize($dst);
       $title = pathinfo($name, PATHINFO_FILENAME);
-      $media_type = $this->media_type(array('mime' => $mime, 'file_name' => $dstName));
+      $media_type = $this->media_type(array('mime' => $mime, 'file_name' => $dst_name));
       $media_folder = $this->clean_media_folder($media_folder, $media_type);
       if ($media_tpl === '') {
          $media_tpl = $media_type === 'video' ? ($slot === 'hero' ? 'video-hero' : 'video-gallery') : '';
@@ -313,8 +312,8 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
          'template' => $media_tpl,
          'title' => $title,
          'alt' => $title,
-         'file_name' => $dstName,
-         'file_path' => $media_rel_dir . $dstName,
+         'file_name' => $dst_name,
+         'file_path' => $media_rel_dir . $dst_name,
          'mime' => $mime,
          'size' => $file_size,
          'width' => $width,
@@ -323,7 +322,7 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
          'storage_type' => 'local',
          'media_folder' => $media_folder,
       );
-      $thumb = $this->create_media_thumbnail($dst, $media_folder, $dstName, $mime);
+      $thumb = $this->create_media_thumbnail($dst, $media_folder, $dst_name, $mime);
       if ($thumb) $insert = array_merge($insert, $thumb);
       $id = ($db->insert($this->dd_media, $insert) === 1) ? $db->get_insert_id() : 0;
 
@@ -344,7 +343,7 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
             'success' => true,
             'row' => $row,
             'usage' => $usage,
-            'files' => array($row['file_name'] ?? $dstName),
+            'files' => array($row['file_name'] ?? $dst_name),
             'path' => '',
             'baseurl' => $baseurl,
          ));
@@ -387,7 +386,7 @@ trait dbxContentCmsMediaAssignmentServiceTrait {
          if ($content_id > 0) $where .= ' AND content_id = ' . $content_id;
          if ($folder_id > 0) $where .= ' AND folder_id = ' . $folder_id;
          if ($slot !== '') $where .= " AND slot = '" . str_replace("'", "''", $slot) . "'";
-         $where = dbxContentMediaUsageScope::withLanguage($where, dbxContentLng::current());
+         $where = dbxContentMediaUsageScope::with_language($where, dbxContentLng::current());
          $ok = $db->update($this->dd_media_usage, array('active' => 0), $where, 0, 1, 1, 0);
       }
       $media = ($content_id > 0 || $folder_id > 0) ? $this->media_usage_rows_for_context($db, $content_id, $content_id > 0 ? 0 : $folder_id) : array();

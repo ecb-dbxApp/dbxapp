@@ -29,14 +29,14 @@ trait dbxKiCmsReadServiceTrait {
       if (array_key_exists('parent_id', $params)) {
          $where = 'parent_id = ' . max(0, (int)$params['parent_id']);
       }
-      $rows = $this->db->select(dbxContentLng::ddFolder($lng), $where, '*', 'sorter,id', 'ASC', '', $this->limit($params), 0, 1);
+      $rows = $this->db->select(dbxContentLng::dd_folder($lng), $where, '*', 'sorter,id', 'ASC', '', $this->limit($params), 0, 1);
       return array('lng' => $lng, 'rows' => is_array($rows) ? $rows : array());
    }
 
    private function folder_get(array $params): array {
       $lng = $this->language($params['lng'] ?? '');
       $id = $this->id($params);
-      $row = $this->db->select1(dbxContentLng::ddFolder($lng), $id);
+      $row = $this->db->select1(dbxContentLng::dd_folder($lng), $id);
       if (!is_array($row)) throw new \RuntimeException('Ordner nicht gefunden.');
       return array('lng' => $lng, 'row' => $row);
    }
@@ -47,16 +47,16 @@ trait dbxKiCmsReadServiceTrait {
       if (array_key_exists('folder_id', $params)) {
          $where = 'folder = ' . max(0, (int)$params['folder_id']);
       }
-      $rows = $this->db->select(dbxContentLng::ddContent($lng), $where, '*', 'folder,sorter,id', 'ASC', '', $this->limit($params), 0, 1);
+      $rows = $this->db->select(dbxContentLng::dd_content($lng), $where, '*', 'folder,sorter,id', 'ASC', '', $this->limit($params), 0, 1);
       return array('lng' => $lng, 'rows' => is_array($rows) ? $rows : array());
    }
 
    private function page_get(array $params): array {
       $lng = $this->language($params['lng'] ?? '');
       $id = $this->id($params);
-      $row = $this->db->select1(dbxContentLng::ddContent($lng), $id);
+      $row = $this->db->select1(dbxContentLng::dd_content($lng), $id);
       if (!is_array($row)) throw new \RuntimeException('Seite nicht gefunden.');
-      $usage = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::withLanguage('content_id = ' . $id . ' AND active = 1', $lng), '*', 'slot,sorter,id', 'ASC');
+      $usage = $this->db->select('dbxMediaUsage', dbxContentMediaUsageScope::with_language('content_id = ' . $id . ' AND active = 1', $lng), '*', 'slot,sorter,id', 'ASC');
       $hint = $this->package_page_hint($row);
       return array(
          'lng' => $lng,
@@ -88,12 +88,12 @@ trait dbxKiCmsReadServiceTrait {
 
    private function module_assets(array $params): array {
       $base = rtrim(str_replace('\\', '/', dbx()->get_base_dir()), '/') . '/';
-      $moduleFilter = strtolower(trim((string)($params['module'] ?? '')));
+      $module_filter = strtolower(trim((string)($params['module'] ?? '')));
       $limit = $this->limit($params, 200, 500);
       $rows = array();
       $seen = array();
 
-      $add = static function(string $file, string $source) use (&$rows, &$seen, $base, $moduleFilter): void {
+      $add = static function(string $file, string $source) use (&$rows, &$seen, $base, $module_filter): void {
          $path = str_replace('\\', '/', $file);
          if (!is_file($file)) {
             return;
@@ -121,7 +121,7 @@ trait dbxKiCmsReadServiceTrait {
             $stem = preg_replace('/\.[^.]+$/', '', $name);
             $action = str_starts_with((string)$stem, $prefix) ? substr((string)$stem, strlen($prefix)) : (string)$stem;
          }
-         if ($moduleFilter !== '' && strtolower($module) !== $moduleFilter) {
+         if ($module_filter !== '' && strtolower($module) !== $module_filter) {
             return;
          }
          $key = $rel;
@@ -162,21 +162,21 @@ trait dbxKiCmsReadServiceTrait {
    }
 
    private function translation_preview(array $params): array {
-      $sourceLng = $this->language($params['source_lng'] ?? '');
-      $targetLng = $this->language($params['target_lng'] ?? '');
-      if ($sourceLng === $targetLng) throw new \InvalidArgumentException('Quell- und Zielsprache müssen verschieden sein.');
-      $sourceId = $this->id($params, 'source_id');
-      $sourceDd = dbxContentLng::ddContent($sourceLng);
-      $source = $this->db->select1($sourceDd, $sourceId);
+      $source_lng = $this->language($params['source_lng'] ?? '');
+      $target_lng = $this->language($params['target_lng'] ?? '');
+      if ($source_lng === $target_lng) throw new \InvalidArgumentException('Quell- und Zielsprache müssen verschieden sein.');
+      $source_id = $this->id($params, 'source_id');
+      $source_dd = dbxContentLng::dd_content($source_lng);
+      $source = $this->db->select1($source_dd, $source_id);
       if (!is_array($source)) throw new \RuntimeException('Quellseite nicht gefunden.');
       $uid = trim((string)($source['lng_uid'] ?? ''));
-      $targetId = $uid !== ''
-         ? dbxContentLngSync::resolveIdByUid($this->db, dbxContentLng::ddContent($targetLng), $uid, $targetLng)
+      $target_id = $uid !== ''
+         ? dbxContentLngSync::resolve_id_by_uid($this->db, dbxContentLng::dd_content($target_lng), $uid, $target_lng)
          : 0;
-      $target = $targetId > 0 ? $this->db->select1(dbxContentLng::ddContent($targetLng), $targetId) : null;
+      $target = $target_id > 0 ? $this->db->select1(dbxContentLng::dd_content($target_lng), $target_id) : null;
       return array(
-         'source_lng' => $sourceLng,
-         'target_lng' => $targetLng,
+         'source_lng' => $source_lng,
+         'target_lng' => $target_lng,
          'source' => $source,
          'target' => $target,
          'source_uid_missing' => $uid === '',

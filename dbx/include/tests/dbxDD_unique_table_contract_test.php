@@ -9,30 +9,30 @@ $missing = array();
 
 foreach ($files as $file) {
     $source = (string)file_get_contents($file);
-    $serverMatch = array();
-    $tableMatch = array();
-    $hasServer = preg_match('/\$table\[[\'\"]server[\'\"]\]\s*=\s*([\'\"])(.*?)\1\s*;/', $source, $serverMatch) === 1;
-    $hasTable = preg_match('/\$table\[[\'\"]table[\'\"]\]\s*=\s*([\'\"])(.*?)\1\s*;/', $source, $tableMatch) === 1;
+    $server_match = array();
+    $table_match = array();
+    $has_server = preg_match('/\$table\[[\'\"]server[\'\"]\]\s*=\s*([\'\"])(.*?)\1\s*;/', $source, $server_match) === 1;
+    $has_table = preg_match('/\$table\[[\'\"]table[\'\"]\]\s*=\s*([\'\"])(.*?)\1\s*;/', $source, $table_match) === 1;
 
-    if ((!$hasServer || !$hasTable)
+    if ((!$has_server || !$has_table)
         && preg_match('/\$__dbx_lng_dd\s*=\s*([\'\"])([a-z]{2})\1\s*;/', $source, $language) === 1
     ) {
-        $serverMatch[2] = 'dbxContent.db3';
+        $server_match[2] = 'dbxContent.db3';
         if (str_contains($source, 'dbxContentFolder.dd.inc.php')) {
-            $tableMatch[2] = 'content_folder_' . $language[2];
-            $hasServer = $hasTable = true;
+            $table_match[2] = 'content_folder_' . $language[2];
+            $has_server = $has_table = true;
         } elseif (str_contains($source, 'dbxContent.dd.inc.php')) {
-            $tableMatch[2] = 'content_' . $language[2];
-            $hasServer = $hasTable = true;
+            $table_match[2] = 'content_' . $language[2];
+            $has_server = $has_table = true;
         }
     }
 
-    if (!$hasServer || !$hasTable) {
+    if (!$has_server || !$has_table) {
         $missing[] = str_replace('\\', '/', substr($file, strlen($root) + 1));
         continue;
     }
 
-    $key = strtolower(trim((string)$serverMatch[2]) . '|' . trim((string)$tableMatch[2]));
+    $key = strtolower(trim((string)$server_match[2]) . '|' . trim((string)$table_match[2]));
     $tables[$key][] = str_replace('\\', '/', substr($file, strlen($root) + 1));
 }
 

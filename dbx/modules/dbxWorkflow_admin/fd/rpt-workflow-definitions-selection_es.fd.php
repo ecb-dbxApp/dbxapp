@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_title'] = 'Definiciones de flujos de trabajo';
 $messages['bar_subtitle'] = 'Administrar definiciones de flujos de trabajo';
 $messages['module_bindings'] = 'Vinculaciones de módulos';

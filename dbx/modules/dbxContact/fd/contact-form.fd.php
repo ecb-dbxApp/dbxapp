@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['bar_title'] = 'Kontaktformular';
 $messages['bar_subtitle'] = 'Nachricht an uns senden';
 $messages['request_success'] = 'Ihre Kontaktanfrage wurde erfolgreich übermittelt.';

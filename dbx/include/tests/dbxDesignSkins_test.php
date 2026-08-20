@@ -8,54 +8,51 @@ $fail = static function (string $message, int $code): void {
    exit($code);
 };
 
-$expectedByDesign = array(
+$expected_by_design = array(
    'dbxapp' => array('blau', 'dunkel'),
-   'dbxdocs' => array('hell'),
    'flowers' => array('hell'),
    'steal' => array('hell'),
 );
-foreach ($expectedByDesign as $design => $expectedOrder) {
-   $skins = dbx()->get_design_skin_ids($design);
-   if ($skins !== $expectedOrder) {
+foreach ($expected_by_design as $design => $expected_order) {
+   $skins = dbx()->get_system_obj('dbxPresentation')->get_design_skin_ids($design);
+   if ($skins !== $expected_order) {
       $fail($design . ' liefert nicht seine vorhandenen Skins: ' . implode(',', $skins), 1);
    }
 }
 
-if (dbx()->normalize_skin('rot', 'flowers') !== 'hell') {
+if (dbx()->get_system_obj('dbxPresentation')->normalize_skin('rot', 'flowers') !== 'hell') {
    $fail('Ein nicht vorhandener Flowers-Skin fällt nicht sicher auf Hell zurück.', 2);
 }
 
-if (dbx()->get_design_skin_ids('../flowers') !== $expectedByDesign['dbxapp']) {
+if (dbx()->get_system_obj('dbxPresentation')->get_design_skin_ids('../flowers') !== $expected_by_design['dbxapp']) {
    $fail('Ein unsicherer Designname verlaesst den sicheren dbxapp-Fallback.', 3);
 }
 
 dbx()->set_system_var('dbx_design', 'steal');
 dbx()->set_system_var('dbx_activ_design', 'steal');
 dbx()->set_system_var('dbx_color', 'hell');
-if (dbx()->get_skin_css() !== 'dbx/design/steal/css/skin-hell.css') {
+if (dbx()->get_system_obj('dbxPresentation')->get_skin_css() !== 'dbx/design/steal/css/skin-hell.css') {
    $fail('Der Skin-CSS-Pfad folgt nicht der aktiven Design-/Skin-Kombination.', 4);
 }
 
-$menuSource = file_get_contents(dirname(__DIR__, 2) . '/modules/dbxMenu/dbxMenu.class.php');
-$utilitiesSource = file_get_contents(dirname(__DIR__, 2) . '/js/lib/utilities.js');
-if (!is_string($menuSource)
-   || strpos($menuSource, 'render_design_menu') === false
-   || strpos($menuSource, 'frontend_design_options') === false
-   || strpos($menuSource, "'dbx_design' => \$design") === false
-   || strpos($menuSource, 'theme_toggle_url') === false
-   || strpos($menuSource, "'dbx_color' => \$nightActive ? 'blau' : 'dunkel'") === false) {
+$menu_source = file_get_contents(dirname(__DIR__, 2) . '/modules/dbxMenu/dbxMenu.class.php');
+$utilities_source = file_get_contents(dirname(__DIR__, 2) . '/js/lib/utilities.js');
+if (!is_string($menu_source)
+   || strpos($menu_source, 'render_design_menu') === false
+   || strpos($menu_source, 'frontend_design_options') === false
+   || strpos($menu_source, "'dbx_design' => \$design") === false
+   || strpos($menu_source, 'theme_toggle_url') === false
+   || strpos($menu_source, "'dbx_color' => \$night_active ? 'blau' : 'dunkel'") === false) {
    $fail('dbxMenu rendert Designauswahl und Tag/Nacht-Umschalter nicht über GET-Routen.', 5);
 }
-if (strpos($menuSource, "return 'dbxdocs';") === false
-   || strpos($menuSource, "array('dbxdocs' => 'dbxapp (Blau)')") !== false
-   || strpos($menuSource, 'array_intersect_key($options') !== false) {
-   $fail('Das Dokumentationsmenue bietet nicht alle installierten Designs an.', 8);
+if (strpos($menu_source, 'array_intersect_key($options') !== false) {
+   $fail('Das Designmenue beschränkt die installierten Frontend-Designs.', 8);
 }
-if (!is_string($utilitiesSource)
-   || strpos($utilitiesSource, 'DESIGN_SKINS') !== false
-   || strpos($utilitiesSource, 'ALL_SKINS') !== false
-   || strpos($utilitiesSource, 'dbx-design-skin-opt[data-design][data-skin]') === false
-   || strpos($utilitiesSource, 'skinStoreKey()') === false) {
+if (!is_string($utilities_source)
+   || strpos($utilities_source, 'DESIGN_SKINS') !== false
+   || strpos($utilities_source, 'ALL_SKINS') !== false
+   || strpos($utilities_source, 'dbx-design-skin-opt[data-design][data-skin]') === false
+   || strpos($utilities_source, 'skinStoreKey()') === false) {
    $fail('utilities.js verwendet noch eine globale Skin-Liste oder keinen designspezifischen Speicher.', 7);
 }
 

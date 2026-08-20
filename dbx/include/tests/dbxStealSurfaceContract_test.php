@@ -8,11 +8,11 @@
  */
 
 $root = dirname(__DIR__, 2);
-$metalFile = $root . '/design/steal/css/steal-metal.css';
-$riffelFile = $root . '/design/steal/css/steal-riffel-chrome.css';
-$templateFile = $root . '/design/steal/htm/default.htm';
-$manifestFile = $root . '/design/steal/design.json';
-$gearFile = $root . '/design/steal/img/dbx-page-gears-v1.svg';
+$metal_file = $root . '/design/steal/css/steal-metal.css';
+$riffel_file = $root . '/design/steal/css/steal-riffel-chrome.css';
+$template_file = $root . '/design/steal/htm/default.htm';
+$manifest_file = $root . '/design/steal/design.json';
+$gear_file = $root . '/design/steal/img/dbx-page-gears-v1.svg';
 
 $fail = static function (string $message, int $code): void {
    fwrite(STDERR, "FAIL: $message\n");
@@ -40,28 +40,28 @@ $rule = static function (string $css, string $selector) use ($fail): string {
    return substr($css, $open + 1, $close - $open - 1);
 };
 
-$metal = $read($metalFile);
-$riffel = $read($riffelFile);
-$template = $read($templateFile);
-$manifest = json_decode($read($manifestFile), true);
-$gears = $read($gearFile);
+$metal = $read($metal_file);
+$riffel = $read($riffel_file);
+$template = $read($template_file);
+$manifest = json_decode($read($manifest_file), true);
+$gears = $read($gear_file);
 
 foreach (array(
    $rule($metal, 'body.dbx-steal .c-cms :is(.card, .alert, .list-group-item)'),
    $rule($riffel, 'body.dbx-steal-riffel :is(.card, .dbx-card, .list-group-item, .alert)'),
-) as $cardRule) {
-   if (strpos($cardRule, 'background-repeat: no-repeat !important') === false
-       || strpos($cardRule, 'background-size: 100% 100% !important') === false
-       || strpos($cardRule, 'repeating-linear-gradient') !== false
-       || strpos($cardRule, 'riffelblech') !== false) {
+) as $card_rule) {
+   if (strpos($card_rule, 'background-repeat: no-repeat !important') === false
+       || strpos($card_rule, 'background-size: 100% 100% !important') === false
+       || strpos($card_rule, 'repeating-linear-gradient') !== false
+       || strpos($card_rule, 'riffelblech') !== false) {
       $fail('Eine Steal-Card kann wieder gekachelt oder mit Riffelblech gefüllt werden.', 4);
    }
 }
 
-$mainRule = $rule($riffel, 'body.dbx-steal-riffel #dbxMain');
-if (strpos($mainRule, 'dbx-page-gears-v1.svg') === false
-    || strpos($mainRule, 'background-repeat: no-repeat, no-repeat, repeat !important') === false
-    || strpos($mainRule, 'background-size: 100vw auto') === false) {
+$main_rule = $rule($riffel, 'body.dbx-steal-riffel #dbxMain');
+if (strpos($main_rule, 'dbx-page-gears-v1.svg') === false
+    || strpos($main_rule, 'background-repeat: no-repeat, no-repeat, repeat !important') === false
+    || strpos($main_rule, 'background-size: 100vw auto') === false) {
    $fail('Die einmalige viewportbreite Zahnrad-Gravur fehlt im Seitenhintergrund.', 5);
 }
 

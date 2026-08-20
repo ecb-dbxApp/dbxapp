@@ -18,7 +18,7 @@ $order = array(
    'currency' => 'EUR',
 );
 
-$paypalResult = array(
+$paypal_result = array(
    'id' => 'PAYPAL-ORDER-1',
    'status' => 'COMPLETED',
    'purchase_units' => array(array(
@@ -34,21 +34,21 @@ $paypalResult = array(
 
 $paypal = new dbxShopPayPal();
 try {
-   $paypal->validateCapture($paypalResult, $order, 'PAYPAL-ORDER-1');
+   $paypal->validate_capture($paypal_result, $order, 'PAYPAL-ORDER-1');
 } catch (Throwable $e) {
    $fail('Gueltiger PayPal-Capture wurde abgelehnt: ' . $e->getMessage(), 1);
 }
 
-$badPayPal = $paypalResult;
-$badPayPal['purchase_units'][0]['payments']['captures'][0]['amount']['value'] = '19.90';
+$bad_pay_pal = $paypal_result;
+$bad_pay_pal['purchase_units'][0]['payments']['captures'][0]['amount']['value'] = '19.90';
 try {
-   $paypal->validateCapture($badPayPal, $order, 'PAYPAL-ORDER-1');
+   $paypal->validate_capture($bad_pay_pal, $order, 'PAYPAL-ORDER-1');
    $fail('PayPal-Betragsabweichung wurde akzeptiert.', 2);
 } catch (RuntimeException $e) {
    // Erwartet.
 }
 
-$amazonResult = array(
+$amazon_result = array(
    '_http_status' => 200,
    'checkoutSessionId' => 'AMAZON-SESSION-1',
    'statusDetails' => array('state' => 'Completed'),
@@ -60,25 +60,25 @@ $amazonResult = array(
 
 $amazon = new dbxShopAmazonPay();
 try {
-   $status = $amazon->validateCompletion($amazonResult, $order, 'AMAZON-SESSION-1');
+   $status = $amazon->validate_completion($amazon_result, $order, 'AMAZON-SESSION-1');
    if ($status !== 'completed') $fail('Amazon-Pay-Status wurde falsch normalisiert.', 3);
 } catch (Throwable $e) {
    $fail('Gueltige Amazon-Pay-Antwort wurde abgelehnt: ' . $e->getMessage(), 4);
 }
 
-$badAmazon = $amazonResult;
-$badAmazon['merchantMetadata']['merchantReferenceId'] = 'ANDERE-BESTELLUNG';
+$bad_amazon = $amazon_result;
+$bad_amazon['merchantMetadata']['merchantReferenceId'] = 'ANDERE-BESTELLUNG';
 try {
-   $amazon->validateCompletion($badAmazon, $order, 'AMAZON-SESSION-1');
+   $amazon->validate_completion($bad_amazon, $order, 'AMAZON-SESSION-1');
    $fail('Amazon-Pay-Antwort einer anderen Bestellung wurde akzeptiert.', 5);
 } catch (RuntimeException $e) {
    // Erwartet.
 }
 
-$paypalSource = file_get_contents(dirname(__DIR__) . '/include/dbxShopPayPal.class.php');
-$amazonSource = file_get_contents(dirname(__DIR__) . '/include/dbxShopAmazonPay.class.php');
-if (strpos((string)$paypalSource, 'PayPal-Request-Id: dbx-') === false
-   || strpos((string)$amazonSource, "'checkout|' . (string)(\$order['order_no'] ?? '')") === false) {
+$paypal_source = file_get_contents(dirname(__DIR__) . '/include/dbxShopPayPal.class.php');
+$amazon_source = file_get_contents(dirname(__DIR__) . '/include/dbxShopAmazonPay.class.php');
+if (strpos((string)$paypal_source, 'PayPal-Request-Id: dbx-') === false
+   || strpos((string)$amazon_source, "'checkout|' . (string)(\$order['order_no'] ?? '')") === false) {
    $fail('Provider-Create/Capture-Aufrufe besitzen keine stabile Idempotenz-ID.', 6);
 }
 

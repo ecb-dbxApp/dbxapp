@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['form_info'] = 'Rechnungskopf prüfen und speichern.';
 $messages['form_title_new'] = 'Neue Rechnung';
 $messages['form_title_edit'] = 'Rechnung bearbeiten';
@@ -16,7 +13,7 @@ $messages['validation_error'] = 'Bitte Eingaben prüfen.';
 
 $fields = array();
 
-$addField = function (
+$add_field = function (
     string $name,
     string $type,
     string $tpl,
@@ -44,7 +41,7 @@ $addField = function (
     $fields[] = $field;
 };
 
-$addField(
+$add_field(
     'invoice_no',
     'varchar',
     'text-label',
@@ -52,7 +49,7 @@ $addField(
     'parameter|min=2|max=40',
     array('length' => '40')
 );
-$addField(
+$add_field(
     'invoice_date',
     'date',
     'date-label',
@@ -60,7 +57,7 @@ $addField(
     'date',
     array('convert' => 'date')
 );
-$addField(
+$add_field(
     'customer',
     'varchar',
     'text-label',
@@ -68,7 +65,7 @@ $addField(
     '*|min=2|max=180',
     array('length' => '180')
 );
-$addField(
+$add_field(
     'status',
     'varchar',
     'select-single-label',

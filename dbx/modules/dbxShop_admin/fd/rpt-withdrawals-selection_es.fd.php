@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_title'] = 'Desistimientos';
 $messages['bar_subtitle'] = 'Desistimientos y devoluciones de la tienda';
 $messages['report_info'] = 'Busque y procese los desistimientos recibidos.';

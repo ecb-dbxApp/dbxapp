@@ -12,7 +12,7 @@ namespace dbx\dbxContent_admin;
 final class dbxContentCmsOptionCatalog
 {
     private object $texts;
-    private ?array $contentTemplateNames = null;
+    private ?array $content_template_names = null;
 
     public function __construct(object $texts)
     {
@@ -154,7 +154,7 @@ final class dbxContentCmsOptionCatalog
 
     private function content_template_names(): array
     {
-        if (is_array($this->contentTemplateNames)) return $this->contentTemplateNames;
+        if (is_array($this->content_template_names)) return $this->content_template_names;
         $dir = dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/dbxContent/tpl/htm/');
         $files = is_dir($dir) ? glob(rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . 'c-*.htm') : array();
         $names = array();
@@ -163,7 +163,7 @@ final class dbxContentCmsOptionCatalog
         }
         $names = array_values(array_unique($names));
         sort($names, SORT_NATURAL | SORT_FLAG_CASE);
-        return $this->contentTemplateNames = $names ?: array('c-content');
+        return $this->content_template_names = $names ?: array('c-content');
     }
 
     private function options_html(array $values, string $selected = ''): string

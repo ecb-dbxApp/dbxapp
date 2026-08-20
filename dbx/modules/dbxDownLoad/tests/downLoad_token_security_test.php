@@ -13,11 +13,11 @@ declare(strict_types=1);
  */
 
 $module = dirname(__DIR__);
-$dbxRoot = dirname(__DIR__, 3);
+$dbx_root = dirname(__DIR__, 3);
 
-require_once $dbxRoot . '/vendor/autoload.php';
-require_once $dbxRoot . '/include/dbxKernel.php';
-require_once $dbxRoot . '/include/tests/dbxModuleSourceBundle.php';
+require_once $dbx_root . '/vendor/autoload.php';
+require_once $dbx_root . '/include/dbxKernel.php';
+require_once $dbx_root . '/include/tests/dbxModuleSourceBundle.php';
 require_once $module . '/dbxDownLoad.class.php';
 
 $failures = array();
@@ -27,7 +27,7 @@ $assert = static function (bool $condition, string $message) use (&$failures): v
 
 // --- base64url()/base64url_decode(): pure, kein Config-/DB-Zugriff ---
 $class = new ReflectionClass(\dbx\dbxDownLoad\dbxDownLoad::class);
-$downLoad = $class->newInstanceWithoutConstructor();
+$down_load = $class->newInstanceWithoutConstructor();
 
 $encode = $class->getMethod('base64url');
 $encode->setAccessible(true);
@@ -44,19 +44,19 @@ foreach (array(
     random_bytes(32),
     "\x00\x01\xff\xfe binaer",
 ) as $sample) {
-    $encoded = (string)$encode->invoke($downLoad, $sample);
+    $encoded = (string)$encode->invoke($down_load, $sample);
     $assert(
         !str_contains($encoded, '+') && !str_contains($encoded, '/') && !str_contains($encoded, '='),
         'base64url() liefert kein URL-sicheres Alphabet fuer: ' . bin2hex($sample)
     );
-    $roundTrip = (string)$decode->invoke($downLoad, $encoded);
+    $round_trip = (string)$decode->invoke($down_load, $encoded);
     $assert(
-        $roundTrip === $sample,
+        $round_trip === $sample,
         'base64url_decode(base64url($x)) != $x fuer: ' . bin2hex($sample)
     );
 }
 $assert(
-    (string)$decode->invoke($downLoad, '***not valid base64url***') === '',
+    (string)$decode->invoke($down_load, '***not valid base64url***') === '',
     'base64url_decode() liefert bei ungueltiger Eingabe keinen leeren String zurueck.'
 );
 
@@ -81,23 +81,23 @@ $assert(
     'Secret oder Nonce werden nicht mehr aus einer kryptographisch sicheren Zufallsquelle erzeugt.'
 );
 
-$spamGatePos = strpos($source, "if (\$spamReason !== '') {");
-$tokenCreatePos = strpos($source, '$token = $this->create_token($name, $email);');
+$spam_gate_pos = strpos($source, "if (\$spam_reason !== '') {");
+$token_create_pos = strpos($source, '$token = $this->create_token($name, $email);');
 $assert(
-    $spamGatePos !== false && $tokenCreatePos !== false && $spamGatePos < $tokenCreatePos,
+    $spam_gate_pos !== false && $token_create_pos !== false && $spam_gate_pos < $token_create_pos,
     'Das Spam-Gate greift nicht mehr, bevor ein Download-Token erzeugt und verschickt wird.'
 );
 
-$downloadFileStart = strpos($source, 'private function download_file(): string {');
-$downloadFileEnd = $downloadFileStart !== false ? strpos($source, "\n   }", $downloadFileStart) : false;
-$downloadFileBody = $downloadFileStart !== false && $downloadFileEnd !== false
-    ? substr($source, $downloadFileStart, $downloadFileEnd - $downloadFileStart)
+$download_file_start = strpos($source, 'private function download_file(): string {');
+$download_file_end = $download_file_start !== false ? strpos($source, "\n   }", $download_file_start) : false;
+$download_file_body = $download_file_start !== false && $download_file_end !== false
+    ? substr($source, $download_file_start, $download_file_end - $download_file_start)
     : '';
-$assert($downloadFileBody !== '', 'download_file() wurde nicht gefunden.');
-foreach (array('$_REQUEST', '$_GET', '$_POST', '$payload', '$token') as $userInput) {
+$assert($download_file_body !== '', 'download_file() wurde nicht gefunden.');
+foreach (array('$_REQUEST', '$_GET', '$_POST', '$payload', '$token') as $user_input) {
     $assert(
-        !str_contains($downloadFileBody, $userInput),
-        'download_file() baut den Dateipfad jetzt (teilweise) aus Nutzereingaben statt nur aus der Konfiguration: ' . $userInput
+        !str_contains($download_file_body, $user_input),
+        'download_file() baut den Dateipfad jetzt (teilweise) aus Nutzereingaben statt nur aus der Konfiguration: ' . $user_input
     );
 }
 

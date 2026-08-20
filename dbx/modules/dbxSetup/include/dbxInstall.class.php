@@ -43,10 +43,10 @@ class dbxInstall
 
     private bool $finished = false;
 
-    private bool $stayOnStep = false;
+    private bool $stay_on_step = false;
 
     /** Ergebnisdaten des erfolgreich abgeschlossenen Assistenten. */
-    private array $finishResult = array();
+    private array $finish_result = array();
 
     public function __construct()
     {
@@ -69,28 +69,28 @@ class dbxInstall
         if ((int)($config['install'] ?? 1) !== 1
             && (int)dbx()->get_system_var('dbx_install', 0, 'int') !== 1
         ) {
-            return $this->renderAlreadyInstalled();
+            return $this->render_already_installed();
         }
         $help = is_scalar($_GET['install_help'] ?? null)
             ? strtolower(trim((string)$_GET['install_help']))
             : '';
         if (in_array($help, array('design', 'db3', 'pdo', 'email'), true)) {
-            return $this->renderInstallerHelp($help);
+            return $this->render_installer_help($help);
         }
 
         $completed = max(0, min(
             self::TOTAL_STEPS,
             (int)$this->state('completed', 0)
         ));
-        $step = $this->requestedStep();
+        $step = $this->requested_step();
         $step = min($step, min(self::TOTAL_STEPS, $completed + 1));
 
-        if ($this->isPost()) {
-            if (!$this->validToken($step)) {
+        if ($this->is_post()) {
+            if (!$this->valid_token($step)) {
                 $this->errors[] = 'Die Installationssitzung ist abgelaufen. Bitte laden Sie die Seite neu.';
-            } elseif ($this->processStep($step)) {
-                if (!$this->stayOnStep) {
-                    $this->setState('completed', max($completed, $step));
+            } elseif ($this->process_step($step)) {
+                if (!$this->stay_on_step) {
+                    $this->set_state('completed', max($completed, $step));
                     if (!$this->finished) {
                         $step = min(self::TOTAL_STEPS, $step + 1);
                     }
@@ -99,10 +99,10 @@ class dbxInstall
         }
 
         if ($this->finished) {
-            return $this->renderFinished();
+            return $this->render_finished();
         }
 
-        return $this->renderShell($step, $this->renderStep($step));
+        return $this->render_shell($step, $this->render_step($step));
     }
 
     /**
@@ -110,7 +110,7 @@ class dbxInstall
      *
      * @return array<int,array{id:string,label:string,value:string,status:string,required:bool,hint:string}>
      */
-    public function systemChecks(): array
+    public function system_checks(): array
     {
         $checks = array();
         $add = static function (
@@ -150,19 +150,19 @@ class dbxInstall
             );
         }
 
-        $configDir = dbx()->os_path(
+        $config_dir = dbx()->os_path(
             dbx()->get_base_dir() . 'dbx/modules/dbx/cfg'
         );
-        $localConfigFile = dbx()->os_path(
-            rtrim($configDir, '/\\') . DIRECTORY_SEPARATOR . 'config.local.php'
+        $local_config_file = dbx()->os_path(
+            rtrim($config_dir, '/\\') . DIRECTORY_SEPARATOR . 'config.local.php'
         );
-        $localConfigWritable = $this->directoryWritable($configDir)
-            && (!is_file($localConfigFile) || is_writable($localConfigFile));
+        $local_config_writable = $this->directory_writable($config_dir)
+            && (!is_file($local_config_file) || is_writable($local_config_file));
         $add(
             'write-config',
             'Lokale Konfiguration',
-            $this->compactPath($localConfigFile),
-            $localConfigWritable,
+            $this->compact_path($local_config_file),
+            $local_config_writable,
             true,
             'Der Webserver benötigt Schreibrecht für config.local.php.'
         );
@@ -174,8 +174,8 @@ class dbxInstall
             $add(
                 'write-' . $name,
                 'Schreibverzeichnis ' . $name . '/',
-                $this->compactPath($directory),
-                $this->directoryWritable($directory),
+                $this->compact_path($directory),
+                $this->directory_writable($directory),
                 true,
                 'Das Verzeichnis wird für Laufzeitdaten benötigt.'
             );
@@ -220,7 +220,7 @@ class dbxInstall
                 array('https', 'wss'),
                 true
             );
-        $localHost = in_array(
+        $local_host = in_array(
             strtolower((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '')),
             array('localhost', '127.0.0.1', '[::1]'),
             true
@@ -228,13 +228,13 @@ class dbxInstall
         $add(
             'https',
             'HTTPS',
-            $https ? 'aktiv' : ($localHost ? 'lokale Entwicklung' : 'nicht erkannt'),
-            $https || $localHost,
+            $https ? 'aktiv' : ($local_host ? 'lokale Entwicklung' : 'nicht erkannt'),
+            $https || $local_host,
             false,
             'Produktive Installationen sollten ausschließlich HTTPS verwenden.'
         );
 
-        $memory = $this->iniBytes((string)ini_get('memory_limit'));
+        $memory = $this->ini_bytes((string)ini_get('memory_limit'));
         $add(
             'memory',
             'PHP memory_limit',
@@ -247,24 +247,24 @@ class dbxInstall
         return $checks;
     }
 
-    private function processStep(int $step): bool
+    private function process_step(int $step): bool
     {
-        $action = $this->postKey('install_action', 40);
-        $this->stayOnStep = ($step === 3 && $action === 'check_database')
+        $action = $this->post_key('install_action', 40);
+        $this->stay_on_step = ($step === 3 && $action === 'check_database')
             || ($step === 6 && $action === 'check_mail');
 
         $processed = match ($step) {
-            1 => $this->processSystem(),
-            2 => $this->processBasics(),
-            3 => $this->processDatabase(),
-            4 => $this->processSchema(),
-            5 => $this->processAdmin(),
-            6 => $this->processMail(),
-            7 => $this->processFinish(),
+            1 => $this->process_system(),
+            2 => $this->process_basics(),
+            3 => $this->process_database(),
+            4 => $this->process_schema(),
+            5 => $this->process_admin(),
+            6 => $this->process_mail(),
+            7 => $this->process_finish(),
             default => false,
         };
 
-        if ($processed && $this->stayOnStep) {
+        if ($processed && $this->stay_on_step) {
             $this->notices[] = $step === 3
                 ? 'Die Datenbankwerte wurden erneut geprüft. Sie bleiben in Schritt 3 und können die Installation anschließend fortsetzen.'
                 : 'Die E-Mail-Werte wurden erneut geprüft. Sie bleiben in Schritt 6 und können die Installation anschließend fortsetzen.';
@@ -273,10 +273,10 @@ class dbxInstall
         return $processed;
     }
 
-    private function processSystem(): bool
+    private function process_system(): bool
     {
         $failed = array_values(array_filter(
-            $this->systemChecks(),
+            $this->system_checks(),
             static fn(array $check): bool =>
                 $check['required'] && $check['status'] !== 'ok'
         ));
@@ -289,27 +289,27 @@ class dbxInstall
         return true;
     }
 
-    private function processBasics(): bool
+    private function process_basics(): bool
     {
-        $siteTitle = $this->postText('site_title', 120);
-        $brandName = $this->postText('brand_name', 120);
-        $tagline = $this->postText('brand_tagline', 180);
-        $userDesign = $this->postKey('default_design_user', 63);
-        $adminDesign = $this->postKey('default_design_admin', 63);
-        $language = strtolower($this->postKey('default_lng', 3));
-        $timezone = $this->postText('timezone', 80);
-        $designs = $this->designOptions();
+        $site_title = $this->post_text('site_title', 120);
+        $brand_name = $this->post_text('brand_name', 120);
+        $tagline = $this->post_text('brand_tagline', 180);
+        $user_design = $this->post_key('default_design_user', 63);
+        $admin_design = $this->post_key('default_design_admin', 63);
+        $language = strtolower($this->post_key('default_lng', 3));
+        $timezone = $this->post_text('timezone', 80);
+        $designs = $this->design_options();
 
-        if ($siteTitle === '') {
+        if ($site_title === '') {
             $this->errors[] = 'Bitte geben Sie einen Seitentitel ein.';
         }
-        if ($brandName === '') {
+        if ($brand_name === '') {
             $this->errors[] = 'Bitte geben Sie einen Namen für das Branding ein.';
         }
-        if (!isset($designs[$userDesign])) {
+        if (!isset($designs[$user_design])) {
             $this->errors[] = 'Das gewählte Standarddesign ist nicht verfügbar.';
         }
-        if (!isset($designs[$adminDesign])) {
+        if (!isset($designs[$admin_design])) {
             $this->errors[] = 'Das gewählte Admin-Design ist nicht verfügbar.';
         }
         if (!in_array($language, array('de', 'en', 'es'), true)) {
@@ -322,12 +322,12 @@ class dbxInstall
             return false;
         }
 
-        $this->setState('basics', array(
-            'site_title' => $siteTitle,
-            'brand_name' => $brandName,
+        $this->set_state('basics', array(
+            'site_title' => $site_title,
+            'brand_name' => $brand_name,
             'brand_tagline' => $tagline,
-            'default_design_user' => $userDesign,
-            'default_design_admin' => $adminDesign,
+            'default_design_user' => $user_design,
+            'default_design_admin' => $admin_design,
             'default_lng' => $language,
             'timezone' => $timezone,
         ));
@@ -335,14 +335,14 @@ class dbxInstall
         return true;
     }
 
-    private function processDatabase(): bool
+    private function process_database(): bool
     {
-        $mode = $this->postKey('storage_mode', 20);
+        $mode = $this->post_key('storage_mode', 20);
         if (!in_array($mode, array('sqlite', 'mysql', 'configured'), true)) {
             $this->errors[] = 'Bitte wählen Sie einen gültigen Datenspeicher.';
             return false;
         }
-        if ($mode !== 'sqlite' && !$this->postBool('storage_advanced_confirm')) {
+        if ($mode !== 'sqlite' && !$this->post_bool('storage_advanced_confirm')) {
             $this->errors[] = 'Bitte bestätigen Sie die erweiterte Datenbankauswahl. Die mitgelieferten DB3-Datenbanken sind der einfache Standard und können auch später noch auf einen PDO-Server umgestellt werden.';
             return false;
         }
@@ -359,7 +359,7 @@ class dbxInstall
                     return false;
                 }
             }
-            $this->setState('database', array(
+            $this->set_state('database', array(
                 'mode' => 'sqlite',
                 'server' => '',
                 'migrate_data' => 0,
@@ -371,7 +371,7 @@ class dbxInstall
         }
 
         if ($mode === 'configured') {
-            $this->setState('database', array(
+            $this->set_state('database', array(
                 'mode' => 'configured',
                 'server' => '',
                 'migrate_data' => 0,
@@ -382,35 +382,35 @@ class dbxInstall
             return true;
         }
 
-        $dbType = strtolower($this->postKey('db_type', 20));
-        $pdoTypes = array(
+        $db_type = strtolower($this->post_key('db_type', 20));
+        $pdo_types = array(
             'mysql' => 'pdo_mysql',
             'pgsql' => 'pdo_pgsql',
             'sqlsrv' => 'pdo_sqlsrv',
         );
-        if (!isset($pdoTypes[$dbType])) {
+        if (!isset($pdo_types[$db_type])) {
             $this->errors[] = 'Bitte wählen Sie einen unterstützten PDO-Datenbanktyp.';
             return false;
         }
-        if (!extension_loaded($pdoTypes[$dbType])) {
+        if (!extension_loaded($pdo_types[$db_type])) {
             $this->errors[] = 'Für den gewählten PDO-Server muss die Erweiterung '
-                . $pdoTypes[$dbType] . ' aktiviert sein.';
+                . $pdo_types[$db_type] . ' aktiviert sein.';
             return false;
         }
 
-        $host = $this->postText('db_host', 255);
-        $database = $this->postDatabaseName('db_name');
-        $user = $this->postText('db_user', 255);
-        $password = $this->postSecret('db_password', 1024);
+        $host = $this->post_text('db_host', 255);
+        $database = $this->post_database_name('db_name');
+        $user = $this->post_text('db_user', 255);
+        $password = $this->post_secret('db_password', 1024);
         if ($password === '') {
             $current = dbx()->get_cfg('dbx', 'db', array());
             $password = is_array($current)
                 ? (string)($current[self::SQL_SERVER]['pass'] ?? '')
                 : '';
         }
-        $port = (int)$this->postInt('db_port', 3306);
-        $create = $this->postBool('db_create');
-        $migrate = $this->postBool('migrate_data');
+        $port = (int)$this->post_int('db_port', 3306);
+        $create = $this->post_bool('db_create');
+        $migrate = $this->post_bool('migrate_data');
         if ($host === '' || $database === '' || $user === '') {
             $this->errors[] = 'PDO-Server, Datenbank und Benutzer sind erforderlich.';
         }
@@ -421,9 +421,9 @@ class dbxInstall
             return false;
         }
 
-        $dbConfig = array(
+        $db_config = array(
             'activ' => '1',
-            'type' => $dbType,
+            'type' => $db_type,
             'host' => $host,
             'dbname' => $database,
             'user' => $user,
@@ -435,10 +435,10 @@ class dbxInstall
             $this->errors[] = 'Der Datenbankdienst steht nicht zur Verfügung.';
             return false;
         }
-        if (!$db->can_connect_database_config($dbConfig, true)) {
+        if (!$db->can_connect_database_config($db_config, true)) {
             if (!$create
-                || !$db->ensure_database_exists(self::SQL_SERVER, $dbConfig)
-                || !$db->can_connect_database_config($dbConfig, true)
+                || !$db->ensure_database_exists(self::SQL_SERVER, $db_config)
+                || !$db->can_connect_database_config($db_config, true)
             ) {
                 $this->errors[] = 'Die PDO-Verbindung zur Zieldatenbank ist fehlgeschlagen. Die Datenbank muss vorhanden oder erfolgreich angelegt worden sein.';
                 return false;
@@ -446,23 +446,23 @@ class dbxInstall
         }
 
         if (!dbx()->patch_local_config('dbx', array(
-            'db' => array(self::SQL_SERVER => $dbConfig),
+            'db' => array(self::SQL_SERVER => $db_config),
         ))) {
             $this->errors[] = 'Die lokale SQL-Konfiguration konnte nicht gespeichert werden.';
             return false;
         }
 
         try {
-            $this->installer()->bindAllToServer(self::SQL_SERVER);
+            $this->installer()->bind_all_to_server(self::SQL_SERVER);
         } catch (Throwable $exception) {
             $this->errors[] = $exception->getMessage();
             return false;
         }
 
-        $this->setState('database', array(
+        $this->set_state('database', array(
             'mode' => 'mysql',
             'server' => self::SQL_SERVER,
-            'type' => $dbType,
+            'type' => $db_type,
             'host' => $host,
             'database' => $database,
             'user' => $user,
@@ -475,20 +475,20 @@ class dbxInstall
         return true;
     }
 
-    private function processSchema(): bool
+    private function process_schema(): bool
     {
         try {
             $installer = $this->installer();
             $database = $this->state('database', array());
             if (($database['mode'] ?? '') === 'sqlite') {
-                $verification = $installer->verifyBundledSchema();
+                $verification = $installer->verify_bundled_schema();
                 if (empty($verification['ok'])) {
                     throw new RuntimeException(implode(
                         '; ',
                         (array)($verification['errors'] ?? array())
                     ));
                 }
-                $this->setState('schema', array(
+                $this->set_state('schema', array(
                     'total' => (int)($verification['total'] ?? 0),
                     'finished' => (int)($verification['verified'] ?? 0),
                     'transferred' => 0,
@@ -501,7 +501,7 @@ class dbxInstall
                 return true;
             }
 
-            $schema = $installer->provisionSchema();
+            $schema = $installer->provision_schema();
             if (empty($schema['ok'])) {
                 throw new RuntimeException(implode('; ', (array)($schema['errors'] ?? array())));
             }
@@ -516,7 +516,7 @@ class dbxInstall
             if (($database['mode'] ?? '') === 'mysql'
                 && !empty($database['migrate_data'])
             ) {
-                $transfer = $installer->transferDeclaredDataToServer(
+                $transfer = $installer->transfer_declared_data_to_server(
                     (string)($database['server'] ?? self::SQL_SERVER)
                 );
                 if (empty($transfer['ok'])) {
@@ -524,8 +524,8 @@ class dbxInstall
                 }
             }
 
-            $groups = $installer->seedCoreGroups();
-            $this->setState('schema', array(
+            $groups = $installer->seed_core_groups();
+            $this->set_state('schema', array(
                 'total' => (int)($schema['total'] ?? 0),
                 'finished' => (int)($schema['finished'] ?? 0),
                 'transferred' => (int)($transfer['transferred'] ?? 0),
@@ -541,25 +541,25 @@ class dbxInstall
         }
     }
 
-    private function processAdmin(): bool
+    private function process_admin(): bool
     {
-        $passwordMinLength = $this->postInt('password_min_length', 6);
-        if ($passwordMinLength < 6 || $passwordMinLength > 128) {
+        $password_min_length = $this->post_int('password_min_length', 6);
+        if ($password_min_length < 6 || $password_min_length > 128) {
             $this->errors[] = 'Die Passwort-Mindestlänge muss zwischen 6 und 128 Zeichen liegen. Empfohlen sind mindestens 12 Zeichen.';
             return false;
         }
-        $password = $this->postSecret('admin_password', 128);
-        $passwordRepeat = $this->postSecret('admin_password_repeat', 128);
-        if (!hash_equals($password, $passwordRepeat)) {
+        $password = $this->post_secret('admin_password', 128);
+        $password_repeat = $this->post_secret('admin_password_repeat', 128);
+        if (!hash_equals($password, $password_repeat)) {
             $this->errors[] = 'Die beiden Admin-Passwörter stimmen nicht überein.';
         }
-        $missingCriteria = $this->passwordCriteriaMissing(
+        $missing_criteria = $this->password_criteria_missing(
             $password,
-            $passwordMinLength
+            $password_min_length
         );
-        if ($missingCriteria !== array()) {
+        if ($missing_criteria !== array()) {
             $this->errors[] = 'Das Admin-Passwort erfüllt noch nicht: '
-                . implode(', ', $missingCriteria) . '.';
+                . implode(', ', $missing_criteria) . '.';
         }
         if ($this->errors !== array()) {
             return false;
@@ -567,7 +567,7 @@ class dbxInstall
 
         try {
             $basics = $this->state('basics', array());
-            $admin = $this->installer()->ensureInitialAdmin(
+            $admin = $this->installer()->ensure_initial_admin(
                 true,
                 (string)($basics['default_lng'] ?? 'de'),
                 $password,
@@ -579,14 +579,14 @@ class dbxInstall
             }
             $created = !empty($admin['created']);
             $reset = !empty($admin['reset']);
-            $this->setState('admin', array(
+            $this->set_state('admin', array(
                 'email' => (string)($admin['email'] ?? ''),
                 'created' => $created ? 1 : 0,
                 'existing' => $created ? 0 : 1,
                 'reset' => $reset ? 1 : 0,
                 'default_password' => !empty($admin['default_password']) ? 1 : 0,
                 'password_reset_required' => !empty($admin['password_reset_required']) ? 1 : 0,
-                'password_min_length' => $passwordMinLength,
+                'password_min_length' => $password_min_length,
                 'password_configured' => 1,
             ));
             if ($created) {
@@ -601,41 +601,41 @@ class dbxInstall
         }
     }
 
-    private function processMail(): bool
+    private function process_mail(): bool
     {
-        $mode = $this->postKey('mail_delivery_mode', 20);
+        $mode = $this->post_key('mail_delivery_mode', 20);
         if (!in_array($mode, array('internal', 'disabled', 'external'), true)) {
             $this->errors[] = 'Die globale E-Mail-Betriebsart ist ungültig.';
             return false;
         }
 
-        $transport = $this->postKey('mail_transport', 20);
-        $host = $this->postText('mail_host', 255);
-        $port = (int)$this->postInt('mail_port', 587);
-        $secure = $this->postKey('mail_secure', 10);
-        $auth = $this->postBool('mail_auth');
-        $user = $this->postText('mail_user', 255);
-        $password = $this->postSecret('mail_password', 2048);
+        $transport = $this->post_key('mail_transport', 20);
+        $host = $this->post_text('mail_host', 255);
+        $port = (int)$this->post_int('mail_port', 587);
+        $secure = $this->post_key('mail_secure', 10);
+        $auth = $this->post_bool('mail_auth');
+        $user = $this->post_text('mail_user', 255);
+        $password = $this->post_secret('mail_password', 2048);
         if ($password === '') {
             $current = dbx()->get_cfg('dbx', 'mail', array());
             $password = is_array($current)
                 ? (string)($current[self::SQL_SERVER]['pass'] ?? '')
                 : '';
         }
-        $fromEmail = strtolower($this->postText('mail_from_email', 254));
-        $fromName = $this->postText('mail_from_name', 160);
-        $sender = strtolower($this->postText('mail_sender', 254));
-        $domains = strtolower($this->postText('mail_from_domains', 1000));
-        $forceFrom = $this->postBool('mail_force_from');
-        $sendTest = $this->postBool('mail_send_test');
-        $testRecipient = strtolower($this->postText('mail_test_recipient', 254));
-        $contactFrom = strtolower($this->postText('contact_mail_from', 254));
-        $shopFrom = strtolower($this->postText('shop_mail_from', 254));
-        if ($contactFrom === '') {
-            $contactFrom = $this->moduleSenderAddress('kontakt', $fromEmail);
+        $from_email = strtolower($this->post_text('mail_from_email', 254));
+        $from_name = $this->post_text('mail_from_name', 160);
+        $sender = strtolower($this->post_text('mail_sender', 254));
+        $domains = strtolower($this->post_text('mail_from_domains', 1000));
+        $force_from = $this->post_bool('mail_force_from');
+        $send_test = $this->post_bool('mail_send_test');
+        $test_recipient = strtolower($this->post_text('mail_test_recipient', 254));
+        $contact_from = strtolower($this->post_text('contact_mail_from', 254));
+        $shop_from = strtolower($this->post_text('shop_mail_from', 254));
+        if ($contact_from === '') {
+            $contact_from = $this->module_sender_address('kontakt', $from_email);
         }
-        if ($shopFrom === '') {
-            $shopFrom = $this->moduleSenderAddress('shop', $fromEmail);
+        if ($shop_from === '') {
+            $shop_from = $this->module_sender_address('shop', $from_email);
         }
 
         if ($mode === 'external') {
@@ -648,10 +648,10 @@ class dbxInstall
             if ($port < 1 || $port > 65535) {
                 $this->errors[] = 'Der SMTP-Port muss zwischen 1 und 65535 liegen.';
             }
-            if (filter_var($fromEmail, FILTER_VALIDATE_EMAIL) === false) {
+            if (filter_var($from_email, FILTER_VALIDATE_EMAIL) === false) {
                 $this->errors[] = 'Für externen Versand ist eine gültige Absenderadresse erforderlich.';
             }
-            if ($fromName === '') {
+            if ($from_name === '') {
                 $this->errors[] = 'Für externen Versand ist ein Absendername erforderlich.';
             }
             if ($sender !== '' && filter_var($sender, FILTER_VALIDATE_EMAIL) === false) {
@@ -665,8 +665,8 @@ class dbxInstall
                     $this->errors[] = 'Für SMTP-Authentifizierung werden Benutzer und Passwort benötigt.';
                 }
             }
-            if ($sendTest
-                && filter_var($testRecipient, FILTER_VALIDATE_EMAIL) === false
+            if ($send_test
+                && filter_var($test_recipient, FILTER_VALIDATE_EMAIL) === false
             ) {
                 $this->errors[] = 'Für die Test-E-Mail ist eine gültige Empfängeradresse erforderlich.';
             }
@@ -682,10 +682,10 @@ class dbxInstall
                 : 'tls';
             $port = ($port >= 1 && $port <= 65535) ? $port : 587;
         }
-        if (filter_var($contactFrom, FILTER_VALIDATE_EMAIL) === false) {
+        if (filter_var($contact_from, FILTER_VALIDATE_EMAIL) === false) {
             $this->errors[] = 'Der Absender für Kontaktanfragen ist ungültig.';
         }
-        if (filter_var($shopFrom, FILTER_VALIDATE_EMAIL) === false) {
+        if (filter_var($shop_from, FILTER_VALIDATE_EMAIL) === false) {
             $this->errors[] = 'Der Absender für Shop-Nachrichten ist ungültig.';
         }
         if ($this->errors !== array()) {
@@ -700,11 +700,11 @@ class dbxInstall
             'auth' => $auth ? '1' : '0',
             'user' => $user,
             'pass' => $password,
-            'from_email' => $fromEmail,
-            'from_name' => $fromName,
+            'from_email' => $from_email,
+            'from_name' => $from_name,
             'from_domains' => $domains,
             'sender' => $sender,
-            'force_from' => $forceFrom ? '1' : '0',
+            'force_from' => $force_from ? '1' : '0',
         );
         if (!dbx()->patch_local_config('dbx', array(
             'mail_delivery_mode' => $mode,
@@ -716,23 +716,23 @@ class dbxInstall
         }
         if (!dbx()->patch_local_config('dbxContact', array(
             'mail_profile' => self::SQL_SERVER,
-            'mail_from' => $contactFrom,
+            'mail_from' => $contact_from,
         ))) {
             $this->errors[] = 'Der Absender für Kontaktanfragen konnte nicht lokal gespeichert werden.';
             return false;
         }
         if (!dbx()->patch_local_config('dbxShop', array(
             'mail_profile' => self::SQL_SERVER,
-            'mail_from' => $shopFrom,
+            'mail_from' => $shop_from,
         ))) {
             $this->errors[] = 'Der Absender für Shop-Nachrichten konnte nicht lokal gespeichert werden.';
             return false;
         }
 
-        if ($mode === 'external' && $sendTest) {
-            $ok = dbx()->send_mail(
-                array('email' => $fromEmail, 'name' => $fromName),
-                $testRecipient,
+        if ($mode === 'external' && $send_test) {
+            $ok = dbx()->get_system_obj('dbxMail')->send_message(
+                array('email' => $from_email, 'name' => $from_name),
+                $test_recipient,
                 'dbxapp Installation: E-Mail-Test',
                 '<p>Der E-Mail-Versand dieser dbxapp-Installation funktioniert.</p>',
                 'html',
@@ -752,7 +752,7 @@ class dbxInstall
             $this->notices[] = 'Die Test-E-Mail wurde erfolgreich versendet.';
         }
 
-        $this->setState('mail', array(
+        $this->set_state('mail', array(
             'mode' => $mode,
             'transport' => $transport,
             'host' => $host,
@@ -760,15 +760,15 @@ class dbxInstall
             'secure' => $secure,
             'auth' => $auth ? 1 : 0,
             'user' => $user,
-            'from_email' => $fromEmail,
-            'from_name' => $fromName,
+            'from_email' => $from_email,
+            'from_name' => $from_name,
             'sender' => $sender,
             'from_domains' => $domains,
-            'force_from' => $forceFrom ? 1 : 0,
-            'contact_from' => $contactFrom,
-            'shop_from' => $shopFrom,
-            'test_recipient' => $testRecipient,
-            'tested' => ($mode === 'external' && $sendTest) ? 1 : 0,
+            'force_from' => $force_from ? 1 : 0,
+            'contact_from' => $contact_from,
+            'shop_from' => $shop_from,
+            'test_recipient' => $test_recipient,
+            'tested' => ($mode === 'external' && $send_test) ? 1 : 0,
             'checked' => 1,
             'checked_at' => time(),
         ));
@@ -782,9 +782,9 @@ class dbxInstall
         return true;
     }
 
-    private function processFinish(): bool
+    private function process_finish(): bool
     {
-        if (!$this->postBool('confirm_install')) {
+        if (!$this->post_bool('confirm_install')) {
             $this->errors[] = 'Bitte bestätigen Sie die Zusammenfassung vor dem Abschluss.';
             return false;
         }
@@ -826,40 +826,40 @@ class dbxInstall
         }
 
         dbx()->set_system_var('dbx_install', 0);
-        $this->finishResult = array(
+        $this->finish_result = array(
             'site_title' => $patch['site_title'],
             'admin_email' => (string)($this->state('admin', array())['email'] ?? ''),
             'mail_mode' => (string)($this->state('mail', array())['mode'] ?? 'internal'),
             'database' => (array)$this->state('database', array()),
         );
         $this->finished = true;
-        $this->setState('completed', self::TOTAL_STEPS);
+        $this->set_state('completed', self::TOTAL_STEPS);
         dbx()->invalidate_action_tokens();
         return true;
     }
 
-    private function renderStep(int $step): string
+    private function render_step(int $step): string
     {
         return match ($step) {
-            1 => $this->renderSystem(),
-            2 => $this->renderBasics(),
-            3 => $this->renderDatabase(),
-            4 => $this->renderSchema(),
-            5 => $this->renderAdmin(),
-            6 => $this->renderMail(),
-            7 => $this->renderFinish(),
+            1 => $this->render_system(),
+            2 => $this->render_basics(),
+            3 => $this->render_database(),
+            4 => $this->render_schema(),
+            5 => $this->render_admin(),
+            6 => $this->render_mail(),
+            7 => $this->render_finish(),
             default => '',
         };
     }
 
-    private function renderSystem(): string
+    private function render_system(): string
     {
-        $checks = $this->systemChecks();
-        $requiredOk = true;
+        $checks = $this->system_checks();
+        $required_ok = true;
         $rows = '';
         foreach ($checks as $check) {
             if ($check['required'] && $check['status'] !== 'ok') {
-                $requiredOk = false;
+                $required_ok = false;
             }
             $icon = match ($check['status']) {
                 'ok' => 'bi-check-circle-fill',
@@ -874,7 +874,7 @@ class dbxInstall
                 . '</div>';
         }
 
-        $button = $requiredOk
+        $button = $required_ok
             ? '<button class="btn btn-primary btn-lg" type="submit"><span>Weiter zur Grundkonfiguration</span><i class="bi bi-arrow-right"></i></button>'
             : '<button class="btn btn-secondary btn-lg" type="button" disabled><i class="bi bi-lock"></i><span>Notwendige Prüfungen beheben</span></button>';
 
@@ -883,18 +883,18 @@ class dbxInstall
             . '<p>dbxapp prüft zuerst die wirklich notwendigen Werte. Optionale Erweiterungen können später ergänzt werden.</p></div>'
             . '<div class="dbx-install-metrics">'
             . $this->metric('PHP', PHP_VERSION, 'bi-filetype-php')
-            . $this->metric('Server', $this->serverLabel(), 'bi-hdd-rack')
+            . $this->metric('Server', $this->server_label(), 'bi-hdd-rack')
             . $this->metric('Speicher', (string)ini_get('memory_limit'), 'bi-memory')
             . '</div>'
             . '<div class="dbx-install-checks">' . $rows . '</div>'
-            . $this->formOpen(1)
+            . $this->form_open(1)
             . '<div class="dbx-install-actions">'
             . '<button class="btn btn-outline-secondary btn-lg" type="button" data-dbx-leave-allow onclick="window.location.reload()"><i class="bi bi-arrow-clockwise"></i><span>Erneut prüfen</span></button>'
             . $button
             . '</div></form>';
     }
 
-    private function renderBasics(): string
+    private function render_basics(): string
     {
         $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
@@ -910,45 +910,45 @@ class dbxInstall
             ),
             (array)$this->state('basics', array())
         );
-        $designOptions = $this->selectOptions(
-            $this->designOptions(),
+        $design_options = $this->select_options(
+            $this->design_options(),
             (string)$values['default_design_user']
         );
-        $adminDesignOptions = $this->selectOptions(
-            $this->designOptions(),
+        $admin_design_options = $this->select_options(
+            $this->design_options(),
             (string)$values['default_design_admin']
         );
 
         return '<div class="dbx-install-section-head"><span class="dbx-install-kicker">Schritt 2</span>'
             . '<h2>Identität und Standarddesign</h2>'
             . '<p>Diese Angaben bilden den globalen Rahmen. Inhalte und Design können später im Adminbereich weiterentwickelt werden.</p></div>'
-            . $this->formOpen(2)
+            . $this->form_open(2)
             . '<div class="row g-4">'
             . '<div class="col-lg-7"><div class="dbx-install-card"><h3><i class="bi bi-window"></i> Website</h3>'
             . $this->input('site_title', 'Seitentitel / App-Name', (string)$values['site_title'], 'text', true, 'Zum Beispiel: Kundenportal Muster GmbH')
             . $this->input('brand_name', 'Markenname', (string)$values['brand_name'], 'text', true, 'Wird in Branding, Dokumenttitel und E-Mails verwendet.')
             . $this->input('brand_tagline', 'Claim / Kurzbeschreibung', (string)$values['brand_tagline'], 'text', false, 'Optional, maximal 180 Zeichen')
-            . '<div class="row g-3"><div class="col-md-6">' . $this->fieldLabel('default_lng', 'Standardsprache')
+            . '<div class="row g-3"><div class="col-md-6">' . $this->field_label('default_lng', 'Standardsprache')
             . '<select class="form-select" id="default_lng" name="default_lng">'
-            . $this->selectOptions(array('de' => 'Deutsch', 'en' => 'English', 'es' => 'Español'), (string)$values['default_lng'])
+            . $this->select_options(array('de' => 'Deutsch', 'en' => 'English', 'es' => 'Español'), (string)$values['default_lng'])
             . '</select></div><div class="col-md-6">'
             . $this->input('timezone', 'Zeitzone', (string)$values['timezone'], 'text', true, 'Zum Beispiel: Europe/Berlin')
             . '</div></div></div></div>'
             . '<div class="col-lg-5"><div class="dbx-install-card"><h3><i class="bi bi-palette2"></i> Design</h3>'
-            . $this->fieldLabel('default_design_user', 'Standarddesign')
-            . '<select class="form-select mb-3" id="default_design_user" name="default_design_user">' . $designOptions . '</select>'
-            . $this->fieldLabel('default_design_admin', 'Admin-Design')
-            . '<select class="form-select" id="default_design_admin" name="default_design_admin">' . $adminDesignOptions . '</select>'
+            . $this->field_label('default_design_user', 'Standarddesign')
+            . '<select class="form-select mb-3" id="default_design_user" name="default_design_user">' . $design_options . '</select>'
+            . $this->field_label('default_design_admin', 'Admin-Design')
+            . '<select class="form-select" id="default_design_admin" name="default_design_admin">' . $admin_design_options . '</select>'
             . '<p class="dbx-install-help"><i class="bi bi-stars"></i> Das gewählte Design ist der Startpunkt. Es kann später im Design-Studio auch KI-gestützt nach Ihren eigenen Vorgaben angepasst oder als neues Design aufgebaut werden.</p>'
             . '<div class="dbx-install-help-actions dbx-install-help-actions--card">'
-            . $this->installerHelpButton('design', 'KI-gestützte Designanpassung erklärt', 'bi-magic')
+            . $this->installer_help_button('design', 'KI-gestützte Designanpassung erklärt', 'bi-magic')
             . '</div>'
             . '</div></div></div>'
             . $this->actions(2, 'Weiter zum Datenspeicher')
             . '</form>';
     }
 
-    private function renderDatabase(): string
+    private function render_database(): string
     {
         $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
@@ -957,43 +957,43 @@ class dbxInstall
             : array();
         $saved = (array)$this->state('database', array());
         $mode = (string)($saved['mode'] ?? 'sqlite');
-        $dbType = (string)($saved['type'] ?? ($profile['type'] ?? 'mysql'));
+        $db_type = (string)($saved['type'] ?? ($profile['type'] ?? 'mysql'));
         return '<div class="dbx-install-section-head"><span class="dbx-install-kicker">Schritt 3</span>'
             . '<h2>Wo sollen die Daten liegen?</h2>'
             . '<p>Die mitgelieferten DB3-Dateien sind sofort einsatzbereit. Tabellenstruktur und Fachdaten bleiben erhalten; das persönliche Passwort für den Benutzer <strong>admin</strong> legen Sie in Schritt 5 fest. Ein externer PDO-Server ist eine optionale bewusste Umstellung.</p></div>'
-            . $this->formOpen(3)
+            . $this->form_open(3)
             . '<div class="dbx-install-choice-grid">'
             . $this->choice('storage_mode', 'sqlite', $mode, 'bi-device-ssd', 'Mitgelieferte DB3', 'Ohne Datenbankserver starten; den persönlichen Admin-Zugang legen Sie später fest.', 'Standard')
             . $this->choice('storage_mode', 'mysql', $mode, 'bi-database-check', 'PDO-Datenbankserver', 'MySQL/MariaDB, PostgreSQL oder SQL Server als gemeinsames DD-Ziel.', 'Optional')
             . $this->choice('storage_mode', 'configured', $mode, 'bi-diagram-3', 'Bereits eingerichtete Datenbanken', 'Vorhandene Datenbankziele der Module unverändert weiterverwenden.', 'Fortgeschritten')
             . '</div>'
             . '<div class="dbx-install-help-actions" aria-label="Hilfe zum Datenspeicher">'
-            . $this->installerHelpButton('db3', 'Mitgelieferte DB3 genau erklärt', 'bi-info-circle')
-            . $this->installerHelpButton('pdo', 'PDO-Migration Schritt für Schritt', 'bi-arrow-left-right')
+            . $this->installer_help_button('db3', 'Mitgelieferte DB3 genau erklärt', 'bi-info-circle')
+            . $this->installer_help_button('pdo', 'PDO-Migration Schritt für Schritt', 'bi-arrow-left-right')
             . '</div>'
             . '<div class="alert alert-warning dbx-install-inline-note dbx-install-storage-confirm" data-install-storage-confirm'
             . ($mode === 'sqlite' ? ' hidden' : '')
             . '><i class="bi bi-exclamation-triangle-fill"></i><div><strong>Erweiterte Datenbankauswahl bestätigen</strong>'
             . '<span>Die mitgelieferten DB3-Datenbanken sind der einfache, sofort einsatzbereite Standard: Es werden keine Server-Zugangsdaten und keine Migration benötigt. Einen PDO-Server oder bereits eingerichtete Datenbanken können Sie auch später in der Administration auswählen.</span>'
-            . $this->switchInput(
+            . $this->switch_input(
                 'storage_advanced_confirm',
                 'Ich möchte die ausgewählte erweiterte Datenbanklösung jetzt verwenden.',
-                $this->postBool('storage_advanced_confirm'),
+                $this->post_bool('storage_advanced_confirm'),
                 'Die Auswahl wird erst nach dieser ausdrücklichen Bestätigung geprüft und übernommen.'
             )
             . '</div></div>'
             . '<div class="dbx-install-card dbx-install-db-fields" data-install-db-fields>'
             . '<h3><i class="bi bi-server"></i> PDO-Verbindung</h3>'
             . '<div class="row g-3">'
-            . '<div class="col-12">' . $this->fieldLabel('db_type', 'Datenbanktyp')
+            . '<div class="col-12">' . $this->field_label('db_type', 'Datenbanktyp')
             . '<select class="form-select" id="db_type" name="db_type">'
-            . $this->selectOptions(
+            . $this->select_options(
                 array(
                     'mysql' => 'MySQL / MariaDB',
                     'pgsql' => 'PostgreSQL',
                     'sqlsrv' => 'Microsoft SQL Server',
                 ),
-                $dbType
+                $db_type
             )
             . '</select></div>'
             . '<div class="col-md-8">' . $this->input('db_host', 'Server / Host', (string)($saved['host'] ?? ($profile['host'] ?? '127.0.0.1')), 'text', false, '127.0.0.1 oder Hostname') . '</div>'
@@ -1002,8 +1002,8 @@ class dbxInstall
             . '<div class="col-md-6">' . $this->input('db_user', 'Benutzer', (string)($saved['user'] ?? ($profile['user'] ?? '')), 'text', false, '') . '</div>'
             . '<div class="col-12">' . $this->input('db_password', 'Passwort', '', 'password', false, !empty($profile['pass']) ? 'Leer lassen: vorhandenes Passwort beibehalten' : 'Wird nur in config.local.php gespeichert', 'new-password') . '</div>'
             . '</div>'
-            . $this->switchInput('db_create', 'Datenbank bei Bedarf automatisch erstellen', true, 'Benötigt CREATE DATABASE-Recht.')
-            . $this->switchInput('migrate_data', 'Vorhandene lokale DD-Daten auf SQL übertragen', !empty($saved['migrate_data']), 'Explizite Migration: vorhandene Zieltabellen werden mit den lokalen Quelldaten ersetzt.')
+            . $this->switch_input('db_create', 'Datenbank bei Bedarf automatisch erstellen', true, 'Benötigt CREATE DATABASE-Recht.')
+            . $this->switch_input('migrate_data', 'Vorhandene lokale DD-Daten auf SQL übertragen', !empty($saved['migrate_data']), 'Explizite Migration: vorhandene Zieltabellen werden mit den lokalen Quelldaten ersetzt.')
             . '</div>'
             . '<div class="alert alert-info dbx-install-inline-note" data-install-storage-note="sqlite"'
             . ($mode === 'sqlite' ? '' : ' hidden')
@@ -1014,7 +1014,7 @@ class dbxInstall
             . '<div class="alert alert-info dbx-install-inline-note" data-install-storage-note="configured"'
             . ($mode === 'configured' ? '' : ' hidden')
             . '><i class="bi bi-diagram-3"></i><div><strong>Bereits eingerichtete Datenbanken</strong><span>dbxapp verwendet die schon konfigurierten Datenbankziele der einzelnen Module unverändert weiter. Diese Auswahl ist für bestehende oder besondere Installationen gedacht.</span></div></div>'
-            . $this->checkedStatus(
+            . $this->checked_status(
                 $saved,
                 'Datenspeicher geprüft',
                 match ($mode) {
@@ -1023,7 +1023,7 @@ class dbxInstall
                     default => 'PDO SQLite ist verfügbar und der mitgelieferte DB3-Standard wurde ausgewählt. Die Tabellen werden im nächsten Schritt lesend geprüft.',
                 }
             )
-            . $this->actionsWithCheck(
+            . $this->actions_with_check(
                 3,
                 'Weiter zu Strukturen & Daten',
                 'check_database',
@@ -1034,11 +1034,11 @@ class dbxInstall
             . '</form>';
     }
 
-    private function renderSchema(): string
+    private function render_schema(): string
     {
         $database = (array)$this->state('database', array());
-        $catalog = $this->installer()->discoverDDs();
-        $modeLabels = array(
+        $catalog = $this->installer()->discover_dds();
+        $mode_labels = array(
             'sqlite' => 'SQLite / DB3 nach DD-Standard',
             'mysql' => 'Externer PDO-Datenbankserver',
             'configured' => 'Bereits eingerichtete Datenbanken',
@@ -1053,18 +1053,18 @@ class dbxInstall
                 : '<h2>DD-Strukturen synchronisieren</h2><p>dbxapp erzeugt die Datenbanken und Tabellen direkt aus den aktuellen Data Definitions. Nach erfolgreicher Synchronisierung folgt die Einrichtung des Adminzugangs.</p>')
             . '</div>'
             . '<div class="dbx-install-plan">'
-            . $this->planRow('bi-database', 'Zielspeicher', (string)($modeLabels[$mode] ?? $mode))
-            . $this->planRow(
+            . $this->plan_row('bi-database', 'Zielspeicher', (string)($mode_labels[$mode] ?? $mode))
+            . $this->plan_row(
                 'bi-table',
                 'Data Definitions',
                 count($catalog) . ($bundled ? ' ausgelieferte Tabellen werden geprüft' : ' Strukturen gefunden')
             )
-            . $this->planRow(
+            . $this->plan_row(
                 'bi-people',
                 'Grunddaten',
                 $bundled ? 'Mitgelieferte Datensätze bleiben unverändert' : 'Gast-, Mitglieder- und Admin-Gruppe'
             )
-            . $this->planRow(
+            . $this->plan_row(
                 'bi-arrow-left-right',
                 'Datenübertragung',
                 $migrate
@@ -1075,12 +1075,12 @@ class dbxInstall
             . ($migrate
                 ? '<div class="alert alert-warning dbx-install-inline-note"><i class="bi bi-exclamation-triangle"></i><div><strong>Bestätigte Migration</strong><span>Vorhandene SQL-Zieltabellen werden vor der Übertragung geleert. Die lokalen Quelldaten bleiben erhalten.</span></div></div>'
                 : '')
-            . $this->formOpen(4)
+            . $this->form_open(4)
             . $this->actions(4, 'Weiter zur Administration')
             . '</form>';
     }
 
-    private function installerHelpButton(
+    private function installer_help_button(
         string $topic,
         string $label,
         string $icon
@@ -1104,7 +1104,7 @@ class dbxInstall
             . '"></i><span>' . $this->h($label) . '</span></button>';
     }
 
-    private function renderInstallerHelp(string $topic): string
+    private function render_installer_help(string $topic): string
     {
         if ($topic === 'design') {
             return '<article class="dbx-install-help-window">'
@@ -1189,26 +1189,26 @@ class dbxInstall
             . '</article>';
     }
 
-    private function renderAdmin(): string
+    private function render_admin(): string
     {
         $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
         try {
-            $admin = $this->installer()->inspectInitialAdmin();
+            $admin = $this->installer()->inspect_initial_admin();
         } catch (Throwable $exception) {
             $admin = array('exists' => false, 'default_password' => false);
         }
-        $adminExists = !empty($admin['exists']);
-        $savedAdmin = (array)$this->state('admin', array());
-        $passwordMinLength = (int)($savedAdmin['password_min_length']
+        $admin_exists = !empty($admin['exists']);
+        $saved_admin = (array)$this->state('admin', array());
+        $password_min_length = (int)($saved_admin['password_min_length']
             ?? ($config['password_min_length'] ?? 6));
-        if ($this->isPost() && isset($_POST['password_min_length'])) {
-            $passwordMinLength = $this->postInt('password_min_length', 6);
+        if ($this->is_post() && isset($_POST['password_min_length'])) {
+            $password_min_length = $this->post_int('password_min_length', 6);
         }
         return '<div class="dbx-install-section-head"><span class="dbx-install-kicker">Schritt 5</span>'
             . '<h2>Administrator absichern</h2>'
             . '<p>Der Benutzername lautet immer <strong>admin</strong>. Legen Sie jetzt direkt das persönliche Passwort fest, mit dem Sie sich nach der Installation anmelden.</p></div>'
-            . $this->formOpen(5, 'off')
+            . $this->form_open(5, 'off')
             . '<div class="row g-4"><div class="col-lg-7"><div class="dbx-install-card">'
             . '<h3><i class="bi bi-person-lock"></i> Persönlicher Administratorzugang</h3>'
             . $this->input('initial_admin_user', 'Benutzername', 'admin', 'text', false, '', 'username', true)
@@ -1217,16 +1217,16 @@ class dbxInstall
             . '</div><div class="col-md-6">'
             . $this->input('admin_password_repeat', 'Passwort wiederholen', '', 'password', true, 'Noch einmal eingeben', 'new-password')
             . '</div></div>'
-            . '<div class="mb-3">' . $this->fieldLabel('password_min_length', 'Mindestlänge für neue Passwörter', true)
-            . '<input class="form-control" id="password_min_length" name="password_min_length" type="number" min="6" max="128" step="1" required value="' . $this->h((string)$passwordMinLength) . '">'
+            . '<div class="mb-3">' . $this->field_label('password_min_length', 'Mindestlänge für neue Passwörter', true)
+            . '<input class="form-control" id="password_min_length" name="password_min_length" type="number" min="6" max="128" step="1" required value="' . $this->h((string)$password_min_length) . '">'
             . '<p class="dbx-install-field-note"><i class="bi bi-info-circle"></i> Standard: 6 Zeichen. Für höhere Sicherheit werden 12 oder mehr Zeichen empfohlen. Dieselbe Vorgabe gilt später bei erzwungenen Passwortänderungen.</p></div>'
-            . ($adminExists
+            . ($admin_exists
                 ? '<div class="alert alert-warning mb-0"><i class="bi bi-exclamation-triangle-fill"></i> Das bisherige Passwort des vorhandenen Benutzers <strong>admin</strong> wird durch das hier eingegebene persönliche Passwort ersetzt.</div>'
                 : '<div class="alert alert-info mb-0"><i class="bi bi-info-circle-fill"></i> Das persönliche Passwort wird direkt sicher gehasht gespeichert und nicht in die Installationszusammenfassung übernommen.</div>')
             . '</div></div><div class="col-lg-5"><div class="dbx-install-card dbx-install-security-card">'
             . '<i class="bi bi-shield-check"></i><h3>Passwortanforderungen</h3>'
-            . '<ul class="dbx-install-password-rules" data-install-password-rules data-min-length="' . $this->h((string)$passwordMinLength) . '">'
-            . '<li data-password-rule="length"><i class="bi bi-circle"></i><span>mindestens <strong data-password-min-label>' . $this->h((string)$passwordMinLength) . '</strong> Zeichen; 12 oder mehr empfohlen</span></li>'
+            . '<ul class="dbx-install-password-rules" data-install-password-rules data-min-length="' . $this->h((string)$password_min_length) . '">'
+            . '<li data-password-rule="length"><i class="bi bi-circle"></i><span>mindestens <strong data-password-min-label>' . $this->h((string)$password_min_length) . '</strong> Zeichen; 12 oder mehr empfohlen</span></li>'
             . '<li data-password-rule="letters"><i class="bi bi-circle"></i><span>Groß- und Kleinbuchstaben</span></li>'
             . '<li data-password-rule="number"><i class="bi bi-circle"></i><span>mindestens eine Zahl</span></li>'
             . '<li data-password-rule="special"><i class="bi bi-circle"></i><span>mindestens ein Sonderzeichen</span></li>'
@@ -1237,7 +1237,7 @@ class dbxInstall
             . '</form>';
     }
 
-    private function renderMail(): string
+    private function render_mail(): string
     {
         $config = dbx()->get_cfg('dbx');
         $config = is_array($config) ? $config : array();
@@ -1249,47 +1249,47 @@ class dbxInstall
         $saved = (array)$this->state('mail', array());
         $mode = (string)($saved['mode'] ?? ($config['mail_delivery_mode'] ?? 'internal'));
         $transport = (string)($saved['transport'] ?? ($profile['transport'] ?? 'smtp'));
-        $globalFrom = (string)($saved['from_email']
+        $global_from = (string)($saved['from_email']
             ?? ($profile['from_email'] ?? ($admin['email'] ?? '')));
-        $contactConfig = dbx()->get_cfg('dbxContact');
-        $contactConfig = is_array($contactConfig) ? $contactConfig : array();
-        $shopConfig = dbx()->get_cfg('dbxShop');
-        $shopConfig = is_array($shopConfig) ? $shopConfig : array();
-        $contactDerived = $this->moduleSenderAddress('kontakt', $globalFrom);
-        $contactFrom = (string)($saved['contact_from']
-            ?? ($contactConfig['mail_from'] ?? ''));
-        if (filter_var($contactFrom, FILTER_VALIDATE_EMAIL) === false
+        $contact_config = dbx()->get_cfg('dbxContact');
+        $contact_config = is_array($contact_config) ? $contact_config : array();
+        $shop_config = dbx()->get_cfg('dbxShop');
+        $shop_config = is_array($shop_config) ? $shop_config : array();
+        $contact_derived = $this->module_sender_address('kontakt', $global_from);
+        $contact_from = (string)($saved['contact_from']
+            ?? ($contact_config['mail_from'] ?? ''));
+        if (filter_var($contact_from, FILTER_VALIDATE_EMAIL) === false
             || (!array_key_exists('contact_from', $saved)
-                && strtolower($contactFrom) === 'kontakt@dbxapp.de'
-                && $contactDerived !== 'kontakt@dbxapp.de')
+                && strtolower($contact_from) === 'kontakt@dbxapp.de'
+                && $contact_derived !== 'kontakt@dbxapp.de')
         ) {
-            $contactFrom = $contactDerived;
+            $contact_from = $contact_derived;
         }
-        $shopDerived = $this->moduleSenderAddress('shop', $globalFrom);
-        $shopFrom = (string)($saved['shop_from']
-            ?? ($shopConfig['mail_from'] ?? ''));
-        if (filter_var($shopFrom, FILTER_VALIDATE_EMAIL) === false
+        $shop_derived = $this->module_sender_address('shop', $global_from);
+        $shop_from = (string)($saved['shop_from']
+            ?? ($shop_config['mail_from'] ?? ''));
+        if (filter_var($shop_from, FILTER_VALIDATE_EMAIL) === false
             || (!array_key_exists('shop_from', $saved)
-                && strtolower($shopFrom) === 'shop@dbxapp.de'
-                && $shopDerived !== 'shop@dbxapp.de')
+                && strtolower($shop_from) === 'shop@dbxapp.de'
+                && $shop_derived !== 'shop@dbxapp.de')
         ) {
-            $shopFrom = $shopDerived;
+            $shop_from = $shop_derived;
         }
-        $testRecipient = (string)($saved['test_recipient']
+        $test_recipient = (string)($saved['test_recipient']
             ?? ($admin['email'] ?? ''));
-        if (filter_var($testRecipient, FILTER_VALIDATE_EMAIL) === false
-            && filter_var($globalFrom, FILTER_VALIDATE_EMAIL) !== false
+        if (filter_var($test_recipient, FILTER_VALIDATE_EMAIL) === false
+            && filter_var($global_from, FILTER_VALIDATE_EMAIL) !== false
         ) {
-            $testRecipient = $globalFrom;
+            $test_recipient = $global_from;
         }
 
         return '<div class="dbx-install-section-head"><span class="dbx-install-kicker">Schritt 6</span>'
             . '<h2>Globaler E-Mail-Betrieb</h2>'
             . '<p>Der Schalter gilt zentral für alle Module. Standardmäßig bleiben E-Mail-Ereignisse intern und verlassen den Server nicht.</p></div>'
             . '<div class="dbx-install-help-actions" aria-label="Hilfe zur E-Mail-Konfiguration">'
-            . $this->installerHelpButton('email', 'E-Mail-Konfiguration ausführlich erklärt', 'bi-question-circle')
+            . $this->installer_help_button('email', 'E-Mail-Konfiguration ausführlich erklärt', 'bi-question-circle')
             . '</div>'
-            . $this->formOpen(6, 'off')
+            . $this->form_open(6, 'off')
             . '<div class="dbx-install-choice-grid dbx-install-choice-grid--compact">'
             . $this->choice('mail_delivery_mode', 'internal', $mode, 'bi-inbox', 'Nur intern', 'Kein externer Versand; Ereignisse bleiben im System.', 'Sicherer Standard')
             . $this->choice('mail_delivery_mode', 'external', $mode, 'bi-send-check', 'Extern senden', 'SMTP, PHP-Mail oder Sendmail aktivieren.', 'Aktiv')
@@ -1299,18 +1299,18 @@ class dbxInstall
             . ($mode === 'external' ? '' : ' hidden')
             . '><div class="dbx-install-mail-sections">'
             . '<section class="dbx-install-mail-section"><h3><i class="bi bi-hdd-network"></i> Versandserver</h3>'
-            . '<div class="row g-2"><div class="col-md-4">' . $this->fieldLabel('mail_transport', 'Transport')
+            . '<div class="row g-2"><div class="col-md-4">' . $this->field_label('mail_transport', 'Transport')
             . '<select class="form-select" id="mail_transport" name="mail_transport">'
-            . $this->selectOptions(array('smtp' => 'SMTP', 'mail' => 'PHP mail()', 'sendmail' => 'Sendmail'), $transport)
+            . $this->select_options(array('smtp' => 'SMTP', 'mail' => 'PHP mail()', 'sendmail' => 'Sendmail'), $transport)
             . '</select></div><div class="col-md-5">'
             . $this->input('mail_host', 'SMTP-Server', (string)($saved['host'] ?? ($profile['host'] ?? '')), 'text', false, 'smtp.example.org')
             . '</div><div class="col-md-3">'
             . $this->input('mail_port', 'Port', (string)($saved['port'] ?? ($profile['port'] ?? 587)), 'number', false, '587')
-            . '</div><div class="col-md-4">' . $this->fieldLabel('mail_secure', 'Verschlüsselung')
+            . '</div><div class="col-md-4">' . $this->field_label('mail_secure', 'Verschlüsselung')
             . '<select class="form-select" id="mail_secure" name="mail_secure">'
-            . $this->selectOptions(array('tls' => 'TLS / STARTTLS', 'ssl' => 'SSL / SMTPS', '' => 'Keine'), (string)($saved['secure'] ?? ($profile['secure'] ?? 'tls')))
+            . $this->select_options(array('tls' => 'TLS / STARTTLS', 'ssl' => 'SSL / SMTPS', '' => 'Keine'), (string)($saved['secure'] ?? ($profile['secure'] ?? 'tls')))
             . '</select></div><div class="col-md-8 d-flex align-items-end">'
-            . $this->switchInput('mail_auth', 'SMTP-Authentifizierung', !empty($saved['auth'] ?? $profile['auth']), '')
+            . $this->switch_input('mail_auth', 'SMTP-Authentifizierung', !empty($saved['auth'] ?? $profile['auth']), '')
             . '</div><div class="col-md-6">'
             . $this->input('mail_user', 'SMTP-Benutzer', (string)($saved['user'] ?? ($profile['user'] ?? '')), 'text', false, 'meist die E-Mail-Adresse', 'username')
             . '</div><div class="col-md-6">'
@@ -1328,7 +1328,7 @@ class dbxInstall
             . '</div></div></section>'
             . '<section class="dbx-install-mail-section"><h3><i class="bi bi-person-vcard"></i> Globaler Absender</h3>'
             . '<div class="row g-2"><div class="col-md-6">'
-            . $this->input('mail_from_email', 'Absenderadresse', $globalFrom, 'email', false, 'noreply@example.org')
+            . $this->input('mail_from_email', 'Absenderadresse', $global_from, 'email', false, 'noreply@example.org')
             . '</div><div class="col-md-6">'
             . $this->input('mail_from_name', 'Absendername', (string)($saved['from_name'] ?? ($profile['from_name'] ?? ($basics['brand_name'] ?? 'dbxapp'))), 'text', false, 'Name der Website')
             . '</div><div class="col-md-6">'
@@ -1339,26 +1339,26 @@ class dbxInstall
             . '<section class="dbx-install-mail-section"><h3><i class="bi bi-signpost-split"></i> Modul-Absender</h3>'
             . '<p class="dbx-install-mail-intro">Getrennte Adressen erleichtern die automatische Zuordnung beim Empfänger.</p>'
             . '<div class="row g-2"><div class="col-md-6">'
-            . $this->input('contact_mail_from', 'Kontaktanfragen', $contactFrom, 'email', true, 'kontakt@example.org')
+            . $this->input('contact_mail_from', 'Kontaktanfragen', $contact_from, 'email', true, 'kontakt@example.org')
             . '<p class="dbx-install-field-note">Anfragende bleiben als Reply-To erhalten.</p>'
             . '</div><div class="col-md-6">'
-            . $this->input('shop_mail_from', 'Shop-Nachrichten', $shopFrom, 'email', true, 'shop@example.org')
+            . $this->input('shop_mail_from', 'Shop-Nachrichten', $shop_from, 'email', true, 'shop@example.org')
             . '<p class="dbx-install-field-note">Für Bestellungen, Status und Widerrufe.</p>'
             . '</div></div>'
-            . $this->switchInput('mail_force_from', 'Globalen Absender erzwingen', !empty($saved['force_from'] ?? $profile['force_from']), 'Nur wenn der Mailanbieter keine unterschiedlichen Absender erlaubt.')
+            . $this->switch_input('mail_force_from', 'Globalen Absender erzwingen', !empty($saved['force_from'] ?? $profile['force_from']), 'Nur wenn der Mailanbieter keine unterschiedlichen Absender erlaubt.')
             . '</section>'
             . '<section class="dbx-install-mail-section"><h3><i class="bi bi-envelope-check"></i> Versandtest</h3>'
-            . $this->input('mail_test_recipient', 'Empfänger der Test-E-Mail', $testRecipient, 'email', false, 'admin@example.org')
-            . $this->switchInput('mail_send_test', 'Beim Prüfen eine Test-E-Mail senden', false, 'Nur bei „Extern senden“. Ohne diese ausdrückliche Auswahl wird keine E-Mail versendet.')
+            . $this->input('mail_test_recipient', 'Empfänger der Test-E-Mail', $test_recipient, 'email', false, 'admin@example.org')
+            . $this->switch_input('mail_send_test', 'Beim Prüfen eine Test-E-Mail senden', false, 'Nur bei „Extern senden“. Ohne diese ausdrückliche Auswahl wird keine E-Mail versendet.')
             . '</section></div></div>'
-            . $this->checkedStatus(
+            . $this->checked_status(
                 $saved,
                 'E-Mail-Konfiguration geprüft',
                 !empty($saved['tested'])
                     ? 'Die Konfiguration ist gültig und die Test-E-Mail wurde erfolgreich versendet.'
                     : 'Die Angaben sind gültig und lokal gespeichert. Es wurde keine Test-E-Mail versendet.'
             )
-            . $this->actionsWithCheck(
+            . $this->actions_with_check(
                 6,
                 'Weiter zur Abschlussprüfung',
                 'check_mail',
@@ -1370,51 +1370,51 @@ class dbxInstall
             . '<script>document.addEventListener("DOMContentLoaded",function(){const box=document.querySelector("[data-install-mail-fields]");const radios=document.querySelectorAll("input[name=mail_delivery_mode]");function sync(){const active=document.querySelector("input[name=mail_delivery_mode]:checked");if(box)box.hidden=!active||active.value!=="external";}radios.forEach(function(r){r.addEventListener("change",sync)});sync();const globalFrom=document.getElementById("mail_from_email");const roles=[["contact_mail_from","kontakt"],["shop_mail_from","shop"]];function domain(){const value=(globalFrom&&globalFrom.value||"").trim().toLowerCase();const at=value.lastIndexOf("@");return at>0&&at<value.length-1?value.slice(at+1):"";}roles.forEach(function(entry){const input=document.getElementById(entry[0]);if(!input||!globalFrom)return;const initialDomain=domain();const initialAuto=entry[1]+"@"+initialDomain;let automatic=input.value.trim().toLowerCase()===initialAuto||input.value.trim().toLowerCase()===entry[1]+"@dbxapp.de";input.addEventListener("input",function(){automatic=false;});globalFrom.addEventListener("input",function(){const nextDomain=domain();if(automatic&&nextDomain)input.value=entry[1]+"@"+nextDomain;});});});</script>';
     }
 
-    private function renderFinish(): string
+    private function render_finish(): string
     {
         $basics = (array)$this->state('basics', array());
         $database = (array)$this->state('database', array());
         $schema = (array)$this->state('schema', array());
         $admin = (array)$this->state('admin', array());
         $mail = (array)$this->state('mail', array());
-        $databaseLabel = match ((string)($database['mode'] ?? 'sqlite')) {
+        $database_label = match ((string)($database['mode'] ?? 'sqlite')) {
             'mysql' => strtoupper((string)($database['type'] ?? 'mysql'))
                 . ' · ' . (string)($database['host'] ?? '')
                 . ' / ' . (string)($database['database'] ?? ''),
             'configured' => 'Bereits eingerichtete Datenbanken',
             default => 'SQLite / DB3 nach DD-Standard',
         };
-        $mailLabel = match ((string)($mail['mode'] ?? 'internal')) {
+        $mail_label = match ((string)($mail['mode'] ?? 'internal')) {
             'external' => 'Externer Versand über ' . strtoupper((string)($mail['transport'] ?? 'smtp')),
             'disabled' => 'Vollständig deaktiviert',
             default => 'Nur interne Annahme, kein Netzwerkversand',
         };
-        $contactFrom = (string)($mail['contact_from']
-            ?? $this->moduleSenderAddress('kontakt', (string)($mail['from_email'] ?? '')));
-        $shopFrom = (string)($mail['shop_from']
-            ?? $this->moduleSenderAddress('shop', (string)($mail['from_email'] ?? '')));
+        $contact_from = (string)($mail['contact_from']
+            ?? $this->module_sender_address('kontakt', (string)($mail['from_email'] ?? '')));
+        $shop_from = (string)($mail['shop_from']
+            ?? $this->module_sender_address('shop', (string)($mail['from_email'] ?? '')));
 
         return '<div class="dbx-install-section-head"><span class="dbx-install-kicker">Schritt 7</span>'
             . '<h2>Bereit für den Start</h2>'
             . '<p>Geheimnisse werden in dieser Übersicht bewusst nicht angezeigt.</p></div>'
             . '<div class="dbx-install-summary">'
-            . $this->summaryRow('bi-window', 'Website', (string)($basics['site_title'] ?? ''), (string)($basics['brand_name'] ?? ''))
-            . $this->summaryRow('bi-palette', 'Design', (string)($basics['default_design_user'] ?? 'dbxapp'), 'Admin: ' . (string)($basics['default_design_admin'] ?? 'dbxapp'))
-            . $this->summaryRow('bi-database-check', 'Daten', $databaseLabel, (int)($schema['finished'] ?? 0) . ' DD-Strukturen synchronisiert')
-            . $this->summaryRow('bi-person-check', 'Administrator', 'admin', 'Persönliches Passwort eingerichtet · Mindestlänge ' . (string)($admin['password_min_length'] ?? 6) . ' Zeichen')
-            . $this->summaryRow('bi-envelope-check', 'E-Mail', $mailLabel, (string)($mail['from_email'] ?? ''))
-            . $this->summaryRow('bi-chat-left-text', 'Kontakt-Absender', $contactFrom, 'dbxContact.mail_from')
-            . $this->summaryRow('bi-bag-check', 'Shop-Absender', $shopFrom, 'dbxShop.mail_from')
+            . $this->summary_row('bi-window', 'Website', (string)($basics['site_title'] ?? ''), (string)($basics['brand_name'] ?? ''))
+            . $this->summary_row('bi-palette', 'Design', (string)($basics['default_design_user'] ?? 'dbxapp'), 'Admin: ' . (string)($basics['default_design_admin'] ?? 'dbxapp'))
+            . $this->summary_row('bi-database-check', 'Daten', $database_label, (int)($schema['finished'] ?? 0) . ' DD-Strukturen synchronisiert')
+            . $this->summary_row('bi-person-check', 'Administrator', 'admin', 'Persönliches Passwort eingerichtet · Mindestlänge ' . (string)($admin['password_min_length'] ?? 6) . ' Zeichen')
+            . $this->summary_row('bi-envelope-check', 'E-Mail', $mail_label, (string)($mail['from_email'] ?? ''))
+            . $this->summary_row('bi-chat-left-text', 'Kontakt-Absender', $contact_from, 'dbxContact.mail_from')
+            . $this->summary_row('bi-bag-check', 'Shop-Absender', $shop_from, 'dbxShop.mail_from')
             . '</div>'
-            . $this->formOpen(7)
+            . $this->form_open(7)
             . '<label class="dbx-install-confirm"><input class="form-check-input" type="checkbox" name="confirm_install" value="1" required>'
-            . '<span><strong>Installation verbindlich abschließen' . $this->tooltipIcon($this->fieldTooltip('confirm_install')) . '</strong><small>dbxapp setzt den lokalen Installationsschalter auf 0 und startet danach im normalen Betriebsmodus.</small></span></label>'
-            . '<div class="dbx-install-actions">' . $this->backLink(7)
+            . '<span><strong>Installation verbindlich abschließen' . $this->tooltip_icon($this->field_tooltip('confirm_install')) . '</strong><small>dbxapp setzt den lokalen Installationsschalter auf 0 und startet danach im normalen Betriebsmodus.</small></span></label>'
+            . '<div class="dbx-install-actions">' . $this->back_link(7)
             . '<button class="btn btn-success btn-lg" type="submit"><i class="bi bi-check2-circle"></i><span>dbxapp jetzt aktivieren</span></button>'
             . '</div></form>';
     }
 
-    private function renderShell(int $step, string $content): string
+    private function render_shell(int $step, string $content): string
     {
         $alerts = '';
         foreach ($this->errors as $message) {
@@ -1438,7 +1438,7 @@ class dbxInstall
                 . $this->h($definition['short'])
                 . '</small><strong>' . $this->h($definition['title']) . '</strong></span>';
             if ($number <= $completed + 1 && $number !== $step) {
-                $nav .= '<a class="dbx-install-step ' . $class . '" href="' . $this->h($this->stepUrl($number)) . '">' . $inner . '</a>';
+                $nav .= '<a class="dbx-install-step ' . $class . '" href="' . $this->h($this->step_url($number)) . '">' . $inner . '</a>';
             } else {
                 $nav .= '<span class="dbx-install-step ' . $class . '">' . $inner . '</span>';
             }
@@ -1447,7 +1447,7 @@ class dbxInstall
 
         return '<div class="dbx-install-layout">'
             . '<aside class="dbx-install-sidebar">'
-            . '<a class="dbx-install-brand" href="' . $this->h($this->stepUrl(1)) . '"><span class="dbx-install-brand__mark"><i class="bi bi-boxes"></i></span>'
+            . '<a class="dbx-install-brand" href="' . $this->h($this->step_url(1)) . '"><span class="dbx-install-brand__mark"><i class="bi bi-boxes"></i></span>'
             . '<span><strong>dbxapp</strong><small>Installationsassistent</small></span></a>'
             . '<div class="dbx-install-progress"><span style="width:' . $progress . '%"></span></div>'
             . '<nav aria-label="Installationsschritte">' . $nav . '</nav>'
@@ -1462,27 +1462,27 @@ class dbxInstall
             . '</section></main></div>';
     }
 
-    private function renderFinished(): string
+    private function render_finished(): string
     {
-        $database = (array)($this->finishResult['database'] ?? array());
-        $databaseLabel = ($database['mode'] ?? '') === 'mysql'
+        $database = (array)($this->finish_result['database'] ?? array());
+        $database_label = ($database['mode'] ?? '') === 'mysql'
             ? 'PDO / ' . strtoupper((string)($database['type'] ?? 'mysql'))
             : (($database['mode'] ?? '') === 'configured' ? 'Bereits eingerichtete Datenbanken' : 'SQLite / DB3');
         return '<div class="dbx-install-finished"><div class="dbx-install-finished__glow"></div>'
             . '<div class="dbx-install-finished__card"><span class="dbx-install-finished__icon"><i class="bi bi-check2"></i></span>'
             . '<span class="dbx-install-kicker">Installation abgeschlossen</span>'
-            . '<h1>' . $this->h((string)($this->finishResult['site_title'] ?? 'dbxapp')) . ' ist startklar.</h1>'
+            . '<h1>' . $this->h((string)($this->finish_result['site_title'] ?? 'dbxapp')) . ' ist startklar.</h1>'
             . '<p>Systemprüfung, DD-Strukturen, Administrator und globale E-Mail-Regeln sind eingerichtet. Melden Sie sich jetzt als <strong>admin</strong> mit dem während der Installation festgelegten persönlichen Passwort an.</p>'
             . '<div class="dbx-install-finished__facts">'
-            . '<span><i class="bi bi-database-check"></i><strong>' . $this->h($databaseLabel) . '</strong><small>Datenspeicher</small></span>'
+            . '<span><i class="bi bi-database-check"></i><strong>' . $this->h($database_label) . '</strong><small>Datenspeicher</small></span>'
             . '<span><i class="bi bi-person-check"></i><strong>admin</strong><small>Persönliches Passwort eingerichtet</small></span>'
-            . '<span><i class="bi bi-envelope-check"></i><strong>' . $this->h($this->mailModeLabel((string)($this->finishResult['mail_mode'] ?? 'internal'))) . '</strong><small>E-Mail-Betrieb</small></span>'
+            . '<span><i class="bi bi-envelope-check"></i><strong>' . $this->h($this->mail_mode_label((string)($this->finish_result['mail_mode'] ?? 'internal'))) . '</strong><small>E-Mail-Betrieb</small></span>'
             . '</div><a class="btn btn-light btn-lg" href="?dbx_modul=dbxLogin&dbx_run1=login"><span>Zur Anmeldung</span><i class="bi bi-arrow-right"></i></a>'
             . '<small class="dbx-install-finished__hint">Der lokale Installationsschalter wurde sicher auf 0 gesetzt.</small>'
             . '</div></div>';
     }
 
-    private function renderAlreadyInstalled(): string
+    private function render_already_installed(): string
     {
         return '<div class="dbx-install-finished"><div class="dbx-install-finished__card">'
             . '<span class="dbx-install-finished__icon"><i class="bi bi-shield-check"></i></span>'
@@ -1492,35 +1492,35 @@ class dbxInstall
             . '</div></div>';
     }
 
-    private function formOpen(int $step, string $autocomplete = 'on'): string
+    private function form_open(int $step, string $autocomplete = 'on'): string
     {
-        return '<form class="dbx-install-form" method="post" action="' . $this->h($this->stepUrl($step)) . '" autocomplete="' . $this->h($autocomplete) . '">'
-            . '<input type="hidden" name="install_token" value="' . $this->h(dbx()->action_token($this->tokenScope($step))) . '">';
+        return '<form class="dbx-install-form" method="post" action="' . $this->h($this->step_url($step)) . '" autocomplete="' . $this->h($autocomplete) . '">'
+            . '<input type="hidden" name="install_token" value="' . $this->h(dbx()->action_token($this->token_scope($step))) . '">';
     }
 
-    private function actions(int $step, string $nextLabel): string
+    private function actions(int $step, string $next_label): string
     {
-        return '<div class="dbx-install-actions">' . $this->backLink($step)
-            . '<button class="btn btn-primary btn-lg" type="submit"><span>' . $this->h($nextLabel) . '</span><i class="bi bi-arrow-right"></i></button></div>';
+        return '<div class="dbx-install-actions">' . $this->back_link($step)
+            . '<button class="btn btn-primary btn-lg" type="submit"><span>' . $this->h($next_label) . '</span><i class="bi bi-arrow-right"></i></button></div>';
     }
 
-    private function actionsWithCheck(
+    private function actions_with_check(
         int $step,
-        string $nextLabel,
-        string $checkAction,
-        string $checkLabel
+        string $next_label,
+        string $check_action,
+        string $check_label
     ): string {
-        return '<div class="dbx-install-actions">' . $this->backLink($step)
+        return '<div class="dbx-install-actions">' . $this->back_link($step)
             . '<div class="dbx-install-action-group">'
-            . '<button class="btn btn-outline-primary btn-lg" type="submit" name="install_action" value="' . $this->h($checkAction) . '"><i class="bi bi-arrow-clockwise"></i><span>' . $this->h($checkLabel) . '</span></button>'
-            . '<button class="btn btn-primary btn-lg" type="submit" name="install_action" value="continue"><span>' . $this->h($nextLabel) . '</span><i class="bi bi-arrow-right"></i></button>'
+            . '<button class="btn btn-outline-primary btn-lg" type="submit" name="install_action" value="' . $this->h($check_action) . '"><i class="bi bi-arrow-clockwise"></i><span>' . $this->h($check_label) . '</span></button>'
+            . '<button class="btn btn-primary btn-lg" type="submit" name="install_action" value="continue"><span>' . $this->h($next_label) . '</span><i class="bi bi-arrow-right"></i></button>'
             . '</div></div>';
     }
 
     /**
      * @param array<string,mixed> $state
      */
-    private function checkedStatus(
+    private function checked_status(
         array $state,
         string $title,
         string $detail
@@ -1531,9 +1531,9 @@ class dbxInstall
                 . '<span>Die vorhandenen Vorgaben sind geladen. Mit „Prüfen“ können Sie den aktuellen Stand kontrollieren, ohne zum nächsten Schritt zu wechseln.</span></div></div>';
         }
 
-        $checkedAt = (int)($state['checked_at'] ?? 0);
-        $when = $checkedAt > 0
-            ? date('d.m.Y, H:i', $checkedAt) . ' Uhr'
+        $checked_at = (int)($state['checked_at'] ?? 0);
+        $when = $checked_at > 0
+            ? date('d.m.Y, H:i', $checked_at) . ' Uhr'
             : 'in dieser Installationssitzung';
 
         return '<div class="alert alert-success dbx-install-inline-note dbx-install-check-status" data-install-check-status data-install-checked="1">'
@@ -1541,15 +1541,15 @@ class dbxInstall
             . '<span>' . $this->h($detail) . ' Zuletzt erfolgreich: ' . $this->h($when) . '.</span></div></div>';
     }
 
-    private function backLink(int $step): string
+    private function back_link(int $step): string
     {
         if ($step <= 1) {
             return '<span></span>';
         }
-        return '<a class="btn btn-outline-secondary btn-lg" href="' . $this->h($this->stepUrl($step - 1)) . '"><i class="bi bi-arrow-left"></i><span>Zurück</span></a>';
+        return '<a class="btn btn-outline-secondary btn-lg" href="' . $this->h($this->step_url($step - 1)) . '"><i class="bi bi-arrow-left"></i><span>Zurück</span></a>';
     }
 
-    private function fieldLabel(
+    private function field_label(
         string $name,
         string $label,
         bool $required = false
@@ -1557,11 +1557,11 @@ class dbxInstall
         return '<label class="form-label" for="' . $this->h($name) . '">'
             . $this->h($label)
             . ($required ? ' <span aria-hidden="true">*</span>' : '')
-            . $this->tooltipIcon($this->fieldTooltip($name))
+            . $this->tooltip_icon($this->field_tooltip($name))
             . '</label>';
     }
 
-    private function tooltipIcon(string $tooltip): string
+    private function tooltip_icon(string $tooltip): string
     {
         if ($tooltip === '') {
             return '';
@@ -1572,7 +1572,7 @@ class dbxInstall
             . '<i class="bi bi-question-circle-fill" aria-hidden="true"></i></span>';
     }
 
-    private function fieldTooltip(string $name): string
+    private function field_tooltip(string $name): string
     {
         $tooltips = array(
             'site_title' => 'Erscheint im Browser-Titel, in Seitentiteln und an zentralen Stellen der Anwendung.',
@@ -1638,19 +1638,19 @@ class dbxInstall
                 . '<i class="bi bi-eye" aria-hidden="true"></i></button></div>';
         }
 
-        return '<div class="mb-3">' . $this->fieldLabel($name, $label, $required)
+        return '<div class="mb-3">' . $this->field_label($name, $label, $required)
             . $input . '</div>';
     }
 
-    private function switchInput(
+    private function switch_input(
         string $name,
         string $label,
         bool $checked,
         string $hint
     ): string {
-        $tooltip = $this->fieldTooltip($name);
+        $tooltip = $this->field_tooltip($name);
         return '<label class="dbx-install-switch"><input class="form-check-input" type="checkbox" name="' . $this->h($name) . '" value="1"' . ($checked ? ' checked' : '') . '>'
-            . '<span><strong>' . $this->h($label) . $this->tooltipIcon($tooltip !== '' ? $tooltip : $hint) . '</strong>'
+            . '<span><strong>' . $this->h($label) . $this->tooltip_icon($tooltip !== '' ? $tooltip : $hint) . '</strong>'
             . ($hint !== '' ? '<small>' . $this->h($hint) . '</small>' : '')
             . '</span></label>';
     }
@@ -1674,12 +1674,12 @@ class dbxInstall
         return '<div class="dbx-install-metric"><i class="bi ' . $this->h($icon) . '"></i><span><small>' . $this->h($label) . '</small><strong>' . $this->h($value) . '</strong></span></div>';
     }
 
-    private function planRow(string $icon, string $label, string $value): string
+    private function plan_row(string $icon, string $label, string $value): string
     {
         return '<div class="dbx-install-plan__row"><i class="bi ' . $this->h($icon) . '"></i><span><small>' . $this->h($label) . '</small><strong>' . $this->h($value) . '</strong></span><i class="bi bi-check-circle-fill"></i></div>';
     }
 
-    private function summaryRow(
+    private function summary_row(
         string $icon,
         string $label,
         string $value,
@@ -1693,7 +1693,7 @@ class dbxInstall
     /**
      * @return array<string,string>
      */
-    private function designOptions(): array
+    private function design_options(): array
     {
         $root = dbx()->os_path(dbx()->get_base_dir() . 'dbx/design');
         $options = array();
@@ -1707,9 +1707,9 @@ class dbxInstall
             $title = $name === 'dbxapp'
                 ? 'dbxapp – Standard'
                 : ucfirst(str_replace(array('-', '_'), ' ', $name));
-            $metadataFile = $directory . '/design.json';
-            if (is_file($metadataFile)) {
-                $metadata = json_decode((string)file_get_contents($metadataFile), true);
+            $metadata_file = $directory . '/design.json';
+            if (is_file($metadata_file)) {
+                $metadata = json_decode((string)file_get_contents($metadata_file), true);
                 if (is_array($metadata) && trim((string)($metadata['title'] ?? '')) !== '') {
                     $title = trim((string)$metadata['title']);
                 }
@@ -1723,7 +1723,7 @@ class dbxInstall
         return $options;
     }
 
-    private function selectOptions(array $options, string $selected): string
+    private function select_options(array $options, string $selected): string
     {
         $html = '';
         foreach ($options as $value => $label) {
@@ -1740,35 +1740,35 @@ class dbxInstall
         return new dbxInstallationService();
     }
 
-    private function requestedStep(): int
+    private function requested_step(): int
     {
         $value = $_GET['step'] ?? $_GET['stepp'] ?? $_POST['step'] ?? 1;
         $step = filter_var($value, FILTER_VALIDATE_INT);
         return max(1, min(self::TOTAL_STEPS, $step === false ? 1 : (int)$step));
     }
 
-    private function stepUrl(int $step): string
+    private function step_url(int $step): string
     {
         return '?dbx_modul=dbxSetup&dbx_run1=install&step='
             . max(1, min(self::TOTAL_STEPS, $step));
     }
 
-    private function isPost(): bool
+    private function is_post(): bool
     {
         return strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'POST';
     }
 
-    private function tokenScope(int $step): string
+    private function token_scope(int $step): string
     {
         return 'dbxSetup.install.step.' . $step;
     }
 
-    private function validToken(int $step): bool
+    private function valid_token(int $step): bool
     {
         $token = is_scalar($_POST['install_token'] ?? null)
             ? (string)$_POST['install_token']
             : '';
-        return dbx()->check_action_token($this->tokenScope($step), $token);
+        return dbx()->check_action_token($this->token_scope($step), $token);
     }
 
     private function state(string $key, $default = null)
@@ -1781,7 +1781,7 @@ class dbxInstall
         );
     }
 
-    private function setState(string $key, $value): void
+    private function set_state(string $key, $value): void
     {
         dbx()->set_session_var(
             $key,
@@ -1791,46 +1791,46 @@ class dbxInstall
         );
     }
 
-    private function postText(string $name, int $maxLength): string
+    private function post_text(string $name, int $max_length): string
     {
         $value = is_scalar($_POST[$name] ?? null) ? trim((string)$_POST[$name]) : '';
         $value = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $value) ?? '';
         return function_exists('mb_substr')
-            ? mb_substr($value, 0, $maxLength, 'UTF-8')
-            : substr($value, 0, $maxLength);
+            ? mb_substr($value, 0, $max_length, 'UTF-8')
+            : substr($value, 0, $max_length);
     }
 
-    private function postKey(string $name, int $maxLength): string
+    private function post_key(string $name, int $max_length): string
     {
-        $value = $this->postText($name, $maxLength);
+        $value = $this->post_text($name, $max_length);
         return preg_match('/^[A-Za-z0-9_.\/:+-]*$/', $value) === 1 ? $value : '';
     }
 
-    private function postDatabaseName(string $name): string
+    private function post_database_name(string $name): string
     {
-        $value = $this->postText($name, 64);
+        $value = $this->post_text($name, 64);
         return preg_match('/^[A-Za-z0-9_$-]+$/', $value) === 1 ? $value : '';
     }
 
-    private function postSecret(string $name, int $maxLength): string
+    private function post_secret(string $name, int $max_length): string
     {
         $value = is_scalar($_POST[$name] ?? null) ? (string)$_POST[$name] : '';
-        return substr(str_replace("\0", '', $value), 0, $maxLength);
+        return substr(str_replace("\0", '', $value), 0, $max_length);
     }
 
-    private function postInt(string $name, int $default): int
+    private function post_int(string $name, int $default): int
     {
         $value = filter_var($_POST[$name] ?? null, FILTER_VALIDATE_INT);
         return $value === false ? $default : (int)$value;
     }
 
-    private function postBool(string $name): bool
+    private function post_bool(string $name): bool
     {
         return isset($_POST[$name])
             && in_array(strtolower((string)$_POST[$name]), array('1', 'true', 'on', 'yes'), true);
     }
 
-    private function directoryWritable(string $directory): bool
+    private function directory_writable(string $directory): bool
     {
         if (!is_dir($directory)
             && !@mkdir($directory, 0775, true)
@@ -1851,7 +1851,7 @@ class dbxInstall
         return $ok;
     }
 
-    private function compactPath(string $path): string
+    private function compact_path(string $path): string
     {
         $base = rtrim(str_replace('\\', '/', dbx()->get_base_dir()), '/') . '/';
         $normalized = str_replace('\\', '/', $path);
@@ -1860,7 +1860,7 @@ class dbxInstall
             : basename($normalized);
     }
 
-    private function iniBytes(string $value): int
+    private function ini_bytes(string $value): int
     {
         $value = strtolower(trim($value));
         if ($value === '-1') {
@@ -1878,7 +1878,7 @@ class dbxInstall
         };
     }
 
-    private function serverLabel(): string
+    private function server_label(): string
     {
         $software = trim((string)($_SERVER['SERVER_SOFTWARE'] ?? 'PHP'));
         if ($software === '') {
@@ -1897,7 +1897,7 @@ class dbxInstall
         return is_file($file) ? trim((string)file_get_contents($file)) : 'aktuell';
     }
 
-    private function mailModeLabel(string $mode): string
+    private function mail_mode_label(string $mode): string
     {
         return match ($mode) {
             'external' => 'Extern',
@@ -1906,32 +1906,32 @@ class dbxInstall
         };
     }
 
-    private function moduleSenderAddress(string $localPart, string $globalFrom): string
+    private function module_sender_address(string $local_part, string $global_from): string
     {
-        $localPart = strtolower(trim($localPart));
+        $local_part = strtolower(trim($local_part));
         $domain = 'dbxapp.de';
-        if (filter_var($globalFrom, FILTER_VALIDATE_EMAIL) !== false) {
+        if (filter_var($global_from, FILTER_VALIDATE_EMAIL) !== false) {
             $candidate = strtolower((string)substr(
-                strrchr($globalFrom, '@') ?: '',
+                strrchr($global_from, '@') ?: '',
                 1
             ));
             if ($candidate !== '') {
                 $domain = $candidate;
             }
         }
-        return $localPart . '@' . $domain;
+        return $local_part . '@' . $domain;
     }
 
     /**
      * @return string[]
      */
-    private function passwordCriteriaMissing(
+    private function password_criteria_missing(
         string $password,
-        int $minimumLength
+        int $minimum_length
     ): array {
-        return \dbxPasswordPolicy::missingCriteria(
+        return \dbxPasswordPolicy::missing_criteria(
             $password,
-            $minimumLength
+            $minimum_length
         );
     }
 

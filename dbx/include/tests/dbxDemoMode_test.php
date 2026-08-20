@@ -23,7 +23,7 @@ if (!$api->is_demo_mode()) {
 if ($api->is_admin_bypass_active() || (int)$api->user() !== 27) {
    $fail('Eine echte Demo-Anmeldung wird vom Entwicklungs-Admin-Bypass ueberlagert.', 13);
 }
-if ($api->can('admin') !== 1 || $api->can_modul('dbxAdmin') !== 1) {
+if ($api->has_group('admin') !== true || $api->has_module_access('dbxAdmin') !== true) {
    $fail('Admin-Menue oder Admin-Modul sind im Demo-Modus nicht sichtbar.', 2);
 }
 
@@ -39,22 +39,22 @@ if (($display['dbxApp']['host'] ?? null) !== ($raw['dbxApp']['host'] ?? null)) {
    $fail('Ein normaler Konfigurationswert wurde unnoetig maskiert.', 5);
 }
 
-$secretKeyMethod = new ReflectionMethod($api, 'is_cfg_secret_key');
-foreach (array('db_pass', 'smtpPassword', 'api_key', 'accessToken') as $secretName) {
-   if ($secretKeyMethod->invoke($api, $secretName) !== true) {
-      $fail("Geheimer Config-Schluessel ($secretName) wird nicht erkannt.", 10);
+$secret_key_method = new ReflectionMethod($api, 'is_cfg_secret_key');
+foreach (array('db_pass', 'smtpPassword', 'api_key', 'accessToken') as $secret_name) {
+   if ($secret_key_method->invoke($api, $secret_name) !== true) {
+      $fail("Geheimer Config-Schluessel ($secret_name) wird nicht erkannt.", 10);
    }
 }
-foreach (array('host', 'port', 'database', 'username', 'cache', 'client_secret', 'legacy_pwd') as $publicName) {
-   if ($secretKeyMethod->invoke($api, $publicName) !== false) {
-      $fail("Normaler Config-Schluessel ($publicName) wird unnoetig maskiert.", 11);
+foreach (array('host', 'port', 'database', 'username', 'cache', 'client_secret', 'legacy_pwd') as $public_name) {
+   if ($secret_key_method->invoke($api, $public_name) !== false) {
+      $fail("Normaler Config-Schluessel ($public_name) wird unnoetig maskiert.", 11);
    }
 }
 
-$configFile = dirname(__DIR__, 2) . '/modules/dbx/cfg/config.php';
-$before = hash_file('sha256', $configFile);
+$config_file = dirname(__DIR__, 2) . '/modules/dbx/cfg/config.php';
+$before = hash_file('sha256', $config_file);
 $write = $api->set_cfg('dbx', $api->get_cfg('dbx'));
-$after = hash_file('sha256', $configFile);
+$after = hash_file('sha256', $config_file);
 if ($write !== 0 || $before !== $after) {
    $fail('set_cfg() konnte im Demo-Modus eine Konfiguration veraendern.', 6);
 }
@@ -69,14 +69,14 @@ foreach (array('insert', 'update', 'delete') as $mode) {
 // Nicht nur die Rechteabfrage, sondern auch der regulaere Schreibpfad muss
 // abbrechen. Der vorhandene Wert wird bewusst unveraendert angeboten, sodass
 // selbst ein fehlerhafter Testlauf keine fachlichen Daten veraendert.
-$demoUser = $db->select1('dbxUser', array('id' => 10), 'id,uname', 0);
-if (is_array($demoUser) && (int)($demoUser['id'] ?? 0) === 10) {
-   $writeResult = $db->update(
+$demo_user = $db->select1('dbxUser', array('id' => 10), 'id,uname', 0);
+if (is_array($demo_user) && (int)($demo_user['id'] ?? 0) === 10) {
+   $write_result = $db->update(
       'dbxUser',
-      array('uname' => (string)($demoUser['uname'] ?? 'demo')),
+      array('uname' => (string)($demo_user['uname'] ?? 'demo')),
       array('id' => 10)
    );
-   if ($writeResult >= 1) {
+   if ($write_result >= 1) {
       $fail('Der regulaere dbxDB-Updatepfad wurde im Demo-Modus nicht gesperrt.', 12);
    }
 }

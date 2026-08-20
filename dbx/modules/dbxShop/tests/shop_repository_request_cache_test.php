@@ -15,14 +15,14 @@ if (!is_string($repo)) {
 }
 
 if (strpos($repo, 'public function install(bool $maintenance = false): void') === false
-   || strpos($repo, 'if (!$maintenance || $maintenanceDone)') === false
-   || strpos($repo, '$this->syncShopSchemaFromDd();') === false) {
+   || strpos($repo, 'if (!$maintenance || $maintenance_done)') === false
+   || strpos($repo, '$this->sync_shop_schema_from_dd();') === false) {
    $fail('Schema-/Defaultpflege ist nicht explizit auf den Wartungsmodus begrenzt.', 2);
 }
 
-if (strpos($repo, 'private array $requestCache = array();') === false
+if (strpos($repo, 'private array $request_cache = array();') === false
    || strpos($repo, 'private function remember(string $key, callable $loader): array') === false
-   || strpos($repo, 'private function clearRequestCache(): void') === false) {
+   || strpos($repo, 'private function clear_request_cache(): void') === false) {
    $fail('Der request-lokale Referenzcache fehlt.', 3);
 }
 
@@ -32,7 +32,7 @@ foreach (array('attribute_definitions', 'attribute_filter_definitions', 'groups'
    }
 }
 
-if (substr_count($repo, '$this->clearRequestCache();') < 8) {
+if (substr_count($repo, '$this->clear_request_cache();') < 8) {
    $fail('Der Request-Cache wird nach Repository-Mutationen nicht ausreichend invalidiert.', 5);
 }
 

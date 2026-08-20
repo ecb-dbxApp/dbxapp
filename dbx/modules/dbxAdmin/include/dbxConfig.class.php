@@ -3,17 +3,6 @@ namespace dbx\dbxAdmin;
 
 Class dbxConfig {
 
-   Private function Get_ConfigModule() {
-     $xmodul  = dbx()->get_modul_var('modul','undef');
-     $config  = dbx()->get_cfg($xmodul, '', null, true);
-     $tpl     ='Form-dbxConfig';
-     $oForm=dbx()->get_system_obj('dbxForm');
-     $oForm->_dbData  =$config;
-     $content=$oForm->run('dbxConfig',$tpl);
-
-     return $content;
-   }
-
    private function get_new_cfg() {
       $config=array();
       $config['active']  =  0;
@@ -30,27 +19,27 @@ Class dbxConfig {
 
       //dbx_debug("GET CFG ($xmodul)=",$data);
 
-      $oForm=dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-config-edit');
-      $oForm->_action='?dbx_modul=dbxAdmin&dbx_run1=config&dbx_run2=edit&xmodul='.$xmodul;
-      $oForm->_data=$data;
-      $oForm->_dd  ='cfg:'.$xmodul;
-      $oForm->_fld_change_state='*';
-      $oForm->add_rep('bar_title', 'Konfiguration: ' . $xmodul);
+      $o_form=dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-config-edit', 'form-config-edit');
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=config&dbx_run2=edit&xmodul='.$xmodul);
+      $o_form->set_data($data);
+      $o_form->set_data_definition('cfg:'.$xmodul);
+      $o_form->_fld_change_state='*';
+      $o_form->add_rep('bar_title', 'Konfiguration: ' . $xmodul);
 
       foreach ($data as $fld => $value) {
-         $oForm->add_fld($fld);
+         $o_form->add_fld($fld);
       }
-      $saveBtn = dbx()->get_system_obj('dbxTPL')->get_tpl('dbx|button-submit', array('label' => 'Modul (' . $xmodul . ') Config speichern'));
-      $oForm->add_obj('button','obj-value', $saveBtn);
-      $oForm->add_obj('bar_actions', 'obj-value', $saveBtn);
+      $save_btn = dbx()->get_system_obj('dbxTPL')->get_tpl('dbx|button-submit', array('label' => 'Modul (' . $xmodul . ') Config speichern'));
+      $o_form->add_obj('button','obj-value', $save_btn);
+      $o_form->add_obj('bar_actions', 'obj-value', $save_btn);
       
-      if ($oForm->submit()) {
-         $config=$oForm->_post;
+      if ($o_form->submit()) {
+         $config=$o_form->validated_post();
          $ok=dbx()->set_cfg($xmodul,$config); 
       }   
 
-      $content=$oForm->run();
+      $content=$o_form->run();
 
       return $content;
 
@@ -65,13 +54,13 @@ Class dbxConfig {
       switch ($xmodul) {
 
          case 'dbx':
-             $oForm=dbx()->get_include_obj('dbxConfig_dbx');
-             $content=$oForm->run();  
+             $o_form=dbx()->get_include_obj('dbxConfig_dbx');
+             $content=$o_form->run();  
          break;
 
          case 'dbxContent':
-             $oForm=dbx()->get_include_obj('dbxConfig_dbxContent');
-             $content=$oForm->run();
+             $o_form=dbx()->get_include_obj('dbxConfig_dbxContent');
+             $content=$o_form->run();
          break;
   
   
@@ -98,9 +87,9 @@ Class dbxConfig {
 
 
        default:
-          $oTPL=dbx()->get_system_obj('dbxTPL');
+          $o_tpl=dbx()->get_system_obj('dbxTPL');
           $msg['msg']="Modul=($modul) Action=($action) Work=($work) is undef!";
-          $content=$oTPL->get_tpl('dbx','alert-warning',$msg);
+          $content=$o_tpl->get_tpl('dbx|alert-warning',$msg);
 
     }
     return $content;

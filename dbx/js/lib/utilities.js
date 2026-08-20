@@ -12,14 +12,19 @@
     const SKIN_KEY = "skin";
     const COLLAPSE_LIB = "collapse";
     const CONSENT_KEY = "consent";
-    const CONSENT_PRIVACY_URL = "datenschutz";
-    const CONSENT_IMPRESSUM_URL = "impressum";
     const DEFAULT_CONSENT = { cookies: true, youtube: false, decided: false, ts: 0 };
     let leaveGuardEnabled = true;
     let leaveGuardAllowUntil = 0;
 
     function hasDbx() {
         return !!(window.dbx && window.dbx.feature);
+    }
+
+    function t(translations) {
+        if (window.dbx && typeof window.dbx.translate === "function") {
+            return window.dbx.translate(translations);
+        }
+        return translations && translations.de || "";
     }
 
     function onReady(fn) {
@@ -125,12 +130,26 @@
     }
 
     function storeGet(key, def) {
-        return hasDbx() && typeof dbx.uiGet === "function" ? dbx.uiGet(LIB, ID, key, def) : def;
+        if (hasDbx() && typeof dbx.uiGet === "function") {
+            return dbx.uiGet(LIB, ID, key, def);
+        }
+        try {
+            const stored = window.localStorage.getItem(`dbx.UI.${LIB}.${ID}.${key}`);
+            return stored === null ? def : JSON.parse(stored);
+        } catch (_) {
+            return def;
+        }
     }
 
     function storeSet(key, value) {
         if (hasDbx() && typeof dbx.uiSet === "function") {
             dbx.uiSet(LIB, ID, key, value);
+            return;
+        }
+        try {
+            window.localStorage.setItem(`dbx.UI.${LIB}.${ID}.${key}`, JSON.stringify(value));
+        } catch (_) {
+            // Private Modi oder restriktive Browser dürfen Speicherung ablehnen.
         }
     }
 
@@ -1041,10 +1060,6 @@
 
         applySkin(skin, false);
 
-        if (storedSkin !== skin) {
-            storeSet(skinStoreKey(), skin);
-        }
-
         if (bodySkin !== skin) {
             syncSkinToServer(skin);
         }
@@ -1136,11 +1151,13 @@
     }
 
     function openConsentSettings() {
-        openConsentHelpWindow(CONSENT_PRIVACY_URL, "Datenschutz");
+        const url = t({ de: "datenschutz", en: "data-protection", es: "protecci-on-de-datos" });
+        openConsentHelpWindow(url, t({ de: "Datenschutz", en: "Privacy", es: "Privacidad" }));
     }
 
     function openImpressum() {
-        openConsentHelpWindow(CONSENT_IMPRESSUM_URL, "Impressum");
+        const url = t({ de: "impressum", en: "legal-notice", es: "imprint-2" });
+        openConsentHelpWindow(url, t({ de: "Impressum", en: "Legal notice", es: "Aviso legal" }));
     }
 
     function hideConsentBanner() {
@@ -1167,26 +1184,60 @@
         banner.className = "dbx-consent-overlay";
         banner.setAttribute("role", "dialog");
         banner.setAttribute("aria-modal", "true");
-        banner.setAttribute("aria-label", "Datenschutz und Cookies");
+        banner.setAttribute("aria-label", t({
+            de: "Datenschutz und Cookies",
+            en: "Privacy and cookies",
+            es: "Privacidad y cookies"
+        }));
         banner.innerHTML = ''
             + '<div class="dbx-consent-backdrop" aria-hidden="true"></div>'
             + '<div class="dbx-consent-modal card shadow">'
             + '<div class="card-body dbx-consent-modal-body">'
-            + '<h5 class="dbx-consent-modal-title">Datenschutz &amp; Cookies</h5>'
-            + '<p class="dbx-consent-modal-text">'
-            + 'Auf dieser Website setzen wir technisch notwendige Cookies ein, damit dbXapp '
-            + 'funktioniert (z.&nbsp;B. Anmeldung, Sprache, Ihre Einstellungen). '
-            + 'Externe Medien wie YouTube-Videos laden wir erst nach Ihrer Zustimmung.'
-            + '</p>'
+            + '<h5 class="dbx-consent-modal-title">' + t({
+                de: "Datenschutz &amp; Cookies",
+                en: "Privacy &amp; cookies",
+                es: "Privacidad y cookies"
+            }) + '</h5>'
+            + '<p class="dbx-consent-modal-text">' + t({
+                de: "Auf dieser Website setzen wir technisch notwendige Cookies ein, damit dbXapp "
+                    + "funktioniert (z.&nbsp;B. Anmeldung, Sprache, Ihre Einstellungen). "
+                    + "Externe Medien wie YouTube-Videos laden wir erst nach Ihrer Zustimmung.",
+                en: "On this website we use technically necessary cookies so that dbXapp "
+                    + "works (e.g.&nbsp;login, language, your settings). "
+                    + "We only load external media such as YouTube videos after your consent.",
+                es: "En este sitio web utilizamos cookies técnicamente necesarias para que dbXapp "
+                    + "funcione (p.&nbsp;ej. inicio de sesión, idioma, sus ajustes). "
+                    + "Solo cargamos contenido externo como vídeos de YouTube tras su consentimiento."
+            }) + '</p>'
             + '<p class="dbx-consent-modal-links">'
-            + '<button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-dbx-consent-link="privacy">Datenschutz</button>'
+            + '<button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-dbx-consent-link="privacy">' + t({
+                de: "Datenschutz",
+                en: "Privacy",
+                es: "Privacidad"
+            }) + '</button>'
             + '<span class="dbx-consent-modal-links-sep" aria-hidden="true">·</span>'
-            + '<button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-dbx-consent-link="impressum">Impressum</button>'
+            + '<button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-dbx-consent-link="impressum">' + t({
+                de: "Impressum",
+                en: "Legal notice",
+                es: "Aviso legal"
+            }) + '</button>'
             + '</p>'
             + '<div class="dbx-consent-banner-actions">'
-            + '<button type="button" class="btn btn-outline-secondary btn-sm" data-dbx-consent-action="settings">Einstellungen</button>'
-            + '<button type="button" class="btn btn-outline-secondary btn-sm" data-dbx-consent-action="necessary">Nur notwendige</button>'
-            + '<button type="button" class="btn btn-primary btn-sm" data-dbx-consent-action="accept-all">Alle akzeptieren</button>'
+            + '<button type="button" class="btn btn-outline-secondary btn-sm" data-dbx-consent-action="settings">' + t({
+                de: "Einstellungen",
+                en: "Settings",
+                es: "Ajustes"
+            }) + '</button>'
+            + '<button type="button" class="btn btn-outline-secondary btn-sm" data-dbx-consent-action="necessary">' + t({
+                de: "Nur notwendige",
+                en: "Necessary only",
+                es: "Solo lo necesario"
+            }) + '</button>'
+            + '<button type="button" class="btn btn-primary btn-sm" data-dbx-consent-action="accept-all">' + t({
+                de: "Alle akzeptieren",
+                en: "Accept all",
+                es: "Aceptar todo"
+            }) + '</button>'
             + '</div>'
             + '</div>'
             + '</div>';
@@ -1239,7 +1290,11 @@
                 + videoId + '/hqdefault.jpg" alt="" loading="lazy">'
             : "";
         return thumb
-            + '<button type="button" class="dbx-youtube-consent-play" aria-label="Video abspielen">'
+            + '<button type="button" class="dbx-youtube-consent-play" aria-label="' + t({
+                de: "Video abspielen",
+                en: "Play video",
+                es: "Reproducir vídeo"
+            }) + '">'
             + '<i class="bi bi-play-fill"></i></button>';
     }
 
@@ -1267,7 +1322,7 @@
         const iframe = document.createElement("iframe");
         iframe.className = "dbx-content-video-player";
         iframe.src = url;
-        iframe.title = el.getAttribute("data-youtube-title") || "YouTube Video";
+        iframe.title = el.getAttribute("data-youtube-title") || t({ de: "YouTube-Video", en: "YouTube video", es: "Vídeo de YouTube" });
         iframe.loading = el.getAttribute("data-youtube-loading") || "lazy";
         iframe.setAttribute("allowfullscreen", "");
         iframe.allowFullscreen = true;

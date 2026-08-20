@@ -7,7 +7,7 @@ use dbx\dbxContent\dbxContentMediaUsageScope;
 
 trait dbxKiBriefingTemplateServiceTrait {
 
-   private function contentTemplateDir(): string {
+   private function content_template_dir(): string {
       $dir = dbx()->get_system_var('dbx_dir', '') . '/modules/dbxContent/tpl/htm/';
       if (!is_dir($dir)) {
          $dir = dirname(__DIR__, 2) . '/dbxContent/tpl/htm/';
@@ -15,8 +15,8 @@ trait dbxKiBriefingTemplateServiceTrait {
       return rtrim($dir, '/\\') . DIRECTORY_SEPARATOR;
    }
 
-   private function listContentTemplates(): array {
-      $files = glob($this->contentTemplateDir() . 'c-*.htm');
+   private function list_content_templates(): array {
+      $files = glob($this->content_template_dir() . 'c-*.htm');
       $out = array();
       if (is_array($files)) {
          sort($files);
@@ -27,22 +27,22 @@ trait dbxKiBriefingTemplateServiceTrait {
       return $out ?: array('c-content');
    }
 
-   private function sanitizeContentTemplate(string $template, bool $heroEnabled): string {
+   private function sanitize_content_template(string $template, bool $hero_enabled): string {
       $template = trim($template);
-      $allowed = $this->listContentTemplates();
+      $allowed = $this->list_content_templates();
       if ($template === '' || $template === 'parent') {
-         return $heroEnabled ? self::CONTENT_TEMPLATE_DEFAULT : 'parent';
+         return $hero_enabled ? self::CONTENT_TEMPLATE_DEFAULT : 'parent';
       }
       if (!in_array($template, $allowed, true)) {
-         return $heroEnabled ? self::CONTENT_TEMPLATE_DEFAULT : 'parent';
+         return $hero_enabled ? self::CONTENT_TEMPLATE_DEFAULT : 'parent';
       }
-      if (!$heroEnabled && strpos($template, 'hero') !== false) {
+      if (!$hero_enabled && strpos($template, 'hero') !== false) {
          return 'parent';
       }
       return $template;
    }
 
-   private function analyzeTemplateSlots(string $template): array {
+   private function analyze_template_slots(string $template): array {
       if ($template === '' || $template === 'parent') {
          return array(
             'hero_text' => false,
@@ -52,7 +52,7 @@ trait dbxKiBriefingTemplateServiceTrait {
             'gallery' => false,
          );
       }
-      $path = $this->contentTemplateDir() . $template . '.htm';
+      $path = $this->content_template_dir() . $template . '.htm';
       if (!is_file($path)) {
          return array('hero_text' => true, 'header' => true, 'footer' => true, 'cols' => 1, 'gallery' => false);
       }
@@ -72,17 +72,17 @@ trait dbxKiBriefingTemplateServiceTrait {
       return $slots;
    }
 
-   private function buildContentTemplateOptions(string $selected, bool $heroEnabled): string {
-      $selected = $this->sanitizeContentTemplate($selected, $heroEnabled);
+   private function build_content_template_options(string $selected, bool $hero_enabled): string {
+      $selected = $this->sanitize_content_template($selected, $hero_enabled);
       $html = '';
-      if (!$heroEnabled) {
+      if (!$hero_enabled) {
          $html .= '<option value="parent"' . ($selected === 'parent' ? ' selected' : '') . '>parent — vom Ordner</option>';
       }
-      foreach ($this->listContentTemplates() as $name) {
-         if (!$heroEnabled && strpos($name, 'hero') !== false) {
+      foreach ($this->list_content_templates() as $name) {
+         if (!$hero_enabled && strpos($name, 'hero') !== false) {
             continue;
          }
-         if ($heroEnabled && strpos($name, 'hero') === false && $name !== 'c-content') {
+         if ($hero_enabled && strpos($name, 'hero') === false && $name !== 'c-content') {
             continue;
          }
          $sel = ($name === $selected) ? ' selected' : '';
@@ -91,11 +91,11 @@ trait dbxKiBriefingTemplateServiceTrait {
       return $html;
    }
 
-   private function contentTemplateForCreate(bool $heroEnabled, string $selected = ''): string {
-      return $this->sanitizeContentTemplate($selected, $heroEnabled);
+   private function content_template_for_create(bool $hero_enabled, string $selected = ''): string {
+      return $this->sanitize_content_template($selected, $hero_enabled);
    }
 
-   private function contentMarkerHr(string $name): string {
+   private function content_marker_hr(string $name): string {
       $labels = array(
          'hero' => 'Hero-Text',
          'header' => 'Header',
@@ -108,42 +108,42 @@ trait dbxKiBriefingTemplateServiceTrait {
          . '" data-label="' . $label . '">';
    }
 
-   private function contentMarkersMeta(array $slots): array {
+   private function content_markers_meta(array $slots): array {
       $markers = array();
       if (!empty($slots['hero_text'])) {
-         $markers['hero'] = $this->contentMarkerHr('hero');
+         $markers['hero'] = $this->content_marker_hr('hero');
       }
       if (!empty($slots['header'])) {
-         $markers['header'] = $this->contentMarkerHr('header');
+         $markers['header'] = $this->content_marker_hr('header');
       }
       if (!empty($slots['footer'])) {
-         $markers['footer'] = $this->contentMarkerHr('footer');
+         $markers['footer'] = $this->content_marker_hr('footer');
       }
       return $markers;
    }
 
-   private function contentExampleHtml(array $slots, string $heroTextHint = ''): string {
+   private function content_example_html(array $slots, string $hero_text_hint = ''): string {
       $parts = array();
       if (!empty($slots['hero_text'])) {
-         $lead = $heroTextHint !== '' ? $heroTextHint : 'Kurzer Hero-Text';
+         $lead = $hero_text_hint !== '' ? $hero_text_hint : 'Kurzer Hero-Text';
          $parts[] = '<p class="lead">' . $lead . '</p>';
-         $parts[] = $this->contentMarkerHr('hero');
+         $parts[] = $this->content_marker_hr('hero');
       }
       if (!empty($slots['header'])) {
-         $parts[] = $this->contentMarkerHr('header');
+         $parts[] = $this->content_marker_hr('header');
       }
       $parts[] = '<h2>Ueberschrift</h2><p>Haupttext...</p>';
       if (!empty($slots['footer'])) {
-         $parts[] = $this->contentMarkerHr('footer');
+         $parts[] = $this->content_marker_hr('footer');
          $parts[] = '<p><small>Optionale Fusszeile</small></p>';
       }
       return implode('', $parts);
    }
 
-   private function contentMarkersGuide(string $template, bool $withHeroImage, string $heroTextBrief = ''): string {
-      $slots = $this->analyzeTemplateSlots($template);
-      $markers = $this->contentMarkersMeta($slots);
-      $example = $this->contentExampleHtml($slots, $heroTextBrief);
+   private function content_markers_guide(string $template, bool $with_hero_image, string $hero_text_brief = ''): string {
+      $slots = $this->analyze_template_slots($template);
+      $markers = $this->content_markers_meta($slots);
+      $example = $this->content_example_html($slots, $hero_text_brief);
 
       $lines = array(
          '## Content-Template und Bereichs-Marker',
@@ -158,8 +158,8 @@ trait dbxKiBriefingTemplateServiceTrait {
          $lines[] = '1. Text **vor** Hero-Marker → Slot `{cms:hero_text}` (Text im Hero-Bereich neben/unter dem Bild)';
          $lines[] = '   Standard: maximal ' . self::HERO_TEXT_MAX_LINES . ' Zeilen Hero-Text, wenn nicht anders angegeben.';
          $lines[] = '2. `<hr data-dbx-marker="dbx:hero">`';
-         if ($heroTextBrief !== '') {
-            $lines[] = '   Hero-Text laut Auftrag: *' . $heroTextBrief . '*';
+         if ($hero_text_brief !== '') {
+            $lines[] = '   Hero-Text laut Auftrag: *' . $hero_text_brief . '*';
          }
       }
       if (!empty($slots['header'])) {
@@ -186,15 +186,15 @@ trait dbxKiBriefingTemplateServiceTrait {
       $lines[] = '```html';
       $lines[] = $example;
       $lines[] = '```';
-      if ($withHeroImage) {
+      if ($with_hero_image) {
          $lines[] = '';
          $lines[] = 'Hero-**Bild** kommt ueber dbxKi-Medienschritte — nicht ins HTML. Neue Hero-Bilder liegen verbindlich in `img/hero`.';
       }
       return implode("\n", $lines);
    }
 
-   private function contentMarkersGuideShort(string $template): string {
-      $slots = $this->analyzeTemplateSlots($template);
+   private function content_markers_guide_short(string $template): string {
+      $slots = $this->analyze_template_slots($template);
       $bits = array('Template `' . $template . '`');
       if (!empty($slots['hero_text'])) {
          $bits[] = 'Hero-/Header-/Footer-Marker per `<hr>`';

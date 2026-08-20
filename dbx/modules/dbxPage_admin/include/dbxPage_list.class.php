@@ -5,8 +5,8 @@ class dbxPage_list {
 
   private function list_api() {
      $form_id ='report-api';
-     $oReport = dbx()->get_system_obj('dbxReport');
-     $oReport->init($form_id);
+     $o_report = dbx()->get_system_obj('dbxReport');
+     $o_report->init($form_id, 'report-api');
 
      $db      = dbx()->get_system_obj('dbxDB');
      $tab     = 'dbx_api';
@@ -29,39 +29,37 @@ class dbxPage_list {
      $data['dbx_rrows']= 25;
      $data['dbx_rsort']='id';
 
-     $oReport->_data   =$data;
-     $oReport->_action ='?dbx_modul=ddbxPage_admin&dbx_run1=list';
-     $oReport->_options_rsort = $options_rsort;
-     $oReport->_but_pagination   =9;
-     $oReport->_create_row_select=true;
-     $oReport->_create_row_edit  =true;
-     $oReport->_create_row_delete=true;
+     $o_report->set_data($data);
+     $o_report->set_action('?dbx_modul=ddbxPage_admin&dbx_run1=list');
+     $o_report->_options_rsort = $options_rsort;
+     $o_report->set_pagination(true, 9);
+     $o_report->set_table_actions(array('select', 'edit', 'delete'));
 
-     $oReport->_msg_info ='';
-     $oReport->add_action('rows_select'    ,'action_button_select'    ,'&dbx_run2=multi_select');
-     $oReport->add_action('rows_deselect'  ,'action_button_deselect'  ,'&dbx_run2=multi_deselect');
-     $oReport->add_action('rows_delete'    ,'action_button_delete'    ,'&dbx_run2=multi_delete');
-     $oReport->add_action('rows_activate'  ,'action_button_activate'  ,'&dbx_run2=multi_activate');
-     $oReport->add_action('rows_deactivate','action_button_deactivate','&dbx_run2=multi_deactivate');
+     $o_report->_msg_info ='';
+     $o_report->add_action('rows_select'    ,'action_button_select'    ,'&dbx_run2=multi_select');
+     $o_report->add_action('rows_deselect'  ,'action_button_deselect'  ,'&dbx_run2=multi_deselect');
+     $o_report->add_action('rows_delete'    ,'action_button_delete'    ,'&dbx_run2=multi_delete');
+     $o_report->add_action('rows_activate'  ,'action_button_activate'  ,'&dbx_run2=multi_activate');
+     $o_report->add_action('rows_deactivate','action_button_deactivate','&dbx_run2=multi_deactivate');
 
-     $work=$oReport->get_post('dbx_run2','','parameter');
-     $rid =$oReport->get_post('rid'     ,0 ,'int');
+     $work=$o_report->get_post('dbx_run2','','parameter');
+     $rid =$o_report->get_post('rid'     ,0 ,'int');
 
-     if($oReport->submit()) {
+     if($o_report->submit()) {
        //dbx_debug("report-user submit");
-       if(!$oReport->errors()) {      // submit && no errors
+       if(!$o_report->errors()) {      // submit && no errors
           if ($work == 'multi_delete') {
-             $ok=$oReport->del_selected($tab,'*');
+             $ok=$o_report->del_selected($tab,'*');
           } // multi_delete
-          $oReport->_msg_success   = '';
+          $o_report->_msg_success   = '';
        } else {
-          $oReport->_msg_errr = 'Prüfen sie bitte ihre Eingaben';
+          $o_report->_msg_errr = 'Prüfen sie bitte ihre Eingaben';
        }
      }  else { // no submit
        if ($work == 'row_delete' && $rid) {
-          $ok=$oReport->del_selected($tab,$rid);
-          if ( $ok) $oReport->_msg_info = 'Zeile gelöscht';
-          if (!$ok) $oReport->_msg_info = 'Zeile konnte nicht gelöscht werden';
+          $ok=$o_report->del_selected($tab,$rid);
+          if ( $ok) $o_report->_msg_info = 'Zeile gelöscht';
+          if (!$ok) $o_report->_msg_info = 'Zeile konnte nicht gelöscht werden';
        }
        if ($work == 'row_edit' && $rid) {
           // Aufruf Edit Formular als Rückgabewert
@@ -72,24 +70,27 @@ class dbxPage_list {
 
      // get all selections and order
      $rgroup='';
-     $rwhere=$oReport->get_fld_val('dbx_rwhere' ,'','varchar|trim');
-     $rrows =$oReport->get_fld_val('dbx_rrows'  ,10,'int|min=1|max=1000');
-     $rpos  =$oReport->get_fld_val('dbx_rpos'   ,0,'int|min=0');
-     $rsort =$oReport->get_fld_val('dbx_rsort'  ,'id','parameter');
-     $rdesc =strtoupper((string)$oReport->get_fld_val('dbx_rdesc','ASC','parameter'));
+     $rwhere=$o_report->get_fld_val('dbx_rwhere' ,'','varchar|trim');
+     $rrows =$o_report->get_fld_val('dbx_rrows'  ,10,'int|min=1|max=1000');
+     $rpos  =$o_report->get_fld_val('dbx_rpos'   ,0,'int|min=0');
+     $rsort =$o_report->get_fld_val('dbx_rsort'  ,'id','parameter');
+     $rdesc =strtoupper((string)$o_report->get_fld_val('dbx_rdesc','ASC','parameter'));
      if (!in_array($rdesc, array('ASC', 'DESC'), true)) $rdesc = 'ASC';
-     $select=$oReport->get_fld_val('dbx_rselect',0,'int|min=0');
+     $select=$o_report->get_fld_val('dbx_rselect',0,'int|min=0');
 
      //if ($rwhere) $rwhere="modul  LIKE '$rwhere%' or action  LIKE '$rwhere%' or work LIKE '$rwhere%' ";
-     if ($select) $rwhere=$oReport->add_rwhere_select($rwhere);
+     if ($select) $rwhere=$o_report->add_rwhere_select($rwhere);
      //dbx_debug("##Rwhere##  ($rwhere)");
 
-     $oReport->_rcount=$db->count($tab,$rwhere);
-     $oReport->_rdata =$db->select($tab,$rwhere,$flds,$rsort,$rdesc,$rgroup,$rrows,$rpos);
+     $o_report->set_report_counts(
+        $db->count($tab, $rwhere),
+        $db->count($tab)
+     );
+     $o_report->_rdata =$db->select($tab,$rwhere,$flds,$rsort,$rdesc,$rgroup,$rrows,$rpos);
      //$oReport->_rdata =$db->select($tab,$rwhere,'*',$rsort,$rdesc,$rgroup,$rrows,$rpos);
 
 
-     $content=$oReport->run(1,$flds,'table');
+     $content=$o_report->run(1,$flds,'table');
 
      return $content;
 

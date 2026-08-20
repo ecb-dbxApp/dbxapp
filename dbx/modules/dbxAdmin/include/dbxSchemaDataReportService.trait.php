@@ -11,9 +11,9 @@ trait dbxSchemaDataReportServiceTrait {
     * @param string $ddRef Eingabeparameter fuer diese Methode.
     * @return array
     */
-   private function data_report_fields($ddRef) {
-      $oDD = dbx()->get_system_obj('dbxDD');
-      $fields = $oDD->get_dd_fields($ddRef);
+   private function data_report_fields($dd_ref) {
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      $fields = $o_dd->get_dd_fields($dd_ref);
       $out = array();
 
       foreach ((array)$fields as $field) {
@@ -38,9 +38,9 @@ trait dbxSchemaDataReportServiceTrait {
     * @param string $primary Eingabeparameter fuer diese Methode.
     * @return string
     */
-   private function data_grid_cols($ddRef, $primary) {
-      $oDB = dbx()->get_system_obj('dbxDB');
-      $fields = $oDB->get_dd_fields($ddRef);
+   private function data_grid_cols($dd_ref, $primary) {
+      $o_db = dbx()->get_system_obj('dbxDB');
+      $fields = $o_db->get_dd_fields($dd_ref);
       $cols = array();
 
       foreach ((array)$fields as $field) {
@@ -51,8 +51,8 @@ trait dbxSchemaDataReportServiceTrait {
 
          $label = trim((string)($field['label'] ?? ''));
          $label = str_replace(array(':', '[', ']'), '-', $label ?: $name);
-         $fieldType = strtolower(trim((string)($field['type'] ?? '')));
-         $gridType = $oDB->map_dd_type_to_grid_type($fieldType ?: 'text');
+         $field_type = strtolower(trim((string)($field['type'] ?? '')));
+         $grid_type = $o_db->map_dd_type_to_grid_type($field_type ?: 'text');
          $protect = isset($field['protect']) ? (string)$field['protect'] : '0';
 
          if ($protect === '2') {
@@ -62,7 +62,7 @@ trait dbxSchemaDataReportServiceTrait {
          $flag = ($name === $primary || $protect === '1') ? 'p' : '';
          $options = array();
 
-         if ($name === 'content' || in_array($fieldType, array('mediumtext', 'longtext'), true)) {
+         if ($name === 'content' || in_array($field_type, array('mediumtext', 'longtext'), true)) {
             $options[] = 'editor=textarea';
             $options[] = 'formatter=truncate';
             $options[] = 'bigEditor=1';
@@ -71,7 +71,7 @@ trait dbxSchemaDataReportServiceTrait {
             $options[] = 'minWidth=260';
          }
 
-         $col = $name . '[' . $label . ']:' . $gridType;
+         $col = $name . '[' . $label . ']:' . $grid_type;
          if ($flag !== '') {
             $col .= ':' . $flag;
          }
@@ -95,12 +95,12 @@ trait dbxSchemaDataReportServiceTrait {
    private function data_context_from_request() {
       $mode = dbx()->get_modul_var('dbx_run1', 'dd', 'parameter');
       $rid  = dbx()->get_modul_var('rid', '', 'parameter');
-      $ddRef = '';
+      $dd_ref = '';
 
       if ($mode == 'db') {
          [$server, $table] = $this->decode_db_rid($rid);
          if ($server && $table) {
-            $ddRef = $this->ensure_db_view_dd($server, $table);
+            $dd_ref = $this->ensure_db_view_dd($server, $table);
          }
       } else {
          [$modul, $dd] = $this->split_dd_rid($rid);
@@ -108,19 +108,19 @@ trait dbxSchemaDataReportServiceTrait {
             [$modul, $dd] = $this->dd_params_from_request();
          }
          if ($modul && $dd) {
-            $ddRef = $this->dd_ref($modul, $dd);
+            $dd_ref = $this->dd_ref($modul, $dd);
          }
       }
 
-      $oDB = dbx()->get_system_obj('dbxDB');
-      $flds = $ddRef ? $this->data_report_fields($ddRef) : array();
-      $primary = $ddRef ? $oDB->get_dd_primary($ddRef) : 'id';
+      $o_db = dbx()->get_system_obj('dbxDB');
+      $flds = $dd_ref ? $this->data_report_fields($dd_ref) : array();
+      $primary = $dd_ref ? $o_db->get_dd_primary($dd_ref) : 'id';
 
       if (!$primary || !isset($flds[$primary])) {
          $primary = isset($flds['id']) ? 'id' : '';
       }
 
-      return array($ddRef, $flds, $primary);
+      return array($dd_ref, $flds, $primary);
    }
 
 
@@ -133,13 +133,13 @@ trait dbxSchemaDataReportServiceTrait {
     * @param int $id Eingabeparameter fuer diese Methode.
     * @return array
     */
-   private function data_row_by_id($ddRef, $primary, $id) {
-      if (!$ddRef || !$primary || $id === '' || $id === null) {
+   private function data_row_by_id($dd_ref, $primary, $id) {
+      if (!$dd_ref || !$primary || $id === '' || $id === null) {
          return array();
       }
 
-      $oDB = dbx()->get_system_obj('dbxDB');
-      $rows = $oDB->select($ddRef, array($primary => $id), '', '', 'ASC', '', 1, 0, 0);
+      $o_db = dbx()->get_system_obj('dbxDB');
+      $rows = $o_db->select($dd_ref, array($primary => $id), '', '', 'ASC', '', 1, 0, 0);
       if (is_array($rows) && isset($rows[0]) && is_array($rows[0])) {
          return $rows[0];
       }
@@ -160,34 +160,34 @@ trait dbxSchemaDataReportServiceTrait {
     * @param string $deleteUrl Eingabeparameter fuer diese Methode.
     * @return string
     */
-   private function run_data_report($ddRef, $title, $readUrl, $saveUrl, $insertUrl, $deleteUrl) {
-      $oDB = dbx()->get_system_obj('dbxDB');
-      $oReport = dbx()->get_system_obj('dbxReport');
-      $flds = $this->data_report_fields($ddRef);
-      $primary = $oDB->get_dd_primary($ddRef);
+   private function run_data_report($dd_ref, $title, $read_url, $save_url, $insert_url, $delete_url) {
+      $o_db = dbx()->get_system_obj('dbxDB');
+      $o_report = dbx()->get_system_obj('dbxReport');
+      $flds = $this->data_report_fields($dd_ref);
+      $primary = $o_db->get_dd_primary($dd_ref);
 
       if (!$flds || !$primary || !isset($flds[$primary])) {
          return '<div class="alert alert-warning">Keine editierbare Felddefinition mit Primaerschluessel vorhanden.</div>';
       }
 
-      $oReport->init('report-schema-data-' . substr(md5($ddRef), 0, 10), 'schema-data-report');
-      $oReport->_rflds = $flds;
-      $oReport->_mode = 'tabulurator';
-      $oReport->_rrows = 'auto';
-      $oReport->_grid_id = 'schema_data_' . substr(md5($ddRef), 0, 10);
-      $oReport->_grid_cols = $this->data_grid_cols($ddRef, $primary);
-      $oReport->_grid_layout = 'fitData';
-      $oReport->_grid_read_url = $readUrl;
-      $oReport->_grid_save_url = $saveUrl;
-      $oReport->_grid_insert_url = $insertUrl;
-      $oReport->_grid_delete_url = $deleteUrl;
-      $oReport->add_obj('title', 'obj-value', $this->esc($title));
-      $oReport->add_obj('subtitle', 'obj-value', $this->esc('Direkt editierbares Grid'));
-      $oReport->add_rep('bar_title', $title);
-      $oReport->add_rep('bar_subtitle', 'Direkt editierbares Grid');
-      $oReport->add_obj('primary', 'obj-value', $this->esc($primary));
+      $o_report->init('report-schema-data-' . substr(md5($dd_ref), 0, 10), 'schema-data-report');
+      $o_report->_rflds = $flds;
+      $o_report->set_mode('tabulator');
+      $o_report->_rrows = 'auto';
+      $o_report->_grid_id = 'schema_data_' . substr(md5($dd_ref), 0, 10);
+      $o_report->_grid_cols = $this->data_grid_cols($dd_ref, $primary);
+      $o_report->_grid_layout = 'fitData';
+      $o_report->_grid_read_url = $read_url;
+      $o_report->_grid_save_url = $save_url;
+      $o_report->_grid_insert_url = $insert_url;
+      $o_report->_grid_delete_url = $delete_url;
+      $o_report->add_obj('title', 'obj-value', $this->esc($title));
+      $o_report->add_obj('subtitle', 'obj-value', $this->esc('Direkt editierbares Grid'));
+      $o_report->add_rep('bar_title', $title);
+      $o_report->add_rep('bar_subtitle', 'Direkt editierbares Grid');
+      $o_report->add_obj('primary', 'obj-value', $this->esc($primary));
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
 
@@ -198,13 +198,13 @@ trait dbxSchemaDataReportServiceTrait {
     * @return void
     */
    private function run_data_read() {
-      [$ddRef, $flds, $primary] = $this->data_context_from_request();
-      if (!$ddRef || !$flds || !$primary) {
+      [$dd_ref, $flds, $primary] = $this->data_context_from_request();
+      if (!$dd_ref || !$flds || !$primary) {
          $this->json_response(array('ok' => 0, 'count' => 0, 'rows' => array(), 'msg' => 'Keine Felddefinition vorhanden.'));
       }
 
-      $oDB = dbx()->get_system_obj('dbxDB');
-      $rows = $oDB->select($ddRef, '', array_keys($flds), '', 'ASC', '', 0, 0, 0);
+      $o_db = dbx()->get_system_obj('dbxDB');
+      $rows = $o_db->select($dd_ref, '', array_keys($flds), '', 'ASC', '', 0, 0, 0);
       if (!is_array($rows)) {
          $rows = array();
       }
@@ -217,7 +217,7 @@ trait dbxSchemaDataReportServiceTrait {
          }
       }
 
-      $count = $oDB->count($ddRef, '');
+      $count = $o_db->count($dd_ref, '');
       $this->json_response(array(
          'ok'          => 1,
          'count'       => $count >= 0 ? $count : count($out),
@@ -234,16 +234,16 @@ trait dbxSchemaDataReportServiceTrait {
     * @return void
     */
    private function run_data_save() {
-      [$ddRef, $flds, $primary] = $this->data_context_from_request();
+      [$dd_ref, $flds, $primary] = $this->data_context_from_request();
       $payload = $this->request_json();
       $rows = is_array($payload['rows'] ?? null) ? $payload['rows'] : array();
 
-      if (!$ddRef || !$flds || !$primary) {
+      if (!$dd_ref || !$flds || !$primary) {
          $this->json_response(array('ok' => 0, 'msg' => 'Keine editierbare Felddefinition vorhanden.'));
       }
 
-      $oDB = dbx()->get_system_obj('dbxDB');
-      $okCount = 0;
+      $o_db = dbx()->get_system_obj('dbxDB');
+      $ok_count = 0;
 
       foreach ($rows as $row) {
          if (!is_array($row)) {
@@ -267,13 +267,13 @@ trait dbxSchemaDataReportServiceTrait {
             continue;
          }
 
-         $ok = $oDB->update($ddRef, $values, array($primary => $id), 1, 1, 1, 1);
-         if ($ok === 1 && $oDB->_update_count > 0) {
-            $okCount++;
+         $ok = $o_db->update($dd_ref, $values, array($primary => $id), 1, 1, 1, 1);
+         if ($ok === 1 && $o_db->_update_count > 0) {
+            $ok_count++;
          }
       }
 
-      $this->json_response(array('ok' => 1, 'success' => true, 'count' => $okCount));
+      $this->json_response(array('ok' => 1, 'success' => true, 'count' => $ok_count));
    }
 
 
@@ -284,21 +284,21 @@ trait dbxSchemaDataReportServiceTrait {
     * @return void
     */
    private function run_data_insert() {
-      [$ddRef, $flds, $primary] = $this->data_context_from_request();
-      if (!$ddRef || !$flds || !$primary) {
+      [$dd_ref, $flds, $primary] = $this->data_context_from_request();
+      if (!$dd_ref || !$flds || !$primary) {
          $this->json_response(array('ok' => 0, 'msg' => 'Keine editierbare Felddefinition vorhanden.'));
       }
 
-      $oDB = dbx()->get_system_obj('dbxDB');
+      $o_db = dbx()->get_system_obj('dbxDB');
       $id = 0;
-      if ($oDB->insert($ddRef, array(), 1, 1, 1, 1) === 1) {
-         $id = $oDB->get_insert_id();
+      if ($o_db->insert($dd_ref, array(), 1, 1, 1, 1) === 1) {
+         $id = $o_db->get_insert_id();
       }
       if ($id <= 0) {
          $this->json_response(array('ok' => 0, 'msg' => 'Datensatz konnte nicht angelegt werden.'));
       }
 
-      $row = $this->data_row_by_id($ddRef, $primary, $id);
+      $row = $this->data_row_by_id($dd_ref, $primary, $id);
       $this->json_response(array(
          'ok'      => 1,
          'success' => true,
@@ -314,16 +314,16 @@ trait dbxSchemaDataReportServiceTrait {
     * @return void
     */
    private function run_data_delete() {
-      [$ddRef, $flds, $primary] = $this->data_context_from_request();
+      [$dd_ref, $flds, $primary] = $this->data_context_from_request();
       $payload = $this->request_json();
       $id = $payload['id'] ?? null;
 
-      if (!$ddRef || !$flds || !$primary || $id === null || $id === '') {
+      if (!$dd_ref || !$flds || !$primary || $id === null || $id === '') {
          $this->json_response(array('ok' => 0, 'msg' => 'Datensatz-ID fehlt.'));
       }
 
-      $oDB = dbx()->get_system_obj('dbxDB');
-      $ok = $oDB->delete($ddRef, array($primary => $id), 1, 1);
+      $o_db = dbx()->get_system_obj('dbxDB');
+      $ok = $o_db->delete($dd_ref, array($primary => $id), 1, 1);
       $this->json_response(array('ok' => $ok > 0 ? 1 : 0, 'success' => $ok > 0));
    }
 }

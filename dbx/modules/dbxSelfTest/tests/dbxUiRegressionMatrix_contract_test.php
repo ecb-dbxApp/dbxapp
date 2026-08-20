@@ -5,7 +5,7 @@ declare(strict_types=1);
 /** Stellt sicher, dass die reale UI-Matrix und ihr Layout-faehiger Browser-Runner nicht unbemerkt reduziert werden. */
 $module = dirname(__DIR__);
 $matrix = (string)file_get_contents($module . '/tests/dbxUiRegressionMatrix_browser_test.js');
-$runner = (string)file_get_contents($module . '/tpl/js/selftest.js');
+$runner = (string)file_get_contents($module . '/js/selftest.js');
 $metadata = (string)file_get_contents($module . '/cfg/test-metadata.php');
 $confirm = (string)file_get_contents(dirname($module, 2) . '/js/lib/confirm.js');
 $failures = array();

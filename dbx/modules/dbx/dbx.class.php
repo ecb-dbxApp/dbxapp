@@ -1,6 +1,9 @@
 <?php
 namespace dbx\dbx;
 
+/**
+ * Einstiegspunkt des internen dbx-Service-Moduls.
+ */
 class dbx {
 
   public function run() {
@@ -11,9 +14,9 @@ class dbx {
      $run1=dbx()->get_modul_var('dbx_run1','','parameter');
      $run2=dbx()->get_modul_var('dbx_run2','','parameter');
 
-     $oTPL=dbx()->get_system_obj('dbxTPL');
+     $o_tpl=dbx()->get_system_obj('dbxTPL');
      $msg['msg']="Modul=($modul) ist ein dbx Service Modul ohne direkten Aufruf.";
-     $content=$oTPL->get_tpl('dbx|alert-warning',$msg);
+     $content=$o_tpl->get_tpl('dbx|alert-warning',$msg);
 
 
      return $content;

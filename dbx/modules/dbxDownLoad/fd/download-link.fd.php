@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['bar_title'] = 'Demo-Download';
 $messages['bar_subtitle'] = 'Kostenlose Windows-Demo per E-Mail erhalten';
 $messages['try_limit'] = 'Zu viele fehlerhafte Versuche. Bitte warten Sie {sec} Sekunden und versuchen Sie es dann erneut.';

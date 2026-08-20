@@ -5,7 +5,7 @@ namespace dbx\dbxAdmin;
 Class dbxSession {
 
    private function report_sessions() {
-      $oDB = dbx()->get_system_obj('dbxDB');
+      $o_db = dbx()->get_system_obj('dbxDB');
       $form ='report-sessions';
       $dd   ='dbxSession';
       $rid  = dbx()->get_modul_var('rid'     ,0 ,'int');
@@ -14,45 +14,45 @@ Class dbxSession {
       
       $data=array(); // additional data for the formular
 
-      $oReport = dbx()->get_system_obj('dbxReport');
-      $oReport->init($form);
-      $oReport->_fd = 'dbxAdmin|rpt-sessions-selection';
-      $oReport->load_fd_messages();
-      $oReport->_dd = $dd;
-      $oReport->add_rep('report_shell_class', 'dbx-admin-dashboard-panel dbx-admin-dashboard-session-report');
-      $oReport->_msg_info    = '';
-      $oReport->_msg_success = '';
-      $oReport->_msg_error   = '';
+      $o_report = dbx()->get_system_obj('dbxReport');
+      $o_report->init($form);
+      $o_report->set_field_definition('dbxAdmin|rpt-sessions-selection');
+      $o_report->load_fd_messages();
+      $o_report->set_data_definition($dd);
+      $o_report->add_rep('report_shell_class', 'dbx-admin-dashboard-panel dbx-admin-dashboard-session-report');
+      $o_report->_msg_info    = '';
+      $o_report->_msg_success = '';
+      $o_report->_msg_error   = '';
 
       if ($work == 'row_delete' && $rid) {
-           $ok=$oReport->del_selected($rid);
-           $ok=$oDB->delete('dbxSession',$rid);
+           $ok=$o_report->del_selected($rid);
+           $ok=$o_db->delete('dbxSession',$rid);
            dbx()->debug("##delete session id=($rid) ok=($ok)");
            if ($ok) {
-              $oReport->_msg_success = $oReport->get_fd_message(
+              $o_report->_msg_success = $o_report->get_fd_message(
                  'row_delete_success'
               );
            } else {
-              $oReport->_msg_error = $oReport->get_fd_message(
+              $o_report->_msg_error = $o_report->get_fd_message(
                  'row_delete_error'
               );
            }
       }
 
       if ($work == 'multi_delete') {
-           $result = $oReport->delete_multi_selected_records($dd);
-           $oReport->apply_multi_delete_result($result);
+           $result = $o_report->delete_multi_selected_records($dd);
+           $o_report->apply_multi_delete_result($result);
       }
 
       if ($work == 'delete_tab') {
-           $ok=$oDB->delete_tab($dd);
+           $ok=$o_db->delete_tab($dd);
            dbx()->debug("##delete tab dd=($dd) ok=($ok)");
            if ($ok) {
-              $oReport->_msg_success = $oReport->get_fd_message(
+              $o_report->_msg_success = $o_report->get_fd_message(
                  'delete_tab_success'
               );
            } else {
-              $oReport->_msg_error = $oReport->get_fd_message(
+              $o_report->_msg_error = $o_report->get_fd_message(
                  'delete_tab_error'
               );
            }
@@ -61,54 +61,54 @@ Class dbxSession {
       
 
       $flds['id']              ='ID';
-      $flds['update_date']     = $oReport->get_fd_message('column_access');
-      $flds['userid']          = $oReport->get_fd_message('column_user');
-      $flds['ip']              = $oReport->get_fd_message('column_ip');
-      $flds['design']          = $oReport->get_fd_message('column_design');
-      $flds['page']            = $oReport->get_fd_message('column_page');
-      $flds['modul']           = $oReport->get_fd_message('column_module');
+      $flds['update_date']     = $o_report->get_fd_message('column_access');
+      $flds['userid']          = $o_report->get_fd_message('column_user');
+      $flds['ip']              = $o_report->get_fd_message('column_ip');
+      $flds['design']          = $o_report->get_fd_message('column_design');
+      $flds['page']            = $o_report->get_fd_message('column_page');
+      $flds['modul']           = $o_report->get_fd_message('column_module');
       $flds['run1']            ='Run1';
       $flds['run2']            ='Run2';
-      $flds['edit']            = $oReport->get_fd_message('column_edit');
-      $flds['color']           = $oReport->get_fd_message('column_color');
-      $flds['language']        = $oReport->get_fd_message('column_language');
-      $flds['request_counter'] = $oReport->get_fd_message('column_requests');
+      $flds['edit']            = $o_report->get_fd_message('column_edit');
+      $flds['color']           = $o_report->get_fd_message('column_color');
+      $flds['language']        = $o_report->get_fd_message('column_language');
+      $flds['request_counter'] = $o_report->get_fd_message('column_requests');
 
-      $oReport->_data  = $data;
+      $o_report->set_data($data);
 
-      $oReport->_action = '?dbx_modul=dbxAdmin&dbx_run1=session&dbx_run2=list_session';
-      $oReport->_pages            = true;
-      $oReport->_create_row_select= true;
-      $oReport->_create_row_edit  = false;
-      $oReport->_create_row_delete= true;
-      $oReport->_create_sel_flds  = true;
-      $oReport->_but_pagination   = 7;
+      $o_report->set_action('?dbx_modul=dbxAdmin&dbx_run1=session&dbx_run2=list_session');
+      $o_report->_pages            = true;
+      $o_report->_create_row_select= true;
+      $o_report->_create_row_edit  = false;
+      $o_report->_create_row_delete= true;
+      $o_report->_create_sel_flds  = true;
+      $o_report->_but_pagination   = 7;
 
-      $oReport->enable_delete_tab($dd);
+      $o_report->enable_delete_tab($dd);
 
-      $oReport->add_action('rows_delete'    ,'action_button_delete'    ,'&dbx_do=multi_delete');
+      $o_report->add_action('rows_delete'    ,'action_button_delete'    ,'&dbx_do=multi_delete');
 
-      $oReport->create_selection_fields('dbxAdmin|rpt-sessions-selection');
+      $o_report->create_selection_fields('dbxAdmin|rpt-sessions-selection');
 
-      if ($work != 'delete_tab' && $work != 'multi_delete' && $work != 'row_delete' && $oReport->submit()) {
+      if ($work != 'delete_tab' && $work != 'multi_delete' && $work != 'row_delete' && $o_report->submit()) {
         dbx()->debug("###MODUL Report-submit  ### POST=", $_POST ,$_GET);
-        if(!$oReport->errors()) {      // submit && no errors
-            $oReport->_msg_success   = '';
+        if(!$o_report->errors()) {      // submit && no errors
+            $o_report->_msg_success   = '';
         } else {
-           $oReport->_msg_error = $oReport->get_fd_message(
+           $o_report->_msg_error = $o_report->get_fd_message(
               'validation_error'
            );
         }
       }  
       
       // get all selections and order
-      $rwhere=$oReport->get_fld_val('dbx_rwhere' ,''   ,'sqlsearch|max=32');
-      $rsort =$oReport->get_fld_val('dbx_rsort'  ,'update_date' ,'parameter');
-      $rdesc =$oReport->get_fld_val('dbx_rdesc'  ,'DESC','parameter');
-      $select=$oReport->get_fld_val('dbx_rselect', 0   ,'int');
-      $rgroup=$oReport->get_fld_val('dbx_rgroup' ,''   ,'parameter');
-      $rrows =$oReport->get_fld_val('dbx_rrows'  ,10   ,'int');
-      $rpos  =$oReport->get_fld_val('dbx_rpos'   , 0   ,'int');
+      $rwhere=$o_report->get_fld_val('dbx_rwhere' ,''   ,'sqlsearch|max=32');
+      $rsort =$o_report->get_fld_val('dbx_rsort'  ,'update_date' ,'parameter');
+      $rdesc =$o_report->get_fld_val('dbx_rdesc'  ,'DESC','parameter');
+      $select=$o_report->get_fld_val('dbx_rselect', 0   ,'int');
+      $rgroup=$o_report->get_fld_val('dbx_rgroup' ,''   ,'parameter');
+      $rrows =$o_report->get_fld_val('dbx_rrows'  ,10   ,'int');
+      $rpos  =$o_report->get_fld_val('dbx_rpos'   , 0   ,'int');
 
       if ($rwhere!='') {
           $rwhere = array(
@@ -122,22 +122,22 @@ Class dbxSession {
       }
       if ($select) {
           if (is_array($rwhere)) {
-              $rwhere = $oDB->normalize_where($dd, $rwhere);
+              $rwhere = $o_db->normalize_where($dd, $rwhere);
           }
-          $rwhere=$oReport->add_rwhere_select($rwhere);
+          $rwhere=$o_report->add_rwhere_select($rwhere);
       }
       //dbx_debug("##SQL-RPT##  ($rwhere)   Sort=($rsort) UpDown=($rdesc) Group=($rgroup) Rows=($rrows) R-Pos=($rpos) Sel=($select)");
-      $oReport->_rflds = $flds;
-      $oReport->_rrows = $rrows;
-      $oReport->_rpos  = $rpos;
-      $oReport->_count_all = $oDB->count($dd);
-      $oReport->_rcount=$oDB->count($dd,$rwhere);
-      $oReport->_rdata =$oDB->select($dd,$rwhere,$flds,$rsort,$rdesc,$rgroup,$rrows,$rpos);
+      $o_report->_rflds = $flds;
+      $o_report->_rrows = $rrows;
+      $o_report->_rpos  = $rpos;
+      $o_report->_count_all = $o_db->count($dd);
+      $o_report->_rcount=$o_db->count($dd,$rwhere);
+      $o_report->_rdata =$o_db->select($dd,$rwhere,$flds,$rsort,$rdesc,$rgroup,$rrows,$rpos);
       //dbx_debug("RDATA",$oReport->_rdata);
 
  
 
-      $content=$oReport->run($flds,'table');
+      $content=$o_report->run($flds,'table');
 
       return $content;
    } // report_content_flat()

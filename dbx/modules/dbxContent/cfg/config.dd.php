@@ -18,7 +18,7 @@ $field['label'] = 'Zugriff';
 $field['rules'] = '*';
 $field['tooltip'] = 'Benutzergruppen mit Zugriff auf dbxContent.';
 $field['options'] = 'sql:dbxUser_groups|name|description|active = 1|name ASC|88';
-$field['tpl'] = 'select-multible-label';
+$field['tpl'] = 'select-multiple-label';
 $fields[] = $field;
 
 $field['name'] = 'permalink_mode';

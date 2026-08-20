@@ -14,7 +14,7 @@ class dbxContentTranslate {
       return $provider;
    }
 
-   public static function clearWarnings(): void {
+   public static function clear_warnings(): void {
       self::$warnings = array();
       self::$logged = array();
    }
@@ -36,18 +36,18 @@ class dbxContentTranslate {
          case 'copy':
             return $text;
          case 'custom':
-            return self::translateCustom($text, $from, $to, $context);
+            return self::translate_custom($text, $from, $to, $context);
          case 'deepl':
-            return self::translateDeepL($text, $from, $to, $context);
+            return self::translate_deep_l($text, $from, $to, $context);
          case 'openai':
-            return self::translateOpenAi($text, $from, $to, $context);
+            return self::translate_open_ai($text, $from, $to, $context);
          default:
-            self::addWarning($provider, 'Unbekannter Provider, Text wird kopiert.', $context, $to);
+            self::add_warning($provider, 'Unbekannter Provider, Text wird kopiert.', $context, $to);
             return $text;
       }
    }
 
-   private static function addWarning(string $provider, string $message, string $context = '', string $lng = ''): void {
+   private static function add_warning(string $provider, string $message, string $context = '', string $lng = ''): void {
       $provider = strtolower(trim($provider));
       $message = trim($message);
       if ($message === '') {
@@ -77,26 +77,26 @@ class dbxContentTranslate {
       }
    }
 
-   private static function translateCustom(string $text, string $from, string $to, string $context): string {
+   private static function translate_custom(string $text, string $from, string $to, string $context): string {
       $file = dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/dbxContent/translate.php');
       if (!is_file($file)) {
-         self::addWarning('custom', 'translate.php fehlt, Text wird kopiert.', $context, $to);
+         self::add_warning('custom', 'translate.php fehlt, Text wird kopiert.', $context, $to);
          return $text;
       }
 
       $result = $text;
       include $file;
       if (!is_string($result) || trim($result) === '') {
-         self::addWarning('custom', 'Custom-Translate lieferte kein Ergebnis.', $context, $to);
+         self::add_warning('custom', 'Custom-Translate lieferte kein Ergebnis.', $context, $to);
          return $text;
       }
       return $result;
    }
 
-   private static function translateDeepL(string $text, string $from, string $to, string $context): string {
+   private static function translate_deep_l(string $text, string $from, string $to, string $context): string {
       $key = trim((string) dbx()->get_cfg('dbxContent', 'lng_translate_api_key', ''));
       if ($key === '') {
-         self::addWarning('deepl', 'API-Key fehlt (lng_translate_api_key), Text wird kopiert.', $context, $to);
+         self::add_warning('deepl', 'API-Key fehlt (lng_translate_api_key), Text wird kopiert.', $context, $to);
          return $text;
       }
 
@@ -112,28 +112,28 @@ class dbxContentTranslate {
          'target_lang' => strtoupper($to),
       ));
 
-      $response = self::httpPost($url, $payload, array('Content-Type: application/x-www-form-urlencoded'), false, 'deepl', $context, $to);
+      $response = self::http_post($url, $payload, array('Content-Type: application/x-www-form-urlencoded'), false, 'deepl', $context, $to);
       if (!is_array($response)) {
          return $text;
       }
 
       if (isset($response['message']) && is_string($response['message'])) {
-         self::addWarning('deepl', $response['message'], $context, $to);
+         self::add_warning('deepl', $response['message'], $context, $to);
          return $text;
       }
 
       $trans = $response['translations'][0]['text'] ?? '';
       if (!is_string($trans) || trim($trans) === '') {
-         self::addWarning('deepl', 'DeepL-Antwort ohne Text, Original wird verwendet.', $context, $to);
+         self::add_warning('deepl', 'DeepL-Antwort ohne Text, Original wird verwendet.', $context, $to);
          return $text;
       }
       return $trans;
    }
 
-   private static function translateOpenAi(string $text, string $from, string $to, string $context): string {
+   private static function translate_open_ai(string $text, string $from, string $to, string $context): string {
       $key = trim((string) dbx()->get_cfg('dbxContent', 'lng_translate_api_key', ''));
       if ($key === '') {
-         self::addWarning('openai', 'API-Key fehlt (lng_translate_api_key), Text wird kopiert.', $context, $to);
+         self::add_warning('openai', 'API-Key fehlt (lng_translate_api_key), Text wird kopiert.', $context, $to);
          return $text;
       }
 
@@ -159,7 +159,7 @@ class dbxContentTranslate {
          'temperature' => 0.2,
       ), JSON_UNESCAPED_UNICODE);
 
-      $response = self::httpPost($url, $body, array(
+      $response = self::http_post($url, $body, array(
          'Content-Type: application/json',
          'Authorization: Bearer ' . $key,
       ), true, 'openai', $context, $to);
@@ -169,21 +169,21 @@ class dbxContentTranslate {
       }
 
       if (isset($response['error']['message']) && is_string($response['error']['message'])) {
-         self::addWarning('openai', $response['error']['message'], $context, $to);
+         self::add_warning('openai', $response['error']['message'], $context, $to);
          return $text;
       }
 
       $trans = $response['choices'][0]['message']['content'] ?? '';
       if (!is_string($trans) || trim($trans) === '') {
-         self::addWarning('openai', 'OpenAI-Antwort ohne Text, Original wird verwendet.', $context, $to);
+         self::add_warning('openai', 'OpenAI-Antwort ohne Text, Original wird verwendet.', $context, $to);
          return $text;
       }
       return trim($trans);
    }
 
-   private static function httpPost(string $url, string $body, array $headers, bool $json = false, string $provider = '', string $context = '', string $lng = '') {
+   private static function http_post(string $url, string $body, array $headers, bool $json = false, string $provider = '', string $context = '', string $lng = '') {
       if (!function_exists('curl_init')) {
-         self::addWarning($provider !== '' ? $provider : 'translate', 'curl nicht verfuegbar, Text wird kopiert.', $context, $lng);
+         self::add_warning($provider !== '' ? $provider : 'translate', 'curl nicht verfuegbar, Text wird kopiert.', $context, $lng);
          return null;
       }
 
@@ -201,20 +201,20 @@ class dbxContentTranslate {
       curl_close($ch);
 
       if ($errno !== 0) {
-         self::addWarning($provider !== '' ? $provider : 'translate', 'HTTP-Fehler: ' . $error, $context, $lng);
+         self::add_warning($provider !== '' ? $provider : 'translate', 'HTTP-Fehler: ' . $error, $context, $lng);
          return null;
       }
       if ($code >= 400) {
-         self::addWarning($provider !== '' ? $provider : 'translate', 'HTTP ' . $code . ' von API', $context, $lng);
+         self::add_warning($provider !== '' ? $provider : 'translate', 'HTTP ' . $code . ' von API', $context, $lng);
       }
       if (!is_string($raw) || $raw === '') {
-         self::addWarning($provider !== '' ? $provider : 'translate', 'Leere API-Antwort', $context, $lng);
+         self::add_warning($provider !== '' ? $provider : 'translate', 'Leere API-Antwort', $context, $lng);
          return null;
       }
 
       $decoded = json_decode($raw, true);
       if (!is_array($decoded)) {
-         self::addWarning($provider !== '' ? $provider : 'translate', 'Ungueltige JSON-Antwort', $context, $lng);
+         self::add_warning($provider !== '' ? $provider : 'translate', 'Ungueltige JSON-Antwort', $context, $lng);
          return null;
       }
       return $decoded;

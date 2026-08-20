@@ -20,8 +20,8 @@ use dbx\dbxContent\dbxContent_permalink;
 trait dbxContentCmsPageActionServiceTrait {
 
 
-   private function delete_folder_in_lngs($db, int $id, array $deleteLngs): array {
-      return $this->persistence($db)->deleteFolder($id, $deleteLngs);
+   private function delete_folder_in_lngs($db, int $id, array $delete_lngs): array {
+      return $this->persistence($db)->delete_folder($id, $delete_lngs);
    }
 
 
@@ -33,7 +33,7 @@ trait dbxContentCmsPageActionServiceTrait {
       }
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
-      $row = $id > 0 ? $db->select1(dbxContentLng::ddContent(), $id) : $db->empty_record(dbxContentLng::ddContent())[0];
+      $row = $id > 0 ? $db->select1(dbxContentLng::dd_content(), $id) : $db->empty_record(dbxContentLng::dd_content())[0];
       if (is_array($row) && isset($row['content'])) {
          $row['content'] = $this->normalize_content_media_urls($row['content']);
       }
@@ -70,7 +70,7 @@ trait dbxContentCmsPageActionServiceTrait {
       $seen = array();
       while ($folder_id > 0 && !isset($seen[$folder_id])) {
          $seen[$folder_id] = 1;
-         $folder = $db->select1(dbxContentLng::ddFolder(), $folder_id, '*', 0);
+         $folder = $db->select1(dbxContentLng::dd_folder(), $folder_id, '*', 0);
          if (!is_array($folder)) return array();
          $hero_template = trim((string)($folder['hero_template'] ?? 'parent'));
          if ($this->is_no_hero_template($hero_template)) return array();
@@ -113,7 +113,7 @@ trait dbxContentCmsPageActionServiceTrait {
 
       $title = $this->clean_text($payload['title'] ?? '', 254);
       $folder = (int)($payload['folder'] ?? 0);
-      $keywordsProvided = array_key_exists('keywords', $payload);
+      $keywords_provided = array_key_exists('keywords', $payload);
       try {
          $permalink = $this->page_permalink($db, $folder, $title, $payload['permalink'] ?? '', $id);
       } catch (\InvalidArgumentException $e) {
@@ -150,37 +150,37 @@ trait dbxContentCmsPageActionServiceTrait {
       $data = $this->normalize_hero_payload($data);
 
       if ($id > 0) {
-         $existingSeo = $db->select1(dbxContentLng::ddContent(), $id, 'keywords,meta_robots,seo_title,seo_image_id', 0);
-         $data['keywords'] = $keywordsProvided
+         $existing_seo = $db->select1(dbxContentLng::dd_content(), $id, 'keywords,meta_robots,seo_title,seo_image_id', 0);
+         $data['keywords'] = $keywords_provided
             ? $this->clean_text($payload['keywords'] ?? '', 254)
-            : (is_array($existingSeo) ? (string)($existingSeo['keywords'] ?? '') : '');
-         $data['meta_robots'] = is_array($existingSeo) ? (string)($existingSeo['meta_robots'] ?? 'index,follow') : 'index,follow';
-         $data['seo_title'] = is_array($existingSeo) ? (string)($existingSeo['seo_title'] ?? '') : '';
-         $data['seo_image_id'] = is_array($existingSeo) ? max(0, (int)($existingSeo['seo_image_id'] ?? 0)) : 0;
+            : (is_array($existing_seo) ? (string)($existing_seo['keywords'] ?? '') : '');
+         $data['meta_robots'] = is_array($existing_seo) ? (string)($existing_seo['meta_robots'] ?? 'index,follow') : 'index,follow';
+         $data['seo_title'] = is_array($existing_seo) ? (string)($existing_seo['seo_title'] ?? '') : '';
+         $data['seo_image_id'] = is_array($existing_seo) ? max(0, (int)($existing_seo['seo_image_id'] ?? 0)) : 0;
       } else {
-         $data['keywords'] = $keywordsProvided ? $this->clean_text($payload['keywords'] ?? '', 254) : '';
+         $data['keywords'] = $keywords_provided ? $this->clean_text($payload['keywords'] ?? '', 254) : '';
          $data['meta_robots'] = 'index,follow';
          $data['seo_title'] = '';
          $data['seo_image_id'] = 0;
       }
 
       try {
-         $stored = $this->persistence($db)->savePage(
+         $stored = $this->persistence($db)->save_page(
             $data,
             $id,
             $payload,
-            fn($store, $contentId, $folderId, $heroId) => $this->sync_saved_hero_media_usage($store, $contentId, $folderId, $heroId),
-            fn($store, $contentId, $html, $folderId, $clientIds, $provided) => $this->sync_inline_media_usage($store, $contentId, $html, $folderId, $clientIds, $provided),
-            fn($store, $masterId, $sync) => $this->apply_lng_sync_media($store, $masterId, $sync)
+            fn($store, $content_id, $folder_id, $hero_id) => $this->sync_saved_hero_media_usage($store, $content_id, $folder_id, $hero_id),
+            fn($store, $content_id, $html, $folder_id, $client_ids, $provided) => $this->sync_inline_media_usage($store, $content_id, $html, $folder_id, $client_ids, $provided),
+            fn($store, $master_id, $sync) => $this->apply_lng_sync_media($store, $master_id, $sync)
          );
          $saved_id = (int)$stored['saved_id'];
-         $syncResult = (array)$stored['sync_result'];
+         $sync_result = (array)$stored['sync_result'];
          $inline_sync = (array)$stored['inline_sync'];
       } catch (\Throwable $e) {
          $this->cms_json_response(array('ok' => 0, 'success' => false, 'msg' => $texts->get_fd_message('page_save_error')));
       }
       $media = $this->media_usage_rows_for_context($db, $saved_id, 0);
-               $saved_row = $db->select1(dbxContentLng::ddContent(), $saved_id);
+               $saved_row = $db->select1(dbxContentLng::dd_content(), $saved_id);
                if (is_array($saved_row)) {
                   if (isset($saved_row['content'])) {
                      $saved_row['content'] = $this->normalize_content_media_urls($saved_row['content']);
@@ -197,7 +197,7 @@ trait dbxContentCmsPageActionServiceTrait {
                   'hero_preview_media' => $this->hero_preview_media($db, $saved_row),
                   'hero_parent_preview_media' => $this->inherited_hero_preview_media($db, (int)($saved_row['folder'] ?? 0)),
                   'seo_preview_media' => $this->seo_preview_media($db, $saved_row),
-               ), $this->lng_save_response($db, 'page', $saved_id, $syncResult)));
+               ), $this->lng_save_response($db, 'page', $saved_id, $sync_result)));
    }
 
 
@@ -207,16 +207,16 @@ trait dbxContentCmsPageActionServiceTrait {
       $folder = (int)dbx()->get_modul_var('folder', 0, 'int');
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
-      $contentDd = dbxContentLng::ddContent();
+      $content_dd = dbxContentLng::dd_content();
       $title = $texts->format_fd_message('new_page_title', array('time' => date('H:i')));
       $sorter = $this->next_content_sorter($db, $folder);
       try {
-         $id = $this->persistence($db)->createPage(array(
+         $id = $this->persistence($db)->create_page(array(
             'activ' => 1,
             'folder' => $folder,
             'title' => $title,
             'menu_title' => '',
-            'permalink' => dbxContent_permalink::build($db, dbxContentLng::ddFolder(), $folder, $title),
+            'permalink' => dbxContent_permalink::build($db, dbxContentLng::dd_folder(), $folder, $title),
             'template' => 'parent',
             'hero_template' => 'parent',
             'hero_image_id' => 'parent',
@@ -246,7 +246,7 @@ trait dbxContentCmsPageActionServiceTrait {
          'ok' => 1,
          'success' => true,
          'id' => $id,
-         'row' => $db->select1($contentDd, $id),
+         'row' => $db->select1($content_dd, $id),
          'open_lng_provision' => $this->lng_provision_open_flag($db, 'page', $id),
       ));
    }
@@ -255,15 +255,15 @@ trait dbxContentCmsPageActionServiceTrait {
    private function duplicate_page_json() {
       $texts = $this->cms_texts();
       $payload = $this->request_json();
-      $sourceId = (int)($payload['id'] ?? dbx()->get_modul_var('id', 0, 'int'));
-      if ($sourceId <= 0) {
+      $source_id = (int)($payload['id'] ?? dbx()->get_modul_var('id', 0, 'int'));
+      if ($source_id <= 0) {
          $this->cms_json_response(array('ok' => 0, 'success' => false, 'msg' => $texts->get_fd_message('page_select_first')));
       }
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
-      $contentDd = dbxContentLng::ddContent();
-      $source = $db->select1($contentDd, $sourceId, '*', 0);
-      if (!is_array($source) || (int)($source['id'] ?? 0) !== $sourceId) {
+      $content_dd = dbxContentLng::dd_content();
+      $source = $db->select1($content_dd, $source_id, '*', 0);
+      if (!is_array($source) || (int)($source['id'] ?? 0) !== $source_id) {
          $this->cms_json_response(array('ok' => 0, 'success' => false, 'msg' => $texts->get_fd_message('page_not_found')));
       }
       $copy = $source;
@@ -274,36 +274,36 @@ trait dbxContentCmsPageActionServiceTrait {
          unset($copy[$field]);
       }
 
-      $folderId = (int)($source['folder'] ?? 0);
+      $folder_id = (int)($source['folder'] ?? 0);
       $title = (string)($source['title'] ?? 'Unbenannte Seite');
-      $copy['sorter'] = $this->next_content_sorter($db, $folderId);
+      $copy['sorter'] = $this->next_content_sorter($db, $folder_id);
       $copy['permalink'] = $this->duplicate_page_permalink(
          $db,
-         $folderId,
+         $folder_id,
          $title,
          (string)($source['permalink'] ?? '')
       );
       $copy['lng_uid'] = '';
-      $copy['lng_sync'] = dbxContentLngSync::isMasterLng() ? 'auto' : 'manual';
+      $copy['lng_sync'] = dbxContentLngSync::is_master_lng() ? 'auto' : 'manual';
       $copy['lng_rev'] = 1;
       $copy['lng_synced_rev'] = 0;
       try {
-         $stored = $this->persistence($db)->duplicatePage(
+         $stored = $this->persistence($db)->duplicate_page(
             $copy,
-            fn($store, $newId) => $this->copy_page_media_usage(
-               $store, $sourceId, $newId, $folderId, true, dbxContentLng::current(), dbxContentLng::current()
+            fn($store, $new_id) => $this->copy_page_media_usage(
+               $store, $source_id, $new_id, $folder_id, true, dbxContentLng::current(), dbxContentLng::current()
             ),
-            fn($store, $newId) => $this->sync_inline_media_usage(
-               $store, $newId, (string)($source['content'] ?? ''), $folderId
+            fn($store, $new_id) => $this->sync_inline_media_usage(
+               $store, $new_id, (string)($source['content'] ?? ''), $folder_id
             )
          );
-         $newId = (int)$stored['new_id'];
-         $mediaCopied = (int)$stored['media_copied'];
-         $inlineSync = (array)$stored['inline_sync'];
+         $new_id = (int)$stored['new_id'];
+         $media_copied = (int)$stored['media_copied'];
+         $inline_sync = (array)$stored['inline_sync'];
       } catch (\Throwable $e) {
          $this->cms_json_response(array('ok' => 0, 'success' => false, 'msg' => $texts->get_fd_message('page_duplicate_error')));
       }
-      $row = $db->select1($contentDd, $newId);
+      $row = $db->select1($content_dd, $new_id);
       if (is_array($row) && isset($row['content'])) {
          $row['content'] = $this->normalize_content_media_urls($row['content']);
          $row = $this->normalize_gallery_row($row);
@@ -311,13 +311,13 @@ trait dbxContentCmsPageActionServiceTrait {
       $this->cms_json_response(array(
          'ok' => 1,
          'success' => true,
-         'id' => $newId,
-         'source_id' => $sourceId,
+         'id' => $new_id,
+         'source_id' => $source_id,
          'row' => $row,
          'permalink' => (string)($row['permalink'] ?? $copy['permalink']),
-         'media_copied' => $mediaCopied,
-         'inline_media_sync' => $inlineSync,
-         'open_lng_provision' => $this->lng_provision_open_flag($db, 'page', $newId),
+         'media_copied' => $media_copied,
+         'inline_media_sync' => $inline_sync,
+         'open_lng_provision' => $this->lng_provision_open_flag($db, 'page', $new_id),
          'msg' => $texts->get_fd_message('page_duplicated'),
       ));
    }
@@ -325,7 +325,7 @@ trait dbxContentCmsPageActionServiceTrait {
 
    private function next_content_sorter($db, $folder_id) {
       $folder_id = (int)$folder_id;
-      $rows = $db->select(dbxContentLng::ddContent(), 'folder = ' . $folder_id, '*', 'sorter,id', 'DESC', '', 1, 0, 0);
+      $rows = $db->select(dbxContentLng::dd_content(), 'folder = ' . $folder_id, '*', 'sorter,id', 'DESC', '', 1, 0, 0);
       $max = 0;
       if (is_array($rows) && isset($rows[0]) && is_array($rows[0])) {
          $max = (int)($rows[0]['sorter'] ?? 0);
@@ -340,10 +340,10 @@ trait dbxContentCmsPageActionServiceTrait {
       $parent = (int)dbx()->get_modul_var('parent', 0, 'int');
       $db = dbx()->get_system_obj('dbxDB');
       $this->ensure_cms_schema($db);
-      $folderDd = dbxContentLng::ddFolder();
+      $folder_dd = dbxContentLng::dd_folder();
       $sorter = $this->next_folder_sorter($db, $parent);
       try {
-         $id = $this->persistence($db)->createFolder(array(
+         $id = $this->persistence($db)->create_folder(array(
             'name' => $texts->format_fd_message('new_folder_title', array('time' => date('H:i'))),
             'parent_id' => $parent,
             'sorter' => $sorter,
@@ -364,7 +364,7 @@ trait dbxContentCmsPageActionServiceTrait {
          'ok' => 1,
          'success' => true,
          'id' => $id,
-         'row' => $db->select1($folderDd, $id),
+         'row' => $db->select1($folder_dd, $id),
          'open_lng_provision' => $this->lng_provision_open_flag($db, 'folder', $id),
       ));
    }
@@ -394,7 +394,7 @@ trait dbxContentCmsPageActionServiceTrait {
       $rights = $this->clean_text($payload['group_read'] ?? '', 512);
       if ($rights === '') $rights = $parent_id > 0 ? 'parent' : '*';
 
-      $old = $id > 0 ? $db->select1(dbxContentLng::ddFolder(), $id, '*', 0) : array();
+      $old = $id > 0 ? $db->select1(dbxContentLng::dd_folder(), $id, '*', 0) : array();
       $data = array(
          'name' => $name,
          'parent_id' => $parent_id,
@@ -413,27 +413,27 @@ trait dbxContentCmsPageActionServiceTrait {
          $data['sorter'] = $this->next_folder_sorter($db, $parent_id);
       }
 
-      $folderDd = dbxContentLng::ddFolder();
+      $folder_dd = dbxContentLng::dd_folder();
       try {
-         $stored = $this->persistence($db)->saveFolder(
+         $stored = $this->persistence($db)->save_folder(
             $data,
             $id,
-            fn($store, $contentId, $folderId, $heroId) => $this->sync_saved_hero_media_usage($store, $contentId, $folderId, $heroId)
+            fn($store, $content_id, $folder_id, $hero_id) => $this->sync_saved_hero_media_usage($store, $content_id, $folder_id, $hero_id)
          );
          $saved_id = (int)$stored['saved_id'];
-         $syncResult = (array)$stored['sync_result'];
+         $sync_result = (array)$stored['sync_result'];
       } catch (\Throwable $e) {
          $this->cms_json_response(array('ok' => 0, 'success' => false, 'msg' => $texts->get_fd_message('folder_save_error')));
       }
 
-      $oldParent = is_array($old) ? (int)($old['parent_id'] ?? $parent_id) : $parent_id;
-      $this->persistence($db)->flushSavedFolderCache($saved_id, $parent_id, $oldParent);
+      $old_parent = is_array($old) ? (int)($old['parent_id'] ?? $parent_id) : $parent_id;
+      $this->persistence($db)->flush_saved_folder_cache($saved_id, $parent_id, $old_parent);
       $this->cms_json_response(array_merge(array(
          'ok' => 1,
          'success' => true,
          'id' => $saved_id,
-         'row' => $db->select1($folderDd, $saved_id),
-      ), $this->lng_save_response($db, 'folder', $saved_id, $syncResult)));
+         'row' => $db->select1($folder_dd, $saved_id),
+      ), $this->lng_save_response($db, 'folder', $saved_id, $sync_result)));
    }
 
 
@@ -447,8 +447,8 @@ trait dbxContentCmsPageActionServiceTrait {
       }
 
       $db = dbx()->get_system_obj('dbxDB');
-      $deleteLngs = $this->normalize_delete_lngs($payload);
-      $result = $this->delete_folder_in_lngs($db, $id, $deleteLngs);
+      $delete_lngs = $this->normalize_delete_lngs($payload);
+      $result = $this->delete_folder_in_lngs($db, $id, $delete_lngs);
 
       if ((int)($result['ok'] ?? 0) === 1) {
          $this->cms_json_response(array(
@@ -475,8 +475,8 @@ trait dbxContentCmsPageActionServiceTrait {
       }
 
       $db = dbx()->get_system_obj('dbxDB');
-      $deleteLngs = $this->normalize_delete_lngs($payload);
-      $result = $this->delete_page_in_lngs($db, $id, $deleteLngs);
+      $delete_lngs = $this->normalize_delete_lngs($payload);
+      $result = $this->delete_page_in_lngs($db, $id, $delete_lngs);
 
       if ((int)($result['ok'] ?? 0) === 1) {
          $this->cms_json_response(array(
@@ -512,7 +512,7 @@ trait dbxContentCmsPageActionServiceTrait {
 
       $db = dbx()->get_system_obj('dbxDB');
       try {
-         $moved = $this->persistence($db)->moveNode($type, $id, $target, $before_id, $after_id);
+         $moved = $this->persistence($db)->move_node($type, $id, $target, $before_id, $after_id);
       } catch (\Throwable $e) {
          $message = $e instanceof \InvalidArgumentException
             ? $e->getMessage()
@@ -530,7 +530,7 @@ trait dbxContentCmsPageActionServiceTrait {
       $guard = 0;
       while ($folder_id > 0 && $guard < 100) {
          if ($folder_id === $ancestor_id) return true;
-         $row = $db->select1(dbxContentLng::ddFolder(), $folder_id);
+         $row = $db->select1(dbxContentLng::dd_folder(), $folder_id);
          if (!is_array($row)) return false;
          $folder_id = (int)($row['parent_id'] ?? 0);
          $guard++;
@@ -542,7 +542,7 @@ trait dbxContentCmsPageActionServiceTrait {
 
    private function next_folder_sorter($db, $parent_id) {
       $parent_id = (int)$parent_id;
-      $rows = $db->select(dbxContentLng::ddFolder(), 'parent_id = ' . $parent_id, '*', 'sorter,id', 'DESC', '', 1, 0, 0);
+      $rows = $db->select(dbxContentLng::dd_folder(), 'parent_id = ' . $parent_id, '*', 'sorter,id', 'DESC', '', 1, 0, 0);
       $max = 0;
       if (is_array($rows) && isset($rows[0]) && is_array($rows[0])) {
          $max = (int)($rows[0]['sorter'] ?? 0);
@@ -592,7 +592,7 @@ trait dbxContentCmsPageActionServiceTrait {
          $page_ids_by_language[$content_lng][$content_id] = $content_id;
       }
       foreach ($page_ids_by_language as $content_lng => $page_ids) {
-         foreach ($this->rows_by_ids($db, dbxContentLng::ddContent($content_lng), array_values($page_ids), 'id,folder,title') as $id => $page) {
+         foreach ($this->rows_by_ids($db, dbxContentLng::dd_content($content_lng), array_values($page_ids), 'id,folder,title') as $id => $page) {
             $page_cache[$content_lng . ':' . $id] = $page;
          }
       }
@@ -607,7 +607,7 @@ trait dbxContentCmsPageActionServiceTrait {
          if ($folder_id > 0) $folder_ids_by_language[$content_lng][$folder_id] = $folder_id;
       }
       foreach ($folder_ids_by_language as $content_lng => $folder_ids) {
-         foreach ($this->rows_by_ids($db, dbxContentLng::ddFolder($content_lng), array_values($folder_ids), 'id,name,title') as $id => $folder) {
+         foreach ($this->rows_by_ids($db, dbxContentLng::dd_folder($content_lng), array_values($folder_ids), 'id,name,title') as $id => $folder) {
             $folder_cache[$content_lng . ':' . $id] = $folder;
          }
       }

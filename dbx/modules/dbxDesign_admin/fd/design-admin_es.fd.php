@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['list_title'] = 'Estudio de diseño';
 $messages['list_subtitle'] = 'Personalizar, crear y editar diseños con IA';
 $messages['action_ai_design'] = 'Diseño con IA';

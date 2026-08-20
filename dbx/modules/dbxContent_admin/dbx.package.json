@@ -1,0 +1,40 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxContent_admin",
+    "type": "module",
+    "name": "dbxContent_admin",
+    "title": "dbxContent_admin",
+    "description": "Visuelle CMS-Administration für Seitenbaum, Inhalte, Medien und Veröffentlichung.",
+    "descriptions": {
+        "de": "Visuelle CMS-Administration für Seitenbaum, Inhalte, Medien und Veröffentlichung.",
+        "en": "Visual CMS administration for page trees, content, media and publishing.",
+        "es": "Administración visual del CMS para páginas, contenidos, medios y publicación."
+    },
+    "icon": "bi-pencil-square",
+    "image": "dbx/modules/dbxContent_admin/tpl/img/dbxContent_admin.png",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": {
+            "dbxapp/module/dbxContent": "^4.4.0"
+        }
+    },
+    "permissions": [
+        "administration",
+        "database",
+        "media"
+    ],
+    "migrations": [],
+    "files": []
+}

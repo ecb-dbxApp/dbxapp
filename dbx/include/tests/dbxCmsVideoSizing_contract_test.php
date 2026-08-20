@@ -9,11 +9,11 @@ $assert = static function(bool $condition, string $message) use (&$failures): vo
 };
 
 require_once $base . '/modules/dbxContent/include/dbxContentRenderer.class.php';
-$rendererClass = new ReflectionClass(\dbx\dbxContent\dbxContentRenderer::class);
-$renderer = $rendererClass->newInstanceWithoutConstructor();
-$videoOptions = $rendererClass->getMethod('inline_video_options_from_html');
-$videoOptions->setAccessible(true);
-$options = (array)$videoOptions->invoke(
+$renderer_class = new ReflectionClass(\dbx\dbxContent\dbxContentRenderer::class);
+$renderer = $renderer_class->newInstanceWithoutConstructor();
+$video_options = $renderer_class->getMethod('inline_video_options_from_html');
+$video_options->setAccessible(true);
+$options = (array)$video_options->invoke(
     $renderer,
     ' class="dbx-cms-inline-video-block" data-cms-video-width="1024" data-cms-video-height="800" data-cms-video-align="center"',
     ''
@@ -30,79 +30,80 @@ $assert(
         && str_contains((string)($options['style'] ?? ''), 'margin-right: auto'),
     'The frontend renderer does not preserve horizontal video centering.'
 );
-$videoPlayer = $rendererClass->getMethod('render_inline_video_player');
-$videoPlayer->setAccessible(true);
-$playerHtml = (string)$videoPlayer->invoke(
+$video_player = $renderer_class->getMethod('render_inline_video_player');
+$video_player->setAccessible(true);
+$player_html = (string)$video_player->invoke(
     $renderer,
     array('id' => 999, 'mime' => 'video/mp4', 'file_name' => 'test.mp4', 'title' => 'Testvideo'),
     ' data-cms-video-width="640px" data-cms-video-align="center"',
     ''
 );
 $assert(
-    str_contains($playerHtml, 'data-video-align="center"')
-        && str_contains($playerHtml, 'margin-left: auto')
-        && str_contains($playerHtml, 'width: 640px'),
+    str_contains($player_html, 'data-video-align="center"')
+        && str_contains($player_html, 'margin-left: auto')
+        && str_contains($player_html, 'width: 640px'),
     'The rendered frontend player does not receive the centered video alignment.'
 );
 
-foreach (array('dbxapp', 'dbxdocs', 'steal') as $design) {
-    $baseCss = dbx_test_read_css($base . '/design/' . $design . '/css/base.css');
-    $contentCss = dbx_test_read_css($base . '/design/' . $design . '/css/c-content.css');
-    $cmsCss = dbx_test_read_css($base . '/design/' . $design . '/css/c-cms.css');
+foreach (array('dbxapp', 'steal') as $design) {
+    $base_css = dbx_test_read_css($base . '/design/' . $design . '/css/base.css');
+    $content_css = dbx_test_read_css($base . '/design/' . $design . '/css/c-content.css');
+    $cms_css = dbx_test_read_css($base . '/design/' . $design . '/css/c-cms.css');
     $assert(
-        str_contains($contentCss, '.ratio:has(> .dbx-content-inline-video[style*="width"])')
-            && str_contains($contentCss, '--bs-aspect-ratio: 0;')
-            && str_contains($contentCss, 'width: fit-content;'),
+        str_contains($content_css, '.ratio:has(> .dbx-content-inline-video[style*="width"])')
+            && str_contains($content_css, '--bs-aspect-ratio: 0;')
+            && str_contains($content_css, 'width: fit-content;'),
         'Custom frontend video sizes remain constrained by a ratio container in design ' . $design . '.'
     );
     $assert(
-        str_contains($cmsCss, '.ratio:has(> .dbx-cms-inline-video-block[style*="width"])')
-            && str_contains($cmsCss, 'resize: both;'),
+        str_contains($cms_css, '.ratio:has(> .dbx-cms-inline-video-block[style*="width"])')
+            && str_contains($cms_css, 'resize: both;'),
         'Custom CMS video sizes remain constrained by a ratio container in design ' . $design . '.'
     );
     $assert(
-        str_contains($contentCss, '.dbx-content-inline-video[data-video-align="center"]')
-            && str_contains($contentCss, '.ratio:has(> .dbx-content-inline-video[data-video-align="center"])')
-            && str_contains($cmsCss, '.dbx-cms-inline-video-block[data-cms-video-align="center"]')
-            && str_contains($cmsCss, '.ratio:has(> .dbx-cms-inline-video-block[data-cms-video-align="center"])'),
+        str_contains($content_css, '.dbx-content-inline-video[data-video-align="center"]')
+            && str_contains($content_css, '.ratio:has(> .dbx-content-inline-video[data-video-align="center"])')
+            && str_contains($cms_css, '.dbx-cms-inline-video-block[data-cms-video-align="center"]')
+            && str_contains($cms_css, '.ratio:has(> .dbx-cms-inline-video-block[data-cms-video-align="center"])'),
         'Centered videos are not aligned in the editor and frontend for design ' . $design . '.'
     );
     $assert(
-        str_contains($baseCss, '.ratio:has(> .dbx-content-inline-video[style*="width"])')
-            && str_contains($baseCss, '.dbx-content-inline-video[data-video-align="center"]')
-            && str_contains($baseCss, '.ratio:has(> .dbx-content-inline-video[data-video-align="center"])'),
+        str_contains($base_css, '.ratio:has(> .dbx-content-inline-video[style*="width"])')
+            && str_contains($base_css, '.dbx-content-inline-video[data-video-align="center"]')
+            && str_contains($base_css, '.ratio:has(> .dbx-content-inline-video[data-video-align="center"])'),
         'Critical centered-video layout is missing before async content CSS loads in design ' . $design . '.'
     );
     $assert(
-        !preg_match('/\.dbx-content-inline-video\s*\{[^}]*container-type:\s*size\s*;/s', $contentCss)
-            && !preg_match('/\.dbx-cms-inline-video-block\s*\{[^}]*container-type:\s*size\s*;/s', $cmsCss),
+        !preg_match('/\.dbx-content-inline-video\s*\{[^}]*container-type:\s*size\s*;/s', $content_css)
+            && !preg_match('/\.dbx-cms-inline-video-block\s*\{[^}]*container-type:\s*size\s*;/s', $cms_css),
         'Auto-height videos collapse because of two-axis size containment in design ' . $design . '.'
     );
     $assert(
-        str_contains($contentCss, '#dbxContent .dbx-content-inline-video[style*="height"] .dbx-content-video-player')
-            && str_contains($cmsCss, '#dbxContent .dbx-cms-inline-video-block[style*="height"] .dbx-cms-inline-video-thumb'),
+        str_contains($content_css, '#dbxContent .dbx-content-inline-video[style*="height"] .dbx-content-video-player')
+            && str_contains($cms_css, '#dbxContent .dbx-cms-inline-video-block[style*="height"] .dbx-cms-inline-video-thumb'),
         'Explicit video heights do not override the generic responsive media height in design ' . $design . '.'
     );
     $assert(
-        str_contains($contentCss, '@media (max-width: 575.98px)')
-            && str_contains($contentCss, '.dbx-content-inline-video[style*="height"]')
-            && str_contains($contentCss, 'height: auto !important;')
-            && str_contains($contentCss, 'object-fit: contain;')
-            && str_contains($baseCss, '@media (max-width: 575.98px)')
-            && str_contains($baseCss, '.dbx-content-inline-video[style*="height"]'),
+        str_contains($content_css, '@media (max-width: 575.98px)')
+            && str_contains($content_css, '.dbx-content-inline-video[style*="height"]')
+            && str_contains($content_css, 'height: auto !important;')
+            && str_contains($content_css, 'object-fit: contain;')
+            && str_contains($base_css, '@media (max-width: 575.98px)')
+            && str_contains($base_css, '.dbx-content-inline-video[style*="height"]'),
         'Fixed CMS video heights are not converted to a responsive mobile player in design ' . $design . '.'
     );
 }
 
-$cmsJs = (string)file_get_contents($base . '/js/lib/cms.js');
+$cms_js = (string)file_get_contents($base . '/modules/dbxContent_admin/js/cms.js')
+    . (string)file_get_contents($base . '/modules/dbxContent_admin/js/cms-editor.js');
 $assert(
-    str_contains($cmsJs, 'let width = wrapperWidth || size.width;')
-        && str_contains($cmsJs, 'let height = wrapperHeight || size.height;'),
+    str_contains($cms_js, 'let width = wrapperWidth || size.width;')
+        && str_contains($cms_js, 'let height = wrapperHeight || size.height;'),
     'The CMS size synchronizer does not treat the saved video wrapper size as authoritative.'
 );
 $assert(
-    str_contains($cmsJs, 'data-cms-video-options-align')
-        && str_contains($cmsJs, 'applyInlineVideoAlignment(media, align);'),
+    str_contains($cms_js, 'data-cms-video-options-align')
+        && str_contains($cms_js, 'applyInlineVideoAlignment(media, align);'),
     'The CMS video dialog does not expose and apply horizontal alignment.'
 );
 

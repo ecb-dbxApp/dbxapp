@@ -13,6 +13,11 @@ class dbxHelp {
      $action =dbx()->get_modul_var('dbx_run1','dbx');
      $work   =dbx()->get_modul_var('dbx_run2','show');
 
+     if ($action === 'context' || $action === 'help') {
+        $obj = dbx()->get_include_obj('dbxModuleHelpWindow', 'dbxHelp');
+        return is_object($obj) ? (string)$obj->run() : '';
+     }
+
      switch ($work) {
        case 'show':
            dbx()->set_system_var('dbx_page','_window');

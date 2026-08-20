@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['dd_not_found'] = 'No se encontró el DD: {dd}.';
 $messages['position_not_found'] = 'No se encontró la posición del campo: {position}.';
 $messages['edit_new'] = 'Editar un campo nuevo para el DD {dd}.';

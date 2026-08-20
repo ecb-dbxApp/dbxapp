@@ -38,7 +38,7 @@ trait dbxKiCmsCoreServiceTrait {
 
          if ($action === 'bundle.describe') {
             $bundle = dbx()->get_include_obj('dbxKiBundleService', 'dbxKi');
-            $this->respond($bundle->describeBundle());
+            $this->respond($bundle->describe_bundle());
          }
 
          if ($action === 'system.health') {
@@ -70,7 +70,7 @@ trait dbxKiCmsCoreServiceTrait {
          }
 
          $plan = $this->build_plan($action, $params);
-         $planId = $this->plan_id($action, $plan);
+         $plan_id = $this->plan_id($action, $plan);
 
          if ($mode === 'preview') {
             $this->respond(array(
@@ -79,13 +79,13 @@ trait dbxKiCmsCoreServiceTrait {
                'action' => $action,
                'mode' => 'preview',
                'will_execute' => false,
-               'plan_id' => $planId,
+               'plan_id' => $plan_id,
                'plan' => $plan,
                'execute_request' => array(
                   'action' => $action,
                   'mode' => 'execute',
                   'token' => dbx()->action_token(self::TOKEN_SCOPE),
-                  'expected_plan_id' => $planId,
+                  'expected_plan_id' => $plan_id,
                   'confirm' => (bool)($catalog[$action]['destructive'] ?? false),
                   'params' => $params,
                ),
@@ -94,10 +94,10 @@ trait dbxKiCmsCoreServiceTrait {
 
          $this->authorize_execute($request, (bool)($catalog[$action]['destructive'] ?? false));
          $expected = trim((string)($request['expected_plan_id'] ?? ''));
-         if ($expected !== '' && !hash_equals($planId, $expected)) {
+         if ($expected !== '' && !hash_equals($plan_id, $expected)) {
             $this->fail('plan_changed', 'Der aktuelle Plan stimmt nicht mehr mit expected_plan_id überein.', array(
                'expected_plan_id' => $expected,
-               'current_plan_id' => $planId,
+               'current_plan_id' => $plan_id,
                'current_plan' => $plan,
             ));
          }
@@ -108,7 +108,7 @@ trait dbxKiCmsCoreServiceTrait {
             'dbxKi',
             $action,
             'KI-CMS-Aktion ausgeführt',
-            'uid=' . (int)dbx()->user() . ' plan=' . $planId
+            'uid=' . (int)dbx()->user() . ' plan=' . $plan_id
          );
 
          $this->respond(array(
@@ -117,7 +117,7 @@ trait dbxKiCmsCoreServiceTrait {
             'action' => $action,
             'mode' => 'execute',
             'executed' => true,
-            'plan_id' => $planId,
+            'plan_id' => $plan_id,
             'result' => $result,
          ));
       } catch (\Throwable $e) {
@@ -289,7 +289,7 @@ trait dbxKiCmsCoreServiceTrait {
       if (!is_object($this->db)) {
          throw new \RuntimeException('dbxDB ist nicht verfügbar.');
       }
-      dbxContentLngSync::ensureSchema($this->db);
+      dbxContentLngSync::ensure_schema($this->db);
    }
 
    private function language($value): string {
@@ -297,7 +297,7 @@ trait dbxKiCmsCoreServiceTrait {
       if ($lng === '') {
          $lng = dbxContentLng::current();
       }
-      if (!in_array($lng, dbxContentLngSync::accessibleLngs(), true)) {
+      if (!in_array($lng, dbxContentLngSync::accessible_lngs(), true)) {
          throw new \InvalidArgumentException('Nicht unterstützte Sprache: ' . $lng);
       }
       return $lng;
@@ -316,8 +316,7 @@ trait dbxKiCmsCoreServiceTrait {
    }
 
    private function bool_value($value): bool {
-      if (is_bool($value)) return $value;
-      return in_array(strtolower(trim((string)$value)), array('1', 'true', 'yes', 'ja', 'on'), true);
+      return dbxKiValue::bool($value);
    }
 
    private function clean($value, int $max = 0): string {

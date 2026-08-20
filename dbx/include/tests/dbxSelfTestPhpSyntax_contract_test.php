@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-$runnerFile = dirname(__DIR__, 2) . '/modules/dbxSelfTest/include/dbxSelfTestRunner.class.php';
-$source = (string) file_get_contents($runnerFile);
+$runner_file = dirname(__DIR__, 2) . '/modules/dbxSelfTest/include/dbxSelfTestRunner.class.php';
+$source = (string) file_get_contents($runner_file);
 $failures = array();
 $assert = static function (bool $condition, string $message) use (&$failures): void {
     if (!$condition) $failures[] = $message;
@@ -13,7 +13,7 @@ $assert(
     'Der Gesamtsyntaxtest verwendet nicht den eingebauten PHP-Parser.'
 );
 $assert(
-    !str_contains($source, "runProcess(array($php, '-n', '-l', $file)"),
+    !str_contains($source, 'runProcess(array($php, \'-n\', \'-l\', $file)'),
     'Der Gesamtsyntaxtest startet weiterhin fuer jede Datei einen PHP-Prozess.'
 );
 $assert(

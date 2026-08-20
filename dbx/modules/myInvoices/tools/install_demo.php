@@ -32,12 +32,12 @@ dbx()->set_system_var('dbx_activ_action', 'install');
 dbx()->set_modul_var('dbx_modul', 'myInvoices');
 dbx()->set_modul_var('dbx_run1', 'install');
 
-$schemaOnly = in_array('--schema-only', $argv, true);
+$schema_only = in_array('--schema-only', $argv, true);
 $fixtures = dbx()->get_include_obj(
     'myInvoicesFixtures',
     'myInvoices'
 );
-$result = $fixtures->install(!$schemaOnly);
+$result = $fixtures->install(!$schema_only);
 
 echo json_encode(
     $result,

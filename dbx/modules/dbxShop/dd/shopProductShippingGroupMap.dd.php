@@ -15,12 +15,12 @@ $table['create']='admin';
 $table['update']='admin';
 $table['delete']='admin';
 
-$addField=function($name,$type,$index,$length,$default,$label,$rules,$tpl) use (&$fields){
+$add_field=function($name,$type,$index,$length,$default,$label,$rules,$tpl) use (&$fields){
    $field=array('name'=>$name,'type'=>$type,'index'=>$index,'length'=>$length,'default'=>$default,'label'=>$label,'rules'=>$rules,'tooltip'=>'','errormsg'=>'','placeholder'=>'','convert'=>'','protect'=>'0','group'=>'','mask'=>'','data'=>'','options'=>'','tpl'=>$tpl);
    $fields[]=$field;
 };
-$addField('id','int','PRI','11','','ID','int','hidden');
-$addField('product_id','int','MUL','11','0','Artikel','int','text-label');
-$addField('shipping_group_id','int','MUL','11','0','Versandgruppe','int','text-label');
-$addField('is_primary','int','','1','0','Primaer','int','checkbox-label');
+$add_field('id','int','PRI','11','','ID','int','hidden');
+$add_field('product_id','int','MUL','11','0','Artikel','int','text-label');
+$add_field('shipping_group_id','int','MUL','11','0','Versandgruppe','int','text-label');
+$add_field('is_primary','int','','1','0','Primaer','int','checkbox-label');
 ?>

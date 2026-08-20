@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['frame_title'] = 'Kontaktanfragen und Tickets';
 $messages['frame_subtitle'] = 'Anfragen, Antworten, Status und vollständiger Verlauf';
 $messages['install'] = 'Installation';

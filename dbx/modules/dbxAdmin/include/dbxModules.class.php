@@ -8,22 +8,22 @@ require_once __DIR__ . '/dbxReport_Modules.class.php';
 Class dbxModules {
 
    /** @var \dbxForm|null Stabiler sprachabhängiger Textkontext der Modulverwaltung. */
-   private $moduleTexts;
+   private $module_texts;
 
    private function texts() {
-      if ($this->moduleTexts) {
-         return $this->moduleTexts;
+      if ($this->module_texts) {
+         return $this->module_texts;
       }
 
       dbx()->get_system_obj('dbxForm', 'use');
       $texts = new \dbxForm();
       $texts->init('module-admin-texts');
-      $texts->_fd = 'dbxAdmin|module-admin';
+      $texts->set_field_definition('dbxAdmin|module-admin');
       $texts->load_fd_messages();
       $texts->set_form_help_enabled(false);
-      $this->moduleTexts = $texts;
+      $this->module_texts = $texts;
 
-      return $this->moduleTexts;
+      return $this->module_texts;
    }
 
    private function registry(): dbxModuleRegistry {
@@ -34,7 +34,7 @@ Class dbxModules {
       return $registry;
    }
 
-   private function localizedGroupOptions(array $options): array {
+   private function localized_group_options(array $options): array {
       $texts = $this->texts();
       $builtins = array(
          'admin' => 'group_admin',
@@ -42,9 +42,9 @@ Class dbxModules {
          'member' => 'group_member',
          '*' => 'group_all',
       );
-      foreach ($builtins as $key => $messageKey) {
+      foreach ($builtins as $key => $message_key) {
          if (array_key_exists($key, $options)) {
-            $options[$key] = $texts->get_fd_message($messageKey);
+            $options[$key] = $texts->get_fd_message($message_key);
          }
       }
       return $options;
@@ -56,7 +56,7 @@ Class dbxModules {
     * Die JavaScript-Komponente erhält damit dieselben Texte wie PHP und greift
     * nach AJAX-Aktionen nicht auf fest verdrahtete deutsche Rückfalltexte zurück.
     */
-   private function clientMessagesJson(): string {
+   private function client_messages_json(): string {
       $texts = $this->texts();
       $keys = array(
          'active',
@@ -91,8 +91,8 @@ Class dbxModules {
       return dbx()->esc(is_string($json) ? $json : '{}');
    }
 
-   private function adminHelp(): dbxAdminHelp {
-      return dbx()->get_include_obj('dbxAdminHelp');
+   private function module_help(): \dbx\dbxHelp\dbxModuleHelp {
+      return dbx()->get_include_obj('dbxModuleHelp', 'dbxHelp');
    }
 
    private function tpl() {
@@ -107,7 +107,7 @@ Class dbxModules {
       $xmodul = (string)dbx()->get_modul_var('xmodul');
       $texts = $this->texts();
       if ($xmodul === '') {
-         return $this->tpl()->get_tpl('dbx', 'alert-warning', array('msg' => $texts->get_fd_message('no_module')));
+         return $this->tpl()->get_tpl('dbx|alert-warning', array('msg' => $texts->get_fd_message('no_module')));
       }
 
       $data = dbx()->get_cfg($xmodul);
@@ -115,79 +115,79 @@ Class dbxModules {
          $data = array();
       }
 
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-modul-access');
-      $oForm->_fd = 'dbxAdmin|module-admin';
-      $oForm->load_fd_messages();
-      $oForm->add_rep('bar_title', $texts->format_fd_message('access_title', array('module' => dbx()->esc($xmodul))));
-      $oForm->add_obj(
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-modul-access', 'form-modul-access');
+      $o_form->set_field_definition('dbxAdmin|module-admin');
+      $o_form->load_fd_messages();
+      $o_form->add_rep('bar_title', $texts->format_fd_message('access_title', array('module' => dbx()->esc($xmodul))));
+      $o_form->add_obj(
          'bar_actions',
          'obj-value',
          '<button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-save"></i> '
             . dbx()->esc($texts->get_fd_message('action_save')) . '</button>'
       );
-      $oForm->_data = $data;
-      $oForm->_msg_info = $texts->get_fd_message('access_info');
+      $o_form->set_data($data);
+      $o_form->_msg_info = $texts->get_fd_message('access_info');
 
-      $oForm->add_obj('xmodul', $xmodul);
-      $oForm->add_fld(
+      $o_form->add_obj('xmodul', $xmodul);
+      $o_form->add_fld(
          'groups',
          'multi-select',
-         options: $this->localizedGroupOptions($this->registry()->groupOptions()),
+         options: $this->localized_group_options($this->registry()->group_options()),
          rules: 'array|parameter',
          label: $texts->get_fd_message('label_groups'),
          errormsg: $texts->get_fd_message('invalid_groups')
       );
 
-      $this->adminHelp()->attachForm($oForm, 'modules_access');
+      $this->module_help()->attach_form($o_form, 'modules', 'modul_access', 'dbxAdmin');
 
-      if ($oForm->submit()) {
-         if (!$oForm->errors()) {
+      if ($o_form->submit()) {
+         if (!$o_form->errors()) {
             $config = dbx()->get_cfg($xmodul);
             if (!is_array($config)) {
                $config = array();
             }
-            if (isset($oForm->_post['groups'])) {
-               $groups = $oForm->_post['groups'];
+            if ($o_form->has_post_value('groups')) {
+               $groups = $o_form->post_value('groups');
                $config['groups'] = is_array($groups) ? implode(',', $groups) : (string)$groups;
             }
             $ok = $this->save_config_modul($xmodul, $config);
             if ($ok) {
-               $oForm->_msg_success = $texts->get_fd_message('access_saved');
+               $o_form->_msg_success = $texts->get_fd_message('access_saved');
             } else {
-               $oForm->_msg_error = $texts->get_fd_message('access_save_error');
+               $o_form->_msg_error = $texts->get_fd_message('access_save_error');
             }
          } else {
-            $oForm->_msg_error = $texts->get_fd_message('check_input');
+            $o_form->_msg_error = $texts->get_fd_message('check_input');
          }
       }
 
-      $content = $oForm->run();
+      $content = $o_form->run();
       return str_replace('{xmodul}', $xmodul, $content);
    }
 
    private function modul_help() {
       $xmodul = trim((string)dbx()->get_modul_var('xmodul'));
       if ($xmodul === '') {
-         return $this->tpl()->get_tpl('dbx', 'alert-warning', array('msg' => $this->texts()->get_fd_message('no_module')));
+         return $this->tpl()->get_tpl('dbx|alert-warning', array('msg' => $this->texts()->get_fd_message('no_module')));
       }
 
       $raw = $this->registry()->inspect($xmodul);
       $title = (string)($raw['title'] ?? $xmodul);
-      $moduleHelpHtml = $this->registry()->renderModuleHelp($xmodul, array(
+      $module_help_html = $this->registry()->render_module_help($xmodul, array(
          'title'  => $title,
          'xmodul' => $xmodul,
       ));
 
       return $this->tpl()->get_tpl('dbxAdmin|module-help-detail', array(
          'title'            => $title,
-         'module_help_html' => $moduleHelpHtml,
+         'module_help_html' => $module_help_html,
       ));
    }
 
 
 
-   private function prepareModuleRecord(array $record): array {
+   private function prepare_module_record(array $record): array {
       return $record;
    }
 
@@ -202,45 +202,45 @@ Class dbxModules {
    private function modul_images() {
       $xmodul = (string)dbx()->get_modul_var('xmodul');
       if ($xmodul === '') {
-         return $this->tpl()->get_tpl('dbx', 'alert-warning', array('msg' => $this->texts()->get_fd_message('no_module')));
+         return $this->tpl()->get_tpl('dbx|alert-warning', array('msg' => $this->texts()->get_fd_message('no_module')));
       }
 
       $images = $this->images();
-      $items = $images->imageItems($xmodul);
+      $items = $images->image_items($xmodul);
       $info = $this->registry()->inspect($xmodul);
       $report = new dbxReport_Modules();
-      $galleryHtml = $report->moduleImagesGalleryHtml(array(
+      $gallery_html = $report->module_images_gallery_html(array(
          'xmodul'          => $xmodul,
          'image_items'     => $items,
          'default_run1'    => (string)($info['default_run1'] ?? 'run'),
          'default_run2'    => (string)($info['default_run2'] ?? ''),
          'placeholder_url' => (string)($info['placeholder_url'] ?? ''),
       ));
-      $previewHtml = $report->moduleImagesPreviewHtml(array(
+      $preview_html = $report->module_images_preview_html(array(
          'xmodul'          => $xmodul,
          'image_items'     => $items,
          'default_run1'    => (string)($info['default_run1'] ?? 'run'),
          'default_run2'    => (string)($info['default_run2'] ?? ''),
          'placeholder_url' => (string)($info['placeholder_url'] ?? ''),
       ));
-      $targetHtml = $report->moduleImagesTargetHtml($info);
+      $target_html = $report->module_images_target_html($info);
 
       $data = array(
          'xmodul'              => dbx()->esc($xmodul),
-         'gallery_html'        => $galleryHtml,
-         'images_preview_html' => $previewHtml,
-         'images_target_html'  => $targetHtml,
+         'gallery_html'        => $gallery_html,
+         'images_preview_html' => $preview_html,
+         'images_target_html'  => $target_html,
          'uses_run2'           => (string)($info['uses_run2'] ?? '0'),
          'placeholder_url'     => dbx()->esc((string)($info['placeholder_url'] ?? '')),
          'placeholder_alt'     => dbx()->esc($this->texts()->get_fd_message('placeholder_alt')),
          'image_count'         => count($items),
-         'module_messages_json'=> $this->clientMessagesJson(),
-         'media_api_url'       => dbx()->esc($this->images()->mediaApiUrl() . '&images=1&media_type=image'),
+         'module_messages_json'=> $this->client_messages_json(),
+         'media_api_url'       => dbx()->esc($this->images()->media_api_url() . '&images=1&media_type=image'),
          'images_add_url'      => dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_add'),
          'images_upload_url'   => dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_upload'),
          'images_remove_url'   => dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_remove'),
-         'media_folders_url'   => dbx()->esc($this->images()->mediaFoldersApiUrl()),
-         'media_browser_forms' => dbx()->get_include_obj('dbxContentMediaForms', 'dbxContent_admin')->renderTemplates(
+         'media_folders_url'   => dbx()->esc($this->images()->media_folders_api_url()),
+         'media_browser_forms' => dbx()->get_include_obj('dbxContentMediaForms', 'dbxContent_admin')->render_templates(
             '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_upload',
             'modules-media-upload'
          ),
@@ -251,20 +251,20 @@ Class dbxModules {
 
    private function modul_image_serve() {
       $file = trim((string)dbx()->get_modul_var('file', '', '*'));
-      $this->images()->serveFile($file);
+      $this->images()->serve_file($file);
    }
 
    private function modul_images_media_json() {
       $xmodul = trim((string)dbx()->get_modul_var('xmodul', ''));
       dbx()->json_response(array(
          'ok'   => 1,
-         'rows' => $this->images()->mediaBrowserRows($xmodul),
+         'rows' => $this->images()->media_browser_rows($xmodul),
       ));
    }
 
    private function modul_images_media_folders_json() {
       $folders = array();
-      $dir = $this->images()->absDir();
+      $dir = $this->images()->abs_dir();
       if (is_dir($dir) && is_readable($dir)) {
          $folders[] = 'mod';
       }
@@ -284,27 +284,27 @@ Class dbxModules {
       dbx()->json_response(array(
          'ok'    => 1,
          'modul' => $xmodul,
-         'items' => $this->images()->imageItems($xmodul),
+         'items' => $this->images()->image_items($xmodul),
       ));
    }
 
    private function modul_images_save_json() {
-      $payload = $this->readJsonBody();
+      $payload = $this->read_json_body();
       $xmodul = (string)($payload['xmodul'] ?? dbx()->get_modul_var('xmodul'));
       $files = $payload['files'] ?? array();
       if ($xmodul === '' || !is_array($files)) {
          dbx()->json_response(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('invalid_data')));
       }
-      $ok = $this->images()->saveList($xmodul, $files);
+      $ok = $this->images()->save_list($xmodul, $files);
       dbx()->json_response(array(
          'ok'    => $ok ? 1 : 0,
          'modul' => $xmodul,
-         'items' => $this->images()->imageItems($xmodul),
+         'items' => $this->images()->image_items($xmodul),
       ));
    }
 
    private function modul_images_add_json() {
-      $payload = $this->readJsonBody();
+      $payload = $this->read_json_body();
       $xmodul = (string)($payload['xmodul'] ?? dbx()->get_modul_var('xmodul'));
       if ($xmodul === '') {
          dbx()->json_response(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('no_module')));
@@ -317,11 +317,11 @@ Class dbxModules {
       }
 
       $filename = null;
-      $mediaId = (int)($payload['media_id'] ?? 0);
-      $filePath = trim((string)($payload['file_path'] ?? ''));
+      $media_id = (int)($payload['media_id'] ?? 0);
+      $file_path = trim((string)($payload['file_path'] ?? ''));
 
-      if ($mediaId > 0 || $filePath !== '') {
-         $filename = $this->images()->importForModul($xmodul, $mediaId, $filePath, $run1, $run2);
+      if ($media_id > 0 || $file_path !== '') {
+         $filename = $this->images()->import_for_modul($xmodul, $media_id, $file_path, $run1, $run2);
       }
 
       if ($filename === null || $filename === '') {
@@ -332,24 +332,24 @@ Class dbxModules {
          'ok'       => 1,
          'modul'    => $xmodul,
          'filename' => $filename,
-         'items'    => $this->images()->imageItems($xmodul),
+         'items'    => $this->images()->image_items($xmodul),
       ));
    }
 
    private function modul_symbol_add_json() {
-      $payload = $this->readJsonBody();
+      $payload = $this->read_json_body();
       $xmodul = (string)($payload['xmodul'] ?? dbx()->get_modul_var('xmodul'));
       if ($xmodul === '') {
          dbx()->json_response(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('no_module')));
       }
 
-      $mediaId = (int)($payload['media_id'] ?? 0);
-      $filePath = trim((string)($payload['file_path'] ?? ''));
-      if ($mediaId <= 0 && $filePath === '') {
+      $media_id = (int)($payload['media_id'] ?? 0);
+      $file_path = trim((string)($payload['file_path'] ?? ''));
+      if ($media_id <= 0 && $file_path === '') {
          dbx()->json_response(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('symbol_select_required')));
       }
 
-      $symbol = $this->images()->importSymbolForModul($xmodul, $mediaId, $filePath);
+      $symbol = $this->images()->import_symbol_for_modul($xmodul, $media_id, $file_path);
       if (!is_array($symbol) || empty($symbol['url'])) {
          dbx()->json_response(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('symbol_import_error')));
       }
@@ -362,17 +362,17 @@ Class dbxModules {
    }
 
    private function modul_images_upload_json() {
-      $formState = dbx()->get_include_obj('dbxContentMediaForms', 'dbxContent_admin')->verify(
+      $form_state = dbx()->get_include_obj('dbxContentMediaForms', 'dbxContent_admin')->verify(
          'upload',
          '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_upload',
          'modules-media-upload'
       );
-      $security = is_array($formState['security'] ?? null) ? $formState['security'] : array();
+      $security = is_array($form_state['security'] ?? null) ? $form_state['security'] : array();
       $reply = static function(array $data) use ($security): void {
          $data['form_security'] = $security;
          dbx()->json_response($data);
       };
-      if (empty($formState['submitted'])) {
+      if (empty($form_state['submitted'])) {
          $reply(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('form_token_invalid')));
       }
 
@@ -391,7 +391,7 @@ Class dbxModules {
          $reply(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('file_missing')));
       }
 
-      $filename = $this->images()->saveFromUpload($xmodul, $run1, $run2, $file);
+      $filename = $this->images()->save_from_upload($xmodul, $run1, $run2, $file);
       if ($filename === null || $filename === '') {
          $reply(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('upload_error')));
       }
@@ -400,29 +400,29 @@ Class dbxModules {
          'ok'       => 1,
          'modul'    => $xmodul,
          'filename' => $filename,
-         'items'    => $this->images()->imageItems($xmodul),
+         'items'    => $this->images()->image_items($xmodul),
       ));
    }
 
    private function modul_images_remove_json() {
-      $payload = $this->readJsonBody();
+      $payload = $this->read_json_body();
       $xmodul = (string)($payload['xmodul'] ?? dbx()->get_modul_var('xmodul'));
       $file = (string)($payload['file'] ?? '');
-      $deleteFile = !array_key_exists('delete_file', $payload) || !empty($payload['delete_file']);
+      $delete_file = !array_key_exists('delete_file', $payload) || !empty($payload['delete_file']);
       if ($xmodul === '' || $file === '') {
          dbx()->json_response(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('invalid_data')));
       }
 
-      $ok = $this->images()->removeFromList($xmodul, $file, $deleteFile);
+      $ok = $this->images()->remove_from_list($xmodul, $file, $delete_file);
       dbx()->json_response(array(
          'ok'    => $ok ? 1 : 0,
          'modul' => $xmodul,
-         'items' => $this->images()->imageItems($xmodul),
+         'items' => $this->images()->image_items($xmodul),
       ));
    }
 
    private function modul_access_save_json() {
-      $payload = $this->readJsonBody();
+      $payload = $this->read_json_body();
       $xmodul = trim((string)($payload['xmodul'] ?? dbx()->get_modul_var('xmodul')));
       if ($xmodul === '') {
          dbx()->json_response(array('ok' => 0, 'msg' => $this->texts()->get_fd_message('no_module')));
@@ -436,7 +436,7 @@ Class dbxModules {
          $groups = array();
       }
 
-      $allowed = array_keys($this->registry()->groupOptions());
+      $allowed = array_keys($this->registry()->group_options());
       $clean = array();
       foreach ($groups as $group) {
          $group = trim((string)$group);
@@ -464,7 +464,7 @@ Class dbxModules {
 
    private function modul_active_toggle_json() {
       $texts = $this->texts();
-      $payload = $this->readJsonBody();
+      $payload = $this->read_json_body();
       $xmodul = trim((string)($payload['xmodul'] ?? dbx()->get_modul_var('xmodul')));
       if ($xmodul === '' || !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $xmodul)) {
          dbx()->json_response(array('ok' => 0, 'msg' => $texts->get_fd_message('no_module')));
@@ -502,24 +502,19 @@ Class dbxModules {
 
    private function modul_delete_json() {
       $texts = $this->texts();
-      $payload = $this->readJsonBody();
+      $payload = $this->read_json_body();
       $xmodul = trim((string)($payload['xmodul'] ?? dbx()->get_modul_var('xmodul')));
       if ($xmodul === '' || !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $xmodul)) {
          dbx()->json_response(array('ok' => 0, 'msg' => $texts->get_fd_message('no_module')));
       }
-      if (!$this->registry()->canDeleteModule($xmodul)) {
+      if (!$this->registry()->can_delete_module($xmodul)) {
          dbx()->json_response(array('ok' => 0, 'msg' => $texts->get_fd_message('delete_not_allowed')));
       }
 
       $dir = dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/' . $xmodul);
-      $ok = $this->deleteModuleDirectory($dir);
+      $ok = $this->delete_module_directory($dir);
       if ($ok) {
-         if (isset($_SESSION['dbx']['config'][$xmodul])) {
-            unset($_SESSION['dbx']['config'][$xmodul]);
-         }
-         if (isset($_SESSION['dbx']['config_file'][$xmodul])) {
-            unset($_SESSION['dbx']['config_file'][$xmodul]);
-         }
+         dbx()->get_system_obj('dbxConfigStore')->forget($xmodul);
       }
 
       dbx()->json_response(array(
@@ -529,7 +524,7 @@ Class dbxModules {
       ));
    }
 
-   private function deleteModuleDirectory(string $dir): bool {
+   private function delete_module_directory(string $dir): bool {
       $dir = rtrim(dbx()->os_path($dir), '/\\');
       if ($dir === '' || !is_dir($dir)) {
          return false;
@@ -554,7 +549,7 @@ Class dbxModules {
       return @rmdir($dir);
    }
 
-   private function readJsonBody(): array {
+   private function read_json_body(): array {
       return dbx()->get_json_request();
    }
 
@@ -563,7 +558,7 @@ Class dbxModules {
       $texts = $this->texts();
 
       if ($xmodul === '') {
-         return $this->tpl()->get_tpl('dbx', 'alert-warning', array('msg' => $texts->get_fd_message('no_module')));
+         return $this->tpl()->get_tpl('dbx|alert-warning', array('msg' => $texts->get_fd_message('no_module')));
       }
 
       $path = dbx()->os_path(dbx()->get_base_dir() . "dbx/modules/$xmodul/tpl/img/");
@@ -577,134 +572,139 @@ Class dbxModules {
          'avatar_upload' => $url_img_ext,
       );
 
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oForm->init('dbxModules_avatar', 'form-avatar');
-      $oForm->_fd = 'dbxAdmin|module-admin';
-      $oForm->load_fd_messages();
-      $oForm->_data = $data;
-      $oForm->_msg_info = $texts->get_fd_message('avatar_info');
-      $oForm->add_rep('avatar_upload_action', $texts->get_fd_message('avatar_upload_action'));
-      $oForm->add_js_call('uploader_img', 'upload');
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_form->init('dbxModules_avatar', 'form-avatar');
+      $o_form->set_field_definition('dbxAdmin|module-admin');
+      $o_form->load_fd_messages();
+      $o_form->set_data($data);
+      $o_form->_msg_info = $texts->get_fd_message('avatar_info');
+      $o_form->add_rep('avatar_upload_action', $texts->get_fd_message('avatar_upload_action'));
+      $o_form->add_js_call('uploader_img', 'upload');
 
       if (!empty($_FILES)) {
-         $oUpload = dbx()->get_system_obj('dbxUpload');
-         $oUpload->upload($_FILES['upload_file']);
-         $oUpload->allowed = array('image/*');
-         $oUpload->file_new_name_body = 'modul';
-         $oUpload->image_convert = 'gif';
-         $oUpload->file_overwrite = true;
-         $oUpload->image_resize = true;
-         $oUpload->image_x = 200;
-         $oUpload->image_y = 200;
-         $oUpload->process($path);
-         if ($oUpload->processed) {
-            $oUpload->clean();
-            $oForm->_data['avatar_upload'] = $url . $oUpload->file_dst_name;
-            $oForm->_msg_success = $texts->get_fd_message('avatar_upload_success');
+         $o_upload = dbx()->get_system_obj('dbxUpload');
+         $o_upload->upload($_FILES['upload_file']);
+         $o_upload->allowed = array('image/*');
+         $o_upload->file_new_name_body = 'modul';
+         $o_upload->image_convert = 'gif';
+         $o_upload->file_overwrite = true;
+         $o_upload->image_resize = true;
+         $o_upload->image_x = 200;
+         $o_upload->image_y = 200;
+         $o_upload->process($path);
+         if ($o_upload->processed) {
+            $o_upload->clean();
+            $o_form->set_data_value('avatar_upload', $url . $o_upload->file_dst_name);
+            $o_form->_msg_success = $texts->get_fd_message('avatar_upload_success');
          } else {
-            $oForm->set_msg_error($texts->get_fd_message('avatar_upload_error'));
+            $o_form->set_msg_error($texts->get_fd_message('avatar_upload_error'));
          }
       }
 
-      $oForm->add_fld(
+      $o_form->add_fld(
          'avatar_upload',
          'avatar_upload',
          rules: 'alphanum',
          label: $texts->get_fd_message('avatar_label'),
          data: 'msg=' . $texts->get_fd_message('avatar_help')
       );
-      $content = $oForm->run();
+      $content = $o_form->run();
       return str_replace('{xmodul}', $xmodul, $content);
    }
 
    Private function report_modules() {
       $texts = $this->texts();
-      $allModules = $this->registry()->inspectAll();
-      $moduleOptions = array('0' => $texts->get_fd_message('all_modules'));
-      foreach ($allModules as $module) {
+      $all_modules = $this->registry()->inspect_all();
+      $module_options = array('0' => $texts->get_fd_message('all_modules'));
+      foreach ($all_modules as $module) {
          $name = (string)($module['xmodul'] ?? '');
          if ($name !== '') {
-            $moduleOptions[$name] = $name;
+            $module_options[$name] = $name;
          }
       }
 
-      $activeCount = 0;
-      foreach ($allModules as $module) {
+      $active_count = 0;
+      foreach ($all_modules as $module) {
          if ((string)($module['active'] ?? '1') === '1') {
-            $activeCount++;
+            $active_count++;
          }
       }
 
-      $oReport = new dbxReport_Modules();
-      $oReport->init('dbxModules', 'report-modules');
-      $oReport->_fd = 'dbxAdmin|module-admin';
-      $oReport->load_fd_messages();
-      $oReport->set_form_help_enabled(false);
-      $oReport->_action = '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_list';
-      $oReport->_pages = true;
-      $oReport->_rrows = 20;
-      $oReport->_but_pagination = 7;
-      $oReport->_fld_id = 'rid';
-      $oReport->_create_row_select = true;
-      $oReport->_create_sel_flds = false;
-      $oReport->_data = array(
+      $o_report = new dbxReport_Modules();
+      $o_report->init('dbxModules', 'report-modules');
+      $o_report->set_field_definition('dbxAdmin|module-admin');
+      $o_report->load_fd_messages();
+      $o_report->set_form_help_enabled(false);
+      $o_report->set_action('?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_list');
+      $o_report->_pages = true;
+      $o_report->_rrows = 20;
+      $o_report->_but_pagination = 7;
+      $o_report->_fld_id = 'rid';
+      $o_report->_create_row_select = true;
+      $o_report->_create_sel_flds = false;
+      $o_report->set_data(array(
          'dbx_rmodul' => '0',
          'dbx_rwhere' => '',
          'dbx_rrows'  => 20,
          'dbx_rpos'   => 0,
-      );
+      ));
 
-      $oReport->add_fld('dbx_rmodul', 'select-single-label', label: $texts->get_fd_message('label_module'), rules: 'parameter', options: $moduleOptions);
-      $oReport->add_fld('dbx_rwhere', 'dbx|search', label: $texts->get_fd_message('label_search'), rules: 'sqlsearch|max=80');
-      $oReport->add_fld('dbx_rrows', 'integer-label', label: $texts->get_fd_message('label_rows'), rules: 'int');
+      $o_report->add_fld('dbx_rmodul', 'select-single-label', label: $texts->get_fd_message('label_module'), rules: 'parameter', options: $module_options);
+      $o_report->add_fld('dbx_rwhere', 'dbx|search', label: $texts->get_fd_message('label_search'), rules: 'sqlsearch|max=80');
+      $o_report->add_fld('dbx_rrows', 'integer-label', label: $texts->get_fd_message('label_rows'), rules: 'int');
 
-      $modulFilter = $oReport->get_fld_val('dbx_rmodul', '0', 'parameter');
-      $search = $oReport->get_fld_val('dbx_rwhere', '', 'sqlsearch|max=80');
-      $rrows = (int)$oReport->get_fld_val('dbx_rrows', 20, 'int');
-      $rpos = (int)$oReport->get_fld_val('dbx_rpos', 0, 'int');
+      $modul_filter = $o_report->get_fld_val('dbx_rmodul', '0', 'parameter');
+      $search = $o_report->get_fld_val('dbx_rwhere', '', 'sqlsearch|max=80');
+      $rrows = (int)$o_report->get_fld_val('dbx_rrows', 20, 'int');
+      $rpos = (int)$o_report->get_fld_val('dbx_rpos', 0, 'int');
       if ($rrows <= 0) {
          $rrows = 20;
       }
 
-      $filtered = $this->filterModuleRows($allModules, $modulFilter, $search);
-      $filteredCount = count($filtered);
-      if ($rpos < 0 || ($filteredCount > 0 && $rpos >= $filteredCount)) {
+      $filtered = $this->filter_module_rows($all_modules, $modul_filter, $search);
+      $filtered_count = count($filtered);
+      if ($rpos < 0 || ($filtered_count > 0 && $rpos >= $filtered_count)) {
          $rpos = 0;
       }
 
-      $oReport->_rrows = $rrows;
-      $oReport->_rpos = $rpos;
-      $oReport->_rcount = $filteredCount;
-      $oReport->_rdata = $this->pageModuleRows($filtered, $rpos, $rrows);
+      $o_report->_rrows = $rrows;
+      $o_report->_rpos = $rpos;
+      $o_report->set_report_counts($filtered_count, count($all_modules));
+      $o_report->_rdata = $this->page_module_rows($filtered, $rpos, $rrows);
 
-      $oReport->add_rep('module_count', count($allModules));
-      $oReport->add_rep('module_active_count', $activeCount);
-      $oReport->add_rep('module_filtered_count', $filteredCount);
-      $oReport->add_rep('bar_title', $texts->get_fd_message('bar_title'));
-      $oReport->add_rep('bar_subtitle', $texts->get_fd_message('bar_subtitle'));
-      $oReport->add_rep('action_filter', $texts->get_fd_message('action_filter'));
-      $oReport->add_rep('modules_label', $texts->get_fd_message('modules_label'));
-      $oReport->add_rep('active_count_label', $texts->get_fd_message('active_count_label'));
-      $oReport->add_rep('module_messages_json', $this->clientMessagesJson());
-      $oReport->add_rep('modimg_media_url', dbx()->esc($this->images()->mediaApiUrl() . '&images=1&media_type=image'));
-      $oReport->add_rep('modimg_upload_url', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_upload'));
-      $oReport->add_rep('modimg_mediafolders_url', dbx()->esc($this->images()->mediaFoldersApiUrl()));
-      $oReport->add_rep('modimg_mediafoldercreate_url', '');
-      $oReport->add_rep('modimg_mediafolderdelete_url', '');
-      $oReport->add_rep('modimg_deletemedia_url', '');
-      $oReport->add_rep('modimg_uploadmax', (string)(16 * 1024 * 1024));
-      $oReport->add_rep('media_browser_forms',
-         dbx()->get_include_obj('dbxContentMediaForms', 'dbxContent_admin')->renderTemplates(
+      $o_report->add_rep('module_count', count($all_modules));
+      $o_report->add_rep('module_active_count', $active_count);
+      $o_report->add_rep('module_filtered_count', $filtered_count);
+      $o_report->add_rep(
+         'report_extra_stats',
+         '<span class="dbx-report-bar-stat"><strong>' . $active_count . '</strong> '
+            . dbx()->esc($texts->get_fd_message('active_count_label')) . '</span>'
+      );
+      $o_report->add_rep('bar_title', $texts->get_fd_message('bar_title'));
+      $o_report->add_rep('bar_subtitle', $texts->get_fd_message('bar_subtitle'));
+      $o_report->add_rep('action_filter', $texts->get_fd_message('action_filter'));
+      $o_report->add_rep('modules_label', $texts->get_fd_message('modules_label'));
+      $o_report->add_rep('active_count_label', $texts->get_fd_message('active_count_label'));
+      $o_report->add_rep('module_messages_json', $this->client_messages_json());
+      $o_report->add_rep('modimg_media_url', dbx()->esc($this->images()->media_api_url() . '&images=1&media_type=image'));
+      $o_report->add_rep('modimg_upload_url', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_upload'));
+      $o_report->add_rep('modimg_mediafolders_url', dbx()->esc($this->images()->media_folders_api_url()));
+      $o_report->add_rep('modimg_mediafoldercreate_url', '');
+      $o_report->add_rep('modimg_mediafolderdelete_url', '');
+      $o_report->add_rep('modimg_deletemedia_url', '');
+      $o_report->add_rep('modimg_uploadmax', (string)(16 * 1024 * 1024));
+      $o_report->add_rep('media_browser_forms',
+         dbx()->get_include_obj('dbxContentMediaForms', 'dbxContent_admin')->render_templates(
             '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_upload',
             'modules-media-upload'
          )
       );
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
-   private function filterModuleRows(array $modules, string $modulFilter, string $search): array {
-      $modulFilter = trim($modulFilter);
+   private function filter_module_rows(array $modules, string $modul_filter, string $search): array {
+      $modul_filter = trim($modul_filter);
       $search = strtolower(trim($search));
       $rows = array();
 
@@ -718,14 +718,14 @@ Class dbxModules {
             continue;
          }
 
-         if ($modulFilter !== '' && $modulFilter !== '0' && $name !== $modulFilter) {
+         if ($modul_filter !== '' && $modul_filter !== '0' && $name !== $modul_filter) {
             continue;
          }
 
          if ($search !== '') {
-            $ddList = $module['dd_list'] ?? array();
-            if (!is_array($ddList)) {
-               $ddList = array();
+            $dd_list = $module['dd_list'] ?? array();
+            if (!is_array($dd_list)) {
+               $dd_list = array();
             }
 
             $haystack = strtolower(implode(' ', array(
@@ -734,7 +734,7 @@ Class dbxModules {
                (string)($module['default_call'] ?? ''),
                (string)($module['groups_text'] ?? ''),
                (string)($module['version'] ?? ''),
-               implode(' ', $ddList),
+               implode(' ', $dd_list),
             )));
 
             if (strpos($haystack, $search) === false) {
@@ -749,7 +749,7 @@ Class dbxModules {
       return $rows;
    }
 
-   private function pageModuleRows(array $modules, int $rpos, int $rrows): array {
+   private function page_module_rows(array $modules, int $rpos, int $rrows): array {
       if ($rpos < 0) {
          $rpos = 0;
       }
@@ -760,19 +760,13 @@ Class dbxModules {
       $slice = array_slice($modules, $rpos, $rrows);
       $rows = array();
       foreach ($slice as $module) {
-         $rows[] = $this->prepareModuleRecord($module);
+         $rows[] = $this->prepare_module_record($module);
       }
 
       return $rows;
    }
 
-   public function modul_new() {
-      $obj = dbx()->get_include_obj('dbxWizard');
-      $run = dbx()->get_modul_var('run');
-      return $obj->run($run);
-   }
-
-   public function modul_edit() {
+   private function run_wizard() {
       $obj = dbx()->get_include_obj('dbxWizard');
       $run = dbx()->get_modul_var('run');
       return $obj->run($run);
@@ -798,11 +792,8 @@ Class dbxModules {
             break;
 
          case 'modul_new':
-            $content = $this->modul_new();
-            break;
-
          case 'modul_edit':
-            $content = $this->modul_edit();
+            $content = $this->run_wizard();
             break;
 
          case 'modul_access':
@@ -867,7 +858,7 @@ Class dbxModules {
 
          default:
             $msg['msg'] = "Modul=($modul) Action=($action) Work=($work) is undef!";
-            $content = $this->tpl()->get_tpl('dbx', 'alert-warning', $msg);
+            $content = $this->tpl()->get_tpl('dbx|alert-warning', $msg);
       }
 
       return $content;

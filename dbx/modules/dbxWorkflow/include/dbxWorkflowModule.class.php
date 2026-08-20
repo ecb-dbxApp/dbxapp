@@ -1,9 +1,14 @@
 <?php
 namespace dbx\dbxWorkflow;
 
+require_once __DIR__ . '/dbxWorkflowValue.class.php';
+
+/**
+ * Bindet dbxApp-Module als ausführbare Bausteine in einen Workflow ein.
+ */
 class dbxWorkflowModule {
 
-   private $ddBind = 'dbxWorkflow|workflowModuleBind';
+   private $dd_bind = 'dbxWorkflow|workflowModuleBind';
 
    private function db() {
       return dbx()->get_system_obj('dbxDB');
@@ -17,34 +22,25 @@ class dbxWorkflowModule {
       return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
    }
 
-   private function read_json($value, $default = array()) {
-      $value = trim((string)$value);
-      if ($value === '') {
-         return $default;
-      }
-      $data = json_decode($value, true);
-      return is_array($data) ? $data : $default;
-   }
-
-   public function parseBindRef($bindRef) {
-      $bindRef = trim((string)$bindRef);
-      if ($bindRef === '' || strpos($bindRef, '|') === false) {
+   public function parse_bind_ref($bind_ref) {
+      $bind_ref = trim((string)$bind_ref);
+      if ($bind_ref === '' || strpos($bind_ref, '|') === false) {
          return array('', '');
       }
 
-      $parts = explode('|', $bindRef, 2);
+      $parts = explode('|', $bind_ref, 2);
       return array(trim((string)$parts[0]), trim((string)$parts[1]));
    }
 
-   public function loadBindRecord($bindRef) {
-      list($modul, $bindKey) = $this->parseBindRef($bindRef);
-      if ($modul === '' || $bindKey === '') {
+   public function load_bind_record($bind_ref) {
+      list($modul, $bind_key) = $this->parse_bind_ref($bind_ref);
+      if ($modul === '' || $bind_key === '') {
          return array();
       }
 
       $rows = $this->db()->select(
-         $this->ddBind,
-         array('modul' => $modul, 'bind_key' => $bindKey, 'active' => 1, 'trash' => 0),
+         $this->dd_bind,
+         array('modul' => $modul, 'bind_key' => $bind_key, 'active' => 1, 'trash' => 0),
          '*',
          'id',
          'DESC',
@@ -57,18 +53,18 @@ class dbxWorkflowModule {
       return (is_array($rows) && isset($rows[0])) ? $rows[0] : array();
    }
 
-   public function applyBindRef(array $definition) {
-      $bindRef = trim((string)($definition['bind_ref'] ?? ''));
-      if ($bindRef === '') {
+   public function apply_bind_ref(array $definition) {
+      $bind_ref = trim((string)($definition['bind_ref'] ?? ''));
+      if ($bind_ref === '') {
          return $definition;
       }
 
-      $row = $this->loadBindRecord($bindRef);
+      $row = $this->load_bind_record($bind_ref);
       if (!$row) {
          return $definition;
       }
 
-      $bind = $this->read_json($row['bind_json'] ?? '', array());
+      $bind = dbxWorkflowValue::read_json($row['bind_json'] ?? '', array());
       if ($bind) {
          $definition['bind'] = $bind;
       }
@@ -76,27 +72,27 @@ class dbxWorkflowModule {
       return $definition;
    }
 
-   private function bindConfig(array $definition) {
+   private function bind_config(array $definition) {
       return (array)($definition['bind'] ?? array());
    }
 
-   private function recordConfig(array $definition) {
-      return (array)($this->bindConfig($definition)['record'] ?? array());
+   private function record_config(array $definition) {
+      return (array)($this->bind_config($definition)['record'] ?? array());
    }
 
-   public function recordIdFromValues(array $definition, array $values) {
-      $record = $this->recordConfig($definition);
-      $idNeed = trim((string)($record['id_need'] ?? ''));
-      if ($idNeed === '' || !array_key_exists($idNeed, $values)) {
+   public function record_id_from_values(array $definition, array $values) {
+      $record = $this->record_config($definition);
+      $id_need = trim((string)($record['id_need'] ?? ''));
+      if ($id_need === '' || !array_key_exists($id_need, $values)) {
          return 0;
       }
 
-      return (int)preg_replace('/\D+/', '', (string)$values[$idNeed]);
+      return (int)preg_replace('/\D+/', '', (string)$values[$id_need]);
    }
 
-   public function loadRecord(array $definition, $rid = 0) {
-      $recordCfg = $this->recordConfig($definition);
-      $dd = trim((string)($recordCfg['dd'] ?? ''));
+   public function load_record(array $definition, $rid = 0) {
+      $record_cfg = $this->record_config($definition);
+      $dd = trim((string)($record_cfg['dd'] ?? ''));
       $rid = (int)$rid;
       if ($dd === '' || $rid <= 0) {
          return array();
@@ -106,7 +102,7 @@ class dbxWorkflowModule {
       return (is_array($row) && $row) ? $row : array();
    }
 
-   private function labelFromTemplate($template, array $row) {
+   private function label_from_template($template, array $row) {
       $label = (string)$template;
       foreach ($row as $key => $value) {
          if (is_scalar($value) || $value === null) {
@@ -117,8 +113,8 @@ class dbxWorkflowModule {
       return trim($label);
    }
 
-   private function optionsFromDdSelect(array $bindNeed, array $definition, array $values) {
-      $record = $this->recordConfig($definition);
+   private function options_from_dd_select(array $bind_need, array $definition, array $values) {
+      $record = $this->record_config($definition);
       $dd = trim((string)($record['dd'] ?? ''));
       if ($dd === '') {
          return array();
@@ -126,13 +122,13 @@ class dbxWorkflowModule {
 
       $source = array_merge(
          array('dd' => $dd, 'include_from' => (string)($record['id_need'] ?? '')),
-         $bindNeed
+         $bind_need
       );
 
-      return $this->optionsFromSource($source, $values, $this->recordIdFromValues($definition, $values));
+      return $this->options_from_source($source, $values, $this->record_id_from_values($definition, $values));
    }
 
-   public function optionsFromSource(array $source, array $values = array(), $includeId = 0) {
+   public function options_from_source(array $source, array $values = array(), $include_id = 0) {
       $dd = trim((string)($source['dd'] ?? ''));
       if ($dd === '') {
          return array();
@@ -140,11 +136,11 @@ class dbxWorkflowModule {
 
       $where = (array)($source['where'] ?? array());
       $fields = (array)($source['fields'] ?? array('id'));
-      $valueField = trim((string)($source['value'] ?? 'id'));
-      $labelTpl = trim((string)($source['label'] ?? ('{' . $valueField . '}')));
+      $value_field = trim((string)($source['value'] ?? 'id'));
+      $label_tpl = trim((string)($source['label'] ?? ('{' . $value_field . '}')));
 
-      if ($valueField !== '' && !in_array($valueField, $fields, true)) {
-         $fields[] = $valueField;
+      if ($value_field !== '' && !in_array($value_field, $fields, true)) {
+         $fields[] = $value_field;
       }
 
       $rows = $this->db()->select(
@@ -163,24 +159,24 @@ class dbxWorkflowModule {
       $seen = array();
 
       foreach ((array)$rows as $row) {
-         $id = (string)($row[$valueField] ?? '');
+         $id = (string)($row[$value_field] ?? '');
          if ($id === '') {
             continue;
          }
          $seen[$id] = 1;
          $options[] = array(
             'value' => $id,
-            'label' => $this->labelFromTemplate($labelTpl, $row),
+            'label' => $this->label_from_template($label_tpl, $row),
          );
       }
 
-      $includeId = (string)(int)$includeId;
-      if ((int)$includeId > 0 && empty($seen[$includeId])) {
-         $record = $this->db()->select1($dd, (int)$includeId, $fields);
+      $include_id = (string)(int)$include_id;
+      if ((int)$include_id > 0 && empty($seen[$include_id])) {
+         $record = $this->db()->select1($dd, (int)$include_id, $fields);
          if (is_array($record) && $record) {
             $options[] = array(
-               'value' => $includeId,
-               'label' => $this->labelFromTemplate($labelTpl, $record),
+               'value' => $include_id,
+               'label' => $this->label_from_template($label_tpl, $record),
             );
          }
       }
@@ -188,31 +184,31 @@ class dbxWorkflowModule {
       return $options;
    }
 
-   private function optionsFromFdField(array $definition, $fieldName) {
-      $record = $this->recordConfig($definition);
+   private function options_from_fd_field(array $definition, $field_name) {
+      $record = $this->record_config($definition);
       $dd = trim((string)($record['dd'] ?? ''));
-      $fieldName = trim((string)$fieldName);
-      if ($dd === '' || $fieldName === '') {
+      $field_name = trim((string)$field_name);
+      if ($dd === '' || $field_name === '') {
          return array();
       }
 
-      $oDD = dbx()->get_system_obj('dbxDD');
-      $model = $oDD->get_dd_model($dd);
-      $optionsRaw = '';
+      $o_dd = dbx()->get_system_obj('dbxDD');
+      $model = $o_dd->get_dd_model($dd);
+      $options_raw = '';
 
       foreach ((array)($model['fields'] ?? array()) as $field) {
-         if ((string)($field['name'] ?? '') === $fieldName) {
-            $optionsRaw = (string)($field['options'] ?? '');
+         if ((string)($field['name'] ?? '') === $field_name) {
+            $options_raw = (string)($field['options'] ?? '');
             break;
          }
       }
 
-      if ($optionsRaw === '') {
+      if ($options_raw === '') {
          return array();
       }
 
       $options = array();
-      foreach (explode('&', $optionsRaw) as $pair) {
+      foreach (explode('&', $options_raw) as $pair) {
          $pair = trim($pair);
          if ($pair === '' || strpos($pair, '=') === false) {
             continue;
@@ -227,7 +223,7 @@ class dbxWorkflowModule {
       return $options;
    }
 
-   private function configHasPart($modul, $key, $part) {
+   private function config_has_part($modul, $key, $part) {
       if ($part !== 'mail') {
          return false;
       }
@@ -240,37 +236,37 @@ class dbxWorkflowModule {
       }
 
       if (class_exists('\\dbx\\dbxContact\\dbxContactConfig', false)) {
-         return \dbx\dbxContact\dbxContactConfig::modulMailEnabled((string) $modul, (string) $key);
+         return \dbx\dbxContact\dbxContactConfig::modul_mail_enabled((string) $modul, (string) $key);
       }
 
       $mode = strtolower(trim((string) dbx()->get_cfg($modul, $key)));
       return ($mode === 'both' || $mode === 'mail' || strpos($mode, 'mail') !== false);
    }
 
-   private function needBind(array $definition, $needKey) {
-      return (array)($this->bindConfig($definition)['needs'][$needKey] ?? array());
+   private function need_bind(array $definition, $need_key) {
+      return (array)($this->bind_config($definition)['needs'][$need_key] ?? array());
    }
 
-   private function needVisible(array $definition, $needKey, array $bindNeed) {
-      $showIf = (array)($bindNeed['show_if_config'] ?? array());
-      if (!$showIf) {
+   private function need_visible(array $definition, $need_key, array $bind_need) {
+      $show_if = (array)($bind_need['show_if_config'] ?? array());
+      if (!$show_if) {
          return true;
       }
 
-      $modul = trim((string)($showIf['modul'] ?? ''));
-      $key = trim((string)($showIf['key'] ?? ''));
-      $has = trim((string)($showIf['has'] ?? ''));
+      $modul = trim((string)($show_if['modul'] ?? ''));
+      $key = trim((string)($show_if['key'] ?? ''));
+      $has = trim((string)($show_if['has'] ?? ''));
 
       if ($modul === '' || $key === '' || $has === '') {
          return true;
       }
 
-      return $this->configHasPart($modul, $key, $has);
+      return $this->config_has_part($modul, $key, $has);
    }
 
-   public function enrichDefinition(array $definition, array $values = array()) {
-      $definition = $this->applyBindRef($definition);
-      $bindNeeds = (array)($this->bindConfig($definition)['needs'] ?? array());
+   public function enrich_definition(array $definition, array $values = array()) {
+      $definition = $this->apply_bind_ref($definition);
+      $bind_needs = (array)($this->bind_config($definition)['needs'] ?? array());
       $needs = array();
 
       foreach ((array)($definition['needs'] ?? array()) as $need) {
@@ -279,26 +275,26 @@ class dbxWorkflowModule {
          }
 
          $key = (string)($need['key'] ?? '');
-         $bindNeed = (array)($bindNeeds[$key] ?? array());
+         $bind_need = (array)($bind_needs[$key] ?? array());
 
-         if ($bindNeed && !$this->needVisible($definition, $key, $bindNeed)) {
+         if ($bind_need && !$this->need_visible($definition, $key, $bind_need)) {
             continue;
          }
 
          if (!empty($need['source']) && is_array($need['source'])) {
-            $need['options'] = $this->optionsFromSource(
+            $need['options'] = $this->options_from_source(
                $need['source'],
                $values,
-               $this->recordIdFromValues($definition, $values)
+               $this->record_id_from_values($definition, $values)
             );
-         } elseif ($bindNeed) {
-            $type = (string)($bindNeed['type'] ?? '');
+         } elseif ($bind_need) {
+            $type = (string)($bind_need['type'] ?? '');
             if ($type === 'dd_select') {
-               $need['options'] = $this->optionsFromDdSelect($bindNeed, $definition, $values);
+               $need['options'] = $this->options_from_dd_select($bind_need, $definition, $values);
             } elseif ($type === 'dd_field_options') {
-               $need['options'] = $this->optionsFromFdField($definition, (string)($bindNeed['field'] ?? ''));
+               $need['options'] = $this->options_from_fd_field($definition, (string)($bind_need['field'] ?? ''));
             } elseif ($type === 'static_select') {
-               $need['options'] = array_values((array)($bindNeed['options'] ?? array()));
+               $need['options'] = array_values((array)($bind_need['options'] ?? array()));
             }
          }
 
@@ -306,23 +302,23 @@ class dbxWorkflowModule {
       }
 
       $definition['needs'] = $needs;
-      $definition = $this->enrichShopEbayPublishDefinition($definition, $values);
+      $definition = $this->enrich_shop_ebay_publish_definition($definition, $values);
       return $definition;
    }
 
-   private function enrichShopEbayPublishDefinition(array $definition, array $values): array {
+   private function enrich_shop_ebay_publish_definition(array $definition, array $values): array {
       if ((string)($definition['workflow_key'] ?? '') !== 'shop_ebay_publish') {
          return $definition;
       }
 
-      $productId = (int)($values['product'] ?? 0);
-      if ($productId <= 0) {
+      $product_id = (int)($values['product'] ?? 0);
+      if ($product_id <= 0) {
          return $definition;
       }
 
       $rows = $this->db()->select(
          'dbxShop|shopProductChannel',
-         array('product_id' => $productId, 'channel_key' => 'ebay'),
+         array('product_id' => $product_id, 'channel_key' => 'ebay'),
          array('external_listing_id', 'external_offer_id', 'export_status', 'export_message'),
          'id',
          'DESC',
@@ -332,8 +328,8 @@ class dbxWorkflowModule {
          0
       );
       $row = (is_array($rows) && isset($rows[0])) ? $rows[0] : array();
-      $listingId = trim((string)($row['external_listing_id'] ?? ''));
-      $offerId = trim((string)($row['external_offer_id'] ?? ''));
+      $listing_id = trim((string)($row['external_listing_id'] ?? ''));
+      $offer_id = trim((string)($row['external_offer_id'] ?? ''));
       $status = trim((string)($row['export_status'] ?? ''));
       $message = trim((string)($row['export_message'] ?? ''));
 
@@ -342,13 +338,13 @@ class dbxWorkflowModule {
             continue;
          }
 
-         if ($listingId !== '') {
-            $need['hint'] = 'Optionaler Kontrollschritt: Das eBay-Angebot wurde mit Listing-ID ' . $listingId . ' gespeichert. Oeffne das Angebot und pruefe Darstellung, Preis, Versand und Bilder.';
+         if ($listing_id !== '') {
+            $need['hint'] = 'Optionaler Kontrollschritt: Das eBay-Angebot wurde mit Listing-ID ' . $listing_id . ' gespeichert. Oeffne das Angebot und pruefe Darstellung, Preis, Versand und Bilder.';
             $need['module_links'] = array(
                array(
                   'label' => 'Bei eBay ansehen',
                   'icon' => 'bi-box-arrow-up-right',
-                  'url' => 'https://www.ebay.de/itm/' . rawurlencode($listingId),
+                  'url' => 'https://www.ebay.de/itm/' . rawurlencode($listing_id),
                   'title' => 'eBay-Angebot ansehen',
                   'width' => '92%',
                   'height' => '90%'
@@ -364,8 +360,8 @@ class dbxWorkflowModule {
             );
          } else {
             $extra = array();
-            if ($offerId !== '') {
-               $extra[] = 'Offer-ID: ' . $offerId;
+            if ($offer_id !== '') {
+               $extra[] = 'Offer-ID: ' . $offer_id;
             }
             if ($status !== '') {
                $extra[] = 'Status: ' . $status;
@@ -382,34 +378,34 @@ class dbxWorkflowModule {
       return $definition;
    }
 
-   public function prefillStart(array $definition, $rid = 0) {
-      $definition = $this->applyBindRef($definition);
-      $recordCfg = $this->recordConfig($definition);
+   public function prefill_start(array $definition, $rid = 0) {
+      $definition = $this->apply_bind_ref($definition);
+      $record_cfg = $this->record_config($definition);
       $rid = (int)$rid;
-      if (empty($recordCfg['prefill_rid']) || $rid <= 0) {
+      if (empty($record_cfg['prefill_rid']) || $rid <= 0) {
          return array();
       }
 
-      $record = $this->loadRecord($definition, $rid);
+      $record = $this->load_record($definition, $rid);
       if (!$record) {
          return array();
       }
 
       $values = array();
-      $idNeed = trim((string)($recordCfg['id_need'] ?? ''));
-      if ($idNeed !== '') {
-         $values[$idNeed] = (string)$rid;
+      $id_need = trim((string)($record_cfg['id_need'] ?? ''));
+      if ($id_need !== '') {
+         $values[$id_need] = (string)$rid;
       }
 
-      foreach ((array)($this->bindConfig($definition)['needs'] ?? array()) as $needKey => $bindNeed) {
-         $type = (string)($bindNeed['type'] ?? '');
-         if ($type === 'dd_field_options' && isset($record[(string)($bindNeed['field'] ?? '')])) {
-            $values[$needKey] = (string)$record[(string)$bindNeed['field']];
+      foreach ((array)($this->bind_config($definition)['needs'] ?? array()) as $need_key => $bind_need) {
+         $type = (string)($bind_need['type'] ?? '');
+         if ($type === 'dd_field_options' && isset($record[(string)($bind_need['field'] ?? '')])) {
+            $values[$need_key] = (string)$record[(string)$bind_need['field']];
          }
-         if ($type === 'dd_field_value' && isset($record[(string)($bindNeed['field'] ?? '')])) {
-            $text = trim((string)$record[(string)$bindNeed['field']]);
+         if ($type === 'dd_field_value' && isset($record[(string)($bind_need['field'] ?? '')])) {
+            $text = trim((string)$record[(string)$bind_need['field']]);
             if ($text !== '') {
-               $values[$needKey] = $text;
+               $values[$need_key] = $text;
             }
          }
       }
@@ -417,29 +413,29 @@ class dbxWorkflowModule {
       return $values;
    }
 
-   private function shopEbayReadinessAutomation(array $values): ?array {
-      $productId = (int)($values['product'] ?? 0);
-      if ($productId <= 0) return null;
+   private function shop_ebay_readiness_automation(array $values): ?array {
+      $product_id = (int)($values['product'] ?? 0);
+      if ($product_id <= 0) return null;
 
       $repo = dbx()->get_include_obj('dbxShopRepository', 'dbxShop');
       if (!is_object($repo) || !method_exists($repo, 'productChannelMapping')) {
          return null;
       }
 
-      $data = $repo->productChannelMapping($productId, 'ebay');
+      $data = $repo->product_channel_mapping($product_id, 'ebay');
       if (!is_array($data)) {
          return array('value' => 'needs_work', 'message' => 'Artikel oder eBay-Channel wurde nicht gefunden.');
       }
 
       $product = (array)($data['product'] ?? array());
       $channel = (array)($data['channel'] ?? array());
-      $productChannel = (array)($data['product_channel'] ?? array());
+      $product_channel = (array)($data['product_channel'] ?? array());
       $mapping = (array)($data['mapping'] ?? array());
       $missing = array();
 
       if ((int)($channel['active'] ?? 0) !== 1) $missing[] = 'eBay-Channel aktiv';
       if ((int)($channel['export_enabled'] ?? 0) !== 1) $missing[] = 'Channel-Export freigeben';
-      if ((int)($productChannel['active'] ?? 0) !== 1) $missing[] = 'Artikel dem eBay-Channel zuordnen';
+      if ((int)($product_channel['active'] ?? 0) !== 1) $missing[] = 'Artikel dem eBay-Channel zuordnen';
 
       $required = array(
          'api_client_id' => 'Client-ID/App-ID',
@@ -465,7 +461,7 @@ class dbxWorkflowModule {
          if ($resolved === '') $missing[] = $label;
       }
 
-      $sku = trim((string)($productChannel['channel_sku'] ?? $product['sku'] ?? ''));
+      $sku = trim((string)($product_channel['channel_sku'] ?? $product['sku'] ?? ''));
       if ($sku === '') $missing[] = 'Channel-SKU/Artikelnummer';
       if (trim((string)($product['title'] ?? '')) === '') $missing[] = 'Artikeltitel';
 
@@ -483,13 +479,13 @@ class dbxWorkflowModule {
       );
    }
 
-   private function shopEbayStatusAutomation(array $values): ?array {
-      $productId = (int)($values['product'] ?? 0);
-      if ($productId <= 0) return null;
+   private function shop_ebay_status_automation(array $values): ?array {
+      $product_id = (int)($values['product'] ?? 0);
+      if ($product_id <= 0) return null;
 
       $rows = $this->db()->select(
          'dbxShop|shopProductChannel',
-         array('product_id' => $productId, 'channel_key' => 'ebay'),
+         array('product_id' => $product_id, 'channel_key' => 'ebay'),
          array('external_listing_id', 'export_status', 'export_message', 'last_export_date'),
          'id',
          'DESC',
@@ -499,76 +495,76 @@ class dbxWorkflowModule {
          0
       );
       $row = (is_array($rows) && isset($rows[0])) ? $rows[0] : array();
-      $lastExport = trim((string)($row['last_export_date'] ?? ''));
-      if ($lastExport === '') return null;
+      $last_export = trim((string)($row['last_export_date'] ?? ''));
+      if ($last_export === '') return null;
 
       $status = strtolower(trim((string)($row['export_status'] ?? '')));
-      $listingId = trim((string)($row['external_listing_id'] ?? ''));
-      $connectorMessage = trim((string)($row['export_message'] ?? ''));
+      $listing_id = trim((string)($row['external_listing_id'] ?? ''));
+      $connector_message = trim((string)($row['export_message'] ?? ''));
       $value = 'open';
       if (in_array($status, array('failed', 'error'), true)) {
          $value = 'error';
-      } elseif ($listingId !== '' && in_array($status, array('published', 'exported', 'ready'), true)) {
+      } elseif ($listing_id !== '' && in_array($status, array('published', 'exported', 'ready'), true)) {
          $value = 'ok';
       }
 
       $message = 'Connector-Status automatisch ausgewertet: ' . ($status !== '' ? $status : 'offen') . '.';
-      if ($listingId !== '') $message .= ' Listing-ID: ' . $listingId . '.';
-      if ($connectorMessage !== '') $message .= ' ' . $connectorMessage;
+      if ($listing_id !== '') $message .= ' Listing-ID: ' . $listing_id . '.';
+      if ($connector_message !== '') $message .= ' ' . $connector_message;
       return array('value' => $value, 'message' => $message);
    }
 
-   public function automateNeed(array $definition, array $need, array $values): ?array {
+   public function automate_need(array $definition, array $need, array $values): ?array {
       if ((string)($need['automation'] ?? 'manual') !== 'observe') return null;
       if ((string)($definition['workflow_key'] ?? '') !== 'shop_ebay_publish') return null;
 
       $key = (string)($need['key'] ?? '');
-      if ($key === 'readiness_check') return $this->shopEbayReadinessAutomation($values);
-      if ($key === 'status_check') return $this->shopEbayStatusAutomation($values);
+      if ($key === 'readiness_check') return $this->shop_ebay_readiness_automation($values);
+      if ($key === 'status_check') return $this->shop_ebay_status_automation($values);
       return null;
    }
 
-   private function contextData(array $definition, array $record) {
-      $context = (array)($this->bindConfig($definition)['context'] ?? array());
+   private function context_data(array $definition, array $record) {
+      $context = (array)($this->bind_config($definition)['context'] ?? array());
       $fields = (array)($context['fields'] ?? array());
       $data = array();
 
-      foreach ($fields as $tplKey => $recordKey) {
-         $value = $record[(string)$recordKey] ?? '';
-         if ($tplKey === 'phone' && trim((string)$value) === '') {
+      foreach ($fields as $tpl_key => $record_key) {
+         $value = $record[(string)$record_key] ?? '';
+         if ($tpl_key === 'phone' && trim((string)$value) === '') {
             $value = '-';
          }
-         $data[$tplKey] = $this->h($value);
+         $data[$tpl_key] = $this->h($value);
       }
 
       return $data;
    }
 
-   public function renderStepContext(array $definition, array $need, array $values) {
-      $definition = $this->applyBindRef($definition);
-      $context = (array)($this->bindConfig($definition)['context'] ?? array());
+   public function render_step_context(array $definition, array $need, array $values) {
+      $definition = $this->apply_bind_ref($definition);
+      $context = (array)($this->bind_config($definition)['context'] ?? array());
       if (!$context) {
          return '';
       }
 
-      $hideOn = trim((string)($context['hide_on_need'] ?? ''));
-      $rid = $this->recordIdFromValues($definition, $values);
+      $hide_on = trim((string)($context['hide_on_need'] ?? ''));
+      $rid = $this->record_id_from_values($definition, $values);
 
-      if ($rid > 0 && $hideOn !== '' && $need['key'] !== $hideOn) {
-         $record = $this->loadRecord($definition, $rid);
+      if ($rid > 0 && $hide_on !== '' && $need['key'] !== $hide_on) {
+         $record = $this->load_record($definition, $rid);
          if ($record) {
             $tpl = trim((string)($context['tpl'] ?? ''));
             if ($tpl !== '') {
-               return $this->tpl()->get_tpl($tpl, $this->contextData($definition, $record));
+               return $this->tpl()->get_tpl($tpl, $this->context_data($definition, $record));
             }
          }
       }
 
-      if ($hideOn !== '' && $need['key'] === $hideOn && $rid <= 0) {
-         $recordCfg = $this->recordConfig($definition);
-         $bindNeed = $this->needBind($definition, $hideOn);
-         if (($bindNeed['type'] ?? '') === 'dd_select') {
-            $options = $this->optionsFromDdSelect($bindNeed, $definition, $values);
+      if ($hide_on !== '' && $need['key'] === $hide_on && $rid <= 0) {
+         $record_cfg = $this->record_config($definition);
+         $bind_need = $this->need_bind($definition, $hide_on);
+         if (($bind_need['type'] ?? '') === 'dd_select') {
+            $options = $this->options_from_dd_select($bind_need, $definition, $values);
             if (!$options) {
                return $this->tpl()->get_tpl('dbx|alert-info', array(
                   'msg' => 'Keine passenden Datensaetze gefunden. Bitte zuerst im Modul erfassen.',
@@ -580,10 +576,10 @@ class dbxWorkflowModule {
       return '';
    }
 
-   public function renderFormValue(array $definition, array $need, array $values) {
-      $definition = $this->applyBindRef($definition);
-      $bindNeed = $this->needBind($definition, (string)($need['key'] ?? ''));
-      if ((string)($bindNeed['type'] ?? '') !== 'dd_field_value') {
+   public function render_form_value(array $definition, array $need, array $values) {
+      $definition = $this->apply_bind_ref($definition);
+      $bind_need = $this->need_bind($definition, (string)($need['key'] ?? ''));
+      if ((string)($bind_need['type'] ?? '') !== 'dd_field_value') {
          return '';
       }
 
@@ -591,10 +587,10 @@ class dbxWorkflowModule {
          return $this->h($values[$need['key']]);
       }
 
-      $rid = $this->recordIdFromValues($definition, $values);
+      $rid = $this->record_id_from_values($definition, $values);
       if ($rid > 0) {
-         $record = $this->loadRecord($definition, $rid);
-         $field = (string)($bindNeed['field'] ?? '');
+         $record = $this->load_record($definition, $rid);
+         $field = (string)($bind_need['field'] ?? '');
          if ($record && $field !== '') {
             return $this->h(trim((string)($record[$field] ?? '')));
          }
@@ -603,32 +599,32 @@ class dbxWorkflowModule {
       return '';
    }
 
-   public function formatValueLabel(array $definition, array $need, $value) {
-      $definition = $this->applyBindRef($definition);
-      $needKey = (string)($need['key'] ?? '');
-      $bindNeed = $this->needBind($definition, $needKey);
+   public function format_value_label(array $definition, array $need, $value) {
+      $definition = $this->apply_bind_ref($definition);
+      $need_key = (string)($need['key'] ?? '');
+      $bind_need = $this->need_bind($definition, $need_key);
 
       if (is_array($value) && !empty($value['skipped'])) {
          return '<em>Uebersprungen</em>';
       }
 
-      if ((string)($bindNeed['type'] ?? '') === 'dd_select') {
-         $record = $this->loadRecord($definition, (int)$value);
+      if ((string)($bind_need['type'] ?? '') === 'dd_select') {
+         $record = $this->load_record($definition, (int)$value);
          if ($record) {
-            return $this->h($this->labelFromTemplate((string)($bindNeed['label'] ?? '#{id}'), $record));
+            return $this->h($this->label_from_template((string)($bind_need['label'] ?? '#{id}'), $record));
          }
       }
 
-      if ((string)($bindNeed['type'] ?? '') === 'dd_field_options') {
-         foreach ($this->optionsFromFdField($definition, (string)($bindNeed['field'] ?? '')) as $opt) {
+      if ((string)($bind_need['type'] ?? '') === 'dd_field_options') {
+         foreach ($this->options_from_fd_field($definition, (string)($bind_need['field'] ?? '')) as $opt) {
             if ((string)($opt['value'] ?? '') === (string)$value) {
                return $this->h($opt['label']);
             }
          }
       }
 
-      if ((string)($bindNeed['type'] ?? '') === 'static_select') {
-         foreach ((array)($bindNeed['options'] ?? array()) as $opt) {
+      if ((string)($bind_need['type'] ?? '') === 'static_select') {
+         foreach ((array)($bind_need['options'] ?? array()) as $opt) {
             if (is_array($opt) && (string)($opt['value'] ?? '') === (string)$value) {
                return $this->h($opt['label']);
             }
@@ -638,7 +634,7 @@ class dbxWorkflowModule {
       return null;
    }
 
-   private function finalStatusBox(string $type, string $title, string $body, string $extra = ''): string {
+   private function final_status_box(string $type, string $title, string $body, string $extra = ''): string {
       $icon = 'bi-info-circle';
       if ($type === 'success') $icon = 'bi-check2-circle';
       if ($type === 'warning') $icon = 'bi-exclamation-triangle';
@@ -650,47 +646,47 @@ class dbxWorkflowModule {
          . '</div>';
    }
 
-   private function genericFinalStatus(array $definition, string $instanceStatus, int $completed, int $total, array $missingLabels): string {
-      if ($missingLabels !== array()) {
-         return $this->finalStatusBox(
+   private function generic_final_status(array $definition, string $instance_status, int $completed, int $total, array $missing_labels): string {
+      if ($missing_labels !== array()) {
+         return $this->final_status_box(
             'warning',
             'Workflow noch nicht vollstaendig',
-            'Es fehlen noch Pflichtschritte: ' . implode(', ', $missingLabels) . '.'
+            'Es fehlen noch Pflichtschritte: ' . implode(', ', $missing_labels) . '.'
          );
       }
 
-      if ($instanceStatus === 'finished') {
-         return $this->finalStatusBox(
+      if ($instance_status === 'finished') {
+         return $this->final_status_box(
             'success',
             'Workflow komplett abgeschlossen',
             'Alle notwendigen Schritte sind erledigt. Ergebnis: ' . (string)($definition['result'] ?? $definition['title'] ?? 'Workflow') . '.'
          );
       }
 
-      return $this->finalStatusBox(
+      return $this->final_status_box(
          'info',
          'Workflow bereit zum Abschluss',
          'Alle notwendigen Schritte sind erledigt (' . $completed . ' von ' . $total . '). Pruefe die Zusammenfassung und schliesse den Workflow ab.'
       );
    }
 
-   private function ebayFinalStatus(array $values, string $instanceStatus, int $completed, int $total, array $missingLabels): string {
-      if ($missingLabels !== array()) {
-         return $this->finalStatusBox(
+   private function ebay_final_status(array $values, string $instance_status, int $completed, int $total, array $missing_labels): string {
+      if ($missing_labels !== array()) {
+         return $this->final_status_box(
             'warning',
             'eBay-Workflow noch nicht vollstaendig',
-            'Es fehlen noch Pflichtschritte: ' . implode(', ', $missingLabels) . '.'
+            'Es fehlen noch Pflichtschritte: ' . implode(', ', $missing_labels) . '.'
          );
       }
 
-      $productId = (int)($values['product'] ?? 0);
-      if ($productId <= 0) {
-         return $this->finalStatusBox('warning', 'eBay-Status unklar', 'Es ist kein Artikel ausgewaehlt.');
+      $product_id = (int)($values['product'] ?? 0);
+      if ($product_id <= 0) {
+         return $this->final_status_box('warning', 'eBay-Status unklar', 'Es ist kein Artikel ausgewaehlt.');
       }
 
       $rows = $this->db()->select(
          'dbxShop|shopProductChannel',
-         array('product_id' => $productId, 'channel_key' => 'ebay'),
+         array('product_id' => $product_id, 'channel_key' => 'ebay'),
          array('external_listing_id', 'external_offer_id', 'export_status', 'export_message', 'last_export_date'),
          'id',
          'DESC',
@@ -700,59 +696,59 @@ class dbxWorkflowModule {
          0
       );
       $row = (is_array($rows) && isset($rows[0])) ? $rows[0] : array();
-      $listingId = trim((string)($row['external_listing_id'] ?? ''));
-      $offerId = trim((string)($row['external_offer_id'] ?? ''));
+      $listing_id = trim((string)($row['external_listing_id'] ?? ''));
+      $offer_id = trim((string)($row['external_offer_id'] ?? ''));
       $status = strtolower(trim((string)($row['export_status'] ?? '')));
       $message = trim((string)($row['export_message'] ?? ''));
-      $lastExport = trim((string)($row['last_export_date'] ?? ''));
-      $manualCheck = (string)($values['status_check'] ?? '');
+      $last_export = trim((string)($row['last_export_date'] ?? ''));
+      $manual_check = (string)($values['status_check'] ?? '');
 
       $meta = array();
       if ($status !== '') $meta[] = 'Status: ' . $status;
-      if ($lastExport !== '') $meta[] = 'Letzter Export: ' . $lastExport;
-      if ($offerId !== '') $meta[] = 'Offer-ID: ' . $offerId;
-      if ($listingId !== '') $meta[] = 'Listing-ID: ' . $listingId;
+      if ($last_export !== '') $meta[] = 'Letzter Export: ' . $last_export;
+      if ($offer_id !== '') $meta[] = 'Offer-ID: ' . $offer_id;
+      if ($listing_id !== '') $meta[] = 'Listing-ID: ' . $listing_id;
       $extra = $meta ? '<div class="small mt-2 text-muted">' . $this->h(implode(' | ', $meta)) . '</div>' : '';
       if ($message !== '') {
          $extra .= '<div class="small mt-1">' . $this->h($message) . '</div>';
       }
-      if ($listingId !== '') {
-         $url = 'https://www.ebay.de/itm/' . rawurlencode($listingId);
+      if ($listing_id !== '') {
+         $url = 'https://www.ebay.de/itm/' . rawurlencode($listing_id);
          $extra .= '<div class="mt-2"><a class="btn btn-outline-primary btn-sm dbx-win" href="' . $this->h($url) . '" data-url="' . $this->h($url) . '" data-title="eBay-Angebot ansehen" data-width="92%" data-height="90%"><i class="bi bi-box-arrow-up-right"></i> Bei eBay ansehen</a></div>';
       }
 
       if (in_array($status, array('failed', 'error'), true)) {
-         return $this->finalStatusBox('danger', 'eBay-Veroeffentlichung fehlgeschlagen', 'Der Connector hat einen Fehler gemeldet. Bitte Mapping, Zugangsdaten und eBay-Rueckmeldung pruefen.', $extra);
+         return $this->final_status_box('danger', 'eBay-Veroeffentlichung fehlgeschlagen', 'Der Connector hat einen Fehler gemeldet. Bitte Mapping, Zugangsdaten und eBay-Rueckmeldung pruefen.', $extra);
       }
 
-      if ($listingId !== '' && in_array($status, array('published', 'exported', 'ready'), true)) {
-         return $this->finalStatusBox('success', 'Artikel ist auf eBay veroeffentlicht', 'Der Export hat eine eBay Listing-ID geliefert. Der Workflow ist fachlich erfolgreich.', $extra);
+      if ($listing_id !== '' && in_array($status, array('published', 'exported', 'ready'), true)) {
+         return $this->final_status_box('success', 'Artikel ist auf eBay veroeffentlicht', 'Der Export hat eine eBay Listing-ID geliefert. Der Workflow ist fachlich erfolgreich.', $extra);
       }
 
-      if ($lastExport === '') {
-         return $this->finalStatusBox('warning', 'eBay-Export noch nicht ausgefuehrt', 'Der Workflow ist inhaltlich vorbereitet, aber es gibt noch keinen gespeicherten Exportlauf.', $extra);
+      if ($last_export === '') {
+         return $this->final_status_box('warning', 'eBay-Export noch nicht ausgefuehrt', 'Der Workflow ist inhaltlich vorbereitet, aber es gibt noch keinen gespeicherten Exportlauf.', $extra);
       }
 
-      if ($listingId === '') {
+      if ($listing_id === '') {
          $text = 'Der Export wurde ausgefuehrt, aber es ist noch keine eBay Listing-ID gespeichert. Das kann bedeuten, dass die Plattform asynchron prueft oder die Rueckmeldung fehlt.';
-         if ($manualCheck === 'error') {
+         if ($manual_check === 'error') {
             $text = 'Der Workflow wurde mit Fehlerstatus geprueft. Bitte die Connector-Meldung und eBay-Daten korrigieren.';
          }
-         return $this->finalStatusBox('warning', 'eBay-Rueckmeldung fehlt oder ist offen', $text, $extra);
+         return $this->final_status_box('warning', 'eBay-Rueckmeldung fehlt oder ist offen', $text, $extra);
       }
 
-      return $this->finalStatusBox('info', 'eBay-Status pruefen', 'Alle Workflow-Schritte sind erledigt, der technische Status ist aber nicht eindeutig als veroeffentlicht markiert.', $extra);
+      return $this->final_status_box('info', 'eBay-Status pruefen', 'Alle Workflow-Schritte sind erledigt, der technische Status ist aber nicht eindeutig als veroeffentlicht markiert.', $extra);
    }
 
-   public function renderFinalStatus(array $definition, array $values, string $instanceStatus, int $completed, int $total, array $missingLabels): string {
-      $definition = $this->applyBindRef($definition);
+   public function render_final_status(array $definition, array $values, string $instance_status, int $completed, int $total, array $missing_labels): string {
+      $definition = $this->apply_bind_ref($definition);
       if ((string)($definition['workflow_key'] ?? '') === 'shop_ebay_publish') {
-         return $this->ebayFinalStatus($values, $instanceStatus, $completed, $total, $missingLabels);
+         return $this->ebay_final_status($values, $instance_status, $completed, $total, $missing_labels);
       }
-      return $this->genericFinalStatus($definition, $instanceStatus, $completed, $total, $missingLabels);
+      return $this->generic_final_status($definition, $instance_status, $completed, $total, $missing_labels);
    }
 
-   private function resolveToken($token, array $definition, array $values, array $record) {
+   private function resolve_token($token, array $definition, array $values, array $record) {
       $token = trim((string)$token);
       if ($token === '@now') {
          return date('Y-m-d H:i:s');
@@ -761,8 +757,8 @@ class dbxWorkflowModule {
          return (int)dbx()->user();
       }
       if (strpos($token, '@need:') === 0) {
-         $needKey = substr($token, 6);
-         return $values[$needKey] ?? '';
+         $need_key = substr($token, 6);
+         return $values[$need_key] ?? '';
       }
       if (array_key_exists($token, $values)) {
          return $values[$token];
@@ -774,26 +770,26 @@ class dbxWorkflowModule {
       return $token;
    }
 
-   private function resolveMap(array $map, array $definition, array $values, array $record) {
+   private function resolve_map(array $map, array $definition, array $values, array $record) {
       $out = array();
-      foreach ($map as $dbField => $source) {
-         $out[$dbField] = $this->resolveToken($source, $definition, $values, $record);
+      foreach ($map as $db_field => $source) {
+         $out[$db_field] = $this->resolve_token($source, $definition, $values, $record);
       }
       return $out;
    }
 
-   private function shopWorkflowFinish(array $definition, array $values) {
-      $workflowKey = (string)($definition['workflow_key'] ?? '');
-      if ($workflowKey !== 'shop_article_publish' && $workflowKey !== 'shop_ebay_publish') {
+   private function shop_workflow_finish(array $definition, array $values) {
+      $workflow_key = (string)($definition['workflow_key'] ?? '');
+      if ($workflow_key !== 'shop_article_publish' && $workflow_key !== 'shop_ebay_publish') {
          return null;
       }
 
-      $productId = (int)($values['product'] ?? 0);
-      if ($productId <= 0) {
+      $product_id = (int)($values['product'] ?? 0);
+      if ($product_id <= 0) {
          return array('ok' => 0, 'message' => 'Kein Artikel ausgewaehlt.');
       }
 
-      if ($workflowKey === 'shop_article_publish') {
+      if ($workflow_key === 'shop_article_publish') {
          $release = (string)($values['final_check'] ?? '');
          if ($release === 'draft') {
             return array('ok' => 1, 'message' => 'Artikel bleibt als Entwurf vorbereitet.');
@@ -802,7 +798,7 @@ class dbxWorkflowModule {
          $ok = $this->db()->update(
             'dbxShop|shopProduct',
             array('active' => 1, 'update_date' => date('Y-m-d H:i:s'), 'update_uid' => (int)dbx()->user()),
-            array('id' => $productId, 'trash' => 0),
+            array('id' => $product_id, 'trash' => 0),
             1,
             1,
             1,
@@ -815,9 +811,9 @@ class dbxWorkflowModule {
       }
 
       $db = $this->db();
-      $channelRows = $db->select(
+      $channel_rows = $db->select(
          'dbxShop|shopProductChannel',
-         array('product_id' => $productId, 'channel_key' => 'ebay'),
+         array('product_id' => $product_id, 'channel_key' => 'ebay'),
          '*',
          'id',
          'DESC',
@@ -826,23 +822,23 @@ class dbxWorkflowModule {
          0,
          1
       );
-      if (!is_array($channelRows) || $db->get_error_status() !== '') {
+      if (!is_array($channel_rows) || $db->get_error_status() !== '') {
          return array('ok' => 0, 'message' => 'Channel-Daten konnten nicht gelesen werden.');
       }
-      $channelRow = (is_array($channelRows) && isset($channelRows[0])) ? $channelRows[0] : array();
-      if (trim((string)($channelRow['last_export_date'] ?? '')) !== '') {
-         $status = strtolower(trim((string)($channelRow['export_status'] ?? '')));
-         $message = trim((string)($channelRow['export_message'] ?? ''));
-         $listingId = trim((string)($channelRow['external_listing_id'] ?? ''));
+      $channel_row = (is_array($channel_rows) && isset($channel_rows[0])) ? $channel_rows[0] : array();
+      if (trim((string)($channel_row['last_export_date'] ?? '')) !== '') {
+         $status = strtolower(trim((string)($channel_row['export_status'] ?? '')));
+         $message = trim((string)($channel_row['export_message'] ?? ''));
+         $listing_id = trim((string)($channel_row['external_listing_id'] ?? ''));
          if (in_array($status, array('failed', 'error'), true)) {
             return array('ok' => 0, 'message' => 'Der eBay-Export ist fehlgeschlagen' . ($message !== '' ? ': ' . $message : '.') );
          }
-         if ($listingId === '' || !in_array($status, array('published', 'exported', 'ready'), true)) {
+         if ($listing_id === '' || !in_array($status, array('published', 'exported', 'ready'), true)) {
             return array('ok' => 0, 'message' => 'Die eBay-Rückmeldung ist noch nicht eindeutig erfolgreich. Bitte Status und Listing-ID prüfen' . ($message !== '' ? ': ' . $message : '.') );
          }
          return array(
             'ok' => 1,
-            'message' => 'eBay-Veröffentlichung bestätigt: ' . $status . ', Listing-ID ' . $listingId . ($message !== '' ? ' - ' . $message : '') . '.'
+            'message' => 'eBay-Veröffentlichung bestätigt: ' . $status . ', Listing-ID ' . $listing_id . ($message !== '' ? ' - ' . $message : '') . '.'
          );
       }
 
@@ -852,35 +848,35 @@ class dbxWorkflowModule {
       );
    }
 
-   public function applyFinish(array $definition, array $values) {
-      $definition = $this->applyBindRef($definition);
-      $shopResult = $this->shopWorkflowFinish($definition, $values);
-      if (is_array($shopResult)) {
-         return $shopResult;
+   public function apply_finish(array $definition, array $values) {
+      $definition = $this->apply_bind_ref($definition);
+      $shop_result = $this->shop_workflow_finish($definition, $values);
+      if (is_array($shop_result)) {
+         return $shop_result;
       }
 
-      $finish = (array)($this->bindConfig($definition)['finish'] ?? array());
+      $finish = (array)($this->bind_config($definition)['finish'] ?? array());
       if (!$finish || (string)($finish['type'] ?? '') !== 'dd_update') {
          return null;
       }
 
-      $recordCfg = $this->recordConfig($definition);
-      $dd = trim((string)($recordCfg['dd'] ?? ''));
-      $rid = $this->recordIdFromValues($definition, $values);
+      $record_cfg = $this->record_config($definition);
+      $dd = trim((string)($record_cfg['dd'] ?? ''));
+      $rid = $this->record_id_from_values($definition, $values);
       if ($dd === '' || $rid <= 0) {
          return array('ok' => 0, 'message' => 'Kein Datensatz fuer den Abschluss ausgewaehlt.');
       }
 
-      $record = $this->loadRecord($definition, $rid);
+      $record = $this->load_record($definition, $rid);
       if (!$record) {
          return array('ok' => 0, 'message' => 'Datensatz #' . $rid . ' wurde nicht gefunden.');
       }
 
-      $update = $this->resolveMap((array)($finish['map'] ?? array()), $definition, $values, $record);
+      $update = $this->resolve_map((array)($finish['map'] ?? array()), $definition, $values, $record);
 
       if (array_key_exists('reply_text', (array)($finish['map'] ?? array()))) {
-         $replyText = trim((string)($update['reply_text'] ?? ''));
-         if (strlen($replyText) < 2) {
+         $reply_text = trim((string)($update['reply_text'] ?? ''));
+         if (strlen($reply_text) < 2) {
             return array('ok' => 0, 'message' => 'Bitte eine Rueckmeldung mit mindestens 2 Zeichen erfassen.');
          }
       }
@@ -894,43 +890,43 @@ class dbxWorkflowModule {
       $mail = (array)($finish['mail'] ?? array());
 
       if ($mail) {
-         $whenNeed = trim((string)($mail['when_need'] ?? ''));
-         $whenValue = (string)($mail['when_value'] ?? '1');
-         $send = ($whenNeed === '') || ((string)($values[$whenNeed] ?? '') === $whenValue);
+         $when_need = trim((string)($mail['when_need'] ?? ''));
+         $when_value = (string)($mail['when_value'] ?? '1');
+         $send = ($when_need === '') || ((string)($values[$when_need] ?? '') === $when_value);
 
-         $configModul = trim((string)($mail['config_modul'] ?? ($definition['bind']['modul'] ?? '')));
-         $modeKey = trim((string)($mail['mode_key'] ?? 'reply_mode'));
-         if ($configModul !== '' && $modeKey !== '' && !$this->configHasPart($configModul, $modeKey, 'mail')) {
+         $config_modul = trim((string)($mail['config_modul'] ?? ($definition['bind']['modul'] ?? '')));
+         $mode_key = trim((string)($mail['mode_key'] ?? 'reply_mode'));
+         if ($config_modul !== '' && $mode_key !== '' && !$this->config_has_part($config_modul, $mode_key, 'mail')) {
             $send = false;
          }
 
          if ($send) {
-            $toField = trim((string)($mail['to_field'] ?? 'email'));
-            $to = trim((string)($record[$toField] ?? ''));
+            $to_field = trim((string)($mail['to_field'] ?? 'email'));
+            $to = trim((string)($record[$to_field] ?? ''));
             if ($to === '') {
                $message .= ' E-Mail-Versand nicht moeglich (keine Adresse).';
             } else {
-               $subjectTpl = (string)($mail['subject_tpl'] ?? 'Antwort');
-               $subject = $this->labelFromTemplate($subjectTpl, array_merge($record, $update));
-               $bodyTpl = trim((string)($mail['body_tpl'] ?? ''));
-               $bodyVars = array();
-               foreach ((array)($mail['body_vars'] ?? array()) as $tplKey => $source) {
-                  $bodyVars[$tplKey] = $this->h($this->resolveToken($source, $definition, $values, $record));
+               $subject_tpl = (string)($mail['subject_tpl'] ?? 'Antwort');
+               $subject = $this->label_from_template($subject_tpl, array_merge($record, $update));
+               $body_tpl = trim((string)($mail['body_tpl'] ?? ''));
+               $body_vars = array();
+               foreach ((array)($mail['body_vars'] ?? array()) as $tpl_key => $source) {
+                  $body_vars[$tpl_key] = $this->h($this->resolve_token($source, $definition, $values, $record));
                }
-               $html = $bodyTpl !== '' ? $this->tpl()->get_tpl($bodyTpl, $bodyVars) : nl2br($this->h((string)($update['reply_text'] ?? '')));
+               $html = $body_tpl !== '' ? $this->tpl()->get_tpl($body_tpl, $body_vars) : nl2br($this->h((string)($update['reply_text'] ?? '')));
 
-               $from = trim((string)dbx()->get_cfg($configModul, 'mail_from'));
-               $fromName = trim((string)dbx()->get_cfg($configModul, 'mail_from_name'));
-               $fromParam = ($from !== '') ? array('email' => $from, 'name' => $fromName) : '';
+               $from = trim((string)dbx()->get_cfg($config_modul, 'mail_from'));
+               $from_name = trim((string)dbx()->get_cfg($config_modul, 'mail_from_name'));
+               $from_param = ($from !== '') ? array('email' => $from, 'name' => $from_name) : '';
                $options = array('text' => strip_tags(str_replace('<br />', "\n", $html)));
-               $profile = trim((string)dbx()->get_cfg($configModul, 'mail_profile'));
+               $profile = trim((string)dbx()->get_cfg($config_modul, 'mail_profile'));
                if ($profile !== '') {
                   $options['mail_profile'] = $profile;
                }
 
-               $mailOk = dbx()->send_mail($fromParam, $to, $subject, $html, 'html', array(), $options);
-               if ($mailOk) {
-                  $track = $this->resolveMap((array)($mail['track_fields'] ?? array()), $definition, $values, $record);
+               $mail_ok = dbx()->get_system_obj('dbxMail')->send_message($from_param, $to, $subject, $html, 'html', array(), $options);
+               if ($mail_ok) {
+                  $track = $this->resolve_map((array)($mail['track_fields'] ?? array()), $definition, $values, $record);
                   if ($track) {
                      $this->db()->update($dd, $track, $rid);
                   }

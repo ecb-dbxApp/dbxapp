@@ -16,7 +16,7 @@ trait dbxDashboardContentCacheServiceTrait {
    }
 
    private function content_cache_enabled_config(): bool {
-      return \dbx\dbxContent\dbxContentPageCache::isConfigEnabled();
+      return \dbx\dbxContent\dbxContentPageCache::is_config_enabled();
    }
 
    private function content_cache_files_for_lng(string $lng): int {
@@ -26,7 +26,7 @@ trait dbxDashboardContentCacheServiceTrait {
          return 0;
       }
 
-      $base = \dbx\dbxContent\dbxContentPageCache::baseDir() . 'content/';
+      $base = \dbx\dbxContent\dbxContentPageCache::base_dir() . 'content/';
       return count(glob($base . 'full-page/*_' . $lng . '_*.htm') ?: array());
    }
 
@@ -37,7 +37,7 @@ trait dbxDashboardContentCacheServiceTrait {
       $lngs = dbx()->accessible_lngs();
       $tones = array('teal', 'navy', 'amber', 'cyan', 'purple', 'green');
       $rows = '';
-      $toneIndex = 0;
+      $tone_index = 0;
 
       foreach ($lngs as $lng) {
          $lng = strtolower(trim((string) $lng));
@@ -48,21 +48,21 @@ trait dbxDashboardContentCacheServiceTrait {
          $meta = $catalog[$lng] ?? array(
             'label' => strtoupper($lng),
             'flag' => '🌐',
-            'tone' => $tones[$toneIndex % count($tones)],
+            'tone' => $tones[$tone_index % count($tones)],
          );
-         $toneIndex++;
+         $tone_index++;
 
-         $pagesTotal = $this->safe_count(\dbx\dbxContent\dbxContentLng::ddContent($lng));
-         $pagesActive = $this->safe_count(\dbx\dbxContent\dbxContentLng::ddContent($lng), 'activ = 1');
-         $folders = $this->safe_count(\dbx\dbxContent\dbxContentLng::ddFolder($lng));
+         $pages_total = $this->safe_count(\dbx\dbxContent\dbxContentLng::dd_content($lng));
+         $pages_active = $this->safe_count(\dbx\dbxContent\dbxContentLng::dd_content($lng), 'activ = 1');
+         $folders = $this->safe_count(\dbx\dbxContent\dbxContentLng::dd_folder($lng));
 
          $rows .= $tpl->get_tpl('dbxAdmin|admin-dashboard-content-cache-lng', array(
             'flag' => dbx()->esc($meta['flag'] ?? '🌐'),
             'label' => dbx()->esc($meta['label'] ?? strtoupper($lng)),
             'code' => dbx()->esc(strtoupper($lng)),
             'tone' => dbx()->esc($meta['tone'] ?? 'teal'),
-            'pages_total' => $this->fmt($pagesTotal),
-            'pages_active' => $this->fmt($pagesActive),
+            'pages_total' => $this->fmt($pages_total),
+            'pages_active' => $this->fmt($pages_active),
             'folders' => $this->fmt($folders),
             'cached' => $this->fmt($this->content_cache_files_for_lng($lng)),
          ));
@@ -86,7 +86,7 @@ trait dbxDashboardContentCacheServiceTrait {
       $this->load_content_cache_classes();
 
       if ($run2 === 'cache_flush') {
-         \dbx\dbxContent\dbxContentPageCache::invalidateAll();
+         \dbx\dbxContent\dbxContentPageCache::invalidate_all();
          return;
       }
 
@@ -97,14 +97,14 @@ trait dbxDashboardContentCacheServiceTrait {
 
       if ($run2 === 'cache_save') {
          $enabled = isset($_POST['cache_content']);
-         \dbx\dbxContent\dbxContentPageCache::setConfigEnabled($enabled);
+         \dbx\dbxContent\dbxContentPageCache::set_config_enabled($enabled);
       }
    }
 
    private function content_cache_panel_body_data(): array {
       $this->load_content_cache_classes();
-      $stats = \dbx\dbxContent\dbxContentPageCache::cacheStats();
-      $sitemapStats = \dbx\dbxContent\dbxContentSitemap::stats();
+      $stats = \dbx\dbxContent\dbxContentPageCache::cache_stats();
+      $sitemap_stats = \dbx\dbxContent\dbxContentSitemap::stats();
       $enabled = $this->content_cache_enabled_config();
 
       return array(
@@ -123,60 +123,61 @@ trait dbxDashboardContentCacheServiceTrait {
                . dbx()->esc('Head-Metadaten, Design, Menues und Module sind fertig aufgeloest; ein HIT braucht nur den Session-Zugriff, aber keine Content-Datenbank.')
             : dbx()->esc('Vorhandene Gastseiten werden weiterhin aus dem Cache ausgegeben. Cache-Misses werden live gerendert, aber nicht neu gespeichert.'),
          'cache_content_count' => $this->fmt((int) ($stats['content'] ?? 0)),
-         'sitemap_count' => $this->fmt((int) ($sitemapStats['urls'] ?? 0)),
-         'sitemap_generated' => dbx()->esc((string) ($sitemapStats['generated_at'] ?? '')),
-         'sitemap_state' => dbx()->esc(!empty($sitemapStats['exists']) ? 'vorhanden' : 'nicht erstellt'),
+         'sitemap_count' => $this->fmt((int) ($sitemap_stats['urls'] ?? 0)),
+         'sitemap_generated' => dbx()->esc((string) ($sitemap_stats['generated_at'] ?? '')),
+         'sitemap_state' => dbx()->esc(!empty($sitemap_stats['exists']) ? 'vorhanden' : 'nicht erstellt'),
          'cache_dir' => dbx()->esc((string) ($stats['base_dir'] ?? '')),
          'lng_rows' => $this->content_cache_language_rows(),
       );
    }
 
    private function content_cache_panel_body_html(): string {
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-content-cache-body', 'admin-dashboard-content-cache-body');
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run';
-      $oForm->_msg_info = '';
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-content-cache-body', 'admin-dashboard-content-cache-body');
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run');
+      $o_form->_msg_info = '';
 
       foreach ($this->content_cache_panel_body_data() as $key => $value) {
-         $oForm->add_rep($key, $value);
+         $o_form->add_rep($key, $value);
       }
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 
    private function content_cache_bar_actions_html(): string {
       $this->load_content_cache_classes();
       $enabled = $this->content_cache_enabled_config();
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-content-cache-actions', 'admin-dashboard-content-cache-actions');
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=cache_save';
-      $oForm->_msg_info = '';
-      $oForm->add_rep('cache_save_url', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=cache_save'));
-      $oForm->add_rep('cache_flush_url', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=cache_flush'));
-      $oForm->add_rep('sitemap_rebuild_url', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=sitemap_rebuild'));
-      $oForm->add_rep('cache_enabled_checked', $enabled ? 'checked' : '');
-      $oForm->add_rep('bar_extra', $this->help_action('cache'));
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-content-cache-actions', 'admin-dashboard-content-cache-actions');
+      $o_form->set_form_help_enabled(false);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=cache_save');
+      $o_form->_msg_info = '';
+      $o_form->add_rep('cache_save_url', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=cache_save'));
+      $o_form->add_rep('cache_flush_url', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=cache_flush'));
+      $o_form->add_rep('sitemap_rebuild_url', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=sitemap_rebuild'));
+      $o_form->add_rep('cache_enabled_checked', $enabled ? 'checked' : '');
+      $o_form->add_rep('bar_extra', $this->help_action('cache'));
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 
    private function content_cache_panel() {
-      $oForm = new \dbxForm();
-      $panelTarget = 'content-cache';
-      $oForm->init('admin-dashboard-content-cache', 'admin-dashboard-content-cache');
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run';
-      $oForm->_msg_info = '';
-      $oForm->add_obj('cache_bar', 'dbx|component-bar', $this->card_bar_data(
+      $o_form = new \dbxForm();
+      $panel_target = 'content-cache';
+      $o_form->init('admin-dashboard-content-cache', 'admin-dashboard-content-cache');
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run');
+      $o_form->_msg_info = '';
+      $o_form->add_obj('cache_bar', 'dbx|module-bar', $this->card_bar_data(
          'Gast-Full-Page-Cache',
          'bi-lightning-charge-fill',
          'Komplette Endausgabe gueltiger Permalinks, ausschliesslich fuer nicht angemeldete Gaeste',
          $this->content_cache_bar_actions_html()
             . $this->card_action('?dbx_modul=dbxContent_admin&dbx_run1=content&dbx_run2=edit', 'CMS')
-            . $this->collapse_action($panelTarget, 'Zuklappen', true)
+            . $this->collapse_action($panel_target, 'Zuklappen', true)
       ));
-      $oForm->add_rep('panel_target', dbx()->esc($panelTarget));
-      $oForm->add_rep('cache_body', $this->content_cache_panel_body_html());
+      $o_form->add_rep('panel_target', dbx()->esc($panel_target));
+      $o_form->add_rep('cache_body', $this->content_cache_panel_body_html());
 
-      return $oForm->run();
+      return $o_form->run();
    }
 }

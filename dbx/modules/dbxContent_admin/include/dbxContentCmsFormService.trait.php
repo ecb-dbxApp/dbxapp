@@ -24,8 +24,7 @@ trait dbxContentCmsFormServiceTrait {
       $texts = $this->cms_texts();
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('cms-page', 'cms-admin-page-form');
-      $form->_dd = dbxContentLng::ddContent();
-      $form->_fd = 'dbxContent_admin|cms-page';
+      $form->set_data_source(dbxContentLng::dd_content(), 'dbxContent_admin|cms-page');
       $form->load_fd_messages();
       $form->set_form_help_enabled(false);
       $this->add_form_message_replaces($form, array(
@@ -34,7 +33,7 @@ trait dbxContentCmsFormServiceTrait {
          'content_template_edit_aria',
          'content_template_select_first',
       ));
-      $form->_data = array(
+      $form->set_data(array(
          'activ' => 1,
          'template' => 'parent',
          'hero_template' => 'parent',
@@ -55,7 +54,7 @@ trait dbxContentCmsFormServiceTrait {
          'seo_title' => '',
          'seo_image_id' => 0,
          'menu_title' => '',
-      );
+      ));
       $form->add_fld('id', 'dbxContent_admin|cms-field-hidden', data: $this->cms_field_data('id', 'page'));
       $form->add_fld('folder', 'dbxContent_admin|cms-field-select', label: $texts->get_fd_message('label_folder'), rules: 'int', data: $this->cms_field_data('folder', 'page'), options: $this->page_folder_values());
       $form->add_fld('title', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_title'), rules: 'varchar|min=1', data: $this->cms_field_data('title', 'page'));
@@ -75,7 +74,7 @@ trait dbxContentCmsFormServiceTrait {
       $values = array('0' => $this->cms_texts()->get_fd_message('option_root'));
       $db = dbx()->get_system_obj('dbxDB');
       $rows = $db->select(
-         dbxContentLng::ddFolder(),
+         dbxContentLng::dd_folder(),
          '',
          'id,parent_id,name,sorter',
          'sorter,name,id',
@@ -129,8 +128,7 @@ trait dbxContentCmsFormServiceTrait {
       $texts = $this->cms_texts();
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('cms-folder', 'cms-admin-folder-form');
-      $form->_dd = dbxContentLng::ddFolder();
-      $form->_fd = 'dbxContent_admin|cms-page';
+      $form->set_data_source(dbxContentLng::dd_folder(), 'dbxContent_admin|cms-page');
       $form->load_fd_messages();
       $form->set_form_help_enabled(false);
       $this->add_form_message_replaces($form, array(
@@ -146,7 +144,7 @@ trait dbxContentCmsFormServiceTrait {
          'content_template_edit_aria',
          'content_template_select_first',
       ));
-      $form->_data = array(
+      $form->set_data(array(
          'parent_id' => 0,
          'group_read' => 'parent',
          'template' => 'parent',
@@ -157,7 +155,7 @@ trait dbxContentCmsFormServiceTrait {
          'hero_variant' => 'parent',
          'hero_sticky' => 'parent',
          'hero_scroll_layer' => 'parent',
-      );
+      ));
       $form->add_fld('id', 'dbxContent_admin|cms-field-folder-hidden', data: $this->cms_field_data('id', 'folder'));
       $form->add_fld('name', 'dbxContent_admin|cms-field-folder-text', label: $texts->get_fd_message('label_name'), rules: 'varchar|min=1', data: $this->cms_field_data('name', 'folder'));
       $form->add_fld('parent_id', 'dbxContent_admin|cms-field-folder-select', label: $texts->get_fd_message('label_assignment'), rules: 'int', data: $this->cms_field_data('parent_id', 'folder'), options: array('0' => $texts->get_fd_message('option_root')));
@@ -172,8 +170,7 @@ trait dbxContentCmsFormServiceTrait {
       $texts = $this->cms_texts();
       $form = dbx()->get_system_obj('dbxForm');
       $form->init('cms-settings', 'cms-admin-settings-panels');
-      $form->_dd = dbxContentLng::ddContent();
-      $form->_fd = 'dbxContent_admin|cms-page';
+      $form->set_data_source(dbxContentLng::dd_content(), 'dbxContent_admin|cms-page');
       $form->load_fd_messages();
       $form->set_form_help_enabled(false);
       $this->add_form_message_replaces($form, array(
@@ -190,7 +187,7 @@ trait dbxContentCmsFormServiceTrait {
          'save_label',
          'media_gallery_empty',
       ));
-      $form->_data = array(
+      $form->set_data(array(
          'hero_template' => 'parent',
          'hero_image_id' => 'parent',
          'hero_margin_top' => 'parent',
@@ -204,7 +201,7 @@ trait dbxContentCmsFormServiceTrait {
          'gallery_lightbox_width' => '100vw',
          'gallery_overflow' => 'grid',
          'gallery_click_behavior' => 'lightbox',
-      );
+      ));
       $form->add_fld('hero_template', 'dbxContent_admin|cms-field-select', label: $texts->get_fd_message('label_hero_template'), rules: 'varchar', data: $this->cms_field_data('hero_template', 'settings'), options: $this->cms_options()->hero_template_values());
       $form->add_fld('hero_image_id', 'dbxContent_admin|cms-field-hidden', rules: 'varchar', data: $this->cms_field_data('hero_image_id', 'settings'));
       $form->add_fld('hero_margin_top', 'dbxContent_admin|cms-field-text', label: $texts->get_fd_message('label_hero_margin_top'), rules: 'varchar', data: $this->cms_field_data('hero_margin_top', 'settings'));

@@ -3,6 +3,7 @@ namespace dbx\dbxContact;
 
 require_once __DIR__ . '/dbxContactConfig.class.php';
 require_once __DIR__ . '/dbxContactTicket.class.php';
+require_once __DIR__ . '/dbxContactPresentation.class.php';
 
 class dbxContactForm {
 
@@ -12,19 +13,10 @@ class dbxContactForm {
       return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
    }
 
-   private function mail_profile_options(array $extra = array()) {
-      $profile = trim((string) dbx()->get_cfg('dbxContact', 'mail_profile'));
-      if ($profile !== '') {
-         $extra['mail_profile'] = $profile;
-      }
-
-      return $extra;
-   }
-
    private function mail_from_param(): array {
       $from = trim((string) dbx()->get_cfg('dbxContact', 'mail_from'));
-      $fromName = trim((string) dbx()->get_cfg('dbxContact', 'mail_from_name'));
-      return array('email' => $from, 'name' => $fromName);
+      $from_name = trim((string) dbx()->get_cfg('dbxContact', 'mail_from_name'));
+      return array('email' => $from, 'name' => $from_name);
    }
 
    private function spam_reason(array $data): string {
@@ -76,12 +68,12 @@ class dbxContactForm {
             . "Betreff: " . ($data['subject'] ?? '') . "\n\n"
             . ($data['message'] ?? '');
 
-      $options = $this->mail_profile_options(array(
+      $options = dbxContactPresentation::mail_options(array(
          'reply_to' => array('email' => (string) ($data['email'] ?? ''), 'name' => (string) ($data['name'] ?? '')),
          'text'     => $text,
       ));
 
-      return dbx()->send_mail($from, $to, $subject, $html, 'html', array(), $options);
+      return dbx()->get_system_obj('dbxMail')->send_message($from, $to, $subject, $html, 'html', array(), $options);
    }
 
    private function mail_confirm(array $data, int $rid) {
@@ -122,14 +114,14 @@ class dbxContactForm {
             . ($data['message'] ?? '') . "\n\n"
             . "Wir melden uns so bald wie moeglich bei Ihnen. Sie muessen nichts weiter unternehmen.";
 
-      return dbx()->send_mail(
+      return dbx()->get_system_obj('dbxMail')->send_message(
          $from,
          $to,
          $subject,
          $html,
          'html',
          array(),
-         $this->mail_profile_options(array('text' => $text))
+         dbxContactPresentation::mail_options(array('text' => $text))
       );
    }
 
@@ -167,7 +159,7 @@ class dbxContactForm {
       return dbx()->get_system_obj('dbxTPL')->get_tpl('dbxContact|contact-my-requests-button');
    }
 
-   private function snapshot_submitted_data($oForm) {
+   private function snapshot_submitted_data($o_form) {
       $fields = array(
          'name'    => 'words|min=2|max=160',
          'email'   => 'email|max=180',
@@ -178,15 +170,15 @@ class dbxContactForm {
       $data = array();
 
       foreach ($fields as $name => $rules) {
-         $value = trim((string) $oForm->get_post($name, '', $rules));
+         $value = trim((string) $o_form->get_post($name, '', $rules));
          $data[$name] = $value;
-         $oForm->set_post($name, $value);
+         $o_form->set_post($name, $value);
       }
 
       return $data;
    }
 
-   private function confirm_notes(array $data, int $rid, ?bool $confirmMailOk, $form) {
+   private function confirm_notes(array $data, int $rid, ?bool $confirm_mail_ok, $form) {
       $notes = array();
       $notes[] = $form->get_fd_message('confirm_received');
       $notes[] = $form->format_fd_message(
@@ -195,19 +187,19 @@ class dbxContactForm {
       );
 
       $email = trim((string) ($data['email'] ?? ''));
-      $safeEmail = $this->h($email);
-      if (dbxContactConfig::mailConfirmRequester()) {
-         if ($confirmMailOk === true && $email !== '') {
+      $safe_email = $this->h($email);
+      if (dbxContactConfig::mail_confirm_requester()) {
+         if ($confirm_mail_ok === true && $email !== '') {
             $notes[] = $form->format_fd_message(
                'confirm_mail_sent',
-               array('email' => $safeEmail)
+               array('email' => $safe_email)
             );
-         } elseif ($confirmMailOk === false && $email !== '') {
+         } elseif ($confirm_mail_ok === false && $email !== '') {
             $notes[] = $form->get_fd_message('confirm_mail_failed');
          } elseif ($email !== '') {
             $notes[] = $form->format_fd_message(
                'confirm_mail_pending',
-               array('email' => $safeEmail)
+               array('email' => $safe_email)
             );
          }
       }
@@ -222,7 +214,7 @@ class dbxContactForm {
       return $html;
    }
 
-   private function render_confirm(array $data, int $rid, ?bool $confirmMailOk, $form) {
+   private function render_confirm(array $data, int $rid, ?bool $confirm_mail_ok, $form) {
       $tpl = dbx()->get_system_obj('dbxTPL');
       $phone = trim((string) ($data['phone'] ?? ''));
 
@@ -237,7 +229,7 @@ class dbxContactForm {
          'confirm_notes' => $this->confirm_notes(
             $data,
             $rid,
-            $confirmMailOk,
+            $confirm_mail_ok,
             $form
          ),
          'my_requests'   => $this->my_requests_button(),
@@ -271,66 +263,65 @@ class dbxContactForm {
    }
 
    public function run() {
-      $oForm = dbx()->get_system_obj('dbxForm');
-      $oDB   = dbx()->get_system_obj('dbxDB');
-      $successContent = '';
+      $o_form = dbx()->get_system_obj('dbxForm');
+      $o_db   = dbx()->get_system_obj('dbxDB');
+      $success_content = '';
 
-      $oForm->init('dbxContact_form', 'contact-form');
-      $oForm->set_editor_class_file(__FILE__);
-      $oForm->_dd = $this->dd;
-      $oForm->_fd = 'dbxContact|contact-form';
-      $oForm->load_fd_messages();
-      $oForm->_action = '?dbx_modul=dbxContact&dbx_run1=form';
-      $oForm->add_module_bar(
-         $oForm->get_fd_message('bar_title'),
+      $o_form->init('dbxContact_form', 'contact-form');
+      $o_form->set_editor_class_file(__FILE__);
+      $o_form->set_data_source($this->dd, 'dbxContact|contact-form');
+      $o_form->load_fd_messages();
+      $o_form->set_action('?dbx_modul=dbxContact&dbx_run1=form');
+      $o_form->add_module_bar(
+         $o_form->get_fd_message('bar_title'),
          'bi-envelope-paper',
-         $oForm->get_fd_message('bar_subtitle')
+         $o_form->get_fd_message('bar_subtitle')
       );
-      $oForm->add_rep('bar_class', 'dbx-bar--module');
-      $oForm->add_rep('frame_panel_class', 'dbxForm_wrapper dbx-contact');
-      $oForm->prepare_form_shell(array('class' => 'dbx-contact-form'));
-      $oForm->add_rep('bar_actions', '{obj:contact_bar_actions}');
-      $oForm->add_obj('contact_bar_actions', 'dbxContact|contact-form-bar-actions', array(
-         'bar_form_id' => 'dbx_form_' . (int) $oForm->_next_i,
+      $o_form->add_rep('bar_class', 'dbx-bar--module');
+      $o_form->add_rep('frame_panel_class', 'dbxForm_wrapper dbx-contact');
+      $o_form->prepare_form_shell(array('class' => 'dbx-contact-form'));
+      $o_form->add_rep('bar_actions', '{obj:contact_bar_actions}');
+      $o_form->add_obj('contact_bar_actions', 'dbxContact|contact-form-bar-actions', array(
+         'bar_form_id' => 'dbx_form_' . (int) $o_form->_next_i,
       ));
-      $oForm->_data = $this->current_user_defaults();
-      $oForm->set_msg_info('');
-      $oForm->set_msg_ok($oForm->get_fd_message('request_success'));
-      $oForm->set_msg_error($oForm->get_fd_message('validation_error'));
-      $oForm->set_msg_warning($oForm->get_fd_message('form_warning'));
-      $oForm->_try_reset = 6;
-      $oForm->_try_max = 5;
-      $oForm->_try_msg = $oForm->get_fd_message('try_limit');
+      $o_form->set_data($this->current_user_defaults());
+      $o_form->set_msg_info('');
+      $o_form->set_msg_ok($o_form->get_fd_message('request_success'));
+      $o_form->set_msg_error($o_form->get_fd_message('validation_error'));
+      $o_form->set_msg_warning($o_form->get_fd_message('form_warning'));
+      $o_form->_try_reset = 6;
+      $o_form->_try_max = 5;
+      $o_form->_try_msg = $o_form->get_fd_message('try_limit');
 
-      $oForm->add_fld('name');
-      $oForm->add_fld('email');
-      $oForm->add_fld('phone');
-      $oForm->add_fld('subject');
-      $oForm->add_fld('message');
+      $o_form->add_fld('name');
+      $o_form->add_fld('email');
+      $o_form->add_fld('phone');
+      $o_form->add_fld('subject');
+      $o_form->add_fld('message');
       if ((int) dbx()->user() > 0) {
-         $oForm->add_obj('my_requests', 'dbxContact|contact-my-requests-button');
+         $o_form->add_obj('my_requests', 'dbxContact|contact-my-requests-button');
       } else {
-         $oForm->add_obj('my_requests', 'obj-value', '');
+         $o_form->add_obj('my_requests', 'obj-value', '');
       }
 
-      if ($oForm->submit()) {
-         if (!$oForm->errors()) {
-            $submitData = $this->snapshot_submitted_data($oForm);
-            $spamReason = $this->spam_reason($submitData);
-            if ($spamReason !== '') {
-               $oForm->set_msg_error(
-                  $oForm->get_fd_message('spam_error')
+      if ($o_form->submit()) {
+         if (!$o_form->errors()) {
+            $submit_data = $this->snapshot_submitted_data($o_form);
+            $spam_reason = $this->spam_reason($submit_data);
+            if ($spam_reason !== '') {
+               $o_form->set_msg_error(
+                  $o_form->get_fd_message('spam_error')
                );
-               $oForm->add_fld_error(
+               $o_form->add_fld_error(
                   'message',
-                  $oForm->get_fd_message('spam_field_error')
+                  $o_form->get_fd_message('spam_field_error')
                );
-               dbx()->sys_msg('security', 'dbxContact', 'spam_guard', 'Kontaktanfrage blockiert', $spamReason . ' email=' . ($submitData['email'] ?? ''));
+               dbx()->sys_msg('security', 'dbxContact', 'spam_guard', 'Kontaktanfrage blockiert', $spam_reason . ' email=' . ($submit_data['email'] ?? ''));
             }
          }
 
-         if (!$oForm->errors()) {
-            $submitData = $this->snapshot_submitted_data($oForm);
+         if (!$o_form->errors()) {
+            $submit_data = $this->snapshot_submitted_data($o_form);
             $extra = array(
                'uid'                => (int) dbx()->user(),
                'status'             => 'open',
@@ -342,16 +333,16 @@ class dbxContactForm {
                'confirm_mail_sent_date' => '',
             );
 
-            $ok = $oForm->save_post($this->dd, 0, $extra);
-            $rid = (int) $oForm->_rid;
+            $ok = $o_form->save_post($this->dd, 0, $extra);
+            $rid = $o_form->current_rid();
 
             if (!$ok || $rid <= 0) {
-               $oForm->_msg_error = $oForm->get_fd_message(
+               $o_form->_msg_error = $o_form->get_fd_message(
                   'store_error'
                );
             } else {
-               $data = $submitData;
-               $record = $oDB->select1($this->dd, $rid, '*', 0);
+               $data = $submit_data;
+               $record = $o_db->select1($this->dd, $rid, '*', 0);
                if (is_array($record)) {
                   foreach (array('name', 'email', 'phone', 'subject', 'message') as $field) {
                      if (trim((string) ($data[$field] ?? '')) === '' && trim((string) ($record[$field] ?? '')) !== '') {
@@ -359,9 +350,9 @@ class dbxContactForm {
                      }
                   }
                }
-               $confirmMailOk = null;
+               $confirm_mail_ok = null;
 
-               dbxContactTicket::addMessage($oDB, $rid, array(
+               dbxContactTicket::add_message($o_db, $rid, array(
                   'author_uid' => (int) dbx()->user(),
                   'author_type' => 'requester',
                   'message_type' => 'request',
@@ -369,65 +360,65 @@ class dbxContactForm {
                   'body' => (string) ($data['message'] ?? ''),
                   'status_to' => 'open',
                ));
-               dbxContactTicket::touch($oDB, $rid, array(
+               dbxContactTicket::touch($o_db, $rid, array(
                   'priority' => 'normal',
                   'user_hidden' => 0,
                ));
 
-               if (dbxContactConfig::mailAdminOnRequest()) {
-                  $adminMailOk = (bool) $this->mail_request($data, $rid);
-                  if ($adminMailOk) {
-                     $oDB->update($this->dd, array(
+               if (dbxContactConfig::mail_admin_on_request()) {
+                  $admin_mail_ok = (bool) $this->mail_request($data, $rid);
+                  if ($admin_mail_ok) {
+                     $o_db->update($this->dd, array(
                         'mail_sent'      => 1,
                         'mail_sent_date' => date('Y-m-d H:i:s'),
                      ), $rid, 0, 1, 1, 1);
                   } else {
-                     $oForm->set_msg_error(
-                        $oForm->get_fd_message('admin_mail_error')
+                     $o_form->set_msg_error(
+                        $o_form->get_fd_message('admin_mail_error')
                      );
-                     $oForm->add_fld_error(
+                     $o_form->add_fld_error(
                         'email',
-                        $oForm->get_fd_message('email_field_error')
+                        $o_form->get_fd_message('email_field_error')
                      );
                   }
                }
 
-               if (!$oForm->errors() && dbxContactConfig::mailConfirmRequester()) {
-                  $confirmMailOk = (bool) $this->mail_confirm($data, $rid);
-                  if ($confirmMailOk) {
-                     $oDB->update($this->dd, array(
+               if (!$o_form->errors() && dbxContactConfig::mail_confirm_requester()) {
+                  $confirm_mail_ok = (bool) $this->mail_confirm($data, $rid);
+                  if ($confirm_mail_ok) {
+                     $o_db->update($this->dd, array(
                         'confirm_mail_sent'      => 1,
                         'confirm_mail_sent_date' => date('Y-m-d H:i:s'),
                      ), $rid, 0, 1, 1, 1);
                   } else {
-                     $oForm->set_msg_error(
-                        $oForm->get_fd_message('confirm_mail_error')
+                     $o_form->set_msg_error(
+                        $o_form->get_fd_message('confirm_mail_error')
                      );
-                     $oForm->add_fld_error(
+                     $o_form->add_fld_error(
                         'email',
-                        $oForm->get_fd_message(
+                        $o_form->get_fd_message(
                            'confirm_email_field_error'
                         )
                      );
                   }
                }
 
-               if (!$oForm->errors()) {
-                  $successContent = $this->render_confirm(
+               if (!$o_form->errors()) {
+                  $success_content = $this->render_confirm(
                      $data,
                      $rid,
-                     $confirmMailOk,
-                     $oForm
+                     $confirm_mail_ok,
+                     $o_form
                   );
                }
             }
          }
       }
 
-      if ($successContent !== '') {
-         return $successContent;
+      if ($success_content !== '') {
+         return $success_content;
       }
 
-      return $oForm->run();
+      return $o_form->run();
    }
 }

@@ -1,51 +1,110 @@
-# Local configuration and secrets
-.env
-.env.local
-.env.*.local
-**/cfg/config.local.php
-*.pem
-*.key
-*.p12
-*.pfx
-
-# Dependencies and generated output
-/dbx/vendor/
-/dist/
-/output/
-/tmp/
-/.phpunit.cache/
-/.playwright-cli/
-
-# Runtime storage
+# =========================
+# DBX DATA (Runtime / Storage)
+# =========================
 /dbx/files/
-/files/
-*.log
-*.tmp
-*.cache
-*.db3
-*.db3-*
-*.sqlite
-*.sqlite3
 
-# Backups and local work products
+# =========================
+# DISABLED / TEST FILES
+# =========================
+**/-*
+
+# =========================
+# BACKUPS (alle Varianten)
+# =========================
 **/backup/
-**/_backup/
+**/*.backup/
 **/.backup/
-**/*.backup
-**/*.bak
-/dbx/modules/dbxKi/work/
 
-# Benutzeravatare sind Laufzeitdaten; nur der neutrale Platzhalter ist Quellcode.
-/dbx/modules/dbxUser/img/avatar/*
-!/dbx/modules/dbxUser/img/avatar/avatar-0.png
-/dbx/modules/dbxUser/tpl/img/avatar/*
-!/dbx/modules/dbxUser/tpl/img/avatar/avatar-0.png
-
-# Editors and operating systems
-/.cursor/
-/.vscode/
-/.idea/
-*.code-workspace
+# =========================
+# SYSTEM / OS
+# =========================
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# =========================
+# EDITOR / IDE
+# =========================
+.cursor/
+.vscode/
+*.code-workspace
+
+# =========================
+# LOGS / TEMP
+# =========================
+*.log
+*.tmp
+*.db3-wal
+*.db3-shm
+*.db3-journal
+.playwright-cli/
+/files/cache/
+/files/tmp/
+/files/db/
+/files/dbxDebug*.txt
+/files/help_test_err.txt
+/files/ftp_check.txt
+/files/media/
+# Product-owned homepage media is versioned explicitly; all other CMS media
+# remains local installation data.
+!/files/media/
+/files/media/*
+!/files/media/img/
+/files/media/img/*
+!/files/media/img/hero/
+/files/media/img/hero/*
+!/files/media/img/hero/dbxapp-platform-hero-20260728.webp
+!/files/media/img/images/
+/files/media/img/images/*
+!/files/media/img/images/dbxapp-systeme-neu-denken-20260728.webp
+!/files/media/img/images/dbxapp-modular-wachsen-20260728.webp
+!/files/media/img/images/dbxapp-kurzfilm-poster-20260728.webp
+!/files/media/img/images/dbxapp-tvspot-poster-20260730.webp
+!/files/media/img/images/dbxapp-original-logo-20260730.png
+!/files/media/img/images/dbxapp-tvspot-poster-20260730-v2.webp
+!/files/media/img/images/dbxapp-tvspot-poster-20260730-v3.webp
+!/files/media/img/images/dbxapp-tvspot-source-shop-active-20260730.png
+!/files/media/img/images/dbxapp-tvspot-source-health-100-20260730.png
+!/files/media/video/
+/files/media/video/*
+!/files/media/video/dbxapp-kurzfilm-20260728.mp4
+!/files/media/video/dbxapp-tvspot-20260730.mp4
+!/files/media/video/dbxapp-tvspot-20260730-license.txt
+!/files/media/video/dbxapp-tvspot-20260730-manifest.json
+!/files/media/video/dbxapp-tvspot-20260730-v2.mp4
+!/files/media/video/dbxapp-tvspot-20260730-v2-license.txt
+!/files/media/video/dbxapp-tvspot-20260730-v2-manifest.json
+!/files/media/video/dbxapp-tvspot-20260730-v3.mp4
+!/files/media/video/dbxapp-tvspot-20260730-v3-license.txt
+!/files/media/video/dbxapp-tvspot-20260730-v3-manifest.json
+/files/mod/
+/files/sys/cfg/
+/files/sys/csv/
+/files/sys/marketplace/
+/files/sys/packages/
+/files/sys/state/
+/files/update/
+/output/
+
+# =========================
+# PROJECT LOCAL / SENSITIVE
+# =========================
+struktur.txt
+.env
+.env.local
+**/cfg/config.local.php
+/dbx/E-Mail _ IONOS.pdf
+
+# SQLite runtime and content databases are local data.
+# DD/setup code creates the structures; Git keeps only the db directories.
+/dbx/modules/*/db/*.db3
+/dbx/modules/*/db/*.sqlite
+
+# Local diagnostic probes.
+/tools/check-mysql.php
+/tools/hangtrace-probe.php
+/tools/pdo-mysql-test.php
+/tools/probe-admin-route.php
+/tools/verify-mysql-cause.php
+test_cookies.txt
+todo.md

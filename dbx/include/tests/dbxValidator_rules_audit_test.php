@@ -33,32 +33,32 @@ foreach ($iterator as $file) {
     }
 
     $path = str_replace('\\', '/', $file->getPathname());
-    $relativePath = '/' . ltrim(str_replace(
+    $relative_path = '/' . ltrim(str_replace(
         '\\',
         '/',
         substr($file->getPathname(), strlen($root . DIRECTORY_SEPARATOR . 'modules'))
     ), '/');
-    if (strpos($relativePath, '/vendor/') !== false
-        || strpos($relativePath, '/add_ons/') !== false
-        || strpos($relativePath, '/work/') !== false) {
+    if (strpos($relative_path, '/vendor/') !== false
+        || strpos($relative_path, '/add_ons/') !== false
+        || strpos($relative_path, '/work/') !== false) {
         continue;
     }
 
     $source = (string)file_get_contents($file->getPathname());
-    foreach ($patterns as $patternNo => $pattern) {
+    foreach ($patterns as $pattern_no => $pattern) {
         if (!preg_match_all($pattern, $source, $matches, PREG_SET_ORDER)) {
             continue;
         }
 
         foreach ($matches as $match) {
-            $valueIndex = $patternNo === 0 ? 3 : 2;
-            $rule = stripcslashes((string)($match[$valueIndex] ?? ''));
+            $value_index = $pattern_no === 0 ? 3 : 2;
+            $rule = stripcslashes((string)($match[$value_index] ?? ''));
             if ($rule === '' || strpbrk($rule, '${}') !== false) {
                 continue;
             }
             $rules[$rule] = true;
 
-            $result = $validator->validateResult('', $rule, 'audit');
+            $result = $validator->validate_result('', $rule, 'audit');
             if (($result['code'] ?? '') === 'invalid_rule') {
                 $errors[] = $path . ': ' . $rule;
             }

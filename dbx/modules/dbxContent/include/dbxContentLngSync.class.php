@@ -7,7 +7,7 @@ require_once __DIR__ . '/dbxContent_permalink.class.php';
 
 class dbxContentLngSync {
 
-   public static function masterLng(): string {
+   public static function master_lng(): string {
       $lng = strtolower(trim((string) dbx()->get_cfg('dbx', 'default_lng', 'de')));
       if ($lng === '' || $lng === 'undef') {
          return 'de';
@@ -15,19 +15,19 @@ class dbxContentLngSync {
       return $lng;
    }
 
-   public static function accessibleLngs(): array {
+   public static function accessible_lngs(): array {
       return dbx()->accessible_lngs();
    }
 
-   public static function isMasterLng(?string $lng = null): bool {
+   public static function is_master_lng(?string $lng = null): bool {
       if ($lng === null || $lng === '') {
          $lng = dbxContentLng::current();
       }
 
-      return strtolower(trim((string) $lng)) === self::masterLng();
+      return strtolower(trim((string) $lng)) === self::master_lng();
    }
 
-   public static function newUid(string $prefix = 'p'): string {
+   public static function new_uid(string $prefix = 'p'): string {
       $prefix = preg_replace('/[^a-z]/', '', strtolower($prefix));
       if ($prefix === '') {
          $prefix = 'p';
@@ -49,7 +49,7 @@ class dbxContentLngSync {
     * auslösen. Fehlende UIDs werden deshalb nur von ensureRecordUid() in
     * ausdrücklich schreibenden Speicher-/Provisionierungsabläufen ergänzt.
     */
-   public static function recordUid($db, string $dd, int $id): string {
+   public static function record_uid($db, string $dd, int $id): string {
       $id = (int) $id;
       if ($id <= 0 || !is_object($db)) {
          return '';
@@ -59,39 +59,39 @@ class dbxContentLngSync {
       return is_array($row) ? trim((string)($row['lng_uid'] ?? '')) : '';
    }
 
-   public static function ensureSchema($db): void {
+   public static function ensure_schema($db): void {
       // Kompatibilitaetsmethode: Das Sprachschema ist in den Content-DDs
       // definiert und wird ausschliesslich ueber dbxDD synchronisiert.
       // Fachliche CMS-/KI-Aufrufe duerfen keine DDL-Aenderung ausloesen.
       return;
    }
 
-   public static function backfillMasterLng($db): void {
+   public static function backfill_master_lng($db): void {
       if (!is_object($db)) {
          return;
       }
 
-      self::ensureSchema($db);
-      $master = self::masterLng();
-      self::backfillTableUids($db, dbxContentLng::ddContent($master), 'p', true);
-      self::backfillTableUids($db, dbxContentLng::ddFolder($master), 'f', true);
+      self::ensure_schema($db);
+      $master = self::master_lng();
+      self::backfill_table_uids($db, dbxContentLng::dd_content($master), 'p', true);
+      self::backfill_table_uids($db, dbxContentLng::dd_folder($master), 'f', true);
    }
 
-   public static function backfillUids($db): void {
+   public static function backfill_uids($db): void {
       if (!is_object($db)) {
          return;
       }
 
-      self::ensureSchema($db);
+      self::ensure_schema($db);
 
-      foreach (self::accessibleLngs() as $lng) {
-         $isMaster = $lng === self::masterLng();
-         self::backfillTableUids($db, dbxContentLng::ddContent($lng), 'p', $isMaster);
-         self::backfillTableUids($db, dbxContentLng::ddFolder($lng), 'f', $isMaster);
+      foreach (self::accessible_lngs() as $lng) {
+         $is_master = $lng === self::master_lng();
+         self::backfill_table_uids($db, dbxContentLng::dd_content($lng), 'p', $is_master);
+         self::backfill_table_uids($db, dbxContentLng::dd_folder($lng), 'f', $is_master);
       }
    }
 
-   public static function ensureRecordUid($db, string $dd, int $id, string $prefix = 'p'): string {
+   public static function ensure_record_uid($db, string $dd, int $id, string $prefix = 'p'): string {
       $id = (int) $id;
       if ($id <= 0 || !is_object($db)) {
          return '';
@@ -107,8 +107,8 @@ class dbxContentLngSync {
          return $uid;
       }
 
-      $uid = self::newUid($prefix);
-      $sync = self::isMasterLng(self::lngFromDd($dd)) ? 'auto' : 'manual';
+      $uid = self::new_uid($prefix);
+      $sync = self::is_master_lng(self::lng_from_dd($dd)) ? 'auto' : 'manual';
       $db->update($dd, array(
          'lng_uid' => $uid,
          'lng_sync' => $sync,
@@ -119,21 +119,21 @@ class dbxContentLngSync {
       return $uid;
    }
 
-   public static function afterPageSave($db, int $id, bool $isNew = false): void {
+   public static function after_page_save($db, int $id, bool $is_new = false): void {
       $id = (int) $id;
       if ($id <= 0 || !is_object($db)) {
          return;
       }
 
-      $dd = dbxContentLng::ddContent();
-      self::ensureRecordUid($db, $dd, $id, 'p');
+      $dd = dbxContentLng::dd_content();
+      self::ensure_record_uid($db, $dd, $id, 'p');
 
-      if (!self::isMasterLng()) {
-         self::markManual($db, $dd, $id);
+      if (!self::is_master_lng()) {
+         self::mark_manual($db, $dd, $id);
          return;
       }
 
-      if ($isNew) {
+      if ($is_new) {
          $row = $db->select1($dd, $id, 'lng_rev,lng_sync', 0);
          $rev = (int) ($row['lng_rev'] ?? 0);
          if ($rev < 1) {
@@ -146,21 +146,21 @@ class dbxContentLngSync {
       }
    }
 
-   public static function afterFolderSave($db, int $id, bool $isNew = false): void {
+   public static function after_folder_save($db, int $id, bool $is_new = false): void {
       $id = (int) $id;
       if ($id <= 0 || !is_object($db)) {
          return;
       }
 
-      $dd = dbxContentLng::ddFolder();
-      self::ensureRecordUid($db, $dd, $id, 'f');
+      $dd = dbxContentLng::dd_folder();
+      self::ensure_record_uid($db, $dd, $id, 'f');
 
-      if (!self::isMasterLng()) {
-         self::markManual($db, $dd, $id);
+      if (!self::is_master_lng()) {
+         self::mark_manual($db, $dd, $id);
          return;
       }
 
-      if ($isNew) {
+      if ($is_new) {
          $db->update($dd, array('lng_rev' => 1, 'lng_sync' => 'auto'), $id, 0, 1, 1, 0);
       } else {
          $row = $db->select1($dd, $id, 'lng_rev', 0);
@@ -169,7 +169,7 @@ class dbxContentLngSync {
       }
    }
 
-   public static function markManual($db, string $dd, int $id): void {
+   public static function mark_manual($db, string $dd, int $id): void {
       $id = (int) $id;
       if ($id <= 0 || !is_object($db)) {
          return;
@@ -178,9 +178,9 @@ class dbxContentLngSync {
       $db->update($dd, array('lng_sync' => 'manual'), $id, 0, 1, 1, 0);
    }
 
-   public static function resolveIdByUid($db, string $dd, string $lngUid, string $lng = ''): int {
-      $lngUid = trim($lngUid);
-      if ($lngUid === '' || !is_object($db)) {
+   public static function resolve_id_by_uid($db, string $dd, string $lng_uid, string $lng = ''): int {
+      $lng_uid = trim($lng_uid);
+      if ($lng_uid === '' || !is_object($db)) {
          return 0;
       }
 
@@ -188,8 +188,8 @@ class dbxContentLngSync {
          $lng = dbxContentLng::current();
       }
 
-      $dd = self::ddForLng($dd, $lng);
-      $rows = $db->select($dd, "lng_uid = '" . str_replace("'", "''", $lngUid) . "'", 'id', 'id', 'ASC', '', 1, 0, 0);
+      $dd = self::dd_for_lng($dd, $lng);
+      $rows = $db->select($dd, "lng_uid = '" . str_replace("'", "''", $lng_uid) . "'", 'id', 'id', 'ASC', '', 1, 0, 0);
       if (!is_array($rows) || !isset($rows[0]['id'])) {
          return 0;
       }
@@ -197,29 +197,29 @@ class dbxContentLngSync {
       return (int) $rows[0]['id'];
    }
 
-   public static function hasMissingSlaveLng($db, string $entity, int $masterId): bool {
+   public static function has_missing_slave_lng($db, string $entity, int $master_id): bool {
       $entity = $entity === 'folder' ? 'folder' : 'page';
-      $masterId = (int) $masterId;
-      if ($masterId <= 0 || !is_object($db) || !self::isMasterLng()) {
+      $master_id = (int) $master_id;
+      if ($master_id <= 0 || !is_object($db) || !self::is_master_lng()) {
          return false;
       }
 
-      $slaveLngs = self::slaveLngs();
-      if (!count($slaveLngs)) {
+      $slave_lngs = self::slave_lngs();
+      if (!count($slave_lngs)) {
          return false;
       }
 
-      $master = self::masterLng();
-      $masterDd = $entity === 'folder' ? dbxContentLng::ddFolder($master) : dbxContentLng::ddContent($master);
-      $masterRow = $db->select1($masterDd, $masterId, 'lng_uid', 0);
-      $lngUid = trim((string) ($masterRow['lng_uid'] ?? ''));
-      if ($lngUid === '') {
+      $master = self::master_lng();
+      $master_dd = $entity === 'folder' ? dbxContentLng::dd_folder($master) : dbxContentLng::dd_content($master);
+      $master_row = $db->select1($master_dd, $master_id, 'lng_uid', 0);
+      $lng_uid = trim((string) ($master_row['lng_uid'] ?? ''));
+      if ($lng_uid === '') {
          return true;
       }
 
-      $dd = $entity === 'folder' ? dbxContentLng::ddFolder() : dbxContentLng::ddContent();
-      foreach ($slaveLngs as $lng) {
-         if (self::resolveIdByUid($db, $dd, $lngUid, $lng) <= 0) {
+      $dd = $entity === 'folder' ? dbxContentLng::dd_folder() : dbxContentLng::dd_content();
+      foreach ($slave_lngs as $lng) {
+         if (self::resolve_id_by_uid($db, $dd, $lng_uid, $lng) <= 0) {
             return true;
          }
       }
@@ -227,26 +227,26 @@ class dbxContentLngSync {
       return false;
    }
 
-   public static function coverageForUid($db, string $entity, string $lngUid): array {
-      $lngUid = trim($lngUid);
+   public static function coverage_for_uid($db, string $entity, string $lng_uid): array {
+      $lng_uid = trim($lng_uid);
       $entity = $entity === 'folder' ? 'folder' : 'page';
       $out = array(
-         'lng_uid' => $lngUid,
+         'lng_uid' => $lng_uid,
          'entity' => $entity,
-         'master_lng' => self::masterLng(),
+         'master_lng' => self::master_lng(),
          'current_lng' => dbxContentLng::current(),
          'languages' => array(),
       );
 
-      if ($lngUid === '' || !is_object($db)) {
+      if ($lng_uid === '' || !is_object($db)) {
          return $out;
       }
 
-      $dd = $entity === 'folder' ? dbxContentLng::ddFolder() : dbxContentLng::ddContent();
+      $dd = $entity === 'folder' ? dbxContentLng::dd_folder() : dbxContentLng::dd_content();
 
-      foreach (self::accessibleLngs() as $lng) {
-         $lngDd = self::ddForLng($dd, $lng);
-         $row = self::selectByUid($db, $lngDd, $lngUid);
+      foreach (self::accessible_lngs() as $lng) {
+         $lng_dd = self::dd_for_lng($dd, $lng);
+         $row = self::select_by_uid($db, $lng_dd, $lng_uid);
          $status = 'missing';
          $id = 0;
          $title = '';
@@ -261,7 +261,7 @@ class dbxContentLngSync {
             $title = $entity === 'folder'
                ? (string) ($row['name'] ?? '')
                : (string) ($row['title'] ?? '');
-            $status = $lng === self::masterLng() ? 'master' : $sync;
+            $status = $lng === self::master_lng() ? 'master' : $sync;
          }
 
          $out['languages'][$lng] = array(
@@ -270,14 +270,14 @@ class dbxContentLngSync {
             'id' => $id,
             'title' => $title,
             'lng_sync' => $sync,
-            'is_master' => $lng === self::masterLng() ? 1 : 0,
+            'is_master' => $lng === self::master_lng() ? 1 : 0,
          );
       }
 
       return $out;
    }
 
-   public static function badgesHtml(array $coverage): string {
+   public static function badges_html(array $coverage): string {
       $languages = is_array($coverage['languages'] ?? null) ? $coverage['languages'] : array();
       if (!count($languages)) {
          return '';
@@ -304,10 +304,10 @@ class dbxContentLngSync {
       return '<span class="dbx-cms-lng-badges" aria-label="Sprachabdeckung">' . implode('', $parts) . '</span>';
    }
 
-   public static function slaveLngs(): array {
-      $master = self::masterLng();
+   public static function slave_lngs(): array {
+      $master = self::master_lng();
       $out = array();
-      foreach (self::accessibleLngs() as $lng) {
+      foreach (self::accessible_lngs() as $lng) {
          if ($lng !== $master) {
             $out[] = $lng;
          }
@@ -315,13 +315,13 @@ class dbxContentLngSync {
       return $out;
    }
 
-   public static function resolveFolderIdInLng($db, int $masterFolderId, string $targetLng): int {
-      $masterFolderId = (int) $masterFolderId;
-      if ($masterFolderId <= 0 || !is_object($db)) {
+   public static function resolve_folder_id_in_lng($db, int $master_folder_id, string $target_lng): int {
+      $master_folder_id = (int) $master_folder_id;
+      if ($master_folder_id <= 0 || !is_object($db)) {
          return 0;
       }
 
-      $row = $db->select1(dbxContentLng::ddFolder(self::masterLng()), $masterFolderId, 'lng_uid', 0);
+      $row = $db->select1(dbxContentLng::dd_folder(self::master_lng()), $master_folder_id, 'lng_uid', 0);
       if (!is_array($row)) {
          return 0;
       }
@@ -331,105 +331,105 @@ class dbxContentLngSync {
          return 0;
       }
 
-      return self::resolveIdByUid($db, dbxContentLng::ddFolder(), $uid, $targetLng);
+      return self::resolve_id_by_uid($db, dbxContentLng::dd_folder(), $uid, $target_lng);
    }
 
    /**
     * Ordner in Zielsprache aufloesen oder rekursiv aus Master-Struktur anlegen.
     */
-   public static function ensureFolderIdInLng($db, int $masterFolderId, string $targetLng, int $depth = 0): int {
-      $masterFolderId = (int) $masterFolderId;
-      if ($masterFolderId <= 0 || !is_object($db) || $depth > 100) {
+   public static function ensure_folder_id_in_lng($db, int $master_folder_id, string $target_lng, int $depth = 0): int {
+      $master_folder_id = (int) $master_folder_id;
+      if ($master_folder_id <= 0 || !is_object($db) || $depth > 100) {
          return 0;
       }
 
-      $targetLng = strtolower(trim($targetLng));
-      $master = self::masterLng();
-      if ($targetLng === '' || $targetLng === $master) {
-         return $masterFolderId;
+      $target_lng = strtolower(trim($target_lng));
+      $master = self::master_lng();
+      if ($target_lng === '' || $target_lng === $master) {
+         return $master_folder_id;
       }
 
-      $existing = self::resolveFolderIdInLng($db, $masterFolderId, $targetLng);
+      $existing = self::resolve_folder_id_in_lng($db, $master_folder_id, $target_lng);
       if ($existing > 0) {
          return $existing;
       }
 
-      $masterDd = dbxContentLng::ddFolder($master);
-      $masterRow = $db->select1($masterDd, $masterFolderId);
-      if (!is_array($masterRow)) {
+      $master_dd = dbxContentLng::dd_folder($master);
+      $master_row = $db->select1($master_dd, $master_folder_id);
+      if (!is_array($master_row)) {
          return 0;
       }
 
-      $lngUid = trim((string) ($masterRow['lng_uid'] ?? ''));
-      if ($lngUid === '') {
-         $lngUid = self::ensureRecordUid($db, $masterDd, $masterFolderId, 'f');
+      $lng_uid = trim((string) ($master_row['lng_uid'] ?? ''));
+      if ($lng_uid === '') {
+         $lng_uid = self::ensure_record_uid($db, $master_dd, $master_folder_id, 'f');
       }
-      if ($lngUid === '') {
+      if ($lng_uid === '') {
          return 0;
       }
 
-      $existing = self::resolveIdByUid($db, dbxContentLng::ddFolder(), $lngUid, $targetLng);
+      $existing = self::resolve_id_by_uid($db, dbxContentLng::dd_folder(), $lng_uid, $target_lng);
       if ($existing > 0) {
          return $existing;
       }
 
-      $parentTargetId = self::ensureFolderIdInLng($db, (int) ($masterRow['parent_id'] ?? 0), $targetLng, $depth + 1);
+      $parent_target_id = self::ensure_folder_id_in_lng($db, (int) ($master_row['parent_id'] ?? 0), $target_lng, $depth + 1);
 
-      $name = dbxContentTranslate::translate((string) ($masterRow['name'] ?? ''), $master, $targetLng, 'folder_name');
-      if ($name === '' && trim((string) ($masterRow['name'] ?? '')) !== '') {
-         $name = (string) $masterRow['name'];
+      $name = dbxContentTranslate::translate((string) ($master_row['name'] ?? ''), $master, $target_lng, 'folder_name');
+      if ($name === '' && trim((string) ($master_row['name'] ?? '')) !== '') {
+         $name = (string) $master_row['name'];
       }
       if ($name === '') {
          $name = 'Ordner';
       }
 
-      $masterRev = max(1, (int) ($masterRow['lng_rev'] ?? 1));
-      $data = self::copyFolderStructure($masterRow);
+      $master_rev = max(1, (int) ($master_row['lng_rev'] ?? 1));
+      $data = self::copy_folder_structure($master_row);
       $data['name'] = $name;
-      $data['parent_id'] = $parentTargetId;
-      $data['lng_uid'] = $lngUid;
+      $data['parent_id'] = $parent_target_id;
+      $data['lng_uid'] = $lng_uid;
       $data['lng_sync'] = 'auto';
       $data['lng_rev'] = 0;
-      $data['lng_synced_rev'] = $masterRev;
+      $data['lng_synced_rev'] = $master_rev;
 
-      $targetDd = dbxContentLng::ddFolder($targetLng);
-      if ($db->insert($targetDd, $data, 0, 1, 0, 1) !== 1) {
+      $target_dd = dbxContentLng::dd_folder($target_lng);
+      if ($db->insert($target_dd, $data, 0, 1, 0, 1) !== 1) {
          return 0;
       }
 
       return (int) $db->get_insert_id();
    }
 
-   public static function previewProvision($db, string $entity, int $masterId, array $lngs = array()): array {
+   public static function preview_provision($db, string $entity, int $master_id, array $lngs = array()): array {
       $entity = $entity === 'folder' ? 'folder' : 'page';
-      $masterId = (int) $masterId;
-      $master = self::masterLng();
+      $master_id = (int) $master_id;
+      $master = self::master_lng();
       $out = array(
          'entity' => $entity,
-         'master_id' => $masterId,
+         'master_id' => $master_id,
          'master_lng' => $master,
          'lng_uid' => '',
          'items' => array(),
       );
 
-      if ($masterId <= 0 || !is_object($db) || !self::isMasterLng()) {
+      if ($master_id <= 0 || !is_object($db) || !self::is_master_lng()) {
          return $out;
       }
 
-      $masterDd = $entity === 'folder' ? dbxContentLng::ddFolder($master) : dbxContentLng::ddContent($master);
-      $masterRow = $db->select1($masterDd, $masterId);
-      if (!is_array($masterRow)) {
+      $master_dd = $entity === 'folder' ? dbxContentLng::dd_folder($master) : dbxContentLng::dd_content($master);
+      $master_row = $db->select1($master_dd, $master_id);
+      if (!is_array($master_row)) {
          return $out;
       }
 
-      $lngUid = trim((string) ($masterRow['lng_uid'] ?? ''));
-      if ($lngUid === '') {
-         $lngUid = self::ensureRecordUid($db, $masterDd, $masterId, $entity === 'folder' ? 'f' : 'p');
+      $lng_uid = trim((string) ($master_row['lng_uid'] ?? ''));
+      if ($lng_uid === '') {
+         $lng_uid = self::ensure_record_uid($db, $master_dd, $master_id, $entity === 'folder' ? 'f' : 'p');
       }
-      $out['lng_uid'] = $lngUid;
+      $out['lng_uid'] = $lng_uid;
 
       if (!is_array($lngs) || !count($lngs)) {
-         $lngs = self::slaveLngs();
+         $lngs = self::slave_lngs();
       }
 
       foreach ($lngs as $lng) {
@@ -438,48 +438,48 @@ class dbxContentLngSync {
             continue;
          }
 
-         $targetDd = $entity === 'folder' ? dbxContentLng::ddFolder($lng) : dbxContentLng::ddContent($lng);
-         $existingId = self::resolveIdByUid($db, $targetDd, $lngUid, $lng);
-         $existing = $existingId > 0 ? $db->select1($targetDd, $existingId) : null;
+         $target_dd = $entity === 'folder' ? dbxContentLng::dd_folder($lng) : dbxContentLng::dd_content($lng);
+         $existing_id = self::resolve_id_by_uid($db, $target_dd, $lng_uid, $lng);
+         $existing = $existing_id > 0 ? $db->select1($target_dd, $existing_id) : null;
          $item = array(
             'lng' => $lng,
-            'exists' => $existingId > 0 ? 1 : 0,
-            'id' => $existingId,
+            'exists' => $existing_id > 0 ? 1 : 0,
+            'id' => $existing_id,
             'lng_sync' => is_array($existing) ? (string) ($existing['lng_sync'] ?? 'auto') : '',
             'enabled' => 1,
             'warnings' => array(),
          );
 
          if ($entity === 'folder') {
-            $name = (string) ($masterRow['name'] ?? '');
+            $name = (string) ($master_row['name'] ?? '');
             $item['name'] = dbxContentTranslate::translate($name, $master, $lng, 'folder_name');
             if ($item['name'] === '' && $name !== '') {
                $item['name'] = $name;
             }
          } else {
-            $title = (string) ($masterRow['title'] ?? '');
+            $title = (string) ($master_row['title'] ?? '');
             $item['title'] = dbxContentTranslate::translate($title, $master, $lng, 'title');
             if ($item['title'] === '' && $title !== '') {
                $item['title'] = $title;
             }
-            $item['description'] = dbxContentTranslate::translate((string) ($masterRow['description'] ?? ''), $master, $lng, 'description');
-            $item['keywords'] = dbxContentTranslate::translate((string) ($masterRow['keywords'] ?? ''), $master, $lng, 'keywords');
-            $item['content'] = dbxContentTranslate::translate((string) ($masterRow['content'] ?? ''), $master, $lng, 'content');
+            $item['description'] = dbxContentTranslate::translate((string) ($master_row['description'] ?? ''), $master, $lng, 'description');
+            $item['keywords'] = dbxContentTranslate::translate((string) ($master_row['keywords'] ?? ''), $master, $lng, 'keywords');
+            $item['content'] = dbxContentTranslate::translate((string) ($master_row['content'] ?? ''), $master, $lng, 'content');
 
-            $folderId = self::resolveFolderIdInLng($db, (int) ($masterRow['folder'] ?? 0), $lng);
-            if ((int) ($masterRow['folder'] ?? 0) > 0 && $folderId <= 0) {
+            $folder_id = self::resolve_folder_id_in_lng($db, (int) ($master_row['folder'] ?? 0), $lng);
+            if ((int) ($master_row['folder'] ?? 0) > 0 && $folder_id <= 0) {
                $item['warnings'][] = 'Ordnerstruktur in ' . strtoupper($lng) . ' wird bei Uebernahme automatisch angelegt.';
             }
-            $item['folder'] = $folderId;
-            $existingPermalink = is_array($existing) ? trim((string)($existing['permalink'] ?? '')) : '';
-            $item['permalink'] = dbxContent_permalink::isValid($existingPermalink)
-               ? $existingPermalink
+            $item['folder'] = $folder_id;
+            $existing_permalink = is_array($existing) ? trim((string)($existing['permalink'] ?? '')) : '';
+            $item['permalink'] = dbxContent_permalink::is_valid($existing_permalink)
+               ? $existing_permalink
                : dbxContent_permalink::build(
                   $db,
-                  dbxContentLng::ddFolder($lng),
-                  $folderId,
+                  dbxContentLng::dd_folder($lng),
+                  $folder_id,
                   (string) $item['title'],
-                  $existingId
+                  $existing_id
                );
          }
 
@@ -489,30 +489,30 @@ class dbxContentLngSync {
       return $out;
    }
 
-   public static function provisionFromPreview($db, string $entity, int $masterId, array $items): array {
+   public static function provision_from_preview($db, string $entity, int $master_id, array $items): array {
       $entity = $entity === 'folder' ? 'folder' : 'page';
-      $masterId = (int) $masterId;
+      $master_id = (int) $master_id;
       $result = array('ok' => 0, 'created' => array(), 'updated' => array(), 'errors' => array());
 
-      if ($masterId <= 0 || !is_object($db) || !self::isMasterLng()) {
+      if ($master_id <= 0 || !is_object($db) || !self::is_master_lng()) {
          $result['errors'][] = 'Nur in der Master-Sprache moeglich.';
          return $result;
       }
 
-      $master = self::masterLng();
-      $masterDd = $entity === 'folder' ? dbxContentLng::ddFolder($master) : dbxContentLng::ddContent($master);
-      $masterRow = $db->select1($masterDd, $masterId);
-      if (!is_array($masterRow)) {
+      $master = self::master_lng();
+      $master_dd = $entity === 'folder' ? dbxContentLng::dd_folder($master) : dbxContentLng::dd_content($master);
+      $master_row = $db->select1($master_dd, $master_id);
+      if (!is_array($master_row)) {
          $result['errors'][] = 'Master-Datensatz nicht gefunden.';
          return $result;
       }
 
-      $lngUid = trim((string) ($masterRow['lng_uid'] ?? ''));
-      if ($lngUid === '') {
-         $lngUid = self::ensureRecordUid($db, $masterDd, $masterId, $entity === 'folder' ? 'f' : 'p');
+      $lng_uid = trim((string) ($master_row['lng_uid'] ?? ''));
+      if ($lng_uid === '') {
+         $lng_uid = self::ensure_record_uid($db, $master_dd, $master_id, $entity === 'folder' ? 'f' : 'p');
       }
 
-      $masterRev = max(1, (int) ($masterRow['lng_rev'] ?? 1));
+      $master_rev = max(1, (int) ($master_row['lng_rev'] ?? 1));
 
       foreach ($items as $item) {
          if (!is_array($item)) {
@@ -527,8 +527,8 @@ class dbxContentLngSync {
             continue;
          }
 
-         $targetDd = $entity === 'folder' ? dbxContentLng::ddFolder($lng) : dbxContentLng::ddContent($lng);
-         $existingId = self::resolveIdByUid($db, $targetDd, $lngUid, $lng);
+         $target_dd = $entity === 'folder' ? dbxContentLng::dd_folder($lng) : dbxContentLng::dd_content($lng);
+         $existing_id = self::resolve_id_by_uid($db, $target_dd, $lng_uid, $lng);
 
          if ($entity === 'folder') {
             $name = trim((string) ($item['name'] ?? ''));
@@ -536,63 +536,63 @@ class dbxContentLngSync {
                $result['errors'][] = 'Name fuer ' . strtoupper($lng) . ' fehlt.';
                continue;
             }
-            $data = self::copyFolderStructure($masterRow);
+            $data = self::copy_folder_structure($master_row);
             $data['name'] = $name;
-            $data['lng_uid'] = $lngUid;
+            $data['lng_uid'] = $lng_uid;
             $data['lng_sync'] = 'auto';
             $data['lng_rev'] = 0;
-            $data['lng_synced_rev'] = $masterRev;
-            $data['parent_id'] = self::ensureFolderIdInLng($db, (int) ($masterRow['parent_id'] ?? 0), $lng);
+            $data['lng_synced_rev'] = $master_rev;
+            $data['parent_id'] = self::ensure_folder_id_in_lng($db, (int) ($master_row['parent_id'] ?? 0), $lng);
          } else {
             $title = trim((string) ($item['title'] ?? ''));
             if ($title === '') {
                $result['errors'][] = 'Titel fuer ' . strtoupper($lng) . ' fehlt.';
                continue;
             }
-            $folderId = (int) ($item['folder'] ?? 0);
-            if ($folderId <= 0) {
-               $folderId = self::ensureFolderIdInLng($db, (int) ($masterRow['folder'] ?? 0), $lng);
+            $folder_id = (int) ($item['folder'] ?? 0);
+            if ($folder_id <= 0) {
+               $folder_id = self::ensure_folder_id_in_lng($db, (int) ($master_row['folder'] ?? 0), $lng);
             }
-            if ((int) ($masterRow['folder'] ?? 0) > 0 && $folderId <= 0) {
+            if ((int) ($master_row['folder'] ?? 0) > 0 && $folder_id <= 0) {
                $result['errors'][] = 'Ordnerstruktur in ' . strtoupper($lng) . ' konnte nicht angelegt werden.';
                continue;
             }
-            $data = self::copyPageStructure($masterRow);
+            $data = self::copy_page_structure($master_row);
             $data['activ'] = 0;
-            $data['folder'] = $folderId;
+            $data['folder'] = $folder_id;
             $data['title'] = $title;
             $data['menu_title'] = trim((string) ($item['menu_title'] ?? $title));
             $data['permalink'] = trim((string) ($item['permalink'] ?? ''));
             if ($data['permalink'] === '') {
-               $data['permalink'] = dbxContent_permalink::build($db, dbxContentLng::ddFolder($lng), $folderId, $title, $existingId);
-            } elseif (!dbxContent_permalink::isValid($data['permalink'])) {
+               $data['permalink'] = dbxContent_permalink::build($db, dbxContentLng::dd_folder($lng), $folder_id, $title, $existing_id);
+            } elseif (!dbxContent_permalink::is_valid($data['permalink'])) {
                $result['errors'][] = 'Permalink fuer ' . strtoupper($lng) . ' ist ungueltig.';
                continue;
-            } elseif (dbxContent_permalink::exists($db, $targetDd, $data['permalink'], $existingId)) {
+            } elseif (dbxContent_permalink::exists($db, $target_dd, $data['permalink'], $existing_id)) {
                $result['errors'][] = 'Permalink fuer ' . strtoupper($lng) . ' ist bereits vergeben.';
                continue;
             }
             $data['description'] = (string) ($item['description'] ?? '');
             $data['keywords'] = (string) ($item['keywords'] ?? '');
             $data['content'] = (string) ($item['content'] ?? '');
-            $data['lng_uid'] = $lngUid;
+            $data['lng_uid'] = $lng_uid;
             $data['lng_sync'] = 'auto';
             $data['lng_rev'] = 0;
-            $data['lng_synced_rev'] = $masterRev;
+            $data['lng_synced_rev'] = $master_rev;
          }
 
-         if ($existingId > 0) {
-            $ok = $db->update($targetDd, $data, $existingId, 0, 1, 1, 0);
+         if ($existing_id > 0) {
+            $ok = $db->update($target_dd, $data, $existing_id, 0, 1, 1, 0);
             if ($ok === 1) {
-               $result['updated'][] = array('lng' => $lng, 'id' => $existingId);
+               $result['updated'][] = array('lng' => $lng, 'id' => $existing_id);
             } else {
                $result['errors'][] = 'Update in ' . strtoupper($lng) . ' fehlgeschlagen.';
             }
          } else {
-            $ok = $db->insert($targetDd, $data, 0, 1, 0, 1);
+            $ok = $db->insert($target_dd, $data, 0, 1, 0, 1);
             if ($ok === 1) {
-               $newId = (int) $db->get_insert_id();
-               $result['created'][] = array('lng' => $lng, 'id' => $newId);
+               $new_id = (int) $db->get_insert_id();
+               $result['created'][] = array('lng' => $lng, 'id' => $new_id);
             } else {
                $result['errors'][] = 'Anlage in ' . strtoupper($lng) . ' fehlgeschlagen.';
             }
@@ -603,112 +603,112 @@ class dbxContentLngSync {
       return $result;
    }
 
-   public static function syncSlavesFromMaster($db, string $entity, int $masterId): array {
+   public static function sync_slaves_from_master($db, string $entity, int $master_id): array {
       $entity = $entity === 'folder' ? 'folder' : 'page';
-      $masterId = (int) $masterId;
+      $master_id = (int) $master_id;
       $result = array('updated' => array(), 'skipped' => array(), 'errors' => array());
 
-      if ($masterId <= 0 || !is_object($db) || !self::isMasterLng()) {
+      if ($master_id <= 0 || !is_object($db) || !self::is_master_lng()) {
          return $result;
       }
 
-      dbxContentTranslate::clearWarnings();
+      dbxContentTranslate::clear_warnings();
 
-      $master = self::masterLng();
-      $masterDd = $entity === 'folder' ? dbxContentLng::ddFolder($master) : dbxContentLng::ddContent($master);
-      $masterRow = $db->select1($masterDd, $masterId);
-      if (!is_array($masterRow)) {
+      $master = self::master_lng();
+      $master_dd = $entity === 'folder' ? dbxContentLng::dd_folder($master) : dbxContentLng::dd_content($master);
+      $master_row = $db->select1($master_dd, $master_id);
+      if (!is_array($master_row)) {
          $result['errors'][] = 'Master-Datensatz nicht gefunden.';
          return $result;
       }
 
-      $lngUid = trim((string) ($masterRow['lng_uid'] ?? ''));
-      if ($lngUid === '') {
+      $lng_uid = trim((string) ($master_row['lng_uid'] ?? ''));
+      if ($lng_uid === '') {
          return $result;
       }
 
-      $masterRev = max(1, (int) ($masterRow['lng_rev'] ?? 1));
+      $master_rev = max(1, (int) ($master_row['lng_rev'] ?? 1));
 
-      foreach (self::slaveLngs() as $lng) {
-         $targetDd = $entity === 'folder' ? dbxContentLng::ddFolder($lng) : dbxContentLng::ddContent($lng);
-         $slaveId = self::resolveIdByUid($db, $targetDd, $lngUid, $lng);
+      foreach (self::slave_lngs() as $lng) {
+         $target_dd = $entity === 'folder' ? dbxContentLng::dd_folder($lng) : dbxContentLng::dd_content($lng);
+         $slave_id = self::resolve_id_by_uid($db, $target_dd, $lng_uid, $lng);
 
-         if ($slaveId <= 0) {
+         if ($slave_id <= 0) {
             $result['skipped'][] = array('lng' => $lng, 'reason' => 'missing');
             continue;
          }
 
-         $slaveRow = $db->select1($targetDd, $slaveId);
-         if (!is_array($slaveRow)) {
+         $slave_row = $db->select1($target_dd, $slave_id);
+         if (!is_array($slave_row)) {
             $result['skipped'][] = array('lng' => $lng, 'reason' => 'not_found');
             continue;
          }
 
-         $sync = strtolower(trim((string) ($slaveRow['lng_sync'] ?? 'auto')));
+         $sync = strtolower(trim((string) ($slave_row['lng_sync'] ?? 'auto')));
          if ($sync !== 'auto') {
             $result['skipped'][] = array('lng' => $lng, 'reason' => 'manual');
             continue;
          }
 
-         $syncedRev = (int) ($slaveRow['lng_synced_rev'] ?? 0);
-         if ($syncedRev >= $masterRev) {
+         $synced_rev = (int) ($slave_row['lng_synced_rev'] ?? 0);
+         if ($synced_rev >= $master_rev) {
             $result['skipped'][] = array('lng' => $lng, 'reason' => 'up_to_date');
             continue;
          }
 
          if ($entity === 'folder') {
-            $name = dbxContentTranslate::translate((string) ($masterRow['name'] ?? ''), $master, $lng, 'folder_name');
-            if ($name === '' && trim((string) ($masterRow['name'] ?? '')) !== '') {
-               $name = (string) $masterRow['name'];
+            $name = dbxContentTranslate::translate((string) ($master_row['name'] ?? ''), $master, $lng, 'folder_name');
+            if ($name === '' && trim((string) ($master_row['name'] ?? '')) !== '') {
+               $name = (string) $master_row['name'];
             }
             if ($name === '') {
                $result['errors'][] = 'Name fuer ' . strtoupper($lng) . ' leer.';
                continue;
             }
 
-            $data = self::copyFolderStructure($masterRow);
+            $data = self::copy_folder_structure($master_row);
             $data['name'] = $name;
-            $data['parent_id'] = self::ensureFolderIdInLng($db, (int) ($masterRow['parent_id'] ?? 0), $lng);
-            $data['lng_synced_rev'] = $masterRev;
+            $data['parent_id'] = self::ensure_folder_id_in_lng($db, (int) ($master_row['parent_id'] ?? 0), $lng);
+            $data['lng_synced_rev'] = $master_rev;
          } else {
-            $title = dbxContentTranslate::translate((string) ($masterRow['title'] ?? ''), $master, $lng, 'title');
-            if ($title === '' && trim((string) ($masterRow['title'] ?? '')) !== '') {
-               $title = (string) $masterRow['title'];
+            $title = dbxContentTranslate::translate((string) ($master_row['title'] ?? ''), $master, $lng, 'title');
+            if ($title === '' && trim((string) ($master_row['title'] ?? '')) !== '') {
+               $title = (string) $master_row['title'];
             }
             if ($title === '') {
                $result['errors'][] = 'Titel fuer ' . strtoupper($lng) . ' leer.';
                continue;
             }
 
-            $folderId = self::ensureFolderIdInLng($db, (int) ($masterRow['folder'] ?? 0), $lng);
-            if ((int) ($masterRow['folder'] ?? 0) > 0 && $folderId <= 0) {
+            $folder_id = self::ensure_folder_id_in_lng($db, (int) ($master_row['folder'] ?? 0), $lng);
+            if ((int) ($master_row['folder'] ?? 0) > 0 && $folder_id <= 0) {
                $result['skipped'][] = array('lng' => $lng, 'reason' => 'folder_missing');
                continue;
             }
 
-            $data = self::copyPageStructure($masterRow);
-            $data['activ'] = (int) ($slaveRow['activ'] ?? 0);
-            $data['folder'] = $folderId;
+            $data = self::copy_page_structure($master_row);
+            $data['activ'] = (int) ($slave_row['activ'] ?? 0);
+            $data['folder'] = $folder_id;
             $data['title'] = $title;
             $data['menu_title'] = dbxContentTranslate::translate(
-               (string) ($masterRow['menu_title'] ?? $masterRow['title'] ?? ''),
+               (string) ($master_row['menu_title'] ?? $master_row['title'] ?? ''),
                $master,
                $lng,
                'menu_title'
             );
-            $data['description'] = dbxContentTranslate::translate((string) ($masterRow['description'] ?? ''), $master, $lng, 'description');
-            $data['keywords'] = dbxContentTranslate::translate((string) ($masterRow['keywords'] ?? ''), $master, $lng, 'keywords');
-            $data['content'] = dbxContentTranslate::translate((string) ($masterRow['content'] ?? ''), $master, $lng, 'content');
-            $existingPermalink = trim((string)($slaveRow['permalink'] ?? ''));
-            $data['permalink'] = dbxContent_permalink::isValid($existingPermalink)
-               ? $existingPermalink
-               : dbxContent_permalink::build($db, dbxContentLng::ddFolder($lng), $folderId, $title, $slaveId);
-            $data['lng_synced_rev'] = $masterRev;
+            $data['description'] = dbxContentTranslate::translate((string) ($master_row['description'] ?? ''), $master, $lng, 'description');
+            $data['keywords'] = dbxContentTranslate::translate((string) ($master_row['keywords'] ?? ''), $master, $lng, 'keywords');
+            $data['content'] = dbxContentTranslate::translate((string) ($master_row['content'] ?? ''), $master, $lng, 'content');
+            $existing_permalink = trim((string)($slave_row['permalink'] ?? ''));
+            $data['permalink'] = dbxContent_permalink::is_valid($existing_permalink)
+               ? $existing_permalink
+               : dbxContent_permalink::build($db, dbxContentLng::dd_folder($lng), $folder_id, $title, $slave_id);
+            $data['lng_synced_rev'] = $master_rev;
          }
 
-         $ok = $db->update($targetDd, $data, $slaveId, 0, 1, 1, 0);
+         $ok = $db->update($target_dd, $data, $slave_id, 0, 1, 1, 0);
          if ($ok === 1) {
-            $result['updated'][] = array('lng' => $lng, 'id' => $slaveId, 'entity' => $entity);
+            $result['updated'][] = array('lng' => $lng, 'id' => $slave_id, 'entity' => $entity);
          } else {
             $result['errors'][] = 'Sync nach ' . strtoupper($lng) . ' fehlgeschlagen.';
          }
@@ -717,27 +717,27 @@ class dbxContentLngSync {
       return $result;
    }
 
-   public static function folderDeletable($db, string $lng, int $folderId): array {
-      $folderId = (int) $folderId;
+   public static function folder_deletable($db, string $lng, int $folder_id): array {
+      $folder_id = (int) $folder_id;
       $out = array('deletable' => 0, 'reason' => '');
 
-      if ($folderId <= 0 || !is_object($db)) {
+      if ($folder_id <= 0 || !is_object($db)) {
          $out['reason'] = 'Ungueltiger Ordner.';
          return $out;
       }
 
-      $folderDd = dbxContentLng::ddFolder($lng);
-      $contentDd = dbxContentLng::ddContent($lng);
-      $childFolders = (int) $db->count($folderDd, 'parent_id = ' . $folderId);
-      $childPages = (int) $db->count($contentDd, 'folder = ' . $folderId);
+      $folder_dd = dbxContentLng::dd_folder($lng);
+      $content_dd = dbxContentLng::dd_content($lng);
+      $child_folders = (int) $db->count($folder_dd, 'parent_id = ' . $folder_id);
+      $child_pages = (int) $db->count($content_dd, 'folder = ' . $folder_id);
 
-      if ($childFolders > 0 || $childPages > 0) {
+      if ($child_folders > 0 || $child_pages > 0) {
          $parts = array();
-         if ($childFolders > 0) {
-            $parts[] = $childFolders . ' Unterordner';
+         if ($child_folders > 0) {
+            $parts[] = $child_folders . ' Unterordner';
          }
-         if ($childPages > 0) {
-            $parts[] = $childPages . ' Seite(n)';
+         if ($child_pages > 0) {
+            $parts[] = $child_pages . ' Seite(n)';
          }
          $out['reason'] = implode(' und ', $parts) . ' vorhanden.';
          return $out;
@@ -747,10 +747,10 @@ class dbxContentLngSync {
       return $out;
    }
 
-   public static function previewDelete($db, string $entity, int $id): array {
+   public static function preview_delete($db, string $entity, int $id): array {
       $entity = $entity === 'folder' ? 'folder' : 'page';
       $id = (int) $id;
-      $master = self::masterLng();
+      $master = self::master_lng();
       $current = dbxContentLng::current();
       $out = array(
          'entity' => $entity,
@@ -758,7 +758,7 @@ class dbxContentLngSync {
          'lng_uid' => '',
          'master_lng' => $master,
          'current_lng' => $current,
-         'is_master' => self::isMasterLng() ? 1 : 0,
+         'is_master' => self::is_master_lng() ? 1 : 0,
          'items' => array(),
       );
 
@@ -766,45 +766,45 @@ class dbxContentLngSync {
          return $out;
       }
 
-      $dd = $entity === 'folder' ? dbxContentLng::ddFolder() : dbxContentLng::ddContent();
+      $dd = $entity === 'folder' ? dbxContentLng::dd_folder() : dbxContentLng::dd_content();
       $row = $db->select1($dd, $id);
       if (!is_array($row)) {
          return $out;
       }
 
-      $lngUid = trim((string) ($row['lng_uid'] ?? ''));
-      if ($lngUid === '') {
-         $lngUid = self::ensureRecordUid($db, $dd, $id, $entity === 'folder' ? 'f' : 'p');
+      $lng_uid = trim((string) ($row['lng_uid'] ?? ''));
+      if ($lng_uid === '') {
+         $lng_uid = self::ensure_record_uid($db, $dd, $id, $entity === 'folder' ? 'f' : 'p');
       }
-      $out['lng_uid'] = $lngUid;
+      $out['lng_uid'] = $lng_uid;
 
-      foreach (self::accessibleLngs() as $lng) {
-         $targetDd = $entity === 'folder' ? dbxContentLng::ddFolder($lng) : dbxContentLng::ddContent($lng);
-         $targetId = ($lng === $current) ? $id : self::resolveIdByUid($db, $targetDd, $lngUid, $lng);
-         if ($targetId <= 0) {
+      foreach (self::accessible_lngs() as $lng) {
+         $target_dd = $entity === 'folder' ? dbxContentLng::dd_folder($lng) : dbxContentLng::dd_content($lng);
+         $target_id = ($lng === $current) ? $id : self::resolve_id_by_uid($db, $target_dd, $lng_uid, $lng);
+         if ($target_id <= 0) {
             continue;
          }
 
-         $targetRow = $db->select1($targetDd, $targetId);
-         if (!is_array($targetRow)) {
+         $target_row = $db->select1($target_dd, $target_id);
+         if (!is_array($target_row)) {
             continue;
          }
 
-         $sync = strtolower(trim((string) ($targetRow['lng_sync'] ?? 'auto')));
+         $sync = strtolower(trim((string) ($target_row['lng_sync'] ?? 'auto')));
          if ($sync === '') {
             $sync = 'auto';
          }
 
          $label = $entity === 'folder'
-            ? (string) ($targetRow['name'] ?? '')
-            : (string) ($targetRow['title'] ?? '');
+            ? (string) ($target_row['name'] ?? '')
+            : (string) ($target_row['title'] ?? '');
          if ($label === '') {
-            $label = $entity === 'folder' ? 'Ordner #' . $targetId : 'Seite #' . $targetId;
+            $label = $entity === 'folder' ? 'Ordner #' . $target_id : 'Seite #' . $target_id;
          }
 
          $item = array(
             'lng' => $lng,
-            'id' => $targetId,
+            'id' => $target_id,
             'label' => $label,
             'lng_sync' => $sync,
             'is_master' => $lng === $master ? 1 : 0,
@@ -814,7 +814,7 @@ class dbxContentLngSync {
          );
 
          if ($entity === 'folder') {
-            $check = self::folderDeletable($db, $lng, $targetId);
+            $check = self::folder_deletable($db, $lng, $target_id);
             $item['deletable'] = (int) ($check['deletable'] ?? 0);
             $item['block_reason'] = (string) ($check['reason'] ?? '');
             if ($item['deletable'] !== 1) {
@@ -828,68 +828,68 @@ class dbxContentLngSync {
       return $out;
    }
 
-   public static function resolveDeleteIds($db, string $entity, int $id, array $deleteLngs): array {
+   public static function resolve_delete_ids($db, string $entity, int $id, array $delete_lngs): array {
       $entity = $entity === 'folder' ? 'folder' : 'page';
       $id = (int) $id;
       $out = array();
 
-      if ($id <= 0 || !is_object($db) || !count($deleteLngs)) {
+      if ($id <= 0 || !is_object($db) || !count($delete_lngs)) {
          return $out;
       }
 
       $current = dbxContentLng::current();
-      $dd = $entity === 'folder' ? dbxContentLng::ddFolder() : dbxContentLng::ddContent();
+      $dd = $entity === 'folder' ? dbxContentLng::dd_folder() : dbxContentLng::dd_content();
       $row = $db->select1($dd, $id, 'lng_uid', 0);
       if (!is_array($row)) {
          return $out;
       }
 
-      $lngUid = trim((string) ($row['lng_uid'] ?? ''));
-      if ($lngUid === '') {
-         $lngUid = self::ensureRecordUid($db, $dd, $id, $entity === 'folder' ? 'f' : 'p');
+      $lng_uid = trim((string) ($row['lng_uid'] ?? ''));
+      if ($lng_uid === '') {
+         $lng_uid = self::ensure_record_uid($db, $dd, $id, $entity === 'folder' ? 'f' : 'p');
       }
 
-      foreach ($deleteLngs as $lng) {
+      foreach ($delete_lngs as $lng) {
          $lng = strtolower(trim((string) $lng));
-         if ($lng === '' || !in_array($lng, self::accessibleLngs(), true)) {
+         if ($lng === '' || !in_array($lng, self::accessible_lngs(), true)) {
             continue;
          }
 
-         $targetDd = $entity === 'folder' ? dbxContentLng::ddFolder($lng) : dbxContentLng::ddContent($lng);
-         $targetId = ($lng === $current) ? $id : self::resolveIdByUid($db, $targetDd, $lngUid, $lng);
-         if ($targetId > 0) {
-            $out[] = array('lng' => $lng, 'id' => $targetId, 'entity' => $entity);
+         $target_dd = $entity === 'folder' ? dbxContentLng::dd_folder($lng) : dbxContentLng::dd_content($lng);
+         $target_id = ($lng === $current) ? $id : self::resolve_id_by_uid($db, $target_dd, $lng_uid, $lng);
+         if ($target_id > 0) {
+            $out[] = array('lng' => $lng, 'id' => $target_id, 'entity' => $entity);
          }
       }
 
       return $out;
    }
 
-   public static function resetSyncToAuto($db, string $entity, int $masterId, array $lngs = array()): array {
+   public static function reset_sync_to_auto($db, string $entity, int $master_id, array $lngs = array()): array {
       $entity = $entity === 'folder' ? 'folder' : 'page';
-      $masterId = (int) $masterId;
+      $master_id = (int) $master_id;
       $result = array('updated' => array(), 'skipped' => array(), 'errors' => array());
 
-      if ($masterId <= 0 || !is_object($db) || !self::isMasterLng()) {
+      if ($master_id <= 0 || !is_object($db) || !self::is_master_lng()) {
          $result['errors'][] = 'Nur in der Master-Sprache moeglich.';
          return $result;
       }
 
-      $master = self::masterLng();
-      $masterDd = $entity === 'folder' ? dbxContentLng::ddFolder($master) : dbxContentLng::ddContent($master);
-      $masterRow = $db->select1($masterDd, $masterId, 'lng_uid', 0);
-      if (!is_array($masterRow)) {
+      $master = self::master_lng();
+      $master_dd = $entity === 'folder' ? dbxContentLng::dd_folder($master) : dbxContentLng::dd_content($master);
+      $master_row = $db->select1($master_dd, $master_id, 'lng_uid', 0);
+      if (!is_array($master_row)) {
          $result['errors'][] = 'Master-Datensatz nicht gefunden.';
          return $result;
       }
 
-      $lngUid = trim((string) ($masterRow['lng_uid'] ?? ''));
-      if ($lngUid === '') {
-         $lngUid = self::ensureRecordUid($db, $masterDd, $masterId, $entity === 'folder' ? 'f' : 'p');
+      $lng_uid = trim((string) ($master_row['lng_uid'] ?? ''));
+      if ($lng_uid === '') {
+         $lng_uid = self::ensure_record_uid($db, $master_dd, $master_id, $entity === 'folder' ? 'f' : 'p');
       }
 
       if (!is_array($lngs) || !count($lngs)) {
-         $lngs = self::slaveLngs();
+         $lngs = self::slave_lngs();
       }
 
       foreach ($lngs as $lng) {
@@ -898,16 +898,16 @@ class dbxContentLngSync {
             continue;
          }
 
-         $targetDd = $entity === 'folder' ? dbxContentLng::ddFolder($lng) : dbxContentLng::ddContent($lng);
-         $slaveId = self::resolveIdByUid($db, $targetDd, $lngUid, $lng);
-         if ($slaveId <= 0) {
+         $target_dd = $entity === 'folder' ? dbxContentLng::dd_folder($lng) : dbxContentLng::dd_content($lng);
+         $slave_id = self::resolve_id_by_uid($db, $target_dd, $lng_uid, $lng);
+         if ($slave_id <= 0) {
             $result['skipped'][] = array('lng' => $lng, 'reason' => 'missing');
             continue;
          }
 
-         $ok = $db->update($targetDd, array('lng_sync' => 'auto'), $slaveId, 0, 1, 1, 0);
+         $ok = $db->update($target_dd, array('lng_sync' => 'auto'), $slave_id, 0, 1, 1, 0);
          if ($ok === 1) {
-            $result['updated'][] = array('lng' => $lng, 'id' => $slaveId, 'entity' => $entity);
+            $result['updated'][] = array('lng' => $lng, 'id' => $slave_id, 'entity' => $entity);
          } else {
             $result['errors'][] = 'Auto-Sync fuer ' . strtoupper($lng) . ' fehlgeschlagen.';
          }
@@ -916,17 +916,17 @@ class dbxContentLngSync {
       return $result;
    }
 
-   public static function collectFolderSubtreeIds($db, int $rootFolderId): array {
-      $rootFolderId = (int) $rootFolderId;
-      if ($rootFolderId <= 0 || !is_object($db)) {
+   public static function collect_folder_subtree_ids($db, int $root_folder_id): array {
+      $root_folder_id = (int) $root_folder_id;
+      if ($root_folder_id <= 0 || !is_object($db)) {
          return array();
       }
 
-      $master = self::masterLng();
-      $dd = dbxContentLng::ddFolder($master);
+      $master = self::master_lng();
+      $dd = dbxContentLng::dd_folder($master);
       $ordered = array();
       $seen = array();
-      $queue = array($rootFolderId);
+      $queue = array($root_folder_id);
 
       while (count($queue)) {
          $current = (int) array_shift($queue);
@@ -951,21 +951,21 @@ class dbxContentLngSync {
       return $ordered;
    }
 
-   public static function collectPageIdsInFolders($db, array $folderIds): array {
-      if (!is_object($db) || !count($folderIds)) {
+   public static function collect_page_ids_in_folders($db, array $folder_ids): array {
+      if (!is_object($db) || !count($folder_ids)) {
          return array();
       }
 
-      $folderIds = array_values(array_filter(array_map('intval', $folderIds), function ($id) {
+      $folder_ids = array_values(array_filter(array_map('intval', $folder_ids), function ($id) {
          return $id > 0;
       }));
-      if (!count($folderIds)) {
+      if (!count($folder_ids)) {
          return array();
       }
 
-      $master = self::masterLng();
-      $dd = dbxContentLng::ddContent($master);
-      $rows = $db->select($dd, 'folder IN (' . implode(',', $folderIds) . ')', 'id', 'sorter,id', 'ASC', '', 0, 0, 0);
+      $master = self::master_lng();
+      $dd = dbxContentLng::dd_content($master);
+      $rows = $db->select($dd, 'folder IN (' . implode(',', $folder_ids) . ')', 'id', 'sorter,id', 'ASC', '', 0, 0, 0);
       if (!is_array($rows)) {
          return array();
       }
@@ -980,29 +980,29 @@ class dbxContentLngSync {
       return $out;
    }
 
-   public static function provisionFolderTree($db, int $masterFolderId, array $lngs = array()): array {
-      $masterFolderId = (int) $masterFolderId;
+   public static function provision_folder_tree($db, int $master_folder_id, array $lngs = array()): array {
+      $master_folder_id = (int) $master_folder_id;
       $result = array(
          'ok' => 0,
-         'master_folder_id' => $masterFolderId,
+         'master_folder_id' => $master_folder_id,
          'folders' => array(),
          'pages' => array(),
          'errors' => array(),
       );
 
-      if ($masterFolderId <= 0 || !is_object($db) || !self::isMasterLng()) {
+      if ($master_folder_id <= 0 || !is_object($db) || !self::is_master_lng()) {
          $result['errors'][] = 'Nur in der Master-Sprache moeglich.';
          return $result;
       }
 
-      $folderIds = self::collectFolderSubtreeIds($db, $masterFolderId);
-      if (!count($folderIds)) {
+      $folder_ids = self::collect_folder_subtree_ids($db, $master_folder_id);
+      if (!count($folder_ids)) {
          $result['errors'][] = 'Ordner nicht gefunden.';
          return $result;
       }
 
-      foreach ($folderIds as $folderId) {
-         $preview = self::previewProvision($db, 'folder', (int) $folderId, $lngs);
+      foreach ($folder_ids as $folder_id) {
+         $preview = self::preview_provision($db, 'folder', (int) $folder_id, $lngs);
          $items = array();
          foreach (is_array($preview['items'] ?? null) ? $preview['items'] : array() as $item) {
             if (!is_array($item)) {
@@ -1011,9 +1011,9 @@ class dbxContentLngSync {
             $item['enabled'] = 1;
             $items[] = $item;
          }
-         $prov = self::provisionFromPreview($db, 'folder', (int) $folderId, $items);
+         $prov = self::provision_from_preview($db, 'folder', (int) $folder_id, $items);
          $result['folders'][] = array(
-            'master_id' => (int) $folderId,
+            'master_id' => (int) $folder_id,
             'result' => $prov,
          );
          if (is_array($prov['errors'] ?? null)) {
@@ -1021,9 +1021,9 @@ class dbxContentLngSync {
          }
       }
 
-      $pageIds = self::collectPageIdsInFolders($db, $folderIds);
-      foreach ($pageIds as $pageId) {
-         $preview = self::previewProvision($db, 'page', (int) $pageId, $lngs);
+      $page_ids = self::collect_page_ids_in_folders($db, $folder_ids);
+      foreach ($page_ids as $page_id) {
+         $preview = self::preview_provision($db, 'page', (int) $page_id, $lngs);
          $items = array();
          foreach (is_array($preview['items'] ?? null) ? $preview['items'] : array() as $item) {
             if (!is_array($item)) {
@@ -1032,9 +1032,9 @@ class dbxContentLngSync {
             $item['enabled'] = 1;
             $items[] = $item;
          }
-         $prov = self::provisionFromPreview($db, 'page', (int) $pageId, $items);
+         $prov = self::provision_from_preview($db, 'page', (int) $page_id, $items);
          $result['pages'][] = array(
-            'master_id' => (int) $pageId,
+            'master_id' => (int) $page_id,
             'result' => $prov,
          );
          if (is_array($prov['errors'] ?? null)) {
@@ -1042,15 +1042,15 @@ class dbxContentLngSync {
          }
       }
 
-      $hasWork = count($result['folders']) || count($result['pages']);
-      $result['ok'] = $hasWork ? 1 : 0;
+      $has_work = count($result['folders']) || count($result['pages']);
+      $result['ok'] = $has_work ? 1 : 0;
       return $result;
    }
 
-   private static function copyPageStructure(array $masterRow): array {
+   private static function copy_page_structure(array $master_row): array {
       $skip = array('id', 'create_date', 'create_uid', 'update_date', 'update_uid', 'owner', 'title', 'menu_title', 'permalink', 'description', 'keywords', 'content', 'lng_uid', 'lng_sync', 'lng_rev', 'lng_synced_rev');
       $data = array();
-      foreach ($masterRow as $key => $value) {
+      foreach ($master_row as $key => $value) {
          if (in_array($key, $skip, true)) {
             continue;
          }
@@ -1059,10 +1059,10 @@ class dbxContentLngSync {
       return $data;
    }
 
-   private static function copyFolderStructure(array $masterRow): array {
+   private static function copy_folder_structure(array $master_row): array {
       $skip = array('id', 'create_date', 'create_uid', 'update_date', 'update_uid', 'owner', 'name', 'parent_id', 'lng_uid', 'lng_sync', 'lng_rev', 'lng_synced_rev');
       $data = array();
-      foreach ($masterRow as $key => $value) {
+      foreach ($master_row as $key => $value) {
          if (in_array($key, $skip, true)) {
             continue;
          }
@@ -1071,21 +1071,21 @@ class dbxContentLngSync {
       return $data;
    }
 
-   public static function renderLngBar(): string {
+   public static function render_lng_bar(): string {
       $tpl = dbx()->get_system_obj('dbxTPL');
-      $master = self::masterLng();
+      $master = self::master_lng();
       $current = dbxContentLng::current();
       $items = array();
 
-      foreach (self::accessibleLngs() as $lng) {
+      foreach (self::accessible_lngs() as $lng) {
          $active = $lng === $current ? ' is-active' : '';
-         $isMaster = $lng === $master ? ' is-master' : '';
+         $is_master = $lng === $master ? ' is-master' : '';
          $label = strtoupper($lng);
          if ($lng === $master) {
             $label .= ' *';
          }
          $url = '?dbx_modul=dbxContent_admin&dbx_run1=cms&dbx_lng=' . rawurlencode($lng);
-         $items[] = '<a class="dbx-cms-lng-tab' . $active . $isMaster . '" href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" data-cms-lng="' . htmlspecialchars($lng, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</a>';
+         $items[] = '<a class="dbx-cms-lng-tab' . $active . $is_master . '" href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" data-cms-lng="' . htmlspecialchars($lng, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</a>';
       }
 
       return $tpl->get_tpl('dbxContent_admin|cms-admin-lng-bar', array(
@@ -1095,13 +1095,13 @@ class dbxContentLngSync {
       ));
    }
 
-   private static function backfillTableUids($db, string $dd, string $prefix, bool $isMaster = false): void {
+   private static function backfill_table_uids($db, string $dd, string $prefix, bool $is_master = false): void {
       $rows = $db->select($dd, "(lng_uid IS NULL OR TRIM(lng_uid) = '')", 'id', 'id', 'ASC', '', 0, 0, 0);
       if (!is_array($rows)) {
          return;
       }
 
-      $sync = $isMaster ? 'auto' : 'manual';
+      $sync = $is_master ? 'auto' : 'manual';
 
       foreach ($rows as $row) {
          if (!is_array($row)) {
@@ -1112,7 +1112,7 @@ class dbxContentLngSync {
             continue;
          }
          $db->update($dd, array(
-            'lng_uid' => self::newUid($prefix),
+            'lng_uid' => self::new_uid($prefix),
             'lng_sync' => $sync,
             'lng_rev' => 1,
             'lng_synced_rev' => 0,
@@ -1120,13 +1120,13 @@ class dbxContentLngSync {
       }
    }
 
-   private static function selectByUid($db, string $dd, string $lngUid): ?array {
-      $lngUid = str_replace("'", "''", trim($lngUid));
-      if ($lngUid === '') {
+   private static function select_by_uid($db, string $dd, string $lng_uid): ?array {
+      $lng_uid = str_replace("'", "''", trim($lng_uid));
+      if ($lng_uid === '') {
          return null;
       }
 
-      $rows = $db->select($dd, "lng_uid = '" . $lngUid . "'", '*', 'id', 'ASC', '', 1, 0, 0);
+      $rows = $db->select($dd, "lng_uid = '" . $lng_uid . "'", '*', 'id', 'ASC', '', 1, 0, 0);
       if (!is_array($rows) || !isset($rows[0]) || !is_array($rows[0])) {
          return null;
       }
@@ -1134,15 +1134,15 @@ class dbxContentLngSync {
       return $rows[0];
    }
 
-   private static function ddForLng(string $dd, string $lng): string {
-      if (strpos($dd, 'content_folder_') === 0 || $dd === dbxContentLng::ddFolder()) {
-         return dbxContentLng::ddFolder($lng);
+   private static function dd_for_lng(string $dd, string $lng): string {
+      if (strpos($dd, 'content_folder_') === 0 || $dd === dbxContentLng::dd_folder()) {
+         return dbxContentLng::dd_folder($lng);
       }
 
-      return dbxContentLng::ddContent($lng);
+      return dbxContentLng::dd_content($lng);
    }
 
-   private static function lngFromDd(string $dd): string {
+   private static function lng_from_dd(string $dd): string {
       if (preg_match('/_(de|en|es|[a-z]{2})$/', $dd, $m)) {
          return $m[1];
       }

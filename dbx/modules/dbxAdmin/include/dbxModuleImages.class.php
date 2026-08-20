@@ -9,11 +9,11 @@ class dbxModuleImages {
    public const REL_DIR = 'mod/';
    public const FILENAME_PARAM_SEP = '__';
 
-   private $listCache = array();
-   private $imageItemsCache = array();
-   private $moduleSymbolCache = array();
+   private $list_cache = array();
+   private $image_items_cache = array();
+   private $module_symbol_cache = array();
 
-   private function imageExtensionAliases(): array {
+   private function image_extension_aliases(): array {
       return array(
          'jpeg' => 'jpg',
          'jpe'  => 'jpg',
@@ -21,33 +21,33 @@ class dbxModuleImages {
       );
    }
 
-   private function blockedImageExtensions(): array {
+   private function blocked_image_extensions(): array {
       return array('php', 'phtml', 'phar', 'svg', 'js', 'html', 'htm');
    }
 
-   private function allowedImageExtensions(): array {
+   private function allowed_image_extensions(): array {
       return array('jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'avif', 'tiff', 'tif', 'ico', 'heic', 'heif');
    }
 
-   private function normalizeImageExtension(string $ext, string $fallback = 'jpg'): string {
+   private function normalize_image_extension(string $ext, string $fallback = 'jpg'): string {
       $ext = strtolower(preg_replace('/[^a-z0-9]+/', '', $ext));
-      $aliases = $this->imageExtensionAliases();
+      $aliases = $this->image_extension_aliases();
       if (isset($aliases[$ext])) {
          $ext = $aliases[$ext];
       }
-      if ($ext === '' || strlen($ext) > 8 || in_array($ext, $this->blockedImageExtensions(), true)) {
+      if ($ext === '' || strlen($ext) > 8 || in_array($ext, $this->blocked_image_extensions(), true)) {
          return $fallback;
       }
       return $ext;
    }
 
-   private function extensionFromImagePath(string $path, string $fallback = 'jpg'): string {
+   private function extension_from_image_path(string $path, string $fallback = 'jpg'): string {
       $path = (string) $path;
       if ($path !== '' && is_file($path) && is_readable($path)) {
          $info = @getimagesize($path);
          if (is_array($info)) {
             $mime = strtolower((string) ($info['mime'] ?? ''));
-            $fromMime = array(
+            $from_mime = array(
                'image/jpeg'                => 'jpg',
                'image/png'                 => 'png',
                'image/gif'                 => 'gif',
@@ -61,8 +61,8 @@ class dbxModuleImages {
                'image/heic'                => 'heic',
                'image/heif'                => 'heif',
             );
-            if (isset($fromMime[$mime])) {
-               return $fromMime[$mime];
+            if (isset($from_mime[$mime])) {
+               return $from_mime[$mime];
             }
 
             $ext = strtolower(preg_replace('/[^a-z0-9]+/', '', pathinfo($path, PATHINFO_EXTENSION)));
@@ -72,10 +72,10 @@ class dbxModuleImages {
          }
       }
 
-      return $this->normalizeImageExtension(pathinfo($path, PATHINFO_EXTENSION), $fallback);
+      return $this->normalize_image_extension(pathinfo($path, PATHINFO_EXTENSION), $fallback);
    }
 
-   private function isImagePath(string $path): bool {
+   private function is_image_path(string $path): bool {
       if ($path === '' || !is_file($path) || !is_readable($path)) {
          return false;
       }
@@ -93,8 +93,8 @@ class dbxModuleImages {
       return $mime !== 'image/svg+xml';
    }
 
-   private function mimeForExtension(string $ext): string {
-      $ext = $this->normalizeImageExtension($ext);
+   private function mime_for_extension(string $ext): string {
+      $ext = $this->normalize_image_extension($ext);
       $map = array(
          'jpg'   => 'image/jpeg',
          'png'   => 'image/png',
@@ -111,31 +111,31 @@ class dbxModuleImages {
       return $map[$ext] ?? ('image/' . $ext);
    }
 
-   public function absDir(): string {
+   public function abs_dir(): string {
       $dir = rtrim(dbx()->get_file_dir(), '/\\') . '/' . self::REL_DIR;
       return dbx()->os_path($dir);
    }
 
-   public function relPath(string $filename): string {
-      $filename = $this->sanitizeFilename($filename);
+   public function rel_path(string $filename): string {
+      $filename = $this->sanitize_filename($filename);
       return $filename === '' ? '' : self::REL_DIR . $filename;
    }
 
-   public function mediaApiUrl(): string {
+   public function media_api_url(): string {
       return '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_media';
    }
 
-   public function mediaFoldersApiUrl(): string {
+   public function media_folders_api_url(): string {
       return '?dbx_modul=dbxAdmin&dbx_run1=modules&dbx_run2=modul_images_media_folders';
    }
 
-   public function urlBase(): string {
+   public function url_base(): string {
       return rtrim(dbx()->get_base_url(), '/\\') . '/files/' . self::REL_DIR;
    }
 
-   public function moduleSymbolDir(string $modul, bool $create = false): string {
-      $modul = $this->sanitizeModul($modul);
-      if ($modul === '' || !$this->isKnownModul($modul)) {
+   public function module_symbol_dir(string $modul, bool $create = false): string {
+      $modul = $this->sanitize_modul($modul);
+      if ($modul === '' || !$this->is_known_modul($modul)) {
          return '';
       }
 
@@ -147,8 +147,8 @@ class dbxModuleImages {
       return is_dir($dir) ? rtrim($dir, '/\\') . DIRECTORY_SEPARATOR : $dir;
    }
 
-   public function moduleSymbolUrlBase(string $modul): string {
-      $modul = $this->sanitizeModul($modul);
+   public function module_symbol_url_base(string $modul): string {
+      $modul = $this->sanitize_modul($modul);
       if ($modul === '') {
          return '';
       }
@@ -156,16 +156,16 @@ class dbxModuleImages {
       return rtrim(dbx()->get_base_url(), '/\\') . '/dbx/modules/' . rawurlencode($modul) . '/tpl/img/';
    }
 
-   public function moduleSymbol(string $modul): array {
-      $modul = $this->sanitizeModul($modul);
+   public function module_symbol(string $modul): array {
+      $modul = $this->sanitize_modul($modul);
       if ($modul === '') {
          return array('url' => '', 'alt' => '', 'badge' => '');
       }
-      if (isset($this->moduleSymbolCache[$modul])) {
-         return $this->moduleSymbolCache[$modul];
+      if (isset($this->module_symbol_cache[$modul])) {
+         return $this->module_symbol_cache[$modul];
       }
 
-      $dir = $this->moduleSymbolDir($modul, false);
+      $dir = $this->module_symbol_dir($modul, false);
       if ($dir !== '' && is_dir($dir) && is_readable($dir)) {
          $matches = glob($dir . $modul . '.*') ?: array();
          usort($matches, function ($a, $b) {
@@ -178,51 +178,51 @@ class dbxModuleImages {
          });
 
          foreach ($matches as $path) {
-            if (!$this->isImageFile(basename((string)$path), (string)$path)) {
+            if (!$this->is_image_file(basename((string)$path), (string)$path)) {
                continue;
             }
 
             $file = basename((string)$path);
-            $this->moduleSymbolCache[$modul] = array(
-               'url'   => $this->moduleSymbolUrlBase($modul) . rawurlencode($file) . '?v=' . (int) @filemtime((string)$path),
+            $this->module_symbol_cache[$modul] = array(
+               'url'   => $this->module_symbol_url_base($modul) . rawurlencode($file) . '?v=' . (int) @filemtime((string)$path),
                'alt'   => $modul,
                'badge' => 'tpl/img/' . $file,
                'file'  => $file,
                'path'  => 'dbx/modules/' . $modul . '/tpl/img/' . $file,
             );
-            return $this->moduleSymbolCache[$modul];
+            return $this->module_symbol_cache[$modul];
          }
       }
 
-      $this->moduleSymbolCache[$modul] = array(
+      $this->module_symbol_cache[$modul] = array(
          'url'   => '',
          'alt'   => $modul,
          'badge' => 'tpl/img/' . $modul . '.*',
          'file'  => '',
          'path'  => 'dbx/modules/' . $modul . '/tpl/img/' . $modul . '.*',
       );
-      return $this->moduleSymbolCache[$modul];
+      return $this->module_symbol_cache[$modul];
    }
 
-   public function importSymbolForModul(string $modul, int $mediaId = 0, string $sourceRel = ''): ?array {
-      $modul = $this->sanitizeModul($modul);
-      if ($modul === '' || !$this->isKnownModul($modul)) {
+   public function import_symbol_for_modul(string $modul, int $media_id = 0, string $source_rel = ''): ?array {
+      $modul = $this->sanitize_modul($modul);
+      if ($modul === '' || !$this->is_known_modul($modul)) {
          return null;
       }
 
       $rel = '';
-      if ($mediaId > 0) {
+      if ($media_id > 0) {
          $db = dbx()->get_system_obj('dbxDB');
          if (!is_object($db)) {
             return null;
          }
-         $row = $db->select1('dbxMedia', $mediaId);
+         $row = $db->select1('dbxMedia', $media_id);
          if (!is_array($row) || (int)($row['active'] ?? 0) !== 1) {
             return null;
          }
          $rel = ltrim(str_replace('\\', '/', (string)($row['file_path'] ?? '')), '/');
-      } elseif ($sourceRel !== '') {
-         $rel = ltrim(str_replace('\\', '/', trim($sourceRel)), '/');
+      } elseif ($source_rel !== '') {
+         $rel = ltrim(str_replace('\\', '/', trim($source_rel)), '/');
       }
 
       if ($rel === '' || strpos($rel, '..') !== false) {
@@ -230,22 +230,22 @@ class dbxModuleImages {
       }
 
       $source = dbx()->os_path(rtrim(dbx()->get_file_dir(), '/\\') . '/' . $rel);
-      if (!$this->isImagePath($source)) {
+      if (!$this->is_image_path($source)) {
          return null;
       }
 
-      $dir = $this->moduleSymbolDir($modul, true);
+      $dir = $this->module_symbol_dir($modul, true);
       if ($dir === '' || !is_dir($dir)) {
          return null;
       }
 
-      $ext = $this->extensionFromImagePath($source);
-      $targetFile = $modul . '.' . $ext;
-      $target = $dir . $targetFile;
-      $this->removeModuleSymbolVariants($modul, $targetFile);
+      $ext = $this->extension_from_image_path($source);
+      $target_file = $modul . '.' . $ext;
+      $target = $dir . $target_file;
+      $this->remove_module_symbol_variants($modul, $target_file);
 
       if ($source === $target && is_file($target)) {
-         return $this->moduleSymbol($modul);
+         return $this->module_symbol($modul);
       }
 
       if (is_file($target)) {
@@ -256,26 +256,26 @@ class dbxModuleImages {
          return null;
       }
 
-      return $this->moduleSymbol($modul);
+      return $this->module_symbol($modul);
    }
 
-   public function serveFile(string $filename): void {
-      $filename = $this->sanitizeFilename($filename);
-      if ($filename === '' || !$this->isImageFile($filename)) {
+   public function serve_file(string $filename): void {
+      $filename = $this->sanitize_filename($filename);
+      if ($filename === '' || !$this->is_image_file($filename)) {
          http_response_code(404);
          exit;
       }
 
-      $dir = realpath($this->absDir());
-      $file = realpath($this->absPath($filename));
-      if (!$dir || !$file || strpos($file, $dir) !== 0 || !$this->isImagePath($file)) {
+      $dir = realpath($this->abs_dir());
+      $file = realpath($this->abs_path($filename));
+      if (!$dir || !$file || strpos($file, $dir) !== 0 || !$this->is_image_path($file)) {
          http_response_code(404);
          exit;
       }
 
       $mime = function_exists('mime_content_type') ? (string) @mime_content_type($file) : '';
       if ($mime === '' || strpos(strtolower($mime), 'image/') !== 0) {
-         $mime = $this->mimeForExtension(pathinfo($filename, PATHINFO_EXTENSION));
+         $mime = $this->mime_for_extension(pathinfo($filename, PATHINFO_EXTENSION));
       }
 
       if (function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE) {
@@ -292,30 +292,30 @@ class dbxModuleImages {
       exit;
    }
 
-   public function ensureDir(): void {
-      $dir = $this->absDir();
+   public function ensure_dir(): void {
+      $dir = $this->abs_dir();
       if (!is_dir($dir)) {
          mkdir($dir, 0777, true);
       }
    }
 
-   public function getList(string $modul): array {
-      return $this->scanList($modul);
+   public function get_list(string $modul): array {
+      return $this->scan_list($modul);
    }
 
-   public function scanList(string $modul): array {
-      $modul = $this->sanitizeModul($modul);
+   public function scan_list(string $modul): array {
+      $modul = $this->sanitize_modul($modul);
       if ($modul === '') {
          return array();
       }
-      if (isset($this->listCache[$modul])) {
-         return $this->listCache[$modul];
+      if (isset($this->list_cache[$modul])) {
+         return $this->list_cache[$modul];
       }
 
-      $this->ensureDir();
-      $dir = $this->absDir();
+      $this->ensure_dir();
+      $dir = $this->abs_dir();
       if (!is_dir($dir) || !is_readable($dir)) {
-         $this->listCache[$modul] = array();
+         $this->list_cache[$modul] = array();
          return array();
       }
 
@@ -324,30 +324,30 @@ class dbxModuleImages {
          if (!is_file($path) || !is_readable($path)) {
             continue;
          }
-         $name = $this->sanitizeFilename(basename($path));
-         if ($name === '' || !$this->isImageFile($name, $path)) {
+         $name = $this->sanitize_filename(basename($path));
+         if ($name === '' || !$this->is_image_file($name, $path)) {
             continue;
          }
-         if ($this->fileBelongsToModul($modul, $name)) {
+         if ($this->file_belongs_to_modul($modul, $name)) {
             $out[] = $name;
          }
       }
 
       $out = array_values(array_unique($out));
       sort($out, SORT_NATURAL | SORT_FLAG_CASE);
-      $this->listCache[$modul] = $out;
-      return $this->listCache[$modul];
+      $this->list_cache[$modul] = $out;
+      return $this->list_cache[$modul];
    }
 
-   public function saveList(string $modul, array $files): bool {
-      $modul = $this->sanitizeModul($modul);
+   public function save_list(string $modul, array $files): bool {
+      $modul = $this->sanitize_modul($modul);
       if ($modul === '') {
          return false;
       }
 
-      $allowed = array_flip($this->scanList($modul));
+      $allowed = array_flip($this->scan_list($modul));
       foreach ($files as $file) {
-         $name = $this->sanitizeFilename((string)$file);
+         $name = $this->sanitize_filename((string)$file);
          if ($name !== '' && !isset($allowed[$name])) {
             return false;
          }
@@ -356,21 +356,21 @@ class dbxModuleImages {
       return true;
    }
 
-   public function addToList(string $modul, string $filename): bool {
-      $filename = $this->sanitizeFilename($filename);
+   public function add_to_list(string $modul, string $filename): bool {
+      $filename = $this->sanitize_filename($filename);
       return $filename !== ''
-         && $this->fileExists($filename)
-         && $this->fileBelongsToModul($modul, $filename);
+         && $this->file_exists($filename)
+         && $this->file_belongs_to_modul($modul, $filename);
    }
 
-   public function removeFromList(string $modul, string $filename, bool $deletePhysical = true): bool {
-      $filename = $this->sanitizeFilename($filename);
-      if ($filename === '' || !$this->fileBelongsToModul($modul, $filename)) {
+   public function remove_from_list(string $modul, string $filename, bool $delete_physical = true): bool {
+      $filename = $this->sanitize_filename($filename);
+      if ($filename === '' || !$this->file_belongs_to_modul($modul, $filename)) {
          return false;
       }
 
-      if ($deletePhysical) {
-         $path = $this->absPath($filename);
+      if ($delete_physical) {
+         $path = $this->abs_path($filename);
          if (is_file($path)) {
             @unlink($path);
          }
@@ -379,27 +379,27 @@ class dbxModuleImages {
       return true;
    }
 
-   public function importForModul(string $modul, int $mediaId = 0, string $sourceRel = '', string $run1 = '', string $run2 = ''): ?string {
-      $modul = $this->sanitizeModul($modul);
-      $run1 = $this->sanitizeRunPart($run1);
-      $run2 = $this->sanitizeRunPart($run2);
+   public function import_for_modul(string $modul, int $media_id = 0, string $source_rel = '', string $run1 = '', string $run2 = ''): ?string {
+      $modul = $this->sanitize_modul($modul);
+      $run1 = $this->sanitize_run_part($run1);
+      $run2 = $this->sanitize_run_part($run2);
       if ($modul === '' || $run1 === '') {
          return null;
       }
 
       $rel = '';
-      if ($mediaId > 0) {
+      if ($media_id > 0) {
          $db = dbx()->get_system_obj('dbxDB');
          if (!is_object($db)) {
             return null;
          }
-         $row = $db->select1('dbxMedia', $mediaId);
+         $row = $db->select1('dbxMedia', $media_id);
          if (!is_array($row) || (int)($row['active'] ?? 0) !== 1) {
             return null;
          }
          $rel = ltrim(str_replace('\\', '/', (string)($row['file_path'] ?? '')), '/');
-      } elseif ($sourceRel !== '') {
-         $rel = ltrim(str_replace('\\', '/', trim($sourceRel)), '/');
+      } elseif ($source_rel !== '') {
+         $rel = ltrim(str_replace('\\', '/', trim($source_rel)), '/');
       }
 
       if ($rel === '' || strpos($rel, '..') !== false) {
@@ -412,29 +412,29 @@ class dbxModuleImages {
          return null;
       }
 
-      if (!$this->isImagePath($source)) {
+      if (!$this->is_image_path($source)) {
          return null;
       }
 
-      $ext = $this->extensionFromImagePath($source);
-      $targetName = $this->filenameForRuns($modul, $run1, $run2, $ext);
-      if ($targetName === '') {
+      $ext = $this->extension_from_image_path($source);
+      $target_name = $this->filename_for_runs($modul, $run1, $run2, $ext);
+      if ($target_name === '') {
          return null;
       }
 
-      $this->ensureDir();
-      $dest = $this->absPath($targetName);
+      $this->ensure_dir();
+      $dest = $this->abs_path($target_name);
       if ($dest !== '' && $source === $dest && is_file($dest)) {
-         return $targetName;
+         return $target_name;
       }
 
-      return $this->copyFromMediaRel($modul, $rel, $targetName);
+      return $this->copy_from_media_rel($modul, $rel, $target_name);
    }
 
-   public function saveFromUpload(string $modul, string $run1, string $run2, array $file): ?string {
-      $modul = $this->sanitizeModul($modul);
-      $run1 = $this->sanitizeRunPart($run1);
-      $run2 = $this->sanitizeRunPart($run2);
+   public function save_from_upload(string $modul, string $run1, string $run2, array $file): ?string {
+      $modul = $this->sanitize_modul($modul);
+      $run1 = $this->sanitize_run_part($run1);
+      $run2 = $this->sanitize_run_part($run2);
       if ($modul === '' || $run1 === '' || empty($file) || !is_array($file)) {
          return null;
       }
@@ -447,18 +447,18 @@ class dbxModuleImages {
          return null;
       }
 
-      if (!$this->isImagePath($tmp)) {
+      if (!$this->is_image_path($tmp)) {
          return null;
       }
 
-      $ext = $this->extensionFromImagePath($tmp, $this->extensionFromImagePath((string) ($file['name'] ?? '')));
-      $targetName = $this->filenameForRuns($modul, $run1, $run2, $ext);
-      if ($targetName === '') {
+      $ext = $this->extension_from_image_path($tmp, $this->extension_from_image_path((string) ($file['name'] ?? '')));
+      $target_name = $this->filename_for_runs($modul, $run1, $run2, $ext);
+      if ($target_name === '') {
          return null;
       }
 
-      $this->ensureDir();
-      $dest = $this->absPath($targetName);
+      $this->ensure_dir();
+      $dest = $this->abs_path($target_name);
       if ($dest === '') {
          return null;
       }
@@ -471,13 +471,13 @@ class dbxModuleImages {
          return null;
       }
 
-      return $targetName;
+      return $target_name;
    }
 
-   public function stemForRuns(string $modul, string $run1, string $run2 = ''): string {
-      $modul = $this->sanitizeModul($modul);
-      $run1 = $this->sanitizeRunPart($run1);
-      $run2 = $this->sanitizeRunPart($run2);
+   public function stem_for_runs(string $modul, string $run1, string $run2 = ''): string {
+      $modul = $this->sanitize_modul($modul);
+      $run1 = $this->sanitize_run_part($run1);
+      $run2 = $this->sanitize_run_part($run2);
       if ($modul === '' || $run1 === '') {
          return $modul;
       }
@@ -490,72 +490,72 @@ class dbxModuleImages {
       return $stem;
    }
 
-   public function filenameForRuns(string $modul, string $run1, string $run2 = '', string $ext = 'jpg'): string {
-      $modul = $this->sanitizeModul($modul);
-      $run1 = $this->sanitizeRunPart($run1);
-      $run2 = $this->sanitizeRunPart($run2);
-      $ext = $this->normalizeImageExtension($ext);
+   public function filename_for_runs(string $modul, string $run1, string $run2 = '', string $ext = 'jpg'): string {
+      $modul = $this->sanitize_modul($modul);
+      $run1 = $this->sanitize_run_part($run1);
+      $run2 = $this->sanitize_run_part($run2);
+      $ext = $this->normalize_image_extension($ext);
 
       if ($modul === '' || $run1 === '') {
          return '';
       }
 
-      return $this->stemForRuns($modul, $run1, $run2) . '.' . $ext;
+      return $this->stem_for_runs($modul, $run1, $run2) . '.' . $ext;
    }
 
-   public function getUrl(string $filename): string {
-      $filename = $this->sanitizeFilename($filename);
+   public function get_url(string $filename): string {
+      $filename = $this->sanitize_filename($filename);
       if ($filename === '') {
          return '';
       }
-      return $this->urlBase() . rawurlencode($filename);
+      return $this->url_base() . rawurlencode($filename);
    }
 
-   public function fileExists(string $filename): bool {
-      $path = $this->absPath($filename);
+   public function file_exists(string $filename): bool {
+      $path = $this->abs_path($filename);
       return $path !== '' && is_file($path) && is_readable($path);
    }
 
-   public function absPath(string $filename): string {
-      $filename = $this->sanitizeFilename($filename);
+   public function abs_path(string $filename): string {
+      $filename = $this->sanitize_filename($filename);
       if ($filename === '') {
          return '';
       }
-      return $this->absDir() . $filename;
+      return $this->abs_dir() . $filename;
    }
 
-   public function copyFromMediaRel(string $modul, string $sourceRel, string $targetName = ''): ?string {
-      $modul = $this->sanitizeModul($modul);
-      $sourceRel = ltrim(str_replace('\\', '/', trim($sourceRel)), '/');
-      if ($modul === '' || $sourceRel === '' || strpos($sourceRel, '..') !== false) {
+   public function copy_from_media_rel(string $modul, string $source_rel, string $target_name = ''): ?string {
+      $modul = $this->sanitize_modul($modul);
+      $source_rel = ltrim(str_replace('\\', '/', trim($source_rel)), '/');
+      if ($modul === '' || $source_rel === '' || strpos($source_rel, '..') !== false) {
          return null;
       }
 
-      $source = rtrim(dbx()->get_file_dir(), '/\\') . '/' . $sourceRel;
+      $source = rtrim(dbx()->get_file_dir(), '/\\') . '/' . $source_rel;
       $source = dbx()->os_path($source);
       if (!is_file($source) || !is_readable($source)) {
          return null;
       }
 
-      if (!$this->isImagePath($source)) {
+      if (!$this->is_image_path($source)) {
          return null;
       }
 
-      if ($targetName === '') {
-         $targetName = $this->suggestFilename($modul, basename($source));
+      if ($target_name === '') {
+         $target_name = $this->suggest_filename($modul, basename($source));
       } else {
-         $targetName = $this->sanitizeFilename($targetName);
-         if ($targetName !== '' && pathinfo($targetName, PATHINFO_EXTENSION) === '') {
-            $targetName .= '.' . $this->extensionFromImagePath($source);
+         $target_name = $this->sanitize_filename($target_name);
+         if ($target_name !== '' && pathinfo($target_name, PATHINFO_EXTENSION) === '') {
+            $target_name .= '.' . $this->extension_from_image_path($source);
          }
       }
 
-      if ($targetName === '') {
+      if ($target_name === '') {
          return null;
       }
 
-      $this->ensureDir();
-      $dest = $this->absPath($targetName);
+      $this->ensure_dir();
+      $dest = $this->abs_path($target_name);
       if ($dest === '') {
          return null;
       }
@@ -568,19 +568,19 @@ class dbxModuleImages {
          return null;
       }
 
-      return $targetName;
+      return $target_name;
    }
 
-   public function copyFromMediaId(string $modul, int $mediaId): ?string {
-      return $this->importForModul($modul, $mediaId, '');
+   public function copy_from_media_id(string $modul, int $media_id): ?string {
+      return $this->import_for_modul($modul, $media_id, '');
    }
 
-   public function suggestFilename(string $modul, string $sourceName): string {
-      $modul = $this->sanitizeModul($modul);
-      $base = pathinfo(basename($sourceName), PATHINFO_FILENAME);
+   public function suggest_filename(string $modul, string $source_name): string {
+      $modul = $this->sanitize_modul($modul);
+      $base = pathinfo(basename($source_name), PATHINFO_FILENAME);
       $base = preg_replace('/[^A-Za-z0-9_-]+/', '-', (string)$base);
       $base = trim((string)$base, '-_');
-      $ext = $this->normalizeImageExtension(pathinfo($sourceName, PATHINFO_EXTENSION));
+      $ext = $this->normalize_image_extension(pathinfo($source_name, PATHINFO_EXTENSION));
 
       if ($base === '') {
          $base = 'image';
@@ -592,14 +592,14 @@ class dbxModuleImages {
       }
 
       $name = $base . '.' . $ext;
-      if (!$this->fileExists($name)) {
+      if (!$this->file_exists($name)) {
          return $name;
       }
 
       $i = 2;
       while ($i < 1000) {
          $candidate = $base . self::FILENAME_PARAM_SEP . $i . '.' . $ext;
-         if (!$this->fileExists($candidate)) {
+         if (!$this->file_exists($candidate)) {
             return $candidate;
          }
          $i++;
@@ -608,23 +608,23 @@ class dbxModuleImages {
       return $base . self::FILENAME_PARAM_SEP . substr(md5((string)microtime(true)), 0, 6) . '.' . $ext;
    }
 
-   public function resolveFromFilename(string $filename): array {
-      $filename = $this->sanitizeFilename($filename);
-      if ($filename === '' || !$this->isImageFile($filename) || !$this->fileExists($filename)) {
+   public function resolve_from_filename(string $filename): array {
+      $filename = $this->sanitize_filename($filename);
+      if ($filename === '' || !$this->is_image_file($filename) || !$this->file_exists($filename)) {
          return array();
       }
 
-      $modul = $this->resolveModulFromFilename($filename);
+      $modul = $this->resolve_modul_from_filename($filename);
       if ($modul === '') {
          return array();
       }
 
-      $item = $this->catalogItem($modul, $filename);
+      $item = $this->catalog_item($modul, $filename);
       return is_array($item) ? $item : array();
    }
 
-   public function resolveModulFromFilename(string $filename): string {
-      $filename = $this->sanitizeFilename($filename);
+   public function resolve_modul_from_filename(string $filename): string {
+      $filename = $this->sanitize_filename($filename);
       if ($filename === '') {
          return '';
       }
@@ -636,48 +636,48 @@ class dbxModuleImages {
 
       $sep = self::FILENAME_PARAM_SEP;
       if (strpos($base, $sep) !== false) {
-         $modul = $this->sanitizeModul((string) strstr($base, $sep, true));
-         if ($modul !== '' && $this->isKnownModul($modul)) {
+         $modul = $this->sanitize_modul((string) strstr($base, $sep, true));
+         if ($modul !== '' && $this->is_known_modul($modul)) {
             return $modul;
          }
          return '';
       }
 
-      if ($this->isKnownModul($base)) {
-         return $this->sanitizeModul($base);
+      if ($this->is_known_modul($base)) {
+         return $this->sanitize_modul($base);
       }
 
       return '';
    }
 
-   public function catalogForModul(string $modul): array {
-      $modul = $this->sanitizeModul($modul);
+   public function catalog_for_modul(string $modul): array {
+      $modul = $this->sanitize_modul($modul);
       if ($modul === '') {
          return array();
       }
 
-      $scan = $this->scanRuns($modul);
+      $scan = $this->scan_runs($modul);
       $items = array();
 
-      foreach ($this->getList($modul) as $file) {
-         $items[] = $this->catalogItem($modul, $file, $scan);
+      foreach ($this->get_list($modul) as $file) {
+         $items[] = $this->catalog_item($modul, $file, $scan);
       }
 
       return $items;
    }
 
-   public function catalogItem(string $modul, string $filename, array $scan = null): array {
-      $modul = $this->sanitizeModul($modul);
-      $filename = $this->sanitizeFilename($filename);
+   public function catalog_item(string $modul, string $filename, array $scan = null): array {
+      $modul = $this->sanitize_modul($modul);
+      $filename = $this->sanitize_filename($filename);
       if ($modul === '' || $filename === '') {
          return array();
       }
 
       if (!is_array($scan)) {
-         $scan = $this->scanRuns($modul);
+         $scan = $this->scan_runs($modul);
       }
 
-      $parsed = $this->parseImageName($modul, $filename, $scan);
+      $parsed = $this->parse_image_name($modul, $filename, $scan);
       $label = (string)($parsed['label'] ?? $filename);
       $params = (string)($parsed['default_params'] ?? '');
       $marker = '[modul=' . $modul . ']' . $params . '[/modul]';
@@ -687,7 +687,7 @@ class dbxModuleImages {
          'file'           => $filename,
          'label'          => $label,
          'description'    => $marker,
-         'url'            => $this->getUrl($filename),
+         'url'            => $this->get_url($filename),
          'default_modul'  => $modul,
          'default_params' => $params,
          'default_alt'    => $modul . ': ' . $label,
@@ -696,24 +696,24 @@ class dbxModuleImages {
       );
    }
 
-   public function imageCount(string $modul): int {
-      return count($this->getList($modul));
+   public function image_count(string $modul): int {
+      return count($this->get_list($modul));
    }
 
-   public function primaryGraphic(string $modul, string $run1 = '', string $run2 = ''): array {
-      $modul = $this->sanitizeModul($modul);
-      $list = $this->getList($modul);
+   public function primary_graphic(string $modul, string $run1 = '', string $run2 = ''): array {
+      $modul = $this->sanitize_modul($modul);
+      $list = $this->get_list($modul);
       if (!$list) {
          return array('url' => '', 'alt' => $modul, 'badge' => '');
       }
 
-      $scan = $this->scanRuns($modul);
+      $scan = $this->scan_runs($modul);
       $candidates = array();
       if ($run1 !== '') {
          if ($run2 !== '') {
-            $candidates[] = $this->stemForRuns($modul, $run1, $run2);
+            $candidates[] = $this->stem_for_runs($modul, $run1, $run2);
          }
-         $candidates[] = $this->stemForRuns($modul, $run1, '');
+         $candidates[] = $this->stem_for_runs($modul, $run1, '');
       }
       $candidates[] = $modul;
 
@@ -722,7 +722,7 @@ class dbxModuleImages {
             $base = pathinfo($file, PATHINFO_FILENAME);
             if ($base === $stem) {
                return array(
-                  'url'   => $this->getUrl($file),
+                  'url'   => $this->get_url($file),
                   'alt'   => $modul,
                   'badge' => $file,
                );
@@ -732,37 +732,37 @@ class dbxModuleImages {
 
       $first = $list[0];
       return array(
-         'url'   => $this->getUrl($first),
+         'url'   => $this->get_url($first),
          'alt'   => $modul,
          'badge' => $first,
       );
    }
 
-   public function imageItems(string $modul): array {
-      $modul = $this->sanitizeModul($modul);
+   public function image_items(string $modul): array {
+      $modul = $this->sanitize_modul($modul);
       if ($modul === '') {
          return array();
       }
-      if (isset($this->imageItemsCache[$modul])) {
-         return $this->imageItemsCache[$modul];
+      if (isset($this->image_items_cache[$modul])) {
+         return $this->image_items_cache[$modul];
       }
 
-      $scan = $this->scanRuns($modul);
+      $scan = $this->scan_runs($modul);
       $items = array();
-      foreach ($this->getList($modul) as $file) {
-         $item = $this->catalogItem($modul, $file, $scan);
+      foreach ($this->get_list($modul) as $file) {
+         $item = $this->catalog_item($modul, $file, $scan);
          if ($item) {
             $items[] = $item;
          }
       }
-      $this->imageItemsCache[$modul] = $items;
-      return $this->imageItemsCache[$modul];
+      $this->image_items_cache[$modul] = $items;
+      return $this->image_items_cache[$modul];
    }
 
-   public function mediaBrowserRows(string $modulFilter = ''): array {
-      $modulFilter = $this->sanitizeModul($modulFilter);
-      $this->ensureDir();
-      $dir = $this->absDir();
+   public function media_browser_rows(string $modul_filter = ''): array {
+      $modul_filter = $this->sanitize_modul($modul_filter);
+      $this->ensure_dir();
+      $dir = $this->abs_dir();
       if (!is_dir($dir) || !is_readable($dir)) {
          return array();
       }
@@ -772,18 +772,18 @@ class dbxModuleImages {
          if (!is_file($path) || !is_readable($path)) {
             continue;
          }
-         $name = $this->sanitizeFilename(basename($path));
-         if ($name === '' || !$this->isImageFile($name, $path)) {
+         $name = $this->sanitize_filename(basename($path));
+         if ($name === '' || !$this->is_image_file($name, $path)) {
             continue;
          }
-         if ($modulFilter !== '' && !$this->fileBelongsToModul($modulFilter, $name)) {
+         if ($modul_filter !== '' && !$this->file_belongs_to_modul($modul_filter, $name)) {
             continue;
          }
 
-         $rel = $this->relPath($name);
+         $rel = $this->rel_path($name);
          $mime = function_exists('mime_content_type') ? (string) @mime_content_type($path) : '';
          if ($mime === '' || strpos(strtolower($mime), 'image/') !== 0) {
-            $mime = $this->mimeForExtension(pathinfo($name, PATHINFO_EXTENSION));
+            $mime = $this->mime_for_extension(pathinfo($name, PATHINFO_EXTENSION));
          }
 
          $title = pathinfo($name, PATHINFO_FILENAME);
@@ -793,8 +793,8 @@ class dbxModuleImages {
             'file_path'    => $rel,
             'title'        => $title,
             'alt'          => $title,
-            'url'          => $this->getUrl($name),
-            'thumb_url'    => $this->getUrl($name),
+            'url'          => $this->get_url($name),
+            'thumb_url'    => $this->get_url($name),
             'mime'         => $mime,
             'media_type'   => 'image',
             'media_folder' => 'mod',
@@ -811,26 +811,26 @@ class dbxModuleImages {
    }
 
 
-   private function fileBelongsToModul(string $modul, string $filename): bool {
-      $modul = $this->sanitizeModul($modul);
+   private function file_belongs_to_modul(string $modul, string $filename): bool {
+      $modul = $this->sanitize_modul($modul);
       if ($modul === '') {
          return false;
       }
 
-      return $this->resolveModulFromFilename($filename) === $modul;
+      return $this->resolve_modul_from_filename($filename) === $modul;
    }
 
-   private function removeModuleSymbolVariants(string $modul, string $keepFile = ''): void {
-      $modul = $this->sanitizeModul($modul);
-      $keepFile = $this->sanitizeFilename($keepFile);
-      $dir = $this->moduleSymbolDir($modul, false);
+   private function remove_module_symbol_variants(string $modul, string $keep_file = ''): void {
+      $modul = $this->sanitize_modul($modul);
+      $keep_file = $this->sanitize_filename($keep_file);
+      $dir = $this->module_symbol_dir($modul, false);
       if ($modul === '' || $dir === '' || !is_dir($dir)) {
          return;
       }
 
       foreach (glob($dir . $modul . '.*') ?: array() as $path) {
          $file = basename((string)$path);
-         if ($file === $keepFile) {
+         if ($file === $keep_file) {
             continue;
          }
          if (is_file($path)) {
@@ -839,37 +839,37 @@ class dbxModuleImages {
       }
    }
 
-   private function isImageFile(string $filename, string $absPath = ''): bool {
-      $filename = $this->sanitizeFilename($filename);
+   private function is_image_file(string $filename, string $abs_path = ''): bool {
+      $filename = $this->sanitize_filename($filename);
       if ($filename === '') {
          return false;
       }
 
-      if ($absPath === '') {
-         $absPath = $this->absPath($filename);
+      if ($abs_path === '') {
+         $abs_path = $this->abs_path($filename);
       }
 
       $ext = strtolower(preg_replace('/[^a-z0-9]+/', '', pathinfo($filename, PATHINFO_EXTENSION)));
-      if ($ext === '' || strlen($ext) > 8 || in_array($ext, $this->blockedImageExtensions(), true)) {
+      if ($ext === '' || strlen($ext) > 8 || in_array($ext, $this->blocked_image_extensions(), true)) {
          return false;
       }
 
-      return in_array($ext, $this->allowedImageExtensions(), true);
+      return in_array($ext, $this->allowed_image_extensions(), true);
    }
 
-   private function scanRuns(string $modul): array {
+   private function scan_runs(string $modul): array {
       static $cache = array();
       if (isset($cache[$modul])) {
          return $cache[$modul];
       }
 
-      $cache[$modul] = $this->scanRunsInline($modul);
+      $cache[$modul] = $this->scan_runs_inline($modul);
       return $cache[$modul];
    }
 
-   private function scanRunsInline(string $modul): array {
+   private function scan_runs_inline(string $modul): array {
       $run1 = array();
-      $usesRun2 = false;
+      $uses_run2 = false;
       $base = dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/' . $modul . DIRECTORY_SEPARATOR);
       $files = array();
       $main = $base . $modul . '.class.php';
@@ -891,7 +891,7 @@ class dbxModuleImages {
             continue;
          }
          if (preg_match("/get_modul_var\s*\(\s*['\"]dbx_run2['\"]/", $src)) {
-            $usesRun2 = true;
+            $uses_run2 = true;
          }
          if (preg_match_all("/case\s+['\"]([^'\"]+)['\"]\s*:/", $src, $matches)) {
             foreach ($matches[1] as $case) {
@@ -910,12 +910,12 @@ class dbxModuleImages {
 
       return array(
          'run1'         => array_values(array_keys($run1)),
-         'uses_run2'    => $usesRun2,
+         'uses_run2'    => $uses_run2,
          'run1_sorted'  => $run1List,
       );
    }
 
-   private function parseImageName(string $modul, string $filename, array $scan): array {
+   private function parse_image_name(string $modul, string $filename, array $scan): array {
       $base = pathinfo($filename, PATHINFO_FILENAME);
       if ($base === $modul) {
          return array(
@@ -933,7 +933,7 @@ class dbxModuleImages {
          $parts = explode($sep, $rest, 2);
          $run1 = trim((string)($parts[0] ?? ''));
          $run2 = trim((string)($parts[1] ?? ''));
-         return $this->buildParsedRuns($run1, $run2, $base);
+         return $this->build_parsed_runs($run1, $run2, $base);
       }
 
       return array(
@@ -944,14 +944,14 @@ class dbxModuleImages {
       );
    }
 
-   private function buildParsedRuns(string $run1, string $run2, string $fallbackLabel): array {
-      $params = $this->buildParams($run1, $run2);
-      $label = $this->runLabel($run1);
+   private function build_parsed_runs(string $run1, string $run2, string $fallback_label): array {
+      $params = $this->build_params($run1, $run2);
+      $label = $this->run_label($run1);
       if ($run2 !== '') {
-         $label .= ' / ' . $this->runLabel($run2);
+         $label .= ' / ' . $this->run_label($run2);
       }
       if ($label === '') {
-         $label = $fallbackLabel;
+         $label = $fallback_label;
       }
 
       return array(
@@ -962,7 +962,7 @@ class dbxModuleImages {
       );
    }
 
-   private function knownModulNames(): array {
+   private function known_modul_names(): array {
       static $names = null;
       if (is_array($names)) {
          return $names;
@@ -993,13 +993,13 @@ class dbxModuleImages {
       return $names;
    }
 
-   private function isKnownModul(string $modul): bool {
-      $modul = $this->sanitizeModul($modul);
+   private function is_known_modul(string $modul): bool {
+      $modul = $this->sanitize_modul($modul);
       if ($modul === '') {
          return false;
       }
 
-      foreach ($this->knownModulNames() as $name) {
+      foreach ($this->known_modul_names() as $name) {
          if ($name === $modul) {
             return true;
          }
@@ -1008,7 +1008,7 @@ class dbxModuleImages {
       return is_file(dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/' . $modul . '/' . $modul . '.class.php'));
    }
 
-   private function buildParams(string $run1, string $run2 = ''): string {
+   private function build_params(string $run1, string $run2 = ''): string {
       $params = array();
       if ($run1 !== '') {
          $params[] = 'dbx_run1=' . rawurlencode($run1);
@@ -1019,7 +1019,7 @@ class dbxModuleImages {
       return implode('&', $params);
    }
 
-   private function runLabel(string $action): string {
+   private function run_label(string $action): string {
       $action = trim($action);
       if ($action === '') {
          return '';
@@ -1027,15 +1027,15 @@ class dbxModuleImages {
       return ucfirst(str_replace('_', ' ', $action));
    }
 
-   private function sanitizeModul(string $modul): string {
+   private function sanitize_modul(string $modul): string {
       return preg_replace('/[^A-Za-z0-9_]+/', '', trim($modul));
    }
 
-   private function sanitizeRunPart(string $part): string {
+   private function sanitize_run_part(string $part): string {
       return preg_replace('/[^A-Za-z0-9_-]+/', '', trim($part));
    }
 
-   private function sanitizeFilename(string $filename): string {
+   private function sanitize_filename(string $filename): string {
       $filename = basename(str_replace('\\', '/', trim($filename)));
       $filename = preg_replace('/[^A-Za-z0-9_.-]+/', '-', $filename);
       return trim($filename, '-.');

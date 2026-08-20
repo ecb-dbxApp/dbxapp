@@ -74,41 +74,41 @@ if ($web->content_permalink_redirect_target() !== '') {
 }
 
 $tpl = new dbxTPL();
-$robotsMethod = new ReflectionMethod(dbxTPL::class, 'effective_robots_meta');
-$robotsMethod->setAccessible(true);
+$robots_method = new ReflectionMethod(dbxTPL::class, 'effective_robots_meta');
+$robots_method->setAccessible(true);
 dbx()->set_system_var('dbx_robots', 'index,follow');
 
 $_GET = array('dbx_modul' => 'dbxContent');
-if ($robotsMethod->invoke($tpl) !== 'noindex,follow') {
+if ($robots_method->invoke($tpl) !== 'noindex,follow') {
    seoFail('Technische Routen muessen Content-SEO mit noindex,follow ueberstimmen.', 9);
 }
 
 $_GET = array('dbx_edit' => '1');
-if ($robotsMethod->invoke($tpl) !== 'noindex,follow') {
+if ($robots_method->invoke($tpl) !== 'noindex,follow') {
    seoFail('Bearbeitungsrouten muessen noindex,follow erhalten.', 10);
 }
 
 $_GET = array('dbx_do' => 'delete');
-if ($robotsMethod->invoke($tpl) !== 'noindex,follow') {
+if ($robots_method->invoke($tpl) !== 'noindex,follow') {
    seoFail('Aktionsrouten muessen noindex,follow erhalten.', 11);
 }
 
 $_GET = array();
-if ($robotsMethod->invoke($tpl) !== 'index,follow') {
+if ($robots_method->invoke($tpl) !== 'index,follow') {
    seoFail('Saubere Content-Routen muessen ihren konfigurierten Robots-Wert behalten.', 12);
 }
 
 $renderer = new \dbx\dbxContent\dbxContentRenderer();
-$canonicalMethod = new ReflectionMethod($renderer, 'seoCanonicalUrl');
-$canonicalMethod->setAccessible(true);
-if ($canonicalMethod->invoke($renderer, 'home', true) !== $base) {
+$canonical_method = new ReflectionMethod($renderer, 'seo_canonical_url');
+$canonical_method->setAccessible(true);
+if ($canonical_method->invoke($renderer, 'home', true) !== $base) {
    seoFail('Die konfigurierte Startseite muss die Basis-URL als Canonical erhalten.', 13);
 }
-if ($canonicalMethod->invoke($renderer, 'produkte', false) !== $base . 'produkte') {
+if ($canonical_method->invoke($renderer, 'produkte', false) !== $base . 'produkte') {
    seoFail('Normale Inhaltsseiten muessen einen selbstreferenziellen Canonical erhalten.', 14);
 }
 
-$renderer->applySeoMeta(999, array(
+$renderer->apply_seo_meta(999, array(
    'id' => 999,
    'title' => 'Sichtbarer Seitentitel',
    'seo_title' => 'SEO-Titel dbxapp',
@@ -120,21 +120,22 @@ if (dbx()->get_system_var('dbx_title') !== 'Sichtbarer Seitentitel'
    || dbx()->get_system_var('dbx_seo_title') !== 'SEO-Titel dbxapp') {
    seoFail('SEO-Titel und sichtbarer Seitentitel werden nicht getrennt geführt.', 19);
 }
-$titleProbe = $tpl->replaces_dbx('<title>{dbx:document_title}</title><h1>{dbx:title}</h1>');
-if (strpos($titleProbe, '<title>SEO-Titel dbxapp</title>') === false
-   || strpos($titleProbe, '<h1>Sichtbarer Seitentitel</h1>') === false) {
+$title_probe = $tpl->replaces_dbx('<title>{dbx:document_title}</title><h1>{dbx:title}</h1>');
+if (strpos($title_probe, '<title>SEO-Titel dbxapp</title>') === false
+   || strpos($title_probe, '<h1>Sichtbarer Seitentitel</h1>') === false) {
    seoFail('Das Template verwendet den SEO-Titel nicht ausschließlich als Dokumenttitel.', 20);
 }
 
 $root = dirname(__DIR__, 2);
-$sitemapSource = (string)file_get_contents(
+$sitemap_source = (string)file_get_contents(
    $root . '/modules/dbxContent/include/dbxContentSitemap.class.php'
 );
-if (strpos($sitemapSource, 'collectUserMenuLinks') !== false
-   || strpos($sitemapSource, 'dbxContentHome::masterCid') === false
-   || strpos($sitemapSource, 'isNoindex') === false
-   || strpos($sitemapSource, '$lngs = array($masterLng)') === false) {
-   seoFail('Die Sitemap-Regel fuer reine Content-URLs und die Startseite fehlt.', 15);
+if (strpos($sitemap_source, 'collectUserMenuLinks') !== false
+   || strpos($sitemap_source, 'dbxContentHome::resolve_cid($lng)') === false
+   || strpos($sitemap_source, 'is_noindex') === false
+   || strpos($sitemap_source, 'dbxContentLngSync::accessible_lngs()') === false
+   || strpos($sitemap_source, '$language_prefix') === false) {
+   seoFail('Die Sitemap-Regel fuer reine Content-URLs und sprachspezifische Startseiten fehlt.', 15);
 }
 
 $htaccess = (string)file_get_contents(dirname($root) . '/.htaccess');
@@ -143,9 +144,9 @@ if (!preg_match('/RewriteRule \\^home\\/\\?\\$ https:\\/\\/dbxapp\\.de\\//', $ht
    seoFail('Die produktive Redirect-Regel fuer /home beziehungsweise HTTPS fehlt.', 16);
 }
 
-$designDir = $root . '/design';
+$design_dir = $root . '/design';
 $iterator = new RecursiveIteratorIterator(
-   new RecursiveDirectoryIterator($designDir, FilesystemIterator::SKIP_DOTS)
+   new RecursiveDirectoryIterator($design_dir, FilesystemIterator::SKIP_DOTS)
 );
 foreach ($iterator as $file) {
    if (!$file->isFile() || strtolower($file->getExtension()) !== 'htm') {

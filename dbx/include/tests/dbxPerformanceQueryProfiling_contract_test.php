@@ -14,13 +14,14 @@ $read = static function (string $relative) use ($base): string {
     return is_file($file) ? (string)file_get_contents($file) : '';
 };
 
-$db = $read('include/dbxDB.class.php');
-$api = $read('include/dbxApi.php');
+$db = dbx_test_module_source_bundle($base . '/include/dbxDB.class.php');
+$api = dbx_test_module_source_bundle($base . '/include/dbxApi.php');
+$pipeline = $read('include/dbxRequestPipeline.class.php');
 $timer = $read('modules/dbx/include/dbxPerformanceTimer.class.php');
-$requestDd = $read('modules/dbx/dd/dbxPerformanceRequest.dd.php');
-$timerDd = $read('modules/dbx/dd/dbxPerformanceTimer.dd.php');
+$request_dd = $read('modules/dbx/dd/dbxPerformanceRequest.dd.php');
+$timer_dd = $read('modules/dbx/dd/dbxPerformanceTimer.dd.php');
 $config = $read('modules/dbx/cfg/config.php');
-$configDd = $read('modules/dbx/cfg/config.dd.php');
+$config_dd = $read('modules/dbx/cfg/config.dd.php');
 $dashboard = dbx_test_module_source_bundle($base . '/modules/dbxAdmin/include/dbxDashboard.class.php');
 
 $assert(
@@ -40,15 +41,15 @@ $assert(
 $assert(
     str_contains($db, "dbx_performance_timer_store")
         && str_contains($timer, "dbx()->set_system_var('dbx_performance_timer_store', 1)")
-        && str_contains($timer, '$querySnapshot = method_exists($db, \'performance_query_snapshot\')')
-        && strpos($timer, '$querySnapshot =') < strpos($timer, "dbx()->set_system_var('dbx_performance_timer_store', 1)"),
+        && str_contains($timer, '$query_snapshot = method_exists($db, \'performance_query_snapshot\')')
+        && strpos($timer, '$query_snapshot =') < strpos($timer, "dbx()->set_system_var('dbx_performance_timer_store', 1)"),
     'Die Persistierung ist nicht gegen rekursive Eigenmessung geschuetzt.'
 );
 $assert(
     !str_contains($timer, "if ((int) dbx()->get_system_var('dbx_ajax'")
         && !str_contains($timer, "if ((int) dbx()->get_request_var('dbx_sync'")
-        && str_contains($api, '$runtimeService->store_performance_timer();')
-        && !str_contains($api, "if (\$syncRequest && (int)\$this->get_system_var('dbx_ajax'")
+        && str_contains($pipeline, '$runtime->store_performance_timer();')
+        && !str_contains($api, "if (\$sync_request && (int)\$this->get_system_var('dbx_ajax'")
         && str_contains($timer, "private const SCHEMA_MARKER_VERSION = 'v2-contract2'")
         && str_contains($timer, 'public function ensure_schema(): bool')
         && str_contains($timer, 'PRAGMA table_info(')
@@ -65,17 +66,17 @@ foreach (array(
     'failed_query_count',
     'query_time_ms',
 ) as $field) {
-    $assert(str_contains($requestDd, "array('" . $field . "'"), 'Request-DD-Feld fehlt: ' . $field);
+    $assert(str_contains($request_dd, "array('" . $field . "'"), 'Request-DD-Feld fehlt: ' . $field);
 }
 foreach (array('fingerprint', 'query_count', 'duplicate_count', 'max_time_ms', 'failure_count') as $field) {
-    $assert(str_contains($timerDd, "array('" . $field . "'"), 'Timer-DD-Feld fehlt: ' . $field);
+    $assert(str_contains($timer_dd, "array('" . $field . "'"), 'Timer-DD-Feld fehlt: ' . $field);
 }
 $assert(
-    str_contains($timerDd, 'idx_dbx_performance_timer_fingerprint')
-        && str_contains($timerDd, 'idx_dbx_performance_timer_request_section')
+    str_contains($timer_dd, 'idx_dbx_performance_timer_fingerprint')
+        && str_contains($timer_dd, 'idx_dbx_performance_timer_request_section')
         && str_contains($dashboard, "AND d.section = 'db-total'")
         && str_contains($config, "performance_timer_slow_query_ms")
-        && str_contains($configDd, "'performance_timer_slow_query_ms'"),
+        && str_contains($config_dd, "'performance_timer_slow_query_ms'"),
     'Fingerprint-Index oder konfigurierbare Slow-Query-Schwelle fehlt.'
 );
 $assert(

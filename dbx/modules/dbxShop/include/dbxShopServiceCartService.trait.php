@@ -3,16 +3,11 @@ namespace dbx\dbxShop;
 
 trait dbxShopServiceCartServiceTrait {
 
-   private function startSession(): void {
-      if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
-         session_start();
-      }
-      if (!isset($_SESSION['dbxShop_cart']) || !is_array($_SESSION['dbxShop_cart'])) {
-         $_SESSION['dbxShop_cart'] = array();
-      }
+   private function start_session(): void {
+      dbxShopSessionState::ensure();
    }
 
-   private function checkoutRequestId(): string {
+   private function checkout_request_id(): string {
       $posted = strtolower(trim((string)($_POST['checkout_request_id'] ?? '')));
       if (preg_match('/^[a-f0-9]{32,64}$/', $posted) === 1) {
          return $posted;
@@ -20,75 +15,71 @@ trait dbxShopServiceCartServiceTrait {
       return bin2hex(random_bytes(24));
    }
 
-   private function checkoutRequestOrder(string $requestId): ?array {
-      $this->startSession();
-      $requests = $_SESSION['dbxShop_checkout_requests'] ?? array();
-      $orderNo = is_array($requests) ? (string)($requests[$requestId] ?? '') : '';
-      return $orderNo !== '' ? $this->repo()->orderByNo($orderNo) : null;
+   private function checkout_request_order(string $request_id): ?array {
+      $this->start_session();
+      $order_no = dbxShopSessionState::checkout_order_no($request_id);
+      return $order_no !== '' ? $this->repo()->order_by_no($order_no) : null;
    }
 
-   private function rememberCheckoutRequest(string $requestId, array $order): void {
-      $this->startSession();
-      $requests = $_SESSION['dbxShop_checkout_requests'] ?? array();
-      $requests = is_array($requests) ? $requests : array();
-      $requests[$requestId] = (string)($order['order_no'] ?? '');
-      $_SESSION['dbxShop_checkout_requests'] = array_slice($requests, -25, null, true);
+   private function remember_checkout_request(string $request_id, array $order): void {
+      $this->start_session();
+      dbxShopSessionState::remember_checkout($request_id, (string)($order['order_no'] ?? ''));
    }
 
-   private function cartItems(): array {
-      $this->startSession();
-      return $_SESSION['dbxShop_cart'];
+   private function cart_items(): array {
+      $this->start_session();
+      return dbxShopSessionState::cart();
    }
 
-   private function cartQuantityTotal(): int {
+   private function cart_quantity_total(): int {
       $count = 0;
-      foreach ($this->cartItems() as $qty) {
+      foreach ($this->cart_items() as $qty) {
          $count += max(0, (int)$qty);
       }
       return $count;
    }
 
-   private function requestedQuantity($value, int $fallback = 1): int {
+   private function requested_quantity($value, int $fallback = 1): int {
       $qty = (int)$value;
       return max(1, min(999, $qty > 0 ? $qty : $fallback));
    }
 
-   private function addToCart(string $sku, int $qty = 1): void {
+   private function add_to_cart(string $sku, int $qty = 1): void {
       if ($sku === '') {
          return;
       }
-      $product = $this->repo()->productBySku($sku);
+      $product = $this->repo()->product_by_sku($sku);
       if (!$product) {
          return;
       }
-      $this->startSession();
-      $_SESSION['dbxShop_cart'][$sku] = max(0, (int)($_SESSION['dbxShop_cart'][$sku] ?? 0)) + $this->requestedQuantity($qty);
+      $this->start_session();
+      dbxShopSessionState::add_quantity($sku, $this->requested_quantity($qty));
    }
 
-   private function updateCartQuantities(array $quantities): void {
-      $this->startSession();
+   private function update_cart_quantities(array $quantities): void {
+      $this->start_session();
       foreach ($quantities as $sku => $qty) {
          $sku = (string)$sku;
-         if (!isset($_SESSION['dbxShop_cart'][$sku])) {
+         if (!dbxShopSessionState::has_sku($sku)) {
             continue;
          }
-         $_SESSION['dbxShop_cart'][$sku] = $this->requestedQuantity($qty);
+         dbxShopSessionState::set_quantity($sku, $this->requested_quantity($qty));
       }
    }
 
-   private function removeFromCart(string $sku): void {
+   private function remove_from_cart(string $sku): void {
       $sku = trim($sku);
       if ($sku === '') {
          return;
       }
-      $this->startSession();
-      unset($_SESSION['dbxShop_cart'][$sku]);
+      $this->start_session();
+      dbxShopSessionState::remove_sku($sku);
    }
 
-   private function addedToCartDialog(array $product): string {
+   private function added_to_cart_dialog(array $product): string {
       $texts = $this->texts('dbxShop|shop-cart');
       $title = trim((string)($product['title'] ?? $texts->get_fd_message('product')));
-      $qty = $this->requestedQuantity(dbx()->get_modul_var('qty', '1', 'parameter'));
+      $qty = $this->requested_quantity(dbx()->get_modul_var('qty', '1', 'parameter'));
       $body = '<div class="dbx-shop-added-dialog" role="dialog" aria-modal="true" aria-labelledby="dbx-shop-added-title">';
       $body .= '<div class="dbx-shop-added-dialog-backdrop"></div>';
       $body .= '<div class="dbx-shop-added-dialog-box">';
@@ -110,11 +101,11 @@ trait dbxShopServiceCartServiceTrait {
       return $body;
    }
 
-   private function cartRowsAndSum(bool $editable = false): array {
+   private function cart_rows_and_sum(bool $editable = false): array {
       $rows = '';
       $sum = 0.0;
-      foreach ($this->cartItems() as $sku => $qty) {
-         $product = $this->repo()->productBySku((string)$sku);
+      foreach ($this->cart_items() as $sku => $qty) {
+         $product = $this->repo()->product_by_sku((string)$sku);
          if (!$product) {
             continue;
          }
@@ -123,12 +114,12 @@ trait dbxShopServiceCartServiceTrait {
          $shipping = (float)($product['effective_shipping_gross'] ?? 0);
          $line = ($price + $shipping) * $qty;
          $sum += $line;
-         $qtyHtml = $editable
+         $qty_html = $editable
             ? '<input class="form-control form-control-sm dbx-shop-cart-qty" type="number" min="1" max="999" step="1" name="qty[' . $this->h($sku) . ']" value="' . (int)$qty . '">'
             : (string)(int)$qty;
          $rows .= '<tr>';
          $rows .= '<td><strong>' . $this->h($product['title'] ?? '') . '</strong><br><small>' . $this->h($sku) . '</small></td>';
-         $rows .= '<td class="text-end">' . $qtyHtml . '</td>';
+         $rows .= '<td class="text-end">' . $qty_html . '</td>';
          $rows .= '<td class="text-end">' . $this->money($price) . '</td>';
          $rows .= '<td class="text-end">' . $this->money($shipping) . '</td>';
          $rows .= '<td class="text-end">' . $this->money($line) . '</td>';
@@ -137,12 +128,12 @@ trait dbxShopServiceCartServiceTrait {
       return array($rows, $sum);
    }
 
-   private function cartReportDataAndSum($texts = null): array {
+   private function cart_report_data_and_sum($texts = null): array {
       $texts = $texts ?: $this->texts('dbxShop|shop-cart');
       $rows = array();
       $sum = 0.0;
-      foreach ($this->cartItems() as $sku => $qty) {
-         $product = $this->repo()->productBySku((string)$sku);
+      foreach ($this->cart_items() as $sku => $qty) {
+         $product = $this->repo()->product_by_sku((string)$sku);
          if (!$product) {
             continue;
          }
@@ -151,17 +142,17 @@ trait dbxShopServiceCartServiceTrait {
          $shipping = (float)($product['effective_shipping_gross'] ?? 0);
          $line = ($price + $shipping) * $qty;
          $sum += $line;
-         $skuText = (string)$sku;
+         $sku_text = (string)$sku;
          $rows[] = array(
-            'id' => $skuText,
-            'remove' => '<button class="btn btn-sm btn-outline-danger dbxConfirm dbx-shop-cart-remove" type="submit" name="remove" value="' . $this->h($skuText)
+            'id' => $sku_text,
+            'remove' => '<button class="btn btn-sm btn-outline-danger dbxConfirm dbx-shop-cart-remove" type="submit" name="remove" value="' . $this->h($sku_text)
                . '" data-confirm-title="<i class=\'bi bi-trash\'></i> ' . $this->h($texts->get_fd_message('remove_title'))
                . '" data-confirm="' . $this->h($texts->get_fd_message('remove_question'))
                . '" data-confirm-hint="<small>' . $this->h($texts->get_fd_message('remove_hint'))
                . '</small>" data-confirm-buttons="yesno" title="' . $this->h($texts->get_fd_message('remove_title'))
                . '"><i class="bi bi-trash"></i></button>',
-            'article' => '<strong>' . $this->h($product['title'] ?? '') . '</strong><br><small>' . $this->h($skuText) . '</small>',
-            'qty' => '<input class="form-control form-control-sm dbx-shop-cart-qty" type="number" min="1" max="999" step="1" name="qty[' . $this->h($skuText) . ']" value="' . (int)$qty . '">',
+            'article' => '<strong>' . $this->h($product['title'] ?? '') . '</strong><br><small>' . $this->h($sku_text) . '</small>',
+            'qty' => '<input class="form-control form-control-sm dbx-shop-cart-qty" type="number" min="1" max="999" step="1" name="qty[' . $this->h($sku_text) . ']" value="' . (int)$qty . '">',
             'price' => '<span class="dbx-shop-money">' . $this->money($price) . '</span>',
             'shipping' => '<span class="dbx-shop-money">' . $this->money($shipping) . '</span>',
             'line' => '<span class="dbx-shop-money"><strong>' . $this->money($line) . '</strong></span>',
@@ -176,14 +167,14 @@ trait dbxShopServiceCartServiceTrait {
     * Bei einem POST wird dieses Objekt vor der Mutation erzeugt. Dadurch
     * prüft dbxReport genau den Security-Wert, den der Warenkorb gerendert hat.
     */
-   private function cartReport(array $rows, float $sum): \dbxReport {
+   private function cart_report(array $rows, float $sum): \dbxReport {
       $report = dbx()->get_system_obj('dbxReport');
       $report->init('shop-cart-report', 'dbxShop|shop-cart-report');
-      $report->_fd = 'dbxShop|shop-cart';
+      $report->set_field_definition('dbxShop|shop-cart');
       $report->load_fd_messages();
       $report->set_editor_class_file(__FILE__);
-      $report->_action = '?dbx_modul=dbxShop&dbx_run1=cart';
-      $report->_mode = 'table';
+      $report->set_action('?dbx_modul=dbxShop&dbx_run1=cart');
+      $report->set_mode('table');
       $report->_pages = false;
       $report->_rdata = $rows;
       $report->_rcount = count($rows);
@@ -211,13 +202,13 @@ trait dbxShopServiceCartServiceTrait {
       );
       $report->add_rep('bar_title', $report->get_fd_message('cart_title'));
       $report->add_rep('cart_sum', $this->money($sum));
-      $report->add_rep('cart_count', (string)$this->cartQuantityTotal());
+      $report->add_rep('cart_count', (string)$this->cart_quantity_total());
       return $report;
    }
 
-   private function cartReportHtml(array $rows, float $sum, ?\dbxReport $report = null): string {
+   private function cart_report_html(array $rows, float $sum, ?\dbxReport $report = null): string {
       if (!$report) {
-         $report = $this->cartReport($rows, $sum);
+         $report = $this->cart_report($rows, $sum);
       } else {
          // Nach einer gültigen Aktion nur Ergebnisdaten erneuern. Ein zweites
          // init() würde den geprüften Submit-Zustand und den rotierten Token
@@ -227,16 +218,16 @@ trait dbxShopServiceCartServiceTrait {
          $report->_count_all = count($rows);
          $report->_rrows = max(1, count($rows));
          $report->add_rep('cart_sum', $this->money($sum));
-         $report->add_rep('cart_count', (string)$this->cartQuantityTotal());
+         $report->add_rep('cart_count', (string)$this->cart_quantity_total());
       }
       return $report->run();
    }
 
-   private function cartBodyHtml(?\dbxReport $report = null, $texts = null): string {
+   private function cart_body_html(?\dbxReport $report = null, $texts = null): string {
       $texts = $texts ?: $this->texts('dbxShop|shop-cart');
-      [$reportRows, $sum] = $this->cartReportDataAndSum($texts);
+      [$report_rows, $sum] = $this->cart_report_data_and_sum($texts);
 
-      if ($reportRows === array()) {
+      if ($report_rows === array()) {
          return '<div class="dbx-shop-cart-empty" data-dbx-shop-cart-count="0">'
             . $this->placeholder(
                $texts->get_fd_message('empty_title'),
@@ -245,6 +236,6 @@ trait dbxShopServiceCartServiceTrait {
             . '</div>';
       }
 
-      return $this->cartReportHtml($reportRows, $sum, $report);
+      return $this->cart_report_html($report_rows, $sum, $report);
    }
 }

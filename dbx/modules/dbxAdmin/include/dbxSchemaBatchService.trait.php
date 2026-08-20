@@ -187,31 +187,31 @@ trait dbxSchemaBatchServiceTrait {
     * @param string $backUrl Eingabeparameter fuer diese Methode.
     * @return string
     */
-   private function render_process($title, $state, $nextUrl = '', $backUrl = '') {
-      $oTPL = dbx()->get_system_obj('dbxTPL');
+   private function render_process($title, $state, $next_url = '', $back_url = '') {
+      $o_tpl = dbx()->get_system_obj('dbxTPL');
       $status = $state['status'] ?? 'running';
       $percent = (int)($state['percent'] ?? 0);
       if ($percent < 0) $percent = 0;
       if ($percent > 100) $percent = 100;
 
-      $stepPercent = (int)($state['step_percent'] ?? $percent);
-      if ($stepPercent < 0) $stepPercent = 0;
-      if ($stepPercent > 100) $stepPercent = 100;
+      $step_percent = (int)($state['step_percent'] ?? $percent);
+      if ($step_percent < 0) $step_percent = 0;
+      if ($step_percent > 100) $step_percent = 100;
 
-      $barClass = 'bg-primary';
-      if ($status == 'finished') $barClass = 'bg-success';
-      if ($status == 'error' || $status == 'canceled') $barClass = 'bg-danger';
-      if ($status == 'paused') $barClass = 'bg-warning';
+      $bar_class = 'bg-primary';
+      if ($status == 'finished') $bar_class = 'bg-success';
+      if ($status == 'error' || $status == 'canceled') $bar_class = 'bg-danger';
+      if ($status == 'paused') $bar_class = 'bg-warning';
 
-      $restartUrl  = $nextUrl ? $this->append_url_params($nextUrl, array('reset' => 1, 'proc_cmd' => 'restart')) : '';
-      $targetId    = 'dbx_process_' . substr(md5((string)($state['proc_key'] ?? $title)), 0, 14);
+      $restart_url  = $next_url ? $this->append_url_params($next_url, array('reset' => 1, 'proc_cmd' => 'restart')) : '';
+      $target_id    = 'dbx_process_' . substr(md5((string)($state['proc_key'] ?? $title)), 0, 14);
       $phase       = (string)($state['phase'] ?? '');
-      $procType    = (string)($state['proc_type'] ?? ($state['act'] ?? 'schema_batch'));
-      $hasControls = $nextUrl ? 1 : 0;
-      $autostart   = ($nextUrl && $status == 'running') ? 1 : 0;
+      $proc_type    = (string)($state['proc_type'] ?? ($state['act'] ?? 'schema_batch'));
+      $has_controls = $next_url ? 1 : 0;
+      $autostart   = ($next_url && $status == 'running') ? 1 : 0;
 
       $data = array(
-         'target_id'        => $this->esc($targetId),
+         'target_id'        => $this->esc($target_id),
          'title'            => $this->esc($title),
          'status_key'       => $this->esc($status),
          'status_label'     => $this->esc($this->process_status_label($status)),
@@ -219,29 +219,29 @@ trait dbxSchemaBatchServiceTrait {
          'status_icon'      => $this->esc($this->process_status_icon($status)),
          'message'          => $this->esc($this->process_message_label($state['message'] ?? '')),
          'percent'          => $percent,
-         'step_percent'     => $stepPercent,
-         'bar_class'        => $this->esc($barClass),
+         'step_percent'     => $step_percent,
+         'bar_class'        => $this->esc($bar_class),
          'task_label'       => $this->esc($this->process_task_label($phase)),
          'step_label'       => $this->esc($this->process_step_label($phase)),
-         'process_label'    => $this->esc($this->process_type_label($procType)),
+         'process_label'    => $this->esc($this->process_type_label($proc_type)),
          'updated_at'       => $this->esc($state['updated_at'] ?? ''),
-         'next_url'         => $this->esc($nextUrl),
-         'pause_url'        => $this->esc($this->append_url_params($nextUrl, array('proc_cmd' => 'pause'))),
-         'resume_url'       => $this->esc($this->append_url_params($nextUrl, array('proc_cmd' => 'resume'))),
-         'continue_url'     => $this->esc($this->append_url_params($nextUrl, array('proc_cmd' => 'continue'))),
-         'cancel_url'       => $this->esc($this->append_url_params($nextUrl, array('proc_cmd' => 'cancel'))),
-         'restart_url'      => $this->esc($restartUrl),
+         'next_url'         => $this->esc($next_url),
+         'pause_url'        => $this->esc($this->append_url_params($next_url, array('proc_cmd' => 'pause'))),
+         'resume_url'       => $this->esc($this->append_url_params($next_url, array('proc_cmd' => 'resume'))),
+         'continue_url'     => $this->esc($this->append_url_params($next_url, array('proc_cmd' => 'continue'))),
+         'cancel_url'       => $this->esc($this->append_url_params($next_url, array('proc_cmd' => 'cancel'))),
+         'restart_url'      => $this->esc($restart_url),
          'autostart'        => $autostart,
          'interval'         => 800,
-         'pause_visible'    => $hasControls ? 'running' : '_none',
-         'resume_visible'   => $hasControls ? 'paused' : '_none',
-         'continue_visible' => $hasControls ? 'canceled' : '_none',
-         'restart_visible'  => $restartUrl ? 'paused,canceled,error,finished' : '_none',
-         'cancel_visible'   => $hasControls ? 'running,paused' : '_none',
-         'back_url'         => $this->esc($backUrl),
+         'pause_visible'    => $has_controls ? 'running' : '_none',
+         'resume_visible'   => $has_controls ? 'paused' : '_none',
+         'continue_visible' => $has_controls ? 'canceled' : '_none',
+         'restart_visible'  => $restart_url ? 'paused,canceled,error,finished' : '_none',
+         'cancel_visible'   => $has_controls ? 'running,paused' : '_none',
+         'back_url'         => $this->esc($back_url),
       );
 
-      return $oTPL->get_tpl('dbxAdmin|schema-process', $data);
+      return $o_tpl->get_tpl('dbxAdmin|schema-process', $data);
    }
 
 
@@ -254,7 +254,7 @@ trait dbxSchemaBatchServiceTrait {
     * @return string
     */
    private function start_batch($act, $selects) {
-      $oDD = dbx()->get_system_obj('dbxDD');
+      $o_dd = dbx()->get_system_obj('dbxDD');
 
       foreach ($selects as $selected) {
          if ($act == 'batch_dd_to_db' || $act == 'batch_dd_to_db_force') {
@@ -263,7 +263,7 @@ trait dbxSchemaBatchServiceTrait {
                continue;
             }
 
-            $oDD->sync_dd_to_db($parts[0], $parts[1], 'reset');
+            $o_dd->sync_dd_to_db($parts[0], $parts[1], 'reset');
          }
 
          if ($act == 'batch_db_to_dd') {
@@ -272,13 +272,13 @@ trait dbxSchemaBatchServiceTrait {
                continue;
             }
 
-            $ddIndex = $this->get_dd_index_by_db($this->get_dd_records());
-            $dds = $this->get_dd_records_for_db($ddIndex, $parts[0], $parts[1]);
+            $dd_index = $this->get_dd_index_by_db($this->get_dd_records());
+            $dds = $this->get_dd_records_for_db($dd_index, $parts[0], $parts[1]);
 
             if ($dds) {
-               $oDD->sync_db_to_dd($dds[0]['modul'], $dds[0]['dd'], 'reset', $parts[0], $parts[1]);
+               $o_dd->sync_db_to_dd($dds[0]['modul'], $dds[0]['dd'], 'reset', $parts[0], $parts[1]);
             } else {
-               $oDD->sync_db_to_dd('dbx', $this->sanitize_dd_name($parts[1]), 'reset', $parts[0], $parts[1]);
+               $o_dd->sync_db_to_dd('dbx', $this->sanitize_dd_name($parts[1]), 'reset', $parts[0], $parts[1]);
             }
          }
       }
@@ -322,8 +322,8 @@ trait dbxSchemaBatchServiceTrait {
             return array();
          }
 
-         $ddIndex = $this->get_dd_index_by_db($this->get_dd_records());
-         $dds = $this->get_dd_records_for_db($ddIndex, $server, $table);
+         $dd_index = $this->get_dd_index_by_db($this->get_dd_records());
+         $dds = $this->get_dd_records_for_db($dd_index, $server, $table);
          if (!$dds) {
             return array();
          }
@@ -348,7 +348,7 @@ trait dbxSchemaBatchServiceTrait {
          return;
       }
 
-      $oDD = dbx()->get_system_obj('dbxDD');
+      $o_dd = dbx()->get_system_obj('dbxDD');
       $act = $state['act'] ?? '';
 
       foreach ($state['selects'] as $selected) {
@@ -358,7 +358,7 @@ trait dbxSchemaBatchServiceTrait {
                continue;
             }
 
-            $oDD->sync_dd_to_db($parts[0], $parts[1], 'reset');
+            $o_dd->sync_dd_to_db($parts[0], $parts[1], 'reset');
             continue;
          }
 
@@ -368,11 +368,11 @@ trait dbxSchemaBatchServiceTrait {
                continue;
             }
 
-            $ddIndex = $this->get_dd_index_by_db($this->get_dd_records());
-            $dds = $this->get_dd_records_for_db($ddIndex, $parts[0], $parts[1]);
+            $dd_index = $this->get_dd_index_by_db($this->get_dd_records());
+            $dds = $this->get_dd_records_for_db($dd_index, $parts[0], $parts[1]);
             $modul = $dds ? $dds[0]['modul'] : 'dbx';
             $dd = $dds ? $dds[0]['dd'] : $this->sanitize_dd_name($parts[1]);
-            $oDD->sync_db_to_dd($modul, $dd, 'reset', $parts[0], $parts[1]);
+            $o_dd->sync_db_to_dd($modul, $dd, 'reset', $parts[0], $parts[1]);
          }
       }
    }
@@ -385,14 +385,14 @@ trait dbxSchemaBatchServiceTrait {
     * @param string $backRun Eingabeparameter fuer diese Methode.
     * @return string
     */
-   private function batch_back_url($backRun) {
-      if ($backRun == 'db') {
+   private function batch_back_url($back_run) {
+      if ($back_run == 'db') {
          return $this->build_url('db', 'list_db');
       }
-      if ($backRun == 'backup') {
+      if ($back_run == 'backup') {
          return $this->build_url('dd', 'backup_db');
       }
-      if ($backRun == 'restore') {
+      if ($back_run == 'restore') {
          return $this->build_url('dd', 'restore_db');
       }
       return $this->build_url('dd', 'list_dd');
@@ -438,7 +438,7 @@ trait dbxSchemaBatchServiceTrait {
 
 
    /**
-    * Fuehrt den naechsten Schritt eines Schema-Batchprozesses aus.
+    * Führt den naechsten Schritt eines Schema-Batchprozesses aus.
     *
     * @return string
     */
@@ -455,15 +455,15 @@ trait dbxSchemaBatchServiceTrait {
 
       $total = count($state['selects']);
       $pos = (int)($state['pos'] ?? 0);
-      $backRun = (string)($state['back'] ?? 'dd');
-      if (!in_array($backRun, array('dd', 'db', 'backup', 'restore'), true)) {
-         $backRun = 'dd';
+      $back_run = (string)($state['back'] ?? 'dd');
+      if (!in_array($back_run, array('dd', 'db', 'backup', 'restore'), true)) {
+         $back_run = 'dd';
       }
-      $nextUrl = $this->build_url('dd', 'batch');
-      $backUrl = $this->batch_back_url($backRun);
+      $next_url = $this->build_url('dd', 'batch');
+      $back_url = $this->batch_back_url($back_run);
 
       if (in_array(($state['status'] ?? ''), array('paused', 'canceled', 'error'), true)) {
-         return $this->render_process('Batch', $state, $nextUrl, $backUrl);
+         return $this->render_process('Batch', $state, $next_url, $back_url);
       }
 
       if ($pos >= $total) {
@@ -472,11 +472,11 @@ trait dbxSchemaBatchServiceTrait {
          $state['percent'] = 100;
          $state['step_percent'] = 100;
          dbx()->set_remember_var('schema_batch', array(), 'dbxAdmin');
-         return $this->render_process('Batch', $state, '', $backUrl);
+         return $this->render_process('Batch', $state, '', $back_url);
       }
 
       $current = $state['selects'][$pos];
-      $oDD = dbx()->get_system_obj('dbxDD');
+      $o_dd = dbx()->get_system_obj('dbxDD');
       $act = $state['act'] ?? '';
 
       $parts = in_array($act, array('batch_db_to_dd', 'batch_backup_db', 'batch_restore_latest_db'), true)
@@ -485,7 +485,7 @@ trait dbxSchemaBatchServiceTrait {
 
       if (($act == 'batch_dd_to_db' || $act == 'batch_dd_to_db_force') && count($parts) == 2) {
          $mode = ($act == 'batch_dd_to_db_force') ? 'force' : 'apply';
-         $step = $oDD->sync_dd_to_db($parts[0], $parts[1], $mode);
+         $step = $o_dd->sync_dd_to_db($parts[0], $parts[1], $mode);
          $state['step_percent'] = (int)($step['percent'] ?? 0);
 
          if (($step['status'] ?? '') == 'finished') {
@@ -498,11 +498,11 @@ trait dbxSchemaBatchServiceTrait {
             $state['message'] = $current . ': ' . ($step['message'] ?? 'running');
          }
       } elseif ($act == 'batch_db_to_dd' && count($parts) == 2 && $parts[0] && $parts[1]) {
-         $ddIndex = $this->get_dd_index_by_db($this->get_dd_records());
-         $dds = $this->get_dd_records_for_db($ddIndex, $parts[0], $parts[1]);
+         $dd_index = $this->get_dd_index_by_db($this->get_dd_records());
+         $dds = $this->get_dd_records_for_db($dd_index, $parts[0], $parts[1]);
          $modul = $dds ? $dds[0]['modul'] : 'dbx';
          $dd = $dds ? $dds[0]['dd'] : $this->sanitize_dd_name($parts[1]);
-         $step = $oDD->sync_db_to_dd($modul, $dd, 'merge', $parts[0], $parts[1]);
+         $step = $o_dd->sync_db_to_dd($modul, $dd, 'merge', $parts[0], $parts[1]);
          $state['step_percent'] = (int)($step['percent'] ?? 0);
 
          if (($step['status'] ?? '') == 'finished') {
@@ -551,7 +551,7 @@ trait dbxSchemaBatchServiceTrait {
       $state['updated_at'] = date('Y-m-d H:i:s');
       dbx()->set_remember_var('schema_batch', $state, 'dbxAdmin');
 
-      $next = (($state['status'] ?? '') == 'running') ? $nextUrl : '';
-      return $this->render_process('Batch', $state, $next, $backUrl);
+      $next = (($state['status'] ?? '') == 'running') ? $next_url : '';
+      return $this->render_process('Batch', $state, $next, $back_url);
    }
 }

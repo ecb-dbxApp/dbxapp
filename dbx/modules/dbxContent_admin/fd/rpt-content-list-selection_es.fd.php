@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_title'] = 'Contenido';
 $messages['bar_subtitle'] = 'Páginas del idioma seleccionado actualmente.';
 $messages['stats_title'] = 'Indicadores de contenido';

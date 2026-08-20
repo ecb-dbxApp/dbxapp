@@ -1,0 +1,47 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/myLKW",
+    "type": "module",
+    "name": "myLKW",
+    "title": "myLKW Fuhrpark & Disposition",
+    "description": "Fuhrpark- und Dispositionslösung für Fahrzeuge, Fahrer und mehrtägige Tourplanung – mit täglichem CSV-Import, direkter Tabellenpflege sowie Druck und Export.",
+    "descriptions": {
+        "de": "Fuhrpark- und Dispositionslösung für Fahrzeuge, Fahrer und mehrtägige Tourplanung – mit täglichem CSV-Import, direkter Tabellenpflege sowie Druck und Export.",
+        "en": "Fleet and dispatch solution for vehicles, drivers and multi-day route planning, including daily CSV import, direct table editing, print and export.",
+        "es": "Solución de flota y planificación para vehículos, conductores y rutas de varios días, con importación CSV diaria, edición directa, impresión y exportación."
+    },
+    "icon": "bi-truck",
+    "image": "dbx/modules/myLKW/tpl/img/myLKW.png",
+    "package_excludes": [
+        "dbx/modules/myLKW/tpl/img/CCF_000031.pdf",
+        "dbx/modules/myLKW/tpl/img/CCF_000031.png",
+        "dbx/modules/myLKW/tpl/img/CCF_000032.pdf",
+        "dbx/modules/myLKW/tpl/img/CCF_000033.pdf",
+        "dbx/modules/myLKW/tpl/img/CCF_000034.pdf",
+        "dbx/modules/myLKW/tpl/img/CCF_000035.pdf",
+        "dbx/modules/myLKW/tpl/img/Muster10.png",
+        "dbx/modules/myLKW/tpl/img/schein_a.png"
+    ],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "paid",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": []
+    },
+    "permissions": [
+        "database",
+        "filesystem"
+    ],
+    "migrations": [],
+    "files": [],
+    "purchase_url": "https://market.dbxapp.de/packages/myLKW"
+}

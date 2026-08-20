@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['page_title'] = 'Registration';
 $messages['bar_title'] = 'Register';
 $messages['bar_subtitle'] = 'Create an account and confirm your email address';

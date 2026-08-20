@@ -2,7 +2,11 @@
 namespace dbx\dbxContent;
 
 require_once __DIR__ . '/include/dbxContent_bootstrap.php';
+require_once __DIR__ . '/include/dbxContentMediaUrl.class.php';
 
+/**
+ * Modul-Controller für CMS-Seiten, Medienauslieferung und Content-Routing.
+ */
 class dbxContent {
 
   private function normalize_media_path($path) {
@@ -60,13 +64,13 @@ class dbxContent {
      $size = filesize($file);
      $mtime = filemtime($file) ?: time();
      $etag = '"' . md5($file . '|' . $size . '|' . $mtime) . '"';
-     $lastModified = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
-     $ifNoneMatch = trim((string)($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''));
-     $ifModifiedSince = trim((string)($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? ''));
-     if ($ifNoneMatch === $etag || ($ifModifiedSince !== '' && strtotime($ifModifiedSince) >= $mtime)) {
+     $last_modified = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
+     $if_none_match = trim((string)($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''));
+     $if_modified_since = trim((string)($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? ''));
+     if ($if_none_match === $etag || ($if_modified_since !== '' && strtotime($if_modified_since) >= $mtime)) {
         http_response_code(304);
         header('ETag: ' . $etag);
-        header('Last-Modified: ' . $lastModified);
+        header('Last-Modified: ' . $last_modified);
         header('Cache-Control: private, no-cache');
         exit;
      }
@@ -99,7 +103,7 @@ class dbxContent {
      header('Accept-Ranges: bytes');
      header('X-Content-Type-Options: nosniff');
      header('ETag: ' . $etag);
-     header('Last-Modified: ' . $lastModified);
+     header('Last-Modified: ' . $last_modified);
      header('Cache-Control: private, no-cache');
      $out = fopen($file, 'rb');
      if ($out) {
@@ -143,14 +147,6 @@ class dbxContent {
      return 'file';
   }
 
-  private function external_video_thumb_url(array $row) {
-     $provider = strtolower(trim((string)($row['provider'] ?? '')));
-     $provider_id = trim((string)($row['provider_id'] ?? ''));
-     if ($provider === 'youtube' && preg_match('~^[A-Za-z0-9_-]{11}$~', $provider_id)) {
-        return 'https://img.youtube.com/vi/' . $provider_id . '/hqdefault.jpg';
-     }
-     return '';
-  }
 
   private function serve_external_media(array $row) {
      $want_thumb = (int)dbx()->get_modul_var('dbx_thumb', 0, 'int') === 1;
@@ -161,7 +157,7 @@ class dbxContent {
            'thumb-' . (string)($row['file_name'] ?? '')
         );
      }
-     $thumb_url = $this->external_video_thumb_url($row);
+     $thumb_url = dbxContentMediaUrl::external_video_thumbnail($row);
      if ($thumb_url !== '') {
         header('Location: ' . $thumb_url, true, 302);
         exit;
@@ -224,7 +220,7 @@ class dbxContent {
      return $this->serve_media_file($rel, $mime, $file_name);
   }
 
-  private function runContentPage(): string {
+  private function run_content_page(): string {
      $obj = dbx()->get_include_obj('dbxContent_content');
      return $obj->run();
   }
@@ -240,14 +236,14 @@ class dbxContent {
 
      switch ($action) {
        case 'cms':
-           if (!dbxContentLng::isCmsPermalinkMode()) {
+           if (!dbxContentLng::is_cms_permalink_mode()) {
               $work = dbx()->get_modul_var('dbx_run2', 'show', 'parameter');
               if ($work === 'tree' || $work === 'page') {
                  $obj = dbx()->get_include_obj('dbxContent_treeview');
                  $content = $obj->run($work === 'tree' ? 'tree_view' : 'tree_page');
                  break;
               }
-              $content = $this->runContentPage();
+              $content = $this->run_content_page();
               break;
            }
            $work = dbx()->get_modul_var('dbx_run2', 'show', 'parameter');
@@ -263,8 +259,8 @@ class dbxContent {
 
        case 'content':
            if (dbx()->get_modul_var('dbx_run2', '', 'parameter') === 'edit') {
-              if (!dbxContentLng::isCmsPermalinkMode()) {
-                 $content = $this->runContentPage();
+              if (!dbxContentLng::is_cms_permalink_mode()) {
+                 $content = $this->run_content_page();
                  break;
               }
               $obj=dbx()->get_include_obj('dbxContent_treeview');
@@ -276,8 +272,8 @@ class dbxContent {
        break;
 
        case 'edit':
-           if (!dbxContentLng::isCmsPermalinkMode()) {
-              $content = $this->runContentPage();
+           if (!dbxContentLng::is_cms_permalink_mode()) {
+              $content = $this->run_content_page();
               break;
            }
            $obj=dbx()->get_include_obj('dbxContent_treeview');
@@ -301,7 +297,8 @@ class dbxContent {
        break;
 
        case 'help':
-           $obj=dbx()->get_include_obj('dbxContentContextHelp');
+           // Legacy-URL: Hilfen gehören nicht mehr zum CMS, bleiben aber erreichbar.
+           $obj=dbx()->get_include_obj('dbxModuleHelpWindow', 'dbxHelp');
            $content=is_object($obj) ? $obj->run() : '';
        break;
 
@@ -315,7 +312,17 @@ class dbxContent {
        break;
 
        case 'robots':
-           dbxContentSitemap::serveRobots();
+           dbxContentSitemap::serve_robots();
+       break;
+
+       case 'missing_navigation':
+           $navigation = dbx()->get_include_obj(
+              'dbxContentMissingNavigation',
+              'dbxContent'
+           );
+           $content = is_object($navigation) && method_exists($navigation, 'render')
+              ? $navigation->render()
+              : '';
        break;
 
        default:

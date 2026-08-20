@@ -1,0 +1,1093 @@
+{
+    "schema": 1,
+    "channel": "stable",
+    "sequence": 1,
+    "generated_at": "2026-08-20T12:30:15+00:00",
+    "expires_at": "2030-01-01T00:00:00+00:00",
+    "packages": [
+        {
+            "schema": 1,
+            "id": "dbxapp/design/dbxapp",
+            "type": "design",
+            "name": "dbxapp",
+            "title": "Dbxapp",
+            "description": "Offizielles dbxApp-Design.",
+            "descriptions": {
+                "de": "",
+                "en": "",
+                "es": ""
+            },
+            "icon": "bi-palette",
+            "image": "",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "presentation"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/design/flowers",
+            "type": "design",
+            "name": "flowers",
+            "title": "Flowers",
+            "description": "Offizielles dbxApp-Design.",
+            "descriptions": {
+                "de": "",
+                "en": "",
+                "es": ""
+            },
+            "icon": "bi-palette",
+            "image": "",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "presentation"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/kernel/dbxapp",
+            "type": "kernel",
+            "name": "dbxapp",
+            "title": "dbxApp Kernel",
+            "description": "Gemeinsame Laufzeit, globale Assets, Add-ons und Paket-Engine.",
+            "descriptions": {
+                "de": "Der sichere Kern von dbxApp: Laufzeit, globale Assets, Add-ons, Abstraktionen und die Paket-Engine.",
+                "en": "The secure dbxApp core: runtime, global assets, add-ons, abstractions and the package engine.",
+                "es": "El núcleo seguro de dbxApp: entorno de ejecución, recursos globales, complementos, abstracciones y motor de paquetes."
+            },
+            "icon": "bi-cpu",
+            "image": "",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": "*",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "curl",
+                    "json",
+                    "openssl",
+                    "zip"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "filesystem",
+                "network",
+                "package-management"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbx",
+            "type": "module",
+            "name": "dbx",
+            "title": "dbx",
+            "description": "Datenmodell, Basistemplates und gemeinsame Modulressourcen.",
+            "descriptions": {
+                "de": "Datenmodell, Basistemplates und gemeinsame Modulressourcen.",
+                "en": "Data model, base templates and shared module resources.",
+                "es": "Modelo de datos, plantillas base y recursos compartidos de módulos."
+            },
+            "icon": "bi-database-gear",
+            "image": "dbx/modules/dbx/tpl/img/dbx.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxAdmin",
+            "type": "module",
+            "name": "dbxAdmin",
+            "title": "dbxAdmin",
+            "description": "Administration für Systemstatus, Datenbanken, Module, Konfiguration, Benutzer und Updates.",
+            "descriptions": {
+                "de": "Administration für Systemstatus, Datenbanken, Module, Konfiguration, Benutzer und Updates.",
+                "en": "Administration for system health, databases, modules, configuration, users and updates.",
+                "es": "Administración del estado del sistema, bases de datos, módulos, configuración, usuarios y actualizaciones."
+            },
+            "icon": "bi-speedometer2",
+            "image": "dbx/modules/dbxAdmin/tpl/img/dbxAdmin.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "administration",
+                "database",
+                "filesystem",
+                "package-management"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxChangeLog_admin",
+            "type": "module",
+            "name": "dbxChangeLog_admin",
+            "title": "dbxChangeLog_admin",
+            "description": "Modulares Funktionspaket für dbxApp.",
+            "descriptions": {
+                "de": "Modulares Funktionspaket für dbxApp.",
+                "en": "Modular feature package for dbxApp.",
+                "es": "Paquete funcional modular para dbxApp."
+            },
+            "icon": "bi-box-seam",
+            "image": "",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxConstruct",
+            "type": "module",
+            "name": "dbxConstruct",
+            "title": "dbxConstruct",
+            "description": "Werkzeuge zum strukturierten Erstellen und Erweitern dbxApp-konformer Module.",
+            "descriptions": {
+                "de": "Werkzeuge zum strukturierten Erstellen und Erweitern dbxApp-konformer Module.",
+                "en": "Tools for creating and extending well-structured dbxApp modules.",
+                "es": "Herramientas para crear y ampliar módulos dbxApp bien estructurados."
+            },
+            "icon": "bi-hammer",
+            "image": "dbx/modules/dbxConstruct/tpl/img/dbxConstruct.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxContact",
+            "type": "module",
+            "name": "dbxContact",
+            "title": "dbxContact",
+            "description": "Kontaktformulare und nachvollziehbare Anfragen für Besucher und angemeldete Benutzer.",
+            "descriptions": {
+                "de": "Kontaktformulare und nachvollziehbare Anfragen für Besucher und angemeldete Benutzer.",
+                "en": "Contact forms and traceable requests for visitors and signed-in users.",
+                "es": "Formularios de contacto y solicitudes trazables para visitantes y usuarios."
+            },
+            "icon": "bi-chat-left-text",
+            "image": "dbx/modules/dbxContact/tpl/img/dbxContact.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "database",
+                "mail"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxContact_admin",
+            "type": "module",
+            "name": "dbxContact_admin",
+            "title": "dbxContact_admin",
+            "description": "Zentrale Bearbeitung, Beantwortung und Statusverwaltung eingehender Kontaktanfragen.",
+            "descriptions": {
+                "de": "Zentrale Bearbeitung, Beantwortung und Statusverwaltung eingehender Kontaktanfragen.",
+                "en": "Central processing, replies and status management for incoming contact requests.",
+                "es": "Gestión central, respuestas y estados de las solicitudes de contacto."
+            },
+            "icon": "bi-inbox",
+            "image": "dbx/modules/dbxContact_admin/tpl/img/dbxContact_admin.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": {
+                    "dbxapp/module/dbxContact": "^4.4.0"
+                }
+            },
+            "permissions": [
+                "administration",
+                "database",
+                "mail"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxContent",
+            "type": "module",
+            "name": "dbxContent",
+            "title": "dbxContent",
+            "description": "CMS-Laufzeit für Seiten, Inhalte, Medien, Mehrsprachigkeit und öffentliche Ausgabe.",
+            "descriptions": {
+                "de": "CMS-Laufzeit für Seiten, Inhalte, Medien, Mehrsprachigkeit und öffentliche Ausgabe.",
+                "en": "CMS runtime for pages, content, media, multilingual content and public rendering.",
+                "es": "Motor CMS para páginas, contenidos, medios, multilingüismo y publicación."
+            },
+            "icon": "bi-file-earmark-richtext",
+            "image": "dbx/modules/dbxContent/tpl/img/dbxContent.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "database",
+                "media"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxContent_admin",
+            "type": "module",
+            "name": "dbxContent_admin",
+            "title": "dbxContent_admin",
+            "description": "Visuelle CMS-Administration für Seitenbaum, Inhalte, Medien und Veröffentlichung.",
+            "descriptions": {
+                "de": "Visuelle CMS-Administration für Seitenbaum, Inhalte, Medien und Veröffentlichung.",
+                "en": "Visual CMS administration for page trees, content, media and publishing.",
+                "es": "Administración visual del CMS para páginas, contenidos, medios y publicación."
+            },
+            "icon": "bi-pencil-square",
+            "image": "dbx/modules/dbxContent_admin/tpl/img/dbxContent_admin.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": {
+                    "dbxapp/module/dbxContent": "^4.4.0"
+                }
+            },
+            "permissions": [
+                "administration",
+                "database",
+                "media"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxDesign_admin",
+            "type": "module",
+            "name": "dbxDesign_admin",
+            "title": "dbxDesign_admin",
+            "description": "Designs und Farbvarianten erstellen, bearbeiten, prüfen und als Standard festlegen.",
+            "descriptions": {
+                "de": "Designs und Farbvarianten erstellen, bearbeiten, prüfen und als Standard festlegen.",
+                "en": "Create, edit, review and select designs and colour variants as defaults.",
+                "es": "Crear, editar, revisar y establecer diseños y variantes de color."
+            },
+            "icon": "bi-palette2",
+            "image": "",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxDownLoad",
+            "type": "module",
+            "name": "dbxDownLoad",
+            "title": "dbxDownLoad",
+            "description": "Kontrollierte und abgesicherte Bereitstellung von Dateien zum Download.",
+            "descriptions": {
+                "de": "Kontrollierte und abgesicherte Bereitstellung von Dateien zum Download.",
+                "en": "Controlled and secured delivery of downloadable files.",
+                "es": "Entrega controlada y segura de archivos descargables."
+            },
+            "icon": "bi-cloud-arrow-down",
+            "image": "",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "filesystem"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxEditor",
+            "type": "module",
+            "name": "dbxEditor",
+            "title": "dbxEditor",
+            "description": "Integrierter Editor für Templates, Quelltexte und strukturierte Systemdateien.",
+            "descriptions": {
+                "de": "Integrierter Editor für Templates, Quelltexte und strukturierte Systemdateien.",
+                "en": "Integrated editor for templates, source code and structured system files.",
+                "es": "Editor integrado para plantillas, código fuente y archivos estructurados."
+            },
+            "icon": "bi-code-square",
+            "image": "dbx/modules/dbxEditor/tpl/img/dbxEditor.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxHelp",
+            "type": "module",
+            "name": "dbxHelp",
+            "title": "dbxHelp",
+            "description": "Kontextsensitive, modulautonome Hilfe direkt an Formularen und Arbeitsbereichen.",
+            "descriptions": {
+                "de": "Kontextsensitive, modulautonome Hilfe direkt an Formularen und Arbeitsbereichen.",
+                "en": "Context-sensitive, module-owned help directly in forms and work areas.",
+                "es": "Ayuda contextual y autónoma de cada módulo en formularios y áreas de trabajo."
+            },
+            "icon": "bi-question-circle",
+            "image": "dbx/modules/dbxHelp/tpl/img/dbxHelp.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxHome",
+            "type": "module",
+            "name": "dbxHome",
+            "title": "dbxHome",
+            "description": "Startbereich und zentrale Einstiegspunkte für Benutzer und Anwendungen.",
+            "descriptions": {
+                "de": "Startbereich und zentrale Einstiegspunkte für Benutzer und Anwendungen.",
+                "en": "Home area and central entry points for users and applications.",
+                "es": "Área de inicio y puntos de entrada centrales para usuarios y aplicaciones."
+            },
+            "icon": "bi-house-door",
+            "image": "dbx/modules/dbxHome/tpl/img/dbxHome.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxKi",
+            "type": "module",
+            "name": "dbxKi",
+            "title": "dbxKi",
+            "description": "KI-gestützte Analyse, Inhaltserstellung und regelkonforme Assistenz in dbxApp.",
+            "descriptions": {
+                "de": "KI-gestützte Analyse, Inhaltserstellung und regelkonforme Assistenz in dbxApp.",
+                "en": "AI-assisted analysis, content creation and policy-compliant support in dbxApp.",
+                "es": "Análisis, creación de contenido y asistencia conforme mediante IA."
+            },
+            "icon": "bi-stars",
+            "image": "dbx/modules/dbxKi/tpl/img/dbxKi.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "database",
+                "filesystem",
+                "network"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxLogin",
+            "type": "module",
+            "name": "dbxLogin",
+            "title": "dbxLogin",
+            "description": "Sichere Anmeldung, Registrierung, Bestätigung und Passwort-Wiederherstellung.",
+            "descriptions": {
+                "de": "Sichere Anmeldung, Registrierung, Bestätigung und Passwort-Wiederherstellung.",
+                "en": "Secure sign-in, registration, confirmation and password recovery.",
+                "es": "Inicio de sesión, registro, confirmación y recuperación de contraseña seguros."
+            },
+            "icon": "bi-shield-lock",
+            "image": "dbx/modules/dbxLogin/tpl/img/dbxLogin.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "authentication",
+                "database",
+                "mail"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxMenu",
+            "type": "module",
+            "name": "dbxMenu",
+            "title": "dbxMenu",
+            "description": "Mehrsprachige Haupt-, Unter- und Kontextnavigation für dbxApp-Oberflächen.",
+            "descriptions": {
+                "de": "Mehrsprachige Haupt-, Unter- und Kontextnavigation für dbxApp-Oberflächen.",
+                "en": "Multilingual main, sub and contextual navigation for dbxApp interfaces.",
+                "es": "Navegación principal, secundaria y contextual multilingüe."
+            },
+            "icon": "bi-menu-button-wide",
+            "image": "dbx/modules/dbxMenu/tpl/img/dbxMenu.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "database"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxPage_admin",
+            "type": "module",
+            "name": "dbxPage_admin",
+            "title": "dbxPage_admin",
+            "description": "Administrative Seiten- und API-Einstellungen für dbxApp-Anwendungen.",
+            "descriptions": {
+                "de": "Administrative Seiten- und API-Einstellungen für dbxApp-Anwendungen.",
+                "en": "Administrative page and API settings for dbxApp applications.",
+                "es": "Configuración administrativa de páginas y API para aplicaciones dbxApp."
+            },
+            "icon": "bi-window-stack",
+            "image": "dbx/modules/dbxPage_admin/tpl/img/dbxPage_admin.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxSelfTest",
+            "type": "module",
+            "name": "dbxSelfTest",
+            "title": "dbxSelfTest",
+            "description": "Automatische System-, Sicherheits-, Qualitäts- und Browserprüfungen mit Protokoll.",
+            "descriptions": {
+                "de": "Automatische System-, Sicherheits-, Qualitäts- und Browserprüfungen mit Protokoll.",
+                "en": "Automated system, security, quality and browser checks with reporting.",
+                "es": "Pruebas automáticas de sistema, seguridad, calidad y navegador con informes."
+            },
+            "icon": "bi-clipboard2-check",
+            "image": "",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "administration",
+                "filesystem",
+                "network"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxSetup",
+            "type": "module",
+            "name": "dbxSetup",
+            "title": "dbxSetup",
+            "description": "Geführte Erstinstallation und sichere Einrichtung einer neuen dbxApp-Instanz.",
+            "descriptions": {
+                "de": "Geführte Erstinstallation und sichere Einrichtung einer neuen dbxApp-Instanz.",
+                "en": "Guided first installation and secure setup of a new dbxApp instance.",
+                "es": "Instalación guiada y configuración segura de una nueva instancia dbxApp."
+            },
+            "icon": "bi-wrench-adjustable-circle",
+            "image": "dbx/modules/dbxSetup/tpl/img/dbxSetup.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "administration",
+                "database",
+                "filesystem"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxShop",
+            "type": "module",
+            "name": "dbxShop",
+            "title": "dbxShop",
+            "description": "Shop-Laufzeit für Katalog, Warenkorb, Bestellungen und Zahlungsabläufe.",
+            "descriptions": {
+                "de": "Shop-Laufzeit für Katalog, Warenkorb, Bestellungen und Zahlungsabläufe.",
+                "en": "Shop runtime for catalogue, cart, orders and payment flows.",
+                "es": "Motor de tienda para catálogo, carrito, pedidos y pagos."
+            },
+            "icon": "bi-cart3",
+            "image": "",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": {
+                    "dbxapp/module/dbxContent": "^4.4.0"
+                }
+            },
+            "permissions": [
+                "database",
+                "media",
+                "network",
+                "payment"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxShop_admin",
+            "type": "module",
+            "name": "dbxShop_admin",
+            "title": "dbxShop_admin",
+            "description": "Administration von Artikeln, Bestellungen, Verkaufskanälen und Shop-Inhalten.",
+            "descriptions": {
+                "de": "Administration von Artikeln, Bestellungen, Verkaufskanälen und Shop-Inhalten.",
+                "en": "Administration of products, orders, sales channels and shop content.",
+                "es": "Administración de productos, pedidos, canales de venta y contenidos."
+            },
+            "icon": "bi-shop-window",
+            "image": "",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": {
+                    "dbxapp/module/dbxShop": "^4.4.0",
+                    "dbxapp/module/dbxContent_admin": "^4.4.0"
+                }
+            },
+            "permissions": [
+                "administration",
+                "database",
+                "media",
+                "network"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxUser",
+            "type": "module",
+            "name": "dbxUser",
+            "title": "dbxUser",
+            "description": "Benutzerprofil, persönliche Daten, Avatar und sichere Passwortpflege.",
+            "descriptions": {
+                "de": "Benutzerprofil, persönliche Daten, Avatar und sichere Passwortpflege.",
+                "en": "User profile, personal data, avatar and secure password management.",
+                "es": "Perfil, datos personales, avatar y gestión segura de contraseñas."
+            },
+            "icon": "bi-person-circle",
+            "image": "dbx/modules/dbxUser/tpl/img/dbxUser.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "authentication",
+                "database"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxUser_admin",
+            "type": "module",
+            "name": "dbxUser_admin",
+            "title": "dbxUser_admin",
+            "description": "Verwaltung von Benutzerkonten, Gruppen, Rollen und Zugriffsrechten.",
+            "descriptions": {
+                "de": "Verwaltung von Benutzerkonten, Gruppen, Rollen und Zugriffsrechten.",
+                "en": "Management of user accounts, groups, roles and access rights.",
+                "es": "Gestión de cuentas, grupos, roles y permisos de acceso."
+            },
+            "icon": "bi-people",
+            "image": "dbx/modules/dbxUser_admin/tpl/img/dbxUser_admin.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": {
+                    "dbxapp/module/dbxUser": "^4.4.0"
+                }
+            },
+            "permissions": [
+                "administration",
+                "authentication",
+                "database"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxWorkflow",
+            "type": "module",
+            "name": "dbxWorkflow",
+            "title": "dbxWorkflow",
+            "description": "Ausführung nachvollziehbarer, modularer Geschäftsprozesse und Arbeitsschritte.",
+            "descriptions": {
+                "de": "Ausführung nachvollziehbarer, modularer Geschäftsprozesse und Arbeitsschritte.",
+                "en": "Execution of traceable, modular business processes and work steps.",
+                "es": "Ejecución de procesos de negocio y pasos de trabajo modulares y trazables."
+            },
+            "icon": "bi-diagram-3",
+            "image": "dbx/modules/dbxWorkflow/tpl/img/dbxWorkflow.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "database"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/dbxWorkflow_admin",
+            "type": "module",
+            "name": "dbxWorkflow_admin",
+            "title": "dbxWorkflow_admin",
+            "description": "Workflows visuell definieren, an Module binden und laufende Instanzen überwachen.",
+            "descriptions": {
+                "de": "Workflows visuell definieren, an Module binden und laufende Instanzen überwachen.",
+                "en": "Visually define workflows, bind modules and monitor running instances.",
+                "es": "Definir flujos visualmente, vincular módulos y supervisar instancias."
+            },
+            "icon": "bi-bezier2",
+            "image": "dbx/modules/dbxWorkflow_admin/tpl/img/dbxWorkflow_admin.png",
+            "package_excludes": [],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "free",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": {
+                    "dbxapp/module/dbxWorkflow": "^4.4.0"
+                }
+            },
+            "permissions": [
+                "administration",
+                "database"
+            ],
+            "migrations": [],
+            "files": []
+        },
+        {
+            "schema": 1,
+            "id": "dbxapp/module/myLKW",
+            "type": "module",
+            "name": "myLKW",
+            "title": "myLKW Fuhrpark & Disposition",
+            "description": "Fuhrpark- und Dispositionslösung für Fahrzeuge, Fahrer und mehrtägige Tourplanung – mit täglichem CSV-Import, direkter Tabellenpflege sowie Druck und Export.",
+            "descriptions": {
+                "de": "Fuhrpark- und Dispositionslösung für Fahrzeuge, Fahrer und mehrtägige Tourplanung – mit täglichem CSV-Import, direkter Tabellenpflege sowie Druck und Export.",
+                "en": "Fleet and dispatch solution for vehicles, drivers and multi-day route planning, including daily CSV import, direct table editing, print and export.",
+                "es": "Solución de flota y planificación para vehículos, conductores y rutas de varios días, con importación CSV diaria, edición directa, impresión y exportación."
+            },
+            "icon": "bi-truck",
+            "image": "dbx/modules/myLKW/tpl/img/myLKW.png",
+            "package_excludes": [
+                "dbx/modules/myLKW/tpl/img/CCF_000031.pdf",
+                "dbx/modules/myLKW/tpl/img/CCF_000031.png",
+                "dbx/modules/myLKW/tpl/img/CCF_000032.pdf",
+                "dbx/modules/myLKW/tpl/img/CCF_000033.pdf",
+                "dbx/modules/myLKW/tpl/img/CCF_000034.pdf",
+                "dbx/modules/myLKW/tpl/img/CCF_000035.pdf",
+                "dbx/modules/myLKW/tpl/img/Muster10.png",
+                "dbx/modules/myLKW/tpl/img/schein_a.png"
+            ],
+            "version": "4.4.0",
+            "vendor": {
+                "id": "dbxapp",
+                "name": "dbxApp"
+            },
+            "license": "paid",
+            "managed": true,
+            "requires": {
+                "kernel": ">=4.4.0 <5.0.0",
+                "php": ">=8.2.0",
+                "extensions": [
+                    "json"
+                ],
+                "packages": []
+            },
+            "permissions": [
+                "database",
+                "filesystem"
+            ],
+            "migrations": [],
+            "files": [],
+            "purchase_url": "https://market.dbxapp.de/packages/myLKW"
+        }
+    ]
+}

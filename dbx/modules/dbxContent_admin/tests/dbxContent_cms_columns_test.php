@@ -7,7 +7,7 @@ $assert = static function (bool $condition, string $message) use (&$failures): v
     if (!$condition) $failures[] = $message;
 };
 
-$cmsJs = (string)file_get_contents($base . '/dbx/js/lib/cms.js');
+$cms_js = (string)file_get_contents($base . '/dbx/modules/dbxContent_admin/js/cms.js');
 foreach (array(
     'bootstrapRowColumns',
     'setBootstrapColumnLayout',
@@ -15,7 +15,7 @@ foreach (array(
     'dissolveBootstrapColumns',
 ) as $function) {
     $assert(
-        str_contains($cmsJs, 'function ' . $function . '('),
+        str_contains($cms_js, 'function ' . $function . '('),
         'CMS-Spaltenfunktion fehlt: ' . $function
     );
 }
@@ -44,11 +44,11 @@ $keys = array(
     'editor_context_paste',
     'editor_context_delete',
 );
-$messagesByLanguage = array();
+$messages_by_language = array();
 foreach (array('de' => '', 'en' => '_en', 'es' => '_es') as $language => $suffix) {
     $messages = array();
     require $base . '/dbx/modules/dbxContent_admin/fd/cms-page' . $suffix . '.fd.php';
-    $messagesByLanguage[$language] = $messages;
+    $messages_by_language[$language] = $messages;
     foreach ($keys as $key) {
         $assert(
             trim((string)($messages[$key] ?? '')) !== '',
@@ -57,7 +57,7 @@ foreach (array('de' => '', 'en' => '_en', 'es' => '_es') as $language => $suffix
     }
 }
 
-foreach (array('dbxapp', 'dbxdocs', 'flowers', 'steal') as $design) {
+foreach (array('dbxapp', 'flowers', 'steal') as $design) {
     $css = (string)file_get_contents($base . '/dbx/design/' . $design . '/css/c-cms.css');
     $assert(
         str_contains($css, '.jodit-wysiwyg .row:has(> .col, > [class*="col-"]) > .col:hover')

@@ -1,0 +1,9 @@
+{
+  "name": "class.upload.php",
+  "upstream": "Colin Verot",
+  "version": "2024-09-10",
+  "license": "GPL-2.0",
+  "source": "src/dbxUpload.php",
+  "adapter": "../../include/dbxUpload.class.php",
+  "mode": "isolated-adapted-source"
+}

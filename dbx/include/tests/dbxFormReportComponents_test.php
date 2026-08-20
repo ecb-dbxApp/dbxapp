@@ -6,7 +6,7 @@ require_once dirname(__DIR__) . '/dbxFormValueResolver.class.php';
 require_once dirname(__DIR__) . '/dbxReportDataWindow.class.php';
 
 $validator = new class {
-    public function validateResult(mixed $value, string $rules, string $name): array {
+    public function validate_result(mixed $value, string $rules, string $name): array {
         $normalized = str_contains($rules, 'trim') ? trim((string)$value) : $value;
         return array('valid' => $normalized !== '', 'normalized' => $normalized, 'code' => $normalized !== '' ? 'ok' : 'required');
     }

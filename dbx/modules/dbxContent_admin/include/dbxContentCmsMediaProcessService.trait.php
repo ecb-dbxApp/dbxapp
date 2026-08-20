@@ -23,7 +23,7 @@ trait dbxContentCmsMediaProcessServiceTrait {
    private function get_media_process_state($token) {
       $token = preg_replace('/[^A-Za-z0-9_-]+/', '', (string)$token);
       if ($token === '') return array();
-      return $_SESSION['dbx']['dbxContent_admin']['media_process'][$token] ?? array();
+      return dbxContentAdminSessionState::media_process($token);
    }
 
 
@@ -31,10 +31,7 @@ trait dbxContentCmsMediaProcessServiceTrait {
    private function set_media_process_state($token, array $state) {
       $token = preg_replace('/[^A-Za-z0-9_-]+/', '', (string)$token);
       if ($token === '') return;
-      if (!isset($_SESSION['dbx']) || !is_array($_SESSION['dbx'])) $_SESSION['dbx'] = array();
-      if (!isset($_SESSION['dbx']['dbxContent_admin']) || !is_array($_SESSION['dbx']['dbxContent_admin'])) $_SESSION['dbx']['dbxContent_admin'] = array();
-      if (!isset($_SESSION['dbx']['dbxContent_admin']['media_process']) || !is_array($_SESSION['dbx']['dbxContent_admin']['media_process'])) $_SESSION['dbx']['dbxContent_admin']['media_process'] = array();
-      $_SESSION['dbx']['dbxContent_admin']['media_process'][$token] = $state;
+      dbxContentAdminSessionState::set_media_process($token, $state);
    }
 
 
@@ -205,7 +202,7 @@ trait dbxContentCmsMediaProcessServiceTrait {
 
    private function content_inline_cleanup_needed($db) {
       foreach ($this->ordered_media_languages() as $lng) {
-         $rows = $db->select(dbxContentLng::ddContent($lng), "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,content', 'id');
+         $rows = $db->select(dbxContentLng::dd_content($lng), "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,content', 'id');
          if (!is_array($rows)) continue;
          foreach ($rows as $row) {
             if (!is_array($row)) continue;
@@ -222,7 +219,7 @@ trait dbxContentCmsMediaProcessServiceTrait {
 
    private function content_media_reference_ids($db) {
       $ids = array();
-      $rows = $db->select(dbxContentLng::ddContent(), "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,content', 'id');
+      $rows = $db->select(dbxContentLng::dd_content(), "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,content', 'id');
       if (!is_array($rows)) return $ids;
       foreach ($rows as $row) {
          if (!is_array($row)) continue;
@@ -237,8 +234,8 @@ trait dbxContentCmsMediaProcessServiceTrait {
 
 
    private function content_inline_placeholder_repair_needed($db) {
-      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
-         $rows = $db->select(dbxContentLng::ddContent((string)$lng), "content LIKE '%dbx-cms-inline-media-missing%'", 'id,content', 'id');
+      foreach (dbxContentLngSync::accessible_lngs() as $lng) {
+         $rows = $db->select(dbxContentLng::dd_content((string)$lng), "content LIKE '%dbx-cms-inline-media-missing%'", 'id,content', 'id');
          if (!is_array($rows)) continue;
          foreach ($rows as $row) {
             if (!is_array($row)) continue;
@@ -255,10 +252,10 @@ trait dbxContentCmsMediaProcessServiceTrait {
       $refs = 0;
       $prev_lng = dbxContentLng::current();
 
-      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
+      foreach (dbxContentLngSync::accessible_lngs() as $lng) {
          $lng = (string)$lng;
          dbx()->set_system_var('dbx_lng', $lng);
-         $dd = dbxContentLng::ddContent($lng);
+         $dd = dbxContentLng::dd_content($lng);
          $rows = $db->select($dd, "content LIKE '%dbx-cms-inline-media-missing%'", 'id,folder,content', 'id');
          if (!is_array($rows)) continue;
 
@@ -370,11 +367,11 @@ trait dbxContentCmsMediaProcessServiceTrait {
    private function clean_content_inline_media($db) {
       $pages = 0;
       $refs = 0;
-      $previous_lng = (string)dbx()->get_system_var('dbx_lng', dbxContentLngSync::masterLng());
+      $previous_lng = (string)dbx()->get_system_var('dbx_lng', dbxContentLngSync::master_lng());
       try {
          foreach ($this->ordered_media_languages() as $lng) {
             dbx()->set_system_var('dbx_lng', $lng);
-            $content_dd = dbxContentLng::ddContent($lng);
+            $content_dd = dbxContentLng::dd_content($lng);
             $rows = $db->select($content_dd, "content LIKE '%dbx_mid=%' OR content LIKE '%data-cms-media-id=%'", 'id,folder,content', 'id');
             if (!is_array($rows)) continue;
             foreach ($rows as $row) {
@@ -482,10 +479,10 @@ trait dbxContentCmsMediaProcessServiceTrait {
          'errors' => 0,
       );
 
-      foreach (dbxContentLngSync::accessibleLngs() as $lng) {
+      foreach (dbxContentLngSync::accessible_lngs() as $lng) {
          $lng = strtolower(trim((string)$lng));
          if ($lng === '') continue;
-         $dd = dbxContentLng::ddFolder($lng);
+         $dd = dbxContentLng::dd_folder($lng);
          $rows = $db->select($dd, '', 'id,parent_id,sorter,name', 'parent_id,sorter,name,id', 'ASC', '', 0, 0, 0);
          if (!is_array($rows) || empty($rows)) continue;
 
@@ -701,7 +698,7 @@ trait dbxContentCmsMediaProcessServiceTrait {
 
       if ($type === 'database_optimize') {
          $optimized = 0;
-         foreach (array($this->dd_media_usage, dbxContentLng::ddContent()) as $dd) {
+         foreach (array($this->dd_media_usage, dbxContentLng::dd_content()) as $dd) {
             if ((int)$db->optimize_tab($dd) === 1) $optimized++;
             else $state['errors'] = (int)($state['errors'] ?? 0) + 1;
          }

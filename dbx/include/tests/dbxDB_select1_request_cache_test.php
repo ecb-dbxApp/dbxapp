@@ -22,7 +22,7 @@ require_once $root . '/dbx/include/dbxDB.class.php';
 
 class dbxDBSelect1RequestCacheTestDouble extends dbxDB
 {
-    public int $selectCalls = 0;
+    public int $select_calls = 0;
 
     public array $records = array(
         'test|probe' => array(
@@ -60,11 +60,11 @@ class dbxDBSelect1RequestCacheTestDouble extends dbxDB
         $offset = 0,
         $verify_access = 1
     ): array {
-        $this->selectCalls++;
+        $this->select_calls++;
         $definition = $this->load_dd($dd);
-        $ddKey = strtolower($definition['dd_modul'] . '|' . $definition['dd_name']);
+        $dd_key = strtolower($definition['dd_modul'] . '|' . $definition['dd_name']);
         $id = is_numeric($where) ? (int)$where : 0;
-        $record = $this->records[$ddKey][$id] ?? null;
+        $record = $this->records[$dd_key][$id] ?? null;
         return is_array($record) ? array($record) : array();
     }
 
@@ -92,23 +92,23 @@ $db = new dbxDBSelect1RequestCacheTestDouble();
 $first = $db->select1('probe', 1);
 $first['name'] = 'lokal veraendert';
 $second = $db->select1('test|probe', 1);
-select1_cache_assert($db->selectCalls === 1, 'Derselbe DD-Einzelsatz wurde zweimal gelesen.');
+select1_cache_assert($db->select_calls === 1, 'Derselbe DD-Einzelsatz wurde zweimal gelesen.');
 select1_cache_assert(($second['name'] ?? '') === 'eins', 'Ein Rueckgabearray hat den Cacheinhalt veraendert.');
 
 $db->select1('probe', 1, 'id');
 $db->select1('probe', 1, '*', 0);
-select1_cache_assert($db->selectCalls === 3, 'Spalten- oder Rechtekontext fehlt im Cache-Schluessel.');
+select1_cache_assert($db->select_calls === 3, 'Spalten- oder Rechtekontext fehlt im Cache-Schluessel.');
 
 $missing1 = $db->select1('probe', 999);
 $missing2 = $db->select1('probe', 999);
-select1_cache_assert($db->selectCalls === 4, 'Ein leerer Einzelsatz wird nicht requestlokal gecacht.');
+select1_cache_assert($db->select_calls === 4, 'Ein leerer Einzelsatz wird nicht requestlokal gecacht.');
 select1_cache_assert($missing1 === $missing2 && (int)($missing2['id'] ?? -1) === 0, 'Leerdatensatz ist instabil.');
 
 $db->select1('other', 1);
 $db->invalidateForTest('probe');
 $db->select1('probe', 1);
 $db->select1('other', 1);
-select1_cache_assert($db->selectCalls === 6, 'DD-Invalidierung ist zu breit oder nicht wirksam.');
+select1_cache_assert($db->select_calls === 6, 'DD-Invalidierung ist zu breit oder nicht wirksam.');
 
 $stats = $db->select1_cache_snapshot();
 select1_cache_assert((int)$stats['hits'] === 3, 'Cache-Hits werden nicht korrekt erfasst.');
@@ -119,18 +119,19 @@ select1_cache_assert((int)$stats['capacity'] === 1000, 'Cache-Obergrenze fehlt.'
 $tx = new ReflectionProperty(dbxDB::class, '_tx');
 $tx->setAccessible(true);
 $tx->setValue($db, array('test-server' => true));
-$callsBeforeTransaction = $db->selectCalls;
+$calls_before_transaction = $db->select_calls;
 $db->select1('probe', 1);
 $db->select1('probe', 1);
 select1_cache_assert(
-    $db->selectCalls === $callsBeforeTransaction + 2,
+    $db->select_calls === $calls_before_transaction + 2,
     'Eine aktive Transaktion verwendet den requestlokalen Cache.'
 );
 $tx->setValue($db, array());
 $stats = $db->select1_cache_snapshot();
 select1_cache_assert((int)$stats['transaction_bypass'] === 2, 'Transaktions-Bypass wird nicht erfasst.');
 
-$source = (string)file_get_contents($root . '/dbx/include/dbxDB.class.php');
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
+$source = dbx_test_module_source_bundle($root . '/dbx/include/dbxDB.class.php');
 select1_cache_assert(
     substr_count($source, '$this->invalidate_select1_cache((string)$dd);') >= 3,
     'insert(), update() oder delete() invalidiert den DD-Cache nicht.'

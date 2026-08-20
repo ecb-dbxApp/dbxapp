@@ -11,7 +11,7 @@ trait dbxKiBriefingCoreServiceTrait {
       return dbx()->get_include_obj('dbxKiContractService', 'dbxKi');
    }
 
-   private function ensureContentBootstrap(): void {
+   private function ensure_content_bootstrap(): void {
       if (!class_exists(dbxContentLng::class)) {
          require_once dirname(__DIR__, 2) . '/dbxContent/include/dbxContent_bootstrap_sync.php';
       }
@@ -37,7 +37,7 @@ trait dbxKiBriefingCoreServiceTrait {
       return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
    }
 
-   private function moduleUrl(string $run1, array $params = array()): string {
+   private function module_url(string $run1, array $params = array()): string {
       $url = '?dbx_modul=dbxKi&dbx_run1=' . rawurlencode($run1);
       foreach ($params as $key => $value) {
          if ($value === null || $value === '') {
@@ -48,7 +48,7 @@ trait dbxKiBriefingCoreServiceTrait {
       return $url;
    }
 
-   private function contentAdminUrl(string $run1, array $params = array()): string {
+   private function content_admin_url(string $run1, array $params = array()): string {
       $url = '?dbx_modul=dbxContent_admin&dbx_run1=' . rawurlencode($run1);
       foreach ($params as $key => $value) {
          if ($value === null || $value === '') {
@@ -59,7 +59,7 @@ trait dbxKiBriefingCoreServiceTrait {
       return $url;
    }
 
-   private function withContentLng(string $lng, callable $fn) {
+   private function with_content_lng(string $lng, callable $fn) {
       $lng = strtolower(trim($lng));
       $prev = (string) dbx()->get_system_var('dbx_lng', '');
       if ($lng !== '') {
@@ -72,7 +72,7 @@ trait dbxKiBriefingCoreServiceTrait {
       }
    }
 
-   private function writingStyles(): array {
+   private function writing_styles(): array {
       return dbxKiWritingStyles::all();
    }
 

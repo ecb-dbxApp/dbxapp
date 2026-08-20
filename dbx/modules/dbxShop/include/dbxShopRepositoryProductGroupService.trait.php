@@ -3,35 +3,35 @@ namespace dbx\dbxShop;
 
 trait dbxShopRepositoryProductGroupServiceTrait {
 
-   public function groupsForProduct(int $productId): array {
-      $product = $this->db()->select1($this->dd('shopProduct'), 'id = ' . (int)$productId . ' AND trash = 0', 'product_group_id', 0);
-      $directGroupId = (int)($product['product_group_id'] ?? 0);
-      if ($directGroupId > 0) {
-         $group = $this->groupById($directGroupId);
+   public function groups_for_product(int $product_id): array {
+      $product = $this->db()->select1($this->dd('shopProduct'), 'id = ' . (int)$product_id . ' AND trash = 0', 'product_group_id', 0);
+      $direct_group_id = (int)($product['product_group_id'] ?? 0);
+      if ($direct_group_id > 0) {
+         $group = $this->group_by_id($direct_group_id);
          if (is_array($group)) {
             return array($group);
          }
       }
 
-      $maps = $this->db()->select($this->dd('shopProductGroupMap'), 'product_id = ' . (int)$productId, '*', 'is_primary DESC', 'ASC', '', 0, 0, 0);
+      $maps = $this->db()->select($this->dd('shopProductGroupMap'), 'product_id = ' . (int)$product_id, '*', 'is_primary DESC', 'ASC', '', 0, 0, 0);
       if (!is_array($maps) || $maps === array()) {
          return array();
       }
-      $groupIds = array_values(array_unique(array_map(fn($row) => (int)($row['group_id'] ?? 0), $maps)));
-      $groupIds = array_values(array_filter($groupIds, fn($id) => $id > 0));
-      if ($groupIds === array()) {
+      $group_ids = array_values(array_unique(array_map(fn($row) => (int)($row['group_id'] ?? 0), $maps)));
+      $group_ids = array_values(array_filter($group_ids, fn($id) => $id > 0));
+      if ($group_ids === array()) {
          return array();
       }
-      $groups = $this->db()->select($this->dd('shopProductGroup'), 'id IN (' . implode(',', $groupIds) . ') AND trash = 0', '*', '', 'ASC', '', 0, 0, 0);
-      $byId = array();
+      $groups = $this->db()->select($this->dd('shopProductGroup'), 'id IN (' . implode(',', $group_ids) . ') AND trash = 0', '*', '', 'ASC', '', 0, 0, 0);
+      $by_id = array();
       foreach ((is_array($groups) ? $groups : array()) as $group) {
-         $byId[(int)($group['id'] ?? 0)] = $group;
+         $by_id[(int)($group['id'] ?? 0)] = $group;
       }
       $rows = array();
       foreach ($maps as $map) {
          $id = (int)($map['group_id'] ?? 0);
-         if (isset($byId[$id])) {
-            $row = $byId[$id];
+         if (isset($by_id[$id])) {
+            $row = $by_id[$id];
             $row['_is_primary'] = (int)($map['is_primary'] ?? 0);
             $rows[] = $row;
          }
@@ -48,17 +48,17 @@ trait dbxShopRepositoryProductGroupServiceTrait {
 
 
 
-   public function channelsForProduct(int $productId): array {
-      $channelIndex = array();
+   public function channels_for_product(int $product_id): array {
+      $channel_index = array();
       foreach ($this->channels() as $channel) {
-         $channelIndex[(string)($channel['channel_key'] ?? '')] = $channel;
+         $channel_index[(string)($channel['channel_key'] ?? '')] = $channel;
       }
 
       $channels = array();
-      $direct = $this->db()->select($this->dd('shopProductChannel'), 'product_id = ' . (int)$productId, '*', '', 'ASC', '', 0, 0, 0);
+      $direct = $this->db()->select($this->dd('shopProductChannel'), 'product_id = ' . (int)$product_id, '*', '', 'ASC', '', 0, 0, 0);
       foreach ((is_array($direct) ? $direct : array()) as $row) {
          $key = (string)($row['channel_key'] ?? '');
-         $base = $channelIndex[$key] ?? array('channel_key' => $key, 'title' => $key, 'sorter' => 9999);
+         $base = $channel_index[$key] ?? array('channel_key' => $key, 'title' => $key, 'sorter' => 9999);
          $channels[] = array(
             'channel_key' => $key,
             'title' => (string)($base['title'] ?? $key),
@@ -72,14 +72,14 @@ trait dbxShopRepositoryProductGroupServiceTrait {
       usort($channels, fn($a, $b) => ((int)($a['_sorter'] ?? 9999) <=> (int)($b['_sorter'] ?? 9999))
          ?: strcasecmp((string)($a['channel_key'] ?? ''), (string)($b['channel_key'] ?? '')));
 
-      $groupMaps = $this->db()->select($this->dd('shopProductChannelGroupMap'), 'product_id = ' . (int)$productId, '*', '', 'ASC', '', 0, 0, 0);
-      foreach ((is_array($groupMaps) ? $groupMaps : array()) as $groupMap) {
-         $groupId = (int)($groupMap['channel_group_id'] ?? 0);
-         if ($groupId <= 0) continue;
-         $groupChannels = $this->db()->select($this->dd('shopChannelGroupChannel'), 'channel_group_id = ' . $groupId . ' AND active = 1', '*', '', 'ASC', '', 0, 0, 0);
-         foreach ((is_array($groupChannels) ? $groupChannels : array()) as $row) {
+      $group_maps = $this->db()->select($this->dd('shopProductChannelGroupMap'), 'product_id = ' . (int)$product_id, '*', '', 'ASC', '', 0, 0, 0);
+      foreach ((is_array($group_maps) ? $group_maps : array()) as $group_map) {
+         $group_id = (int)($group_map['channel_group_id'] ?? 0);
+         if ($group_id <= 0) continue;
+         $group_channels = $this->db()->select($this->dd('shopChannelGroupChannel'), 'channel_group_id = ' . $group_id . ' AND active = 1', '*', '', 'ASC', '', 0, 0, 0);
+         foreach ((is_array($group_channels) ? $group_channels : array()) as $row) {
             $key = (string)($row['channel_key'] ?? '');
-            $base = $channelIndex[$key] ?? array('channel_key' => $key, 'title' => $key, 'sorter' => 9999);
+            $base = $channel_index[$key] ?? array('channel_key' => $key, 'title' => $key, 'sorter' => 9999);
             $channels[] = array(
                'channel_key' => $key,
                'title' => (string)($base['title'] ?? $key),
@@ -108,18 +108,18 @@ trait dbxShopRepositoryProductGroupServiceTrait {
 
 
 
-   public function productChannelOverrides(int $productId): array {
+   public function product_channel_overrides(int $product_id): array {
       $this->install();
-      $channelIndex = array();
+      $channel_index = array();
       foreach ($this->channels() as $channel) {
-         $channelIndex[(string)($channel['channel_key'] ?? '')] = $channel;
+         $channel_index[(string)($channel['channel_key'] ?? '')] = $channel;
       }
-      $rows = $this->db()->select($this->dd('shopProductChannel'), 'product_id = ' . (int)$productId, '*', '', 'ASC', '', 0, 0, 0);
+      $rows = $this->db()->select($this->dd('shopProductChannel'), 'product_id = ' . (int)$product_id, '*', '', 'ASC', '', 0, 0, 0);
       $rows = is_array($rows) ? $rows : array();
       foreach ($rows as &$row) {
          $key = (string)($row['channel_key'] ?? '');
-         $row['title'] = (string)($channelIndex[$key]['title'] ?? $key);
-         $row['_sorter'] = (int)($channelIndex[$key]['sorter'] ?? 9999);
+         $row['title'] = (string)($channel_index[$key]['title'] ?? $key);
+         $row['_sorter'] = (int)($channel_index[$key]['sorter'] ?? 9999);
       }
       unset($row);
       usort($rows, fn($a, $b) => ((int)($a['_sorter'] ?? 9999) <=> (int)($b['_sorter'] ?? 9999))
@@ -137,23 +137,23 @@ trait dbxShopRepositoryProductGroupServiceTrait {
 
 
 
-   public function inheritedChannelsForProduct(int $productId): array {
+   public function inherited_channels_for_product(int $product_id): array {
       $this->install();
-      $channelIndex = array();
+      $channel_index = array();
       foreach ($this->channels() as $channel) {
-         $channelIndex[(string)($channel['channel_key'] ?? '')] = $channel;
+         $channel_index[(string)($channel['channel_key'] ?? '')] = $channel;
       }
-      $groupMaps = $this->db()->select($this->dd('shopProductChannelGroupMap'), 'product_id = ' . (int)$productId, '*', '', 'ASC', '', 0, 0, 0);
+      $group_maps = $this->db()->select($this->dd('shopProductChannelGroupMap'), 'product_id = ' . (int)$product_id, '*', '', 'ASC', '', 0, 0, 0);
       $rows = array();
-      foreach ((is_array($groupMaps) ? $groupMaps : array()) as $groupMap) {
-         $groupId = (int)($groupMap['channel_group_id'] ?? 0);
-         if ($groupId <= 0) continue;
-         $group = $this->db()->select1($this->dd('shopChannelGroup'), 'id = ' . $groupId . ' AND trash = 0 AND active = 1', '*', 0);
+      foreach ((is_array($group_maps) ? $group_maps : array()) as $group_map) {
+         $group_id = (int)($group_map['channel_group_id'] ?? 0);
+         if ($group_id <= 0) continue;
+         $group = $this->db()->select1($this->dd('shopChannelGroup'), 'id = ' . $group_id . ' AND trash = 0 AND active = 1', '*', 0);
          if (!is_array($group)) continue;
-         $groupChannels = $this->db()->select($this->dd('shopChannelGroupChannel'), 'channel_group_id = ' . $groupId . ' AND active = 1', '*', '', 'ASC', '', 0, 0, 0);
-         foreach ((is_array($groupChannels) ? $groupChannels : array()) as $row) {
+         $group_channels = $this->db()->select($this->dd('shopChannelGroupChannel'), 'channel_group_id = ' . $group_id . ' AND active = 1', '*', '', 'ASC', '', 0, 0, 0);
+         foreach ((is_array($group_channels) ? $group_channels : array()) as $row) {
             $key = (string)($row['channel_key'] ?? '');
-            $base = $channelIndex[$key] ?? array('channel_key' => $key, 'title' => $key, 'sorter' => 9999);
+            $base = $channel_index[$key] ?? array('channel_key' => $key, 'title' => $key, 'sorter' => 9999);
             $rows[] = array(
                'channel_key' => $key,
                'title' => (string)($base['title'] ?? $key),
@@ -175,9 +175,9 @@ trait dbxShopRepositoryProductGroupServiceTrait {
             $out[$key] = $row;
             $out[$key]['group_titles'] = array();
          }
-         $groupTitle = trim((string)($row['group_title'] ?? ''));
-         if ($groupTitle !== '') {
-            $out[$key]['group_titles'][$groupTitle] = $groupTitle;
+         $group_title = trim((string)($row['group_title'] ?? ''));
+         if ($group_title !== '') {
+            $out[$key]['group_titles'][$group_title] = $group_title;
          }
          unset($out[$key]['_sorter']);
       }
@@ -186,20 +186,20 @@ trait dbxShopRepositoryProductGroupServiceTrait {
 
 
 
-   public function saveProductChannelOverrides(int $productId, array $activeChannelKeys): void {
+   public function save_product_channel_overrides(int $product_id, array $active_channel_keys): void {
       $this->install();
-      $productId = max(0, $productId);
-      if ($productId <= 0) {
+      $product_id = max(0, $product_id);
+      if ($product_id <= 0) {
          return;
       }
 
-      $product = $this->productById($productId);
+      $product = $this->product_by_id($product_id);
       if (!$product) {
          return;
       }
 
       $active = array();
-      foreach ($activeChannelKeys as $key) {
+      foreach ($active_channel_keys as $key) {
          $key = trim((string)$key);
          if ($key !== '') {
             $active[$key] = true;
@@ -213,22 +213,22 @@ trait dbxShopRepositoryProductGroupServiceTrait {
          }
          $existing = $this->db()->select1(
             $this->dd('shopProductChannel'),
-            'product_id = ' . (int)$productId . ' AND channel_key = ' . $this->sqlValue($key),
+            'product_id = ' . (int)$product_id . ' AND channel_key = ' . $this->sql_value($key),
             '*',
             0
          );
          $existing = is_array($existing) ? $existing : array();
-         $channelSku = trim((string)($existing['channel_sku'] ?? ''));
-         if ($channelSku === '') {
-            $channelSku = (string)($product['sku'] ?? '');
+         $channel_sku = trim((string)($existing['channel_sku'] ?? ''));
+         if ($channel_sku === '') {
+            $channel_sku = (string)($product['sku'] ?? '');
          }
          $this->db()->save(
             $this->dd('shopProductChannel'),
             array(
-               'product_id' => $productId,
+               'product_id' => $product_id,
                'channel_key' => $key,
                'active' => isset($active[$key]) ? 1 : 0,
-               'channel_sku' => $channelSku,
+               'channel_sku' => $channel_sku,
                'price_gross' => (float)($existing['price_gross'] ?? -1),
                'shipping_gross' => (float)($existing['shipping_gross'] ?? -1),
                'external_listing_id' => (string)($existing['external_listing_id'] ?? ''),
@@ -238,18 +238,18 @@ trait dbxShopRepositoryProductGroupServiceTrait {
                'export_payload' => (string)($existing['export_payload'] ?? ''),
                'last_export_date' => (string)($existing['last_export_date'] ?? ''),
             ),
-            'product_id = ' . (int)$productId . ' AND channel_key = ' . $this->sqlValue($key),
+            'product_id = ' . (int)$product_id . ' AND channel_key = ' . $this->sql_value($key),
             0
          );
       }
 
-      $this->db()->update($this->dd('shopProduct'), array('update_date' => date('Y-m-d H:i:s')), 'id = ' . (int)$productId . ' AND trash = 0', 0);
+      $this->db()->update($this->dd('shopProduct'), array('update_date' => date('Y-m-d H:i:s')), 'id = ' . (int)$product_id . ' AND trash = 0', 0);
    }
 
 
 
-   public function shippingGroupsForProduct(int $productId): array {
-      $maps = $this->db()->select($this->dd('shopProductShippingGroupMap'), 'product_id = ' . (int)$productId, '*', 'is_primary DESC', 'ASC', '', 0, 0, 0);
+   public function shipping_groups_for_product(int $product_id): array {
+      $maps = $this->db()->select($this->dd('shopProductShippingGroupMap'), 'product_id = ' . (int)$product_id, '*', 'is_primary DESC', 'ASC', '', 0, 0, 0);
       if (!is_array($maps) || $maps === array()) {
          return array();
       }
@@ -258,15 +258,15 @@ trait dbxShopRepositoryProductGroupServiceTrait {
          return array();
       }
       $groups = $this->db()->select($this->dd('shopShippingGroup'), 'id IN (' . implode(',', $ids) . ') AND trash = 0', '*', '', 'ASC', '', 0, 0, 0);
-      $byId = array();
+      $by_id = array();
       foreach ((is_array($groups) ? $groups : array()) as $group) {
-         $byId[(int)($group['id'] ?? 0)] = $group;
+         $by_id[(int)($group['id'] ?? 0)] = $group;
       }
       $rows = array();
       foreach ($maps as $map) {
          $id = (int)($map['shipping_group_id'] ?? 0);
-         if (isset($byId[$id])) {
-            $row = $byId[$id];
+         if (isset($by_id[$id])) {
+            $row = $by_id[$id];
             $row['_is_primary'] = (int)($map['is_primary'] ?? 0);
             $rows[] = $row;
          }
@@ -283,8 +283,8 @@ trait dbxShopRepositoryProductGroupServiceTrait {
 
 
 
-   public function channelGroupsForProduct(int $productId): array {
-      $maps = $this->db()->select($this->dd('shopProductChannelGroupMap'), 'product_id = ' . (int)$productId, '*', 'is_primary DESC', 'ASC', '', 0, 0, 0);
+   public function channel_groups_for_product(int $product_id): array {
+      $maps = $this->db()->select($this->dd('shopProductChannelGroupMap'), 'product_id = ' . (int)$product_id, '*', 'is_primary DESC', 'ASC', '', 0, 0, 0);
       if (!is_array($maps) || $maps === array()) {
          return array();
       }
@@ -293,15 +293,15 @@ trait dbxShopRepositoryProductGroupServiceTrait {
          return array();
       }
       $groups = $this->db()->select($this->dd('shopChannelGroup'), 'id IN (' . implode(',', $ids) . ') AND trash = 0', '*', '', 'ASC', '', 0, 0, 0);
-      $byId = array();
+      $by_id = array();
       foreach ((is_array($groups) ? $groups : array()) as $group) {
-         $byId[(int)($group['id'] ?? 0)] = $group;
+         $by_id[(int)($group['id'] ?? 0)] = $group;
       }
       $rows = array();
       foreach ($maps as $map) {
          $id = (int)($map['channel_group_id'] ?? 0);
-         if (isset($byId[$id])) {
-            $row = $byId[$id];
+         if (isset($by_id[$id])) {
+            $row = $by_id[$id];
             $row['_is_primary'] = (int)($map['is_primary'] ?? 0);
             $rows[] = $row;
          }
@@ -326,24 +326,24 @@ trait dbxShopRepositoryProductGroupServiceTrait {
       });
    }
 
-   public function groupsByParent(int $parentId = 0, bool $activeOnly = true): array {
+   public function groups_by_parent(int $parent_id = 0, bool $active_only = true): array {
       $this->install();
-      $where = 'trash = 0 AND parent_id = ' . max(0, (int)$parentId);
-      if ($activeOnly) {
+      $where = 'trash = 0 AND parent_id = ' . max(0, (int)$parent_id);
+      if ($active_only) {
          $where .= ' AND active = 1';
       }
       $rows = $this->db()->select($this->dd('shopProductGroup'), $where, '*', 'sorter ASC, title ASC', 'ASC', '', 0, 0, 0);
       return is_array($rows) ? $rows : array();
    }
 
-   public function groupPath(int $groupId): array {
+   public function group_path(int $group_id): array {
       $this->install();
       $path = array();
       $seen = array();
-      $current = max(0, (int)$groupId);
+      $current = max(0, (int)$group_id);
       while ($current > 0 && !isset($seen[$current])) {
          $seen[$current] = true;
-         $group = $this->groupById($current);
+         $group = $this->group_by_id($current);
          if (!is_array($group)) {
             break;
          }
@@ -353,33 +353,33 @@ trait dbxShopRepositoryProductGroupServiceTrait {
       return $path;
    }
 
-   private function wouldCreateGroupCycle(int $groupId, int $parentId): bool {
-      if ($groupId <= 0 || $parentId <= 0) {
+   private function would_create_group_cycle(int $group_id, int $parent_id): bool {
+      if ($group_id <= 0 || $parent_id <= 0) {
          return false;
       }
-      if ($groupId === $parentId) {
+      if ($group_id === $parent_id) {
          return true;
       }
-      $seen = array($groupId => true);
-      $current = $parentId;
+      $seen = array($group_id => true);
+      $current = $parent_id;
       while ($current > 0 && !isset($seen[$current])) {
          $seen[$current] = true;
-         $group = $this->groupById($current);
+         $group = $this->group_by_id($current);
          if (!is_array($group)) {
             return false;
          }
          $current = (int)($group['parent_id'] ?? 0);
-         if ($current === $groupId) {
+         if ($current === $group_id) {
             return true;
          }
       }
       return false;
    }
 
-   private function nextGroupSorter(int $parentId): int {
+   private function next_group_sorter(int $parent_id): int {
       $rows = $this->db()->select(
          $this->dd('shopProductGroup'),
-         'trash = 0 AND parent_id = ' . max(0, (int)$parentId),
+         'trash = 0 AND parent_id = ' . max(0, (int)$parent_id),
          'sorter',
          'sorter',
          'DESC',
@@ -392,30 +392,30 @@ trait dbxShopRepositoryProductGroupServiceTrait {
       return $max + 10;
    }
 
-   public function moveProductGroupParent(int $groupId, int $parentId): bool {
+   public function move_product_group_parent(int $group_id, int $parent_id): bool {
       $this->install();
-      $groupId = max(0, (int)$groupId);
-      $parentId = max(0, (int)$parentId);
-      if ($groupId <= 0 || !is_array($this->groupById($groupId))) {
+      $group_id = max(0, (int)$group_id);
+      $parent_id = max(0, (int)$parent_id);
+      if ($group_id <= 0 || !is_array($this->group_by_id($group_id))) {
          return false;
       }
-      if ($parentId > 0 && !is_array($this->groupById($parentId))) {
+      if ($parent_id > 0 && !is_array($this->group_by_id($parent_id))) {
          return false;
       }
-      if ($this->wouldCreateGroupCycle($groupId, $parentId)) {
+      if ($this->would_create_group_cycle($group_id, $parent_id)) {
          return false;
       }
       $this->db()->update(
          $this->dd('shopProductGroup'),
          array(
-            'parent_id' => $parentId,
-            'sorter' => $this->nextGroupSorter($parentId),
+            'parent_id' => $parent_id,
+            'sorter' => $this->next_group_sorter($parent_id),
             'update_date' => date('Y-m-d H:i:s'),
          ),
-         'id = ' . $groupId . ' AND trash = 0',
+         'id = ' . $group_id . ' AND trash = 0',
          0
       );
-      $this->clearRequestCache();
+      $this->clear_request_cache();
       return true;
    }
 }

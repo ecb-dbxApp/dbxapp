@@ -9,12 +9,13 @@ declare(strict_types=1);
  */
 
 $module = dirname(__DIR__);
-$dbxRoot = dirname(__DIR__, 3);
+$dbx_root = dirname(__DIR__, 3);
 
-require_once $dbxRoot . '/vendor/autoload.php';
-require_once $dbxRoot . '/include/dbxKernel.php';
-require_once $dbxRoot . '/include/tests/dbxModuleSourceBundle.php';
+require_once $dbx_root . '/vendor/autoload.php';
+require_once $dbx_root . '/include/dbxKernel.php';
+require_once $dbx_root . '/include/tests/dbxModuleSourceBundle.php';
 require_once dirname($module) . '/dbxContact/include/dbxContactTicket.class.php';
+require_once dirname($module) . '/dbxContact/include/dbxContactPresentation.class.php';
 require_once $module . '/include/dbxContactAdmin.class.php';
 
 $failures = array();
@@ -23,77 +24,75 @@ $assert = static function (bool $condition, string $message) use (&$failures): v
 };
 
 // --- normalizeStatus()/normalizePriority(): pure, no DB, defensive fallback ---
-$statusClass = \dbx\dbxContact\dbxContactTicket::class;
+$status_class = \dbx\dbxContact\dbxContactTicket::class;
 foreach (array_keys(\dbx\dbxContact\dbxContactTicket::statuses()) as $status) {
     $assert(
-        $statusClass::normalizeStatus($status) === $status,
+        $status_class::normalize_status($status) === $status,
         "normalizeStatus() veraendert einen gueltigen Status: {$status}"
     );
 }
 foreach (array_keys(\dbx\dbxContact\dbxContactTicket::priorities()) as $priority) {
     $assert(
-        $statusClass::normalizePriority($priority) === $priority,
+        $status_class::normalize_priority($priority) === $priority,
         "normalizePriority() veraendert eine gueltige Prioritaet: {$priority}"
     );
 }
 foreach (array("'; DROP TABLE contact_request; --", '<script>alert(1)</script>', '', 'unknown_status', 'OPEN') as $malicious) {
     $assert(
-        $statusClass::normalizeStatus($malicious) === 'open',
+        $status_class::normalize_status($malicious) === 'open',
         'normalizeStatus() faellt bei ungueltigem Wert nicht auf "open" zurueck: ' . var_export($malicious, true)
     );
     $assert(
-        $statusClass::normalizePriority($malicious) === 'normal',
+        $status_class::normalize_priority($malicious) === 'normal',
         'normalizePriority() faellt bei ungueltigem Wert nicht auf "normal" zurueck: ' . var_export($malicious, true)
     );
 }
 
-// --- statusClass()/priorityClass(): private, pure, reflectable without DB ---
+// --- zentrale Statusdarstellung und lokale Prioritaetsdarstellung ---
 $class = new ReflectionClass(\dbx\dbxContact_admin\dbxContactAdmin::class);
 $admin = $class->newInstanceWithoutConstructor();
 
-$statusClassMethod = $class->getMethod('statusClass');
-$statusClassMethod->setAccessible(true);
 foreach (array_keys(\dbx\dbxContact\dbxContactTicket::statuses()) as $status) {
     $assert(
-        is_string($statusClassMethod->invoke($admin, $status)) && $statusClassMethod->invoke($admin, $status) !== '',
-        "statusClass() liefert keine CSS-Klasse fuer Status: {$status}"
+        \dbx\dbxContact\dbxContactPresentation::status_class($status) !== '',
+        "status_class() liefert keine CSS-Klasse fuer Status: {$status}"
     );
 }
 $assert(
-    $statusClassMethod->invoke($admin, 'not_a_real_status') === 'text-bg-light',
-    'statusClass() faellt bei unbekanntem Status nicht auf das neutrale Badge zurueck.'
+    \dbx\dbxContact\dbxContactPresentation::status_class('not_a_real_status') === 'text-bg-light',
+    'status_class() faellt bei unbekanntem Status nicht auf das neutrale Badge zurueck.'
 );
 
-$priorityClassMethod = $class->getMethod('priorityClass');
-$priorityClassMethod->setAccessible(true);
+$priority_class_method = $class->getMethod('priority_class');
+$priority_class_method->setAccessible(true);
 foreach (array_keys(\dbx\dbxContact\dbxContactTicket::priorities()) as $priority) {
     $assert(
-        is_string($priorityClassMethod->invoke($admin, $priority)) && $priorityClassMethod->invoke($admin, $priority) !== '',
+        is_string($priority_class_method->invoke($admin, $priority)) && $priority_class_method->invoke($admin, $priority) !== '',
         "priorityClass() liefert keine CSS-Klasse fuer Prioritaet: {$priority}"
     );
 }
 $assert(
-    $priorityClassMethod->invoke($admin, 'not_a_real_priority') === 'text-bg-light',
+    $priority_class_method->invoke($admin, 'not_a_real_priority') === 'text-bg-light',
     'priorityClass() faellt bei unbekannter Prioritaet nicht auf das neutrale Badge zurueck.'
 );
 
 // --- deleteConfirmText(): pure formatting, reflectable with a minimal FD-message stub ---
-$deleteConfirmText = $class->getMethod('deleteConfirmText');
-$deleteConfirmText->setAccessible(true);
-$fdStub = new class {
+$delete_confirm_text = $class->getMethod('delete_confirm_text');
+$delete_confirm_text->setAccessible(true);
+$fd_stub = new class {
     public function get_fd_message(string $key, string $fallback = ''): string { return $key; }
     public function format_fd_message(string $key, array $vars = array()): string {
         return $key . ':' . implode(',', array_map('strval', $vars));
     }
 };
-$emptyThread = $deleteConfirmText->invoke($admin, 5, 0, $fdStub);
+$empty_thread = $delete_confirm_text->invoke($admin, 5, 0, $fd_stub);
 $assert(
-    is_array($emptyThread) && str_contains((string)$emptyThread['hint'], 'delete_hint_empty'),
+    is_array($empty_thread) && str_contains((string)$empty_thread['hint'], 'delete_hint_empty'),
     'deleteConfirmText() nutzt bei leerem Verlauf nicht den "leer"-Hinweis.'
 );
-$withThread = $deleteConfirmText->invoke($admin, 5, 3, $fdStub);
+$with_thread = $delete_confirm_text->invoke($admin, 5, 3, $fd_stub);
 $assert(
-    is_array($withThread) && str_contains((string)$withThread['hint'], 'delete_hint_thread'),
+    is_array($with_thread) && str_contains((string)$with_thread['hint'], 'delete_hint_thread'),
     'deleteConfirmText() nutzt bei vorhandenem Verlauf nicht den Thread-Hinweis.'
 );
 
@@ -103,7 +102,7 @@ $source = dbx_test_module_source_bundle($module . '/include/dbxContactAdmin.clas
 $assert(
     str_contains(
         $source,
-        "\$sendMail = (int) \$form->get_post('send_mail', 0, 'int') === 1 && \$visibility === 'public' && dbxContactConfig::mailOnReply();"
+        "\$send_mail = (int) \$form->get_post('send_mail', 0, 'int') === 1 && \$visibility === 'public' && dbxContactConfig::mail_on_reply();"
     ),
     'Interne Notizen (visibility=internal) koennten eine Kunden-Mail versenden - Mail-Gating fehlt oder wurde geaendert.'
 );
@@ -112,20 +111,20 @@ $assert(
     'Antwort-Mails werden ohne Pruefung der Absenderadresse verschickt.'
 );
 
-$deleteStart = strpos($source, 'private function deleteTicketRecord(int $rid): bool {');
-$assert($deleteStart !== false, 'deleteTicketRecord() wurde nicht gefunden.');
-$deleteEnd = $deleteStart !== false ? strpos($source, "\n   }", $deleteStart) : false;
-$deleteBody = $deleteStart !== false && $deleteEnd !== false ? substr($source, $deleteStart, $deleteEnd - $deleteStart) : '';
+$delete_start = strpos($source, 'private function delete_ticket_record(int $rid): bool {');
+$assert($delete_start !== false, 'deleteTicketRecord() wurde nicht gefunden.');
+$delete_end = $delete_start !== false ? strpos($source, "\n   }", $delete_start) : false;
+$delete_body = $delete_start !== false && $delete_end !== false ? substr($source, $delete_start, $delete_end - $delete_start) : '';
 $assert(
-    str_contains($deleteBody, '$db->begin(')
-        && str_contains($deleteBody, '$db->commit(')
-        && str_contains($deleteBody, '$db->rollback('),
+    str_contains($delete_body, '$db->begin(')
+        && str_contains($delete_body, '$db->commit(')
+        && str_contains($delete_body, '$db->rollback('),
     'Das Loeschen eines Tickets laeuft nicht mehr in einer Transaktion mit Rollback.'
 );
-$messagesPos = strpos($deleteBody, 'DD_MESSAGE');
-$ticketDeletePos = strpos($deleteBody, "delete(dbxContactTicket::DD_TICKET, \$rid");
+$messages_pos = strpos($delete_body, 'DD_MESSAGE');
+$ticket_delete_pos = strpos($delete_body, "delete(dbxContactTicket::DD_TICKET, \$rid");
 $assert(
-    $messagesPos !== false && $ticketDeletePos !== false && $messagesPos < $ticketDeletePos,
+    $messages_pos !== false && $ticket_delete_pos !== false && $messages_pos < $ticket_delete_pos,
     'Nachrichten werden nicht mehr vor dem Ticket selbst geloescht/geprueft.'
 );
 
@@ -145,7 +144,7 @@ $assert(
 );
 
 $assert(
-    str_contains($source, 'if (!$this->schemaReady())'),
+    str_contains($source, 'if (!$this->schema_ready())'),
     'run() prueft nicht mehr, ob das Ticket-Datenmodell installiert ist, bevor Aktionen laufen.'
 );
 

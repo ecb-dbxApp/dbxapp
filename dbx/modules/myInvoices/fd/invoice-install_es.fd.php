@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['admin_required'] = 'Se requiere permiso de administrador.';
 $messages['bar_title'] = 'Instalar demostración de facturas';
 $messages['install_info'] = 'La instalación se puede repetir y solo añade las facturas de demostración que falten.';

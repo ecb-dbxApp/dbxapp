@@ -15,6 +15,12 @@ return array(
     ),
     'rules' => array(
         array(
+            'pattern' => '~dbxDocumentationQuality_test\.php$~',
+            'tier' => 'full', 'timeout' => 300, 'isolation' => 'process',
+            'resources' => array('filesystem', 'database', 'network'),
+            'description' => 'Prüft die externe Dokumentation vollständig auf Links, Metadaten, H1, Version, Sprach-URLs, Legacy-Regeln und Doxygen-Konsistenz.',
+        ),
+        array(
             'pattern' => '~dbxOpenWinLazyRestorePerformance_contract_test\.php$~',
             'tier' => 'quick', 'timeout' => 30, 'isolation' => 'process',
             'resources' => array('filesystem'),
@@ -33,16 +39,10 @@ return array(
             'description' => 'Prüft, dass das Anzeigen des Content-Trees, die Sprachabdeckung und die Startseitenauflösung keine Datensätze verändern.',
         ),
         array(
-            'pattern' => '~dbxNoInstallationMigration_test\.php$~',
-            'tier' => 'quick', 'timeout' => 30, 'isolation' => 'process',
-            'resources' => array('filesystem'),
-            'description' => 'Prüft dbxApp 4.3.0 mit 4.2.0 als erster Update-Basis und verbietet Installations-, Sitzungs- und Einmalwerkzeuge für nicht vorhandene Vorversionen.',
-        ),
-        array(
-            'pattern' => '~dbxUpdateService_test\.php$~',
+            'pattern' => '~dbxPackage(?:Contract|Manager|Architecture)_.*test\.php$~',
             'tier' => 'full', 'timeout' => 180, 'isolation' => 'process',
             'resources' => array('filesystem'),
-            'description' => 'Prüft Updatepaket-Erkennung, Versionsvergleich, Integrität und die kontrollierte Anwendung eines lokalen Updates.',
+            'description' => 'Prüft Paketgrenzen, Marktplatzvertrag, transaktionale Installation, Rollback und die bewusst legacyfreie 4.3-Architektur.',
         ),
         array(
             'pattern' => '~dbxUiRegressionMatrix_browser_test\.js$~',

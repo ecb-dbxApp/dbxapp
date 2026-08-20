@@ -9,9 +9,9 @@
  */
 
 $root = dirname(__DIR__, 4);
-$dbxRoot = $root . DIRECTORY_SEPARATOR . 'dbx';
+$dbx_root = $root . DIRECTORY_SEPARATOR . 'dbx';
 $allowed = array(
-    realpath($dbxRoot . '/include/dbxDB.class.php'),
+    realpath($dbx_root . '/include/dbxDB.class.php'),
 );
 $violations = array();
 $patterns = array(
@@ -21,7 +21,7 @@ $patterns = array(
 );
 
 $iterator = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($dbxRoot, FilesystemIterator::SKIP_DOTS)
+    new RecursiveDirectoryIterator($dbx_root, FilesystemIterator::SKIP_DOTS)
 );
 
 foreach ($iterator as $file) {
@@ -34,6 +34,9 @@ foreach ($iterator as $file) {
         continue;
     }
     $normalized = str_replace('\\', '/', $path);
+    if (preg_match('~/include/dbxDB[A-Za-z0-9_]*\.trait\.php$~', $normalized)) {
+        continue;
+    }
     if (str_contains($normalized, '/vendor/') || str_contains($normalized, '/tests/')) {
         continue;
     }

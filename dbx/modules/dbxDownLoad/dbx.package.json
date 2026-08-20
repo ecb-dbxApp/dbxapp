@@ -1,0 +1,36 @@
+{
+    "schema": 1,
+    "id": "dbxapp/module/dbxDownLoad",
+    "type": "module",
+    "name": "dbxDownLoad",
+    "title": "dbxDownLoad",
+    "description": "Kontrollierte und abgesicherte Bereitstellung von Dateien zum Download.",
+    "descriptions": {
+        "de": "Kontrollierte und abgesicherte Bereitstellung von Dateien zum Download.",
+        "en": "Controlled and secured delivery of downloadable files.",
+        "es": "Entrega controlada y segura de archivos descargables."
+    },
+    "icon": "bi-cloud-arrow-down",
+    "image": "",
+    "package_excludes": [],
+    "version": "4.4.0",
+    "vendor": {
+        "id": "dbxapp",
+        "name": "dbxApp"
+    },
+    "license": "free",
+    "managed": true,
+    "requires": {
+        "kernel": ">=4.4.0 <5.0.0",
+        "php": ">=8.2.0",
+        "extensions": [
+            "json"
+        ],
+        "packages": []
+    },
+    "permissions": [
+        "filesystem"
+    ],
+    "migrations": [],
+    "files": []
+}

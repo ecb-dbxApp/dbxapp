@@ -1,7 +1,7 @@
 <?php
 namespace dbx\dbxSelfTest;
 
-/** Administrativer Einstieg fuer vollstaendige und einzelne Systemtests. */
+/** @brief Administrativer Einstieg für vollständige und einzelne Systemtests. */
 class dbxSelfTest
 {
     public function run()

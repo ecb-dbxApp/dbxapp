@@ -1,6 +1,8 @@
 <?php
 namespace dbx\dbxKi;
 
+require_once __DIR__ . '/dbxKiSessionState.class.php';
+
 /**
  * Verbindlicher Auftrag-/Antwortvertrag fuer alle dbxKi-Pipelines.
  *
@@ -16,7 +18,7 @@ class dbxKiContractService {
       string $area,
       string $recipe,
       array $metadata,
-      array $jobTemplate,
+      array $job_template,
       array $outputs,
       array $assets = array(),
       array $snapshot = array()
@@ -28,9 +30,9 @@ class dbxKiContractService {
          'area' => strtolower(trim($area)),
          'recipe' => strtolower(trim($recipe)),
          'metadata' => $metadata,
-         'job_template' => $jobTemplate,
-         'outputs' => $this->normalizeOutputDefinitions($outputs),
-         'assets' => $this->normalizeAssetDefinitions($assets),
+         'job_template' => $job_template,
+         'outputs' => $this->normalize_output_definitions($outputs),
+         'assets' => $this->normalize_asset_definitions($assets),
          'snapshot' => $snapshot,
       );
       $contract['contract_hash'] = $this->hash($contract);
@@ -50,32 +52,32 @@ class dbxKiContractService {
       if (!preg_match('/^[a-f0-9]{32}$/', (string)$contract['contract_id'])) {
          throw new \InvalidArgumentException('Ungueltige Auftrags-ID.');
       }
-      $expectedHash = $this->hash($contract);
-      if (!hash_equals($expectedHash, (string)$contract['contract_hash'])) {
+      $expected_hash = $this->hash($contract);
+      if (!hash_equals($expected_hash, (string)$contract['contract_hash'])) {
          throw new \InvalidArgumentException('Der Auftragsinhalt wurde veraendert.');
       }
-      $expectedSignature = $this->signature($contract);
-      if (!hash_equals($expectedSignature, (string)$contract['signature'])) {
+      $expected_signature = $this->signature($contract);
+      if (!hash_equals($expected_signature, (string)$contract['signature'])) {
          throw new \InvalidArgumentException('Die Auftragssignatur ist ungueltig.');
       }
       return $contract;
    }
 
-   public function bind(array $contract, array $answer, string $assetsDir = ''): array {
+   public function bind(array $contract, array $answer, string $assets_dir = ''): array {
       $contract = $this->verify($contract);
-      $this->assertNotConsumed($contract);
+      $this->assert_not_consumed($contract);
       if (!hash_equals((string)$contract['contract_id'], trim((string)($answer['contract_id'] ?? '')))) {
          throw new \InvalidArgumentException('answer.json gehoert nicht zu diesem Auftrag.');
       }
       if (!hash_equals((string)$contract['contract_hash'], trim((string)($answer['contract_hash'] ?? '')))) {
          throw new \InvalidArgumentException('answer.json verwendet einen anderen Vertragsstand.');
       }
-      $unknownTopLevel = array_diff(array_keys($answer), array('contract_id', 'contract_hash', 'outputs'));
-      if ($unknownTopLevel) {
-         throw new \InvalidArgumentException('Nicht erlaubte Felder in answer.json: ' . implode(', ', $unknownTopLevel));
+      $unknown_top_level = array_diff(array_keys($answer), array('contract_id', 'contract_hash', 'outputs'));
+      if ($unknown_top_level) {
+         throw new \InvalidArgumentException('Nicht erlaubte Felder in answer.json: ' . implode(', ', $unknown_top_level));
       }
 
-      $definitions = $this->normalizeOutputDefinitions((array)$contract['outputs']);
+      $definitions = $this->normalize_output_definitions((array)$contract['outputs']);
       $values = is_array($answer['outputs'] ?? null) ? $answer['outputs'] : array();
       $unknown = array_diff(array_keys($values), array_keys($definitions));
       if ($unknown) {
@@ -89,15 +91,15 @@ class dbxKiContractService {
          if (!array_key_exists($name, $values)) {
             continue;
          }
-         $values[$name] = $this->validateOutputValue($name, $values[$name], $definition);
+         $values[$name] = $this->validate_output_value($name, $values[$name], $definition);
       }
 
-      $this->validateAssets((array)$contract['assets'], $assetsDir);
-      $job = $this->bindValue($contract['job_template'], $values);
-      if ($this->containsOutputMarker($job)) {
+      $this->validate_assets((array)$contract['assets'], $assets_dir);
+      $job = $this->bind_value($contract['job_template'], $values);
+      if ($this->contains_output_marker($job)) {
          throw new \InvalidArgumentException('Der Auftrag enthaelt nicht aufgeloeste Antwortfelder.');
       }
-      if ($this->containsForbiddenPlaceholder($job)) {
+      if ($this->contains_forbidden_placeholder($job)) {
          throw new \InvalidArgumentException('Die Antwort enthaelt noch einen KI-Platzhalter.');
       }
 
@@ -109,26 +111,19 @@ class dbxKiContractService {
       );
    }
 
-   public function assertNotConsumed(array $contract): void {
+   public function assert_not_consumed(array $contract): void {
       $id = (string)($contract['contract_id'] ?? '');
-      if ($id !== '' && !empty($_SESSION['dbx']['dbxKi']['consumed_contracts'][$id])) {
+      if ($id !== '' && dbxKiSessionState::has('consumed_contracts', $id)) {
          throw new \RuntimeException('Dieser KI-Auftrag wurde bereits erfolgreich ausgefuehrt.');
       }
    }
 
    public function consume(array $contract): void {
       $contract = $this->verify($contract);
-      if (!isset($_SESSION['dbx']['dbxKi']['consumed_contracts']) || !is_array($_SESSION['dbx']['dbxKi']['consumed_contracts'])) {
-         $_SESSION['dbx']['dbxKi']['consumed_contracts'] = array();
-      }
-      $_SESSION['dbx']['dbxKi']['consumed_contracts'][(string)$contract['contract_id']] = time();
-      if (count($_SESSION['dbx']['dbxKi']['consumed_contracts']) > 500) {
-         asort($_SESSION['dbx']['dbxKi']['consumed_contracts'], SORT_NUMERIC);
-         $_SESSION['dbx']['dbxKi']['consumed_contracts'] = array_slice($_SESSION['dbx']['dbxKi']['consumed_contracts'], -500, null, true);
-      }
+      dbxKiSessionState::remember_consumed((string)$contract['contract_id'], time());
    }
 
-   public function answerTemplate(array $contract): array {
+   public function answer_template(array $contract): array {
       $contract = $this->verify($contract);
       $outputs = array();
       foreach ((array)$contract['outputs'] as $name => $definition) {
@@ -143,12 +138,12 @@ class dbxKiContractService {
    }
 
    public function fingerprint(array $value): string {
-      return hash('sha256', $this->canonicalJson($value));
+      return hash('sha256', $this->canonical_json($value));
    }
 
    public function hash(array $contract): string {
       unset($contract['signature'], $contract['contract_hash']);
-      return hash('sha256', $this->canonicalJson($contract));
+      return hash('sha256', $this->canonical_json($contract));
    }
 
    private function signature(array $contract): string {
@@ -165,7 +160,7 @@ class dbxKiContractService {
       return $secret;
    }
 
-   private function canonicalJson($value): string {
+   private function canonical_json($value): string {
       $value = $this->canonicalize($value);
       $json = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
       if (!is_string($json)) {
@@ -187,7 +182,7 @@ class dbxKiContractService {
       return $value;
    }
 
-   private function normalizeOutputDefinitions(array $outputs): array {
+   private function normalize_output_definitions(array $outputs): array {
       $normalized = array();
       foreach ($outputs as $name => $definition) {
          $name = trim((string)$name);
@@ -208,7 +203,7 @@ class dbxKiContractService {
       return $normalized;
    }
 
-   private function normalizeAssetDefinitions(array $assets): array {
+   private function normalize_asset_definitions(array $assets): array {
       $normalized = array();
       foreach ($assets as $name => $definition) {
          $name = ltrim(str_replace('\\', '/', trim((string)$name)), '/');
@@ -221,7 +216,7 @@ class dbxKiContractService {
       return $normalized;
    }
 
-   private function validateOutputValue(string $name, $value, array $definition) {
+   private function validate_output_value(string $name, $value, array $definition) {
       $type = (string)($definition['type'] ?? 'string');
       if ($type === 'integer') {
          if (filter_var($value, FILTER_VALIDATE_INT) === false) {
@@ -248,7 +243,7 @@ class dbxKiContractService {
       if (($definition['allow_empty'] ?? false) !== true && trim($value) === '') {
          throw new \InvalidArgumentException($name . ' darf nicht leer sein.');
       }
-      if ($this->containsForbiddenPlaceholder($value)) {
+      if ($this->contains_forbidden_placeholder($value)) {
          throw new \InvalidArgumentException($name . ' enthaelt noch einen KI-Platzhalter.');
       }
       $max = max(0, (int)($definition['max_length'] ?? 0));
@@ -264,11 +259,11 @@ class dbxKiContractService {
       return $value;
    }
 
-   private function bindValue($value, array $outputs) {
+   private function bind_value($value, array $outputs) {
       if (is_array($value)) {
          $out = array();
          foreach ($value as $key => $item) {
-            $out[$key] = $this->bindValue($item, $outputs);
+            $out[$key] = $this->bind_value($item, $outputs);
          }
          return $out;
       }
@@ -288,36 +283,36 @@ class dbxKiContractService {
       return $value;
    }
 
-   private function containsOutputMarker($value): bool {
+   private function contains_output_marker($value): bool {
       if (is_array($value)) {
          foreach ($value as $item) {
-            if ($this->containsOutputMarker($item)) return true;
+            if ($this->contains_output_marker($item)) return true;
          }
          return false;
       }
       return is_string($value) && str_contains($value, self::OUTPUT_PREFIX);
    }
 
-   private function containsForbiddenPlaceholder($value): bool {
+   private function contains_forbidden_placeholder($value): bool {
       if (is_array($value)) {
          foreach ($value as $item) {
-            if ($this->containsForbiddenPlaceholder($item)) return true;
+            if ($this->contains_forbidden_placeholder($item)) return true;
          }
          return false;
       }
       return is_string($value) && (str_contains($value, '___KI_FUELLEN___') || str_contains($value, '___PFAD___'));
    }
 
-   private function validateAssets(array $definitions, string $assetsDir): void {
-      $definitions = $this->normalizeAssetDefinitions($definitions);
+   private function validate_assets(array $definitions, string $assets_dir): void {
+      $definitions = $this->normalize_asset_definitions($definitions);
       $found = array();
-      if ($assetsDir !== '' && is_dir($assetsDir)) {
+      if ($assets_dir !== '' && is_dir($assets_dir)) {
          $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($assetsDir, \FilesystemIterator::SKIP_DOTS)
+            new \RecursiveDirectoryIterator($assets_dir, \FilesystemIterator::SKIP_DOTS)
          );
          foreach ($iterator as $file) {
             if (!$file->isFile()) continue;
-            $relative = str_replace('\\', '/', substr($file->getPathname(), strlen(rtrim($assetsDir, '/\\')) + 1));
+            $relative = str_replace('\\', '/', substr($file->getPathname(), strlen(rtrim($assets_dir, '/\\')) + 1));
             $found[$relative] = $file->getPathname();
          }
       }
@@ -338,18 +333,18 @@ class dbxKiContractService {
          if ($extensions && !in_array(strtolower(pathinfo($name, PATHINFO_EXTENSION)), $extensions, true)) {
             throw new \InvalidArgumentException('Asset-Dateityp nicht erlaubt: ' . $name);
          }
-         $expectedWidth = max(0, (int)($definition['width'] ?? 0));
-         $expectedHeight = max(0, (int)($definition['height'] ?? 0));
-         if ($expectedWidth > 0 || $expectedHeight > 0) {
+         $expected_width = max(0, (int)($definition['width'] ?? 0));
+         $expected_height = max(0, (int)($definition['height'] ?? 0));
+         if ($expected_width > 0 || $expected_height > 0) {
             $image = @getimagesize($found[$name]);
             if (!is_array($image)) {
                throw new \InvalidArgumentException('Asset ist kein lesbares Bild: ' . $name);
             }
-            if ($expectedWidth > 0 && (int)$image[0] !== $expectedWidth) {
-               throw new \InvalidArgumentException('Asset-Breite muss ' . $expectedWidth . ' px sein: ' . $name);
+            if ($expected_width > 0 && (int)$image[0] !== $expected_width) {
+               throw new \InvalidArgumentException('Asset-Breite muss ' . $expected_width . ' px sein: ' . $name);
             }
-            if ($expectedHeight > 0 && (int)$image[1] !== $expectedHeight) {
-               throw new \InvalidArgumentException('Asset-Hoehe muss ' . $expectedHeight . ' px sein: ' . $name);
+            if ($expected_height > 0 && (int)$image[1] !== $expected_height) {
+               throw new \InvalidArgumentException('Asset-Hoehe muss ' . $expected_height . ' px sein: ' . $name);
             }
          }
       }

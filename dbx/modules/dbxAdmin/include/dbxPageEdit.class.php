@@ -24,7 +24,7 @@ Class dbxPageEdit {
    public function run($rid=0) {
       $content=''; $ok=false;
 
-      $oTPL  =dbx()->get_system_obj('dbxTPL');
+      $o_tpl  =dbx()->get_system_obj('dbxTPL');
 
       $uid   =dbx()->user();
       $design=dbx()->get_modul_var('design');
@@ -38,9 +38,9 @@ Class dbxPageEdit {
 
       //dbx_debug("Uid=($uid)  Design=($design) File=($file) Design=($design) Lng=($lng)");
 
-      //$tpl=$oTPL->read_tpl($file,$type,$modul,$design,$lng,0,0,0,0);
-      $path_file=$oTPL->get_design_tpl_dir_file('htm',$design,$file);
-      $tpl=$oTPL->get_design_tpl($design,$file,$lng,'htm',0);
+      //$tpl=$o_tpl->read_tpl($file,$type,$modul,$design,$lng,0,0,0,0);
+      $path_file=$o_tpl->get_design_tpl_dir_file('htm',$design,$file);
+      $tpl=$o_tpl->get_design_tpl($design,$file,$lng,'htm',0);
 
 
       $data['tpl']    = $tpl;
@@ -49,42 +49,42 @@ Class dbxPageEdit {
       $data['lng']    = $lng;
       $data['type']   = $type;
 
-      $oForm=dbx()->get_system_obj('dbxForm');
-      $oForm->init('form-page-edit');
+      $o_form=dbx()->get_system_obj('dbxForm');
+      $o_form->init('form-page-edit', 'form-page-edit');
 
-      $oForm->_data      = $data;
-      $oForm->_action    ='?dbx_modul=dbxAdmin&dbx_run1=_editpage';   // &modul='.$modul.'&file='.$file.'&design='.$design.'&lng='.$lng;
-      $oForm->_msg_info  = 'TPL: '.$path_file;
+      $o_form->set_data($data);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=_editpage');
+      $o_form->_msg_info  = 'TPL: '.$path_file;
       //$oForm->_editor_fld='tpl';
 
-      $oForm->add_fld('design','text-label'   ,rules: 'parameter' ,label: 'TPL-Design');     //#+
-      $oForm->add_fld('lng'   ,'text-label'   ,rules: 'parameter' ,label: 'TPL-Language');   // |
-      $oForm->add_fld('file'  ,'text-label'   ,rules: 'parameter' ,label: 'TPL-File');
-      $oForm->add_fld('tpl'   ,'textarea-tpl' ,rules: '*'         ,label: 'TPL-Content',data: 'rows=24');
-      $oForm->add_obj('button_save','button-submit','label=Speichern');             //#+
-      $oForm->add_js_call('tpl','editor-ace'); 
+      $o_form->add_fld('design','text-label'   ,rules: 'parameter' ,label: 'TPL-Design');     //#+
+      $o_form->add_fld('lng'   ,'text-label'   ,rules: 'parameter' ,label: 'TPL-Language');   // |
+      $o_form->add_fld('file'  ,'text-label'   ,rules: 'parameter' ,label: 'TPL-File');
+      $o_form->add_fld('tpl'   ,'textarea-tpl' ,rules: '*'         ,label: 'TPL-Content',data: 'rows=24');
+      $o_form->add_obj('button_save','button-submit','label=Speichern');             //#+
+      $o_form->add_js_call('tpl','editor-ace'); 
 
-      if($oForm->submit()) {
-        $oForm->_msg_success = "No change: ($file)"; 
-        if($oForm->changed()) {      // submit && no errors // we ignore warnings
-           $tpl   =$oForm->get_post('tpl','','*');
-           $file  =$oForm->get_post('file');
-           $design=$oForm->get_post('design');
-           $lng   =$oForm->get_post('lng');
-           if (!$oForm->errors()) {
+      if($o_form->submit()) {
+        $o_form->_msg_success = "No change: ($file)"; 
+        if($o_form->changed()) {      // submit && no errors // we ignore warnings
+           $tpl   =$o_form->get_post('tpl','','*');
+           $file  =$o_form->get_post('file');
+           $design=$o_form->get_post('design');
+           $lng   =$o_form->get_post('lng');
+           if (!$o_form->errors()) {
              $path_file=$this->save_tpl($type,$design,$file,$lng,$tpl);
-             if (!$path_file) $oForm->_msg_error = "Error: ($path_file)";
+             if (!$path_file) $o_form->_msg_error = "Error: ($path_file)";
              if ( $path_file) {
-               $oForm->_msg_success = "Save: ($path_file)";
+               $o_form->_msg_success = "Save: ($path_file)";
              }
            } else {
-             $oForm->_msg_success   = '#no_change#';
+             $o_form->_msg_success   = '#no_change#';
            }
         } else {
-           $oForm->_msg_error = '#check_input#';
+           $o_form->_msg_error = '#check_input#';
         }
       }
-      $content= $oForm->run();
+      $content= $o_form->run();
       dbx()->set_system_var('dbx_editor',0);
       //$content=dbx()->norep($content);
       return $content;

@@ -45,28 +45,28 @@ class dbxTrace {
       return isset($this->_trace_sys_fields[$key]);
    }
 
-   private function get_visible_values($data, $hideEmpty = true) {
+   private function get_visible_values($data, $hide_empty = true) {
       $values = array();
-      $hiddenSys = 0;
+      $hidden_sys = 0;
 
       if (!is_array($data)) {
-         return array($values, $hiddenSys);
+         return array($values, $hidden_sys);
       }
 
       foreach ($data as $key => $value) {
          if ($this->is_trace_sys_field($key)) {
-            $hiddenSys++;
+            $hidden_sys++;
             continue;
          }
 
-         if ($hideEmpty && $this->is_empty_value($value)) {
+         if ($hide_empty && $this->is_empty_value($value)) {
             continue;
          }
 
          $values[$key] = $value;
       }
 
-      return array($values, $hiddenSys);
+      return array($values, $hidden_sys);
    }
 
    private function make_trace_summary($json, $action) {
@@ -76,13 +76,13 @@ class dbxTrace {
          return array('summary' => 'Rohdaten', 'fields' => '', 'detail' => (string) $json);
       }
 
-      $traceAction = $data['action'] ?? $action;
+      $trace_action = $data['action'] ?? $action;
       $before      = $data['before'] ?? null;
       $delta       = $data['delta'] ?? null;
       $detail      = array();
 
-      if ($traceAction == 'delete') {
-         list($values, $hiddenSys) = $this->get_visible_values($before);
+      if ($trace_action == 'delete') {
+         list($values, $hidden_sys) = $this->get_visible_values($before);
          $count = count($values);
 
          foreach ($values as $key => $value) {
@@ -90,14 +90,14 @@ class dbxTrace {
          }
 
          return array(
-            'summary' => $count ? $count . ' Werte geloescht' : ($hiddenSys ? 'nur Systemfelder' : 'keine Werte'),
+            'summary' => $count ? $count . ' Werte geloescht' : ($hidden_sys ? 'nur Systemfelder' : 'keine Werte'),
             'fields'  => implode(', ', array_slice(array_keys($values), 0, 4)),
             'detail'  => implode("\n", $detail),
          );
       }
 
-      if ($traceAction == 'insert') {
-         list($values, $hiddenSys) = $this->get_visible_values($delta);
+      if ($trace_action == 'insert') {
+         list($values, $hidden_sys) = $this->get_visible_values($delta);
          $count = count($values);
 
          foreach ($values as $key => $value) {
@@ -105,7 +105,7 @@ class dbxTrace {
          }
 
          return array(
-            'summary' => $count ? $count . ' Werte gesetzt' : ($hiddenSys ? 'nur Systemfelder' : 'keine Werte'),
+            'summary' => $count ? $count . ' Werte gesetzt' : ($hidden_sys ? 'nur Systemfelder' : 'keine Werte'),
             'fields'  => implode(', ', array_slice(array_keys($values), 0, 4)),
             'detail'  => implode("\n", $detail),
          );
@@ -120,23 +120,23 @@ class dbxTrace {
       }
 
       $fields = array();
-      $hiddenSys = 0;
+      $hidden_sys = 0;
 
-      foreach ($delta as $key => $newValue) {
+      foreach ($delta as $key => $new_value) {
          if ($this->is_trace_sys_field($key)) {
-            $hiddenSys++;
+            $hidden_sys++;
             continue;
          }
 
          $fields[] = $key;
-         $oldValue = array_key_exists($key, $before) ? $before[$key] : null;
-         $detail[] = $key . ': ' . $this->value_to_text($oldValue) . ' -> ' . $this->value_to_text($newValue);
+         $old_value = array_key_exists($key, $before) ? $before[$key] : null;
+         $detail[] = $key . ': ' . $this->value_to_text($old_value) . ' -> ' . $this->value_to_text($new_value);
       }
 
       $count = count($fields);
 
       return array(
-         'summary' => $count ? $count . ' Felder geaendert' : ($hiddenSys ? 'nur Systemfelder' : 'keine Aenderung'),
+         'summary' => $count ? $count . ' Felder geaendert' : ($hidden_sys ? 'nur Systemfelder' : 'keine Aenderung'),
          'fields'  => implode(', ', array_slice($fields, 0, 4)),
          'detail'  => implode("\n", $detail),
       );
@@ -185,7 +185,7 @@ class dbxTrace {
       return $html;
    }
 
-   public function report_trace_row_action_data($oObj, $data) {
+   public function report_trace_row_action_data($o_obj, $data) {
       if (!is_array($data) || ($data['type'] ?? '') != 'show') {
          return $data;
       }
@@ -206,8 +206,8 @@ class dbxTrace {
       return $data;
    }
 
-   public function report_trace_body($oObj, $content) {
-      $record = $oObj->get_record();
+   public function report_trace_body($o_obj, $content) {
+      $record = $o_obj->get_record();
       $action = $record['action'] ?? '';
 
       if (isset($record['action'])) {
@@ -224,8 +224,8 @@ class dbxTrace {
          $record['data_json'] = $this->render_trace_json($record['data_json'], $action);
       }
 
-      $oObj->_class_body['data_json'] = 'dbx-trace-data';
-      $oObj->set_record($record);
+      $o_obj->_class_body['data_json'] = 'dbx-trace-data';
+      $o_obj->set_record($record);
 
       return $content;
    }
@@ -253,13 +253,13 @@ class dbxTrace {
       $html = '<div class="dbx-trace-history-detail">';
 
       if ($action == 'update') {
-         foreach ($delta as $key => $newValue) {
-            $oldValue = array_key_exists($key, $before) ? $before[$key] : '';
+         foreach ($delta as $key => $new_value) {
+            $old_value = array_key_exists($key, $before) ? $before[$key] : '';
             $html .= '<div class="dbx-trace-history-row">';
             $html .= '<strong>' . dbx()->esc($key) . '</strong>';
-            $html .= '<span class="dbx-trace-old">' . dbx()->esc($this->value_to_text($oldValue)) . '</span>';
+            $html .= '<span class="dbx-trace-old">' . dbx()->esc($this->value_to_text($old_value)) . '</span>';
             $html .= '<span class="dbx-trace-arrow">&rarr;</span>';
-            $html .= '<span class="dbx-trace-new">' . dbx()->esc($this->value_to_text($newValue)) . '</span>';
+            $html .= '<span class="dbx-trace-new">' . dbx()->esc($this->value_to_text($new_value)) . '</span>';
             $html .= '</div>';
          }
       } else {
@@ -339,18 +339,18 @@ class dbxTrace {
 
       $html  = '<div class="container-fluid dbxReport dbx-trace-detail">';
       $html .= '<h3>' . dbx()->esc($row['dd'] ?? '') . ' #' . dbx()->esc($row['record_id'] ?? '') . ' - ' . dbx()->esc($action) . '</h3>';
-      $runPath = $modul;
-      if ($run1) $runPath .= '/' . $run1;
-      if ($run2) $runPath .= '/' . $run2;
-      if ($run3) $runPath .= '/' . $run3;
+      $run_path = $modul;
+      if ($run1) $run_path .= '/' . $run1;
+      if ($run2) $run_path .= '/' . $run2;
+      if ($run3) $run_path .= '/' . $run3;
 
       $html .= '<div class="mb-2 text-muted">' . dbx()->esc($row['create_date'] ?? '');
 
-      if ($source || $runPath) {
+      if ($source || $run_path) {
          $html .= ' | ';
          if ($source) $html .= 'source: ' . dbx()->esc($source);
-         if ($source && $runPath) $html .= ' | ';
-         if ($runPath) $html .= 'run: ' . dbx()->esc($runPath);
+         if ($source && $run_path) $html .= ' | ';
+         if ($run_path) $html .= 'run: ' . dbx()->esc($run_path);
       }
 
       $html .= '</div>';
@@ -358,17 +358,17 @@ class dbxTrace {
       $html .= '<thead><tr><th>Feld</th><th>Vorher</th><th>Nachher</th></tr></thead><tbody>';
 
       foreach ($fields as $field) {
-         $oldValue = array_key_exists($field, $before) ? $before[$field] : '';
-         $newValue = array_key_exists($field, $after) ? $after[$field] : '';
+         $old_value = array_key_exists($field, $before) ? $before[$field] : '';
+         $new_value = array_key_exists($field, $after) ? $after[$field] : '';
 
          if ($action == 'delete') {
-            $newValue = '';
+            $new_value = '';
          }
 
          $html .= '<tr>';
          $html .= '<th class="text-nowrap">' . dbx()->esc($field) . '</th>';
-         $html .= '<td class="dbx-trace-before">' . $this->render_compare_value($oldValue) . '</td>';
-         $html .= '<td class="dbx-trace-after">' . $this->render_compare_value($newValue) . '</td>';
+         $html .= '<td class="dbx-trace-before">' . $this->render_compare_value($old_value) . '</td>';
+         $html .= '<td class="dbx-trace-after">' . $this->render_compare_value($new_value) . '</td>';
          $html .= '</tr>';
       }
 
@@ -488,11 +488,11 @@ class dbxTrace {
 
       foreach ($rows as $row) {
          $action = $row['action'] ?? '';
-         $detailUrl = '?dbx_modul=dbxAdmin&dbx_run1=trace&dbx_run2=trace_detail&trace_id=' . urlencode((string) ($row['id'] ?? ''));
+         $detail_url = '?dbx_modul=dbxAdmin&dbx_run1=trace&dbx_run2=trace_detail&trace_id=' . urlencode((string) ($row['id'] ?? ''));
 
          $html .= '<tr>';
          $html .= '<td class="td-show text-center align-middle">';
-         $html .= '<a class="btn-inline" href="' . dbx()->esc($detailUrl) . '" data-dbx-tooltip="Trace-Detail anzeigen" data-url="' . dbx()->esc($detailUrl) . '" data-title="Trace Detail" data-width="1200" role="button"><i class="bi bi-search"></i></a>';
+         $html .= '<a class="btn-inline" href="' . dbx()->esc($detail_url) . '" data-dbx-tooltip="Trace-Detail anzeigen" data-url="' . dbx()->esc($detail_url) . '" data-title="Trace Detail" data-width="1200" role="button"><i class="bi bi-search"></i></a>';
          $html .= '</td>';
          $html .= '<td class="text-nowrap">' . dbx()->esc($row['create_date'] ?? '') . '</td>';
          $html .= '<td>' . dbx()->esc($action) . '</td>';
@@ -512,114 +512,114 @@ class dbxTrace {
    private function report_trace() {
       $dd      = 'dbxTrace';
       $db      = dbx()->get_system_obj('dbxDB');
-      $oReport = dbx()->get_system_obj('dbxReport');
+      $o_report = dbx()->get_system_obj('dbxReport');
 
-      $oReport->init('report-trace');
-      $oReport->_fd = 'dbxAdmin|rpt-trace-selection';
-      $oReport->load_fd_messages();
-      $oReport->add_module_bar(
-         $oReport->get_fd_message('bar_title'),
+      $o_report->init('report-trace');
+      $o_report->set_field_definition('dbxAdmin|rpt-trace-selection');
+      $o_report->load_fd_messages();
+      $o_report->add_module_bar(
+         $o_report->get_fd_message('bar_title'),
          'bi-clock-history',
-         $oReport->get_fd_message('bar_subtitle')
+         $o_report->get_fd_message('bar_subtitle')
       );
-      $oReport->_dd = $dd;
-      $oReport->set_tabel_tpl('tpl_row_show', 'dbxAdmin|table_row_trace_show');
+      $o_report->set_data_definition($dd);
+      $o_report->set_table_tpl('tpl_row_show', 'dbxAdmin|table_row_trace_show');
 
       $work = dbx()->get_modul_var('dbx_do', '', 'parameter');
       $rid  = dbx()->get_modul_var('rid', 0, 'int');
 
       if ($work == 'row_delete' && $rid) {
-         $ok = $oReport->del_selected($rid);
+         $ok = $o_report->del_selected($rid);
          $ok = $db->delete($dd, $rid);
 
          if ($ok) {
-            $oReport->_msg_success = $oReport->get_fd_message(
+            $o_report->_msg_success = $o_report->get_fd_message(
                'row_delete_success'
             );
          } else {
-            $oReport->_msg_error = $oReport->get_fd_message(
+            $o_report->_msg_error = $o_report->get_fd_message(
                'row_delete_error'
             );
          }
       }
 
       if ($work == 'multi_delete') {
-         $result = $oReport->delete_multi_selected_records($dd);
-         $oReport->apply_multi_delete_result($result);
+         $result = $o_report->delete_multi_selected_records($dd);
+         $o_report->apply_multi_delete_result($result);
       }
 
       if ($work == 'delete_tab') {
          $ok = $db->delete_tab($dd);
-         $optimizeOk = $ok ? $db->optimize_tab($dd) : 0;
+         $optimize_ok = $ok ? $db->optimize_tab($dd) : 0;
          dbx()->debug("##delete tab dd=($dd) ok=($ok)");
-         dbx()->debug("##optimize tab dd=($dd) ok=($optimizeOk)");
-         if ($ok && $optimizeOk) {
-            $oReport->_msg_success = $oReport->get_fd_message(
+         dbx()->debug("##optimize tab dd=($dd) ok=($optimize_ok)");
+         if ($ok && $optimize_ok) {
+            $o_report->_msg_success = $o_report->get_fd_message(
                'delete_tab_success'
             );
          } elseif ($ok) {
-            $oReport->_msg_success = $oReport->get_fd_message(
+            $o_report->_msg_success = $o_report->get_fd_message(
                'delete_tab_partial'
             );
          } else {
-            $oReport->_msg_error = $oReport->get_fd_message(
+            $o_report->_msg_error = $o_report->get_fd_message(
                'delete_tab_error'
             );
          }
       }
 
       $flds['id']          = 'ID';
-      $flds['create_date'] = $oReport->get_fd_message('column_created');
-      $flds['action']      = $oReport->get_fd_message('column_action');
-      $flds['dd']          = $oReport->get_fd_message('column_dd');
-      $flds['record_id']   = $oReport->get_fd_message('column_record');
-      $flds['owner']       = $oReport->get_fd_message('column_owner');
-      $flds['data_json']   = $oReport->get_fd_message('column_change');
+      $flds['create_date'] = $o_report->get_fd_message('column_created');
+      $flds['action']      = $o_report->get_fd_message('column_action');
+      $flds['dd']          = $o_report->get_fd_message('column_dd');
+      $flds['record_id']   = $o_report->get_fd_message('column_record');
+      $flds['owner']       = $o_report->get_fd_message('column_owner');
+      $flds['data_json']   = $o_report->get_fd_message('column_change');
 
       $rformat['create_date'] = 'php-datetime-usr';
       $rformat['action']      = 'html';
       $rformat['data_json']   = 'html';
-      $oReport->_rpt_format   = $rformat;
+      $o_report->_rpt_format   = $rformat;
 
-      $oReport->_action            = '?dbx_modul=dbxAdmin&dbx_run1=trace&dbx_run2=list_trace';
-      $oReport->_pages             = true;
-      $oReport->_create_row_select = true;
-      $oReport->_create_row_edit   = false;
-      $oReport->_create_row_show   = true;
-      $oReport->_create_row_delete = true;
-      $oReport->_create_sel_flds   = true;
-      $oReport->_but_pagination    = 5;
-      $oReport->set_callback_owner($this);
-      $oReport->set_body_callback('report_trace_body');
-      $oReport->set_callback('row_action_data', 'report_trace_row_action_data');
+      $o_report->set_action('?dbx_modul=dbxAdmin&dbx_run1=trace&dbx_run2=list_trace');
+      $o_report->_pages             = true;
+      $o_report->_create_row_select = true;
+      $o_report->_create_row_edit   = false;
+      $o_report->_create_row_show   = true;
+      $o_report->_create_row_delete = true;
+      $o_report->_create_sel_flds   = true;
+      $o_report->_but_pagination    = 5;
+      $o_report->set_callback_owner($this);
+      $o_report->set_body_callback('report_trace_body');
+      $o_report->set_callback('row_action_data', 'report_trace_row_action_data');
 
-      $oReport->enable_delete_tab($dd);
+      $o_report->enable_delete_tab($dd);
 
-      $oReport->add_action('rows_delete'   , 'action_button_delete'  , '&dbx_do=multi_delete');
+      $o_report->add_action('rows_delete'   , 'action_button_delete'  , '&dbx_do=multi_delete');
 
-      $oReport->create_selection_fields('dbxAdmin|rpt-trace-selection');
-      $oReport->add_module_bar(
-         $oReport->get_fd_message('bar_title'),
+      $o_report->create_selection_fields('dbxAdmin|rpt-trace-selection');
+      $o_report->add_module_bar(
+         $o_report->get_fd_message('bar_title'),
          'bi-clock-history',
-         $oReport->get_fd_message('bar_subtitle')
+         $o_report->get_fd_message('bar_subtitle')
       );
 
-      if ($work != 'delete_tab' && $work != 'multi_delete' && $work != 'row_delete' && $oReport->submit()) {
-         if (!$oReport->errors()) {
-            $oReport->_msg_success = '';
+      if ($work != 'delete_tab' && $work != 'multi_delete' && $work != 'row_delete' && $o_report->submit()) {
+         if (!$o_report->errors()) {
+            $o_report->_msg_success = '';
          } else {
-            $oReport->_msg_error = $oReport->get_fd_message(
+            $o_report->_msg_error = $o_report->get_fd_message(
                'validation_error'
             );
          }
       }
 
-      $rwhere = $oReport->get_fld_val('dbx_rwhere' , ''           , 'sqlsearch|max=64');
-      $rrows  = $oReport->get_fld_val('dbx_rrows'  , 15           , 'int');
-      $rpos   = $oReport->get_fld_val('dbx_rpos'   , 0            , 'int');
-      $rsort  = $oReport->get_fld_val('dbx_rsort'  , 'create_date', 'parameter');
-      $rdesc  = $oReport->get_fld_val('dbx_rdesc'  , 'DESC'       , 'parameter');
-      $select = $oReport->get_fld_val('dbx_rselect', 0            , 'int');
+      $rwhere = $o_report->get_fld_val('dbx_rwhere' , ''           , 'sqlsearch|max=64');
+      $rrows  = $o_report->get_fld_val('dbx_rrows'  , 15           , 'int');
+      $rpos   = $o_report->get_fld_val('dbx_rpos'   , 0            , 'int');
+      $rsort  = $o_report->get_fld_val('dbx_rsort'  , 'create_date', 'parameter');
+      $rdesc  = $o_report->get_fld_val('dbx_rdesc'  , 'DESC'       , 'parameter');
+      $select = $o_report->get_fld_val('dbx_rselect', 0            , 'int');
       $rgroup = '';
 
       if ($rwhere != '') {
@@ -638,17 +638,17 @@ class dbxTrace {
             $rwhere = $db->normalize_where($dd, $rwhere);
          }
 
-         $rwhere = $oReport->add_rwhere_select($rwhere);
+         $rwhere = $o_report->add_rwhere_select($rwhere);
       }
 
-      $oReport->_rflds     = $flds;
-      $oReport->_rrows     = $rrows;
-      $oReport->_rpos      = $rpos;
-      $oReport->_count_all = $db->count($dd);
-      $oReport->_rcount    = $db->count($dd, $rwhere);
-      $oReport->_rdata     = $db->select($dd, $rwhere, $flds, $rsort, $rdesc, $rgroup, $rrows, $rpos);
+      $o_report->_rflds     = $flds;
+      $o_report->_rrows     = $rrows;
+      $o_report->_rpos      = $rpos;
+      $o_report->_count_all = $db->count($dd);
+      $o_report->_rcount    = $db->count($dd, $rwhere);
+      $o_report->_rdata     = $db->select($dd, $rwhere, $flds, $rsort, $rdesc, $rgroup, $rrows, $rpos);
 
-      return $oReport->run();
+      return $o_report->run();
    }
 
    public function run() {

@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 
 $root = dirname(__DIR__, 2);
+require_once __DIR__ . '/dbxModuleSourceBundle.php';
 $failures = array();
 
 $assert = static function (bool $condition, string $message) use (&$failures): void {
@@ -21,15 +22,15 @@ $read = static function (string $relative) use ($root): string {
 };
 
 $utilities = $read('js/lib/utilities.js');
-$form = $read('include/dbxForm.class.php');
-$report = $read('include/dbxReport.class.php');
-$api = $read('include/dbxApi.php');
-$openWin = $read('js/lib/openWin.js');
+$form = dbx_test_module_source_bundle($root . '/include/dbxForm.class.php');
+$report = dbx_test_module_source_bundle($root . '/include/dbxReport.class.php');
+$api = dbx_test_module_source_bundle($root . '/include/dbxApi.php');
+$open_win = $read('js/lib/openWin.js');
 $menu = $read('modules/dbxMenu/dbxMenu.class.php');
-$selftest = $read('modules/dbxSelfTest/tpl/js/selftest.js');
-$selftestStyle = $read('modules/dbxSelfTest/tpl/htm/selftest-dashboard-style.htm');
-$selftestController = $read('modules/dbxSelfTest/include/dbxSelfTestController.class.php');
-$selftestRowName = $read('modules/dbxSelfTest/tpl/htm/selftest-run-name.htm');
+$selftest = $read('modules/dbxSelfTest/js/selftest.js');
+$selftest_style = $read('modules/dbxSelfTest/tpl/htm/selftest-dashboard-style.htm');
+$selftest_controller = $read('modules/dbxSelfTest/include/dbxSelfTestController.class.php');
+$selftest_row_name = $read('modules/dbxSelfTest/tpl/htm/selftest-run-name.htm');
 
 $assert(
     str_contains($utilities, 'const TOOLTIP_SELECTOR = "[data-dbx-tooltip],[data-dbx-errormsg]"')
@@ -83,20 +84,20 @@ $assert(
 );
 $assert(
     str_contains($report, 'get_table_action_ui')
-        && str_contains($report, "'title'   => \$actionUi[0]")
-        && str_contains($report, "'tooltip' => \$actionUi[1]"),
+        && str_contains($report, "'title'   => \$action_ui[0]")
+        && str_contains($report, "'tooltip' => \$action_ui[1]"),
     'dbxReport muss Fenstertitel und Bedienhinweis getrennt erzeugen.'
 );
 $assert(
-    str_contains($selftestRowName, 'data-dbx-tooltip="{tooltip_html}"')
-        && str_contains($selftestController, "\$tooltipHtml = '<strong>' . \$this->h(\$row['name']) . '</strong>';")
-        && str_contains($selftestController, "\$tooltipHtml .= '<br><small>' . \$this->h(\$row['description']) . '</small>';")
+    str_contains($selftest_row_name, 'data-dbx-tooltip="{tooltip_html}"')
+        && str_contains($selftest_controller, "\$tooltip_html = '<strong>' . \$this->h(\$row['name']) . '</strong>';")
+        && str_contains($selftest_controller, "\$tooltip_html .= '<br><small>' . \$this->h(\$row['description']) . '</small>';")
         && !str_contains($selftest, 'dataset.tooltip')
-        && !str_contains($selftestStyle, 'attr(data-tooltip)'),
+        && !str_contains($selftest_style, 'attr(data-tooltip)'),
     'Der SelfTest darf kein paralleles lokales Tooltip-System mehr enthalten.'
 );
 
-foreach (array('dbxapp', 'dbxdocs', 'flowers', 'steal') as $design) {
+foreach (array('dbxapp', 'flowers', 'steal') as $design) {
     $css = $read('design/' . $design . '/css/c-tooltip.css');
     $assert($css !== '', $design . ': c-tooltip.css fehlt.');
     $assert(
@@ -108,12 +109,12 @@ foreach (array('dbxapp', 'dbxdocs', 'flowers', 'steal') as $design) {
     );
 }
 
-$scanRoot = $root;
+$scan_root = $root;
 $iterator = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($scanRoot, FilesystemIterator::SKIP_DOTS)
+    new RecursiveDirectoryIterator($scan_root, FilesystemIterator::SKIP_DOTS)
 );
-$nativeUiTitle = '~<(?:a|button|span|div|label|i|input|select|th|td|summary|hr)\b[^>]*\s+title\s*=~is';
-$duplicateTooltip = '~<(?:a|button|span|div|label|i|input|select|th|td|summary|hr)\b[^>]*data-dbx-tooltip\s*=[^>]*data-dbx-tooltip\s*=~is';
+$native_ui_title = '~<(?:a|button|span|div|label|i|input|select|th|td|summary|hr)\b[^>]*\s+title\s*=~is';
+$duplicate_tooltip = '~<(?:a|button|span|div|label|i|input|select|th|td|summary|hr)\b[^>]*data-dbx-tooltip\s*=[^>]*data-dbx-tooltip\s*=~is';
 
 foreach ($iterator as $file) {
     if (!$file->isFile() || !preg_match('~\.(?:php|js|html?|tpl)$~i', $file->getFilename())) {
@@ -125,17 +126,16 @@ foreach ($iterator as $file) {
         || str_contains($path, '/add_ons/')
         || str_contains($path, '/tests/')
         || str_contains($path, '/modules/dbxMenu/')
-        || str_contains($path, '/modules/dbxDocs/content/generated/')
     ) {
         continue;
     }
 
     $source = (string)file_get_contents($file->getPathname());
-    if (preg_match($nativeUiTitle, $source)) {
+    if (preg_match($native_ui_title, $source)) {
         $failures[] = 'Nativer Bedienhinweis statt data-dbx-tooltip: '
             . ltrim(str_replace(str_replace('\\', '/', $root), '', $path), '/');
     }
-    if (preg_match($duplicateTooltip, $source)) {
+    if (preg_match($duplicate_tooltip, $source)) {
         $failures[] = 'Doppeltes data-dbx-tooltip am selben Element: '
             . ltrim(str_replace(str_replace('\\', '/', $root), '', $path), '/');
     }
@@ -144,9 +144,9 @@ foreach ($iterator as $file) {
 foreach (array(
     'js/lib/core.js',
     'js/lib/form.js',
-    'js/lib/cms-page.js',
+    'modules/dbxContent_admin/js/cms-page.js',
     'js/lib/demoMode.js',
-    'js/lib/shopAdmin.js',
+    'modules/dbxShop_admin/js/shopAdmin.js',
 ) as $relative) {
     $assert(
         !preg_match('~setAttribute\([\'"]title[\'"]|\.(?:title)\s*=~', $read($relative)),
@@ -154,14 +154,14 @@ foreach (array(
     );
 }
 $assert(
-    !str_contains($openWin, '.attr("title"'),
+    !str_contains($open_win, '.attr("title"'),
     'openWin muss dynamische Bedienhinweise als dbx-Tooltip setzen.'
 );
 $assert(
-    str_contains($read('js/lib/cms.js'), 'marker.removeAttribute("title");')
-        && str_contains($read('js/lib/cms.js'), 'marker.setAttribute("data-dbx-tooltip", "Marker auswählen')
-        && str_contains($read('js/lib/cms.js'), 'duplicateBtn.setAttribute("aria-label", duplicateTooltip)')
-        && !str_contains($read('js/lib/cms.js'), 'duplicateBtn.getAttribute("title")'),
+    str_contains($read('modules/dbxContent_admin/js/cms.js'), 'marker.removeAttribute("title");')
+        && str_contains($read('modules/dbxContent_admin/js/cms.js'), 'marker.setAttribute("data-dbx-tooltip", "Marker auswählen')
+        && str_contains($read('modules/dbxContent_admin/js/cms.js'), 'duplicateBtn.setAttribute("aria-label", duplicateTooltip)')
+        && !str_contains($read('modules/dbxContent_admin/js/cms.js'), 'duplicateBtn.getAttribute("title")'),
     'CMS-Marker oder dynamische Aktionsbeschriftungen verwenden noch native title-Werte.'
 );
 $assert(
@@ -171,18 +171,19 @@ $assert(
     'Die systemseitig erzeugten Menueeintraege duerfen keine nativen Bedienhinweise ausgeben.'
 );
 $assert(
-    str_contains($openWin, 'setMaximizeControlState($win, fullscreen)')
-        && str_contains($openWin, 'ui.minimizeWindow')
-        && str_contains($openWin, 'ui.maximizeWindow')
-        && str_contains($openWin, 'ui.restoreWindow')
-        && str_contains($openWin, 'ui.closeWindow')
-        && str_contains($openWin, '.attr("data-dbx-tooltip", label)')
-        && str_contains($openWin, 'keydown.keyboard-activate'),
+    str_contains($open_win, 'setMaximizeControlState($win, fullscreen)')
+        && str_contains($open_win, 'ui.minimizeWindow')
+        && str_contains($open_win, 'ui.maximizeWindow')
+        && str_contains($open_win, 'ui.restoreWindow')
+        && str_contains($open_win, 'ui.closeWindow')
+        && str_contains($open_win, '.attr("data-dbx-tooltip", label)')
+        && str_contains($open_win, 'keydown.keyboard-activate'),
     'openWin muss alle Fenstersteuerungen zentral beschriften und per Tastatur bedienbar halten.'
 );
 $assert(
-    !str_contains($read('modules/dbx/tpl/htm/table_row_edit.htm'), 'data-title="{tooltip}"')
-        && !str_contains($read('modules/dbx/tpl/htm/table_row_show.htm'), 'data-title="{tooltip}"')
+    str_contains($read('modules/dbx/tpl/htm/table_row_action.htm'), '{link_attributes}')
+        && str_contains($report, "'data-dbx-tooltip=\"' . \$this->table_action_attr(\$data['tooltip'] ?? '')")
+        && str_contains($report, "'data-title=\"' . \$this->table_action_attr(\$data['title'] ?? '')")
         && !str_contains($read('modules/dbx/tpl/htm/button_dbcreate.htm'), 'data-title="{tooltip}"'),
     'Fenstertitel und Tooltip sind in zentralen Templates noch gekoppelt.'
 );

@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Data was saved';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Data could not be saved';
 $messages['missing_dd_params'] = 'No DD specified. Expected parameters: modul and dd.';
 $messages['dd_unreadable'] = 'DD not found or could not be read: {dd}.';
 $messages['dd_not_found'] = 'DD not found: {dd}.';

@@ -1,14 +1,20 @@
 <?php
 
-dbx()->use_system_class('dbxDD');
+dbx()->get_system_obj('dbxDD', 'use');
 
+/**
+ * Erfasst, verdichtet und persistiert Laufzeitmessungen einer Anfrage.
+ *
+ * Messwerte werden über die Performance-DDs gespeichert und anhand der
+ * konfigurierten Aufbewahrungs- und Stichprobenregeln bereinigt.
+ */
 class dbxPerformanceTimer {
 
    private const REQUEST_DD = 'dbx|dbxPerformanceRequest';
    private const TIMER_DD = 'dbx|dbxPerformanceTimer';
    private const SCHEMA_MARKER_VERSION = 'v2-contract2';
 
-   private array $configFileCache = array();
+   private array $config_file_cache = array();
 
    private function config_value(string $key, $default = '') {
       $value = dbx()->get_cfg('dbx', $key);
@@ -22,8 +28,8 @@ class dbxPerformanceTimer {
    }
 
    private function config_file_values(): array {
-      if ($this->configFileCache) {
-         return $this->configFileCache;
+      if ($this->config_file_cache) {
+         return $this->config_file_cache;
       }
 
       $file = dbx()->os_path(dbx()->get_base_dir() . 'dbx/modules/dbx/cfg/config.php');
@@ -37,8 +43,8 @@ class dbxPerformanceTimer {
          return is_array($config) ? $config : array();
       };
 
-      $this->configFileCache = $loader($file);
-      return $this->configFileCache;
+      $this->config_file_cache = $loader($file);
+      return $this->config_file_cache;
    }
 
    private function config_bool(string $key, $default = 0): bool {
@@ -80,15 +86,15 @@ class dbxPerformanceTimer {
       return max(1, (int) $this->config_value('performance_timer_sample_rate', 1));
    }
 
-   private function should_sample(int $sampleRate): bool {
-      if ($sampleRate <= 1) {
+   private function should_sample(int $sample_rate): bool {
+      if ($sample_rate <= 1) {
          return true;
       }
 
       try {
-         return random_int(1, $sampleRate) === 1;
+         return random_int(1, $sample_rate) === 1;
       } catch (\Throwable $e) {
-         return mt_rand(1, $sampleRate) === 1;
+         return mt_rand(1, $sample_rate) === 1;
       }
    }
 
@@ -111,18 +117,18 @@ class dbxPerformanceTimer {
          $existing[$name] = 1;
       }
 
-      $indexRows = $db->select_query($server, 'PRAGMA index_list(' . $table . ')');
-      if (!is_array($indexRows)) return false;
-      $existingIndexes = array();
-      foreach ($indexRows as $indexRow) {
-         $name = (string)($indexRow['name'] ?? '');
-         if ($name !== '') $existingIndexes[$name] = 1;
+      $index_rows = $db->select_query($server, 'PRAGMA index_list(' . $table . ')');
+      if (!is_array($index_rows)) return false;
+      $existing_indexes = array();
+      foreach ($index_rows as $index_row) {
+         $name = (string)($index_row['name'] ?? '');
+         if ($name !== '') $existing_indexes[$name] = 1;
       }
       foreach ($indexes as $index) {
          $name = (string)($index['name'] ?? '');
-         if ($name === '' || isset($existingIndexes[$name])) continue;
+         if ($name === '' || isset($existing_indexes[$name])) continue;
          if ($dd->create_db_index($server, $table, $index) !== 1) return false;
-         $existingIndexes[$name] = 1;
+         $existing_indexes[$name] = 1;
       }
 
       return true;
@@ -228,7 +234,7 @@ class dbxPerformanceTimer {
       return substr($value, 0, $length);
    }
 
-   private function request_record(array $timers, int $sampleRate, array $queries = array()): array {
+   private function request_record(array $timers, int $sample_rate, array $queries = array()): array {
       $system = $timers['system'] ?? array();
       $uid = (int) dbx()->user();
       $modul = (string) dbx()->get_system_var('dbx_modul', dbx()->get_system_var('dbx_activ_modul', 'dbx'));
@@ -261,23 +267,23 @@ class dbxPerformanceTimer {
          'failed_query_count' => (int) ($queries['failed_query_count'] ?? 0),
          'query_time_ms'   => (int) ($queries['query_time_ms'] ?? 0),
          'query_affected_rows' => (int) ($queries['affected_rows'] ?? 0),
-         'sample_rate'     => $sampleRate,
+         'sample_rate'     => $sample_rate,
       );
    }
 
-   private function timer_record(int $requestId, string $requestDate, string $section, array $timer, int $sortOrder): array {
+   private function timer_record(int $request_id, string $request_date, string $section, array $timer, int $sort_order): array {
       $uid = (int) dbx()->user();
       $now = date('Y-m-d H:i:s');
 
       return array(
-         'request_id'      => $requestId,
-         'request_date'    => $requestDate,
+         'request_id'      => $request_id,
+         'request_date'    => $request_date,
          'create_date'     => $now,
          'create_uid'      => $uid,
          'update_date'     => $now,
          'update_uid'      => $uid,
          'owner'           => $uid,
-         'sort_order'      => $sortOrder,
+         'sort_order'      => $sort_order,
          'section'         => $this->trim_text($section, 80),
          'fingerprint'     => $this->trim_text($timer['fingerprint'] ?? '', 32),
          'info'            => $this->trim_text($timer['info'] ?? '', 160),
@@ -338,8 +344,8 @@ class dbxPerformanceTimer {
       }
 
       @rewind($handle);
-      $lastCleanup = (int)trim((string)stream_get_contents($handle));
-      if ($lastCleanup >= time() - 86400) {
+      $last_cleanup = (int)trim((string)stream_get_contents($handle));
+      if ($last_cleanup >= time() - 86400) {
          @flock($handle, LOCK_UN);
          @fclose($handle);
          return;
@@ -373,8 +379,8 @@ class dbxPerformanceTimer {
          return 0;
       }
 
-      $sampleRate = $this->sample_rate();
-      if (!$this->should_sample($sampleRate)) {
+      $sample_rate = $this->sample_rate();
+      if (!$this->should_sample($sample_rate)) {
          return 0;
       }
 
@@ -384,7 +390,7 @@ class dbxPerformanceTimer {
       }
 
       $db = dbx()->get_system_obj('dbxDB');
-      $querySnapshot = method_exists($db, 'performance_query_snapshot')
+      $query_snapshot = method_exists($db, 'performance_query_snapshot')
          ? (array) $db->performance_query_snapshot()
          : array();
 
@@ -394,19 +400,19 @@ class dbxPerformanceTimer {
             return 0;
          }
 
-         $performanceLevel = $this->performance_level();
-         $detailEnabled = $performanceLevel === 'detail';
-         $request = $this->request_record($dbx_run_timer, $sampleRate, $querySnapshot);
-         $requestId = 0;
+         $performance_level = $this->performance_level();
+         $detail_enabled = $performance_level === 'detail';
+         $request = $this->request_record($dbx_run_timer, $sample_rate, $query_snapshot);
+         $request_id = 0;
 
          if ($db->begin(self::REQUEST_DD) !== 1) {
             return 0;
          }
 
          try {
-            $requestId = ($db->insert(self::REQUEST_DD, $request, 0, 1, 1, 0) === 1) ? $db->get_insert_id() : 0;
+            $request_id = ($db->insert(self::REQUEST_DD, $request, 0, 1, 1, 0) === 1) ? $db->get_insert_id() : 0;
 
-            if ($requestId <= 0) {
+            if ($request_id <= 0) {
                throw new \RuntimeException('performance_request_insert_failed');
             }
 
@@ -417,19 +423,19 @@ class dbxPerformanceTimer {
                }
 
                $section = (string) $section;
-               if (!$detailEnabled && !$this->is_main_section($section)) {
+               if (!$detail_enabled && !$this->is_main_section($section)) {
                   continue;
                }
 
-               if ($db->insert(self::TIMER_DD, $this->timer_record($requestId, $request['request_date'], $section, $timer, $sort), 0, 1, 1, 0) !== 1) {
+               if ($db->insert(self::TIMER_DD, $this->timer_record($request_id, $request['request_date'], $section, $timer, $sort), 0, 1, 1, 0) !== 1) {
                   throw new \RuntimeException('performance_timer_insert_failed');
                }
                $sort++;
             }
 
-            if ($detailEnabled) {
-               foreach ($this->query_timers($querySnapshot) as $section => $timer) {
-                  if ($db->insert(self::TIMER_DD, $this->timer_record($requestId, $request['request_date'], $section, $timer, $sort), 0, 1, 1, 0) !== 1) {
+            if ($detail_enabled) {
+               foreach ($this->query_timers($query_snapshot) as $section => $timer) {
+                  if ($db->insert(self::TIMER_DD, $this->timer_record($request_id, $request['request_date'], $section, $timer, $sort), 0, 1, 1, 0) !== 1) {
                      throw new \RuntimeException('performance_query_timer_insert_failed');
                   }
                   $sort++;
@@ -445,7 +451,7 @@ class dbxPerformanceTimer {
          }
 
          $this->cleanup_old_rows();
-         return $requestId;
+         return $request_id;
       } catch (\Throwable $e) {
          return 0;
       } finally {

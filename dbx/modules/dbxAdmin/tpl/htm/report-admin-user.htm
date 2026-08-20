@@ -1,8 +1,9 @@
-[tpl=dbx|report-panel-head]
+[tpl=dbx|panel-shell-head]
  {obj:tabs}
  {obj:stats}
  <form action="{action}" method="post" id="dbx_form_{i}" class="dbxAjax">
-  [tpl=dbx|report-form-select]
+  {report:bar}
+  <div class="dbx-report-message">{report:message}</div>
   [dbx:pagination]
   <div class="table-responsive">
    <table id="dbx_table_{i}" class="bootstrap-table bootstrap5 table table-striped table-bordered table-light table-hover align-middle">
@@ -23,4 +24,4 @@
   </div>
   [dbx:js]
  </form>
-[tpl=dbx|report-panel-foot]
+[tpl=dbx|panel-shell-foot]

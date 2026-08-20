@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="dbx/design/flowers/css/theme.css?v={dbx:asset_version}">
 </head>
 
-<body class="dbx-fleurop {dbx:skin_class}"[inc=is_dbx_edit()] data-dbx="lib=icons_editor"[/inc] data-dbx-skin="{dbx:color}" data-dbx-design="{dbx:design}">
+<body class="dbx-fleurop {dbx:skin_class}"[inc=is_dbx_edit()] data-dbx="lib=icons_editor|module=dbxDesign_admin|mode={dbx:edit}"[/inc] data-dbx-skin="{dbx:color}" data-dbx-design="{dbx:design}">
 <div id="dbxApp" class="fleurop-app-shell">
     <aside id="dbxHeader" class="fleurop-sidebar" aria-label="Seitennavigation">
         <div class="fleurop-brand-wrap">
@@ -102,6 +102,9 @@
 
 <script src="dbx/vendor/components/jquery/jquery.min.js"></script>
 <script src="dbx/js/lib/core.js?design={dbx:design}&log=off&v={dbx:asset_version}"></script>
+<script src="dbx/js/lib/uiSettings.js?v={dbx:asset_version}"></script>
+<script src="dbx/js/lib/runtime.js?v={dbx:asset_version}"></script>
+<script src="dbx/js/lib/scheduler.js?v={dbx:asset_version}"></script>
 <script src="dbx/design/flowers/js/flowers.js?v={dbx:asset_version}"></script>
 {dbx:module_assets}
 </body>

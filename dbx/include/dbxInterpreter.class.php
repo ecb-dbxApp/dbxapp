@@ -5,12 +5,12 @@
  */
 
 /**
- * Fuehrt eingebettete Modulaufrufe aus und ersetzt sie durch Modul-HTML.
+ * @brief Führt eingebettete Modulaufrufe aus und ersetzt sie durch Modul-HTML.
  *
  * Sinn:
- * Content- und Template-Dateien koennen kleine Modulinseln enthalten, ohne
- * selbst PHP auszufuehren. Der Interpreter laedt das Modul ueber dbxApi,
- * setzt die Parameter als geschuetzte ModulVars und startet das Modul im
+ * Content- und Template-Dateien können kleine Modulinseln enthalten, ohne
+ * selbst PHP auszuführen. Der Interpreter lädt das Modul über dbxApi,
+ * setzt die Parameter als geschützte ModulVars und startet das Modul im
  * Owner-Kontext.
  *
  * Beispiel:
@@ -136,17 +136,17 @@ class dbxInterpreter {
    * @return string Gerenderte Modulausgabe oder Login-/Warnhinweis.
    */
   private function get_modul_content($modul,$parameter='') {
-      $requestSnapshot = dbx()->request_context()->snapshot();
+      $request_snapshot = dbx()->request_context()->snapshot();
       try {
       dbx()->timer('run-'.$modul,'P='.$parameter);  
 
       $modul_content=''; $xparameter=''; $action='undef'; $modul_id=0;
       $protected_modulvars = array();
 
-      $access=dbx()->can_modul($modul);
+      $access=dbx()->has_module_access($modul);
       //dbx_debug("###DBX-Interpreter###  M=($modul) Param=($parameter) Access=($access)");
       if ($access) {
-        $oModul   = dbx()->get_modul_obj($modul); 
+        $o_modul   = dbx()->get_modul_obj($modul); 
         $modul_id = dbx()->get_system_var('dbx_activ_modul_id');
         $parameter= trim($parameter);
         $uid      = dbx()->user('id');
@@ -182,7 +182,7 @@ class dbxInterpreter {
           dbx()->set_system_var('dbx_activ_action',$action);
       
 
-          $modul_content=dbx()->run_owner($oModul, 'run', $action);
+          $modul_content=dbx()->run_owner($o_modul, 'run', $action);
 
 
 
@@ -193,8 +193,8 @@ class dbxInterpreter {
       } else { // no access
         $uid=dbx()->user();
         if ($uid > 1) {
-          $oTPL=dbx()->get_system_obj('dbxTPL');
-          $modul_content=$oTPL->get_tpl('dbx|alert-warning',"msg=Sie haben keinen Zugriff auf ($modul)." ); 
+          $o_tpl=dbx()->get_system_obj('dbxTPL');
+          $modul_content=$o_tpl->get_tpl('dbx|alert-warning',"msg=Sie haben keinen Zugriff auf ($modul)." ); 
         }
         if ($uid == 1) {
             $master=dbx()->get_system_var('dbx_master_modul',$modul);
@@ -216,7 +216,7 @@ class dbxInterpreter {
       dbx()->timer('run-'.$modul);
       return $modul_content;
       } finally {
-        dbx()->request_context()->restore($requestSnapshot);
+        dbx()->request_context()->restore($request_snapshot);
       }
     }
 

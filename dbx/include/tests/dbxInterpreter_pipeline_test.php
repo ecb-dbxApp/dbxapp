@@ -21,23 +21,23 @@ final class dbxInterpreterTestModule
 final class dbxInterpreterTestApi
 {
     private dbxRequestContext $context;
-    private int $moduleId = 0;
+    private int $module_id = 0;
 
     public function __construct() { $this->context = new dbxRequestContext(); }
     public function request_context(): dbxRequestContext { return $this->context; }
     public function get_system_var(string $name, mixed $default = null): mixed { return $this->context->system($name, $default); }
-    public function set_system_var(string $name, mixed $value): void { $this->context->setSystem($name, $value); }
+    public function set_system_var(string $name, mixed $value): void { $this->context->set_system($name, $value); }
     public function get_modul_obj(string $module): object {
-        $this->set_system_var('dbx_activ_modul_id', ++$this->moduleId);
+        $this->set_system_var('dbx_activ_modul_id', ++$this->module_id);
         $this->set_system_var('dbx_activ_modul', $module);
         return new dbxInterpreterTestModule($module);
     }
-    public function set_modul_var(string $name, mixed $value, bool $checkProtected = true): void {
+    public function set_modul_var(string $name, mixed $value, bool $check_protected = true): void {
         $module = (string)$this->get_system_var('dbx_activ_modul', '');
         $id = (int)$this->get_system_var('dbx_activ_modul_id', 0);
         $protected = $this->context->module($id, $module, 'dbx_protected_modulvars', array());
-        if ($checkProtected && is_array($protected) && array_key_exists($name, $protected)) return;
-        $this->context->setModule($id, $module, $name, $value);
+        if ($check_protected && is_array($protected) && array_key_exists($name, $protected)) return;
+        $this->context->set_module($id, $module, $name, $value);
     }
     public function get_modul_var(string $name, mixed $default = null): mixed {
         $module = (string)$this->get_system_var('dbx_activ_modul', '');
@@ -45,7 +45,7 @@ final class dbxInterpreterTestApi
         return $this->context->module($id, $module, $name, $default);
     }
     public function get_request_var(string $name, mixed $default = null): mixed { return $default; }
-    public function can_modul(string $module): bool { return true; }
+    public function has_module_access(string $module): bool { return true; }
     public function user(string $key = ''): int { return 2; }
     public function run_owner(object $owner, string $method, mixed ...$args): mixed { return $owner->{$method}(...$args); }
     public function timer(string $name, string $info = ''): void {}

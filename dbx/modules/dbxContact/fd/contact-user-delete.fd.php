@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Daten wurden gespeichert';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Daten konnten nicht gespeichert werden';
 $messages['bar_title'] = 'Anfrage ausblenden';
 $messages['validation_error'] = 'Bitte bestätigen Sie das Ausblenden der Anfrage.';
 $messages['delete_success'] = 'Die Anfrage wurde aus Ihrer Ansicht entfernt. Der Supportverlauf bleibt erhalten.';

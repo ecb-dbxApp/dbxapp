@@ -4,19 +4,19 @@ namespace dbx\dbxAdmin;
 trait dbxDashboardPerformanceReportServiceTrait {
 
    private function performance_request_average() {
-      if ($this->performanceRequestAverage !== null) {
-         return $this->performanceRequestAverage;
+      if ($this->performance_request_average !== null) {
+         return $this->performance_request_average;
       }
 
-      $this->performanceRequestAverage = array();
+      $this->performance_request_average = array();
 
       if (!$this->ensure_performance_tables()) {
-         return $this->performanceRequestAverage;
+         return $this->performance_request_average;
       }
 
       list($server, $table) = $this->performance_dd_info(self::PERF_REQUEST_DD);
       if ($server === '' || $table === '') {
-         return $this->performanceRequestAverage;
+         return $this->performance_request_average;
       }
 
       try {
@@ -36,10 +36,10 @@ trait dbxDashboardPerformanceReportServiceTrait {
          $row = is_array($rows) ? ($rows[0] ?? array()) : array();
 
          if ((int) ($row['row_count'] ?? 0) <= 0) {
-            return $this->performanceRequestAverage;
+            return $this->performance_request_average;
          }
 
-         $this->performanceRequestAverage = array(
+         $this->performance_request_average = array(
             'count'           => (int) ($row['row_count'] ?? 0),
             'avg_time_ms'     => (int) round((float) ($row['avg_time_ms'] ?? 0)),
             'avg_memory_kb'   => (int) round((float) ($row['avg_memory_kb'] ?? 0)),
@@ -53,26 +53,26 @@ trait dbxDashboardPerformanceReportServiceTrait {
             'avg_query_time_ms' => (int) round((float) ($row['avg_query_time_ms'] ?? 0)),
          );
       } catch (\Throwable $e) {
-         $this->performanceRequestAverage = array();
+         $this->performance_request_average = array();
       }
 
-      return $this->performanceRequestAverage;
+      return $this->performance_request_average;
    }
 
    private function performance_timer_averages() {
-      if ($this->performanceTimerAverages !== null) {
-         return $this->performanceTimerAverages;
+      if ($this->performance_timer_averages !== null) {
+         return $this->performance_timer_averages;
       }
 
-      $this->performanceTimerAverages = array();
+      $this->performance_timer_averages = array();
 
       if (!$this->ensure_performance_tables()) {
-         return $this->performanceTimerAverages;
+         return $this->performance_timer_averages;
       }
 
       list($server, $table) = $this->performance_dd_info(self::PERF_TIMER_DD);
       if ($server === '' || $table === '') {
-         return $this->performanceTimerAverages;
+         return $this->performance_timer_averages;
       }
 
       try {
@@ -90,12 +90,12 @@ trait dbxDashboardPerformanceReportServiceTrait {
                  GROUP BY section
                  ORDER BY MIN(sort_order) ASC, section ASC";
          $rows = $db->select_query($server, $sql);
-         $this->performanceTimerAverages = is_array($rows) ? $rows : array();
+         $this->performance_timer_averages = is_array($rows) ? $rows : array();
       } catch (\Throwable $e) {
-         $this->performanceTimerAverages = array();
+         $this->performance_timer_averages = array();
       }
 
-      return $this->performanceTimerAverages;
+      return $this->performance_timer_averages;
    }
 
    private function performance_timer_average($section) {
@@ -119,20 +119,20 @@ trait dbxDashboardPerformanceReportServiceTrait {
    }
 
    private function performance_module_averages() {
-      if ($this->performanceModuleAverages !== null) {
-         return $this->performanceModuleAverages;
+      if ($this->performance_module_averages !== null) {
+         return $this->performance_module_averages;
       }
 
-      $this->performanceModuleAverages = array();
+      $this->performance_module_averages = array();
 
       if (!$this->ensure_performance_tables()) {
-         return $this->performanceModuleAverages;
+         return $this->performance_module_averages;
       }
 
-      list($requestServer, $requestTable) = $this->performance_dd_info(self::PERF_REQUEST_DD);
-      list($timerServer, $timerTable) = $this->performance_dd_info(self::PERF_TIMER_DD);
-      if ($requestServer === '' || $requestTable === '' || $timerServer !== $requestServer || $timerTable === '') {
-         return $this->performanceModuleAverages;
+      list($request_server, $request_table) = $this->performance_dd_info(self::PERF_REQUEST_DD);
+      list($timer_server, $timer_table) = $this->performance_dd_info(self::PERF_TIMER_DD);
+      if ($request_server === '' || $request_table === '' || $timer_server !== $request_server || $timer_table === '') {
+         return $this->performance_module_averages;
       }
 
       try {
@@ -145,44 +145,44 @@ trait dbxDashboardPerformanceReportServiceTrait {
                         AVG(CASE WHEN r.query_count > 0 THEN r.query_count END) AS avg_query_count,
                         AVG(CASE WHEN r.query_count > 0 THEN r.query_duplicate_count END) AS avg_query_duplicate_count,
                         AVG(CASE WHEN r.query_count > 0 THEN r.slow_query_count END) AS avg_slow_query_count
-                   FROM $requestTable r
-                   LEFT JOIN $timerTable d
+                   FROM $request_table r
+                   LEFT JOIN $timer_table d
                      ON d.request_id = r.id
                     AND d.section = 'db-total'
                   WHERE TRIM(COALESCE(r.modul, '')) <> ''
                   GROUP BY r.modul
                   ORDER BY AVG(r.total_time_ms) DESC, r.modul ASC
                   LIMIT 16";
-         $rows = $db->select_query($requestServer, $sql);
-         $this->performanceModuleAverages = is_array($rows) ? $rows : array();
+         $rows = $db->select_query($request_server, $sql);
+         $this->performance_module_averages = is_array($rows) ? $rows : array();
       } catch (\Throwable $e) {
-         $this->performanceModuleAverages = array();
+         $this->performance_module_averages = array();
       }
 
-      return $this->performanceModuleAverages;
+      return $this->performance_module_averages;
    }
 
    private function hero_performance($metrics) {
       $request = $this->performance_request_average();
-      $dbTotal = $this->performance_timer_average('db-total');
+      $db_total = $this->performance_timer_average('db-total');
 
-      $requestMs = $request ? (int) ($request['avg_time_ms'] ?? 0) : (int) ($metrics['request_runtime_ms'] ?? 0);
-      $dbMs = $dbTotal ? (int) ($dbTotal['avg_time_ms'] ?? 0) : 0;
-      $phpMs = max(0, $requestMs - $dbMs);
-      $dbShare = $requestMs > 0 ? min(999, (int) round(($dbMs / $requestMs) * 100)) : 0;
-      $phpShare = $requestMs > 0 ? min(999, (int) round(($phpMs / $requestMs) * 100)) : 0;
+      $request_ms = $request ? (int) ($request['avg_time_ms'] ?? 0) : (int) ($metrics['request_runtime_ms'] ?? 0);
+      $db_ms = $db_total ? (int) ($db_total['avg_time_ms'] ?? 0) : 0;
+      $php_ms = max(0, $request_ms - $db_ms);
+      $db_share = $request_ms > 0 ? min(999, (int) round(($db_ms / $request_ms) * 100)) : 0;
+      $php_share = $request_ms > 0 ? min(999, (int) round(($php_ms / $request_ms) * 100)) : 0;
 
       return array(
-         'request_avg'   => $this->fmt_ms($requestMs),
-         'request_raw'   => $requestMs,
+         'request_avg'   => $this->fmt_ms($request_ms),
+         'request_raw'   => $request_ms,
          'request_count' => $this->fmt($request['count'] ?? 0),
-         'php_avg'       => $this->fmt_ms($phpMs),
-         'php_raw'       => $phpMs,
-         'php_share'     => $this->fmt($phpShare),
-         'db_avg'        => $this->fmt_ms($dbMs),
-         'db_raw'        => $dbMs,
-         'db_count'      => $this->fmt($dbTotal['count'] ?? 0),
-         'db_share'      => $this->fmt($dbShare),
+         'php_avg'       => $this->fmt_ms($php_ms),
+         'php_raw'       => $php_ms,
+         'php_share'     => $this->fmt($php_share),
+         'db_avg'        => $this->fmt_ms($db_ms),
+         'db_raw'        => $db_ms,
+         'db_count'      => $this->fmt($db_total['count'] ?? 0),
+         'db_share'      => $this->fmt($db_share),
          'query_avg'     => $this->fmt($request['avg_query_count'] ?? 0),
          'query_unique_avg' => $this->fmt($request['avg_query_unique_count'] ?? 0),
          'query_duplicate_avg' => $this->fmt($request['avg_query_duplicate_count'] ?? 0),
@@ -205,33 +205,33 @@ trait dbxDashboardPerformanceReportServiceTrait {
       ));
    }
 
-   private function hero_performance_gauges($heroPerformance) {
+   private function hero_performance_gauges($hero_performance) {
       $items = '';
       $items .= $this->hero_performance_gauge(
          'Request gesamt',
          'bi-stopwatch',
          'request',
-         $heroPerformance['request_raw'] ?? 0,
-         $heroPerformance['request_avg'] ?? '0,000 Sec',
-         'Durchschnitt aus ' . ($heroPerformance['request_count'] ?? '0') . ' Requests'
+         $hero_performance['request_raw'] ?? 0,
+         $hero_performance['request_avg'] ?? '0,000 Sec',
+         'Durchschnitt aus ' . ($hero_performance['request_count'] ?? '0') . ' Requests'
       );
       $items .= $this->hero_performance_gauge(
          'PHP gesamt',
          'bi-cpu',
          'php',
-         $heroPerformance['php_raw'] ?? 0,
-         $heroPerformance['php_avg'] ?? '0,000 Sec',
+         $hero_performance['php_raw'] ?? 0,
+         $hero_performance['php_avg'] ?? '0,000 Sec',
          'Durchschnitt ohne DB-Anteil'
       );
       $items .= $this->hero_performance_gauge(
          'DB gesamt',
          'bi-database-check',
          'db',
-         $heroPerformance['db_raw'] ?? 0,
-         $heroPerformance['db_avg'] ?? '0,000 Sec',
-         'Ø ' . ($heroPerformance['query_avg'] ?? '0') . ' Queries · '
-            . ($heroPerformance['query_duplicate_avg'] ?? '0') . ' doppelt · '
-            . ($heroPerformance['query_slow_avg'] ?? '0') . ' langsam'
+         $hero_performance['db_raw'] ?? 0,
+         $hero_performance['db_avg'] ?? '0,000 Sec',
+         'Ø ' . ($hero_performance['query_avg'] ?? '0') . ' Queries · '
+            . ($hero_performance['query_duplicate_avg'] ?? '0') . ' doppelt · '
+            . ($hero_performance['query_slow_avg'] ?? '0') . ' langsam'
       );
 
       return $items;
@@ -249,10 +249,10 @@ trait dbxDashboardPerformanceReportServiceTrait {
 
    private function performance_module_image_url(string $modul): string {
       $modul = trim($modul);
-      $safeModul = preg_match('/^[A-Za-z0-9_\\-]+$/', $modul) ? $modul : 'dbx';
-      $baseDir = rtrim((string) dbx()->get_base_dir(), '/\\') . DIRECTORY_SEPARATOR;
-      $rel = 'dbx/modules/' . $safeModul . '/tpl/img/' . $safeModul . '.png';
-      $path = $baseDir . str_replace('/', DIRECTORY_SEPARATOR, $rel);
+      $safe_modul = preg_match('/^[A-Za-z0-9_\\-]+$/', $modul) ? $modul : 'dbx';
+      $base_dir = rtrim((string) dbx()->get_base_dir(), '/\\') . DIRECTORY_SEPARATOR;
+      $rel = 'dbx/modules/' . $safe_modul . '/tpl/img/' . $safe_modul . '.png';
+      $path = $base_dir . str_replace('/', DIRECTORY_SEPARATOR, $rel);
 
       if (!is_file($path)) {
          $rel = 'dbx/modules/dbx/tpl/img/dbx.png';
@@ -289,18 +289,18 @@ trait dbxDashboardPerformanceReportServiceTrait {
             continue;
          }
 
-         $totalMs = (int) round((float) ($module['avg_total_ms'] ?? 0));
-         $dbMs = (int) round((float) ($module['avg_db_ms'] ?? 0));
-         $phpMs = max(0, $totalMs - $dbMs);
-         $queryAvg = (int) round((float) ($module['avg_query_count'] ?? 0));
-         $duplicateAvg = (int) round((float) ($module['avg_query_duplicate_count'] ?? 0));
-         $slowAvg = (int) round((float) ($module['avg_slow_query_count'] ?? 0));
+         $total_ms = (int) round((float) ($module['avg_total_ms'] ?? 0));
+         $db_ms = (int) round((float) ($module['avg_db_ms'] ?? 0));
+         $php_ms = max(0, $total_ms - $db_ms);
+         $query_avg = (int) round((float) ($module['avg_query_count'] ?? 0));
+         $duplicate_avg = (int) round((float) ($module['avg_query_duplicate_count'] ?? 0));
+         $slow_avg = (int) round((float) ($module['avg_slow_query_count'] ?? 0));
 
          $metrics = '';
          $metrics .= $this->performance_metric(array(
             'label' => 'PHP gesamt',
             'icon' => 'bi-cpu',
-            'value_ms' => $phpMs,
+            'value_ms' => $php_ms,
             'detail' => 'PHP gesamt',
             'precision' => 3,
             'min_display_sec' => 0,
@@ -309,10 +309,10 @@ trait dbxDashboardPerformanceReportServiceTrait {
          $metrics .= $this->performance_metric(array(
             'label' => 'DB gesamt',
             'icon' => 'bi-database-check',
-            'value_ms' => $dbMs,
-            'detail' => 'Ø ' . $this->fmt($queryAvg) . ' Queries · '
-               . $this->fmt($duplicateAvg) . ' doppelt · '
-               . $this->fmt($slowAvg) . ' langsam',
+            'value_ms' => $db_ms,
+            'detail' => 'Ø ' . $this->fmt($query_avg) . ' Queries · '
+               . $this->fmt($duplicate_avg) . ' doppelt · '
+               . $this->fmt($slow_avg) . ' langsam',
             'precision' => 4,
             'min_display_sec' => 0.0001,
             'tone' => $this->performance_tone($index + 1),
@@ -335,14 +335,14 @@ trait dbxDashboardPerformanceReportServiceTrait {
 
    private function performance_panel($metrics) {
       $tpl = dbx()->get_system_obj('dbxTPL');
-      $panelTarget = 'request-performance';
+      $panel_target = 'request-performance';
       $actions = $this->performance_maintenance_actions()
-         . $this->collapse_action($panelTarget, 'Zuklappen', true)
+         . $this->collapse_action($panel_target, 'Zuklappen', true)
          . $this->help_action('dashboard');
 
       return $tpl->get_tpl('dbxAdmin|admin-dashboard-performance', array(
          'panel_class' => '',
-         'panel_target' => $panelTarget,
+         'panel_target' => $panel_target,
          'performance_bar' => $this->card_bar('Performance pro Modul', 'bi-speedometer2', 'Durchschnittswerte je Modul: PHP gesamt und DB gesamt', $actions),
          'performance_controls' => $this->performance_level_control(),
          'performance_items' => $this->performance_module_list(),
@@ -457,19 +457,19 @@ trait dbxDashboardPerformanceReportServiceTrait {
       );
       $state = $meta[$level] ?? $meta['off'];
 
-      $oForm = new \dbxForm();
-      $oForm->init('admin-dashboard-performance-config', 'admin-dashboard-performance-config');
-      $oForm->set_form_help_enabled(false);
-      $oForm->_action = '?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=performance_save';
-      $oForm->_msg_info = '';
-      $oForm->add_rep('action', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=performance_save'));
-      $oForm->add_rep('status_tone', dbx()->esc($state['tone']));
-      $oForm->add_rep('status_icon', dbx()->esc($state['icon']));
-      $oForm->add_rep('status_label', dbx()->esc($state['label']));
-      $oForm->add_rep('status_hint', dbx()->esc($state['hint']));
-      $oForm->add_rep('performance_level_options', $this->performance_level_options($level));
+      $o_form = new \dbxForm();
+      $o_form->init('admin-dashboard-performance-config', 'admin-dashboard-performance-config');
+      $o_form->set_form_help_enabled(false);
+      $o_form->set_action('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=performance_save');
+      $o_form->_msg_info = '';
+      $o_form->add_rep('action', dbx()->esc('?dbx_modul=dbxAdmin&dbx_run1=run&dbx_run2=performance_save'));
+      $o_form->add_rep('status_tone', dbx()->esc($state['tone']));
+      $o_form->add_rep('status_icon', dbx()->esc($state['icon']));
+      $o_form->add_rep('status_label', dbx()->esc($state['label']));
+      $o_form->add_rep('status_hint', dbx()->esc($state['hint']));
+      $o_form->add_rep('performance_level_options', $this->performance_level_options($level));
 
-      return $oForm->add_norep($oForm->run());
+      return $o_form->add_norep($o_form->run());
    }
 
    private function performance_toggle_control(string $target): string {

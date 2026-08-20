@@ -14,7 +14,7 @@ trait dbxShopRepositoryChannelServiceTrait {
 
 
 
-   public function channelById(int $id): ?array {
+   public function channel_by_id(int $id): ?array {
       $this->install();
       if ($id <= 0) {
          return null;
@@ -25,22 +25,22 @@ trait dbxShopRepositoryChannelServiceTrait {
 
 
 
-   public function channelByKey(string $key): ?array {
+   public function channel_by_key(string $key): ?array {
       $this->install();
       $key = trim($key);
       if ($key === '') {
          return null;
       }
-      $row = $this->db()->select1($this->dd('shopChannel'), 'channel_key = ' . $this->sqlValue($key) . ' AND trash = 0', '*', 0);
+      $row = $this->db()->select1($this->dd('shopChannel'), 'channel_key = ' . $this->sql_value($key) . ' AND trash = 0', '*', 0);
       return is_array($row) ? $row : null;
    }
 
 
 
-   public function updateChannel(int $id, array $data): void {
+   public function update_channel(int $id, array $data): void {
       $this->install();
-      $secretFields = array('api_client_secret', 'api_access_token', 'api_refresh_token', 'api_password', 'webhook_secret');
-      $existing = $id > 0 ? ($this->channelById($id) ?: array()) : array();
+      $secret_fields = array('api_client_secret', 'api_access_token', 'api_refresh_token', 'api_password', 'webhook_secret');
+      $existing = $id > 0 ? ($this->channel_by_id($id) ?: array()) : array();
       $values = array(
          'title' => (string)($data['title'] ?? ''),
          'description' => (string)($data['description'] ?? ''),
@@ -65,37 +65,37 @@ trait dbxShopRepositoryChannelServiceTrait {
          'active' => !empty($data['active']) ? 1 : 0,
          'sorter' => (int)($data['sorter'] ?? 100),
       );
-      foreach ($secretFields as $field) {
+      foreach ($secret_fields as $field) {
          $posted = (string)($data[$field] ?? '');
          $values[$field] = ($id > 0 && $posted === '') ? (string)($existing[$field] ?? '') : $posted;
       }
 
       if ($id <= 0) {
-         $channelKey = $this->normalizeKey((string)($data['channel_key'] ?? ''));
-         if ($channelKey === '') {
-            $channelKey = $this->normalizeKey((string)($data['title'] ?? 'channel'));
+         $channel_key = $this->normalize_key((string)($data['channel_key'] ?? ''));
+         if ($channel_key === '') {
+            $channel_key = $this->normalize_key((string)($data['title'] ?? 'channel'));
          }
-         if ($channelKey === '') $channelKey = 'channel';
-         $channelKey = $this->uniqueChannelKey($channelKey);
-         $values['channel_key'] = $channelKey;
+         if ($channel_key === '') $channel_key = 'channel';
+         $channel_key = $this->unique_channel_key($channel_key);
+         $values['channel_key'] = $channel_key;
          $this->db()->insert($this->dd('shopChannel'), $values, 0);
-         $this->clearRequestCache();
+         $this->clear_request_cache();
          return;
       }
 
       $this->db()->update($this->dd('shopChannel'), $values, 'id = ' . (int)$id, 0);
-      $this->clearRequestCache();
+      $this->clear_request_cache();
    }
 
 
 
-   public function deleteChannel(int $id): int {
+   public function delete_channel(int $id): int {
       $this->install();
       if ($id <= 0) {
          return 0;
       }
 
-      $channel = $this->channelById($id);
+      $channel = $this->channel_by_id($id);
       if (!$channel) {
          return 0;
       }
@@ -113,18 +113,18 @@ trait dbxShopRepositoryChannelServiceTrait {
       $this->db()->update(
          $this->dd('shopProductChannel'),
          array('active' => 0),
-         'channel_key = ' . $this->sqlValue((string)($channel['channel_key'] ?? '')),
+         'channel_key = ' . $this->sql_value((string)($channel['channel_key'] ?? '')),
          0
       );
-      $this->clearRequestCache();
+      $this->clear_request_cache();
       return 1;
    }
 
 
 
-   public function testChannelConnection(int $id): array {
+   public function test_channel_connection(int $id): array {
       $this->install();
-      $channel = $this->channelById($id);
+      $channel = $this->channel_by_id($id);
       if (!$channel) {
          return array('ok' => false, 'message' => 'Channel wurde nicht gefunden.');
       }
@@ -136,24 +136,24 @@ trait dbxShopRepositoryChannelServiceTrait {
 
       $ok = !empty($result['ok']);
       $message = (string)($result['message'] ?? '');
-      $this->saveChannelTestResult($id, $ok, $message);
+      $this->save_channel_test_result($id, $ok, $message);
       return array('ok' => $ok, 'message' => $message);
    }
 
-   private function productHasActiveChannel(array $product, string $channelKey): bool {
+   private function product_has_active_channel(array $product, string $channel_key): bool {
       foreach ((array)($product['channels'] ?? array()) as $channel) {
-         if ((string)($channel['channel_key'] ?? '') === $channelKey && (int)($channel['active'] ?? 0) === 1) {
+         if ((string)($channel['channel_key'] ?? '') === $channel_key && (int)($channel['active'] ?? 0) === 1) {
             return true;
          }
       }
       return false;
    }
 
-   private function productChannelRowForExport(array $product, string $channelKey): array {
-      $productId = (int)($product['id'] ?? 0);
+   private function product_channel_row_for_export(array $product, string $channel_key): array {
+      $product_id = (int)($product['id'] ?? 0);
       $row = $this->db()->select1(
          $this->dd('shopProductChannel'),
-         'product_id = ' . $productId . ' AND channel_key = ' . $this->sqlValue($channelKey),
+         'product_id = ' . $product_id . ' AND channel_key = ' . $this->sql_value($channel_key),
          '*',
          0
       );
@@ -162,8 +162,8 @@ trait dbxShopRepositoryChannelServiceTrait {
       }
 
       $values = array(
-         'product_id' => $productId,
-         'channel_key' => $channelKey,
+         'product_id' => $product_id,
+         'channel_key' => $channel_key,
          'active' => 1,
          'channel_sku' => (string)($product['sku'] ?? ''),
          'price_gross' => -1,
@@ -173,39 +173,39 @@ trait dbxShopRepositoryChannelServiceTrait {
       $this->db()->save(
          $this->dd('shopProductChannel'),
          $values,
-         'product_id = ' . $productId . ' AND channel_key = ' . $this->sqlValue($channelKey),
+         'product_id = ' . $product_id . ' AND channel_key = ' . $this->sql_value($channel_key),
          0
       );
       $row = $this->db()->select1(
          $this->dd('shopProductChannel'),
-         'product_id = ' . $productId . ' AND channel_key = ' . $this->sqlValue($channelKey),
+         'product_id = ' . $product_id . ' AND channel_key = ' . $this->sql_value($channel_key),
          '*',
          0
       );
       return is_array($row) ? $row : $values;
    }
 
-   public function productChannelMapping(int $productId, string $channelKey): ?array {
+   public function product_channel_mapping(int $product_id, string $channel_key): ?array {
       $this->install();
-      $product = $this->productById($productId);
+      $product = $this->product_by_id($product_id);
       if (!$product) {
          return null;
       }
-      $channel = $this->channelByKey($channelKey);
+      $channel = $this->channel_by_key($channel_key);
       if (!$channel) {
          return null;
       }
       $row = $this->db()->select1(
          $this->dd('shopProductChannel'),
-         'product_id = ' . $productId . ' AND channel_key = ' . $this->sqlValue($channelKey),
+         'product_id = ' . $product_id . ' AND channel_key = ' . $this->sql_value($channel_key),
          '*',
          0
       );
       if (!is_array($row)) {
          $row = array(
-            'product_id' => $productId,
-            'channel_key' => $channelKey,
-            'active' => $this->productHasActiveChannel($product, $channelKey) ? 1 : 0,
+            'product_id' => $product_id,
+            'channel_key' => $channel_key,
+            'active' => $this->product_has_active_channel($product, $channel_key) ? 1 : 0,
             'channel_sku' => (string)($product['sku'] ?? ''),
             'price_gross' => -1,
             'shipping_gross' => -1,
@@ -225,10 +225,10 @@ trait dbxShopRepositoryChannelServiceTrait {
       );
    }
 
-   public function saveProductChannelMapping(int $productId, string $channelKey, array $data): void {
+   public function save_product_channel_mapping(int $product_id, string $channel_key, array $data): void {
       $this->install();
-      $product = $this->productById($productId);
-      $channel = $this->channelByKey($channelKey);
+      $product = $this->product_by_id($product_id);
+      $channel = $this->channel_by_key($channel_key);
       if (!$product || !$channel) {
          return;
       }
@@ -239,12 +239,12 @@ trait dbxShopRepositoryChannelServiceTrait {
          $note = '';
       }
 
-      $existing = $this->productChannelRowForExport($product, $channelKey);
+      $existing = $this->product_channel_row_for_export($product, $channel_key);
       $this->db()->save(
          $this->dd('shopProductChannel'),
          array(
-            'product_id' => $productId,
-            'channel_key' => $channelKey,
+            'product_id' => $product_id,
+            'channel_key' => $channel_key,
             'active' => !empty($data['active']) ? 1 : 0,
             'channel_sku' => trim((string)($data['channel_sku'] ?? $product['sku'] ?? '')),
             'price_gross' => (float)($data['price_gross'] ?? -1),
@@ -257,70 +257,70 @@ trait dbxShopRepositoryChannelServiceTrait {
             'last_export_date' => (string)($existing['last_export_date'] ?? ''),
             'note' => $note,
          ),
-         'product_id = ' . $productId . ' AND channel_key = ' . $this->sqlValue($channelKey),
+         'product_id = ' . $product_id . ' AND channel_key = ' . $this->sql_value($channel_key),
          0
       );
-      $this->db()->update($this->dd('shopProduct'), array('update_date' => date('Y-m-d H:i:s')), 'id = ' . $productId . ' AND trash = 0', 0);
+      $this->db()->update($this->dd('shopProduct'), array('update_date' => date('Y-m-d H:i:s')), 'id = ' . $product_id . ' AND trash = 0', 0);
    }
 
-   private function saveProductChannelExportResult(int $productId, string $channelKey, array $result): void {
+   private function save_product_channel_export_result(int $product_id, string $channel_key, array $result): void {
       $payload = $result['payload'] ?? array();
-      $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-      if ($payloadJson === false) {
-         $payloadJson = '';
+      $payload_json = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+      if ($payload_json === false) {
+         $payload_json = '';
       }
       $this->db()->save(
          $this->dd('shopProductChannel'),
          array(
-            'product_id' => $productId,
-            'channel_key' => $channelKey,
+            'product_id' => $product_id,
+            'channel_key' => $channel_key,
             'active' => 1,
             'external_listing_id' => (string)($result['external_listing_id'] ?? ''),
             'external_offer_id' => (string)($result['external_offer_id'] ?? ''),
             'export_status' => (string)($result['status'] ?? (!empty($result['ok']) ? 'exported' : 'failed')),
             'export_message' => (string)($result['message'] ?? ''),
-            'export_payload' => $payloadJson,
+            'export_payload' => $payload_json,
             'last_export_date' => date('Y-m-d H:i:s'),
          ),
-         'product_id = ' . $productId . ' AND channel_key = ' . $this->sqlValue($channelKey),
+         'product_id = ' . $product_id . ' AND channel_key = ' . $this->sql_value($channel_key),
          0
       );
-      $this->db()->update($this->dd('shopProduct'), array('update_date' => date('Y-m-d H:i:s')), 'id = ' . $productId . ' AND trash = 0', 0);
+      $this->db()->update($this->dd('shopProduct'), array('update_date' => date('Y-m-d H:i:s')), 'id = ' . $product_id . ' AND trash = 0', 0);
    }
 
-   public function exportProductToChannel(int $productId, string $channelKey): array {
+   public function export_product_to_channel(int $product_id, string $channel_key): array {
       $this->install();
-      $channelKey = trim($channelKey);
-      $product = $this->productById($productId);
+      $channel_key = trim($channel_key);
+      $product = $this->product_by_id($product_id);
       if (!$product) {
          return array('ok' => false, 'status' => 'failed', 'message' => 'Artikel wurde nicht gefunden.');
       }
-      $channel = $this->channelByKey($channelKey);
+      $channel = $this->channel_by_key($channel_key);
       if (!$channel || (int)($channel['active'] ?? 0) !== 1) {
          return array('ok' => false, 'status' => 'failed', 'message' => 'Channel ist nicht aktiv oder wurde nicht gefunden.');
       }
       if ((int)($channel['export_enabled'] ?? 0) !== 1) {
          return array('ok' => false, 'status' => 'failed', 'message' => 'Export ist fuer diesen Channel nicht aktiv.');
       }
-      if (!$this->productHasActiveChannel($product, $channelKey)) {
+      if (!$this->product_has_active_channel($product, $channel_key)) {
          return array('ok' => false, 'status' => 'failed', 'message' => 'Artikel ist diesem Channel nicht aktiv zugeordnet.');
       }
 
-      $productChannel = $this->productChannelRowForExport($product, $channelKey);
+      $product_channel = $this->product_channel_row_for_export($product, $channel_key);
       $connector = dbx()->get_include_obj('dbxShopChannelConnector', 'dbxShop');
       $result = is_object($connector) && method_exists($connector, 'exportProduct')
-         ? (array)$connector->exportProduct($channel, $product, $productChannel)
+         ? (array)$connector->export_product($channel, $product, $product_channel)
          : array('ok' => false, 'status' => 'failed', 'message' => 'Channel-Export-Connector konnte nicht geladen werden.');
-      $this->saveProductChannelExportResult((int)$product['id'], $channelKey, $result);
+      $this->save_product_channel_export_result((int)$product['id'], $channel_key, $result);
       return $result;
    }
 
-   public function exportProductsToChannel(array $ids, string $channelKey): array {
+   public function export_products_to_channel(array $ids, string $channel_key): array {
       $this->install();
-      $ids = $this->normalizeProductIds($ids);
+      $ids = $this->normalize_product_ids($ids);
       $summary = array('total' => count($ids), 'ok' => 0, 'failed' => 0, 'messages' => array());
       foreach ($ids as $id) {
-         $result = $this->exportProductToChannel($id, $channelKey);
+         $result = $this->export_product_to_channel($id, $channel_key);
          if (!empty($result['ok'])) {
             $summary['ok']++;
          } else {
@@ -334,7 +334,7 @@ trait dbxShopRepositoryChannelServiceTrait {
       return $summary;
    }
 
-   private function saveChannelTestResult(int $id, bool $ok, string $message): void {
+   private function save_channel_test_result(int $id, bool $ok, string $message): void {
       $now = date('Y-m-d H:i:s');
       $this->db()->update(
          $this->dd('shopChannel'),
@@ -351,7 +351,7 @@ trait dbxShopRepositoryChannelServiceTrait {
 
 
 
-   public function shippingGroups(): array {
+   public function shipping_groups(): array {
       $this->install();
       $rows = $this->db()->select($this->dd('shopShippingGroup'), 'trash = 0', '*', 'sorter ASC, title ASC', 'ASC', '', 0, 0, 0);
       return is_array($rows) ? $rows : array();
@@ -359,12 +359,12 @@ trait dbxShopRepositoryChannelServiceTrait {
 
 
 
-   public function channelGroups(): array {
+   public function channel_groups(): array {
       $this->install();
       $groups = $this->db()->select($this->dd('shopChannelGroup'), 'trash = 0', '*', 'sorter ASC, title ASC', 'ASC', '', 0, 0, 0);
       $groups = is_array($groups) ? $groups : array();
       foreach ($groups as &$group) {
-         $group['channels'] = $this->channelsForChannelGroup((int)$group['id']);
+         $group['channels'] = $this->channels_for_channel_group((int)$group['id']);
       }
       unset($group);
       return $groups;
@@ -372,17 +372,17 @@ trait dbxShopRepositoryChannelServiceTrait {
 
 
 
-   public function channelsForChannelGroup(int $channelGroupId): array {
-      $channelIndex = array();
+   public function channels_for_channel_group(int $channel_group_id): array {
+      $channel_index = array();
       foreach ($this->channels() as $channel) {
-         $channelIndex[(string)($channel['channel_key'] ?? '')] = $channel;
+         $channel_index[(string)($channel['channel_key'] ?? '')] = $channel;
       }
-      $rows = $this->db()->select($this->dd('shopChannelGroupChannel'), 'channel_group_id = ' . (int)$channelGroupId, '*', '', 'ASC', '', 0, 0, 0);
+      $rows = $this->db()->select($this->dd('shopChannelGroupChannel'), 'channel_group_id = ' . (int)$channel_group_id, '*', '', 'ASC', '', 0, 0, 0);
       $rows = is_array($rows) ? $rows : array();
       foreach ($rows as &$row) {
          $key = (string)($row['channel_key'] ?? '');
-         $row['title'] = (string)($channelIndex[$key]['title'] ?? $key);
-         $row['_sorter'] = (int)($channelIndex[$key]['sorter'] ?? 9999);
+         $row['title'] = (string)($channel_index[$key]['title'] ?? $key);
+         $row['_sorter'] = (int)($channel_index[$key]['sorter'] ?? 9999);
       }
       unset($row);
       usort($rows, fn($a, $b) => ((int)($a['_sorter'] ?? 9999) <=> (int)($b['_sorter'] ?? 9999))
@@ -396,18 +396,18 @@ trait dbxShopRepositoryChannelServiceTrait {
 
 
 
-   public function updateProductGroup(int $id, array $data): void {
+   public function update_product_group(int $id, array $data): void {
       $this->install();
-      $parentId = max(0, (int)($data['parent_id'] ?? 0));
-      if ($id > 0 && $parentId === $id) {
-         $parentId = 0;
+      $parent_id = max(0, (int)($data['parent_id'] ?? 0));
+      if ($id > 0 && $parent_id === $id) {
+         $parent_id = 0;
       }
       $values = array(
-         'parent_id' => $parentId,
+         'parent_id' => $parent_id,
          'title' => (string)($data['title'] ?? ''),
          'description' => (string)($data['description'] ?? ''),
          'tax_class' => (string)($data['tax_class'] ?? 'mwst1'),
-         'default_tax_rate' => $this->taxRateForClass((string)($data['tax_class'] ?? 'mwst1'), (float)($data['default_tax_rate'] ?? 19)),
+         'default_tax_rate' => $this->tax_rate_for_class((string)($data['tax_class'] ?? 'mwst1'), (float)($data['default_tax_rate'] ?? 19)),
          'display_variant' => (string)($data['display_variant'] ?? 'gallery_grid'),
          'card_template' => (string)($data['card_template'] ?? 'product-card-default'),
          'detail_template' => (string)($data['detail_template'] ?? 'product-detail-default'),
@@ -426,25 +426,25 @@ trait dbxShopRepositoryChannelServiceTrait {
          'sorter' => (int)($data['sorter'] ?? 100),
       );
       if ($id <= 0) {
-         $groupKey = $this->normalizeKey((string)($data['group_key'] ?? ''));
-         if ($groupKey === '') {
-            $groupKey = $this->normalizeKey((string)($data['title'] ?? 'artikelgruppe'));
+         $group_key = $this->normalize_key((string)($data['group_key'] ?? ''));
+         if ($group_key === '') {
+            $group_key = $this->normalize_key((string)($data['title'] ?? 'artikelgruppe'));
          }
-         if ($groupKey === '') $groupKey = 'artikelgruppe';
-         $groupKey = $this->uniqueProductGroupKey($groupKey);
-         $values['group_key'] = $groupKey;
+         if ($group_key === '') $group_key = 'artikelgruppe';
+         $group_key = $this->unique_product_group_key($group_key);
+         $values['group_key'] = $group_key;
          $this->db()->insert($this->dd('shopProductGroup'), $values, 0);
-         $this->clearRequestCache();
+         $this->clear_request_cache();
          return;
       }
 
       $this->db()->update($this->dd('shopProductGroup'), $values, 'id = ' . (int)$id, 0);
-      $this->clearRequestCache();
+      $this->clear_request_cache();
    }
 
 
 
-   public function updateShippingGroup(int $id, array $data): void {
+   public function update_shipping_group(int $id, array $data): void {
       $this->install();
       $values = array(
          'title' => (string)($data['title'] ?? ''),
@@ -457,13 +457,13 @@ trait dbxShopRepositoryChannelServiceTrait {
          'sorter' => (int)($data['sorter'] ?? 100),
       );
       if ($id <= 0) {
-         $groupKey = $this->normalizeKey((string)($data['group_key'] ?? ''));
-         if ($groupKey === '') {
-            $groupKey = $this->normalizeKey((string)($data['title'] ?? 'versandgruppe'));
+         $group_key = $this->normalize_key((string)($data['group_key'] ?? ''));
+         if ($group_key === '') {
+            $group_key = $this->normalize_key((string)($data['title'] ?? 'versandgruppe'));
          }
-         if ($groupKey === '') $groupKey = 'versandgruppe';
-         $groupKey = $this->uniqueShippingGroupKey($groupKey);
-         $values['group_key'] = $groupKey;
+         if ($group_key === '') $group_key = 'versandgruppe';
+         $group_key = $this->unique_shipping_group_key($group_key);
+         $values['group_key'] = $group_key;
          $this->db()->insert($this->dd('shopShippingGroup'), $values, 0);
          return;
       }
@@ -473,7 +473,7 @@ trait dbxShopRepositoryChannelServiceTrait {
 
 
 
-   public function updateChannelGroup(int $id, array $data, array $channelKeys): void {
+   public function update_channel_group(int $id, array $data, array $channel_keys): void {
       $this->install();
       $values = array(
          'title' => (string)($data['title'] ?? ''),
@@ -482,18 +482,18 @@ trait dbxShopRepositoryChannelServiceTrait {
          'sorter' => (int)($data['sorter'] ?? 100),
       );
       if ($id <= 0) {
-         $groupKey = $this->normalizeKey((string)($data['group_key'] ?? ''));
-         if ($groupKey === '') {
-            $groupKey = $this->normalizeKey((string)($data['title'] ?? 'channel-gruppe'));
+         $group_key = $this->normalize_key((string)($data['group_key'] ?? ''));
+         if ($group_key === '') {
+            $group_key = $this->normalize_key((string)($data['title'] ?? 'channel-gruppe'));
          }
-         if ($groupKey === '') $groupKey = 'channel-gruppe';
-         $groupKey = $this->uniqueChannelGroupKey($groupKey);
-         $values['group_key'] = $groupKey;
+         if ($group_key === '') $group_key = 'channel-gruppe';
+         $group_key = $this->unique_channel_group_key($group_key);
+         $values['group_key'] = $group_key;
          if ($values['title'] === '') {
-            $values['title'] = $groupKey;
+            $values['title'] = $group_key;
          }
          $this->db()->insert($this->dd('shopChannelGroup'), $values, 0);
-         $row = $this->db()->select1($this->dd('shopChannelGroup'), 'group_key = ' . $this->sqlValue($groupKey), 'id', 0);
+         $row = $this->db()->select1($this->dd('shopChannelGroup'), 'group_key = ' . $this->sql_value($group_key), 'id', 0);
          $id = (int)($row['id'] ?? 0);
       } else {
          $this->db()->update($this->dd('shopChannelGroup'), $values, 'id = ' . (int)$id, 0);
@@ -506,11 +506,11 @@ trait dbxShopRepositoryChannelServiceTrait {
       foreach ($channels as $channel) {
          $key = (string)($channel['channel_key'] ?? '');
          if ($key === '') continue;
-         $active = in_array($key, $channelKeys, true) ? 1 : 0;
+         $active = in_array($key, $channel_keys, true) ? 1 : 0;
          $this->db()->save(
             $this->dd('shopChannelGroupChannel'),
             array('channel_group_id' => $id, 'channel_key' => $key, 'active' => $active),
-            'channel_group_id = ' . (int)$id . ' AND channel_key = ' . $this->sqlValue($key),
+            'channel_group_id = ' . (int)$id . ' AND channel_key = ' . $this->sql_value($key),
             0
          );
       }
@@ -518,7 +518,7 @@ trait dbxShopRepositoryChannelServiceTrait {
 
 
 
-   public function deleteChannelGroup(int $id): int {
+   public function delete_channel_group(int $id): int {
       $this->install();
       if ($id <= 0) {
          return 0;
@@ -540,7 +540,7 @@ trait dbxShopRepositoryChannelServiceTrait {
 
 
 
-   public function deleteProductGroup(int $id): int {
+   public function delete_product_group(int $id): int {
       $this->install();
       if ($id <= 0) {
          return 0;
@@ -552,13 +552,13 @@ trait dbxShopRepositoryChannelServiceTrait {
          'id = ' . (int)$id . ' AND trash = 0',
          0
       );
-      $this->clearRequestCache();
+      $this->clear_request_cache();
       return $updated;
    }
 
 
 
-   public function deleteShippingGroup(int $id): int {
+   public function delete_shipping_group(int $id): int {
       $this->install();
       if ($id <= 0) {
          return 0;

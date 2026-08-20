@@ -1,8 +1,5 @@
 <?php
 $messages = array();
-$messages['save_success'] = 'Los datos se guardaron';
-$messages['save_succeass'] = $messages['save_success'];
-$messages['save_error'] = 'Los datos no se pudieron guardar';
 $messages['bar_title'] = 'Añadir mensaje';
 $messages['bar_subtitle'] = 'Su mensaje será visible para el equipo de soporte';
 $messages['form_info'] = 'Añada información o responda a una pregunta del equipo de soporte.';

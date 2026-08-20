@@ -43,7 +43,7 @@ trait dbxKiCmsDescribeServiceTrait {
             ),
          ),
          'page_workflows' => $this->page_workflows(),
-         'languages' => dbxContentLngSync::accessibleLngs(),
+         'languages' => dbxContentLngSync::accessible_lngs(),
          'actions' => $this->catalog(),
          'examples' => array(
             'preview_page_create' => array(
@@ -139,17 +139,17 @@ trait dbxKiCmsDescribeServiceTrait {
 
    private function page_create_guide(array $params): array {
       $lng = $this->language($params['lng'] ?? '');
-      $folderId = max(0, (int)($params['folder_id'] ?? $params['folder'] ?? 0));
+      $folder_id = max(0, (int)($params['folder_id'] ?? $params['folder'] ?? 0));
       $title = $this->clean($params['title'] ?? '___TITEL___', 254);
-      $withHero = $this->bool_value($params['with_hero'] ?? false);
-      $withGallery = $this->bool_value($params['with_gallery'] ?? false);
-      $template = $this->clean($params['template'] ?? ($withHero ? 'c-title-hero_header-gallery-body1-footer' : 'c-body1-footer'), 254);
-      if ($folderId === 0 && strtolower($template) === 'parent') {
+      $with_hero = $this->bool_value($params['with_hero'] ?? false);
+      $with_gallery = $this->bool_value($params['with_gallery'] ?? false);
+      $template = $this->clean($params['template'] ?? ($with_hero ? 'c-title-hero_header-gallery-body1-footer' : 'c-body1-footer'), 254);
+      if ($folder_id === 0 && strtolower($template) === 'parent') {
          $template = 'c-body1-footer';
       }
 
       $steps = array();
-      if ($withHero) {
+      if ($with_hero) {
          $steps[] = array(
             'id' => 'hero',
             'action' => 'media.create_base64',
@@ -162,7 +162,7 @@ trait dbxKiCmsDescribeServiceTrait {
             ),
          );
       }
-      if ($withGallery) {
+      if ($with_gallery) {
          $steps[] = array(
             'id' => 'gallery_1',
             'action' => 'media.create_base64',
@@ -180,17 +180,17 @@ trait dbxKiCmsDescribeServiceTrait {
          'action' => 'page.create',
          'params' => array(
             'lng' => $lng,
-            'folder_id' => $folderId,
+            'folder_id' => $folder_id,
             'title' => $title,
             'template' => $template,
-            'hero_height' => $withHero ? '300px' : 'parent',
+            'hero_height' => $with_hero ? '300px' : 'parent',
             'description' => '___SEO_BESCHREIBUNG___',
             'keywords' => '___KEYWORDS___',
             'activ' => 1,
             'content' => '___HTML_CONTENT___',
          ),
       );
-      if ($withHero) {
+      if ($with_hero) {
          $steps[] = array(
             'id' => 'hero_assign',
             'action' => 'media.assign',
@@ -202,7 +202,7 @@ trait dbxKiCmsDescribeServiceTrait {
             ),
          );
       }
-      if ($withGallery) {
+      if ($with_gallery) {
          $steps[] = array(
             'id' => 'gallery_assign_1',
             'action' => 'media.assign',
@@ -231,9 +231,9 @@ trait dbxKiCmsDescribeServiceTrait {
    private function page_update_guide(array $params): array {
       $lng = $this->language($params['lng'] ?? '');
       $id = max(0, (int)($params['id'] ?? 0));
-      $heroMode = strtolower(trim((string)($params['hero_mode'] ?? 'none')));
-      if (!in_array($heroMode, array('none', 'replace', 'create'), true)) {
-         $heroMode = 'none';
+      $hero_mode = strtolower(trim((string)($params['hero_mode'] ?? 'none')));
+      if (!in_array($hero_mode, array('none', 'replace', 'create'), true)) {
+         $hero_mode = 'none';
       }
       $fields = $params['change_fields'] ?? array('content');
       if (is_string($fields)) {
@@ -244,7 +244,7 @@ trait dbxKiCmsDescribeServiceTrait {
       }
 
       $steps = array();
-      if ($heroMode === 'replace') {
+      if ($hero_mode === 'replace') {
          $steps[] = array(
             'id' => 'hero_replace',
             'action' => 'page.hero_replace_image',
@@ -257,7 +257,7 @@ trait dbxKiCmsDescribeServiceTrait {
                'fit' => 'cover',
             ),
          );
-      } elseif ($heroMode === 'create') {
+      } elseif ($hero_mode === 'create') {
          $steps[] = array(
             'id' => 'hero_create',
             'action' => 'page.hero_create_image',
@@ -302,7 +302,7 @@ trait dbxKiCmsDescribeServiceTrait {
 
       return array(
          'workflow' => $this->page_workflows()['page_update'],
-         'target' => array('lng' => $lng, 'id' => $id, 'change_fields' => array_values($fields), 'hero_mode' => $heroMode),
+         'target' => array('lng' => $lng, 'id' => $id, 'change_fields' => array_values($fields), 'hero_mode' => $hero_mode),
          'current_page' => $current,
          'manifest' => array(
             'title' => 'Seite ' . $id . ' aktualisieren',
@@ -599,10 +599,10 @@ trait dbxKiCmsDescribeServiceTrait {
          'user_id' => (int)dbx()->user(),
          'admin' => 1,
          'execute_enabled' => (int)dbx()->get_cfg('dbxKi', 'allow_execute', 1),
-         'languages' => dbxContentLngSync::accessibleLngs(),
-         'master_language' => dbxContentLngSync::masterLng(),
-         'content_count' => $this->db->count(dbxContentLng::ddContent($this->language(''))),
-         'folder_count' => $this->db->count(dbxContentLng::ddFolder($this->language(''))),
+         'languages' => dbxContentLngSync::accessible_lngs(),
+         'master_language' => dbxContentLngSync::master_lng(),
+         'content_count' => $this->db->count(dbxContentLng::dd_content($this->language(''))),
+         'folder_count' => $this->db->count(dbxContentLng::dd_folder($this->language(''))),
          'media_count' => $this->db->count('dbxMedia', 'active = 1'),
       );
    }
