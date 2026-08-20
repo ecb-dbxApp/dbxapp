@@ -20,7 +20,7 @@ $skip_path = static function (string $path) use ($project_root, $foreign_paths):
     $normalized = str_replace('\\', '/', $path);
     $relative = ltrim(str_replace(str_replace('\\', '/', $project_root), '', $normalized), '/');
     return isset($foreign_paths[$relative])
-        || (bool)preg_match('~/(?:vendor|work|tests?|db|dd|fd|_backup|backups|temp)/~i', $normalized);
+        || (bool)preg_match('~/(?:vendor|work|tests?|db|dd|fd|_backup|backups|temp)/~i', '/' . $relative);
 };
 
 $metrics = array(
