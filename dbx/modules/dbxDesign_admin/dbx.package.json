@@ -13,7 +13,7 @@
     "icon": "bi-palette2",
     "image": "",
     "package_excludes": [],
-    "version": "4.4.0",
+    "version": "4.4.1",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

@@ -13,7 +13,9 @@ $contract = new dbxPackageContract();
 $scanner = new dbxPackageSecurityScanner();
 $key_id = $argv[1] ?? 'dbxapp-market-2026';
 $base_url = rtrim($argv[2] ?? 'https://updates.dbxapp.de/v1/packages', '/');
-$private_file = $root . '/files/sys/marketplace/keys/' . $key_id . '-private.pem';
+$private_file = isset($argv[3]) && trim((string)$argv[3]) !== ''
+    ? (string)$argv[3]
+    : $root . '/files/sys/marketplace/keys/' . $key_id . '-private.pem';
 if (!is_file($private_file)) {
     fwrite(STDERR, "Privater Marktplatzschluessel fehlt. Zuerst init-marketplace-key.php ausfuehren.\n");
     exit(2);

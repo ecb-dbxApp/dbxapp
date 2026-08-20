@@ -1,5 +1,20 @@
 <?php
 
+  // Die offizielle Produktschreibweise wird nur in sichtbaren Textknoten
+  // normalisiert. Tags, Attribute, Codebeispiele, Styles und Skripte bleiben
+  // bytegenau erhalten.
+  $content = preg_replace_callback(
+    '~<(?:script|style|code|pre)\b[^>]*>[\s\S]*?</(?:script|style|code|pre)>|<[^>]+>|[^<]+~iu',
+    static function(array $match): string {
+      $chunk = (string)($match[0] ?? '');
+      if ($chunk === '' || $chunk[0] === '<') {
+        return $chunk;
+      }
+      return preg_replace('/\bdbx\s*app\b/iu', 'dbxapp', $chunk) ?? $chunk;
+    },
+    (string)$content
+  ) ?? (string)$content;
+
   // Erst nach Modul- und Template-Interpretation optimieren, damit auch
   // Bilder aus eingebetteten Content-Modulen erfasst werden. Der Marker
   // begrenzt die Aenderung strikt auf gerenderte Content-Seiten.
