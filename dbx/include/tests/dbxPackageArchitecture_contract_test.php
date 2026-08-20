@@ -16,7 +16,16 @@ $controller = (string)file_get_contents($root . '/dbx/modules/dbxAdmin/include/d
 $template = (string)file_get_contents($root . '/dbx/modules/dbxAdmin/tpl/htm/admin-update.htm');
 $update_js = (string)file_get_contents($root . '/dbx/modules/dbxAdmin/js/adminUpdate.js');
 
-package_arch_assert(trim((string)file_get_contents($root . '/VERSION')) === '4.4.0', 'Produktversion ist nicht 4.4.0.');
+$product_version = trim((string)file_get_contents($root . '/VERSION'));
+package_arch_assert(
+    preg_match('/^\d+\.\d+\.\d+$/', $product_version) === 1,
+    'Die zentrale Produktversion ist keine gueltige Releaseversion.'
+);
+$kernel_manifest = json_decode((string)file_get_contents($root . '/dbx.package.json'), true);
+package_arch_assert(
+    is_array($kernel_manifest) && ($kernel_manifest['version'] ?? '') === $product_version,
+    'Kernelmanifest und zentrale Produktversion stimmen nicht ueberein.'
+);
 package_arch_assert(!is_file($root . '/UPDATE_BASELINE'), 'Legacy-Baseline ist noch vorhanden.');
 package_arch_assert(!is_file($root . '/dbx/modules/dbxAdmin/include/dbxUpdateService.class.php'), 'Monolithischer Legacy-Updater ist noch vorhanden.');
 foreach (array('dbxPackageManager', 'prepare(array $ids', 'install_prepared', 'rollback', 'resolve_dependencies') as $needle) {
