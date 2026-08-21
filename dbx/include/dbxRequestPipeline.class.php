@@ -137,6 +137,11 @@ final class dbxRequestPipeline {
          $api->timer('interpreter', 'Interpreter');
          $page_content = $interpreter->run($page_content);
          $api->timer('interpreter');
+         // Der Interpreter kann weitere Templates mit DBX-Laufzeitwerten
+         // einsetzen. Diese müssen vor der Wiederherstellung geschützter
+         // Codebeispiele aufgelöst werden, damit weder Cache-Hits noch die
+         // Live-Ausgabe Platzhalter wie {dbx:design} ausliefern.
+         $page_content = $api->get_system_obj('dbxTPL')->replaces_dbx($page_content);
          $page_content = $web_app->add_norep($page_content);
          $page_content = $web_app->add_editor_files_data($page_content);
          $page_content = $web_app->out_filter($page_content);
