@@ -4,6 +4,17 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.4.6] - 2026-08-21
+
+### Fixed
+
+- Behandelt den internen Frontcontroller `index.php` bei sprachpräfixierten
+  Installationen wie die kanonische Startseite. Dadurch wechseln DE/EN direkt
+  zwischen den kanonischen Schwesterseiten und erzeugen keinen
+  `dbx_lng`-Queryparameter mehr.
+- Erlaubt dem kontrollierten Source-to-GitHub-Abgleich auch saubere
+  Git-Worktrees als Release-Spiegel.
+
 ## [4.4.5] - 2026-08-21
 
 ### Fixed
