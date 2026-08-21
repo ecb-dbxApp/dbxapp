@@ -227,7 +227,11 @@ trait dbxDDSynchronizationTrait
             return $plan;
         }
 
-        $table_exists = $this->get_table_exist($server, $table) ? 1 : 0;
+        // Eine fehlende Datenbank oder Tabelle ist beim Aufbau des
+        // Synchronisationsplans ein erwarteter Soll/Ist-Unterschied. Erst ein
+        // fehlgeschlagener Anlageversuch ist ein Systemfehler. Die reine
+        // Vorpruefung darf deshalb keine dauerhafte SysMsg erzeugen.
+        $table_exists = $this->get_table_exist($server, $table, false) ? 1 : 0;
         $plan['table_exists'] = $table_exists;
 
         if (!$table_exists) {

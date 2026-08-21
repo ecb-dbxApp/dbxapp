@@ -229,7 +229,7 @@ class dbxDB {
      * - versucht `beginTransaction()`
      * - Rollback nur wenn tatsächlich eine Transaktion aktiv ist
      *
-     * @param string $databasePath Vollständiger Pfad zur SQLite-Datei
+     * @param string $database_path Vollständiger Pfad zur SQLite-Datei
      *
      * @return int 1 = Datenbank ist gelockt, 0 = frei
      */
@@ -270,12 +270,12 @@ class dbxDB {
      * protokolliert, ohne unkontrolliert nach außen abzubrechen.
      *
      * @param string $server Name des Servers (Schlüssel im `$this->db`-Array)
-     * @param string $dbType Typ der Datenbank
-     * @param string $dbHost Hostname oder Datei für SQLite
-     * @param string $dbName Name der Datenbank
-     * @param string $dbUser Benutzername
-     * @param string $dbPass Passwort
-     * @param string $dbPort Port
+     * @param string $db_type Typ der Datenbank
+     * @param string $db_host Hostname oder Datei für SQLite
+     * @param string $db_name Name der Datenbank
+     * @param string $db_user Benutzername
+     * @param string $db_pass Passwort
+     * @param string $db_port Port
      *
      * @return int 1 bei Erfolg, 0 bei Fehler
      */
@@ -1188,7 +1188,7 @@ class dbxDB {
      *
      * @param string $dd DD-Name oder Servername
      * @param string $dbtab Optional expliziter Tabellenname
-     * @param bool $reportMissing Fehlende DB oder Tabelle als Systemmeldung protokollieren
+     * @param bool $report_missing Fehlende DB oder Tabelle als Systemmeldung protokollieren
      *
      * @return int 1 wenn Tabelle existiert, sonst 0
      */

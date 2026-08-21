@@ -22,8 +22,8 @@ class dbxFormValueResolver
      * @param array $system Formularwerte des Laufzeitkontexts
      * @param array $post POST-Werte
      * @param array $query GET-Werte
-     * @param bool $useRequest Requestwerte berücksichtigen
-     * @param bool $fallbackToState Datensatz- und Systemwerte berücksichtigen
+     * @param bool $use_request Requestwerte berücksichtigen
+     * @param bool $fallback_to_state Datensatz- und Systemwerte berücksichtigen
      * @return array{value:mixed,origin:string,ok:int,validation:array}
      */
     public function resolve(

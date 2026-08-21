@@ -194,7 +194,11 @@ final class dbxPackageManager
         );
     }
 
-    /** @param array<int,string> $ids @return array<string,mixed> */
+    /**
+     * @param array $ids Ausgewaehlte Paketkennungen
+     * @param bool $force_catalog Marktplatzkatalog neu laden
+     * @return array<string,mixed>
+     */
     public function prepare(array $ids, bool $force_catalog = true): array
     {
         return $this->synchronized(function () use ($ids, $force_catalog): array {
@@ -375,7 +379,9 @@ final class dbxPackageManager
     }
 
     /**
-     * @param array<string,mixed> $expected
+     * @param string $archive Pfad zum heruntergeladenen Paketarchiv
+     * @param array $expected Erwartete Paketmetadaten aus dem Katalog
+     * @param string $extract_to Geprueftes Zielverzeichnis fuer die Entpackung
      * @return array{manifest:array<string,mixed>}
      */
     public function inspect_archive(string $archive, array $expected, string $extract_to): array

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /** Registriert modul-eigene CSS- und JavaScript-Dateien fuer einen Request. */
 final class dbxAssetRegistry {
 
-   /** @var array{css:array<string,string>,js:array<string,string>} */
+   /** CSS- und JavaScript-Ressourcen nach Typ und Kennung. */
    private array $assets = array('css' => array(), 'js' => array());
 
    /** Registriert eine CSS-Datei aus tpl/css/ des Moduls. */

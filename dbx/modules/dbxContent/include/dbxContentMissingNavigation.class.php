@@ -7,7 +7,7 @@ namespace dbx\dbxContent;
 /** Zentrale sprachabhängige Hinweisseite für unbekannte Permalinks. */
 final class dbxContentMissingNavigation
 {
-    /** @var array<string,string> */
+    /** Sprachcode auf Permalink der Hinweisseite. */
     private const ROUTES = array(
         'de' => 'seite-nicht-gefunden',
         'en' => 'page-not-found',

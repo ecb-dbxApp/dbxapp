@@ -131,7 +131,11 @@ class dbxUiSettingsService
         return $profiles;
     }
 
-    /** @param array<string,mixed> $settings */
+    /**
+     * @param string $context Zielkontext desktop oder mobile
+     * @param array $settings Zu speichernde Benutzereinstellungen
+     * @param int $user_id Kennung des angemeldeten Benutzers
+     */
     public function save_user_profile(string $context, array $settings, int $user_id): int
     {
         if ($user_id <= 0) {
@@ -197,7 +201,11 @@ class dbxUiSettingsService
         return (bool)$db->delete(self::USER_DD, array('id' => (int)$existing['id']));
     }
 
-    /** @param array<string,mixed> $settings */
+    /**
+     * @param string $context Zielkontext desktop oder mobile
+     * @param array $settings Zu speichernde UI-Standards
+     * @param int $user_id Kennung des verantwortlichen Benutzers
+     */
     public function save_defaults(string $context, array $settings, int $user_id): int
     {
         $context = $this->normalize_context($context);
@@ -262,7 +270,11 @@ class dbxUiSettingsService
         );
     }
 
-    /** @param array<string,mixed> $settings @return array<string,mixed> */
+    /**
+     * @param array $settings Zu normalisierende Einstellungen
+     * @param string $context Zielkontext desktop oder mobile
+     * @return array<string,mixed>
+     */
     public function normalize_settings(array $settings, string $context): array
     {
         $context = $this->normalize_context($context);
@@ -294,7 +306,7 @@ class dbxUiSettingsService
             : self::CONTEXT_DESKTOP;
     }
 
-    /** @param array<string,mixed> $settings */
+    /** @param array $settings Sicher in HTML einzubettende Einstellungen. */
     public function settings_json_html(array $settings): string
     {
         $json = json_encode((object)$settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

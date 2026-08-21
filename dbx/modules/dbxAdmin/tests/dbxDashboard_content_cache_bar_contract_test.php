@@ -19,4 +19,15 @@ if ($method === ''
     exit(1);
 }
 
+$template_root = dirname(__DIR__) . '/tpl/htm/';
+foreach (array('', '_en', '_es') as $suffix) {
+    foreach (array('page-cache-admin', 'admin-dashboard-content-cache-body') as $template) {
+        $html = (string)file_get_contents($template_root . $template . $suffix . '.htm');
+        if (str_contains($html, '<code>{cache_dir}</code>')) {
+            fwrite(STDERR, "Dynamischer Cache-Pfad wird innerhalb eines bewusst inerten Codeelements eingefroren.\n");
+            exit(2);
+        }
+    }
+}
+
 echo "OK Content-Cache-Aktionen bleiben in der Dashboard-Bar.\n";

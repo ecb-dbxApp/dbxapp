@@ -157,6 +157,7 @@ $source_second = $tpl->get_tpl('dbx|test-source-change', array());
 $partial_tpl = $temp_tpl_dir . DIRECTORY_SEPARATOR . 'test-inert-partial.htm';
 $source_inert_tpl = $temp_tpl_dir . DIRECTORY_SEPARATOR . 'test-inert-source.htm';
 $data_inert_tpl = $temp_tpl_dir . DIRECTORY_SEPARATOR . 'test-inert-data.htm';
+$textarea_tpl = $temp_tpl_dir . DIRECTORY_SEPARATOR . 'test-inert-textarea.htm';
 $literal_code = '<code>{dbx:version}[tpl=dbx|missing-code]</code>'
     . '<pre>[tpl=dbx|missing-pre]</pre>'
     . '<dbx-code>[tpl=dbx|missing-custom]</dbx-code>'
@@ -167,14 +168,21 @@ $literal_code = '<code>{dbx:version}[tpl=dbx|missing-code]</code>'
 file_put_contents($partial_tpl, 'ACTIVE');
 file_put_contents($source_inert_tpl, $literal_code . '|[tpl=dbx|test-inert-partial]');
 file_put_contents($data_inert_tpl, '<section>{obj:content}</section>|[tpl=dbx|test-inert-partial]');
+file_put_contents($textarea_tpl, '<textarea id="{name}_{i}">{value}</textarea>|[tpl=dbx|test-inert-partial]');
 $tpl->clear_raw_cache();
 $source_inert = $tpl->get_tpl('dbx|test-inert-source', array());
 $data_inert = $tpl->get_tpl('dbx|test-inert-data', array('obj:content' => $literal_code));
+$textarea_inert = $tpl->get_tpl('dbx|test-inert-textarea', array(
+    'name' => 'content',
+    'i' => 7,
+    'value' => '[tpl=dbx|missing-textarea]',
+));
 
 @unlink($temp_tpl);
 @unlink($partial_tpl);
 @unlink($source_inert_tpl);
 @unlink($data_inert_tpl);
+@unlink($textarea_tpl);
 @rmdir($temp_tpl_dir);
 @rmdir(dirname($temp_tpl_dir));
 @rmdir(dirname(dirname($temp_tpl_dir)));
@@ -192,6 +200,10 @@ if ($source_inert !== $literal_code . '|ACTIVE') {
 }
 if ($data_inert !== '<section>' . $literal_code . '</section>|ACTIVE') {
     fwrite(STDERR, "FAIL: dbxTPL hat eingesetzten CMS-Code interpretiert: {$data_inert}\n");
+    exit(1);
+}
+if ($textarea_inert !== '<textarea id="content_7">[tpl=dbx|missing-textarea]</textarea>|ACTIVE') {
+    fwrite(STDERR, "FAIL: Textarea-Attribute wurden nicht ersetzt oder eingesetzter Inhalt interpretiert: {$textarea_inert}\n");
     exit(1);
 }
 

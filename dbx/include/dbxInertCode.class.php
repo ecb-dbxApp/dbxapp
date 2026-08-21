@@ -18,16 +18,20 @@ final class dbxInertCode
     }
 
     /**
-     * @param array<string,string> $blocks
+     * @param string $content Zu schützender Dokumentationsinhalt
+     * @param array $blocks Ablage fuer geschuetzte Codebloecke
+     * @param bool $protect_textarea Auch Textarea-Inhalte als inerten Code behandeln
      */
-    public function protect(string $content, array &$blocks): string
+    public function protect(string $content, array &$blocks, bool $protect_textarea = true): string
     {
         if ($content === '' || !$this->may_contain_inert_code($content)) {
             return $content;
         }
 
+        $semantic_elements = 'pre|code|kbd|samp|script|style|dbx-code'
+            . ($protect_textarea ? '|textarea' : '');
         $patterns = array(
-            '/<(pre|code|kbd|samp|script|style|textarea|dbx-code)\b[^>]*>[\s\S]*?<\/\1\s*>/i',
+            '/<(' . $semantic_elements . ')\b[^>]*>[\s\S]*?<\/\1\s*>/i',
             '/<([a-z][a-z0-9:-]*)\b(?=[^>]*(?:\bdata-dbx-inert(?:\s*=\s*(?:["\'][^"\']*["\']|[^\s>]+))?|\bclass\s*=\s*["\'][^"\']*\bdbx-code-inert\b[^"\']*["\']))[^>]*>[\s\S]*?<\/\1\s*>/i',
             '/(^|\R)([ \t]*)(`{3,}|~{3,})[^\r\n]*\R[\s\S]*?\R[ \t]*\3[ \t]*(?=\R|$)/m',
         );
@@ -54,7 +58,8 @@ final class dbxInertCode
     }
 
     /**
-     * @param array<string,string> $blocks
+     * @param string $content Inhalt mit Schutzmarken
+     * @param array $blocks Zuvor abgelegte Codebloecke
      */
     public function restore(string $content, array $blocks): string
     {
