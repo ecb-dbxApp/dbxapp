@@ -82,6 +82,17 @@ $assert(
 $assert(
    $language_home->invoke(
       $menu,
+      'https://localhost/dbxapp/index.php',
+      'https://localhost/dbxapp/',
+      'en',
+      'de',
+      true
+   ) === 'https://localhost/dbxapp/en/',
+   'Der interne Frontcontroller wurde nicht als kanonische Startseite erkannt.'
+);
+$assert(
+   $language_home->invoke(
+      $menu,
       'https://localhost/dbxapp/?dbx_modul=dbxAdmin',
       'https://localhost/dbxapp/',
       'en',

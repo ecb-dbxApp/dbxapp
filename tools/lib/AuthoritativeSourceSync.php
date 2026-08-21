@@ -228,7 +228,8 @@ final class AuthoritativeSourceSync
 
    private static function assert_target(string $target): void
    {
-      if (!is_dir($target . DIRECTORY_SEPARATOR . '.git')
+      $git_marker = $target . DIRECTORY_SEPARATOR . '.git';
+      if ((!is_dir($git_marker) && !is_file($git_marker))
          || !is_file($target . DIRECTORY_SEPARATOR . 'RELEASE_PROCESS.md')) {
          throw new RuntimeException('Das Ziel ist kein vorbereiteter dbxApp-GitHub-Spiegel.');
       }
