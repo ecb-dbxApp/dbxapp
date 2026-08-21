@@ -115,6 +115,17 @@ $assert(
 $assert(
    $language_home->invoke(
       $menu,
+      'home',
+      'https://localhost/dbxapp/',
+      'en',
+      'de',
+      true
+   ) === 'https://localhost/dbxapp/en/',
+   'Der relative Laufzeitwert des Page-Cache-Alias wurde nicht als Startseite erkannt.'
+);
+$assert(
+   $language_home->invoke(
+      $menu,
       'https://localhost/dbxapp/?dbx_modul=dbxAdmin&dbx_lng=de',
       'https://localhost/dbxapp/',
       'en',

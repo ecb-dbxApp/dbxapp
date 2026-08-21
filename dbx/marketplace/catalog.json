@@ -2,7 +2,7 @@
     "schema": 1,
     "channel": "stable",
     "sequence": 1,
-    "generated_at": "2026-08-21T12:16:26+00:00",
+    "generated_at": "2026-08-21T12:37:39+00:00",
     "expires_at": "2030-01-01T00:00:00+00:00",
     "packages": [
         {
@@ -20,7 +20,7 @@
             "icon": "bi-palette",
             "image": "",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -56,7 +56,7 @@
             "icon": "bi-palette",
             "image": "",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -92,7 +92,7 @@
             "icon": "bi-cpu",
             "image": "",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -133,7 +133,7 @@
             "icon": "bi-database-gear",
             "image": "dbx/modules/dbx/tpl/img/dbx.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -167,7 +167,7 @@
             "icon": "bi-speedometer2",
             "image": "dbx/modules/dbxAdmin/tpl/img/dbxAdmin.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -206,7 +206,7 @@
             "icon": "bi-box-seam",
             "image": "",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -240,7 +240,7 @@
             "icon": "bi-hammer",
             "image": "dbx/modules/dbxConstruct/tpl/img/dbxConstruct.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -274,7 +274,7 @@
             "icon": "bi-chat-left-text",
             "image": "dbx/modules/dbxContact/tpl/img/dbxContact.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -311,7 +311,7 @@
             "icon": "bi-inbox",
             "image": "dbx/modules/dbxContact_admin/tpl/img/dbxContact_admin.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -351,7 +351,7 @@
             "icon": "bi-file-earmark-richtext",
             "image": "dbx/modules/dbxContent/tpl/img/dbxContent.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -388,7 +388,7 @@
             "icon": "bi-pencil-square",
             "image": "dbx/modules/dbxContent_admin/tpl/img/dbxContent_admin.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -428,7 +428,7 @@
             "icon": "bi-palette2",
             "image": "",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -462,7 +462,7 @@
             "icon": "bi-cloud-arrow-down",
             "image": "",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -498,7 +498,7 @@
             "icon": "bi-code-square",
             "image": "dbx/modules/dbxEditor/tpl/img/dbxEditor.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -532,7 +532,7 @@
             "icon": "bi-question-circle",
             "image": "dbx/modules/dbxHelp/tpl/img/dbxHelp.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -566,7 +566,7 @@
             "icon": "bi-house-door",
             "image": "dbx/modules/dbxHome/tpl/img/dbxHome.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -600,7 +600,7 @@
             "icon": "bi-stars",
             "image": "dbx/modules/dbxKi/tpl/img/dbxKi.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -638,7 +638,7 @@
             "icon": "bi-shield-lock",
             "image": "dbx/modules/dbxLogin/tpl/img/dbxLogin.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -676,7 +676,7 @@
             "icon": "bi-menu-button-wide",
             "image": "dbx/modules/dbxMenu/tpl/img/dbxMenu.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -712,7 +712,7 @@
             "icon": "bi-window-stack",
             "image": "dbx/modules/dbxPage_admin/tpl/img/dbxPage_admin.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -746,7 +746,7 @@
             "icon": "bi-clipboard2-check",
             "image": "",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -784,7 +784,7 @@
             "icon": "bi-wrench-adjustable-circle",
             "image": "dbx/modules/dbxSetup/tpl/img/dbxSetup.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -822,7 +822,7 @@
             "icon": "bi-cart3",
             "image": "",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -863,7 +863,7 @@
             "icon": "bi-shop-window",
             "image": "",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -905,7 +905,7 @@
             "icon": "bi-person-circle",
             "image": "dbx/modules/dbxUser/tpl/img/dbxUser.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -942,7 +942,7 @@
             "icon": "bi-people",
             "image": "dbx/modules/dbxUser_admin/tpl/img/dbxUser_admin.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -982,7 +982,7 @@
             "icon": "bi-diagram-3",
             "image": "dbx/modules/dbxWorkflow/tpl/img/dbxWorkflow.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -1018,7 +1018,7 @@
             "icon": "bi-bezier2",
             "image": "dbx/modules/dbxWorkflow_admin/tpl/img/dbxWorkflow_admin.png",
             "package_excludes": [],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
@@ -1066,7 +1066,7 @@
                 "dbx/modules/myLKW/tpl/img/Muster10.png",
                 "dbx/modules/myLKW/tpl/img/schein_a.png"
             ],
-            "version": "4.4.8",
+            "version": "4.4.9",
             "vendor": {
                 "id": "dbxapp",
                 "name": "dbxApp"
