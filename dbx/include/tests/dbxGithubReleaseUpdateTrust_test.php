@@ -8,11 +8,15 @@ require_once $root . '/dbx/include/dbxPackageContract.class.php';
 $contract = new dbxPackageContract();
 $catalog_url = 'https://github.com/ecb-dbxApp/dbxapp/releases/latest/download/catalog.json';
 $versioned_catalog = 'https://github.com/ecb-dbxApp/dbxapp/releases/download/v4.4.4/catalog.json';
+$versioned_catalog_without_prefix = 'https://github.com/ecb-dbxApp/dbxapp/releases/download/4.5.0/catalog.json';
 $artifact_url = 'https://github.com/ecb-dbxApp/dbxapp/releases/download/v4.4.4/dbxapp-kernel-dbxapp-4.4.4.zip';
+$artifact_url_without_prefix = 'https://github.com/ecb-dbxApp/dbxapp/releases/download/4.5.0/dbxapp-kernel-dbxapp-4.5.0.zip';
 
 if (!$contract->trusted_catalog_source($catalog_url)
     || !$contract->trusted_catalog_source($versioned_catalog)
-    || !$contract->trusted_artifact_source($artifact_url)) {
+    || !$contract->trusted_catalog_source($versioned_catalog_without_prefix)
+    || !$contract->trusted_artifact_source($artifact_url)
+    || !$contract->trusted_artifact_source($artifact_url_without_prefix)) {
     throw new RuntimeException('Der fest begrenzte GitHub-Releasepfad wird nicht als vertrauenswürdig erkannt.');
 }
 
