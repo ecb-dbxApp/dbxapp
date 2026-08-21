@@ -4,6 +4,17 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.4.3] - 2026-08-21
+
+### Release note
+
+- Veröffentlicht den Funktionsstand von 4.4.2 als vollständig signierten
+  Paketrelease. Der Quell-Tag 4.4.2 bleibt bestehen, besitzt wegen der
+  GitHub-Release-Unveränderlichkeit jedoch keinen wiederverwendbaren
+  Paketrelease.
+- Kernel, allgemeine Module und Designs erhalten konsistent Version 4.4.3;
+  unveränderte Fachmodule behalten ihre eigene Paketversion.
+
 ## [4.4.2] - 2026-08-21
 
 ### Fixed

@@ -13,7 +13,7 @@
     "icon": "bi-question-circle",
     "image": "dbx/modules/dbxHelp/tpl/img/dbxHelp.png",
     "package_excludes": [],
-    "version": "4.4.2",
+    "version": "4.4.3",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

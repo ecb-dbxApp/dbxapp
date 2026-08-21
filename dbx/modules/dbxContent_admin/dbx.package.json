@@ -13,7 +13,7 @@
     "icon": "bi-pencil-square",
     "image": "dbx/modules/dbxContent_admin/tpl/img/dbxContent_admin.png",
     "package_excludes": [],
-    "version": "4.4.2",
+    "version": "4.4.3",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"
