@@ -4,6 +4,18 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.4.4] - 2026-08-21
+
+### Fixed
+
+- Verlegt den signierten Updatekatalog auf den unveränderlichen GitHub-Release,
+  weil die bisher konfigurierten Updatehosts nicht per DNS erreichbar sind.
+- Erlaubt ausschließlich den fest begrenzten HTTPS-Releasepfad des offiziellen
+  dbxApp-Repositories und die zugehörigen GitHub-Asset-CDNs; fremde
+  Repositories, unversionierte Pakete und unsichere Redirects bleiben gesperrt.
+- Zentralisiert die Vertrauensprüfung für Katalog und Paketdownload im
+  gemeinsamen Paketvertrag.
+
 ## [4.4.3] - 2026-08-21
 
 ### Release note

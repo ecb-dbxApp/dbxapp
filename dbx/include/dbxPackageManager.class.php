@@ -660,12 +660,10 @@ final class dbxPackageManager
 
     private function download(string $url, string $target, int $expected_maximum): void
     {
-        $parts = parse_url($url);
-        if (strtolower((string)($parts['scheme'] ?? '')) !== 'https'
-            || !in_array(strtolower((string)($parts['host'] ?? '')), array('updates.dbxapp.de', 'market.dbxapp.de'), true)
-            || !extension_loaded('curl')) {
+        if (!$this->contract->trusted_artifact_source($url) || !extension_loaded('curl')) {
             throw new RuntimeException('Paketdownload verlaesst die dbxApp-Vertrauensgrenze.');
         }
+        $github_source = strtolower((string)(parse_url($url, PHP_URL_HOST) ?: '')) === 'github.com';
         $this->ensure_directory(dirname($target));
         $stream = fopen($target, 'wb');
         if (!is_resource($stream)) {
@@ -674,7 +672,10 @@ final class dbxPackageManager
         $written = 0;
         $curl = curl_init($url);
         curl_setopt_array($curl, array(
-            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 5,
+            CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
             CURLOPT_CONNECTTIMEOUT => 15,
             CURLOPT_TIMEOUT => 180,
             CURLOPT_SSL_VERIFYPEER => true,
@@ -695,10 +696,12 @@ final class dbxPackageManager
         ));
         $ok = curl_exec($curl);
         $status = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $effective_url = (string)curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
         $error = curl_error($curl);
         curl_close($curl);
         fclose($stream);
-        if ($ok !== true || $status < 200 || $status >= 300 || $written < 1) {
+        if (!$this->contract->trusted_effective_source($effective_url, $github_source)
+            || $ok !== true || $status < 200 || $status >= 300 || $written < 1) {
             @unlink($target);
             throw new RuntimeException('Paketdownload fehlgeschlagen' . ($error !== '' ? ': ' . $error : '.'));
         }

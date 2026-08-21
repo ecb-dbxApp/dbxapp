@@ -91,7 +91,7 @@ final class dbxPackageCatalog
             if ($artifact !== array()) {
                 $hash = strtolower(trim((string)($artifact['sha256'] ?? '')));
                 $url = trim((string)($artifact['url'] ?? ''));
-                if (!preg_match('/^[a-f0-9]{64}$/', $hash) || !$this->trusted_artifact_url($url)) {
+                if (!preg_match('/^[a-f0-9]{64}$/', $hash) || !$this->contract->trusted_artifact_source($url)) {
                     throw new RuntimeException('Ungueltiges oder nicht vertrauenswuerdiges Paketartefakt.');
                 }
                 $manifest['artifact'] = array(
@@ -160,13 +160,17 @@ final class dbxPackageCatalog
     /** @return array<string,mixed> */
     private function fetch(string $url): array
     {
-        if (!$this->trusted_catalog_url($url) || !extension_loaded('curl')) {
+        if (!$this->contract->trusted_catalog_source($url) || !extension_loaded('curl')) {
             throw new RuntimeException('Der Marktplatzkatalog besitzt keine sichere HTTPS-Quelle.');
         }
+        $github_source = strtolower((string)(parse_url($url, PHP_URL_HOST) ?: '')) === 'github.com';
         $curl = curl_init($url);
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 5,
+            CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
             CURLOPT_CONNECTTIMEOUT => 15,
             CURLOPT_TIMEOUT => 60,
             CURLOPT_SSL_VERIFYPEER => true,
@@ -175,9 +179,12 @@ final class dbxPackageCatalog
         ));
         $content = curl_exec($curl);
         $status = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $effective_url = (string)curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
         $error = curl_error($curl);
         curl_close($curl);
-        if (!is_string($content) || strlen($content) > 4 * 1024 * 1024 || $status < 200 || $status >= 300) {
+        if (!$this->contract->trusted_effective_source($effective_url, $github_source)
+            || !is_string($content) || strlen($content) > 4 * 1024 * 1024
+            || $status < 200 || $status >= 300) {
             throw new RuntimeException('Marktplatzkatalog konnte nicht geladen werden' . ($error !== '' ? ': ' . $error : '.'));
         }
         $decoded = json_decode($content, true);
@@ -185,18 +192,6 @@ final class dbxPackageCatalog
             throw new RuntimeException('Marktplatzkatalog ist kein gueltiges JSON.');
         }
         return $decoded;
-    }
-
-    private function trusted_catalog_url(string $url): bool
-    {
-        $parts = parse_url($url);
-        return strtolower((string)($parts['scheme'] ?? '')) === 'https'
-            && in_array(strtolower((string)($parts['host'] ?? '')), array('updates.dbxapp.de', 'market.dbxapp.de'), true);
-    }
-
-    private function trusted_artifact_url(string $url): bool
-    {
-        return $this->trusted_catalog_url($url);
     }
 
     private function trusted_market_url(string $url): bool
