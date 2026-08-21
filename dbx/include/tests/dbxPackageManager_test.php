@@ -28,7 +28,12 @@ function package_manager_remove(string $path): void
 
 $root = sys_get_temp_dir() . '/dbx-package-manager-' . bin2hex(random_bytes(5));
 mkdir($root . '/dbx/modules/Demo', 0770, true);
+mkdir($root . '/dbx/modules/dbxContent/include', 0770, true);
 mkdir($root . '/dbx/marketplace', 0770, true);
+file_put_contents(
+    $root . '/dbx/modules/dbxContent/include/dbxContentPageCache.class.php',
+    "<?php namespace dbx\\dbxContent; final class dbxContentPageCache { public static function invalidate_all(): array { file_put_contents(dirname(__DIR__, 4) . '/files/cache-invalidated', '1', FILE_APPEND); return array(); } }\n"
+);
 file_put_contents($root . '/VERSION', "4.3.0\n");
 file_put_contents($root . '/dbx/modules/Demo/demo.php', "<?php return 'old';\n");
 $base = array(
@@ -91,10 +96,18 @@ try {
     package_manager_assert(file_get_contents($root . '/dbx/modules/Demo/demo.php') === $new_source, 'Neue Paketdatei fehlt.');
     $installed_manifest = json_decode((string)file_get_contents($root . '/dbx/modules/Demo/dbx.package.json'), true);
     package_manager_assert(($installed_manifest['version'] ?? '') === '4.3.1', 'Installiertes Manifest wurde nicht aktualisiert.');
+    package_manager_assert(
+        file_get_contents($root . '/files/cache-invalidated') === '1',
+        'Installation invalidiert den Seiten-Cache nicht.'
+    );
     $manager->rollback();
     package_manager_assert(file_get_contents($root . '/dbx/modules/Demo/demo.php') === "<?php return 'old';\n", 'Rollback stellt die alte Datei nicht wieder her.');
     $rolled_manifest = json_decode((string)file_get_contents($root . '/dbx/modules/Demo/dbx.package.json'), true);
     package_manager_assert(($rolled_manifest['version'] ?? '') === '4.3.0', 'Rollback stellt das alte Manifest nicht wieder her.');
+    package_manager_assert(
+        file_get_contents($root . '/files/cache-invalidated') === '11',
+        'Rollback invalidiert den Seiten-Cache nicht.'
+    );
 } finally {
     package_manager_remove($root);
 }

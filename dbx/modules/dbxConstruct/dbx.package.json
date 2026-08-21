@@ -13,7 +13,7 @@
     "icon": "bi-hammer",
     "image": "dbx/modules/dbxConstruct/tpl/img/dbxConstruct.png",
     "package_excludes": [],
-    "version": "4.5.2",
+    "version": "4.5.3",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

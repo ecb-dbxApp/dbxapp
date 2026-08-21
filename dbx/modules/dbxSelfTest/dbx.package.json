@@ -13,7 +13,7 @@
     "icon": "bi-clipboard2-check",
     "image": "",
     "package_excludes": [],
-    "version": "4.5.2",
+    "version": "4.5.3",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

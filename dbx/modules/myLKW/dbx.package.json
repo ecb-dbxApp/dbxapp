@@ -22,7 +22,7 @@
         "dbx/modules/myLKW/tpl/img/Muster10.png",
         "dbx/modules/myLKW/tpl/img/schein_a.png"
     ],
-    "version": "4.4.10",
+    "version": "4.5.3",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"
@@ -30,7 +30,7 @@
     "license": "paid",
     "managed": true,
     "requires": {
-        "kernel": ">=4.4.0 <5.0.0",
+        "kernel": ">=4.5.0 <5.0.0",
         "php": ">=8.2.0",
         "extensions": [
             "json"
