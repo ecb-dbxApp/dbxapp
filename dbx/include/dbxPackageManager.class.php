@@ -353,6 +353,7 @@ final class dbxPackageManager
             if (function_exists('opcache_reset')) {
                 @opcache_reset();
             }
+            $this->invalidate_page_cache();
             return $installed;
         });
     }
@@ -368,8 +369,25 @@ final class dbxPackageManager
             $this->restore_backup($state);
             $state['rolled_back_at'] = gmdate('c');
             $this->write_json($this->work . '/installed.json', $state);
+            if (function_exists('opcache_reset')) {
+                @opcache_reset();
+            }
+            $this->invalidate_page_cache();
             return $state;
         });
+    }
+
+    /** Verhindert veraltete HTML- und Asset-Versionen nach Update/Rollback. */
+    private function invalidate_page_cache(): void
+    {
+        $file = $this->root . '/dbx/modules/dbxContent/include/dbxContentPageCache.class.php';
+        if (!is_file($file)) {
+            return;
+        }
+        require_once $file;
+        if (class_exists('\\dbx\\dbxContent\\dbxContentPageCache', false)) {
+            \dbx\dbxContent\dbxContentPageCache::invalidate_all();
+        }
     }
 
     /** @return array<string,mixed> */
