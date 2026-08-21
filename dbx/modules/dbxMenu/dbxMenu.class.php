@@ -306,10 +306,15 @@ Class dbxMenu {
       $url_path = rawurldecode((string)(parse_url($url, PHP_URL_PATH) ?: ''));
       $base_path = rawurldecode((string)(parse_url($base_url, PHP_URL_PATH) ?: ''));
       $query = trim((string)(parse_url($url, PHP_URL_QUERY) ?: ''));
+      $route_params = array();
+      if ($query !== '') {
+         parse_str($query, $route_params);
+         unset($route_params['dbx_lng']);
+      }
       $normalized_url_path = rtrim($url_path, '/');
       $normalized_base_path = rtrim($base_path, '/');
       $front_controller_path = $normalized_base_path . '/index.php';
-      if ($query !== ''
+      if ($route_params !== array()
          || ($normalized_url_path !== $normalized_base_path
             && $normalized_url_path !== $front_controller_path)) {
          return '';
