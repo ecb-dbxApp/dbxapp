@@ -314,9 +314,11 @@ Class dbxMenu {
       $normalized_url_path = rtrim($url_path, '/');
       $normalized_base_path = rtrim($base_path, '/');
       $front_controller_path = $normalized_base_path . '/index.php';
+      $home_alias_path = $normalized_base_path . '/home';
       if ($route_params !== array()
          || ($normalized_url_path !== $normalized_base_path
-            && $normalized_url_path !== $front_controller_path)) {
+            && $normalized_url_path !== $front_controller_path
+            && $normalized_url_path !== $home_alias_path)) {
          return '';
       }
       return $target_lng === $default_lng
