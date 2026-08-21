@@ -28,12 +28,14 @@ final class AuthoritativeSourceSync
 
    /** @var array<string,true> */
    private const SHARED_RELEASE_TOOLS = array(
+      'tools/build-marketplace.php' => true,
       'tools/ci.php' => true,
       'tools/lib/AuthoritativeSourceSync.php' => true,
       'tools/lib/ProductionSiteSync.php' => true,
       'tools/sync-authoritative-source.php' => true,
       'tools/sync-production-site.php' => true,
       'tools/tests/authoritative_source_sync_test.php' => true,
+      'tools/tests/marketplace_publisher_sequence_contract_test.php' => true,
       'tools/tests/production_site_sync_test.php' => true,
    );
 

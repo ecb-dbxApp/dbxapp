@@ -13,7 +13,7 @@
     "icon": "bi-chat-left-text",
     "image": "dbx/modules/dbxContact/tpl/img/dbxContact.png",
     "package_excludes": [],
-    "version": "4.5.1",
+    "version": "4.5.2",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"
