@@ -13,7 +13,7 @@
     "icon": "bi-box-seam",
     "image": "",
     "package_excludes": [],
-    "version": "4.5.1",
+    "version": "4.5.2",
     "vendor": {
         "id": "local",
         "name": "Lokaler Hersteller"

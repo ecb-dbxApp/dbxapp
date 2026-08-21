@@ -25,11 +25,13 @@ $allowed = array(
    'docs/doxygen-generated-main.dox',
    'docs/generated/tutorials/example.webp',
    'docs/tools/doxygen_php_utf8_filter.php',
+   'tools/build-marketplace.php',
    'tools/ci.php',
    'tools/lib/ProductionSiteSync.php',
    'tools/sync-authoritative-source.php',
    'tools/sync-production-site.php',
    'tools/tests/production_site_sync_test.php',
+   'tools/tests/marketplace_publisher_sequence_contract_test.php',
 );
 foreach ($allowed as $path) {
    sync_test_assert(

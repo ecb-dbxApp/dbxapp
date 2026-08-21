@@ -2,6 +2,89 @@
 
 declare(strict_types=1);
 
+/** @return array<string,mixed>|null */
+function marketplace_fetch_json(string $url): ?array
+{
+    if (!extension_loaded('curl') || strtolower((string)parse_url($url, PHP_URL_SCHEME)) !== 'https') {
+        return null;
+    }
+    $curl = curl_init($url);
+    curl_setopt_array($curl, array(
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 5,
+        CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
+        CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
+        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_TIMEOUT => 60,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_USERAGENT => 'dbxapp-marketplace-publisher/1.0',
+        CURLOPT_HTTPHEADER => array('Accept: application/vnd.github+json'),
+    ));
+    $content = curl_exec($curl);
+    $status = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+    $effective_url = (string)curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
+    curl_close($curl);
+    $host = strtolower((string)parse_url($effective_url, PHP_URL_HOST));
+    if (!is_string($content) || $status < 200 || $status >= 300
+        || !in_array($host, array(
+            'api.github.com', 'github.com', 'release-assets.githubusercontent.com',
+            'objects.githubusercontent.com',
+        ), true)) {
+        return null;
+    }
+    $decoded = json_decode($content, true);
+    return is_array($decoded) ? $decoded : null;
+}
+
+function marketplace_public_sequence(dbxPackageContract $contract, string $root): int
+{
+    $releases = marketplace_fetch_json(
+        'https://api.github.com/repos/ecb-dbxApp/dbxapp/releases?per_page=50'
+    );
+    if ($releases === null) {
+        throw new RuntimeException(
+            'Die öffentliche Marktplatzsequenz konnte nicht ermittelt werden; Veröffentlichung abgebrochen.'
+        );
+    }
+    $trust = json_decode((string)file_get_contents($root . '/dbx/marketplace/trust.json'), true);
+    $keys = array();
+    foreach ((array)($trust['keys'] ?? array()) as $key_id => $entry) {
+        $file = is_array($entry) ? (string)($entry['file'] ?? '') : '';
+        if (preg_match('/^[A-Za-z0-9._-]+\.pem$/', $file) !== 1) {
+            continue;
+        }
+        $path = $root . '/dbx/marketplace/keys/' . $file;
+        if (is_file($path)) {
+            $keys[(string)$key_id] = (string)file_get_contents($path);
+        }
+    }
+    $maximum = 0;
+    foreach ($releases as $release) {
+        if (!is_array($release) || !empty($release['draft'])) {
+            continue;
+        }
+        foreach ((array)($release['assets'] ?? array()) as $asset) {
+            if (!is_array($asset) || (string)($asset['name'] ?? '') !== 'catalog.json') {
+                continue;
+            }
+            $catalog = marketplace_fetch_json((string)($asset['browser_download_url'] ?? ''));
+            if ($catalog === null) {
+                continue;
+            }
+            try {
+                $contract->verify_signed_document($catalog, $keys);
+                $maximum = max($maximum, (int)($catalog['sequence'] ?? 0));
+            } catch (Throwable) {
+                // Nicht signierte oder fremd signierte Alt-Releases bilden
+                // niemals die Rollback-Grenze des Produktionskatalogs.
+            }
+        }
+    }
+    return $maximum;
+}
+
 $root = realpath(dirname(__DIR__));
 if ($root === false) {
     fwrite(STDERR, "Projektwurzel fehlt.\n");
@@ -124,7 +207,10 @@ foreach ($manifest_files as $manifest_file) {
 usort($packages, static fn(array $a, array $b): int => strnatcasecmp($a['id'], $b['id']));
 $sequence_file = $root . '/files/sys/marketplace/publisher-state.json';
 $state = json_decode((string)@file_get_contents($sequence_file), true);
-$sequence = max(0, (int)($state['sequence'] ?? 0)) + 1;
+$local_sequence = max(0, (int)($state['sequence'] ?? 0));
+$public_sequence = marketplace_public_sequence($contract, $root);
+$sequence = max($local_sequence, $public_sequence) + 1;
+echo 'SEQUENZBASIS lokal=' . $local_sequence . ', oeffentlich=' . $public_sequence . PHP_EOL;
 $catalog = array(
     'schema' => 1,
     'channel' => 'stable',
