@@ -317,7 +317,7 @@ Class dbxMenu {
       }
 
       if (empty($options)) {
-         $options['dbxapp'] = 'dbXapp';
+         $options['dbxapp'] = 'dbxapp';
       }
 
       uasort($options, static function ($a, $b) {
@@ -330,7 +330,7 @@ Class dbxMenu {
    private function design_label(string $design): string {
       $key = strtolower($design);
       if ($key === 'dbxapp') {
-         return 'dbXapp';
+         return 'dbxapp';
       }
       $label = trim(str_replace(array('-', '_'), ' ', $design));
       return $label !== '' ? ucfirst($label) : $design;

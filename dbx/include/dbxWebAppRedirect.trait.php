@@ -150,7 +150,8 @@ trait dbxWebAppRedirectTrait
    * verdoppelte Sprach- oder Permalink-Pfadteile.
    */
   public function apply_canonical_content_redirect(): bool {
-    if (headers_sent()) {
+    if (headers_sent()
+        || (int)dbx()->get_system_var('dbx_content_not_found', 0, 'int') === 1) {
       return false;
     }
     $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
@@ -192,8 +193,8 @@ trait dbxWebAppRedirectTrait
   }
 
 /**
-   * Leitet einen unbekannten öffentlichen Permalink auf die zentrale,
-   * sprachabhängige Navigationsseite weiter.
+   * Bereitet für einen unbekannten öffentlichen Permalink die zentrale,
+   * sprachabhängige 404-Navigationsseite vor.
    *
    * Die eigentliche Permalink-Auflösung setzt zuvor
    * `dbx_content_not_found`. Technische Missing-, API-, Ajax- und
@@ -210,24 +211,16 @@ trait dbxWebAppRedirectTrait
       return false;
     }
 
-    $navigation = dbx()->get_include_obj(
-      'dbxContentMissingNavigation',
-      'dbxContent'
+    dbx()->set_system_var(
+      'dbx_missing_permalink',
+      (string)dbx()->get_system_var('dbx_permalink', '')
     );
-    if (!is_object($navigation)
-        || !method_exists($navigation, 'redirect_target')) {
-      return false;
-    }
-
-    $target = $navigation->redirect_target(
-      (string)dbx()->get_system_var('dbx_permalink', ''),
-      (string)dbx()->get_system_var('dbx_lng', 'de')
-    );
-    if ($target === '') {
-      return false;
-    }
-
-    header('Location: ' . $target, true, 302);
-    return true;
+    dbx()->set_system_var('dbx_modul', 'dbxContent');
+    dbx()->set_system_var('dbx_run1', 'missing_navigation');
+    dbx()->set_system_var('dbx_run2', '');
+    dbx()->set_system_var('dbx_cid', 0);
+    dbx()->set_system_var('cid', 0);
+    http_response_code(404);
+    return false;
   }
 }

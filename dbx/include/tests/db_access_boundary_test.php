@@ -26,6 +26,7 @@ foreach ($iterator as $file) {
       || strpos($normalized, '/vendor/') !== false
       || strpos($normalized, '/dbx/vendor/') !== false
       || strpos($normalized, '/files/') !== false
+      || strpos($normalized, '/tmp/') !== false
       || strpos($normalized, '/reference/') !== false) {
       continue;
    }

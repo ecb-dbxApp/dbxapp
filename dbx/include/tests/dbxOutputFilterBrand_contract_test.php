@@ -14,5 +14,6 @@ $assert = static function (bool $condition, string $message): void {
 
 $assert(str_contains($source, "preg_replace('/\\bdbx\\s*app\\b/iu', 'dbxapp'"), 'Die zentrale dbxapp-Schreibweise fehlt im Ausgabefilter.');
 $assert(str_contains($source, 'script|style|code|pre'), 'Geschützte Code-, Script- und Style-Bereiche fehlen im Ausgabefilter.');
+$assert(str_contains($source, "str_replace('{dbx:version}'"), 'Die zentrale Produktversion fehlt im spaeten Ausgabefilter.');
 
 echo "dbxOutputFilterBrand_contract_test: OK\n";

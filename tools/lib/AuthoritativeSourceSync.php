@@ -19,6 +19,7 @@ final class AuthoritativeSourceSync
       '.htaccess' => true,
       'Doxyfile' => true,
       'VERSION' => true,
+      'dbx.package.json' => true,
       'index.php' => true,
       'favicon.ico' => true,
       'favicon.png' => true,

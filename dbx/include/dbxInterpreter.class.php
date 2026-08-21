@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/dbxInertCode.class.php';
 /**
  * @file dbxInterpreter.class.php
  * Interpreter fuer `[modul=...]...[/modul]`-Marker in Templates/Inhalten.
@@ -20,6 +21,12 @@
  * ```
  */
 class dbxInterpreter {
+
+  private ?dbxInertCode $inert_code = null;
+
+  private function inert_code(): dbxInertCode {
+    return $this->inert_code ??= new dbxInertCode();
+  }
 
   /**
    * Im Template-Editor muss der Interpreter inert bleiben. Der Editor soll
@@ -55,6 +62,13 @@ class dbxInterpreter {
       return $content;
     }
 
+    $inert_code = $this->inert_code();
+    $inert_blocks = array();
+    $content = $inert_code->protect($content, $inert_blocks);
+    if (stripos($content, '[modul=') === false) {
+      return $inert_code->restore($content, $inert_blocks);
+    }
+
     $pattern = '/\[modul=([A-Za-z_][A-Za-z0-9_]*)\]([^\[]*)\[\/modul\]/i';
     for ($pass = 0; $pass < 32; $pass++) {
       $count = 0;
@@ -72,7 +86,7 @@ class dbxInterpreter {
       }
       $content = $next;
     }
-    return $content;
+    return $inert_code->restore($content, $inert_blocks);
   }
 
   /**
@@ -91,6 +105,14 @@ class dbxInterpreter {
 
     if ($content === '' || stripos($content, '[modul=') === false) {
       return $content;
+    }
+
+
+    $inert_code = $this->inert_code();
+    $inert_blocks = array();
+    $content = $inert_code->protect($content, $inert_blocks);
+    if (stripos($content, '[modul=') === false) {
+      return $inert_code->restore($content, $inert_blocks);
     }
 
     $allowed = array();
@@ -119,7 +141,8 @@ class dbxInterpreter {
       -1,
       $count
     );
-    return is_string($result) ? $result : $content;
+    $result = is_string($result) ? $result : $content;
+    return $inert_code->restore($result, $inert_blocks);
   }
 
  

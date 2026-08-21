@@ -28,8 +28,10 @@ foreach ($routes as $language => $route) {
 $pipeline = (string)file_get_contents(dirname(__DIR__, 3) . '/include/dbxRequestPipeline.class.php');
 $redirect = (string)file_get_contents(dirname(__DIR__, 3) . '/include/dbxWebAppRedirect.trait.php');
 if (!str_contains($pipeline, 'apply_missing_permalink_redirect()')
-    || !str_contains($redirect, "header('Location: ' . \$target, true, 302);")) {
-    throw new RuntimeException('Unknown public permalinks must use the central 302 redirect.');
+    || !str_contains($redirect, "dbx()->set_system_var('dbx_run1', 'missing_navigation');")
+    || !str_contains($redirect, 'http_response_code(404);')
+    || !str_contains($redirect, "'dbx_missing_permalink'")) {
+    throw new RuntimeException('Unknown public permalinks must use the central 404 response.');
 }
 
-echo "OK unbekannte Permalinks führen per 302 zu einer sprachabhängigen Sitemap-Seite.\n";
+echo "OK unbekannte Permalinks liefern eine sprachabhängige 404-Seite mit Navigation.\n";

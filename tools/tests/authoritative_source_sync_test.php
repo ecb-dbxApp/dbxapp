@@ -16,6 +16,7 @@ $allowed = array(
    'index.php',
    'AGENTS.md',
    'VERSION',
+   'dbx.package.json',
    '07_DBXAPP_ARCHITEKTUR.md',
    'dbx/include/dbxApi.php',
    'dbx/modules/dbxContent_admin/files/og/dbxapp-og.png',

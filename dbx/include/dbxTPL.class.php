@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/dbxInertCode.class.php';
 /**
  * @brief Deterministische Rendering-Engine für Variablen, Inclusions und Template-Bausteine.
  *
@@ -288,6 +289,11 @@ class dbxTPL extends \dbxObj {
 
     /** Rohcache der in diesem Request bereits gelesenen Templates. */
     private array $template_cache = array();
+    private ?dbxInertCode $inert_code = null;
+
+    private function inert_code(): dbxInertCode {
+        return $this->inert_code ??= new dbxInertCode();
+    }
 
     /**
      * Leert den Rohcache gezielt nach einem In-Request-Editor-Schreibvorgang.
@@ -726,15 +732,20 @@ class dbxTPL extends \dbxObj {
         }
 
         dbx()->register_editor_file('tpl', $path);
+        $inert_code = $this->inert_code();
+        $inert_blocks = array();
+        $tpl = $inert_code->protect($tpl, $inert_blocks);
         $tpl = $this->replaces_dbx($tpl);
         $tpl = $this->replaces($tpl, $data);
+        $tpl = $inert_code->protect($tpl, $inert_blocks);
         if (strpos($tpl, '[inc=') !== false) {
             $tpl = $this->process_inc($tpl);
         }
         if (strpos($tpl, '[tpl=') !== false) {
             $tpl = $this->process_tpl($tpl, $data, $depth);
         }
-        return $this->cleanup_optional_placeholders($tpl);
+        $tpl = $this->cleanup_optional_placeholders($tpl);
+        return $inert_code->restore($tpl, $inert_blocks);
     }
 
 
@@ -1103,6 +1114,9 @@ class dbxTPL extends \dbxObj {
 
         // --- LOAD ---
         $tpl = $this->read_tpl($modul, $file, $type);
+        $inert_code = $this->inert_code();
+        $inert_blocks = array();
+        $tpl = $inert_code->protect($tpl, $inert_blocks);
 
         // --- AKTUELLER SYSTEMZUSTAND ---
         // Nicht im Template-Cache ausführen: Design, Sprache, Seite und SEO-Werte
@@ -1112,6 +1126,7 @@ class dbxTPL extends \dbxObj {
 
         // --- DATA ---
         $tpl = $this->replaces($tpl, $data);
+        $tpl = $inert_code->protect($tpl, $inert_blocks);
 
         // --- INC ---
         if (strpos($tpl, '[inc=') !== false) {
@@ -1130,7 +1145,7 @@ class dbxTPL extends \dbxObj {
             $tpl = $this->add_marker($tpl, $modul, $file, $type);
         }
 
-        return $tpl;
+        return $inert_code->restore($tpl, $inert_blocks);
     }
 
     // design template
@@ -1163,6 +1178,8 @@ class dbxTPL extends \dbxObj {
         }
 
         $page_content = '';
+        $inert_code = $this->inert_code();
+        $inert_blocks = array();
         $requested_page = $page;
         $dir_file = $this->get_design_tpl_dir_file($type, $design, $page, false);
 
@@ -1188,6 +1205,7 @@ class dbxTPL extends \dbxObj {
 
             // --- LOAD ---
             $page_content = file_get_contents($dir_file);
+            $page_content = $inert_code->protect((string)$page_content, $inert_blocks);
             
             // --- SET SYSTEM STATE ---
             dbx()->set_system_var('dbx_activ_design', $design);
@@ -1209,6 +1227,7 @@ class dbxTPL extends \dbxObj {
             // --- DBX REPLACE ---
             $page_content = $this->replaces_dbx($page_content);
             $page_content = $this->replace_design_slots($page_content, $design);
+            $page_content = $inert_code->protect($page_content, $inert_blocks);
 
             // Bedingungen müssen die soeben eingesetzten DBX-Systemwerte sehen.
             if (strpos($page_content, '[inc=') !== false) {
@@ -1265,7 +1284,7 @@ class dbxTPL extends \dbxObj {
             }
         }
 
-        return $page_content;
+        return $inert_code->restore((string)$page_content, $inert_blocks);
     }
 
     /**
