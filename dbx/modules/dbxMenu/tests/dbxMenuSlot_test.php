@@ -104,6 +104,17 @@ $assert(
 $assert(
    $language_home->invoke(
       $menu,
+      'https://localhost/dbxapp/home?dbx_lng=de',
+      'https://localhost/dbxapp/',
+      'en',
+      'de',
+      true
+   ) === 'https://localhost/dbxapp/en/',
+   'Der interne Page-Cache-Alias /home wurde nicht als kanonische Startseite erkannt.'
+);
+$assert(
+   $language_home->invoke(
+      $menu,
       'https://localhost/dbxapp/?dbx_modul=dbxAdmin&dbx_lng=de',
       'https://localhost/dbxapp/',
       'en',

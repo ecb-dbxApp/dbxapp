@@ -4,6 +4,16 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.4.8] - 2026-08-21
+
+### Fixed
+
+- Erkennt den internen Page-Cache-Alias `/home` als kanonische Startseite.
+  Dadurch erzeugt die Sprachumschaltung auch bei einem vorbereiteten
+  Full-Page-Cache direkte DE-/EN-URLs ohne `dbx_lng`-Queryparameter.
+- Ergänzt einen Regressionstest für die Kombination aus Home-Alias,
+  Sprachpräfix und bestehendem Sprachparameter.
+
 ## [4.4.7] - 2026-08-21
 
 ### Fixed
