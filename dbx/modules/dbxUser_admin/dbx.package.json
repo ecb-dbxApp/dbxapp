@@ -13,7 +13,7 @@
     "icon": "bi-people",
     "image": "dbx/modules/dbxUser_admin/tpl/img/dbxUser_admin.png",
     "package_excludes": [],
-    "version": "4.5.0",
+    "version": "4.5.1",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

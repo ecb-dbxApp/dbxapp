@@ -30,8 +30,11 @@ final class AuthoritativeSourceSync
    private const SHARED_RELEASE_TOOLS = array(
       'tools/ci.php' => true,
       'tools/lib/AuthoritativeSourceSync.php' => true,
+      'tools/lib/ProductionSiteSync.php' => true,
       'tools/sync-authoritative-source.php' => true,
+      'tools/sync-production-site.php' => true,
       'tools/tests/authoritative_source_sync_test.php' => true,
+      'tools/tests/production_site_sync_test.php' => true,
    );
 
    /**
@@ -64,6 +67,12 @@ final class AuthoritativeSourceSync
 
       if (!str_starts_with($relative, 'dbx/')) {
          return false;
+      }
+
+      // Public trust anchors must follow the product source so key rotation
+      // reaches clean mirrors. Private keys remain confined to files/sys.
+      if (preg_match('#^dbx/marketplace/keys/[A-Za-z0-9._-]+\.pem$#D', $relative)) {
+         return true;
       }
 
       $base = basename($relative);

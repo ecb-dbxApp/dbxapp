@@ -12,6 +12,7 @@ final class ProductionSiteSync
    private const ROOT_FILES = array(
       '.htaccess' => true,
       'VERSION' => true,
+      'dbx.package.json' => true,
       'index.php' => true,
       'favicon.ico' => true,
       'favicon.png' => true,
@@ -46,6 +47,12 @@ final class ProductionSiteSync
       }
       if (!str_contains($relative, '/')) {
          return isset(self::ROOT_FILES[$relative]);
+      }
+
+      // Public marketplace trust anchors are part of every runnable site.
+      // Private signing keys live below files/sys and never match this path.
+      if (preg_match('#^dbx/marketplace/keys/[A-Za-z0-9._-]+\.pem$#D', $relative)) {
+         return true;
       }
 
       $base = basename($relative);

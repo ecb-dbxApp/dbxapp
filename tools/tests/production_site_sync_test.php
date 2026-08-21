@@ -6,8 +6,10 @@ require_once dirname(__DIR__) . '/lib/ProductionSiteSync.php';
 
 $expected = array(
    'index.php' => true,
+   'dbx.package.json' => true,
    'dbx/include/dbxApi.php' => true,
    'dbx/vendor/autoload.php' => true,
+   'dbx/marketplace/keys/dbxapp-market-2026.pem' => true,
    'dbx/modules/myX/myX.class.php' => true,
    'dbx/modules/dbx/db/dbxContent.db3' => true,
    'files/media/img/logo.png' => true,
@@ -24,6 +26,8 @@ $rejected = array(
    'files/sys/backups/site.zip',
    'files/sys/cache/assets.json',
    'files/temp/upload.tmp',
+   'files/sys/marketplace/keys/dbxapp-market-2026-private.pem',
+   'dbx/modules/demo/private.pem',
    'README.md',
 );
 

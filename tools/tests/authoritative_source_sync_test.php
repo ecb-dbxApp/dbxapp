@@ -19,13 +19,17 @@ $allowed = array(
    'dbx.package.json',
    '07_DBXAPP_ARCHITEKTUR.md',
    'dbx/include/dbxApi.php',
+   'dbx/marketplace/keys/dbxapp-market-2026.pem',
    'dbx/modules/dbxContent_admin/files/og/dbxapp-og.png',
    'dbx/modules/dbxUser/img/avatar/avatar-0.png',
    'docs/doxygen-generated-main.dox',
    'docs/generated/tutorials/example.webp',
    'docs/tools/doxygen_php_utf8_filter.php',
    'tools/ci.php',
+   'tools/lib/ProductionSiteSync.php',
    'tools/sync-authoritative-source.php',
+   'tools/sync-production-site.php',
+   'tools/tests/production_site_sync_test.php',
 );
 foreach ($allowed as $path) {
    sync_test_assert(
@@ -52,6 +56,8 @@ $blocked = array(
    'dbx/modules/demo/cache/a.php',
    'dbx/modules/demo/config.local.php',
    'dbx/modules/demo/private.key',
+   'dbx/modules/demo/private.pem',
+   'files/sys/marketplace/keys/dbxapp-market-2026-private.pem',
    'docs/private.key',
    'docs/backup/internal.md',
 );

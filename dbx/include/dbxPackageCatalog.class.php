@@ -34,9 +34,13 @@ final class dbxPackageCatalog
         }
         if ($this->catalog_url !== '') {
             try {
-                $catalog = $this->validate($this->fetch($this->catalog_url), true);
+                $signed_catalog = $this->fetch($this->catalog_url);
+                $catalog = $this->validate($signed_catalog, true);
                 $this->guard_sequence($catalog);
-                $this->write_json($cache, $catalog);
+                // Die Signatur bezieht sich auf die unveränderte Paketliste.
+                // Die nach IDs normalisierte Arbeitsform darf deshalb nicht
+                // als signierter Cache persistiert werden.
+                $this->write_json($cache, $signed_catalog);
                 return $catalog;
             } catch (Throwable $exception) {
                 if ($force) {
