@@ -22,6 +22,7 @@ final class dbxInterpreterTestApi
 {
     private dbxRequestContext $context;
     private int $module_id = 0;
+    private ?dbxInertCode $inert_code = null;
 
     public function __construct() { $this->context = new dbxRequestContext(); }
     public function request_context(): dbxRequestContext { return $this->context; }
@@ -45,6 +46,10 @@ final class dbxInterpreterTestApi
         return $this->context->module($id, $module, $name, $default);
     }
     public function get_request_var(string $name, mixed $default = null): mixed { return $default; }
+    public function get_system_obj(string $class): object {
+        if ($class === 'dbxInertCode') return $this->inert_code ??= new dbxInertCode();
+        throw new RuntimeException('Unexpected system object: ' . $class);
+    }
     public function has_module_access(string $module): bool { return true; }
     public function user(string $key = ''): int { return 2; }
     public function run_owner(object $owner, string $method, mixed ...$args): mixed { return $owner->{$method}(...$args); }
@@ -58,6 +63,7 @@ function dbx(): dbxInterpreterTestApi
     return $api ??= new dbxInterpreterTestApi();
 }
 
+require_once dirname(__DIR__) . '/dbxInertCode.class.php';
 require_once dirname(__DIR__) . '/dbxInterpreter.class.php';
 
 dbx()->set_system_var('dbx_modul', 'Original');
@@ -72,6 +78,18 @@ if ($output !== '<b>Probe:one:first</b>|<b>Probe:two:second</b>|<b>Probe:inner</
 }
 if (dbx()->get_system_var('dbx_modul') !== 'Original' || dbx()->get_system_var('dbx_run1') !== 'original') {
     fwrite(STDERR, "FAIL Interpreter hat den äußeren RequestContext verändert.\n");
+    exit(1);
+}
+
+$inert = '<code>[modul=Probe]dbx_run1=code[/modul]</code>'
+    . '<pre>[modul=Probe]dbx_run1=pre[/modul]</pre>'
+    . '<dbx-code>[modul=Probe]dbx_run1=custom[/modul]</dbx-code>'
+    . '<div data-dbx-inert>[modul=Probe]dbx_run1=attribute[/modul]</div>'
+    . '<div data-dbx-inert><code>[modul=Probe]dbx_run1=nested[/modul]</code></div>'
+    . "\n```html\n[modul=Probe]dbx_run1=markdown[/modul]\n```\n";
+$inert_output = $interpreter->run($inert . '|[modul=Probe]dbx_run1=active[/modul]');
+if ($inert_output !== $inert . '|<b>Probe:active</b>') {
+    fwrite(STDERR, "FAIL Interpreter hat dargestellten Code ausgeführt: {$inert_output}\n");
     exit(1);
 }
 

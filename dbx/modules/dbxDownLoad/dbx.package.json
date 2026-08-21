@@ -13,7 +13,7 @@
     "icon": "bi-cloud-arrow-down",
     "image": "",
     "package_excludes": [],
-    "version": "4.4.1",
+    "version": "4.4.2",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

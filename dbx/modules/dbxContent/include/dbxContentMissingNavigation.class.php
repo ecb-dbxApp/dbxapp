@@ -76,7 +76,7 @@ final class dbxContentMissingNavigation
 
         $requested = trim((string)dbx()->get_request_var(
             'from',
-            '',
+            (string)dbx()->get_system_var('dbx_missing_permalink', ''),
             'parameter|max=254'
         ), '/');
         $tpl = dbx()->get_system_obj('dbxTPL');

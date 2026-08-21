@@ -1,13 +1,21 @@
 <?php
 
+  // Die zentrale Produktversion wird auch in spaet eingesetzten CMS-Inhalten
+  // ersetzt. Codebeispiele, Styles und Skripte bleiben bytegenau erhalten;
+  // normale HTML-Attribute wie versionierte Vertragslinks werden aufgeloest.
+  $dbx_version = htmlspecialchars((string)dbx()->get_version(), ENT_QUOTES, 'UTF-8');
+
   // Die offizielle Produktschreibweise wird nur in sichtbaren Textknoten
-  // normalisiert. Tags, Attribute, Codebeispiele, Styles und Skripte bleiben
-  // bytegenau erhalten.
+  // normalisiert. Tags und Attribute bleiben davon unberuehrt.
   $content = preg_replace_callback(
     '~<(?:script|style|code|pre)\b[^>]*>[\s\S]*?</(?:script|style|code|pre)>|<[^>]+>|[^<]+~iu',
-    static function(array $match): string {
+    static function(array $match) use ($dbx_version): string {
       $chunk = (string)($match[0] ?? '');
-      if ($chunk === '' || $chunk[0] === '<') {
+      if ($chunk === '' || preg_match('~^<(?:script|style|code|pre)\b~iu', $chunk) === 1) {
+        return $chunk;
+      }
+      $chunk = str_replace('{dbx:version}', $dbx_version, $chunk);
+      if ($chunk[0] === '<') {
         return $chunk;
       }
       return preg_replace('/\bdbx\s*app\b/iu', 'dbxapp', $chunk) ?? $chunk;

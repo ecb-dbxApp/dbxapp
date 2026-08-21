@@ -4,6 +4,24 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.4.2] - 2026-08-21
+
+### Fixed
+
+- Schützt dargestellte Codebeispiele zentral vor der dbxTPL- und
+  dbxInterpreter-Auswertung. HTML-Codeelemente, explizit inerte Bereiche und
+  Markdown-Codeblöcke bleiben unverändert, während Syntax außerhalb dieser
+  Bereiche weiterhin ausgeführt wird.
+- Verhindert dadurch beschädigte Systemdokumentation wie
+  `Menu (b-undef) not found` und `TPL (...) not found`.
+- Ergänzt Regressionstests für Quelltemplates und nachträglich eingesetzte
+  CMS-Inhalte.
+
+### Changed
+
+- Entfernt die inzwischen in das eigenständige Dokumentationsprojekt
+  ausgelagerten Doxygen- und Tutorialquellen aus dem Produktrelease.
+
 ## [4.4.1] - 2026-08-20
 
 ### Fixed

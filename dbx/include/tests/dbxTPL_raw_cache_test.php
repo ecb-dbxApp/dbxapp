@@ -14,6 +14,7 @@ class dbxObj
 class dbxTPLRawCacheTestApi
 {
     public string $base_dir = '';
+    private ?dbxInertCode $inert_code = null;
 
     public array $system = array(
         'dbx_lng' => '',
@@ -67,6 +68,9 @@ class dbxTPLRawCacheTestApi
 
     public function get_system_obj(string $class): object
     {
+        if ($class === 'dbxInertCode') {
+            return $this->inert_code ??= new dbxInertCode();
+        }
         return $this;
     }
 
@@ -109,6 +113,7 @@ function dbx(): dbxTPLRawCacheTestApi
 
 $_SESSION = array();
 
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'dbxInertCode.class.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'dbxTPL.class.php';
 
 $tpl = new dbxTPL();
@@ -149,7 +154,27 @@ clearstatcache(true, $temp_tpl);
 $tpl->clear_raw_cache();
 $source_second = $tpl->get_tpl('dbx|test-source-change', array());
 
+$partial_tpl = $temp_tpl_dir . DIRECTORY_SEPARATOR . 'test-inert-partial.htm';
+$source_inert_tpl = $temp_tpl_dir . DIRECTORY_SEPARATOR . 'test-inert-source.htm';
+$data_inert_tpl = $temp_tpl_dir . DIRECTORY_SEPARATOR . 'test-inert-data.htm';
+$literal_code = '<code>{dbx:version}[tpl=dbx|missing-code]</code>'
+    . '<pre>[tpl=dbx|missing-pre]</pre>'
+    . '<dbx-code>[tpl=dbx|missing-custom]</dbx-code>'
+    . '<div class="dbx-code-inert">[tpl=dbx|missing-class]</div>'
+    . '<div data-dbx-inert>[tpl=dbx|missing-attribute]</div>'
+    . '<div data-dbx-inert><code>[tpl=dbx|missing-nested]</code></div>'
+    . "\n```html\n[tpl=dbx|missing-markdown]\n```\n";
+file_put_contents($partial_tpl, 'ACTIVE');
+file_put_contents($source_inert_tpl, $literal_code . '|[tpl=dbx|test-inert-partial]');
+file_put_contents($data_inert_tpl, '<section>{obj:content}</section>|[tpl=dbx|test-inert-partial]');
+$tpl->clear_raw_cache();
+$source_inert = $tpl->get_tpl('dbx|test-inert-source', array());
+$data_inert = $tpl->get_tpl('dbx|test-inert-data', array('obj:content' => $literal_code));
+
 @unlink($temp_tpl);
+@unlink($partial_tpl);
+@unlink($source_inert_tpl);
+@unlink($data_inert_tpl);
 @rmdir($temp_tpl_dir);
 @rmdir(dirname($temp_tpl_dir));
 @rmdir(dirname(dirname($temp_tpl_dir)));
@@ -159,6 +184,14 @@ $source_second = $tpl->get_tpl('dbx|test-source-change', array());
 
 if ($source_first !== 'erste Version' || $source_second !== 'zweite, laengere Version') {
     fwrite(STDERR, "FAIL: Geaenderte Template-Datei blieb im Requestcache veraltet.\n");
+    exit(1);
+}
+if ($source_inert !== $literal_code . '|ACTIVE') {
+    fwrite(STDERR, "FAIL: dbxTPL hat Code aus dem Quelltemplate interpretiert: {$source_inert}\n");
+    exit(1);
+}
+if ($data_inert !== '<section>' . $literal_code . '</section>|ACTIVE') {
+    fwrite(STDERR, "FAIL: dbxTPL hat eingesetzten CMS-Code interpretiert: {$data_inert}\n");
     exit(1);
 }
 
