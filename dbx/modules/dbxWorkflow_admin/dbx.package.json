@@ -13,7 +13,7 @@
     "icon": "bi-bezier2",
     "image": "dbx/modules/dbxWorkflow_admin/tpl/img/dbxWorkflow_admin.png",
     "package_excludes": [],
-    "version": "4.4.6",
+    "version": "4.4.7",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

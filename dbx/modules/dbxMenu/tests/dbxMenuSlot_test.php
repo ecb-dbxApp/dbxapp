@@ -93,7 +93,18 @@ $assert(
 $assert(
    $language_home->invoke(
       $menu,
-      'https://localhost/dbxapp/?dbx_modul=dbxAdmin',
+      'https://localhost/dbxapp/?dbx_lng=de',
+      'https://localhost/dbxapp/',
+      'en',
+      'de',
+      true
+   ) === 'https://localhost/dbxapp/en/',
+   'Ein vorhandener Sprachparameter wurde nicht durch die kanonische Startseiten-URL ersetzt.'
+);
+$assert(
+   $language_home->invoke(
+      $menu,
+      'https://localhost/dbxapp/?dbx_modul=dbxAdmin&dbx_lng=de',
       'https://localhost/dbxapp/',
       'en',
       'de',
