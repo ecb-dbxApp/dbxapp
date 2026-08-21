@@ -5,10 +5,10 @@ declare(strict_types=1);
 /** Zentrale Kernel-Darstellung fuer Designs, Skins und ihre Metadaten. */
 final class dbxPresentation {
 
-   /** @var array<string,array<int,string>> */
+   /** Verfuegbare Skin-Kennungen je Design. */
    private array $skin_ids = array();
 
-   /** @var array<string,array{name:string,title:string,dir:string,meta:array,managed:bool}>|null */
+   /** Aufbereiteter Designkatalog oder null vor dem ersten Zugriff. */
    private ?array $design_catalog = null;
 
    /** Liefert die durch skin-*.css bereitgestellten Skin-IDs eines Designs. */

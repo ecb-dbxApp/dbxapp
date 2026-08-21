@@ -1,7 +1,7 @@
 <?php
 /**
  * @file dbxKernel.php
- * Basisobjekte und Fallback-Klassen des dbXapp-Kernels.
+ * Basisobjekte und Fallback-Klassen des dbxapp-Kernels.
  *
  * Diese Datei ist der kleine gemeinsame Nenner fuer DBX-Objekte. Sie bindet
  * die zentrale API ein, stellt dbxObj als gemeinsame Basisklasse bereit und
@@ -54,7 +54,7 @@ set_exception_handler(function ($exception) {
 
 
 /**
- * Gemeinsame Basisklasse fuer dbXapp-System-, Modul- und Include-Objekte.
+ * Gemeinsame Basisklasse fuer dbxapp-System-, Modul- und Include-Objekte.
  *
  * Sinn:
  * - einfacher objektlokaler Property-Speicher

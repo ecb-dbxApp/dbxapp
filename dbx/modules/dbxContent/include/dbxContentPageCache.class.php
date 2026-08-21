@@ -156,12 +156,12 @@ class dbxContentPageCache {
          return false;
       }
 
-      // Ein Dateiname pro Permalink/Sprache/Design/Skin ist nur fuer reine
-      // Seitenaufrufe eindeutig. Andere Parameter koennten den Inhalt aendern.
-      foreach (array_keys($_GET) as $name) {
-         if (!in_array((string)$name, array('dbx_lng', 'dbx_design', 'dbx_color'), true)) {
-            return false;
-         }
+      // Auch reine Darstellungsparameter muessen durch den regulaeren Request
+      // laufen: check_remember() persistiert Sprache, Design und Farbe in der
+      // Session. Ein Full-Page-Hit wuerde vorher abbrechen und der naechste
+      // parameterlose Aufruf faiele auf den alten Zustand zurueck.
+      if ($_GET !== array()) {
+         return false;
       }
 
       return true;

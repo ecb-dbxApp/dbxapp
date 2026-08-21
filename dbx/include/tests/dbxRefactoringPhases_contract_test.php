@@ -27,6 +27,9 @@ foreach (array(
         $errors[] = 'DD-Synchronisationsphase fehlt: ' . $method;
     }
 }
+if (!str_contains($dd, 'get_table_exist($server, $table, false)')) {
+    $errors[] = 'DD-Synchronisationsplanung protokolliert erwartete fehlende DBs/Tabellen als Systemfehler.';
+}
 
 $wizard = $read($root . '/modules/dbxAdmin/include/dbxWizard.class.php');
 if (!str_contains($wizard, '$this->service_class_template()')

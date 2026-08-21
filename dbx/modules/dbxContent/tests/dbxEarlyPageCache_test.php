@@ -6,6 +6,12 @@ require_once dirname(__DIR__) . '/include/dbxEarlyPageCache.class.php';
 
 use dbx\dbxContent\dbxEarlyPageCache;
 
+$early_cache_source = (string)file_get_contents(dirname(__DIR__) . '/include/dbxEarlyPageCache.class.php');
+if (!str_contains($early_cache_source, "header('Vary: Cookie', false);")) {
+   fwrite(STDERR, "FAIL: Browser-Cache trennt anonyme Antworten nicht von Session-Varianten.\n");
+   exit(1);
+}
+
 $test_root = rtrim(sys_get_temp_dir(), '/\\') . DIRECTORY_SEPARATOR
    . 'dbx-early-page-cache-test-' . getmypid() . '-' . bin2hex(random_bytes(4));
 $full_page_dir = $test_root . '/files/cache/content/full-page';
@@ -62,6 +68,13 @@ if (!is_array($response) || ($response['html'] ?? '') !== $html) {
    $fail('Registrierte Gastseite wurde nicht vor dem Bootstrap gefunden.');
 }
 
+$_SERVER['REQUEST_URI'] = '/dbxapp/';
+if (!dbxEarlyPageCache::register($cache_path, $generation)
+    || !is_array(dbxEarlyPageCache::find_response($test_root))) {
+   $fail('Installations-Startseite wurde nicht als sichere Early-Cache-Route registriert.');
+}
+$_SERVER['REQUEST_URI'] = '/dbxapp/test';
+
 $_COOKIE = array('DBXSESSIDABCDEF123456' => 'session');
 if (dbxEarlyPageCache::find_response($test_root) !== null) {
    $fail('Request mit dbxApp-Session-Cookie wurde aus dem fruehen Cache bedient.');
@@ -72,6 +85,17 @@ $_GET = array('dbx_edit' => '1');
 $_SERVER['REQUEST_URI'] = '/dbxapp/test?dbx_edit=1';
 if (dbxEarlyPageCache::find_response($test_root) !== null) {
    $fail('Personalisierender Steuerparameter wurde im fruehen Cache akzeptiert.');
+}
+$_GET = array();
+$_SERVER['REQUEST_URI'] = '/dbxapp/test';
+
+foreach (array('dbx_design' => 'flowers', 'dbx_color' => 'dunkel', 'dbx_lng' => 'en') as $name => $value) {
+   $_GET = array($name => $value);
+   $_SERVER['REQUEST_URI'] = '/dbxapp/test?' . $name . '=' . $value;
+   if (dbxEarlyPageCache::find_response($test_root) !== null
+       || dbxEarlyPageCache::register($cache_path, $generation)) {
+      $fail('Zustandsschalter ' . $name . ' wurde vom fruehen Cache bedient oder registriert.');
+   }
 }
 $_GET = array();
 $_SERVER['REQUEST_URI'] = '/dbxapp/test';

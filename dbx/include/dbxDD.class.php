@@ -183,8 +183,8 @@ class dbxDD
      * - dient nur als technische Infrastruktur
      * - fachliche Endentscheidung kann später durch Mapping/Admin kommen
      *
-     * @param string $ddType DD-Typ
-     * @param string $dbType DB-/DD-Typ
+     * @param string $dd_type DD-Typ
+     * @param string $db_type DB-/DD-Typ
      *
      * @return bool True wenn semantisch kompatibel
      */

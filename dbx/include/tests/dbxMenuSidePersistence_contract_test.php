@@ -69,4 +69,16 @@ foreach ($menu_styles as $style) {
     );
 }
 
+$dbxapp_style = $menu_styles[0];
+$desktop_compact = strpos($dbxapp_style, '@media (min-width: 1200px) and (max-width: 1399.98px)');
+$mobile_breakpoint = strpos($dbxapp_style, '@media (max-width: 1199.98px)');
+$assert(
+    $desktop_compact !== false
+        && $mobile_breakpoint !== false
+        && $desktop_compact < $mobile_breakpoint
+        && str_contains(substr($dbxapp_style, $desktop_compact, $mobile_breakpoint - $desktop_compact), '#dbx_main_menu')
+        && str_contains(substr($dbxapp_style, $desktop_compact, $mobile_breakpoint - $desktop_compact), '#dbx_admin_menu'),
+    'Das kompakte Desktop-Layout muss Haupt- und Admin-Menü vor horizontalem Überlauf schützen.'
+);
+
 echo "OK persistent side-menu branches across all designs\n";

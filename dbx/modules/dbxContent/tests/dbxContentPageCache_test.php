@@ -200,6 +200,14 @@ if (dbxContentPageCache::purge_stale_full_pages() !== 1 || is_file($stale_v3)) {
    $fail('V3-Datei einer alten Cache-Generation wurde nicht bereinigt.');
 }
 
+foreach (array('dbx_design' => 'flowers', 'dbx_color' => 'dunkel', 'dbx_lng' => 'en') as $name => $value) {
+   $_GET = array($name => $value);
+   if (dbxContentPageCache::prepare_full_page_request()) {
+      $fail('Zustandsschalter ' . $name . ' wurde vor seiner Session-Persistierung aus dem Full-Page-Cache bedient.');
+   }
+}
+$_GET = array();
+
 if (!dbxContentPageCache::prepare_full_page_request()) {
    $fail('Gueltiger Gast-Permalink wurde nicht fuer den Cache vorbereitet.');
 }

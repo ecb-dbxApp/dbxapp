@@ -344,9 +344,11 @@
     white-space: nowrap;
 }
 
-/* Auf mittleren Desktopbreiten bleibt das horizontale Admin-Menü vollständig
+/* Auf mittleren Desktopbreiten bleiben beide horizontalen Menüs vollständig
    sichtbar. Unter 1200px übernimmt anschließend die mobile Menüleiste. */
 @media (min-width: 1200px) and (max-width: 1399.98px) {
+    #dbx_main_menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
+    #dbx_main_menu.dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
     #dbx_admin_menu > .dbx-menu-list > .dbx-menu-item > .dbx-menu-link,
     #dbx_admin_menu.dbx-menu-list > .dbx-menu-item > .dbx-menu-link {
         gap: 4px;

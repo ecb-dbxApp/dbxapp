@@ -29,6 +29,10 @@ final class dbxEarlyPageCache {
          header_remove('Pragma');
          header('Content-Type: text/html; charset=UTF-8');
          header('Cache-Control: public, max-age=' . $response['ttl'] . ', stale-while-revalidate=30');
+         // Browser duerfen die zuvor anonyme HTML-Antwort nicht wiederverwenden,
+         // sobald ein Sprach-, Design- oder Farbschalter eine Session angelegt
+         // hat. Die serverseitige Cache-Datei bleibt davon unberuehrt.
+         header('Vary: Cookie', false);
          header('ETag: ' . $response['etag']);
          header('X-Dbx-Page-Cache: HIT-EARLY');
          header('Server-Timing: dbx-page-cache;desc="early-hit"');
@@ -147,11 +151,14 @@ final class dbxEarlyPageCache {
          return false;
       }
 
-      foreach ($_GET as $name => $value) {
-         if (!in_array((string)$name, array('dbx_lng', 'dbx_design', 'dbx_color'), true)
-             || !is_scalar($value)) {
-            return false;
-         }
+      // Sprach-, Design- und Farbschalter schreiben den neuen Zustand beim
+      // regulaeren Bootstrap in die Session. Ein Early-Hit wuerde zwar die
+      // passende Variante anzeigen, den Schalter aber nicht speichern; beim
+      // naechsten parameterlosen Aufruf erschiene wieder der alte Zustand.
+      // Deshalb sind ausschliesslich vollstaendig parameterlose Content-URLs
+      // fuer den Bootstrap-freien Cache zulaessig.
+      if ($_GET !== array()) {
+         return false;
       }
 
       $route = self::request_route();
@@ -187,7 +194,14 @@ final class dbxEarlyPageCache {
          $path = substr($path, strlen($base));
       }
 
-      return trim($path, '/');
+      $route = trim($path, '/');
+
+      // Die Installationswurzel ist die meistbesuchte Content-Seite. Ein
+      // leerer String darf intern nicht zugleich "keine sichere Route"
+      // bedeuten, sonst erreicht ausgerechnet die Startseite nie den
+      // Bootstrap-freien Cache. Der reservierte Schlüssel kann mit keinem
+      // normalen Permalink kollidieren.
+      return $route !== '' ? $route : '@dbx-home';
    }
 
    private static function request_origin(): string {

@@ -734,7 +734,7 @@ class dbxTPL extends \dbxObj {
         dbx()->register_editor_file('tpl', $path);
         $inert_code = $this->inert_code();
         $inert_blocks = array();
-        $tpl = $inert_code->protect($tpl, $inert_blocks);
+        $tpl = $inert_code->protect($tpl, $inert_blocks, false);
         $tpl = $this->replaces_dbx($tpl);
         $tpl = $this->replaces($tpl, $data);
         $tpl = $inert_code->protect($tpl, $inert_blocks);
@@ -1116,7 +1116,7 @@ class dbxTPL extends \dbxObj {
         $tpl = $this->read_tpl($modul, $file, $type);
         $inert_code = $this->inert_code();
         $inert_blocks = array();
-        $tpl = $inert_code->protect($tpl, $inert_blocks);
+        $tpl = $inert_code->protect($tpl, $inert_blocks, false);
 
         // --- AKTUELLER SYSTEMZUSTAND ---
         // Nicht im Template-Cache ausführen: Design, Sprache, Seite und SEO-Werte
@@ -1205,7 +1205,7 @@ class dbxTPL extends \dbxObj {
 
             // --- LOAD ---
             $page_content = file_get_contents($dir_file);
-            $page_content = $inert_code->protect((string)$page_content, $inert_blocks);
+            $page_content = $inert_code->protect((string)$page_content, $inert_blocks, false);
             
             // --- SET SYSTEM STATE ---
             dbx()->set_system_var('dbx_activ_design', $design);

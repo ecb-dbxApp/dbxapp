@@ -22,6 +22,28 @@ Class dbxMenu {
       return $this->texts;
    }
 
+   /**
+    * Liefert die tatsaechlich aufgerufene Route als Basis fuer UI-Schalter.
+    *
+    * Der Content-Cache bildet die leere Installationswurzel intern auf den
+    * Permalink `home` ab. `dbx_self_url` enthaelt deshalb beim Rendern der
+    * Startseite bereits `home`, obwohl der Browser `/` aufgerufen hat. Design-,
+    * Farb-, Sprach- und Editorlinks muessen aber die sichtbare Route erhalten;
+    * andernfalls greift der kanonische Home-Redirect und verwirft den Schalter.
+    */
+   private function current_route_base_self(): string {
+      $o_web = dbx()->get_system_obj('dbxWebApp');
+      if (isset($_SERVER['REQUEST_URI']) && (string)$_SERVER['REQUEST_URI'] !== '') {
+         return $o_web->normalize_self_url(
+            $o_web->get_request_route_string($o_web->get_base_uri())
+         );
+      }
+
+      return $o_web->normalize_self_url(
+         dbx()->get_system_var('dbx_self_url', '?', '*')
+      );
+   }
+
 
    private function get_menu_tpl($menu='undef') {
      $access=1; $content='';
@@ -35,7 +57,7 @@ Class dbxMenu {
      if ($access) {
        $data=array();
        $o_web = dbx()->get_system_obj('dbxWebApp');
-       $base_self = $o_web->normalize_self_url(dbx()->get_system_var('dbx_self_url','?','*'));
+       $base_self = $this->current_route_base_self();
        $data['self'] = $o_web->route_param_prefix($base_self);
        $edit = (int) dbx()->get_system_var('dbx_edit', 0, 'int');
        $next_edit = $this->next_editor_level($edit);

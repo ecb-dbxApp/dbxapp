@@ -726,7 +726,7 @@ Diese Datei wurde vom dbxAdmin Modul-Wizard erzeugt. Sie ist absichtlich knapp u
 - `dbx.package.json`: Lokale Paketbeschreibung fuer Marktplatz und Updates.
 - `include/__MODUL__Service.class.php`: Formular, Standardreport, Detail und API.
 - `dd/__DD__.dd.php`: Data Dictionary und DB-Struktur.
-- `fd/*_en.fd.php` und `fd/*_es.fd.php`: Vollstaendige sprachabhaengige Varianten.
+- `fd/<name>_en.fd.php` und `fd/<name>_es.fd.php`: Vollstaendige sprachabhaengige Varianten.
 - `tpl/htm/start.htm`: Start-Template.
 - `tpl/htm/__FORM_TEMPLATE__.htm`: Individuelle fachliche Formularanordnung.
 - `tpl/help/modul.htm`: Modulinterne Kontexthilfe.
@@ -935,10 +935,10 @@ MD;
          'allowed_actions' => array(
             'module.file.write' => 'Datei unter dem Modul schreiben',
             'module.file.delete' => 'Datei unter dem Modul entfernen',
-            'module.dd.write' => 'DD unter dd/*.dd.php schreiben',
+            'module.dd.write' => 'DD unter dd/<name>.dd.php schreiben',
             'module.dd.sync' => 'DD->DB Sync fuer Modul-DD anfordern',
             'module.template.get' => 'Template ueber dbxTPL/get_tpl lesen oder rendern',
-            'module.template.set' => 'Template unter tpl/* ueber die dbxapp-Template-Mechanik schreiben',
+            'module.template.set' => 'Template unter tpl/<path> ueber die dbxapp-Template-Mechanik schreiben',
             'module.php.write' => 'PHP unter Modulroot oder include schreiben',
             'module.form.extend' => 'Formular mit Save/Delete/Feldtemplates erweitern',
             'module.report.extend' => 'Report mit Callbacks, Multi-Select, Multi-Delete, Edit und Detail erweitern',

@@ -13,7 +13,7 @@
     "icon": "bi-cart3",
     "image": "",
     "package_excludes": [],
-    "version": "4.4.10",
+    "version": "4.5.0",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"
@@ -21,13 +21,13 @@
     "license": "free",
     "managed": true,
     "requires": {
-        "kernel": ">=4.4.0 <5.0.0",
+        "kernel": ">=4.5.0 <5.0.0",
         "php": ">=8.2.0",
         "extensions": [
             "json"
         ],
         "packages": {
-            "dbxapp/module/dbxContent": "^4.4.0"
+            "dbxapp/module/dbxContent": "^4.5.0"
         }
     },
     "permissions": [

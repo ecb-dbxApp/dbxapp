@@ -453,7 +453,7 @@ function parse_route_url($url) {
   /**
    * Liefert den Routen-Teil des aktuellen Requests (Permalink + Query).
    *
-   * @param string $baseUri
+   * @param string $base_uri Optionaler Basis-URI der Installation
    * @return string
    */
   function get_request_route_string($base_uri = '') {

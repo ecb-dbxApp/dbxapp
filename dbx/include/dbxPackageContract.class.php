@@ -229,7 +229,10 @@ final class dbxPackageContract
         return $path;
     }
 
-    /** @param array<string,string> $keys */
+    /**
+     * @param array $document Signiertes Katalog- oder Paketdokument
+     * @param array $keys Vertrauenswuerdige oeffentliche Schluessel nach Kennung
+     */
     public function verify_signed_document(array $document, array $keys): void
     {
         $signature = is_array($document['signature'] ?? null) ? $document['signature'] : array();

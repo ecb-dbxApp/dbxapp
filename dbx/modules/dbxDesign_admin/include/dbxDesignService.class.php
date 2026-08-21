@@ -123,7 +123,7 @@ class dbxDesignService {
     * Erzeugt aus einem vorhandenen kompatiblen Design ein unabhängiges Paket.
     *
     * @param array $input Normalisierte Wizardwerte.
-    * @param array $logoUpload Optionaler Eintrag aus $_FILES.
+    * @param array $logo_upload Optionaler Eintrag aus $_FILES.
     *
     * @return array Ergebnis mit Designname, Backup und Prüfstatus.
     */
