@@ -56,6 +56,41 @@ $rendered = (string)$replace->invoke(
 $assert(!str_contains($rendered, '{dbx:modul_menu_'), 'Ein Slot-Marker blieb im HTML stehen.');
 $assert(str_contains($rendered, 'dbx_modul=dbxLogin'), 'Der Benutzer-Slot fehlt im Menue-HTML.');
 
+$language_home = new ReflectionMethod($menu, 'language_home_url');
+$assert(
+   $language_home->invoke(
+      $menu,
+      'https://localhost/dbxapp/',
+      'https://localhost/dbxapp/',
+      'de',
+      'de',
+      true
+   ) === 'https://localhost/dbxapp/',
+   'Die Standardsprache der Startseite besitzt keine direkte kanonische URL.'
+);
+$assert(
+   $language_home->invoke(
+      $menu,
+      'https://localhost/dbxapp/',
+      'https://localhost/dbxapp/',
+      'en',
+      'de',
+      true
+   ) === 'https://localhost/dbxapp/en/',
+   'Die Sprachvariante der Startseite besitzt keine direkte kanonische URL.'
+);
+$assert(
+   $language_home->invoke(
+      $menu,
+      'https://localhost/dbxapp/?dbx_modul=dbxAdmin',
+      'https://localhost/dbxapp/',
+      'en',
+      'de',
+      true
+   ) === '',
+   'Eine technische Startseitenroute wurde fälschlich als Sprach-Homepage umgeschrieben.'
+);
+
 $slots->clear();
 $empty = (string)$replace->invoke(
    $menu,

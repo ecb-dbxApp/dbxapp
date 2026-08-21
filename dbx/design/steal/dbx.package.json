@@ -13,7 +13,7 @@
     "icon": "bi-palette",
     "image": "",
     "package_excludes": [],
-    "version": "4.4.4",
+    "version": "4.4.5",
     "vendor": {
         "id": "local",
         "name": "Lokaler Hersteller"

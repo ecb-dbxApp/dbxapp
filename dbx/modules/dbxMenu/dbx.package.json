@@ -13,7 +13,7 @@
     "icon": "bi-menu-button-wide",
     "image": "dbx/modules/dbxMenu/tpl/img/dbxMenu.png",
     "package_excludes": [],
-    "version": "4.4.4",
+    "version": "4.4.5",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

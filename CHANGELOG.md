@@ -4,6 +4,16 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.4.5] - 2026-08-21
+
+### Fixed
+
+- Erzeugt auf sprachpräfixierten Startseiten direkte kanonische Sprachlinks
+  ohne `dbx_lng`-Queryparameter. Technische Routen und Unterseiten behalten
+  ihre bisherige Parameter- bzw. Content-Routenlogik.
+- Ergänzt Regressionstests für Standard-, Sprach- und technische
+  Startseitenrouten.
+
 ## [4.4.4] - 2026-08-21
 
 ### Fixed
