@@ -13,7 +13,7 @@
     "icon": "bi-wrench-adjustable-circle",
     "image": "dbx/modules/dbxSetup/tpl/img/dbxSetup.png",
     "package_excludes": [],
-    "version": "4.4.9",
+    "version": "4.4.10",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

@@ -4,6 +4,20 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.4.10] - 2026-08-21
+
+### Fixed
+
+- Löst Laufzeit-Platzhalter aus nachträglich vom Interpreter eingesetzten
+  Templates vor der Wiederherstellung inerter Codebeispiele auf. Dadurch
+  enthalten weder Live-Ausgabe noch Full-Page-Cache ungültige Asset-URLs wie
+  `{dbx:design}` oder `{dbx:asset_version}`.
+- Prüft die Dokumentationsinstallation bevorzugt gegen die lokale
+  Entwicklungsinstanz, sodass Content-IDs und HTTP-Basis beim SelfTest aus
+  derselben Installation stammen.
+- Ergänzt einen Regressionstest für die Reihenfolge aus Interpreter,
+  Laufzeitersetzung, inertem Code und Full-Page-Cache.
+
 ## [4.4.9] - 2026-08-21
 
 ### Fixed

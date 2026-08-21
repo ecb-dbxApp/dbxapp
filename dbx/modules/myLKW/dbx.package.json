@@ -22,7 +22,7 @@
         "dbx/modules/myLKW/tpl/img/Muster10.png",
         "dbx/modules/myLKW/tpl/img/schein_a.png"
     ],
-    "version": "4.4.1",
+    "version": "4.4.10",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"
