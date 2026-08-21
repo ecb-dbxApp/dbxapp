@@ -13,7 +13,7 @@
     "icon": "bi-window-stack",
     "image": "dbx/modules/dbxPage_admin/tpl/img/dbxPage_admin.png",
     "package_excludes": [],
-    "version": "4.4.3",
+    "version": "4.4.4",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

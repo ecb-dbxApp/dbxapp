@@ -12,7 +12,8 @@ require_once $root . '/dbx/include/dbxPackageSecurityScanner.class.php';
 $contract = new dbxPackageContract();
 $scanner = new dbxPackageSecurityScanner();
 $key_id = $argv[1] ?? 'dbxapp-market-2026';
-$base_url = rtrim($argv[2] ?? 'https://updates.dbxapp.de/v1/packages', '/');
+$release_version = trim((string)file_get_contents($root . '/VERSION'));
+$base_url = rtrim($argv[2] ?? ('https://github.com/ecb-dbxApp/dbxapp/releases/download/v' . $release_version), '/');
 $private_file = isset($argv[3]) && trim((string)$argv[3]) !== ''
     ? (string)$argv[3]
     : $root . '/files/sys/marketplace/keys/' . $key_id . '-private.pem';

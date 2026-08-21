@@ -275,6 +275,49 @@ final class dbxPackageContract
         return $json;
     }
 
+    public function trusted_catalog_source(string $url): bool
+    {
+        $parts = parse_url($url);
+        if (strtolower((string)($parts['scheme'] ?? '')) !== 'https') {
+            return false;
+        }
+        $host = strtolower((string)($parts['host'] ?? ''));
+        if (in_array($host, array('updates.dbxapp.de', 'market.dbxapp.de'), true)) {
+            return true;
+        }
+        $path = (string)($parts['path'] ?? '');
+        return $host === 'github.com'
+            && preg_match('#^/ecb-dbxApp/dbxapp/releases/(?:latest/download|download/v\d+\.\d+\.\d+)/catalog\.json$#D', $path) === 1;
+    }
+
+    public function trusted_artifact_source(string $url): bool
+    {
+        $parts = parse_url($url);
+        if (strtolower((string)($parts['scheme'] ?? '')) !== 'https') {
+            return false;
+        }
+        $host = strtolower((string)($parts['host'] ?? ''));
+        if (in_array($host, array('updates.dbxapp.de', 'market.dbxapp.de'), true)) {
+            return true;
+        }
+        $path = (string)($parts['path'] ?? '');
+        return $host === 'github.com'
+            && preg_match('#^/ecb-dbxApp/dbxapp/releases/download/v\d+\.\d+\.\d+/dbxapp-[A-Za-z0-9._-]+-\d+\.\d+\.\d+\.zip$#D', $path) === 1;
+    }
+
+    public function trusted_effective_source(string $url, bool $github_source): bool
+    {
+        $parts = parse_url($url);
+        if (strtolower((string)($parts['scheme'] ?? '')) !== 'https') {
+            return false;
+        }
+        $host = strtolower((string)($parts['host'] ?? ''));
+        if ($github_source) {
+            return in_array($host, array('github.com', 'release-assets.githubusercontent.com', 'objects.githubusercontent.com'), true);
+        }
+        return in_array($host, array('updates.dbxapp.de', 'market.dbxapp.de'), true);
+    }
+
     public function compatible(string $version, string $constraint): bool
     {
         $constraint = trim($constraint);
