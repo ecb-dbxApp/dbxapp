@@ -13,7 +13,7 @@
     "icon": "bi-house-door",
     "image": "dbx/modules/dbxHome/tpl/img/dbxHome.png",
     "package_excludes": [],
-    "version": "4.4.4",
+    "version": "4.4.5",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

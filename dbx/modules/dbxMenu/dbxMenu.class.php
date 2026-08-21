@@ -264,20 +264,54 @@ Class dbxMenu {
    private function language_url(string $url, string $lng): string {
       $o_web = dbx()->get_system_obj('dbxWebApp');
       $source_lng = strtolower(trim((string)dbx()->get_system_var('dbx_lng', 'de')));
+      $target_lng = strtolower(trim($lng));
       $cid = (int)dbx()->get_system_var('dbx_content_route_cid', 0, 'int');
       if ($cid > 0) {
          $routes = dbx()->get_include_obj('dbxContentCanonicalRoute', 'dbxContent');
          if (is_object($routes) && method_exists($routes, 'page_url')) {
-            $canonical = $routes->page_url($cid, $source_lng, strtolower(trim($lng)));
+            $canonical = $routes->page_url($cid, $source_lng, $target_lng);
             if ($canonical !== '') {
                return $canonical;
             }
          }
       }
-      return $o_web->append_route_params(
-         $o_web->normalize_self_url($url),
-         array('dbx_lng' => strtolower(trim($lng)))
+      $normalized = $o_web->normalize_self_url($url);
+      $home_url = $this->language_home_url(
+         $normalized,
+         (string)dbx()->get_base_url(),
+         $target_lng,
+         strtolower(trim((string)dbx()->get_cfg('dbx', 'default_lng', 'de'))),
+         (int)dbx()->get_cfg('dbx', 'language_path_prefix', 0) === 1
       );
+      if ($home_url !== '') {
+         return $home_url;
+      }
+      return $o_web->append_route_params(
+         $normalized,
+         array('dbx_lng' => $target_lng)
+      );
+   }
+
+   private function language_home_url(
+      string $url,
+      string $base_url,
+      string $target_lng,
+      string $default_lng,
+      bool $language_path_prefix
+   ): string {
+      if (!$language_path_prefix || preg_match('/^[a-z]{2,3}$/', $target_lng) !== 1) {
+         return '';
+      }
+      $base_url = rtrim($base_url, '/') . '/';
+      $url_path = rawurldecode((string)(parse_url($url, PHP_URL_PATH) ?: ''));
+      $base_path = rawurldecode((string)(parse_url($base_url, PHP_URL_PATH) ?: ''));
+      $query = trim((string)(parse_url($url, PHP_URL_QUERY) ?: ''));
+      if ($query !== '' || rtrim($url_path, '/') !== rtrim($base_path, '/')) {
+         return '';
+      }
+      return $target_lng === $default_lng
+         ? $base_url
+         : $base_url . rawurlencode($target_lng) . '/';
    }
 
    private function render_language_menu(string $base_self, string $active_lng): string {
