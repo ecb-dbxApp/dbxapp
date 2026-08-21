@@ -290,7 +290,7 @@ final class dbxPackageContract
         }
         $path = (string)($parts['path'] ?? '');
         return $host === 'github.com'
-            && preg_match('#^/ecb-dbxApp/dbxapp/releases/(?:latest/download|download/v\d+\.\d+\.\d+)/catalog\.json$#D', $path) === 1;
+            && preg_match('#^/ecb-dbxApp/dbxapp/releases/(?:latest/download|download/v?\d+\.\d+\.\d+)/catalog\.json$#D', $path) === 1;
     }
 
     public function trusted_artifact_source(string $url): bool
@@ -305,7 +305,7 @@ final class dbxPackageContract
         }
         $path = (string)($parts['path'] ?? '');
         return $host === 'github.com'
-            && preg_match('#^/ecb-dbxApp/dbxapp/releases/download/v\d+\.\d+\.\d+/dbxapp-[A-Za-z0-9._-]+-\d+\.\d+\.\d+\.zip$#D', $path) === 1;
+            && preg_match('#^/ecb-dbxApp/dbxapp/releases/download/v?\d+\.\d+\.\d+/dbxapp-[A-Za-z0-9._-]+-\d+\.\d+\.\d+\.zip$#D', $path) === 1;
     }
 
     public function trusted_effective_source(string $url, bool $github_source): bool
