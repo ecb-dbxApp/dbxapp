@@ -13,7 +13,7 @@
     "icon": "bi-database-gear",
     "image": "dbx/modules/dbx/tpl/img/dbx.png",
     "package_excludes": [],
-    "version": "4.4.8",
+    "version": "4.4.9",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"

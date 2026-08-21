@@ -4,6 +4,15 @@ Alle wesentlichen Änderungen an dbxApp werden in dieser Datei dokumentiert.
 Das Format orientiert sich an „Keep a Changelog“, die Versionierung an
 Semantic Versioning.
 
+## [4.4.9] - 2026-08-21
+
+### Fixed
+
+- Behandelt neben absoluten Home-Pfaden auch die real verwendeten relativen
+  Laufzeitwerte `home` und `index.php` als kanonische Startseite.
+- Deckt den tatsächlichen Full-Page-Cache-Request mit einem Regressionstest ab,
+  sodass der Sprachwechsel keine Queryparameter mehr erzeugt.
+
 ## [4.4.8] - 2026-08-21
 
 ### Fixed

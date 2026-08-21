@@ -13,7 +13,7 @@
     "icon": "bi-box-seam",
     "image": "",
     "package_excludes": [],
-    "version": "4.4.8",
+    "version": "4.4.9",
     "vendor": {
         "id": "dbxapp",
         "name": "dbxApp"
